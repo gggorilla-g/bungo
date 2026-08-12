@@ -1,5 +1,5 @@
 # m3_script.py — 台本生成(Claude API)と品質チェック
-import json, os, re
+import json, os, re, time
 try:
     import anthropic
 except ImportError:
@@ -18,20 +18,32 @@ def generate(work, text):
     return json.loads(out)
 
 def _call_llm(prompt):
-    """GEMINI_API_KEYがあればGemini(無料枠)、なければClaude API。1日1回なのでどちらも枠内"""
+    """GEMINI_API_KEYがあればGemini(無料枠)、なければClaude API。503等の一時エラーはリトライ"""
     if os.environ.get("GEMINI_API_KEY"):
         import requests
         key = os.environ["GEMINI_API_KEY"]
         model = os.environ.get("GEMINI_MODEL", "gemini-flash-latest")
-        r = requests.post(
-            f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent",
-            params={"key": key},
-            json={"contents": [{"parts": [{"text": prompt}]}],
-                  "generationConfig": {"responseMimeType": "application/json",
-                                       "maxOutputTokens": 8000}},
-            timeout=300)
-        r.raise_for_status()
-        return r.json()["candidates"][0]["content"]["parts"][0]["text"]
+        last_err = None
+        for attempt in range(5):
+            try:
+                r = requests.post(
+                    f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent",
+                    params={"key": key},
+                    json={"contents": [{"parts": [{"text": prompt}]}],
+                          "generationConfig": {"responseMimeType": "application/json",
+                                               "maxOutputTokens": 8000}},
+                    timeout=300)
+                if r.status_code in (429, 500, 503):  # 一時的エラー→待って再試行
+                    last_err = f"{r.status_code}"
+                    print(f"Gemini一時エラー{r.status_code} (試行{attempt+1}/5)、待機して再試行")
+                    time.sleep(15 * (attempt + 1))
+                    continue
+                r.raise_for_status()
+                return r.json()["candidates"][0]["content"]["parts"][0]["text"]
+            except requests.exceptions.RequestException as e:
+                last_err = str(e)
+                time.sleep(15 * (attempt + 1))
+        raise RuntimeError(f"Gemini呼び出しが5回とも失敗: {last_err}")
     client = anthropic.Anthropic()  # ANTHROPIC_API_KEY を環境変数から
     msg = client.messages.create(model="claude-sonnet-4-6", max_tokens=8000,
         messages=[{"role": "user", "content": prompt}])
