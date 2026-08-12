@@ -1,48 +1,52 @@
-# M3 台本生成プロンプト v0.2（構成:「問い→要約→新たな問い→全文」）
-# 変数: {author}{author_birth}{author_death}{title}{pub_year}{char_count}{full_text}
+# m3_script.py — 台本生成(Claude API)と品質チェック
+import json, os, re
+try:
+    import anthropic
+except ImportError:
+    anthropic = None
 
-あなたは「寝る前に10分でわかる名作要約」チャンネルの構成作家です。以下の作品データから動画1本分の構成JSONを生成してください。聴き手は布団の中にいます。落ち着いた、静かな語り口で。
+def generate(work, text):
+    prompt = open("prompts/m3_prompt.txt", encoding="utf-8").read()
+    # 長文は先頭2万字まで(台本用には十分。全文朗読は原文をそのまま使うため影響なし)
+    prompt = (prompt.replace("{author}", work["author"])
+              .replace("{author_birth}", work["birth"]).replace("{author_death}", work["death"])
+              .replace("{title}", work["title"]).replace("{pub_year}", work["pub"] or "不明")
+              .replace("{char_count}", str(len(text)))
+              .replace("{full_text}", text[:20000]))
+    out = _call_llm(prompt)
+    out = re.sub(r'^```json\s*|\s*```$', '', out.strip())
+    return json.loads(out)
 
-## 作品データ（この範囲の情報だけを使うこと）
-- 作者: {author}（{author_birth}〜{author_death}）
-- 作品名: {title}
-- 初出年: {pub_year}
-- 本文文字数: {char_count}
-- 本文全文:
-{full_text}
+def _call_llm(prompt):
+    """GEMINI_API_KEYがあればGemini(無料枠)、なければClaude API。1日1回なのでどちらも枠内"""
+    if os.environ.get("GEMINI_API_KEY"):
+        import requests
+        key = os.environ["GEMINI_API_KEY"]
+        model = os.environ.get("GEMINI_MODEL", "gemini-flash-latest")
+        r = requests.post(
+            f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent",
+            params={"key": key},
+            json={"contents": [{"parts": [{"text": prompt}]}],
+                  "generationConfig": {"responseMimeType": "application/json",
+                                       "maxOutputTokens": 8000}},
+            timeout=300)
+        r.raise_for_status()
+        return r.json()["candidates"][0]["content"]["parts"][0]["text"]
+    client = anthropic.Anthropic()  # ANTHROPIC_API_KEY を環境変数から
+    msg = client.messages.create(model="claude-sonnet-4-6", max_tokens=8000,
+        messages=[{"role": "user", "content": prompt}])
+    return "".join(b.text for b in msg.content if b.type == "text")
 
-## 厳守事項
-1. 出力はJSONのみ。前置き・コードフェンス・説明禁止。
-2. 上記データにない年号・数字・人名・エピソードを出さない。
-3. narration は話し言葉。一文40字以内を目安に短く切る（合成音声で読まれる）。
-4. 煽らない。詩的に飾らない。事実と物語の骨格で聴かせる。
-5. 文字数目安: toi 約180字(=約30秒) / yoyaku 合計約2600字(2〜4スライドに分割) / shin_toi 約450字。
-6. img_query は英語。パブリックドメイン絵画の検索に適した具体的な語（時代・モチーフ・画風）。
-7. slide_heading はそのままYouTubeのチャプター名として概要欄に並ぶ。15字以内で、並べて読んだとき動画の目次として引きになる言葉にする（「問い」「要約」のような汎用語は禁止）。
-
-## 要約の思想（最重要）
-この番組の要約は「あらすじの縮小コピー」ではない。誰もが知っているつもりの名作について、世間に流通する既存イメージ（教科書的な読み・通説・ラベル）をひとつ特定し、本文に実在する描写だけを根拠に、それをやんわり相対化する。読み終えた人が「そういう話だったのか」と作品の印象を静かに更新できる要約にする。
-- 禁止: 逆張りのための逆張り。本文に根拠のない意図の深読み。作者の心理の憶測。
-- 根拠は常に本文の描写・構成・語の選択に置く。解釈と事実を混ぜない。
-
-## 構成の意図（生成時にこの通り作る）
-- toi: 冒頭30秒が離脱の分水嶺。挨拶・チャンネル紹介は禁止。知らない作品でも惹き込まれるよう、loglineの4点(性質→ざっくり筋→見どころ→世間の位置づけ)を自然に語ってから問いへ。評価・位置づけは必ず伝聞形('〜と言われる')で、検証できない賞や数字は出さない。構造：①性質→②ざっくり筋→③何が面白いか→④世間での位置づけ(伝聞)→⑤通説に亀裂→⑥問い。試作例:「二十世紀旗手は、太宰治が自分の弱さをむき出しに叫んだ、独白のような作品です。明確な物語はなく、生きることへの恥や不安が断片的に綴られます。読みどころは、その支離滅裂さ自体。混乱した言葉の奔流が、かえって生々しい。後の『人間失格』に繋がる原点とも言われます。暗い私小説として片付けられがちですが、その言葉には奇妙な軽やかさもある。太宰はなぜ、ここまで自分をさらけ出したのでしょうか。」
-- yoyaku: 物語の全体を、結末まで含めて要約する（このチャンネルはネタバレを恐れない。全文朗読が後に控えるため）。
-- shin_toi: 要約を聴き終えた人に、最初の問いとは別の、新しい問いを渡す。「その問いを持ったまま、全文をどうぞ。眠ってしまっても構いません」の趣旨で全文朗読へ橋を架けて終える。
-
-## 出力スキーマ
-{
- "title_candidates": ["タイトル案3つ。32字以内。『寝る前に10分でわかる』+作品名を軸に"],
- "thumbnail": {"main_copy": "サムネ大文字。13字以内。問いの言い換え", "sub_copy": "作者名+作品名。20字以内"},
- "logline": "冒頭の導入。次の4点を自然な語りで必ず含める。①作品の性質を1文(例:太宰治が自分の弱さをむき出しに叫んだ独白のような作品)。②ざっくり何が起きる/描かれる話か1〜2文(筋がない作品ならその旨と雰囲気)。③この作品の見どころ・何が面白いか1文(本文から読み取れる魅力)。④世間での位置づけ・評価1文。ただし評価は必ず『〜と言われる』『〜とされる』の伝聞形で。具体的な賞・売上・数字など検証できない事実は絶対に出さない。合計150字以内",
- "sections": [
-  {"type": "toi",     "narration": "冒頭。まずloglineの内容を自然に言い、そのうえで既存イメージに亀裂を入れる問いを置く", "slide_heading": "問いを短く", "img_query": "..."},
-  {"type": "yoyaku",  "narration": "...", "slide_heading": "...", "img_query": "..."},
-  {"type": "yoyaku",  "narration": "...", "slide_heading": "...", "img_query": "..."},
-  {"type": "shin_toi","narration": "...", "slide_heading": "新たな問いを短く", "img_query": "..."}
- ],
- "description": "概要欄。作品名・作者・「問い→要約→新たな問い→全文朗読」の構成説明を3行。クレジットは書かない",
- "en": {"title": "英語タイトル。既存の定訳題があればそれを使う(例: Run, Melos! / No Longer Human)。'10-Min Summary + Full Audiobook (JP)'の趣旨を含める",
-        "description": "英語概要欄3行。日本語音声・日本語字幕である旨と、日本文学入門/日本語学習者向けである旨を明記"},
- "tags": ["タグ10個。うち2個は英語(作者名ローマ字、作品英題)"]
-}
+def validate(kousei, genbun):
+    """スキーマ+朗読の原文照合。Falseなら当日はスキップ(壊れた動画を出さない)"""
+    g = genbun.replace("\n", "")
+    for key in ["title_candidates", "thumbnail", "sections", "description", "tags"]:
+        if key not in kousei:
+            return False, f"キー欠落: {key}"
+    types = [s["type"] for s in kousei["sections"]]
+    if types[0] != "toi" or types[-1] != "shin_toi" or "yoyaku" not in types:
+        return False, "構成違反(問い→要約→新たな問いの順序)"
+    total = sum(len(s.get("narration", "")) for s in kousei["sections"])
+    if not 800 <= total <= 5200:
+        return False, f"台本文字数が範囲外: {total}"
+    return True, "ok"
