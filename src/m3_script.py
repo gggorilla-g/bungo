@@ -17,14 +17,36 @@ def generate(work, text):
     out = re.sub(r'^```json\s*|\s*```$', '', out.strip())
     return json.loads(out)
 
+def _pick_gemini_model(key):
+    """このキーで使えるflash系モデルを新しい順に自動選択(モデル名変更に追従)"""
+    import requests
+    r = requests.get("https://generativelanguage.googleapis.com/v1beta/models",
+                     params={"key": key}, timeout=30)
+    r.raise_for_status()
+    names = [m["name"].split("/")[-1] for m in r.json().get("models", [])
+             if "generateContent" in m.get("supportedActions", m.get("supported_actions", []))]
+    # flash優先・preview/tts/image等の特殊は除外・バージョン降順
+    flash = [n for n in names if "flash" in n and "lite" not in n
+             and not any(x in n for x in ("preview", "tts", "image", "audio", "vision", "exp"))]
+    def ver(n):
+        import re
+        m = re.search(r"(\d+)\.?(\d+)?", n)
+        return (int(m.group(1)), int(m.group(2) or 0)) if m else (0, 0)
+    cand = sorted(flash, key=ver, reverse=True) or [n for n in names if "flash" in n]
+    if not cand:
+        raise RuntimeError(f"利用可能なflashモデルなし。全モデル: {names}")
+    print("Geminiモデル自動選択:", cand[0])
+    return cand[0]
+
 def _call_llm(prompt):
     """GEMINI_API_KEYがあればGemini(無料枠)、なければClaude API。1日1回なのでどちらも枠内"""
     if os.environ.get("GEMINI_API_KEY"):
         import requests
-        model = os.environ.get("GEMINI_MODEL", "gemini-2.5-flash")
+        key = os.environ["GEMINI_API_KEY"]
+        model = os.environ.get("GEMINI_MODEL") or _pick_gemini_model(key)
         r = requests.post(
             f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent",
-            params={"key": os.environ["GEMINI_API_KEY"]},
+            params={"key": key},
             json={"contents": [{"parts": [{"text": prompt}]}],
                   "generationConfig": {"responseMimeType": "application/json",
                                        "maxOutputTokens": 8000}},
