@@ -1,0 +1,41 @@
+name: BUNGO daily video
+on:
+  schedule:
+    - cron: "0 21 * * *"   # JST 06:00
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - name: Cache VOICEVOX assets
+        uses: actions/cache@v4
+        with:
+          path: vv_assets
+          key: vv-assets-0.16.4
+      - name: Install deps
+        run: |
+          sudo apt-get update -q && sudo apt-get install -y -q ffmpeg fonts-noto-cjk poppler-utils
+          pip install -q -r requirements.txt
+          python src/setup_voicevox.py
+      - name: Run pipeline
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GEMINI_API_KEY:    ${{ secrets.GEMINI_API_KEY }}
+          YT_CLIENT_ID:     ${{ secrets.YT_CLIENT_ID }}
+          YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
+          YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}
+        run: python src/main.py
+      - name: Commit state back
+        run: |
+          git config user.name "bungo-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add state/ && git diff --cached --quiet || git commit -m "state: $(date -u +%F)" && git push
+      - name: Upload video artifact
+        uses: actions/upload-artifact@v4
+        with: { name: video, path: output/*.mp4, retention-days: 7 }
