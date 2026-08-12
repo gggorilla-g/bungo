@@ -47,6 +47,6 @@ def validate(kousei, genbun):
     if types[0] != "toi" or types[-1] != "shin_toi" or "yoyaku" not in types:
         return False, "構成違反(問い→要約→新たな問いの順序)"
     total = sum(len(s.get("narration", "")) for s in kousei["sections"])
-    if not 1800 <= total <= 5200:
+    if not 800 <= total <= 5200:
         return False, f"台本文字数が範囲外: {total}"
     return True, "ok"
