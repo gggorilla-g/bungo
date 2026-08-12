@@ -30,8 +30,16 @@ def select_next(published_ids):
         url = r.get("XHTML/HTMLファイルURL", "")
         if not url:
             continue
-        score = len(PRIORITY_AUTHORS) - PRIORITY_AUTHORS.index(author)
-        cands.append({"work_id": r["作品ID"], "title": r["作品名"], "author": author,
+        title = r["作品名"]
+        score = (len(PRIORITY_AUTHORS) - PRIORITY_AUTHORS.index(author)) * 10
+        # 誰もが名前を知る定番作を大幅加点(初期はこれらを優先的に消化)
+        FAMOUS = ["走れメロス","人間失格","斜陽","羅生門","蜘蛛の糸","杜子春","地獄変",
+                  "こころ","坊っちゃん","吾輩は猫である","銀河鉄道の夜","注文の多い料理店",
+                  "セロ弾きのゴーシュ","山月記","檸檬","舞姫","高瀬舟","たけくらべ",
+                  "ごん狐","手袋を買いに","走れメロス","桜の樹の下には"]
+        if any(f in title for f in FAMOUS):
+            score += 1000
+        cands.append({"work_id": r["作品ID"], "title": title, "author": author,
                       "birth": r.get("生年月日", ""), "death": r.get("没年月日", ""),
                       "pub": r.get("初出", ""), "url": url, "score": score})
     if not cands:
