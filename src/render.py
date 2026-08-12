@@ -52,13 +52,18 @@ h1 { position:absolute; left:125px; bottom:110px; margin:0; font-size:120px; fon
             letter-spacing:.3em; display:block; margin-bottom:50px; }
 .credit { position:absolute; bottom:60px; right:125px; font-family:"Noto Sans CJK JP";
           font-size:26px; color:#aebdd6; }
+.subtitle { position:absolute; left:180px; right:180px; bottom:150px;
+            font-family:"Noto Sans CJK JP"; font-size:52px; line-height:1.9;
+            color:#f0f4fa; text-align:center; text-shadow:0 3px 20px rgba(0,0,0,.85);
+            letter-spacing:.02em; }
 """
 
-def slide(body_html, out_png, image_path=None, scrim=0.45):
+def slide(body_html, out_png, image_path=None, scrim=0.45, subtitle=None):
     img64 = base64.b64encode(open(image_path, "rb").read()).decode() if image_path else ""
     css = CSS_BASE % (img64, scrim)
     bg = '<div class="bg"></div><div class="scrim"></div>' if image_path else ''
-    html = f'<html><head><meta charset="utf-8"><style>{css}</style></head><body>{bg}{body_html}</body></html>'
+    sub = f'<div class="subtitle">{subtitle}</div>' if subtitle else ''
+    html = f'<html><head><meta charset="utf-8"><style>{css}</style></head><body>{bg}{body_html}{sub}</body></html>'
     HTML(string=html).write_pdf(f"{B}/_s.pdf")
     subprocess.run(["pdftoppm", "-png", "-r", "96", "-singlefile", f"{B}/_s.pdf",
                     out_png.replace(".png", "")], check=True)
@@ -110,29 +115,35 @@ def build_video(kousei, work, genbun, ruby, images, out_mp4):
     tts(title_narr, f"{B}/title.wav", ruby)
     durs.append(seg(f"{B}/title.png", f"{B}/title.wav", f"{B}/title.mp4"))
     parts.append(f"{B}/title.mp4")
+    seg_counter = 0
     for i, s in enumerate(kousei["sections"]):
-        png, wav, mp4 = f"{B}/s{i:02d}.png", f"{B}/s{i:02d}.wav", f"{B}/s{i:02d}.mp4"
         img = images.get(i)  # M4の結果(Noneならタイポグラフィ型)
         plabel = PART_LABEL.get(s["type"], "")
-        # ラベル帯を右上に常時表示(現在地)
         badge = (f'<div style="position:absolute;top:88px;right:125px;'
                  f'font-family:\'Noto Sans CJK JP\';font-size:30px;color:#d9a520;'
                  f'letter-spacing:.2em;">{plabel}</div>') if plabel else ""
-        body = (f'<div class="label">{label}</div><div class="rule"></div>{badge}'
-                f'<div class="center"><h1>{s["slide_heading"]}</h1></div>'
-                f'<div class="credit">底本：青空文庫</div>')
-        slide(body, png, img, scrim=0.45)
         # パートの頭で音声区切り宣言
         intro = PART_INTRO.get(s["type"])
         first_of_part = (i == 0) or (kousei["sections"][i-1]["type"] != s["type"])
         narr = (intro + s["narration"]) if (intro and first_of_part) else s["narration"]
-        tts(narr, wav, ruby)
-        # 最終セクション(新たな問い)の後は、全文朗読へ渡す前に1.5秒の間
-        pad = 0.8 + PAUSE if i == len(kousei["sections"]) - 1 else 0.8
-        # 見出しをそのままチャプター名に(動画ごとに個別化)
-        ch_marks.append((s["slide_heading"], sum(durs) - 1.2 * len(durs)))
-        durs.append(seg(png, wav, mp4, pad=pad))
-        parts.append(mp4)
+        # ---- 文単位に分割し、各文でスライド(字幕)+音声を作る ----
+        sents = [x for x in re.split(r'(?<=。)', narr) if x.strip()]
+        ch_marks.append((s["slide_heading"], sum(durs) - 1.2 * len(durs)))  # 見出し=チャプター
+        for si, sent in enumerate(sents):
+            png = f"{B}/s{seg_counter:03d}.png"; wav = f"{B}/s{seg_counter:03d}.wav"
+            mp4 = f"{B}/s{seg_counter:03d}.mp4"
+            body = (f'<div class="label">{label}</div><div class="rule"></div>{badge}'
+                    f'<div class="center"><h1 style="bottom:auto;top:280px;">{s["slide_heading"]}</h1></div>'
+                    f'<div class="credit">底本：青空文庫</div>')
+            # 各文を字幕として表示しつつ、その文だけを読む
+            slide(body, png, img, scrim=0.5, subtitle=sent)
+            tts(sent, wav, ruby)
+            # セクション最終文の直後(=次が全文朗読)なら間を足す
+            is_last = (i == len(kousei["sections"]) - 1) and (si == len(sents) - 1)
+            pad = 0.8 + PAUSE if is_last else 0.5
+            durs.append(seg(png, wav, mp4, pad=pad))
+            parts.append(mp4)
+            seg_counter += 1
 
     # ---- 全文朗読パート: 1枚の暗い固定スライド(画面の光の変化を排除) ----
     body = (f'<div class="label">{label}</div><div class="rule"></div>'
@@ -154,7 +165,7 @@ def build_video(kousei, work, genbun, ruby, images, out_mp4):
     with open(f"{B}/fw.txt", "w") as f:
         f.write("\n".join(f"file '{os.path.basename(w)}'" for w in wavs))
     subprocess.run(["ffmpeg", "-y", "-v", "error", "-f", "concat", "-safe", "0",
-        "-i", "fw.txt", "-af", "loudnorm=I=-16:TP=-1.5", f"full.wav"], check=True, cwd=B)
+        "-i", "fw.txt", "-c", "copy", f"full.wav"], check=True, cwd=B)
     ch_marks.append(("全文朗読", sum(durs) - 1.2 * len(durs)))
     durs.append(seg(f"{B}/full.png", f"{B}/full.wav", f"{B}/full.mp4", pad=2.0))
     parts.append(f"{B}/full.mp4")
