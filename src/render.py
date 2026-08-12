@@ -7,7 +7,9 @@ from voicevox_core.blocking import Synthesizer, Onnxruntime, OpenJtalk, VoiceMod
 A = "vv_assets"
 ORT = "1.17.3"
 STYLE = 3            # ずんだもん ノーマル
-SPEED = 0.92         # 睡眠導入向けにわずかに遅く
+SPEED = 0.95         # 睡眠向け（B設定）
+PITCH = -0.03        # 声を少し低く（キーキー対策）
+INTONATION = 0.9     # 抑揚おさえめ
 PAUSE = 1.5          # 朗読の前後の間(秒)
 B = "build"
 
@@ -29,6 +31,8 @@ def tts(text, out_wav, ruby):
     text = re.sub(r'[「」『』]', '', text)
     aq = syn().create_audio_query(text, style_id=STYLE)
     aq.speed_scale = SPEED
+    aq.pitch_scale = PITCH
+    aq.intonation_scale = INTONATION
     open(out_wav, "wb").write(syn().synthesis(aq, style_id=STYLE))
 
 CSS_BASE = """
@@ -86,15 +90,43 @@ def chunk_fulltext(text, size=400):
 def build_video(kousei, work, genbun, ruby, images, out_mp4):
     os.makedirs(B, exist_ok=True)
     label = f'BUNGO — {work["author"]}『{work["title"]}』'
+    PART_LABEL = {"toi": "問い", "yoyaku": "あらすじ／要約", "shin_toi": "問い"}
+    PART_INTRO = {"yoyaku": "ここからは、あらすじです。",
+                  "shin_toi": "最後に、もう一つの問いを。"}
     parts, durs, ch_marks = [], [], []
+
+    # ---- タイトルカード(冒頭10秒・作品名を提示) ----
+    tcard = (f'<div class="label">{label}</div><div class="rule"></div>'
+             f'<div class="center"><div><div style="font-size:56px;color:#8fa8cf;'
+             f'text-align:center;margin-bottom:30px;letter-spacing:.2em;">10分でわかる名作</div>'
+             f'<h1 style="position:static;font-size:110px;text-align:center;">'
+             f'{work["title"]}</h1>'
+             f'<div style="font-size:44px;color:#cdd9ec;text-align:center;margin-top:30px;">'
+             f'{work["author"]}</div></div></div>'
+             f'<div class="credit">底本：青空文庫</div>')
+    slide(tcard, f"{B}/title.png", None, scrim=0.5)
+    logline = kousei.get("logline", "")
+    title_narr = work["title"] + "。" + work["author"] + "。" + logline
+    tts(title_narr, f"{B}/title.wav", ruby)
+    durs.append(seg(f"{B}/title.png", f"{B}/title.wav", f"{B}/title.mp4"))
+    parts.append(f"{B}/title.mp4")
     for i, s in enumerate(kousei["sections"]):
         png, wav, mp4 = f"{B}/s{i:02d}.png", f"{B}/s{i:02d}.wav", f"{B}/s{i:02d}.mp4"
         img = images.get(i)  # M4の結果(Noneならタイポグラフィ型)
-        body = (f'<div class="label">{label}</div><div class="rule"></div>'
+        plabel = PART_LABEL.get(s["type"], "")
+        # ラベル帯を右上に常時表示(現在地)
+        badge = (f'<div style="position:absolute;top:88px;right:125px;'
+                 f'font-family:\'Noto Sans CJK JP\';font-size:30px;color:#d9a520;'
+                 f'letter-spacing:.2em;">{plabel}</div>') if plabel else ""
+        body = (f'<div class="label">{label}</div><div class="rule"></div>{badge}'
                 f'<div class="center"><h1>{s["slide_heading"]}</h1></div>'
                 f'<div class="credit">底本：青空文庫</div>')
         slide(body, png, img, scrim=0.45)
-        tts(s["narration"], wav, ruby)
+        # パートの頭で音声区切り宣言
+        intro = PART_INTRO.get(s["type"])
+        first_of_part = (i == 0) or (kousei["sections"][i-1]["type"] != s["type"])
+        narr = (intro + s["narration"]) if (intro and first_of_part) else s["narration"]
+        tts(narr, wav, ruby)
         # 最終セクション(新たな問い)の後は、全文朗読へ渡す前に1.5秒の間
         pad = 0.8 + PAUSE if i == len(kousei["sections"]) - 1 else 0.8
         # 見出しをそのままチャプター名に(動画ごとに個別化)
@@ -104,10 +136,17 @@ def build_video(kousei, work, genbun, ruby, images, out_mp4):
 
     # ---- 全文朗読パート: 1枚の暗い固定スライド(画面の光の変化を排除) ----
     body = (f'<div class="label">{label}</div><div class="rule"></div>'
+            f'<div style="position:absolute;top:88px;right:125px;'
+            f'font-family:\'Noto Sans CJK JP\';font-size:30px;color:#d9a520;'
+            f'letter-spacing:.2em;">全文朗読</div>'
             f'<div class="center"><h1 style="position:static;font-size:96px;">全文朗読</h1></div>'
             f'<div class="credit">底本：青空文庫　VOICEVOX:ずんだもん</div>')
     slide(body, f"{B}/full.png", None, scrim=0.8)
     wavs = []
+    # 冒頭に音声宣言（聴き手に本編突入を知らせる）
+    intro_w = f"{B}/full_intro.wav"
+    tts("ここからは、全文朗読です。よろしければ、目を閉じてお聴きください。", intro_w, ruby)
+    wavs.append(intro_w)
     for j, ch in enumerate(chunk_fulltext(genbun)):
         w = f"{B}/f{j:03d}.wav"
         tts(ch, w, ruby)
