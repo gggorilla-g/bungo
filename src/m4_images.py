@@ -1,7 +1,7 @@
 # M4: PD画像収集モジュール（本番用・GitHub Actions上で実行）
 # 方針: ライセンスは検索結果を信用せず、メタデータフィールドを機械検証してから採用する。
 #       検証不能・全滅時は None を返し、M5がタイポグラフィスライドにフォールバックする。
-import requests, time
+import os, requests, time
 
 UA = {"User-Agent": "BUNGO/0.1 (automated literature channel; contact via repo)"}
 PD_LICENSES = {"pd", "public domain", "cc0"}
@@ -53,11 +53,11 @@ def fetch_image(queries, dest):
                 hit = None
             if hit:
                 img = requests.get(hit["url"], headers=UA, timeout=30).content
+                os.makedirs(os.path.dirname(dest) or ".", exist_ok=True)
                 open(dest, "wb").write(img)
                 return hit
     return None
 
 if __name__ == "__main__":
-    # 動作テスト（Actions上で実行）: python m4_images.py
     hit = fetch_image(["ancient greek runner classical painting"], "test_m4.jpg")
     print(hit or "no image → typography fallback")
