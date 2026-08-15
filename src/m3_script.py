@@ -1,4 +1,4 @@
-# m3_script.py — 台本生成(Claude API)と品質チェック
+# m3_script.py — 台本生成(Claude優先)と品質チェック
 import json, os, re, time
 try:
     import anthropic
@@ -18,7 +18,15 @@ def generate(work, text):
     return json.loads(out)
 
 def _call_llm(prompt):
-    """GEMINI_API_KEYがあればGemini(無料枠)、なければClaude API。503等の一時エラーはリトライ"""
+    """ANTHROPIC_API_KEYがあればClaude優先(台本の質重視)。なければGemini(無料枠)にフォールバック"""
+    # ---- Claude(第一優先) ----
+    if os.environ.get("ANTHROPIC_API_KEY") and anthropic is not None:
+        model = os.environ.get("CLAUDE_MODEL", "claude-sonnet-4-6")
+        client = anthropic.Anthropic()
+        msg = client.messages.create(model=model, max_tokens=8000,
+            messages=[{"role": "user", "content": prompt}])
+        return "".join(b.text for b in msg.content if b.type == "text")
+    # ---- Gemini(フォールバック・503等はリトライ) ----
     if os.environ.get("GEMINI_API_KEY"):
         import requests
         key = os.environ["GEMINI_API_KEY"]
@@ -33,8 +41,8 @@ def _call_llm(prompt):
                           "generationConfig": {"responseMimeType": "application/json",
                                                "maxOutputTokens": 8000}},
                     timeout=300)
-                if r.status_code in (429, 500, 503):  # 一時的エラー→待って再試行
-                    last_err = f"{r.status_code}"
+                if r.status_code in (429, 500, 503):
+                    last_err = str(r.status_code)
                     print(f"Gemini一時エラー{r.status_code} (試行{attempt+1}/5)、待機して再試行")
                     time.sleep(15 * (attempt + 1))
                     continue
@@ -44,10 +52,7 @@ def _call_llm(prompt):
                 last_err = str(e)
                 time.sleep(15 * (attempt + 1))
         raise RuntimeError(f"Gemini呼び出しが5回とも失敗: {last_err}")
-    client = anthropic.Anthropic()  # ANTHROPIC_API_KEY を環境変数から
-    msg = client.messages.create(model="claude-sonnet-4-6", max_tokens=8000,
-        messages=[{"role": "user", "content": prompt}])
-    return "".join(b.text for b in msg.content if b.type == "text")
+    raise RuntimeError("ANTHROPIC_API_KEY も GEMINI_API_KEY も未設定")
 
 def validate(kousei, genbun):
     """スキーマ+朗読の原文照合。Falseなら当日はスキップ(壊れた動画を出さない)"""
@@ -59,6 +64,6 @@ def validate(kousei, genbun):
     if types[0] != "toi" or types[-1] != "shin_toi" or "yoyaku" not in types:
         return False, "構成違反(問い→要約→新たな問いの順序)"
     total = sum(len(s.get("narration", "")) for s in kousei["sections"])
-    if not 300 <= total <= 5200:
+    if not 1500 <= total <= 5500:
         return False, f"台本文字数が範囲外: {total}"
     return True, "ok"
