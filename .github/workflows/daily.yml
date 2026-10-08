@@ -48,3 +48,12 @@ jobs:
       - name: Upload video artifact
         uses: actions/upload-artifact@v4
         with: { name: video, path: output/*.mp4, retention-days: 7 }
+      - name: Upload reel artifact (Instagram用、無ければ何もしない)
+        uses: actions/upload-artifact@v4
+        with:
+          name: reel
+          path: |
+            output/reel.mp4
+            output/reel.json
+          retention-days: 3
+          if-no-files-found: ignore

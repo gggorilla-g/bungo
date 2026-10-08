@@ -61,6 +61,13 @@ def main():
             chapters = json.load(open("build/chapters.json", encoding="utf-8"))
             vid = m8_upload.upload(out, "output/thumb.png", kousei, credits,
                                    chapters=chapters, author=work["author"])
+        # 9) Instagramリール素材（失敗しても本編の投稿・記録には影響させない）
+        try:
+            import reel
+            reel.build(kousei, work, credits)
+            print("リール素材: output/reel.mp4")
+        except Exception as e:
+            print("リール作成失敗(本編は成功):", e)
         published.append({"work_id": work["work_id"], "title": work["title"],
             "author": work["author"], "video_id": vid,
             "date": datetime.date.today().isoformat(), "credits": credits})

@@ -153,6 +153,11 @@ def build_video(kousei, work, genbun, ruby, images, out_mp4, llm):
 
     json.dump([[h, int(t)] for h, t in ch_marks],
               open(f"{B}/chapters.json", "w", encoding="utf-8"), ensure_ascii=False)
+    # リール(reel.py)用: 各文がどのスライド・音声・秒数か
+    json.dump([{"sec": i, "type": kousei["sections"][i]["type"],
+                "heading": kousei["sections"][i]["slide_heading"], "sent": sent,
+                "name": f"s{k:03d}", "dur": durs[k + 1]} for k, (i, sent) in enumerate(plan)],
+              open(f"{B}/plan.json", "w", encoding="utf-8"), ensure_ascii=False)
 
     # ---- 映像・音声をそれぞれ無劣化連結 → 1回だけ多重化＋音量正規化 ----
     with open(f"{B}/v.txt", "w") as f:
