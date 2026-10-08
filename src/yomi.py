@@ -17,6 +17,22 @@ KANJI = re.compile(r'[一-鿿々〆]')
 BATCH = 30
 
 
+def split_sentences(text):
+    """字幕・読み上げの単位に分ける。「」の内側の句点では切らない（字幕に」だけ残るのを防ぐ）"""
+    out, depth, cur = [], 0, ""
+    for ch in text:
+        cur += ch
+        if ch in "「『": depth += 1
+        elif ch in "」』": depth = max(0, depth - 1)
+        quote_end = ch in "」』" and depth == 0 and (cur[-2:-1] in ("。", "？", "！")
+                                                     or cur.lstrip()[:1] in ("「", "『"))
+        if depth == 0 and (ch in "。？！" or quote_end):   # 文頭からの引用は、閉じ括弧で1枚にする
+            out.append(cur.strip()); cur = ""
+    if cur.strip():
+        out.append(cur.strip())
+    return [x for x in out if x]
+
+
 def _openjtalk():
     global _oj
     if _oj is None:

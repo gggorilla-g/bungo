@@ -14,7 +14,7 @@ def sentences(k, work):
         first = (i == 0) or (k["sections"][i-1]["type"] != s["type"])
         intro = PART_INTRO.get(s["type"])
         narr = (intro + s["narration"]) if (intro and first) else s["narration"]
-        out += [x.strip() for x in re.split(r'(?<=[。？！])', narr) if x.strip()]
+        out += yomi.split_sentences(narr)
     return list(dict.fromkeys(out))
 
 def load(wid, kpath):

@@ -112,8 +112,8 @@ def build_video(kousei, work, genbun, ruby, images, out_mp4, llm):
         intro = PART_INTRO.get(s["type"])
         first_of_part = (i == 0) or (kousei["sections"][i-1]["type"] != s["type"])
         narr = (intro + s["narration"]) if (intro and first_of_part) else s["narration"]
-        for sent in [x for x in re.split(r'(?<=[。？！])', narr) if x.strip()]:
-            plan.append((i, sent.strip()))
+        for sent in yomi.split_sentences(narr):
+            plan.append((i, sent))
     _YOMI.clear()
     _YOMI.update(yomi.prepare([title_narr] + [s for _, s in plan], work, ruby, llm))
 
