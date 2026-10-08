@@ -17,7 +17,7 @@ h1 { font-family:"Noto Sans CJK JP"; font-weight:900; letter-spacing:.04em; }
 
 def nazo_brand(work):
     title = work["title"]
-    label = f"NAZO — {title}"
+    label = f"世界の謎10分解説 — {title}"
     return {
         "label": label,
         "part_label": PART_LABEL,
@@ -33,5 +33,5 @@ def nazo_brand(work):
         "credit": "参考：Wikipedia　VOICEVOX:ずんだもん",
         "accent": "#c0392b",
         "css": CSS,
-        "thumb_label": "NAZO",
+        "thumb_label": "世界の謎10分解説",
     }
