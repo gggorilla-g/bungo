@@ -42,11 +42,11 @@ def _met(query):
                     "artist_html": o.get("artistDisplayName", ""), "source": "met"}
     return None
 
-def fetch_image(queries, dest):
+def fetch_image(queries, dest, sources=None):
     """検索語リストを順に試し、最初にライセンス検証を通過した画像を保存。
        全滅なら None（→タイポグラフィスライドにフォールバック）"""
     for q in queries:
-        for fn in (_met, _wikimedia):  # Metを優先（CC0が構造的に保証されるため）
+        for fn in (sources or (_met, _wikimedia)):  # 既定はMet優先（CC0が構造的に保証されるため）
             try:
                 hit = fn(q)
             except Exception:

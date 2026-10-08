@@ -8,3 +8,10 @@
 - 台本の「」引用は本文と一字一句照合（捏造引用を止める）
 - フェイルセーフ: 台本・引用・読みのどれかが不合格の日は投稿せず欠番にする
 - 誤読の修正記録は state/yomi_learned.json に溜まる
+
+## NAZO（姉妹チャンネル: 歴史・古代の未解決の謎）
+同じリポジトリの `nazo/` で動く別チャンネル。月金のJST12:35に `.github/workflows/nazo.yml` が起動し、
+在庫（`nazo/state/queue.json`）から1本作ってJST21:00に予約投稿する。実行時にLLMは呼ばない。
+- 事実の根拠はWikipedia（日英）のみ。`nazo/topics.json` を更新してpushすると本文を自動取得する
+- 台本の規約と仕込み手順は `nazo/RULES.md`。検査は `nazo/check.py`（数字・カタカナ語・引用の照合、構成、禁句）
+- 投稿先は Secrets の `YT_REFRESH_TOKEN_NAZO`（NAZO用チャンネルで取得したトークン）。未登録の間は動画を作るだけで投稿しない

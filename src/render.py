@@ -63,9 +63,9 @@ h1 { position:absolute; left:125px; bottom:110px; margin:0; font-size:120px; fon
             letter-spacing:.02em; }
 """
 
-def slide(body_html, out_png, image_path=None, scrim=0.45, subtitle=None):
+def slide(body_html, out_png, image_path=None, scrim=0.45, subtitle=None, css_extra=""):
     img64 = base64.b64encode(open(image_path, "rb").read()).decode() if image_path else ""
-    css = CSS_BASE % (img64, scrim)
+    css = CSS_BASE % (img64, scrim) + css_extra.replace("{scrim}", str(scrim))
     bg = '<div class="bg"></div><div class="scrim"></div>' if image_path else ''
     sub = f'<div class="subtitle">{subtitle}</div>' if subtitle else ''
     html = f'<html><head><meta charset="utf-8"><style>{css}</style></head><body>{bg}{body_html}{sub}</body></html>'
@@ -97,16 +97,40 @@ def seg(png, wav, name, pad=0.5):
         "-tune", "stillimage", "-an", f"{B}/{name}.mp4"], check=True)
     return d
 
-def build_video(kousei, work, genbun, ruby, images, out_mp4, llm):
+def bungo_brand(work):
+    """BUNGOの見た目と言い回し（既定値）。他チャンネルは同じ形のdictを渡す。"""
+    label = f'BUNGO — {work["author"]}『{work["title"]}』'
+    return {
+        "label": label,
+        "part_label": {"toi": "問い", "yoyaku": "読み解き", "shin_toi": "問い"},
+        "part_intro": {"shin_toi": "最後に、もう一つの問いを。"},
+        "title_narr": lambda k: work["title"] + "。" + work["author"] + "。" + k.get("logline", ""),
+        "title_card": (f'<div class="label">{label}</div><div class="rule"></div>'
+             f'<div class="center"><div><div style="font-size:56px;color:#8fa8cf;'
+             f'text-align:center;margin-bottom:30px;letter-spacing:.2em;">10分でわかる名作</div>'
+             f'<h1 style="position:static;font-size:110px;text-align:center;">'
+             f'{work["title"]}</h1>'
+             f'<div style="font-size:44px;color:#cdd9ec;text-align:center;margin-top:30px;">'
+             f'{work["author"]}</div></div></div>'
+             f'<div class="credit">底本：青空文庫</div>'),
+        "credit": "底本：青空文庫　VOICEVOX:ずんだもん",
+        "accent": "#d9a520",
+        "css": "",
+        "thumb_label": "BUNGO",
+    }
+
+
+def build_video(kousei, work, genbun, ruby, images, out_mp4, llm, brand=None):
     import yomi
     os.makedirs(B, exist_ok=True)
-    label = f'BUNGO — {work["author"]}『{work["title"]}』'
-    PART_LABEL = {"toi": "問い", "yoyaku": "読み解き", "shin_toi": "問い"}
-    PART_INTRO = {"shin_toi": "最後に、もう一つの問いを。"}
+    br = brand or bungo_brand(work)
+    label = br["label"]
+    PART_LABEL = br["part_label"]
+    PART_INTRO = br["part_intro"]
+    css = br["css"]
 
     # ---- 読み上げる文を先に全部確定させる ----
-    logline = kousei.get("logline", "")
-    title_narr = work["title"] + "。" + work["author"] + "。" + logline
+    title_narr = br["title_narr"](kousei)
     plan = []  # (セクション番号, 文)
     for i, s in enumerate(kousei["sections"]):
         intro = PART_INTRO.get(s["type"])
@@ -119,15 +143,7 @@ def build_video(kousei, work, genbun, ruby, images, out_mp4, llm):
 
     names, durs, ch_marks = [], [], []
     # ---- タイトルカード ----
-    tcard = (f'<div class="label">{label}</div><div class="rule"></div>'
-             f'<div class="center"><div><div style="font-size:56px;color:#8fa8cf;'
-             f'text-align:center;margin-bottom:30px;letter-spacing:.2em;">10分でわかる名作</div>'
-             f'<h1 style="position:static;font-size:110px;text-align:center;">'
-             f'{work["title"]}</h1>'
-             f'<div style="font-size:44px;color:#cdd9ec;text-align:center;margin-top:30px;">'
-             f'{work["author"]}</div></div></div>'
-             f'<div class="credit">底本：青空文庫</div>')
-    slide(tcard, f"{B}/title.png", None, scrim=0.5)
+    slide(br["title_card"], f"{B}/title.png", None, scrim=0.5, css_extra=css)
     tts(title_narr, f"{B}/title.wav")
     durs.append(seg(f"{B}/title.png", f"{B}/title.wav", "title", pad=0.8)); names.append("title")
 
@@ -139,13 +155,13 @@ def build_video(kousei, work, genbun, ruby, images, out_mp4, llm):
             last_sec = i
         plabel = PART_LABEL.get(s["type"], "")
         badge = (f'<div style="position:absolute;top:88px;right:125px;'
-                 f'font-family:\'Noto Sans CJK JP\';font-size:30px;color:#d9a520;'
+                 f'font-family:\'Noto Sans CJK JP\';font-size:30px;color:{br["accent"]};'
                  f'letter-spacing:.2em;">{plabel}</div>') if plabel else ""
         body = (f'<div class="label">{label}</div><div class="rule"></div>{badge}'
                 f'<div class="center"><h1 style="bottom:auto;top:280px;">{s["slide_heading"]}</h1></div>'
-                f'<div class="credit">底本：青空文庫　VOICEVOX:ずんだもん</div>')
+                f'<div class="credit">{br["credit"]}</div>')
         n = f"s{k:03d}"
-        slide(body, f"{B}/{n}.png", images.get(i), scrim=0.5, subtitle=sent)
+        slide(body, f"{B}/{n}.png", images.get(i), scrim=0.5, subtitle=sent, css_extra=css)
         tts(sent, f"{B}/{n}.wav")
         is_sec_end = (k == len(plan) - 1) or (plan[k+1][0] != i)
         durs.append(seg(f"{B}/{n}.png", f"{B}/{n}.wav", n, pad=1.2 if is_sec_end else 0.5))
@@ -174,12 +190,13 @@ def build_video(kousei, work, genbun, ruby, images, out_mp4, llm):
         "-ar", "48000", out_mp4], check=True)
     return sum(durs)
 
-def build_thumbnail(kousei, work, image_path, out_png):
+def build_thumbnail(kousei, work, image_path, out_png, brand=None):
+    br = brand or bungo_brand(work)
     t = kousei["thumbnail"]
-    body = (f'<div class="label">BUNGO</div><div class="rule"></div>'
+    body = (f'<div class="label">{br["thumb_label"]}</div><div class="rule"></div>'
             f'<div class="center"><h1 style="position:static;font-size:180px;text-align:center;'
             f'line-height:1.4;">{t["main_copy"]}</h1></div>'
             f'<div class="credit" style="font-size:44px;color:#fff;">{t["sub_copy"]}</div>')
-    slide(body, f"{B}/thumb_raw.png", image_path, scrim=0.5)
+    slide(body, f"{B}/thumb_raw.png", image_path, scrim=0.5, css_extra=br["css"])
     subprocess.run(["ffmpeg", "-y", "-v", "error", "-i", f"{B}/thumb_raw.png",
         "-vf", "scale=1280:720", out_png], check=True)
