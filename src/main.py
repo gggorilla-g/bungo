@@ -1,5 +1,6 @@
-# main.py — BUNGO パイプライン本体(毎朝JST06:00にActionsが実行)
-# 設計原則: フェイルセーフは「投稿しない」。品質チェックに落ちたら欠番にしてログだけ残す。
+# main.py — BUNGO パイプライン本体(週3回 火木土 JST12:05 にActionsが実行、21:00公開)
+# 設計原則: フェイルセーフは「投稿しない」。台本・引用・読み仮名のどれかの検査に落ちたら
+#           欠番にしてログだけ残す（誤読や捏造引用のある動画は出さない）。
 import json, os, sys, traceback, datetime
 sys.path.insert(0, "src")
 import m1_select, m2_extract, m3_script, m4_images, render, m8_upload
@@ -16,19 +17,25 @@ def main():
     for f in failures:
         fail_counts[f["work_id"]] = fail_counts.get(f["work_id"], 0) + 1
 
-    # 1) 作品決定: キュー優先(バッチ仕込み対応)、なければカタログから選定
-    work = None
+    # 1) 作品決定: 在庫(チャットで仕込んだ台本+確定読み)だけを使う。
+    #    在庫切れなら何もせず終了（有料APIを勝手に呼ばない）。ALLOW_API=1 のときだけ従来の自動生成。
     if queue:
         work = queue.pop(0)
-    else:
+    elif os.environ.get("ALLOW_API") == "1":
         skip = pub_ids | {w for w, n in fail_counts.items() if n >= 3}  # 3敗で永久スキップ
         work = m1_select.select_next(skip)
+    else:
+        print("在庫切れ: チャットで「在庫補充」を。今回は何もしない"); return
     if not work:
         print("候補なし。終了"); return
 
     try:
         # 2) 本文
-        text, ruby = m2_extract.fetch_text(work["url"])
+        cached = f"state/texts/{work['work_id']}.json"
+        if os.path.exists(cached):
+            c = json.load(open(cached, encoding="utf-8")); text, ruby = c["text"], c["ruby"]
+        else:
+            text, ruby = m2_extract.fetch_text(work["url"])
         # 3) 台本 (キューに構成済みJSONがあればAPI呼び出しをスキップ=バッチ方式)
         kousei = work.get("kousei") or m3_script.generate(work, text)
         ok, why = m3_script.validate(kousei, text)
@@ -46,7 +53,7 @@ def main():
         # 5-7) 動画+サムネ
         os.makedirs("output", exist_ok=True)
         out = f"output/{work['work_id']}.mp4"
-        render.build_video(kousei, work, text, ruby, images, out)
+        render.build_video(kousei, work, text, ruby, images, out, llm=m3_script._call_llm)
         render.build_thumbnail(kousei, work, images.get(0), "output/thumb.png")
         # 8) 投稿 (Secrets未設定ならスキップ=ローカル/Phase1でも同一コードが動く)
         vid = None

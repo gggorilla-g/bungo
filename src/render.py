@@ -1,6 +1,9 @@
-# render.py — M5(組版)+M6(音声)+M7(合成) 確定仕様:
-#   静止画+1.2秒クロスフェードのみ / 話速0.92 / 朗読前後1.5秒の間 / 末尾に全文朗読(1枚固定・暗め)
-import base64, json, os, re, subprocess
+# render.py — M5(組版)+M6(音声)+M7(合成)
+#   v0.4: 全文朗読を廃止し、解説一本(約10分)に。
+#   読み上げる全文は合成前に yomi.prepare() の読み検査を通す（通らなければ投稿しない）。
+#   同期: 各スライドの映像と音声を同じ秒数(1/24秒単位)に揃え、映像は映像、音声は音声で
+#         無劣化連結してから最後に1回だけ多重化＋音量正規化 → 字幕と声がズレない。
+import base64, json, math, os, re, subprocess, wave
 from weasyprint import HTML
 from voicevox_core.blocking import Synthesizer, Onnxruntime, OpenJtalk, VoiceModelFile
 
@@ -10,7 +13,8 @@ STYLE = 3            # ずんだもん ノーマル
 SPEED = 0.95         # 睡眠向け（B設定）
 PITCH = -0.03        # 声を少し低く（キーキー対策）
 INTONATION = 0.9     # 抑揚おさえめ
-PAUSE = 1.5          # 朗読の前後の間(秒)
+FPS = 24
+SR = 24000          # VOICEVOX出力のサンプルレート
 B = "build"
 
 _syn = None
@@ -24,12 +28,13 @@ def syn():
             _syn.load_voice_model(m)
     return _syn
 
-def tts(text, out_wav, ruby):
-    for k, v in ruby.items():
-        if len(k) >= 2:
-            text = text.replace(k, v)
-    text = re.sub(r'[「」『』]', '', text)
-    aq = syn().create_audio_query(text, style_id=STYLE)
+_YOMI = {}  # 原文 → 読み上げ用テキスト（yomi.prepareの結果）
+
+def tts(text, out_wav):
+    if text not in _YOMI:
+        raise RuntimeError(f"読み検査を通っていない文を読もうとした: {text[:30]}")
+    t = re.sub(r'[「」『』]', '', _YOMI[text])
+    aq = syn().create_audio_query(t, style_id=STYLE)
     aq.speed_scale = SPEED
     aq.pitch_scale = PITCH
     aq.intonation_scale = INTONATION
@@ -68,39 +73,52 @@ def slide(body_html, out_png, image_path=None, scrim=0.45, subtitle=None):
     subprocess.run(["pdftoppm", "-png", "-r", "96", "-singlefile", f"{B}/_s.pdf",
                     out_png.replace(".png", "")], check=True)
 
-def dur_of(wav):
-    return float(subprocess.check_output(
-        ["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", wav]))
+def _pad_wav(src, dst, total):
+    """wavをtotal秒ちょうど(サンプル単位)まで無音で伸ばす"""
+    with wave.open(src) as w:
+        p = w.getparams(); frames = w.readframes(w.getnframes())
+    n = int(round(total * p.framerate))
+    need = n * p.sampwidth * p.nchannels - len(frames)
+    frames = frames + b"\0" * max(0, need)
+    with wave.open(dst, "wb") as o:
+        o.setparams(p); o.writeframes(frames[:n * p.sampwidth * p.nchannels])
 
-def seg(png, wav, mp4, pad=0.8):
-    d = dur_of(wav) + pad
-    subprocess.run(["ffmpeg", "-y", "-v", "error", "-loop", "1", "-i", png, "-i", wav,
-        "-t", str(d), "-af", f"apad=pad_dur={pad}",
-        "-vf", "scale=1920:1080,fps=24,format=yuv420p",
-        "-c:v", "libx264", "-preset", "fast", "-c:a", "aac", mp4], check=True)
+def _wav_len(path):
+    with wave.open(path) as w:
+        return w.getnframes() / w.getframerate()
+
+def seg(png, wav, name, pad=0.5):
+    """1スライド分。映像(無音mp4)と音声(wav)を同じ長さd秒で作る。dは1/24秒の整数倍。"""
+    d = math.ceil((_wav_len(wav) + pad) * FPS) / FPS
+    _pad_wav(wav, f"{B}/{name}_p.wav", d)
+    subprocess.run(["ffmpeg", "-y", "-v", "error", "-loop", "1", "-framerate", str(FPS),
+        "-i", png, "-frames:v", str(int(round(d * FPS))),
+        "-vf", "scale=1920:1080,format=yuv420p", "-c:v", "libx264", "-preset", "fast",
+        "-tune", "stillimage", "-an", f"{B}/{name}.mp4"], check=True)
     return d
 
-def chunk_fulltext(text, size=400):
-    """全文朗読用: 文境界で400字前後に分割"""
-    sents = re.split(r'(?<=。)', text.replace("\n", ""))
-    chunks, cur = [], ""
-    for s in sents:
-        if len(cur) + len(s) > size and cur:
-            chunks.append(cur); cur = ""
-        cur += s
-    if cur:
-        chunks.append(cur)
-    return chunks
-
-def build_video(kousei, work, genbun, ruby, images, out_mp4):
+def build_video(kousei, work, genbun, ruby, images, out_mp4, llm):
+    import yomi
     os.makedirs(B, exist_ok=True)
     label = f'BUNGO — {work["author"]}『{work["title"]}』'
-    PART_LABEL = {"toi": "問い", "yoyaku": "あらすじ／要約", "shin_toi": "問い"}
-    PART_INTRO = {"yoyaku": "ここからは、あらすじです。",
-                  "shin_toi": "最後に、もう一つの問いを。"}
-    parts, durs, ch_marks = [], [], []
+    PART_LABEL = {"toi": "問い", "yoyaku": "読み解き", "shin_toi": "問い"}
+    PART_INTRO = {"shin_toi": "最後に、もう一つの問いを。"}
 
-    # ---- タイトルカード(冒頭10秒・作品名を提示) ----
+    # ---- 読み上げる文を先に全部確定させる ----
+    logline = kousei.get("logline", "")
+    title_narr = work["title"] + "。" + work["author"] + "。" + logline
+    plan = []  # (セクション番号, 文)
+    for i, s in enumerate(kousei["sections"]):
+        intro = PART_INTRO.get(s["type"])
+        first_of_part = (i == 0) or (kousei["sections"][i-1]["type"] != s["type"])
+        narr = (intro + s["narration"]) if (intro and first_of_part) else s["narration"]
+        for sent in [x for x in re.split(r'(?<=[。？！])', narr) if x.strip()]:
+            plan.append((i, sent.strip()))
+    _YOMI.clear()
+    _YOMI.update(yomi.prepare([title_narr] + [s for _, s in plan], work, ruby, llm))
+
+    names, durs, ch_marks = [], [], []
+    # ---- タイトルカード ----
     tcard = (f'<div class="label">{label}</div><div class="rule"></div>'
              f'<div class="center"><div><div style="font-size:56px;color:#8fa8cf;'
              f'text-align:center;margin-bottom:30px;letter-spacing:.2em;">10分でわかる名作</div>'
@@ -110,84 +128,46 @@ def build_video(kousei, work, genbun, ruby, images, out_mp4):
              f'{work["author"]}</div></div></div>'
              f'<div class="credit">底本：青空文庫</div>')
     slide(tcard, f"{B}/title.png", None, scrim=0.5)
-    logline = kousei.get("logline", "")
-    title_narr = work["title"] + "。" + work["author"] + "。" + logline
-    tts(title_narr, f"{B}/title.wav", ruby)
-    durs.append(seg(f"{B}/title.png", f"{B}/title.wav", f"{B}/title.mp4"))
-    parts.append(f"{B}/title.mp4")
-    seg_counter = 0
-    for i, s in enumerate(kousei["sections"]):
-        img = images.get(i)  # M4の結果(Noneならタイポグラフィ型)
+    tts(title_narr, f"{B}/title.wav")
+    durs.append(seg(f"{B}/title.png", f"{B}/title.wav", "title", pad=0.8)); names.append("title")
+
+    last_sec = -1
+    for k, (i, sent) in enumerate(plan):
+        s = kousei["sections"][i]
+        if i != last_sec:
+            ch_marks.append((s["slide_heading"], sum(durs)))  # 見出し=チャプター（ズレなし）
+            last_sec = i
         plabel = PART_LABEL.get(s["type"], "")
         badge = (f'<div style="position:absolute;top:88px;right:125px;'
                  f'font-family:\'Noto Sans CJK JP\';font-size:30px;color:#d9a520;'
                  f'letter-spacing:.2em;">{plabel}</div>') if plabel else ""
-        # パートの頭で音声区切り宣言
-        intro = PART_INTRO.get(s["type"])
-        first_of_part = (i == 0) or (kousei["sections"][i-1]["type"] != s["type"])
-        narr = (intro + s["narration"]) if (intro and first_of_part) else s["narration"]
-        # ---- 文単位に分割し、各文でスライド(字幕)+音声を作る ----
-        sents = [x for x in re.split(r'(?<=。)', narr) if x.strip()]
-        ch_marks.append((s["slide_heading"], sum(durs) - 1.2 * len(durs)))  # 見出し=チャプター
-        for si, sent in enumerate(sents):
-            png = f"{B}/s{seg_counter:03d}.png"; wav = f"{B}/s{seg_counter:03d}.wav"
-            mp4 = f"{B}/s{seg_counter:03d}.mp4"
-            body = (f'<div class="label">{label}</div><div class="rule"></div>{badge}'
-                    f'<div class="center"><h1 style="bottom:auto;top:280px;">{s["slide_heading"]}</h1></div>'
-                    f'<div class="credit">底本：青空文庫</div>')
-            # 各文を字幕として表示しつつ、その文だけを読む
-            slide(body, png, img, scrim=0.5, subtitle=sent)
-            tts(sent, wav, ruby)
-            # セクション最終文の直後(=次が全文朗読)なら間を足す
-            is_last = (i == len(kousei["sections"]) - 1) and (si == len(sents) - 1)
-            pad = 0.8 + PAUSE if is_last else 0.5
-            durs.append(seg(png, wav, mp4, pad=pad))
-            parts.append(mp4)
-            seg_counter += 1
+        body = (f'<div class="label">{label}</div><div class="rule"></div>{badge}'
+                f'<div class="center"><h1 style="bottom:auto;top:280px;">{s["slide_heading"]}</h1></div>'
+                f'<div class="credit">底本：青空文庫　VOICEVOX:ずんだもん</div>')
+        n = f"s{k:03d}"
+        slide(body, f"{B}/{n}.png", images.get(i), scrim=0.5, subtitle=sent)
+        tts(sent, f"{B}/{n}.wav")
+        is_sec_end = (k == len(plan) - 1) or (plan[k+1][0] != i)
+        durs.append(seg(f"{B}/{n}.png", f"{B}/{n}.wav", n, pad=1.2 if is_sec_end else 0.5))
+        names.append(n)
 
-    # ---- 全文朗読パート: 1枚の暗い固定スライド(画面の光の変化を排除) ----
-    body = (f'<div class="label">{label}</div><div class="rule"></div>'
-            f'<div style="position:absolute;top:88px;right:125px;'
-            f'font-family:\'Noto Sans CJK JP\';font-size:30px;color:#d9a520;'
-            f'letter-spacing:.2em;">全文朗読</div>'
-            f'<div class="center"><h1 style="position:static;font-size:96px;">全文朗読</h1></div>'
-            f'<div class="credit">底本：青空文庫　VOICEVOX:ずんだもん</div>')
-    slide(body, f"{B}/full.png", None, scrim=0.8)
-    wavs = []
-    # 冒頭に音声宣言（聴き手に本編突入を知らせる）
-    intro_w = f"{B}/full_intro.wav"
-    tts("ここからは、全文朗読です。よろしければ、目を閉じてお聴きください。", intro_w, ruby)
-    wavs.append(intro_w)
-    for j, ch in enumerate(chunk_fulltext(genbun)):
-        w = f"{B}/f{j:03d}.wav"
-        tts(ch, w, ruby)
-        wavs.append(w)
-    with open(f"{B}/fw.txt", "w") as f:
-        f.write("\n".join(f"file '{os.path.basename(w)}'" for w in wavs))
-    subprocess.run(["ffmpeg", "-y", "-v", "error", "-f", "concat", "-safe", "0",
-        "-i", "fw.txt", "-c", "copy", f"full.wav"], check=True, cwd=B)
-    ch_marks.append(("全文朗読", sum(durs) - 1.2 * len(durs)))
-    durs.append(seg(f"{B}/full.png", f"{B}/full.wav", f"{B}/full.mp4", pad=2.0))
-    parts.append(f"{B}/full.mp4")
-    json.dump([[n, max(0, int(t))] for n, t in ch_marks],
+    json.dump([[h, int(t)] for h, t in ch_marks],
               open(f"{B}/chapters.json", "w", encoding="utf-8"), ensure_ascii=False)
 
-    # ---- 1.2秒クロスフェードで全結合 ----
-    n = len(parts)
-    ins = sum([["-i", p] for p in parts], [])
-    fc, cur, off = [], "0:v", 0.0
-    for i in range(1, n):
-        off += dur_of(parts[i-1].replace(".mp4", ".wav")) + (0.8 if i < n else 2.0) - 1.2
-        nxt = f"v{i}"
-        fc.append(f"[{cur}][{i}:v]xfade=transition=fade:duration=1.2:offset={off:.3f}[{nxt}]")
-        cur = nxt
-    ac = "".join(f"[{i}:a]" for i in range(n)) + f"acrossfade=d=1.2[a]" if n == 2 else None
-    # 音声はacrossfadeの多段が煩雑なためconcat(+末尾フェード)で簡潔に
-    fc.append("".join(f"[{i}:a]" for i in range(n)) + f"concat=n={n}:v=0:a=1,afade=t=out:st=9999:d=0[a]")
-    subprocess.run(["ffmpeg", "-y", "-v", "error", *ins,
-        "-filter_complex", ";".join(fc), "-map", f"[{cur}]", "-map", "[a]",
-        "-c:v", "libx264", "-preset", "fast", "-pix_fmt", "yuv420p", "-c:a", "aac",
-        out_mp4], check=True)
+    # ---- 映像・音声をそれぞれ無劣化連結 → 1回だけ多重化＋音量正規化 ----
+    with open(f"{B}/v.txt", "w") as f:
+        f.write("\n".join(f"file '{n}.mp4'" for n in names))
+    with open(f"{B}/a.txt", "w") as f:
+        f.write("\n".join(f"file '{n}_p.wav'" for n in names))
+    subprocess.run(["ffmpeg", "-y", "-v", "error", "-f", "concat", "-safe", "0", "-i", "v.txt",
+                    "-c", "copy", "all_v.mp4"], check=True, cwd=B)
+    subprocess.run(["ffmpeg", "-y", "-v", "error", "-f", "concat", "-safe", "0", "-i", "a.txt",
+                    "-c", "copy", "all_a.wav"], check=True, cwd=B)
+    subprocess.run(["ffmpeg", "-y", "-v", "error", "-i", f"{B}/all_v.mp4", "-i", f"{B}/all_a.wav",
+        "-map", "0:v", "-map", "1:a", "-c:v", "copy",
+        "-af", "loudnorm=I=-16:TP=-1.5:LRA=11", "-c:a", "aac", "-b:a", "192k",
+        "-ar", "48000", out_mp4], check=True)
+    return sum(durs)
 
 def build_thumbnail(kousei, work, image_path, out_png):
     t = kousei["thumbnail"]

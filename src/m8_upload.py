@@ -18,7 +18,7 @@ def make_description(kousei, image_credits, chapters=None):
     if chapters:
         chapters = [["0:00" if i == 0 else _ts(t), n] for i, (n, t) in enumerate(chapters)]
         lines += [f"{t} {n}" for t, n in chapters] + [""]
-    lines += ["#青空文庫 #朗読 #睡眠導入", "", "──", "音声: VOICEVOX:ずんだもん"]
+    lines += ["#青空文庫 #名作解説 #日本文学", "", "──", "音声: VOICEVOX:ずんだもん（合成音声）"]
     for c in image_credits:
         lines.append(f"画像: {c}")
     lines.append("底本: 青空文庫 https://www.aozora.gr.jp/")
@@ -33,7 +33,7 @@ def add_to_author_playlist(yt, video_id, author):
             pl_id = p["id"]; break
     if not pl_id:
         pl_id = yt.playlists().insert(part="snippet,status", body={
-            "snippet": {"title": author, "description": f"{author}の名作要約と全文朗読"},
+            "snippet": {"title": author, "description": f"{author}の作品を10分で読み解く"},
             "status": {"privacyStatus": "public"}}).execute()["id"]
     yt.playlistItems().insert(part="snippet", body={"snippet": {
         "playlistId": pl_id,
@@ -51,7 +51,7 @@ def upload(video_path, thumb_path, kousei, image_credits, chapters=None, author=
               "containsSyntheticMedia": True}   # AI生成コンテンツの開示(正直に立てる)
     if PUBLISH_MODE == "scheduled":
         publish_at = datetime.datetime.now(datetime.timezone.utc).replace(
-            hour=10, minute=0, second=0).isoformat()  # JST 19:00
+            hour=12, minute=0, second=0, microsecond=0).isoformat()  # JST 21:00（制作はJST 12:05）
         status.update({"privacyStatus": "private", "publishAt": publish_at})
     else:
         status["privacyStatus"] = "private"

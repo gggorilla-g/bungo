@@ -15,9 +15,15 @@ def load_catalog():
     return rows
 
 def select_next(published_ids):
+    c = select_candidates(published_ids, 1)
+    return c[0] if c else None
+
+def select_candidates(published_ids, n):
     rows = load_catalog()
-    cands = []
+    cands, seen = [], set()
     for r in rows:
+        if r["作品ID"] in seen:      # カタログは人物ごとの行なので同一作品が重複しうる
+            continue
         if r["作品著作権フラグ"] != "なし":         # 著作権存続作品は構造的に除外
             continue
         if "新字新仮名" not in r["文字遣い種別"]:    # 可読性・TTS精度のため
@@ -37,16 +43,18 @@ def select_next(published_ids):
                   "こころ","坊っちゃん","吾輩は猫である","銀河鉄道の夜","注文の多い料理店",
                   "セロ弾きのゴーシュ","山月記","檸檬","舞姫","高瀬舟","たけくらべ",
                   "ごん狐","手袋を買いに","走れメロス","桜の樹の下には"]
-        if any(f in title for f in FAMOUS):
+        if title in FAMOUS:   # 完全一致（「吾輩は猫である」上篇自序 等の付随文を誤って優先しない）
             score += 1000
+        seen.add(r["作品ID"])
         cands.append({"work_id": r["作品ID"], "title": title, "author": author,
+                      # 作品名・作者名の読みはカタログの公式値を使う（TTSの推測に任せない）
+                      "title_yomi": r.get("作品名読み", ""),
+                      "author_yomi": r.get("姓読み", "") + r.get("名読み", ""),
                       "birth": r.get("生年月日", ""), "death": r.get("没年月日", ""),
                       "pub": r.get("初出", ""), "url": url, "score": score})
-    if not cands:
-        return None
     # 同点内は作品IDの小さい順(≒登録が古い≒定番作)
     cands.sort(key=lambda c: (-c["score"], int(c["work_id"])))
-    return cands[0]
+    return cands[:n]
 
 if __name__ == "__main__":
     pub = {p["work_id"] for p in json.load(open("state/published.json"))}

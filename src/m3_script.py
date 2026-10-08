@@ -54,16 +54,24 @@ def _call_llm(prompt):
         raise RuntimeError(f"Gemini呼び出しが5回とも失敗: {last_err}")
     raise RuntimeError("ANTHROPIC_API_KEY も GEMINI_API_KEY も未設定")
 
+def _norm(t):
+    return re.sub(r'[\s　、。，．・…―ー\-]', '', t)
+
 def validate(kousei, genbun):
-    """スキーマ+朗読の原文照合。Falseなら当日はスキップ(壊れた動画を出さない)"""
-    g = genbun.replace("\n", "")
+    """スキーマ・構成・文字数・引用の原文照合。Falseなら当日はスキップ(壊れた動画を出さない)"""
     for key in ["title_candidates", "thumbnail", "sections", "description", "tags"]:
         if key not in kousei:
             return False, f"キー欠落: {key}"
     types = [s["type"] for s in kousei["sections"]]
     if types[0] != "toi" or types[-1] != "shin_toi" or "yoyaku" not in types:
-        return False, "構成違反(問い→要約→新たな問いの順序)"
+        return False, "構成違反(問い→読み解き→新たな問いの順序)"
     total = sum(len(s.get("narration", "")) for s in kousei["sections"])
-    if not 1500 <= total <= 5500:
+    if not 2000 <= total <= 4500:
         return False, f"台本文字数が範囲外: {total}"
+    # 「」内の引用は本文に一字一句あること（捏造引用を構造的に止める）
+    g = _norm(genbun)
+    for s in kousei["sections"]:
+        for q in re.findall(r'「([^「」]{6,})」', s.get("narration", "")):
+            if "〓" in q or _norm(q) not in g:
+                return False, f"本文にない引用: 「{q[:20]}」"
     return True, "ok"

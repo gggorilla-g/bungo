@@ -1,7 +1,7 @@
-name: BUNGO daily video
+name: BUNGO video
 on:
   schedule:
-    - cron: "0 21 * * *"   # JST 06:00
+    - cron: "5 3 * * 2,4,6"   # 火木土 JST 12:05 に制作 → 同日 JST 21:00 に予約公開
   workflow_dispatch:
 permissions:
   contents: write
@@ -23,6 +23,9 @@ jobs:
           sudo apt-get update -q && sudo apt-get install -y -q ffmpeg fonts-noto-cjk poppler-utils
           pip install -q -r requirements.txt
           python src/setup_voicevox.py
+      - name: Prefetch texts for stock (no LLM)
+        continue-on-error: true
+        run: python src/prefetch.py
       - name: Run pipeline
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
@@ -30,6 +33,7 @@ jobs:
           YT_CLIENT_ID:     ${{ secrets.YT_CLIENT_ID }}
           YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
           YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}
+          ALLOW_API: ${{ vars.ALLOW_API }}
         run: python src/main.py
       - name: Commit state back
         run: |
