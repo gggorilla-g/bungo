@@ -35,7 +35,8 @@ def select_candidates(published_ids, n):
     rows = load_catalog()
     cands, seen = [], set()
     for r in rows:
-        if r["作品ID"] in seen:      # カタログは人物ごとの行なので同一作品が重複しうる
+        key = (r["作品名"], r["姓"] + r["名"])
+        if r["作品ID"] in seen or key in seen:  # 同一作品の重複行・別版（同名同作者）を除外
             continue
         if r["作品著作権フラグ"] != "なし":         # 著作権存続作品は構造的に除外
             continue
@@ -58,7 +59,7 @@ def select_candidates(published_ids, n):
                   "ごん狐","手袋を買いに","走れメロス","桜の樹の下には"]
         if title in FAMOUS:   # 完全一致（「吾輩は猫である」上篇自序 等の付随文を誤って優先しない）
             score += 1000
-        seen.add(r["作品ID"])
+        seen.add(r["作品ID"]); seen.add((title, author))
         cands.append({"work_id": r["作品ID"], "title": title, "author": author,
                       # 作品名・作者名の読みはカタログの公式値を使う（TTSの推測に任せない）
                       "title_yomi": r.get("作品名読み", ""),

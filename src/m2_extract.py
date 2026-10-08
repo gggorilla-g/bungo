@@ -36,10 +36,15 @@ def _dakuten(ch):
 
 
 def parse(raw_html):
-    m = re.search(r'<div class="main_text">(.*?)</div>', raw_html, re.S)
-    if not m:
+    # 本文は main_text の開始から、奥付(bibliographical_information)か after_text の手前まで。
+    # 入れ子の<div>（字下げ等）で止まらないよう、終わりの目印で切る（長編が数文字になった反省）
+    st = raw_html.find('<div class="main_text">')
+    if st < 0:
         raise RuntimeError("本文ブロック(main_text)が見つからない")
-    body = m.group(1)
+    ends = [i for i in (raw_html.find('<div class="bibliographical_information">', st),
+                        raw_html.find('<div class="after_text">', st),
+                        raw_html.find('<div class="notation_notes">', st)) if i > 0]
+    body = raw_html[st + len('<div class="main_text">'):min(ends) if ends else len(raw_html)]
     ruby = {}
     for base, yomi in RUBY_RE.findall(body):
         base = re.sub(r'<[^>]+>', '', base)
@@ -47,13 +52,18 @@ def parse(raw_html):
         ruby.setdefault(base, {})
         ruby[base][yomi] = ruby[base].get(yomi, 0) + 1
     body = RUBY_RE.sub(r'\1', body)
-    body = GAIJI_RE.sub('〓', body)            # 外字は〓に（引用照合で〓を含む引用は不合格にする）
+    def gaiji(m):   # alt に Unicode(U+XXXX) があれば実字に戻す。なければ〓（〓を含む引用は不合格）
+        u = re.search(r'U\+([0-9A-Fa-f]{4,5})', m.group(0))
+        return chr(int(u.group(1), 16)) if u else '〓'
+    body = GAIJI_RE.sub(gaiji, body)
     body = re.sub(r'<br\s*/?>', '\n', body)
     body = re.sub(r'<[^>]+>', '', body)
     body = re.sub(r'［＃[^］]*］', '', body)
     body = body.replace('\r\n', '\n')
     body = _expand_odoriji(body)
     body = re.sub(r'\n{3,}', '\n\n', body).strip()
+    if len(body) < 500:
+        raise RuntimeError(f"本文が短すぎる（{len(body)}字）: 切り出し失敗の疑い")
     return body, ruby
 
 
