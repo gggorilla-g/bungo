@@ -1,7 +1,7 @@
 # nazo/prefetch.py — 在庫仕込み用に、題材のWikipedia本文（日本語版＋英語版）を取っておく。LLMは呼ばない・無料。
 # 置き場所: nazo/state/texts/<題材ID>.json  {meta, text_ja, text_en}
 # この本文が「事実の唯一の根拠」。台本の年号・数字・固有名詞はここに書かれていなければ不採用になる。
-import json, os, sys, requests
+import json, os, sys, time, requests
 
 UA = {"User-Agent": "NAZO/0.1 (automated history channel; github.com/gggorilla-g/bungo)"}
 D = "nazo/state/texts"
@@ -17,10 +17,16 @@ def load(p, default):
 
 def _get(lang, params):
     params = dict(params, format="json", formatversion=2)
-    r = requests.get(f"https://{lang}.wikipedia.org/w/api.php", params=params,
-                     headers=UA, timeout=30)
+    for i in range(4):
+        time.sleep(3)   # Wikipediaの429対策: 1リクエストごとに間を空ける
+        r = requests.get(f"https://{lang}.wikipedia.org/w/api.php", params=params,
+                         headers=UA, timeout=30)
+        if r.status_code == 429:
+            time.sleep(int(r.headers.get("Retry-After", 30)) + 10 * i)
+            continue
+        r.raise_for_status()
+        return r.json()
     r.raise_for_status()
-    return r.json()
 
 
 def fetch_page(lang, title):
