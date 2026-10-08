@@ -58,10 +58,19 @@ def parse(raw_html):
 
 
 def fetch_text(xhtml_url):
-    # 本家URL→GitHubミラーに変換して負荷を逃がす
-    url = xhtml_url.replace("https://www.aozora.gr.jp/",
+    # GitHubミラー優先（本家の負荷を逃がす）、だめなら本家
+    mirror = xhtml_url.replace("https://www.aozora.gr.jp/",
         "https://raw.githubusercontent.com/aozorabunko/aozorabunko/master/")
-    data = requests.get(url, headers=UA, timeout=60).content
+    data = None
+    for url in (mirror, xhtml_url):
+        try:
+            r = requests.get(url, headers=UA, timeout=60)
+            if r.status_code == 200 and b"main_text" in r.content:
+                data = r.content; break
+        except requests.RequestException:
+            pass
+    if data is None:
+        raise RuntimeError(f"本文を取得できない: {xhtml_url}")
     enc = "utf-8" if re.search(rb'charset="?utf-8', data[:2000], re.I) else "cp932"
     raw = data.decode(enc, errors="replace")
     if raw.count("�") > 5:
