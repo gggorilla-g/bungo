@@ -1,0 +1,17 @@
+Traceback (most recent call last):
+  File "/home/runner/work/bungo/bungo/src/prefetch.py", line 45, in <module>
+    main()
+  File "/home/runner/work/bungo/bungo/src/prefetch.py", line 34, in main
+    for meta in m1_select.select_candidates(skip, need):
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/bungo/bungo/src/m1_select.py", line 22, in select_candidates
+    rows = load_catalog()
+           ^^^^^^^^^^^^^^
+  File "/home/runner/work/bungo/bungo/src/m1_select.py", line 13, in load_catalog
+    z = zipfile.ZipFile(io.BytesIO(requests.get(CATALOG, headers=UA, timeout=60).content))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/zipfile/__init__.py", line 1396, in __init__
+    self._RealGetContents()
+  File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/zipfile/__init__.py", line 1463, in _RealGetContents
+    raise BadZipFile("File is not a zip file")
+zipfile.BadZipFile: File is not a zip file
