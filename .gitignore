@@ -4,3 +4,4 @@ vv_assets/
 __pycache__/
 *.pyc
 output_test.mp4
+machigai/out/

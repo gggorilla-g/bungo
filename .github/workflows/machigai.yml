@@ -1,0 +1,54 @@
+name: MACHIGAI short
+on:
+  schedule:
+    - cron: "10 9 * * *"     # 毎日 JST 18:10 に制作 → JST 20:00 に予約公開（scheduled時）
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: state-commit         # BUNGO・NAZOと同時にstateを書き戻して衝突しないように
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - uses: actions/setup-node@v4
+        with: { node-version: "22" }
+      - name: Install deps
+        run: |
+          sudo apt-get update -q && sudo apt-get install -y -q ffmpeg fonts-noto-cjk
+          pip install -q opencv-python-headless numpy Pillow google-api-python-client google-auth
+          npm install -g @openai/codex
+      - name: Codex auth (ChatGPTプランのログイン)
+        env:
+          CODEX_AUTH_JSON: ${{ secrets.CODEX_AUTH_JSON }}
+        run: |
+          mkdir -p ~/.codex
+          if [ -n "$CODEX_AUTH_JSON" ]; then printf '%s' "$CODEX_AUTH_JSON" > ~/.codex/auth.json; fi
+      - name: Run pipeline
+        env:
+          OPENAI_API_KEY:   ${{ secrets.OPENAI_API_KEY }}
+          YT_CLIENT_ID:     ${{ secrets.YT_CLIENT_ID }}
+          YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
+          YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN_MACHIGAI }}
+          PUBLISH_MODE:     ${{ vars.PUBLISH_MODE }}
+        run: |
+          python machigai/run.py 2>&1 | tee machigai/state/last_run_log.txt
+          exit ${PIPESTATUS[0]}
+      - name: Commit state back
+        if: always()
+        run: |
+          git config user.name "bungo-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add machigai/state/
+          git diff --cached --quiet && exit 0
+          git commit -m "machigai state: $(date -u +%F)"
+          for i in 1 2 3; do git pull --rebase -q && git push && break; sleep 5; done
+      - name: Upload video artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with: { name: machigai-out, path: machigai/out/, retention-days: 7, if-no-files-found: ignore }
