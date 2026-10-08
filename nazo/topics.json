@@ -1,0 +1,22 @@
+[
+ {"id": "nazca",       "wiki": "ナスカの地上絵"},
+ {"id": "voynich",     "wiki": "ヴォイニッチ手稿"},
+ {"id": "antikythera", "wiki": "アンティキティラ島の機械"},
+ {"id": "stonehenge",  "wiki": "ストーンヘンジ"},
+ {"id": "rongorongo",  "wiki": "ロンゴロンゴ"},
+ {"id": "phaistos",    "wiki": "ファイストスの円盤"},
+ {"id": "linear_a",    "wiki": "線文字A"},
+ {"id": "gobekli",     "wiki": "ギョベクリ・テペ"},
+ {"id": "sakafuneishi","wiki": "酒船石遺跡"},
+ {"id": "masuda",      "wiki": "益田岩船"},
+ {"id": "nan_madol",   "wiki": "ナン・マドール"},
+ {"id": "roanoke",     "wiki": "ロアノーク植民地"},
+ {"id": "mary_celeste","wiki": "メアリー・セレスト号"},
+ {"id": "tunguska",    "wiki": "ツングースカ大爆発"},
+ {"id": "baghdad",     "wiki": "バグダッド電池"},
+ {"id": "mohenjo",     "wiki": "モヘンジョダロ"},
+ {"id": "moai",        "wiki": "モアイ"},
+ {"id": "carnac",      "wiki": "カルナック列石"},
+ {"id": "stone_spheres","wiki": "コスタリカの石球"},
+ {"id": "nabta",       "wiki": "ナブタ・プラヤ"}
+]

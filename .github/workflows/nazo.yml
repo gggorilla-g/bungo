@@ -1,0 +1,62 @@
+name: NAZO video
+on:
+  schedule:
+    - cron: "35 3 * * 1,5"   # 月金 JST 12:35 に制作 → 同日 JST 21:00 に予約公開
+  workflow_dispatch:
+  push:                       # 題材リストを更新したら本文だけ取りに行く（動画は作らない）
+    branches: [main]
+    paths: ["nazo/topics.json", "nazo/prefetch.py"]
+permissions:
+  contents: write
+concurrency:
+  group: state-commit         # BUNGOと同時にstateを書き戻して衝突しないように
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - name: Prefetch Wikipedia texts for stock (no LLM)
+        continue-on-error: true
+        run: |
+          pip install -q requests
+          python nazo/prefetch.py 2>&1 | tee nazo/state/prefetch_log.txt
+          exit ${PIPESTATUS[0]}
+      - name: Cache VOICEVOX assets
+        if: github.event_name != 'push'
+        uses: actions/cache@v4
+        with:
+          path: vv_assets
+          key: vv-assets-0.16.4
+      - name: Install deps
+        if: github.event_name != 'push'
+        run: |
+          sudo apt-get update -q && sudo apt-get install -y -q ffmpeg fonts-noto-cjk poppler-utils
+          pip install -q -r requirements.txt
+          python src/setup_voicevox.py
+      - name: Run pipeline
+        if: github.event_name != 'push'
+        env:
+          YT_CLIENT_ID:     ${{ secrets.YT_CLIENT_ID }}
+          YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
+          YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN_NAZO }}
+          PUBLISH_MODE:     ${{ vars.PUBLISH_MODE }}
+        run: |
+          python nazo/main.py 2>&1 | tee nazo/state/last_run_log.txt
+          exit ${PIPESTATUS[0]}
+      - name: Commit state back
+        if: always()
+        run: |
+          git config user.name "bungo-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add nazo/state/
+          git diff --cached --quiet && exit 0
+          git commit -m "nazo state: $(date -u +%F)"
+          for i in 1 2 3; do git pull --rebase -q && git push && break; sleep 5; done
+      - name: Upload video artifact
+        if: github.event_name != 'push'
+        uses: actions/upload-artifact@v4
+        with: { name: nazo-video, path: output/*.mp4, retention-days: 7, if-no-files-found: ignore }
