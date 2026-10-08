@@ -25,7 +25,9 @@ jobs:
           python src/setup_voicevox.py
       - name: Prefetch texts for stock (no LLM)
         continue-on-error: true
-        run: python src/prefetch.py
+        run: |
+          python src/prefetch.py 2>&1 | tee state/prefetch_log.txt
+          exit ${PIPESTATUS[0]}
       - name: Run pipeline
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
@@ -34,8 +36,11 @@ jobs:
           YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
           YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}
           ALLOW_API: ${{ vars.ALLOW_API }}
-        run: python src/main.py
+        run: |
+          python src/main.py 2>&1 | tee state/last_run_log.txt
+          exit ${PIPESTATUS[0]}
       - name: Commit state back
+        if: always()   # 失敗時も記録を残す（失敗が続くとコミットが途絶え、60日でスケジュールが止まるため）
         run: |
           git config user.name "bungo-bot"
           git config user.email "bot@users.noreply.github.com"
