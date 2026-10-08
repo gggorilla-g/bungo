@@ -17,7 +17,7 @@ def sentences(k, work):
         intro = brand.PART_INTRO.get(s["type"])
         first = (i == 0) or (k["sections"][i - 1]["type"] != s["type"])
         narr = (intro + s["narration"]) if (intro and first) else s["narration"]
-        out += [x.strip() for x in re.split(r'(?<=[。？！])', narr) if x.strip()]
+        out += yomi.split_sentences(narr)   # render.build_video と同じ区切り方
     return list(dict.fromkeys(out))
 
 
