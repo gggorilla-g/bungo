@@ -2,7 +2,9 @@
 import csv, io, json, zipfile, requests
 
 UA = {"User-Agent": "BUNGO/0.1 (automated literature channel)"}
-CATALOG = "https://raw.githubusercontent.com/aozorabunko/aozorabunko/master/index_pages/list_person_all_extended_utf8.zip"
+# カタログ取得先: 本家→GitHubミラーの順に試す（2026-10 ミラーが404になり停止した反省）
+CATALOGS = ["https://www.aozora.gr.jp/index_pages/list_person_all_extended_utf8.zip",
+            "https://raw.githubusercontent.com/aozorabunko/aozorabunko/master/index_pages/list_person_all_extended_utf8.zip"]
 
 # 知名度の重み: 教科書定番・検索需要の太い作家を優先(初期運転用の静的リスト)
 PRIORITY_AUTHORS = ["太宰治", "芥川龍之介", "夏目漱石", "宮沢賢治", "中島敦",
@@ -10,7 +12,18 @@ PRIORITY_AUTHORS = ["太宰治", "芥川龍之介", "夏目漱石", "宮沢賢�
                     "小林多喜二", "夢野久作", "江戸川乱歩", "新美南吉", "有島武郎"]
 
 def load_catalog():
-    z = zipfile.ZipFile(io.BytesIO(requests.get(CATALOG, headers=UA, timeout=60).content))
+    data = None
+    for url in CATALOGS:
+        try:
+            r = requests.get(url, headers=UA, timeout=60)
+            print(f"カタログ {r.status_code} {len(r.content)}B {url}")
+            if r.status_code == 200 and r.content[:2] == b"PK":
+                data = r.content; break
+        except requests.RequestException as e:
+            print("カタログ取得失敗:", url, e)
+    if data is None:
+        raise RuntimeError("青空文庫カタログをどこからも取得できない")
+    z = zipfile.ZipFile(io.BytesIO(data))
     rows = list(csv.DictReader(io.TextIOWrapper(z.open(z.namelist()[0]), encoding="utf-8-sig")))
     return rows
 
