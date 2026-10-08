@@ -1,6 +1,7 @@
 name: BUNGO instagram
 # 本編(BUNGO video)とは別ワークフロー。本編が作ったリール素材を拾って投稿するだけ。
 # ここが失敗しても本編のYouTube投稿には影響しない。
+# 方式: Instagramログイン（Facebookページ不要）。必要なSecretは IG_TOKEN のみ。
 on:
   schedule:
     - cron: "17 12 * * 2,4,6"   # 火木土 JST 21:17（本編の公開21:00の後）
@@ -13,12 +14,22 @@ jobs:
   post:
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    env:
+      IG_TOKEN: ${{ secrets.IG_TOKEN }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: { python-version: "3.12" }
+      - name: Install deps
+        run: pip install -q requests cryptography
+      # 投稿が無い日も毎回延長する（60日の失効を防ぐ。延長に失敗しても投稿は試みる）
+      - name: Refresh token
+        if: env.IG_TOKEN != ''
+        continue-on-error: true
+        run: python src/ig_token.py
       - name: Fetch latest reel from BUNGO video
         id: fetch
+        if: env.IG_TOKEN != ''
         env: { GH_TOKEN: "${{ github.token }}" }
         run: |
           RUN=$(gh run list --workflow daily.yml --status success --limit 1 \
@@ -28,16 +39,13 @@ jobs:
           echo "found=1" >> "$GITHUB_OUTPUT"
       - name: Post to Instagram
         if: steps.fetch.outputs.found == '1'
-        env:
-          IG_USER_ID: ${{ secrets.IG_USER_ID }}
-          IG_TOKEN:   ${{ secrets.IG_TOKEN }}
-        run: |
-          pip install -q requests
-          python src/ig_post.py reel
+        run: python src/ig_post.py reel
       - name: Commit state back
         if: always()
         run: |
           git config user.name "bungo-bot"
           git config user.email "bot@users.noreply.github.com"
-          git pull -q --rebase || true
-          git add state/ig_posted.json 2>/dev/null; git diff --cached --quiet || git commit -m "ig state: $(date -u +%F)" && git push
+          for f in state/ig_posted.json state/ig_token.enc; do [ -f "$f" ] && git add "$f"; done
+          git diff --cached --quiet && exit 0
+          git commit -m "ig state: $(date -u +%F)"
+          git pull -q --rebase && git push
