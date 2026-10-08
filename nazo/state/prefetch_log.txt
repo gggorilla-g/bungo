@@ -1,21 +1,8 @@
-手元の本文 0 / 必要 12
-取得: ナスカの地上絵  ja 9610字 / en 23265字
-取得: ヴォイニッチ手稿  ja 7132字 / en 65587字
-取得: アンティキティラ島の機械  ja 11551字 / en 56414字
-取得: ストーンヘンジ  ja 15485字 / en 61070字
-取得: ロンゴロンゴ  ja 15330字 / en 35001字
-取得失敗: ファイストスの円盤 429 Client Error: Too Many Requests for url: https://ja.wikipedia.org/w/api.php?action=query&prop=extracts%7Crevisions%7Clanglinks%7Cinfo&explaintext=1&redirects=1&titles=%E3%83%95%E3%82%A1%E3%82%A4%E3%82%B9%E3%83%88%E3%82%B9%E3%81%AE%E5%86%86%E7%9B%A4&rvprop=ids&lllang=en&inprop=url&format=json&formatversion=2
-取得失敗: 線文字A 429 Client Error: Too Many Requests for url: https://ja.wikipedia.org/w/api.php?action=query&prop=extracts%7Crevisions%7Clanglinks%7Cinfo&explaintext=1&redirects=1&titles=%E7%B7%9A%E6%96%87%E5%AD%97A&rvprop=ids&lllang=en&inprop=url&format=json&formatversion=2
-取得失敗: ギョベクリ・テペ 429 Client Error: Too Many Requests for url: https://ja.wikipedia.org/w/api.php?action=query&prop=extracts%7Crevisions%7Clanglinks%7Cinfo&explaintext=1&redirects=1&titles=%E3%82%AE%E3%83%A7%E3%83%99%E3%82%AF%E3%83%AA%E3%83%BB%E3%83%86%E3%83%9A&rvprop=ids&lllang=en&inprop=url&format=json&formatversion=2
-取得失敗: 酒船石遺跡 429 Client Error: Too Many Requests for url: https://ja.wikipedia.org/w/api.php?action=query&prop=extracts%7Crevisions%7Clanglinks%7Cinfo&explaintext=1&redirects=1&titles=%E9%85%92%E8%88%B9%E7%9F%B3%E9%81%BA%E8%B7%A1&rvprop=ids&lllang=en&inprop=url&format=json&formatversion=2
-取得失敗: 益田岩船 429 Client Error: Too Many Requests for url: https://ja.wikipedia.org/w/api.php?action=query&prop=extracts%7Crevisions%7Clanglinks%7Cinfo&explaintext=1&redirects=1&titles=%E7%9B%8A%E7%94%B0%E5%B2%A9%E8%88%B9&rvprop=ids&lllang=en&inprop=url&format=json&formatversion=2
-取得失敗: ナン・マドール 429 Client Error: Too Many Requests for url: https://ja.wikipedia.org/w/api.php?action=query&prop=extracts%7Crevisions%7Clanglinks%7Cinfo&explaintext=1&redirects=1&titles=%E3%83%8A%E3%83%B3%E3%83%BB%E3%83%9E%E3%83%89%E3%83%BC%E3%83%AB&rvprop=ids&lllang=en&inprop=url&format=json&formatversion=2
-取得失敗: ロアノーク植民地 429 Client Error: Too Many Requests for url: https://ja.wikipedia.org/w/api.php?action=query&prop=extracts%7Crevisions%7Clanglinks%7Cinfo&explaintext=1&redirects=1&titles=%E3%83%AD%E3%82%A2%E3%83%8E%E3%83%BC%E3%82%AF%E6%A4%8D%E6%B0%91%E5%9C%B0&rvprop=ids&lllang=en&inprop=url&format=json&formatversion=2
-取得失敗: メアリー・セレスト号 429 Client Error: Too Many Requests for url: https://ja.wikipedia.org/w/api.php?action=query&prop=extracts%7Crevisions%7Clanglinks%7Cinfo&explaintext=1&redirects=1&titles=%E3%83%A1%E3%82%A2%E3%83%AA%E3%83%BC%E3%83%BB%E3%82%BB%E3%83%AC%E3%82%B9%E3%83%88%E5%8F%B7&rvprop=ids&lllang=en&inprop=url&format=json&formatversion=2
-取得失敗: ツングースカ大爆発 429 Client Error: Too Many Requests for url: https://ja.wikipedia.org/w/api.php?action=query&prop=extracts%7Crevisions%7Clanglinks%7Cinfo&explaintext=1&redirects=1&titles=%E3%83%84%E3%83%B3%E3%82%B0%E3%83%BC%E3%82%B9%E3%82%AB%E5%A4%A7%E7%88%86%E7%99%BA&rvprop=ids&lllang=en&inprop=url&format=json&formatversion=2
-取得失敗: バグダッド電池 429 Client Error: Too Many Requests for url: https://ja.wikipedia.org/w/api.php?action=query&prop=extracts%7Crevisions%7Clanglinks%7Cinfo&explaintext=1&redirects=1&titles=%E3%83%90%E3%82%B0%E3%83%80%E3%83%83%E3%83%89%E9%9B%BB%E6%B1%A0&rvprop=ids&lllang=en&inprop=url&format=json&formatversion=2
-取得失敗: モヘンジョダロ 429 Client Error: Too Many Requests for url: https://ja.wikipedia.org/w/api.php?action=query&prop=extracts%7Crevisions%7Clanglinks%7Cinfo&explaintext=1&redirects=1&titles=%E3%83%A2%E3%83%98%E3%83%B3%E3%82%B8%E3%83%A7%E3%83%80%E3%83%AD&rvprop=ids&lllang=en&inprop=url&format=json&formatversion=2
-取得失敗: モアイ 429 Client Error: Too Many Requests for url: https://ja.wikipedia.org/w/api.php?action=query&prop=extracts%7Crevisions%7Clanglinks%7Cinfo&explaintext=1&redirects=1&titles=%E3%83%A2%E3%82%A2%E3%82%A4&rvprop=ids&lllang=en&inprop=url&format=json&formatversion=2
-取得失敗: カルナック列石 429 Client Error: Too Many Requests for url: https://ja.wikipedia.org/w/api.php?action=query&prop=extracts%7Crevisions%7Clanglinks%7Cinfo&explaintext=1&redirects=1&titles=%E3%82%AB%E3%83%AB%E3%83%8A%E3%83%83%E3%82%AF%E5%88%97%E7%9F%B3&rvprop=ids&lllang=en&inprop=url&format=json&formatversion=2
-取得失敗: コスタリカの石球 429 Client Error: Too Many Requests for url: https://ja.wikipedia.org/w/api.php?action=query&prop=extracts%7Crevisions%7Clanglinks%7Cinfo&explaintext=1&redirects=1&titles=%E3%82%B3%E3%82%B9%E3%82%BF%E3%83%AA%E3%82%AB%E3%81%AE%E7%9F%B3%E7%90%83&rvprop=ids&lllang=en&inprop=url&format=json&formatversion=2
-取得失敗: ナブタ・プラヤ 429 Client Error: Too Many Requests for url: https://ja.wikipedia.org/w/api.php?action=query&prop=extracts%7Crevisions%7Clanglinks%7Cinfo&explaintext=1&redirects=1&titles=%E3%83%8A%E3%83%96%E3%82%BF%E3%83%BB%E3%83%97%E3%83%A9%E3%83%A4&rvprop=ids&lllang=en&inprop=url&format=json&formatversion=2
+手元の本文 5 / 必要 7
+取得: ファイストスの円盤  ja 3211字 / en 28571字
+取得: 線文字A  ja 1491字 / en 29363字
+取得: ギョベクリ・テペ  ja 10450字 / en 31895字
+取得: 酒船石遺跡  ja 3493字 / en 0字
+取得: 益田岩船  ja 1880字 / en 0字
+取得: ナンマトル  ja 21655字 / en 8766字
+取得: ロアノーク植民地  ja 7876字 / en 71627字
