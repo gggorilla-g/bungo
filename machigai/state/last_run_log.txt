@@ -1,0 +1,19 @@
+error: unexpected argument '--full-auto' found
+
+  tip: to pass '--full-auto' as a value, use '-- --full-auto'
+
+Usage: codex exec [OPTIONS] [PROMPT]
+       codex exec [OPTIONS] <COMMAND> [ARGS]
+
+For more information, try '--help'.
+#001 駄菓子屋 n=4 10秒
+codex失敗: Command '['codex', 'exec', '--skip-git-repo-check', '--full-auto', "$imagegen Generate exactly one image, size 1536x1024. Prompt: Scene: a Japanese old-fashioned candy shop front with jars, toys, signs without text, bicycle. Flat vector illustration for a spot-the-difference puzzle. Landscape 3:2. Bright, clean colors. Solid flat color areas, no texture, no gradients, no text, no letters, no logos. Many separate, clearly outlined small and medium objects (at least 25) spread across the whole picture, each standing on a plain background area, not overlapping each other. No people's faces in close-up. No real brands or famous characters. Save the final image as /home/runner/work/bungo/bungo/machigai/out/base.png . Do not do anything else."]' returned non-zero exit status 2.
+Traceback (most recent call last):
+  File "/home/runner/work/bungo/bungo/machigai/run.py", line 81, in <module>
+    main()
+  File "/home/runner/work/bungo/bungo/machigai/run.py", line 49, in main
+    src = generate(theme["en"], base, local=a.local)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/bungo/bungo/machigai/scripts/gen_image.py", line 69, in generate
+    raise RuntimeError("画像を生成できませんでした")
+RuntimeError: 画像を生成できませんでした
