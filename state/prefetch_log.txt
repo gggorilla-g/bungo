@@ -1,9 +1,2 @@
 カタログ 200 2092746B https://www.aozora.gr.jp/index_pages/list_person_all_extended_utf8.zip
-取得: 人間失格
-取得: 斜陽
-取得: 坊っちゃん
-取得: こころ
-取得: 吾輩は猫である
 取得: 銀河鉄道の夜
-取得: 注文の多い料理店
-取得: 桜の樹の下には
