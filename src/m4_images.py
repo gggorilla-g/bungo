@@ -112,23 +112,30 @@ def commons_files(files, width=1920):
             if not any(k in l for k in OPEN_LICENSES) or "nc" in l.replace("-", " ").split() or "nd" in l.replace("-", " ").split():
                 print("ライセンス対象外のため不使用:", pg.get("title"), lic); continue
             artist = _plain(meta.get("Artist", {}).get("value", "")) or "作者不明"
-            found[pg["title"]] = {"url": info.get("thumburl") or info.get("url"),
+            found[pg["title"]] = {"url": info.get("thumburl") or info.get("url"), "orig": info.get("url"),
                                   "credit": f"{artist} / {lic} / Wikimedia Commons（{pg['title']}）"}
     return found
 
 
-def download(url, dest):
-    """Wikimedia等から1枚取得。画像でなければ None（エラーページを画像として使わない）"""
-    for attempt in range(3):
-        try:
-            r = requests.get(url, headers=UA, timeout=60)
-            if r.status_code == 200 and r.headers.get("content-type", "").startswith("image/"):
-                os.makedirs(os.path.dirname(dest) or ".", exist_ok=True)
-                open(dest, "wb").write(r.content)
-                return dest
-        except requests.RequestException:
-            pass
-        time.sleep(2 * (attempt + 1))
+def download(url, dest, fallback=None):
+    """Wikimedia等から1枚取得。画像でなければ None（エラーページを画像として使わない）。
+    429（混雑）は待って再試行。縮小版がだめなら原寸URL(fallback)も試す"""
+    last = ""
+    for u in [url] + ([fallback] if fallback else []):
+        for attempt in range(4):
+            try:
+                r = requests.get(u, headers=UA, timeout=60)
+                if r.status_code == 200 and r.headers.get("content-type", "").startswith("image/"):
+                    os.makedirs(os.path.dirname(dest) or ".", exist_ok=True)
+                    open(dest, "wb").write(r.content)
+                    time.sleep(1.0)   # 連続取得で弾かれないよう間を空ける
+                    return dest
+                last = f"{r.status_code} {r.headers.get('content-type', '')}"
+                wait = int(r.headers.get("retry-after", "0") or 0) if r.status_code == 429 else 0
+                time.sleep(max(wait, 3 * (attempt + 1)))
+            except requests.RequestException as e:
+                last = str(e)[:80]; time.sleep(3 * (attempt + 1))
+    print("画像の取得失敗:", url[:90], last)
     return None
 
 

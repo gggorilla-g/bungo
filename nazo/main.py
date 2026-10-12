@@ -65,8 +65,9 @@ def main():
         wanted += [f for f in (k.get("title_image"), k.get("thumb_image")) if f]
         if wanted:
             got, local = m4_images.commons_files(wanted), {}
+            print(f"指定画像の情報取得 {len(got)}/{len(set(wanted))}")
             for j, (f, info) in enumerate(got.items()):
-                if m4_images.download(info["url"], f"build/sel{j}.jpg"):
+                if m4_images.download(info["url"], f"build/sel{j}.jpg", fallback=info.get("orig")):
                     local[f] = f"build/sel{j}.jpg"
             used = set()
             images["sec_list"] = {}
