@@ -50,9 +50,11 @@ jobs:
         env:
           YT_CLIENT_ID:     ${{ secrets.YT_CLIENT_ID }}
           YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
-          YT_REFRESH_TOKEN: ${{ inputs.upload == false && '' || secrets.YT_REFRESH_TOKEN_NAZO }}
+          YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN_NAZO }}
+          NO_UPLOAD:        ${{ inputs.upload == false && '1' || '0' }}   # 手動実行で「投稿しない」を選んだとき 1
           PUBLISH_MODE:     ${{ vars.PUBLISH_MODE }}
         run: |
+          if [ "$NO_UPLOAD" = "1" ]; then export YT_REFRESH_TOKEN=""; echo "投稿なしモード"; fi
           python nazo/main.py 2>&1 | tee nazo/state/last_run_log.txt
           exit ${PIPESTATUS[0]}
       - name: Commit state back
