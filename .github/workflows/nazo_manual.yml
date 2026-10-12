@@ -1,0 +1,22 @@
+name: NAZO manual upload kit
+on: workflow_dispatch
+permissions:
+  contents: write
+jobs:
+  kit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - uses: actions/cache@v4
+        with: { path: vv_assets, key: vv-assets-0.16.4 }
+      - run: |
+          sudo apt-get update -q && sudo apt-get install -y -q ffmpeg fonts-noto-cjk poppler-utils
+          pip install -q -r requirements.txt
+          python src/setup_voicevox.py
+      - run: python nazo/manual_meta.py 2>&1 | grep -v "^WARNING" | tee nazo/manual/log.txt
+      - run: |
+          git config user.name "bungo-bot"; git config user.email "bot@users.noreply.github.com"
+          git add nazo/manual && git commit -q -m "NAZO: 手動投稿用キット" && git pull -q --rebase && git push -q || true
