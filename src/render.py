@@ -143,7 +143,15 @@ def build_video(kousei, work, genbun, ruby, images, out_mp4, llm, brand=None):
 
     names, durs, ch_marks = [], [], []
     # ---- タイトルカード ----
-    slide(br["title_card"], f"{B}/title.png", None, scrim=0.5, css_extra=css)
+    # images["pool"] があれば、すべてのカット（タイトル含む）に画像を敷く。
+    # 文の数に対して画像を均等に割り当て、同じ画像は連続する数カットで使う（チカチカさせない）
+    pool = images.get("pool") or []
+    def pick(k, i):
+        if pool:
+            return pool[min(len(pool) - 1, k * len(pool) // max(1, len(plan)))]
+        return images.get(i)
+    slide(br["title_card"], f"{B}/title.png", pool[0] if pool else None,
+          scrim=0.6 if pool else 0.5, css_extra=css)
     tts(title_narr, f"{B}/title.wav")
     durs.append(seg(f"{B}/title.png", f"{B}/title.wav", "title", pad=0.8)); names.append("title")
 
@@ -161,7 +169,7 @@ def build_video(kousei, work, genbun, ruby, images, out_mp4, llm, brand=None):
                 f'<div class="center"><h1 style="bottom:auto;top:280px;">{s["slide_heading"]}</h1></div>'
                 f'<div class="credit">{br["credit"]}</div>')
         n = f"s{k:03d}"
-        slide(body, f"{B}/{n}.png", images.get(i), scrim=0.5, subtitle=sent, css_extra=css)
+        slide(body, f"{B}/{n}.png", pick(k, i), scrim=0.5, subtitle=sent, css_extra=css)
         tts(sent, f"{B}/{n}.wav")
         is_sec_end = (k == len(plan) - 1) or (plan[k+1][0] != i)
         durs.append(seg(f"{B}/{n}.png", f"{B}/{n}.wav", n, pad=1.2 if is_sec_end else 0.5))

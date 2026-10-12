@@ -3,6 +3,14 @@ on:
   schedule:
     - cron: "35 3 * * 1,5"   # 月金 JST 12:35 に制作 → 同日 JST 21:00 に予約公開
   workflow_dispatch:
+    inputs:
+      only:
+        description: "本文を取り直す題材ID（空なら通常どおり）"
+        default: ""
+      upload:
+        description: "YouTubeに投稿する（falseなら動画を作るだけ）"
+        type: boolean
+        default: true
   push:                       # 題材リストを更新したら本文だけ取りに行く（動画は作らない）
     branches: [main]
     paths: ["nazo/topics.json", "nazo/prefetch.py"]
@@ -23,7 +31,7 @@ jobs:
         continue-on-error: true
         run: |
           pip install -q requests
-          python nazo/prefetch.py 2>&1 | tee nazo/state/prefetch_log.txt
+          ONLY="${{ inputs.only }}" python nazo/prefetch.py 2>&1 | tee nazo/state/prefetch_log.txt
           exit ${PIPESTATUS[0]}
       - name: Cache VOICEVOX assets
         if: github.event_name != 'push'
@@ -42,7 +50,7 @@ jobs:
         env:
           YT_CLIENT_ID:     ${{ secrets.YT_CLIENT_ID }}
           YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
-          YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN_NAZO }}
+          YT_REFRESH_TOKEN: ${{ inputs.upload == false && '' || secrets.YT_REFRESH_TOKEN_NAZO }}
           PUBLISH_MODE:     ${{ vars.PUBLISH_MODE }}
         run: |
           python nazo/main.py 2>&1 | tee nazo/state/last_run_log.txt

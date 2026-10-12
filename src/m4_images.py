@@ -42,6 +42,74 @@ def _met(query):
                     "artist_html": o.get("artistDisplayName", ""), "source": "met"}
     return None
 
+OPEN_LICENSES = ("public domain", "pd", "cc0", "cc by")   # CC BY / CC BY-SA は出典表示つきで使う
+SKIP_WORDS = ("logo", "icon", "flag", "symbol", "map of", "locator", "wiki", "edit-", "ambox", "question_book")
+
+
+def _plain(html):
+    import re
+    return re.sub(r"<[^>]+>", "", html or "").strip()
+
+
+def article_images(pages, max_n=12, min_width=800):
+    """Wikipedia記事（[(lang, 記事名), ...]）に載っている画像のうち、
+    ライセンスがPD/CC0/CC BY/CC BY-SAのものを集める。出典表示用の文字列を付けて返す。"""
+    files = []
+    for lang, title in pages:
+        try:
+            r = requests.get(f"https://{lang}.wikipedia.org/w/api.php", params={
+                "action": "query", "format": "json", "titles": title, "prop": "images",
+                "imlimit": 50, "redirects": 1}, headers=UA, timeout=20).json()
+            for pg in r.get("query", {}).get("pages", {}).values():
+                for im in pg.get("images", []):
+                    t = im["title"].split(":", 1)[1]
+                    if t not in files and t.lower().endswith((".jpg", ".jpeg", ".png")) \
+                            and not any(w in t.lower() for w in SKIP_WORDS):
+                        files.append(t)
+        except Exception as e:
+            print("記事画像の一覧取得に失敗:", lang, title, e)
+    hits = []
+    for b in range(0, len(files), 20):
+        try:
+            r = requests.get("https://commons.wikimedia.org/w/api.php", params={
+                "action": "query", "format": "json", "prop": "imageinfo",
+                "titles": "|".join("File:" + f for f in files[b:b + 20]),
+                "iiprop": "url|size|extmetadata|mime", "iiurlwidth": 1920}, headers=UA, timeout=30).json()
+        except Exception as e:
+            print("画像情報の取得に失敗:", e); continue
+        for pg in r.get("query", {}).get("pages", {}).values():
+            info = (pg.get("imageinfo") or [{}])[0]
+            meta = info.get("extmetadata", {})
+            lic = meta.get("LicenseShortName", {}).get("value", "")
+            if not any(lic.lower().startswith(k) or k in lic.lower() for k in OPEN_LICENSES):
+                continue
+            if "nc" in lic.lower() or "nd" in lic.lower().split("-"):
+                continue
+            if info.get("width", 0) < min_width or info.get("mime") not in ("image/jpeg", "image/png"):
+                continue
+            artist = _plain(meta.get("Artist", {}).get("value", "")) or "作者不明"
+            hits.append({"url": info.get("thumburl") or info["url"], "file": pg["title"],
+                         "credit": f"{artist} / {lic} / Wikimedia Commons（{pg['title']}）"})
+            if len(hits) >= max_n:
+                return hits
+    return hits
+
+
+def download(url, dest):
+    """Wikimedia等から1枚取得。画像でなければ None（エラーページを画像として使わない）"""
+    for attempt in range(3):
+        try:
+            r = requests.get(url, headers=UA, timeout=60)
+            if r.status_code == 200 and r.headers.get("content-type", "").startswith("image/"):
+                os.makedirs(os.path.dirname(dest) or ".", exist_ok=True)
+                open(dest, "wb").write(r.content)
+                return dest
+        except requests.RequestException:
+            pass
+        time.sleep(2 * (attempt + 1))
+    return None
+
+
 def fetch_image(queries, dest, sources=None):
     """検索語リストを順に試し、最初にライセンス検証を通過した画像を保存。
        全滅なら None（→タイポグラフィスライドにフォールバック）"""

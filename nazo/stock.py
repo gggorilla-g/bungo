@@ -12,7 +12,7 @@ S = "nazo/state"
 
 def sentences(k, work):
     """render.build_video が読み上げる文と同じ並び・同じ切り方"""
-    out = [work["title"] + "。" + k.get("logline", "")]
+    out = [brand.title_narr(work, k)]   # render が読む冒頭文と同じ
     for i, s in enumerate(k["sections"]):
         intro = brand.PART_INTRO.get(s["type"])
         first = (i == 0) or (k["sections"][i - 1]["type"] != s["type"])

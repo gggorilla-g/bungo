@@ -15,6 +15,11 @@ h1 { font-family:"Noto Sans CJK JP"; font-weight:900; letter-spacing:.04em; }
 """
 
 
+def title_narr(work, k):
+    """冒頭で読み上げる文。チャンネル名→題材名→ひとこと"""
+    return "世界の謎を10分解説。" + work["title"] + "。" + k.get("logline", "")
+
+
 def nazo_brand(work):
     title = work["title"]
     label = f"世界の謎10分解説 — {title}"
@@ -22,7 +27,7 @@ def nazo_brand(work):
         "label": label,
         "part_label": PART_LABEL,
         "part_intro": PART_INTRO,
-        "title_narr": lambda k: title + "。" + k.get("logline", ""),
+        "title_narr": lambda k: title_narr(work, k),
         "title_card": (f'<div class="label">{label}</div><div class="rule"></div>'
                        f'<div class="center"><div>'
                        f'<div style="font-size:52px;color:#999999;text-align:center;'

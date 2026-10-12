@@ -38,22 +38,34 @@ def main():
         ok, errs = check.validate(k, src)
         if not ok:
             raise RuntimeError("事実照合に不合格: " + " / ".join(errs[:5]))
+        # 画像: 記事に載っている画像（PD/CC BY/CC BY-SA）を集め、全カットに割り当てる
         images, credits = {}, []
-        for i, s in enumerate(k["sections"]):
-            q = s.get("img_query")
-            if not q:
-                continue
-            hit = m4_images.fetch_image([q], f"build/img{i}.jpg",
-                                        sources=(m4_images._wikimedia, m4_images._met))
-            if hit:
-                images[i] = f"build/img{i}.jpg"
-                if hit["credit"] not in credits:
-                    credits.append(hit["credit"])
+        meta = src["meta"]
+        pages = [("ja", meta["title"])] + ([("en", meta["en_title"])] if meta.get("en_title") else [])
+        pool = []
+        for j, hit in enumerate(m4_images.article_images(pages, max_n=12)):
+            if m4_images.download(hit["url"], f"build/pool{j}.jpg"):
+                pool.append(f"build/pool{j}.jpg")
+                credits.append(hit["credit"])
+        if len(pool) < 3:   # 記事の画像が少ない題材は、台本の検索語で補う
+            for i, s in enumerate(k["sections"]):
+                q = s.get("img_query")
+                if not q:
+                    continue
+                hit = m4_images.fetch_image([q], f"build/img{i}.jpg",
+                                            sources=(m4_images._wikimedia, m4_images._met))
+                if hit:
+                    pool.append(f"build/img{i}.jpg")
+                    if hit["credit"] not in credits:
+                        credits.append(hit["credit"])
+        if pool:
+            images["pool"] = pool
+        print(f"画像 {len(pool)} 枚")
         os.makedirs("output", exist_ok=True)
         out = f"output/nazo_{work['id']}.mp4"
         br = brand.nazo_brand(work)
         render.build_video(k, work, "", {}, images, out, llm=_no_llm, brand=br)
-        render.build_thumbnail(k, work, images.get(0), "output/thumb.png", brand=br)
+        render.build_thumbnail(k, work, pool[0] if pool else None, "output/thumb.png", brand=br)
         vid = None
         if os.environ.get("YT_REFRESH_TOKEN"):
             import upload

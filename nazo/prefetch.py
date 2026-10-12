@@ -59,6 +59,9 @@ def main():
     have -= done
     need = N - len(have - queued)
     print(f"手元の本文 {len(have)} / 必要 {need}")
+    only = os.environ.get("ONLY", "").strip()   # 手動実行で題材を指定したときは、その1件だけ取り直す
+    if only:
+        topics, need, done, queued, have = [t for t in topics if t["id"] == only], 1, set(), set(), set()
     for t in topics:
         if need <= 0:
             break
