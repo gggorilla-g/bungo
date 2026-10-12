@@ -1,24 +1,2 @@
-w=1920 old thumburl 200 image/jpeg 579347 s.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail
-w=1920 old url 429 text/html; charset=utf-8 1965 ns.wikimedia.org&utm_campaign=imageinfo&utm_content=original
-w=1920 new thumburl 200 image/jpeg 579347 s.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail
-w=1920 new url 200 image/jpeg 993836 ns.wikimedia.org&utm_campaign=imageinfo&utm_content=original
-w=1920 old thumburl 200 image/jpeg 301113 ia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled
-w=1920 old url 200 image/jpeg 301113 ns.wikimedia.org&utm_campaign=imageinfo&utm_content=original
-w=1920 new thumburl 200 image/jpeg 301113 ia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled
-w=1920 new url 200 image/jpeg 301113 ns.wikimedia.org&utm_campaign=imageinfo&utm_content=original
-w=1280 old thumburl 200 image/jpeg 301133 s.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail
-w=1280 old url 429 text/html; charset=utf-8 1965 ns.wikimedia.org&utm_campaign=imageinfo&utm_content=original
-w=1280 new thumburl 200 image/jpeg 301133 s.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail
-w=1280 new url 200 image/jpeg 993836 ns.wikimedia.org&utm_campaign=imageinfo&utm_content=original
-w=1280 old thumburl 200 image/jpeg 301113 ia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled
-w=1280 old url 200 image/jpeg 301113 ns.wikimedia.org&utm_campaign=imageinfo&utm_content=original
-w=1280 new thumburl 200 image/jpeg 301113 ia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled
-w=1280 new url 200 image/jpeg 301113 ns.wikimedia.org&utm_campaign=imageinfo&utm_content=original
-w=960 old thumburl 200 image/jpeg 191892 s.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail
-w=960 old url 429 text/html; charset=utf-8 1965 ns.wikimedia.org&utm_campaign=imageinfo&utm_content=original
-w=960 new thumburl 200 image/jpeg 191892 s.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail
-w=960 new url 200 image/jpeg 993836 ns.wikimedia.org&utm_campaign=imageinfo&utm_content=original
-w=960 old thumburl 200 image/jpeg 363805 s.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail
-w=960 old url 429 text/html; charset=utf-8 1965 ns.wikimedia.org&utm_campaign=imageinfo&utm_content=original
-w=960 new thumburl 200 image/jpeg 363805 s.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail
-w=960 new url 200 image/jpeg 301113 ns.wikimedia.org&utm_campaign=imageinfo&utm_content=original
+情報 30/30
+取得 30/30  32秒
