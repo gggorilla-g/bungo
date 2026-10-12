@@ -3,6 +3,8 @@ import os
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 
+for k in ["YT_CLIENT_ID","YT_CLIENT_SECRET","TOKEN_BUNGO","TOKEN_NAZO"]:
+    print(k, "あり" if os.environ.get(k) else "なし")
 for label, env in [("BUNGO", "TOKEN_BUNGO"), ("NAZO", "TOKEN_NAZO")]:
     tok = os.environ.get(env)
     if not tok:
