@@ -167,7 +167,8 @@ def build_video(kousei, work, genbun, ruby, images, out_mp4, llm, brand=None):
                  f'font-family:\'Noto Sans CJK JP\';font-size:30px;color:{br["accent"]};'
                  f'letter-spacing:.2em;">{plabel}</div>') if plabel else ""
         body = (f'<div class="label">{label}</div><div class="rule"></div>{badge}'
-                f'<div class="center"><h1 style="bottom:auto;top:280px;">{s["slide_heading"]}</h1></div>'
+                f'<h1 style="bottom:auto;top:185px;font-size:{br.get("heading_px", 64)}px;'
+                f'text-shadow:0 2px 16px rgba(0,0,0,.8);">{s["slide_heading"]}</h1>'
                 f'<div class="credit">{br["credit"]}</div>')
         n = f"s{k:03d}"
         slide(body, f"{B}/{n}.png", pick(k, i), scrim=0.5, subtitle=sent, css_extra=css)

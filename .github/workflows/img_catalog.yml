@@ -1,0 +1,19 @@
+name: Image catalog (NAZO)
+on:
+  workflow_dispatch:
+    inputs:
+      only: { description: "題材ID", required: true }
+      category: { description: "Commonsのカテゴリ名（任意）", default: "" }
+permissions:
+  contents: write
+jobs:
+  catalog:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install -q requests && ONLY="${{ inputs.only }}" CATEGORY="${{ inputs.category }}" python tools/img_catalog.py
+      - run: |
+          git config user.name "bungo-bot"; git config user.email "bot@users.noreply.github.com"
+          git add nazo/img_catalog && git commit -q -m "img catalog: ${{ inputs.only }}" && git pull -q --rebase && git push -q || true
