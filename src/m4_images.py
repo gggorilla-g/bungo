@@ -3,7 +3,7 @@
 #       検証不能・全滅時は None を返し、M5がタイポグラフィスライドにフォールバックする。
 import os, requests, time
 
-UA = {"User-Agent": "BUNGO/0.1 (automated literature channel; contact via repo)"}
+UA = {"User-Agent": "BUNGO-NAZO/0.3 (https://github.com/gggorilla-g/bungo; gggorilla.0510@gmail.com) python-requests"}  # 連絡先なしのUAはWikimediaに弾かれる（429）
 PD_LICENSES = {"pd", "public domain", "cc0"}
 MIN_WIDTH = 1600
 
