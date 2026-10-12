@@ -1,1 +1,11 @@
-在庫切れ: チャットで「NAZO在庫補充」を。今回は何もしない
+Traceback (most recent call last):
+  File "/home/runner/work/bungo/bungo/nazo/main.py", line 90, in main
+    render.build_video(k, work, "", {}, images, out, llm=_no_llm, brand=br)
+  File "/home/runner/work/bungo/bungo/src/render.py", line 212, in build_video
+    bgm = _bgm_loop(bgm, sum(durs))
+          ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/bungo/bungo/src/render.py", line 236, in _bgm_loop
+    import numpy as np
+ModuleNotFoundError: No module named 'numpy'
+指定画像 4/30 枚
+画像 5 枚
