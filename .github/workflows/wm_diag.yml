@@ -1,0 +1,13 @@
+name: Wikimedia diag
+on: workflow_dispatch
+permissions:
+  contents: write
+jobs:
+  d:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: pip install -q requests && python tools/wm_diag.py
+      - run: |
+          git config user.name "bungo-bot"; git config user.email "bot@users.noreply.github.com"
+          git add state/wm_diag.txt && git commit -q -m "wm diag" && git pull -q --rebase && git push -q || true
