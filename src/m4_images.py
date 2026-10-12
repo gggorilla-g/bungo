@@ -95,6 +95,28 @@ def article_images(pages, max_n=12, min_width=800):
     return hits
 
 
+def commons_files(files, width=1920):
+    """Commonsのファイル名を指定して、URLと出典表示を引く（ライセンスがPD/CC0/CC BY系のものだけ）"""
+    found = {}
+    files = list(dict.fromkeys(files))
+    for b in range(0, len(files), 40):
+        r = requests.get("https://commons.wikimedia.org/w/api.php", params={
+            "action": "query", "format": "json", "prop": "imageinfo",
+            "titles": "|".join(files[b:b + 40]), "iiprop": "url|extmetadata", "iiurlwidth": width},
+            headers=UA, timeout=60).json()
+        for pg in r.get("query", {}).get("pages", {}).values():
+            info = (pg.get("imageinfo") or [{}])[0]
+            meta = info.get("extmetadata", {})
+            lic = meta.get("LicenseShortName", {}).get("value", "")
+            l = lic.lower()
+            if not any(k in l for k in OPEN_LICENSES) or "nc" in l.replace("-", " ").split() or "nd" in l.replace("-", " ").split():
+                print("ライセンス対象外のため不使用:", pg.get("title"), lic); continue
+            artist = _plain(meta.get("Artist", {}).get("value", "")) or "作者不明"
+            found[pg["title"]] = {"url": info.get("thumburl") or info.get("url"),
+                                  "credit": f"{artist} / {lic} / Wikimedia Commons（{pg['title']}）"}
+    return found
+
+
 def download(url, dest):
     """Wikimedia等から1枚取得。画像でなければ None（エラーページを画像として使わない）"""
     for attempt in range(3):

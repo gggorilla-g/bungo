@@ -147,12 +147,25 @@ def build_video(kousei, work, genbun, ruby, images, out_mp4, llm, brand=None):
     # images["pool"] があれば、すべてのカット（タイトル含む）に画像を敷く。
     # 文の数に対して画像を均等に割り当て、同じ画像は連続する数カットで使う（チカチカさせない）
     pool = images.get("pool") or []
+    sec_list = images.get("sec_list") or {}
+    cur = {}
     def pick(k, i):
+        # 1) 台本の指定: セクション内で、"at" の語を含む文から次の画像に切り替える
+        if i in sec_list:
+            lst = sec_list[i]
+            if cur.get("sec") != i:
+                cur.update(sec=i, img=lst[0][1])
+            for at, path in lst[1:]:
+                if at and at in plan[k][1]:
+                    cur["img"] = path
+            return cur["img"]
+        # 2) 記事の画像を均等に割り当て
         if pool:
             return pool[min(len(pool) - 1, k * len(pool) // max(1, len(plan)))]
         return images.get(i)
-    slide(br["title_card"], f"{B}/title.png", pool[0] if pool else None,
-          scrim=0.6 if pool else 0.5, css_extra=css)
+    title_img = images.get("title_image") or (pool[0] if pool else None)
+    slide(br["title_card"], f"{B}/title.png", title_img,
+          scrim=0.6 if title_img else 0.5, css_extra=css)
     tts(title_narr, f"{B}/title.wav")
     durs.append(seg(f"{B}/title.png", f"{B}/title.wav", "title", pad=0.8)); names.append("title")
 
@@ -171,7 +184,7 @@ def build_video(kousei, work, genbun, ruby, images, out_mp4, llm, brand=None):
                 f'text-shadow:0 2px 16px rgba(0,0,0,.8);">{s["slide_heading"]}</h1>'
                 f'<div class="credit">{br["credit"]}</div>')
         n = f"s{k:03d}"
-        slide(body, f"{B}/{n}.png", pick(k, i), scrim=0.5, subtitle=sent, css_extra=css)
+        slide(body, f"{B}/{n}.png", pick(k, i), scrim=br.get("scrim", 0.5), subtitle=sent, css_extra=css)
         tts(sent, f"{B}/{n}.wav")
         is_sec_end = (k == len(plan) - 1) or (plan[k+1][0] != i)
         durs.append(seg(f"{B}/{n}.png", f"{B}/{n}.wav", n, pad=1.2 if is_sec_end else 0.5))

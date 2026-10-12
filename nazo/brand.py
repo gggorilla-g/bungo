@@ -12,6 +12,9 @@ body { background:#111111; color:#ffffff; font-family:"Noto Sans CJK JP"; }
 .rule { background:#c0392b; }
 h1 { font-family:"Noto Sans CJK JP"; font-weight:900; letter-spacing:.04em; }
 .credit { color:#999999; }
+.label, .credit { text-shadow:0 2px 8px rgba(0,0,0,.95); }
+.bg { background-size:contain; background-repeat:no-repeat; background-position:center; }
+.subtitle { background:rgba(0,0,0,.62); padding:14px 36px; border-radius:8px; bottom:120px; }
 """
 
 
@@ -40,4 +43,5 @@ def nazo_brand(work):
         "css": CSS,
         "thumb_label": "世界の謎10分解説",
         "bgm": "assets/bgm_nazo_calming_seaside.mp3",
+        "scrim": 0.12,          # 画像（写本のページ等）が見えるよう暗幕は薄く。字幕は自前の帯で読ませる
     }

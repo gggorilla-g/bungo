@@ -60,12 +60,35 @@ def main():
                         credits.append(hit["credit"])
         if pool:
             images["pool"] = pool
+        # 台本で場面ごとに画像を指定している場合（語っている内容と画像を対応させる）
+        wanted = [im["file"] for s in k["sections"] for im in s.get("images", [])]
+        wanted += [f for f in (k.get("title_image"), k.get("thumb_image")) if f]
+        if wanted:
+            got, local = m4_images.commons_files(wanted), {}
+            for j, (f, info) in enumerate(got.items()):
+                if m4_images.download(info["url"], f"build/sel{j}.jpg"):
+                    local[f] = f"build/sel{j}.jpg"
+            used = set()
+            images["sec_list"] = {}
+            for i, s in enumerate(k["sections"]):
+                lst = [(im.get("at"), local[im["file"]]) for im in s.get("images", []) if im["file"] in local]
+                if lst:
+                    images["sec_list"][i] = lst
+                    used |= {im["file"] for im in s.get("images", []) if im["file"] in local}
+            for key in ("title_image", "thumb_image"):
+                if k.get(key) in local:
+                    images[key] = local[k[key]]; used.add(k[key])
+            sel_credits = sorted({got[f]["credit"] for f in used})
+            all_sel = len(images["sec_list"]) == len(k["sections"])
+            # 全セクションが指定画像なら、記事の画像は使わない（出典も載せない）
+            credits = sel_credits if all_sel else sel_credits + [c for c in credits if c not in sel_credits]
+            print(f"指定画像 {len(local)}/{len(set(wanted))} 枚")
         print(f"画像 {len(pool)} 枚")
         os.makedirs("output", exist_ok=True)
         out = f"output/nazo_{work['id']}.mp4"
         br = brand.nazo_brand(work)
         render.build_video(k, work, "", {}, images, out, llm=_no_llm, brand=br)
-        render.build_thumbnail(k, work, pool[0] if pool else None, "output/thumb.png", brand=br)
+        render.build_thumbnail(k, work, images.get("thumb_image") or (pool[0] if pool else None), "output/thumb.png", brand=br)
         vid = None
         if os.environ.get("YT_REFRESH_TOKEN"):
             import upload
