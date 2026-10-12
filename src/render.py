@@ -196,17 +196,18 @@ def build_video(kousei, work, genbun, ruby, images, out_mp4, llm, brand=None):
                     "-c", "copy", "all_a.wav"], check=True, cwd=B)
     bgm = br.get("bgm")
     if bgm and os.path.exists(bgm):
+        bgm = _bgm_loop(bgm, sum(durs))
         # BGMを尺に合わせてループし、声が鳴っている間だけ自動で絞る（サイドチェイン）。最後は4秒でフェードアウト
         total = sum(durs)
         vol = br.get("bgm_volume", 0.16)
         fc = (f"[1:a]aresample=48000,volume=1.0[v];"
-              f"[2:a]aresample=48000,aloop=loop=-1:size=2147483647,atrim=0:{total:.3f},"
+              f"[2:a]aresample=48000,atrim=0:{total:.3f},"
               f"volume={vol},afade=t=in:d=2,afade=t=out:st={max(0, total - 4):.3f}:d=4[m];"
               f"[v]asplit=2[v1][v2];"
               f"[m][v1]sidechaincompress=threshold=0.015:ratio=8:attack=40:release=700:makeup=1[md];"
               f"[v2][md]amix=inputs=2:normalize=0:duration=first,loudnorm=I=-16:TP=-1.5:LRA=11[a]")
         subprocess.run(["ffmpeg", "-y", "-v", "error", "-i", f"{B}/all_v.mp4", "-i", f"{B}/all_a.wav",
-            "-stream_loop", "-1", "-i", bgm, "-filter_complex", fc,
+            "-i", bgm, "-filter_complex", fc,
             "-map", "0:v", "-map", "[a]", "-c:v", "copy", "-c:a", "aac", "-b:a", "192k",
             "-ar", "48000", "-t", f"{total:.3f}", out_mp4], check=True)
     else:
@@ -215,6 +216,26 @@ def build_video(kousei, work, genbun, ruby, images, out_mp4, llm, brand=None):
             "-af", "loudnorm=I=-16:TP=-1.5:LRA=11", "-c:a", "aac", "-b:a", "192k",
             "-ar", "48000", out_mp4], check=True)
     return sum(durs)
+
+def _bgm_loop(src, total, xfade=4.0):
+    """BGMを動画の尺までつなぐ。継ぎ目は数秒のクロスフェードにして、曲の頭に戻る違和感を消す。
+    曲自体は加工しない（音量・つなぎのみ）"""
+    import numpy as np
+    sr = 48000
+    raw = subprocess.run(["ffmpeg", "-v", "error", "-i", src, "-f", "s16le", "-ac", "1", "-ar", str(sr), "-"],
+                         check=True, capture_output=True).stdout
+    x = np.frombuffer(raw, dtype=np.int16).astype(np.float32)
+    n_x, need = int(xfade * sr), int((total + 1) * sr)
+    out = x.copy()
+    ramp = np.linspace(0, 1, n_x)
+    while len(out) < need:
+        out[-n_x:] = out[-n_x:] * (1 - ramp) + x[:n_x] * ramp
+        out = np.concatenate([out, x[n_x:]])
+    dst = f"{B}/bgm_loop.wav"
+    subprocess.run(["ffmpeg", "-y", "-v", "error", "-f", "s16le", "-ar", str(sr), "-ac", "1", "-i", "-", dst],
+                   input=np.clip(out[:need], -32768, 32767).astype(np.int16).tobytes(), check=True)
+    return dst
+
 
 def build_thumbnail(kousei, work, image_path, out_png, brand=None):
     br = brand or bungo_brand(work)

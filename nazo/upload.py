@@ -21,6 +21,7 @@ def make_description(kousei, meta, image_credits, chapters=None):
     if meta.get("url_en"):
         lines.append(f"参考: Wikipedia \"{meta['en_title']}\" {meta['url_en']} (CC BY-SA 4.0)")
     lines.append("音声: VOICEVOX:ずんだもん（合成音声）")
+    lines.append("BGM: Calming seaside / 蒲鉾さちこ（DOVA-SYNDROME）")
     for c in image_credits:
         lines.append(f"画像: {c}")
     return "\n".join(lines)
