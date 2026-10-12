@@ -1,0 +1,13 @@
+name: Fetch portrait (channel art)
+on: workflow_dispatch
+permissions:
+  contents: write
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: pip install -q requests && python tools/fetch_portrait.py
+      - run: |
+          git config user.name "bungo-bot"; git config user.email "bot@users.noreply.github.com"
+          git add channel/ && git commit -q -m "channel: 肖像写真(PD)を取得" && git pull -q --rebase && git push -q || true
