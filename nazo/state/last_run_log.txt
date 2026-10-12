@@ -1,0 +1,5 @@
+指定画像の情報取得 30/30
+指定画像 30/30 枚
+画像 12 枚
+再生リスト追加失敗(投稿自体は成功): <HttpError 409 when requesting https://youtube.googleapis.com/youtube/v3/playlistItems?part=snippet&alt=json returned "The operation was aborted.". Details: "[{'domain': 'youtube.CoreErrorDomain', 'reason': 'SERVICE_UNAVAILABLE'}]">
+完了: ヴォイニッチ手稿 → hRfL3GsfJQo
