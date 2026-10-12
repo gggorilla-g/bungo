@@ -1,0 +1,21 @@
+name: YouTube connection check
+on: workflow_dispatch
+permissions:
+  contents: write
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install -q google-api-python-client google-auth
+      - env:
+          YT_CLIENT_ID:     ${{ secrets.YT_CLIENT_ID }}
+          YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
+          TOKEN_BUNGO:      ${{ secrets.YT_REFRESH_TOKEN }}
+          TOKEN_NAZO:       ${{ secrets.YT_REFRESH_TOKEN_NAZO }}
+        run: |
+          mkdir -p state && python tools/yt_check.py | tee state/yt_check_log.txt
+          git config user.name "bungo-bot"; git config user.email "bot@users.noreply.github.com"
+          git add state/yt_check_log.txt && git commit -q -m "yt check" && git push -q || true
