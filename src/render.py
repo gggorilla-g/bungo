@@ -117,6 +117,7 @@ def bungo_brand(work):
         "accent": "#d9a520",
         "css": "",
         "thumb_label": "BUNGO",
+        "bgm": "assets/bgm_bungo.m4a",
     }
 
 
@@ -192,10 +193,26 @@ def build_video(kousei, work, genbun, ruby, images, out_mp4, llm, brand=None):
                     "-c", "copy", "all_v.mp4"], check=True, cwd=B)
     subprocess.run(["ffmpeg", "-y", "-v", "error", "-f", "concat", "-safe", "0", "-i", "a.txt",
                     "-c", "copy", "all_a.wav"], check=True, cwd=B)
-    subprocess.run(["ffmpeg", "-y", "-v", "error", "-i", f"{B}/all_v.mp4", "-i", f"{B}/all_a.wav",
-        "-map", "0:v", "-map", "1:a", "-c:v", "copy",
-        "-af", "loudnorm=I=-16:TP=-1.5:LRA=11", "-c:a", "aac", "-b:a", "192k",
-        "-ar", "48000", out_mp4], check=True)
+    bgm = br.get("bgm")
+    if bgm and os.path.exists(bgm):
+        # BGMを尺に合わせてループし、声が鳴っている間だけ自動で絞る（サイドチェイン）。最後は4秒でフェードアウト
+        total = sum(durs)
+        vol = br.get("bgm_volume", 0.16)
+        fc = (f"[1:a]aresample=48000,volume=1.0[v];"
+              f"[2:a]aresample=48000,aloop=loop=-1:size=2147483647,atrim=0:{total:.3f},"
+              f"volume={vol},afade=t=in:d=2,afade=t=out:st={max(0, total - 4):.3f}:d=4[m];"
+              f"[v]asplit=2[v1][v2];"
+              f"[m][v1]sidechaincompress=threshold=0.015:ratio=8:attack=40:release=700:makeup=1[md];"
+              f"[v2][md]amix=inputs=2:normalize=0:duration=first,loudnorm=I=-16:TP=-1.5:LRA=11[a]")
+        subprocess.run(["ffmpeg", "-y", "-v", "error", "-i", f"{B}/all_v.mp4", "-i", f"{B}/all_a.wav",
+            "-stream_loop", "-1", "-i", bgm, "-filter_complex", fc,
+            "-map", "0:v", "-map", "[a]", "-c:v", "copy", "-c:a", "aac", "-b:a", "192k",
+            "-ar", "48000", "-t", f"{total:.3f}", out_mp4], check=True)
+    else:
+        subprocess.run(["ffmpeg", "-y", "-v", "error", "-i", f"{B}/all_v.mp4", "-i", f"{B}/all_a.wav",
+            "-map", "0:v", "-map", "1:a", "-c:v", "copy",
+            "-af", "loudnorm=I=-16:TP=-1.5:LRA=11", "-c:a", "aac", "-b:a", "192k",
+            "-ar", "48000", out_mp4], check=True)
     return sum(durs)
 
 def build_thumbnail(kousei, work, image_path, out_png, brand=None):

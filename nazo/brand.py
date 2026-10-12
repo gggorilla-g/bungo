@@ -39,4 +39,5 @@ def nazo_brand(work):
         "accent": "#c0392b",
         "css": CSS,
         "thumb_label": "世界の謎10分解説",
+        "bgm": "assets/bgm_nazo.m4a",
     }
