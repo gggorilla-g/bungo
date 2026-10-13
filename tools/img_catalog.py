@@ -8,17 +8,18 @@ import m4_images
 UA = m4_images.UA
 tid = os.environ["ONLY"]
 src = json.load(open(f"nazo/state/texts/{tid}.json", encoding="utf-8"))["meta"]
-out = f"nazo/img_catalog/{tid}"; os.makedirs(out, exist_ok=True)
+out = f"nazo/img_catalog/{tid}" + os.environ.get("SUFFIX", ""); os.makedirs(out, exist_ok=True)
 
 files = []
-for lang, title in [("ja", src["title"]), ("en", src.get("en_title"))]:
+pages = [("ja", src["title"]), ("en", src.get("en_title"))]
+pages += [tuple(x.split(":", 1)) for x in os.environ.get("PAGES", "").split(";") if ":" in x]   # 関連記事（人物・場所）
+for lang, title in pages:
     if not title: continue
     r = requests.get(f"https://{lang}.wikipedia.org/w/api.php", params={"action": "query", "format": "json",
         "titles": title, "prop": "images", "imlimit": 100, "redirects": 1}, headers=UA, timeout=30).json()
     for pg in r["query"]["pages"].values():
         files += [im["title"].split(":", 1)[1] for im in pg.get("images", [])]
-cat = os.environ.get("CATEGORY", "").strip()
-if cat:
+for cat in [c.strip() for c in os.environ.get("CATEGORY", "").split(";") if c.strip()]:
     cont = {}
     while True:
         r = requests.get("https://commons.wikimedia.org/w/api.php", params=dict({"action": "query", "format": "json",
