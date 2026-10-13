@@ -3,7 +3,7 @@
 # フェイルセーフは「投稿しない」: 事実照合・読みのどちらかに落ちたら欠番にしてログだけ残す。
 import json, os, sys, traceback, datetime
 sys.path.insert(0, "src"); sys.path.insert(0, "nazo")
-import m4_images, render, check, brand
+import m4_images, render, check, brand, thumb
 
 S = "nazo/state"
 
@@ -89,7 +89,7 @@ def main():
         out = f"output/nazo_{work['id']}.mp4"
         br = brand.nazo_brand(work)
         render.build_video(k, work, "", {}, images, out, llm=_no_llm, brand=br)
-        render.build_thumbnail(k, work, images.get("thumb_image") or (pool[0] if pool else None), "output/thumb.png", brand=br)
+        thumb.build(k["thumbnail"]["main_copy"], work["title"], images.get("thumb_image") or (pool[0] if pool else None), "output/thumb.png")
         vid = None
         if os.environ.get("YT_REFRESH_TOKEN"):
             import upload

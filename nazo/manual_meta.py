@@ -2,6 +2,7 @@
 import json, math, os, sys
 sys.path.insert(0, "src"); sys.path.insert(0, "nazo")
 import render, yomi, brand, upload, m4_images
+import thumb as thumbmod
 
 job = json.load(open("nazo/manual/job.json", encoding="utf-8"))
 k = job["kousei"]; tid = job["id"]
@@ -38,5 +39,5 @@ open(f"{out}/upload.txt", "w", encoding="utf-8").write(
 thumb = None
 if k.get("thumb_image") in got and m4_images.download(got[k["thumb_image"]]["url"], "build/thumb_src.jpg"):
     thumb = "build/thumb_src.jpg"
-render.build_thumbnail(k, job, thumb, f"{out}/thumb.png", brand=br)
+thumbmod.build(k["thumbnail"]["main_copy"], job["title"], thumb, f"{out}/thumb.png")
 print(f"尺 {t:.0f}秒 / チャプター {len(chapters)} / 画像出典 {len(credits)}")
