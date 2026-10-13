@@ -61,7 +61,8 @@ def upload(video_path, thumb_path, kousei, meta, image_credits, chapters=None):
                         client_secret=os.environ["YT_CLIENT_SECRET"],
                         token_uri="https://oauth2.googleapis.com/token")
     yt = build("youtube", "v3", credentials=creds)
-    status = {"selfDeclaredMadeForKids": False, "containsSyntheticMedia": True,
+    status = {"selfDeclaredMadeForKids": False, "containsSyntheticMedia": False,  # 申告対象外（合成音声は概要欄で開示）
+             
               "privacyStatus": "private"}
     if PUBLISH_MODE == "scheduled":
         status["publishAt"] = datetime.datetime.now(datetime.timezone.utc).replace(

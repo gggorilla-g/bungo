@@ -48,7 +48,7 @@ def upload(video_path, thumb_path, kousei, image_credits, chapters=None, author=
     yt = build("youtube", "v3", credentials=creds)
 
     status = {"selfDeclaredMadeForKids": False,
-              "containsSyntheticMedia": True}   # AI生成コンテンツの開示(正直に立てる)
+              "containsSyntheticMedia": False}  # YouTubeの申告対象（実在人物の偽発言・実映像の改変・現実に見える架空場面・AI作曲）に当たらない。合成音声は概要欄で開示
     if PUBLISH_MODE == "scheduled":
         publish_at = datetime.datetime.now(datetime.timezone.utc).replace(
             hour=12, minute=0, second=0, microsecond=0).isoformat()  # JST 21:00（制作はJST 12:05）
