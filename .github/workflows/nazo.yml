@@ -51,7 +51,9 @@ jobs:
           YT_CLIENT_ID:     ${{ secrets.YT_CLIENT_ID }}
           YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
           YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN_NAZO }}
-          NO_UPLOAD:        ${{ inputs.upload == false && '1' || '0' }}   # 手動実行で「投稿しない」を選んだとき 1
+          # 投稿しない条件: 手動実行で「投稿しない」を選んだとき／定期実行でAUTO_UPLOAD変数が1でないとき
+          # （API監査前は自動投稿が非公開に固定されるため、定期実行は動画と投稿キットを作るだけにする）
+          NO_UPLOAD:        ${{ (inputs.upload == false && '1') || (github.event_name == 'schedule' && vars.AUTO_UPLOAD != '1' && '1') || '0' }}
           PUBLISH_MODE:     ${{ vars.PUBLISH_MODE }}
         run: |
           if [ "$NO_UPLOAD" = "1" ]; then export YT_REFRESH_TOKEN=""; echo "投稿なしモード"; fi
@@ -62,11 +64,18 @@ jobs:
         run: |
           git config user.name "bungo-bot"
           git config user.email "bot@users.noreply.github.com"
-          git add nazo/state/
+          git add nazo/state/ nazo/manual/
           git diff --cached --quiet && exit 0
           git commit -m "nazo state: $(date -u +%F)"
           for i in 1 2 3; do git pull --rebase -q && git push && break; sleep 5; done
       - name: Upload video artifact
         if: github.event_name != 'push'
         uses: actions/upload-artifact@v4
-        with: { name: nazo-video, path: output/*.mp4, retention-days: 7, if-no-files-found: ignore }
+        with:
+          name: nazo-video
+          path: |
+            output/*.mp4
+            output/thumb.png
+            output/upload.txt
+          retention-days: 7
+          if-no-files-found: ignore

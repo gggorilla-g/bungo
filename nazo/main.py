@@ -91,9 +91,17 @@ def main():
         render.build_video(k, work, "", {}, images, out, llm=_no_llm, brand=br)
         thumb.build(k["thumbnail"]["main_copy"], work["title"], images.get("thumb_image") or (pool[0] if pool else None), "output/thumb.png")
         vid = None
+        import upload, shutil
+        chapters = json.load(open("build/chapters.json", encoding="utf-8"))
+        # 手動投稿用キット（タイトル・チャプター付き説明・タグ・サムネイル）。自動投稿の有無にかかわらず残す
+        kit = f"nazo/manual/{work['id']}"; os.makedirs(kit, exist_ok=True)
+        desc = upload.make_description(k, src["meta"], credits, chapters=chapters)
+        txt = ("【タイトル】\n" + k["title_candidates"][0] + "\n\n【説明】\n" + desc +
+               "\n\n【タグ】\n" + ",".join(k["tags"]) + "\n")
+        open(f"{kit}/upload.txt", "w", encoding="utf-8").write(txt)
+        open("output/upload.txt", "w", encoding="utf-8").write(txt)
+        shutil.copy("output/thumb.png", f"{kit}/thumb.png")
         if os.environ.get("YT_REFRESH_TOKEN"):
-            import upload
-            chapters = json.load(open("build/chapters.json", encoding="utf-8"))
             vid = upload.upload(out, "output/thumb.png", k, src["meta"], credits, chapters=chapters)
         published.append({"id": work["id"], "title": work["title"], "video_id": vid,
                           "date": datetime.date.today().isoformat(), "credits": credits})
