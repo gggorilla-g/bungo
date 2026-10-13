@@ -9,6 +9,20 @@ import m8_upload
 PUBLISH_MODE = os.environ.get("PUBLISH_MODE") or "private"  # private | scheduled
 
 
+def group_credits(credits):
+    """同じ作者・同じライセンスの画像が3点以上なら1行にまとめる（概要欄が出典で埋まらないように）"""
+    import re
+    groups = {}
+    for c in credits:
+        c = re.sub(r"(.{3,}?)\1", r"\1", c)          # 「Unknown authorUnknown author」の重複を直す
+        key = c.split("（File:")[0]
+        groups.setdefault(key, []).append(c)
+    out = []
+    for key, items in groups.items():
+        out += [f"{key}（{len(items)}点）"] if len(items) >= 3 else items
+    return out
+
+
 def make_description(kousei, meta, image_credits, chapters=None):
     lines = [kousei["description"], ""]
     if chapters:
@@ -22,8 +36,7 @@ def make_description(kousei, meta, image_credits, chapters=None):
         lines.append(f"参考: Wikipedia \"{meta['en_title']}\" {meta['url_en']} (CC BY-SA 4.0)")
     lines.append("音声: VOICEVOX:ずんだもん（合成音声）")
     lines.append("BGM: Calming seaside / 蒲鉾さちこ（DOVA-SYNDROME）")
-    for c in image_credits:
-        lines.append(f"画像: {c}")
+    lines += [f"画像: {c}" for c in group_credits(image_credits)]
     return "\n".join(lines)
 
 
