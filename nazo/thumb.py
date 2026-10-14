@@ -47,47 +47,63 @@ def _outlined(d, xy, text, font, fill, stroke):
     d.text((x, y), text, font=font, fill=fill, stroke_width=stroke, stroke_fill=(0, 0, 0))
 
 
+def _box(d, x, y, text, font, fg, bg, padx, pady):
+    """文字を四角で囲む（箱の中に文字）。箱の右端を返す"""
+    l, t, r, b = d.textbbox((0, 0), text, font=font)
+    w, h = r - l, b - t
+    d.rectangle([x, y, x + w + padx * 2, y + h + pady * 2], fill=bg)
+    d.text((x + padx - l, y + pady - t), text, font=font, fill=fg)
+    return x + w + padx * 2, y + h + pady * 2
+
+
 def build(main_copy, subject, image_path, out_png, badge="世界の謎を10分で解説"):
-    # 背景：実物の画像を右側に大きく（右の約2/3）。左は黒で、境目はなめらかに溶かす
-    IX = 420
+    # 背景：実物を右寄せで大きく（文字の箱に隠れにくいように）。左の余白は同じ画像をぼかして埋める
     im = Image.new("RGB", (W, H), (8, 8, 8))
     if image_path and os.path.exists(image_path):
         src = ImageOps.exif_transpose(Image.open(image_path)).convert("RGB")
-        src = ImageOps.fit(src, (W - IX, H), Image.LANCZOS, centering=(0.5, 0.45))
         src = ImageEnhance.Contrast(src).enhance(1.25)
         src = ImageEnhance.Color(src).enhance(1.3)
-        src = src.filter(ImageFilter.UnsharpMask(radius=2, percent=80, threshold=3))
-        mask = Image.new("L", (W - IX, H), 255)
+        bg = ImageOps.fit(src, (W, H), Image.LANCZOS).filter(ImageFilter.GaussianBlur(28))
+        im = ImageEnhance.Brightness(bg).enhance(0.55)
+        fw = min(int(W * 0.72), int(src.width * H / src.height))
+        fg = ImageOps.fit(src, (fw, H), Image.LANCZOS, centering=(0.5, 0.45))
+        fg = fg.filter(ImageFilter.UnsharpMask(radius=2, percent=80, threshold=3))
+        mask = Image.new("L", (fw, H), 255)
         md = ImageDraw.Draw(mask)
-        for x in range(220):
-            md.line([(x, 0), (x, H)], fill=int(255 * (x / 220) ** 1.3))
-        im.paste(src, (IX, 0), mask)
+        feather = min(120, fw // 5)
+        for x in range(feather):
+            md.line([(x, 0), (x, H)], fill=int(255 * x / feather))
+        im.paste(fg, (W - fw, 0), mask)
     d = ImageDraw.Draw(im)
 
-    # 左上の赤い札
-    bf = _font(40)
-    bw = int(bf.getlength(badge))
-    d.rectangle([0, 36, bw + 76, 36 + 78], fill=RED)
-    d.text((40, 36 + 8), badge, font=bf, fill=(255, 255, 255))
+    # 左上：赤い箱に白文字
+    _box(d, 0, 30, badge, _font(42), (255, 255, 255), RED, 36, 16)
 
-    # 2行コピー：画面の横幅の約65%まで、行ごとに最大の大きさで
+    # 2行コピー：1行目＝黒い箱に白文字、2行目＝黄色い箱に黒文字。どちらも極太で最大の大きさ
     lines = _lines(main_copy)
-    max_w = 820
-    fonts = [_fit(l, max_w, 170) for l in lines]
-    size = min(f.size for f in fonts)              # 2行の大きさをそろえる（小さいほうに合わせる）
-    fonts = [_font(size) for _ in lines]
-    lh = int(size * 1.22)
-    top = 150 + max(0, (2 - len(lines)) * lh // 2) + (170 - size) // 2
-    for i, (l, f) in enumerate(zip(lines, fonts)):
-        _outlined(d, (44, top + i * lh), l, f, (255, 255, 255) if i == 0 and len(lines) > 1 else YELLOW,
-                  stroke=max(6, size // 13))
+    pad = 26
+    fonts = [_fit(l, 1000 - pad * 2, 168) for l in lines]
+    size = min(f.size for f in fonts)
+    f = _font(size)
+    py = int(size * 0.16)
+    gap = 14
+    hs = []
+    for l in lines:
+        t, b = d.textbbox((0, 0), l, font=f)[1::2]
+        hs.append(b - t + py * 2)
+    block = sum(hs) + gap * (len(lines) - 1)
+    sf = _font(50)
+    st, sb = d.textbbox((0, 0), subject, font=sf)[1::2]
+    sub_top = H - 36 - (sb - st) - 32
+    area_top, area_bot = 30 + 90 + 20, sub_top - 20
+    y = area_top + max(0, (area_bot - area_top - block) // 2)
+    styles = [((255, 255, 255), (0, 0, 0)), ((0, 0, 0), YELLOW)] if len(lines) > 1 else [((0, 0, 0), YELLOW)]
+    for l, (fg_, bg_) in zip(lines, styles):
+        _, y2 = _box(d, 0, y, l, f, fg_, bg_, pad, py)
+        y = y2 + gap
 
-    # 下の題材名
-    sf = _font(48, "Bold")
-    tw = int(sf.getlength(subject))
-    d.rectangle([0, H - 118, tw + 90, H - 40], fill=(0, 0, 0))
-    d.rectangle([0, H - 118, 14, H - 40], fill=YELLOW)
-    d.text((44, H - 112), subject, font=sf, fill=(255, 255, 255))
+    # 下：題材名を白い箱に黒文字
+    _box(d, 0, sub_top, subject, sf, (0, 0, 0), (255, 255, 255), 30, 16)
 
     os.makedirs(os.path.dirname(out_png) or ".", exist_ok=True)
     im.save(out_png)
