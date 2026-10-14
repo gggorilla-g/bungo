@@ -33,7 +33,8 @@ files = [im["file"] for s in k["sections"] for im in s.get("images", [])] + [k["
 got = m4_images.commons_files(files)
 credits = sorted({v["credit"] for f, v in got.items() if f in files[:-1]})
 out = f"nazo/manual/{tid}"; os.makedirs(out, exist_ok=True)
-desc = upload.make_description(k, src["meta"], credits, chapters=chapters)
+desc = upload.make_description(k, src["meta"], credits, chapters=chapters, work_id=tid)
+open(f"{out}/credits.md", "w", encoding="utf-8").write(upload.credits_md(job["title"], credits))
 open(f"{out}/upload.txt", "w", encoding="utf-8").write(
     "【タイトル】\n" + k["title_candidates"][0] + "\n\n【説明】\n" + desc + "\n\n【タグ】\n" + ",".join(k["tags"]) + "\n")
 thumb = None

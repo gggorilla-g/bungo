@@ -14,3 +14,13 @@ if got:
         src = "build/thumb_src.jpg"
 subject = os.environ.get("SUBJECT") or k["thumbnail"].get("sub_copy", "")
 print(thumb.build(k["thumbnail"]["main_copy"], subject, src, f"nazo/manual/{i}/thumb.png"))
+
+# 画像の出典の全一覧（ファイル名つき）も作り直す
+import upload
+files = [im["file"] for s in k["sections"] for im in s.get("images", [])]
+files += [f for f in (k.get("title_image"), k.get("thumb_image")) if f]
+info = m4_images.commons_files(files)
+credits = [v["credit"] for v in info.values()]
+title = os.environ.get("SUBJECT") or k["thumbnail"].get("sub_copy", i)
+open(f"nazo/manual/{i}/credits.md", "w", encoding="utf-8").write(upload.credits_md(title, credits))
+print("credits", len(credits))

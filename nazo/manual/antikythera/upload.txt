@@ -1,5 +1,5 @@
 【タイトル】
-アンティキティラ島の機械は「ひとつだけ」だったのか
+2000年前のコンピューター「アンティキティラ島の機械」の謎【世界の謎を10分で解説】
 
 【説明】
 1901年、ギリシアの沈没船から見つかった歯車の機械「アンティキティラ島の機械」。
@@ -20,33 +20,12 @@
 この動画の事実（年代・数字・名称）はWikipediaの記述のみを根拠にしています。
 仮説は「説」として紹介しており、どれも定説ではありません。
 
-参考: Wikipedia「アンティキティラ島の機械」 https://ja.wikipedia.org/wiki/%E3%82%A2%E3%83%B3%E3%83%86%E3%82%A3%E3%82%AD%E3%83%86%E3%82%A3%E3%83%A9%E5%B3%B6%E3%81%AE%E6%A9%9F%E6%A2%B0 （CC BY-SA 4.0）
+参考: Wikipedia「アンティキティラ島の機械」 https://ja.wikipedia.org/wiki/アンティキティラ島の機械 （CC BY-SA 4.0）
 参考: Wikipedia "Antikythera mechanism" https://en.wikipedia.org/wiki/Antikythera_mechanism (CC BY-SA 4.0)
 音声: VOICEVOX:ずんだもん（合成音声）
 BGM: Calming seaside / 蒲鉾さちこ（DOVA-SYNDROME）
-画像: Apollo 8 crewmember Bill Anders / Public domain / Wikimedia Commons（File:Earth-moon.jpg）
-画像: Benjamin West / Public domain / Wikimedia Commons（File:Cicero Discovering the Tomb of Archimedes by Benjamin West.jpeg）
-画像: Cicero, Marcus Tullius / Public domain / Wikimedia Commons（File:Marci Tullii Ciceronis Opera Omnia.tif）
-画像: Denexeitelos / CC BY 4.0 / Wikimedia Commons（File:Mechanism of Antikythera - Kotsanas version - front side.jpg）
-画像: Domenico Fetti / Public domain / Wikimedia Commons（File:Domenico-Fetti Archimedes 1620.jpg）
-画像: Francesco Bini / CC BY-SA 4.0 / Wikimedia Commons（8点）
-画像: Hermann Göll / Public domain / Wikimedia Commons（File:Observatory in Alexandria at the Time of Hipparchus.jpg）
-画像: Jebulon / CC0 / Wikimedia Commons（File:Apollon temple acropolis Rhodes.jpg）
-画像: Jebulon / CC0 / Wikimedia Commons（File:Lindos Rhodes 1.jpg）
-画像: Louis Sargent, Charles Kreutzberger / Public domain / Wikimedia Commons（File:19th century Hipparchus engraving.jpg）
-画像: Mogi Vicentini / CC BY 2.5 / Wikimedia Commons（File:Antikythera model front panel Mogi Vicentini 2007.JPG）
-画像: No machine-readable author provided. Marsyas assumed (based on copyright claims). / CC BY 2.5 / Wikimedia Commons（File:NAMA Machine d'Anticythère 1.jpg）
-画像: No machine-readable author provided. Marsyas assumed (based on copyright claims). / CC BY 2.5 / Wikimedia Commons（File:NAMA Machine d'Anticythère 6.jpg）
-画像: SkoreKeep / CC BY-SA 3.0 / Wikimedia Commons（File:AntikytheraMechanismSchematic-Freeth12.png）
-画像: Thomas Ralph Spence / Public domain / Wikimedia Commons（File:Archimedes Directing the Defenses of Syracuse.jpg）
-画像: Unknown author / CC BY-SA 3.0 / Wikimedia Commons（File:Anticythera shipwreck. Standard diving dress (cropped).jpg）
-画像: Unknown author / Public domain / Wikimedia Commons（5点）
-画像: Vislupus / CC BY-SA 4.0 / Wikimedia Commons（File:National Archaeological Museum of Athens 023.jpg）
-画像: Vislupus / CC BY-SA 4.0 / Wikimedia Commons（File:National Archaeological Museum of Athens 028.jpg）
-画像: Xmoussas / CC BY-SA 4.0 / Wikimedia Commons（File:Manual2021-X MOUSSAS SAROS.jpg）
-画像: Yair-haklai / CC BY-SA 4.0 / Wikimedia Commons（File:Antikythera Marble horse.jpg）
-画像: Zde / CC BY-SA 4.0 / Wikimedia Commons（File:Mechanism of Antikythera, 150-100 BC, NAMA, 191435.jpg）
-画像: original: Gunnar Bach Pedersen; for that version: Louis le Grand / Public domain / Wikimedia Commons（File:M-T-Cicero.jpg）
+画像: Wikimedia Commons より（Apollo 8 crewmember Bill Anders（Public domain）、Benjamin West（Public domain）、Cicero, Marcus Tullius（Public domain）、Denexeitelos（CC BY 4.0）、Domenico Fetti（Public domain）、Francesco Bini（CC BY-SA 4.0）、Hermann Göll（Public domain）、Jebulon（CC0）、Louis Sargent, Charles Kreutzberger（Public domain）、Mogi Vicentini（CC BY 2.5）、Marsyas（CC BY 2.5）、SkoreKeep（CC BY-SA 3.0）、Thomas Ralph Spence（Public domain）、作者不詳（CC BY-SA 3.0）、作者不詳（Public domain）、Vislupus（CC BY-SA 4.0）、Xmoussas（CC BY-SA 4.0）、Yair-haklai（CC BY-SA 4.0）、Zde（CC BY-SA 4.0）、original: Gunnar Bach Pedersen; for that version: Louis le Grand（Public domain））
+画像の出典一覧（ファイル名つき）: https://github.com/gggorilla-g/bungo/blob/main/nazo/manual/antikythera/credits.md
 
 【タグ】
 アンティキティラ島の機械,未解決の謎,歴史ミステリー,古代ギリシア,アルキメデス,古代の技術,世界の謎,歯車,Antikythera mechanism,ancient Greece
