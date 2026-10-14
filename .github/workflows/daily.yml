@@ -20,7 +20,7 @@ jobs:
           key: vv-assets-0.16.4
       - name: Install deps
         run: |
-          sudo apt-get update -q && sudo apt-get install -y -q ffmpeg fonts-noto-cjk poppler-utils
+          sudo apt-get update -q && sudo apt-get install -y -q ffmpeg fonts-noto-cjk fonts-noto-cjk-extra poppler-utils
           pip install -q -r requirements.txt
           python src/setup_voicevox.py
       - name: Prefetch texts for stock (no LLM)
@@ -36,7 +36,10 @@ jobs:
           YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
           YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}
           ALLOW_API: ${{ vars.ALLOW_API }}
+          # API監査前は自動投稿が非公開に固定されるため、AUTO_UPLOAD変数が1になるまで投稿しない（動画だけ作る）
+          NO_UPLOAD: ${{ vars.AUTO_UPLOAD != '1' && '1' || '0' }}
         run: |
+          if [ "$NO_UPLOAD" = "1" ]; then export YT_REFRESH_TOKEN=""; echo "投稿なしモード"; fi
           python src/main.py 2>&1 | tee state/last_run_log.txt
           exit ${PIPESTATUS[0]}
       - name: Commit state back
