@@ -18,13 +18,23 @@ SR = 24000          # VOICEVOX出力のサンプルレート
 B = "build"
 
 _syn = None
+VVM = "0.vvm"
+def set_voice(vvm, style, speed=None, pitch=None, intonation=None):
+    """チャンネルごとの声（VOICEVOXのモデルファイルと話者スタイルID）"""
+    global VVM, STYLE, SPEED, PITCH, INTONATION, _syn
+    VVM, STYLE = vvm, style
+    if speed is not None: SPEED = speed
+    if pitch is not None: PITCH = pitch
+    if intonation is not None: INTONATION = intonation
+    _syn = None
+
 def syn():
     global _syn
     if _syn is None:
         ort = Onnxruntime.load_once(
             filename=f"{A}/voicevox_onnxruntime-linux-x64-{ORT}/lib/libvoicevox_onnxruntime.so.{ORT}")
         _syn = Synthesizer(ort, OpenJtalk(f"{A}/open_jtalk_dic_utf_8-1.11"))
-        with VoiceModelFile.open(f"{A}/0.vvm") as m:
+        with VoiceModelFile.open(f"{A}/{VVM}") as m:
             _syn.load_voice_model(m)
     return _syn
 
@@ -63,13 +73,19 @@ h1 { position:absolute; left:125px; bottom:110px; margin:0; font-size:120px; fon
             letter-spacing:.02em; }
 """
 
-def slide(body_html, out_png, image_path=None, scrim=0.45, subtitle=None, css_extra=""):
+def slide(body_html, out_png, image_path=None, scrim=0.45, subtitle=None, css_extra="", transparent=False):
     img64 = base64.b64encode(open(image_path, "rb").read()).decode() if image_path else ""
     css = CSS_BASE % (img64, scrim) + css_extra.replace("{scrim}", str(scrim))
+    if transparent:
+        css += " body { background:transparent !important; } "
     bg = '<div class="bg"></div><div class="scrim"></div>' if image_path else ''
     sub = f'<div class="subtitle">{subtitle}</div>' if subtitle else ''
     html = f'<html><head><meta charset="utf-8"><style>{css}</style></head><body>{bg}{body_html}{sub}</body></html>'
     HTML(string=html).write_pdf(f"{B}/_s.pdf")
+    if transparent:
+        subprocess.run(["pdftocairo", "-png", "-transp", "-r", "96", "-singlefile", f"{B}/_s.pdf",
+                        out_png.replace(".png", "")], check=True)
+        return
     subprocess.run(["pdftoppm", "-png", "-r", "96", "-singlefile", f"{B}/_s.pdf",
                     out_png.replace(".png", "")], check=True)
 
@@ -96,6 +112,16 @@ def seg(png, wav, name, pad=0.5):
         "-vf", "scale=1920:1080,format=yuv420p", "-c:v", "libx264", "-preset", "fast",
         "-tune", "stillimage", "-an", f"{B}/{name}.mp4"], check=True)
     return d
+
+def motion_seg(overlay_png, wav, name, beat, t_offset, pad=0.5, talk=True):
+    """動く1文。映像は motion.render_segment、音声は seg と同じく d 秒に合わせる"""
+    import motion
+    d = math.ceil((_wav_len(wav) + pad) * FPS) / FPS
+    _pad_wav(wav, f"{B}/{name}_p.wav", d)
+    motion.render_segment(f"{B}/{name}.mp4", d, f"{B}/{name}_p.wav", beat, overlay_png,
+                          talk_owl=talk, t_offset=t_offset)
+    return d
+
 
 def bungo_brand(work):
     """BUNGOの見た目と言い回し（既定値）。他チャンネルは同じ形のdictを渡す。"""
@@ -125,6 +151,8 @@ def build_video(kousei, work, genbun, ruby, images, out_mp4, llm, brand=None):
     import yomi
     os.makedirs(B, exist_ok=True)
     br = brand or bungo_brand(work)
+    if br.get("voice"):
+        set_voice(**br["voice"])
     label = br["label"]
     PART_LABEL = br["part_label"]
     PART_INTRO = br["part_intro"]
@@ -164,10 +192,24 @@ def build_video(kousei, work, genbun, ruby, images, out_mp4, llm, brand=None):
             return pool[min(len(pool) - 1, k * len(pool) // max(1, len(plan)))]
         return images.get(i)
     title_img = images.get("title_image") or (pool[0] if pool else None)
-    slide(br["title_card"], f"{B}/title.png", title_img,
-          scrim=0.6 if title_img else 0.5, css_extra=css)
+    use_motion = bool(br.get("motion"))
     tts(title_narr, f"{B}/title.wav")
-    durs.append(seg(f"{B}/title.png", f"{B}/title.wav", "title", pad=0.8)); names.append("title")
+    if use_motion:
+        import motion
+        slide(br.get("title_card_motion", br["title_card"]), f"{B}/title_ov.png", None,
+              css_extra=css, transparent=True)
+        tb = motion.Beat({"type": "photo"}, title_img)
+        durs.append(motion_seg(f"{B}/title_ov.png", f"{B}/title.wav", "title", tb, 0.0, pad=0.8))
+    else:
+        slide(br["title_card"], f"{B}/title.png", title_img,
+              scrim=0.6 if title_img else 0.5, css_extra=css)
+        durs.append(seg(f"{B}/title.png", f"{B}/title.wav", "title", pad=0.8))
+    names.append("title")
+    # 動かすセクション：台本に "motion" があるセクション（なければ最初のセクションだけ）
+    motion_secs = {i for i, s_ in enumerate(kousei["sections"]) if "motion" in s_}
+    if use_motion and not motion_secs:
+        motion_secs = {0}
+    beat_state = {}
 
     last_sec = -1
     for k, (i, sent) in enumerate(plan):
@@ -184,10 +226,34 @@ def build_video(kousei, work, genbun, ruby, images, out_mp4, llm, brand=None):
                 f'text-shadow:0 2px 16px rgba(0,0,0,.8);">{s["slide_heading"]}</h1>'
                 f'<div class="credit">{br["credit"]}</div>')
         n = f"s{k:03d}"
-        slide(body, f"{B}/{n}.png", pick(k, i), scrim=br.get("scrim", 0.5), subtitle=sent, css_extra=css)
         tts(sent, f"{B}/{n}.wav")
         is_sec_end = (k == len(plan) - 1) or (plan[k+1][0] != i)
-        durs.append(seg(f"{B}/{n}.png", f"{B}/{n}.wav", n, pad=1.2 if is_sec_end else 0.5))
+        if use_motion and i in motion_secs:
+            import motion
+            img = pick(k, i)
+            # この文で切り替わるビート（"at" の語を含む文から）。なければ今のビートを続ける
+            new = None
+            if beat_state.get("sec") != i:
+                beat_state.update(sec=i, beat=None, t=0.0, img=None)
+            for b in s.get("motion", []):
+                if b.get("at") and b["at"] in sent:
+                    new = b
+            if new is None and (beat_state["beat"] is None or img != beat_state["img"]):
+                new = {"type": "photo"}
+            if new is not None:
+                spec = dict(new)
+                if spec.get("file") and images.get("motion_files", {}).get(spec["file"]):
+                    spec["path"] = images["motion_files"][spec["file"]]
+                beat_state.update(beat=motion.Beat(spec, img), t=0.0, img=img, spec_at=new.get("at"))
+            slide(body, f"{B}/{n}_ov.png", None, subtitle=sent, transparent=True,
+                  css_extra=css + " .subtitle { right:470px !important; left:120px !important; } ")
+            d = motion_seg(f"{B}/{n}_ov.png", f"{B}/{n}.wav", n, beat_state["beat"], beat_state["t"],
+                           pad=1.2 if is_sec_end else 0.5)
+            beat_state["t"] += d
+            durs.append(d)
+        else:
+            slide(body, f"{B}/{n}.png", pick(k, i), scrim=br.get("scrim", 0.5), subtitle=sent, css_extra=css)
+            durs.append(seg(f"{B}/{n}.png", f"{B}/{n}.wav", n, pad=1.2 if is_sec_end else 0.5))
         names.append(n)
 
     json.dump([[h, int(t)] for h, t in ch_marks],

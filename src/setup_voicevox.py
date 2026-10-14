@@ -20,8 +20,16 @@ def fetch(url, out, retries=3):
         time.sleep(3)
     raise RuntimeError(f"ダウンロード失敗: {url}")
 
+# 追加の声（チャンネルごと）。キャッシュがあっても足りないものだけ取る
+EXTRA = ["10.vvm", "12.vvm", "15.vvm", "6.vvm"]
+def extra():
+    for v in EXTRA:
+        if not os.path.exists(f"{A}/{v}"):
+            fetch(f"https://github.com/VOICEVOX/voicevox_vvm/releases/download/{VER}/{v}", f"{A}/{v}")
+
 if os.path.exists(f"{A}/0.vvm"):
-    print("vv_assets cached, skip")
+    extra()
+    print("vv_assets cached")
     sys.exit(0)
 
 os.makedirs(A, exist_ok=True)
@@ -46,3 +54,5 @@ for p in need:
     if not os.path.exists(p):
         raise RuntimeError(f"資材が欠落: {p}")
 print("vv_assets ready")
+
+extra()

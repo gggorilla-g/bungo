@@ -1,6 +1,10 @@
 # nazo/brand.py — NAZOの見た目と言い回し。render.build_video(brand=...) に渡す。
 # BUNGO(紺×金・明朝)と逆の、黒×赤・ゴシック。
 
+CHANNEL = "世界の謎を10分で解説"        # 名前が決まったら差し替える
+VOICE = {"vvm": "0.vvm", "style": 3}     # 声が決まったら差し替える（いまは ずんだもん）
+VOICE_NAME = "ずんだもん"
+
 PART_LABEL = {"toi": "謎", "jijitsu": "わかっていること", "setsu": "説", "shin_toi": "残る問い"}
 # 事実と説の境目を、毎回声で宣言する（このチャンネルの約束事）
 PART_INTRO = {"setsu": "ここから先は、説の話です。", "shin_toi": "最後に。"}
@@ -40,7 +44,15 @@ def nazo_brand(work):
                        f'<h1 style="position:static;font-size:120px;text-align:center;">{title}</h1>'
                        f'</div></div>'
                        f'<div class="credit">参考：Wikipedia</div>'),
-        "credit": "参考：Wikipedia　VOICEVOX:ずんだもん",
+        "title_card_motion": (f'<div class="label">{label}</div>'
+                              f'<div class="center"><div style="text-align:center;margin-right:380px;">'
+                              f'<div style="display:inline-block;background:#c0392b;color:#fff;font-size:54px;font-weight:900;'
+                              f'padding:14px 34px;margin-bottom:36px;letter-spacing:.06em;">{CHANNEL}</div><br>'
+                              f'<h1 style="position:static;display:inline-block;font-size:150px;">{title}</h1>'
+                              f'</div></div>'),
+        "motion": True,          # 冒頭（最初のセクション）を、動く図解＋案内役の解説にする
+        "voice": VOICE,
+        "credit": f"参考：Wikipedia　VOICEVOX:{VOICE_NAME}",
         "accent": "#c0392b",
         "css": CSS,
         "thumb_label": "世界の謎10分解説",

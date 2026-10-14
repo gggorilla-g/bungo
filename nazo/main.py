@@ -80,11 +80,13 @@ def main():
         # 台本で場面ごとに画像を指定している場合（語っている内容と画像を対応させる）
         wanted = [im["file"] for s in k["sections"] for im in s.get("images", [])]
         wanted += [f for f in (k.get("title_image"), k.get("thumb_image")) if f]
+        wanted += [b["file"] for s in k["sections"] for b in s.get("motion", []) if b.get("file")]
         if wanted:
             got, local = m4_images.commons_files(wanted), {}
             print(f"指定画像の情報取得 {len(got)}/{len(set(wanted))}")
             # 寄り（zoom）を使う画像は、切り出しても粗くならないよう大きめで取る
             zoomed = {im["file"] for s in k["sections"] for im in s.get("images", []) if im.get("zoom")}
+            zoomed |= {b["file"] for s in k["sections"] for b in s.get("motion", []) if b.get("file") and b.get("zoom")}
             if zoomed:
                 got.update(m4_images.commons_files(sorted(zoomed), width=4000))
             for j, (f, info) in enumerate(got.items()):
@@ -98,6 +100,9 @@ def main():
                 if lst:
                     images["sec_list"][i] = lst
                     used |= {im["file"] for im in s.get("images", []) if im["file"] in local}
+            images["motion_files"] = {b["file"]: local[b["file"]] for s in k["sections"]
+                                      for b in s.get("motion", []) if b.get("file") in local}
+            used |= set(images["motion_files"])
             for key in ("title_image", "thumb_image"):
                 if k.get(key) in local:
                     images[key] = local[k[key]]; used.add(k[key])

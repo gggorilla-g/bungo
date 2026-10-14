@@ -47,6 +47,70 @@
      "file": "File:Phaistos Disc — Side B.jpg",
      "at": "たった一枚"
     }
+   ],
+   "motion": [
+    {
+     "at": "1908年",
+     "type": "year",
+     "year": 1908,
+     "label": "ギリシア・クレタ島"
+    },
+    {
+     "at": "南の海岸",
+     "type": "map",
+     "lat": 35.051,
+     "lon": 24.814,
+     "span": 3.6,
+     "label": "ファイストス",
+     "region": "ギリシア・クレタ島"
+    },
+    {
+     "at": "直径16センチ",
+     "type": "size",
+     "file": "File:Phaistos Disc — Side A.jpg",
+     "span": [
+      0.17,
+      0.81,
+      0.5
+     ],
+     "label": "直径 16cm・厚さ 2.1cm"
+    },
+    {
+     "at": "紀元前1950年",
+     "type": "year",
+     "year": -1950,
+     "text": "紀元前1950〜1400年ごろ",
+     "label": "作られた時期（推定）"
+    },
+    {
+     "at": "イラクリオン考古学博物館",
+     "type": "map",
+     "lat": 35.339,
+     "lon": 25.137,
+     "span": 3.6,
+     "label": "イラクリオン考古学博物館",
+     "region": "いまの保管場所"
+    },
+    {
+     "at": "最古の印刷物",
+     "type": "words",
+     "text": "「最古の印刷物」\nと呼ばれる円盤"
+    },
+    {
+     "at": "印章のようなもの",
+     "type": "photo",
+     "file": "File:Phaistos Disc — Side A.jpg",
+     "zoom": [
+      0.47,
+      0.55,
+      0.3
+     ]
+    },
+    {
+     "at": "ほかに一つも",
+     "type": "words",
+     "text": "同じ印章の物は\nほかに見つかっていない"
+    }
    ]
   },
   {
