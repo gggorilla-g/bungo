@@ -70,8 +70,26 @@
      "at": "45種類"
     },
     {
+     "file": "File:Discos Phaitos Umzeichnung.png",
+     "at": "垂直の線",
+     "zoom": [
+      0.2,
+      0.45,
+      0.28
+     ]
+    },
+    {
+     "file": "File:PhaistosDiskLarge.jpg",
+     "at": "区切りの数は"
+    },
+    {
      "file": "File:Phaistos Disc — Side A.jpg",
-     "at": "人の顔"
+     "at": "人の顔",
+     "zoom": [
+      0.47,
+      0.55,
+      0.3
+     ]
     },
     {
      "file": "File:202610 The archaeological site of Phaistos 16.jpg",
@@ -204,8 +222,13 @@
      "at": "円盤の写真は"
     },
     {
-     "file": "File:Phaistos Disc — Side A.jpg",
-     "at": "羽根飾り"
+     "file": "File:Discos Phaitos Umzeichnung.png",
+     "at": "羽根飾り",
+     "zoom": [
+      0.33,
+      0.72,
+      0.26
+     ]
     }
    ]
   }

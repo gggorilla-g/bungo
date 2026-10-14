@@ -33,3 +33,8 @@
 1. `python nazo/stock.py check <id> nazo/drafts/<id>.json` で照合とカナを確認
 2. 誤読は台本をかなに開くか、`nazo/drafts/<id>_yomi.json` に {原文の文: 読み上げ文} で修正
 3. `python nazo/stock.py push <id> nazo/drafts/<id>.json nazo/drafts/<id>_yomi.json`
+
+## 画像の「寄り」
+- 文字の形・部分の話をしている文では、その部分に寄った絵に切り替える。
+- 書き方: `{"file": "...", "at": "その文の語", "zoom": [中心x, 中心y, 幅]}`（どれも画像に対する0〜1の割合、枠は16:9）。
+- 寄りの位置は在庫を作るときに画像を見て決める（カタログのサムネで確認）。寄った次の文で全体に戻すと、どこの話かわかりやすい。

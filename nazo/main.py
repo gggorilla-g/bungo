@@ -23,6 +23,23 @@ def _no_llm(_):
     raise RuntimeError("NAZOは在庫方式専用: 実行時にLLMは呼ばない")
 
 
+
+def zoom_crop(path, zoom):
+    """画像の一部を切り出して「寄り」の絵を作る。zoom = [中心x, 中心y, 幅]（どれも画像に対する0〜1の割合）。
+    切り出す枠は画面と同じ16:9。画像の端からはみ出す分は内側に寄せる"""
+    import subprocess, hashlib
+    cx, cy, fw = zoom
+    W, H = map(int, subprocess.run(["ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries",
+        "stream=width,height", "-of", "csv=p=0", path], capture_output=True, text=True, check=True).stdout.strip().split(",")[:2])
+    w = min(W, max(64, int(W * fw)))
+    h = min(H, int(w * 9 / 16))
+    w = min(w, int(h * 16 / 9))
+    x = min(max(0, int(cx * W - w / 2)), W - w)
+    y = min(max(0, int(cy * H - h / 2)), H - h)
+    out = path.replace(".jpg", f"_z{hashlib.md5(str(zoom).encode()).hexdigest()[:6]}.jpg")
+    subprocess.run(["ffmpeg", "-y", "-v", "error", "-i", path, "-vf", f"crop={w}:{h}:{x}:{y}", "-q:v", "2", out], check=True)
+    return out
+
 def main():
     published = load(f"{S}/published.json", [])
     failures = load(f"{S}/failures.json", [])
@@ -66,13 +83,18 @@ def main():
         if wanted:
             got, local = m4_images.commons_files(wanted), {}
             print(f"指定画像の情報取得 {len(got)}/{len(set(wanted))}")
+            # 寄り（zoom）を使う画像は、切り出しても粗くならないよう大きめで取る
+            zoomed = {im["file"] for s in k["sections"] for im in s.get("images", []) if im.get("zoom")}
+            if zoomed:
+                got.update(m4_images.commons_files(sorted(zoomed), width=4000))
             for j, (f, info) in enumerate(got.items()):
                 if m4_images.download(info["url"], f"build/sel{j}.jpg", fallback=info.get("orig")):
                     local[f] = f"build/sel{j}.jpg"
             used = set()
             images["sec_list"] = {}
             for i, s in enumerate(k["sections"]):
-                lst = [(im.get("at"), local[im["file"]]) for im in s.get("images", []) if im["file"] in local]
+                lst = [(im.get("at"), zoom_crop(local[im["file"]], im["zoom"]) if im.get("zoom") else local[im["file"]])
+                       for im in s.get("images", []) if im["file"] in local]
                 if lst:
                     images["sec_list"][i] = lst
                     used |= {im["file"] for im in s.get("images", []) if im["file"] in local}
