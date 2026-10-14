@@ -209,16 +209,13 @@ def build_video(kousei, work, genbun, ruby, images, out_mp4, llm, brand=None):
                     "-c", "copy", "all_a.wav"], check=True, cwd=B)
     bgm = br.get("bgm")
     if bgm and os.path.exists(bgm):
-        bgm = _bgm_loop(bgm, sum(durs))
-        # BGMを尺に合わせてループし、声が鳴っている間だけ自動で絞る（サイドチェイン）。最後は4秒でフェードアウト
         total = sum(durs)
-        vol = br.get("bgm_volume", 0.16)
-        fc = (f"[1:a]aresample=48000,volume=1.0[v];"
-              f"[2:a]aresample=48000,atrim=0:{total:.3f},"
-              f"volume={vol},afade=t=in:d=2,afade=t=out:st={max(0, total - 4):.3f}:d=4[m];"
-              f"[v]asplit=2[v1][v2];"
-              f"[m][v1]sidechaincompress=threshold=0.015:ratio=8:attack=40:release=700:makeup=1[md];"
-              f"[v2][md]amix=inputs=2:normalize=0:duration=first,loudnorm=I=-16:TP=-1.5:LRA=11[a]")
+        bgm = _bgm_loop(bgm, total)
+        # 声の区間だけBGMを下げる。文の切れ目程度の短い無音では戻さず、下げ幅も小さく、ゆっくり動かす
+        bgm = _bgm_duck(bgm, f"{B}/all_a.wav", total, br.get("bgm_volume", 0.09),
+                        duck_db=br.get("bgm_duck_db", -5.0))
+        fc = ("[1:a]aresample=48000[v];[2:a]aresample=48000[m];"
+              "[v][m]amix=inputs=2:normalize=0:duration=first,loudnorm=I=-16:TP=-1.5:LRA=11[a]")
         subprocess.run(["ffmpeg", "-y", "-v", "error", "-i", f"{B}/all_v.mp4", "-i", f"{B}/all_a.wav",
             "-i", bgm, "-filter_complex", fc,
             "-map", "0:v", "-map", "[a]", "-c:v", "copy", "-c:a", "aac", "-b:a", "192k",
@@ -249,6 +246,52 @@ def _bgm_loop(src, total, xfade=4.0):
                    input=np.clip(out[:need], -32768, 32767).astype(np.int16).tobytes(), check=True)
     return dst
 
+
+
+def _bgm_duck(bgm_wav, voice_wav, total, vol, duck_db=-5.0, hold=3.0, down=0.8, up=2.0):
+    """BGMの音量カーブを先に計算して掛ける（コンプレッサーを使わない）。
+    - 声のある区間で duck_db だけ下げる（下げ幅は小さめ）
+    - hold 秒未満の無音（文と文の間）は「声が続いている」とみなし、BGMを戻さない
+    - 下げは down 秒、戻しは up 秒かけてなめらかに動かす
+    - 頭2秒フェードイン、最後4秒フェードアウト"""
+    import numpy as np
+    sr = 48000
+    def load(p):
+        raw = subprocess.run(["ffmpeg", "-v", "error", "-i", p, "-f", "s16le", "-ac", "1", "-ar", str(sr), "-"],
+                             check=True, capture_output=True).stdout
+        return np.frombuffer(raw, dtype=np.int16).astype(np.float32) / 32768
+    m, v = load(bgm_wav), load(voice_wav)
+    n = int(total * sr)
+    m = np.pad(m, (0, max(0, n - len(m))))[:n]
+    v = np.pad(v, (0, max(0, n - len(v))))[:n]
+    hop = sr // 100                                   # 10ms単位で判定
+    k = n // hop
+    rms = np.sqrt((v[:k * hop].reshape(k, hop) ** 2).mean(1) + 1e-12)
+    speech = rms > 0.01
+    # 短い無音を埋める
+    idx = np.flatnonzero(speech)
+    if len(idx):
+        gaps = np.flatnonzero(np.diff(idx) > 1)
+        for g in gaps:
+            a, b = idx[g], idx[g + 1]
+            if (b - a) * 0.01 < hold:
+                speech[a:b] = True
+    target = np.where(speech, 10 ** (duck_db / 20), 1.0)
+    # 片側ずつ時定数を変えてなめらかに（下げは速め、戻しはゆっくり）
+    g = np.empty(k); cur = target[0]
+    a_dn, a_up = 1 - np.exp(-0.01 / (down / 3)), 1 - np.exp(-0.01 / (up / 3))
+    for i, t in enumerate(target):
+        cur += (t - cur) * (a_dn if t < cur else a_up)
+        g[i] = cur
+    gain = np.interp(np.arange(n), np.arange(k) * hop + hop / 2, g)
+    fade = np.ones(n)
+    fi, fo = int(2 * sr), int(4 * sr)
+    fade[:fi] = np.linspace(0, 1, fi); fade[-fo:] *= np.linspace(1, 0, fo)
+    out = m * gain * fade * vol
+    dst = f"{B}/bgm_ducked.wav"
+    subprocess.run(["ffmpeg", "-y", "-v", "error", "-f", "s16le", "-ar", str(sr), "-ac", "1", "-i", "-", dst],
+                   input=(np.clip(out, -1, 1) * 32767).astype(np.int16).tobytes(), check=True)
+    return dst
 
 def build_thumbnail(kousei, work, image_path, out_png, brand=None):
     br = brand or bungo_brand(work)
