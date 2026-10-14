@@ -79,7 +79,20 @@ def owl(eyes="open", beak="closed", wing="rest", size=600, look=(0, 0)):
     lx, ly = look
     for cx in (112, 172):
         _ell(d, (cx - 24, 98, cx + 24, 146), WHITE, 0)
-        if eyes == "closed":
+        if eyes == "jito":
+            # ジト目：上まぶたが水平に下り、瞳は下の方で横目
+            _ell(d, (cx - 10 + 6, 120, cx + 12 + 6, 142), PUPIL, 0)
+            d.rectangle([(cx - 25) * S, 96 * S, (cx + 25) * S, 121 * S], fill=FACE)
+            d.line([(cx - 24) * S, 121 * S, (cx + 24) * S, 121 * S], fill=INK, width=5 * S)
+        elif eyes == "uruuru":
+            # うるうる：大きな瞳に光をたくさん、下に涙の水たまり
+            _ell(d, (cx - 17, 104, cx + 17, 140), PUPIL, 0)
+            _ell(d, (cx - 11, 108, cx - 1, 118), WHITE, 0)
+            _ell(d, (cx + 4, 124, cx + 9, 129), WHITE, 0)
+            _ell(d, (cx - 8, 129, cx - 4, 133), WHITE, 0)
+            d.chord([(cx - 23) * S, 118 * S, (cx + 23) * S, 148 * S], 0, 180, fill=(150, 205, 240, 255))
+            d.arc([(cx - 23) * S, 118 * S, (cx + 23) * S, 148 * S], 0, 180, fill=(90, 160, 220, 255), width=2 * S)
+        elif eyes == "closed":
             d.rectangle([(cx - 25) * S, 97 * S, (cx + 25) * S, 147 * S], fill=FACE)
             d.arc([(cx - 18) * S, 112 * S, (cx + 18) * S, 134 * S], 20, 160, fill=INK, width=5 * S)
         else:
@@ -91,6 +104,9 @@ def owl(eyes="open", beak="closed", wing="rest", size=600, look=(0, 0)):
         # メガネの縁（丸メガネ）
         d.ellipse([(cx - 28) * S, 94 * S, (cx + 28) * S, 150 * S], outline=GLASS, width=6 * S)
     d.line([136 * S, 118 * S, 148 * S, 118 * S], fill=GLASS, width=6 * S)  # ブリッジ
+    if eyes == "uruuru":
+        _poly(d, [(196, 148), (190, 162), (202, 162)], (150, 205, 240, 255), 0)
+        _ell(d, (189, 157, 203, 171), (150, 205, 240, 255), 0)
 
     # くちばし（closed=三角 / open=上下に開く）
     if beak == "open":
@@ -112,8 +128,8 @@ def owl(eyes="open", beak="closed", wing="rest", size=600, look=(0, 0)):
 if __name__ == "__main__":
     import sys
     out = sys.argv[1] if len(sys.argv) > 1 else "build/owl_sheet.png"
-    poses = [("open", "closed", "rest"), ("open", "open", "rest"), ("half", "closed", "rest"),
-             ("closed", "closed", "rest"), ("open", "open", "point")]
+    poses = [("open", "closed", "rest"), ("open", "open", "rest"), ("jito", "closed", "rest"),
+             ("uruuru", "closed", "rest"), ("closed", "closed", "rest")]
     sheet = Image.new("RGBA", (300 * len(poses), 300), (40, 40, 40, 255))
     for i, p in enumerate(poses):
         o = owl(*p, size=300)

@@ -113,13 +113,48 @@ def seg(png, wav, name, pad=0.5):
         "-tune", "stillimage", "-an", f"{B}/{name}.mp4"], check=True)
     return d
 
-def motion_seg(overlay_png, wav, name, beat, t_offset, pad=0.5, talk=True):
+def pan_seg(img_path, overlay_png, wav, name, k, pad=0.5):
+    """静止画をゆっくりパンする1カット（ffmpegだけで作るので軽い）。
+    k（カット番号）で、引き／寄り と パンの向きを交互に変えて、カットにリズムを出す"""
+    import motion
+    d = math.ceil((_wav_len(wav) + pad) * FPS) / FPS
+    _pad_wav(wav, f"{B}/{name}_p.wav", d)
+    close = (k % 2 == 1)
+    scale = 1.45 if close else 1.12
+    canvas, _ = motion.stage(img_path, scale=scale)
+    canvas.save(f"{B}/{name}_bg.jpg", quality=92)
+    cw, ch = canvas.size
+    mx, my = cw - 1920, ch - 1080
+    span = mx * (0.5 if close else 1.0)                   # 寄りは動きを半分に
+    x0 = (mx - span) / 2 if (k // 2) % 2 == 0 else (mx + span) / 2
+    x1 = (mx + span) / 2 if (k // 2) % 2 == 0 else (mx - span) / 2
+    y = my * (0.42 if close else 0.5)
+    n = int(round(d * FPS))
+    fc = (f"[0:v]crop=1920:1080:x='{x0:.1f}+({x1 - x0:.1f})*t/{d:.3f}':y={y:.1f},setsar=1[b];"
+          f"[1:v]scale=1920:1080[o];[b][o]overlay=0:0,format=yuv420p[v]")
+    subprocess.run(["ffmpeg", "-y", "-v", "error", "-loop", "1", "-framerate", str(FPS), "-i", f"{B}/{name}_bg.jpg",
+                    "-loop", "1", "-framerate", str(FPS), "-i", overlay_png, "-filter_complex", fc,
+                    "-map", "[v]", "-frames:v", str(n), "-c:v", "libx264", "-preset", "fast", "-crf", "21",
+                    "-an", f"{B}/{name}.mp4"], check=True)
+    return d
+
+
+def host_face(sentence):
+    """ホー博士の表情：問いかけ・念押しはジト目、お願いはうるうる"""
+    if any(w in sentence for w in ("登録", "待っていて", "お願い", "うれしい")):
+        return "uruuru"
+    if any(w in sentence for w in ("なぜ", "本当", "見逃さん", "どの説")):
+        return "jito"
+    return None
+
+
+def motion_seg(overlay_png, wav, name, beat, t_offset, pad=0.5, talk=True, face=None):
     """動く1文。映像は motion.render_segment、音声は seg と同じく d 秒に合わせる"""
     import motion
     d = math.ceil((_wav_len(wav) + pad) * FPS) / FPS
     _pad_wav(wav, f"{B}/{name}_p.wav", d)
     motion.render_segment(f"{B}/{name}.mp4", d, f"{B}/{name}_p.wav", beat, overlay_png,
-                          talk_owl=talk, t_offset=t_offset)
+                          talk_owl=talk, t_offset=t_offset, face=face)
     return d
 
 
@@ -167,8 +202,11 @@ def build_video(kousei, work, genbun, ruby, images, out_mp4, llm, brand=None):
         narr = (intro + s["narration"]) if (intro and first_of_part) else s["narration"]
         for sent in yomi.split_sentences(narr):
             plan.append((i, sent))
+    host_sents = yomi.split_sentences(kousei["host_intro"]) if (br.get("motion") and kousei.get("host_intro")) else []
+    outro_text = kousei.get("host_outro") or br.get("host_outro", "")
+    outro_sents = yomi.split_sentences(outro_text) if (br.get("motion") and outro_text) else []
     _YOMI.clear()
-    _YOMI.update(yomi.prepare([title_narr] + [s for _, s in plan], work, ruby, llm))
+    _YOMI.update(yomi.prepare([title_narr] + [s for _, s in plan] + host_sents + outro_sents, work, ruby, llm))
 
     names, durs, ch_marks = [], [], []
     # ---- タイトルカード ----
@@ -217,6 +255,13 @@ def build_video(kousei, work, genbun, ruby, images, out_mp4, llm, brand=None):
         if i != last_sec:
             ch_marks.append((s["slide_heading"], sum(durs)))  # 見出し=チャプター（ズレなし）
             last_sec = i
+            if use_motion and i > 0:
+                import motion
+                cn = f"c{i:02d}"
+                cd = round(1.6 * FPS) / FPS
+                motion.chime_wav(f"{B}/{cn}_p.wav", cd)
+                motion.chapter_card(s["slide_heading"], f"{B}/{cn}.mp4", cd)
+                durs.append(cd); names.append(cn)
         plabel = PART_LABEL.get(s["type"], "")
         badge = (f'<div class="badge" style="position:absolute;top:88px;right:125px;'
                  f'font-family:\'Noto Sans CJK JP\';font-size:30px;color:{br["accent"]};'
@@ -245,16 +290,53 @@ def build_video(kousei, work, genbun, ruby, images, out_mp4, llm, brand=None):
                 if spec.get("file") and images.get("motion_files", {}).get(spec["file"]):
                     spec["path"] = images["motion_files"][spec["file"]]
                 beat_state.update(beat=motion.Beat(spec, img), t=0.0, img=img, spec_at=new.get("at"))
-            slide(body, f"{B}/{n}_ov.png", None, subtitle=sent, transparent=True,
-                  css_extra=css + " .subtitle { right:470px !important; left:120px !important; } ")
+            slide(body, f"{B}/{n}_ov.png", None, subtitle=sent, transparent=True, css_extra=css)
             d = motion_seg(f"{B}/{n}_ov.png", f"{B}/{n}.wav", n, beat_state["beat"], beat_state["t"],
                            pad=1.2 if is_sec_end else 0.5)
             beat_state["t"] += d
             durs.append(d)
+            names.append(n)
+            # 概要（最初のセクション）のあと、案内役のピンショットで名乗って本題へ
+            if i == 0 and is_sec_end and host_sents:
+                hb = motion.Beat({"type": "host", "name": br.get("host_name", "ホー博士"),
+                                  "role": br.get("host_role", "")}, img)
+                ht = 0.0
+                for j, hs in enumerate(host_sents):
+                    hn = f"h{j:02d}"
+                    tts(hs, f"{B}/{hn}.wav")
+                    slide("", f"{B}/{hn}_ov.png", None, subtitle=hs, transparent=True,
+                          css_extra=css + " .subtitle { left:1180px !important; right:70px !important; } ")
+                    hd = motion_seg(f"{B}/{hn}_ov.png", f"{B}/{hn}.wav", hn, hb, ht,
+                                    pad=0.9 if j == len(host_sents) - 1 else 0.4, face=host_face(hs))
+                    ht += hd
+                    durs.append(hd); names.append(hn)
+            continue
+        elif use_motion and pick(k, i):
+            # 本編：静止画もゆっくりパンし、1文ごとに引き／寄りを切り替える
+            slide(body, f"{B}/{n}_ov.png", None, subtitle=sent, transparent=True, css_extra=css)
+            durs.append(pan_seg(pick(k, i), f"{B}/{n}_ov.png", f"{B}/{n}.wav", n, k,
+                                pad=1.2 if is_sec_end else 0.5))
         else:
             slide(body, f"{B}/{n}.png", pick(k, i), scrim=br.get("scrim", 0.5), subtitle=sent, css_extra=css)
             durs.append(seg(f"{B}/{n}.png", f"{B}/{n}.wav", n, pad=1.2 if is_sec_end else 0.5))
         names.append(n)
+
+    # 最後：案内役のピンショットで締め（感想の問いかけ・次回・チャンネル登録）
+    if use_motion and outro_sents:
+        import motion
+        ob = motion.Beat({"type": "host", "name": br.get("host_name", "ホー博士"),
+                          "role": br.get("host_role", "")}, pick(len(plan) - 1, plan[-1][0]) if plan else title_img)
+        ch_marks.append((br.get("outro_heading", "おわりに"), sum(durs)))
+        ot = 0.0
+        for j, os_ in enumerate(outro_sents):
+            on = f"o{j:02d}"
+            tts(os_, f"{B}/{on}.wav")
+            slide("", f"{B}/{on}_ov.png", None, subtitle=os_, transparent=True,
+                  css_extra=css + " .subtitle { left:1180px !important; right:70px !important; } ")
+            od = motion_seg(f"{B}/{on}_ov.png", f"{B}/{on}.wav", on, ob, ot,
+                            pad=2.0 if j == len(outro_sents) - 1 else 0.4, face=host_face(os_))
+            ot += od
+            durs.append(od); names.append(on)
 
     json.dump([[h, int(t)] for h, t in ch_marks],
               open(f"{B}/chapters.json", "w", encoding="utf-8"), ensure_ascii=False)

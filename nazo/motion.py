@@ -22,6 +22,8 @@ W, H = 1920, 1080
 RED, YELLOW, WHITE, BLACK = (192, 57, 43), (255, 226, 0), (255, 255, 255), (0, 0, 0)
 OWL_SIZE = 380
 OWL_POS = (W - OWL_SIZE - 30, H - OWL_SIZE + 20)
+HOST_SIZE = 860
+HOST_POS = ((W - HOST_SIZE) // 2 - 260, H - HOST_SIZE + 40)
 
 
 # ---------- 文字 ----------
@@ -132,13 +134,15 @@ class Beat:
         self.s, self.img, self.prev = spec, img_path, prev_canvas
         t = spec.get("type", "photo")
         self.type = t
-        if t in ("photo", "size", "year", "words"):
+        if t in ("photo", "size", "year", "words", "host"):
             path = spec.get("path") or img_path
             self.canvas, self.box = stage(path) if path else (Image.new("RGB", (int(W * 1.25), int(H * 1.25)), (12, 12, 12)), (0, 0, 1, 1))
         if t == "map":
-            self.wide = draw_map(spec["lat"], spec["lon"], spec.get("span", 4) * 6)
+            self.wide = draw_map(spec["lat"], spec["lon"], spec.get("span", 4) * 3)
             self.close = draw_map(spec["lat"], spec["lon"], spec.get("span", 4))
         self.point = t in ("map", "size", "year")
+        if t == "host":
+            self.canvas = ImageEnhance.Brightness(self.canvas.filter(ImageFilter.GaussianBlur(18))).enhance(0.5)
 
     def frame(self, t, dur):
         s = self.s
@@ -156,15 +160,11 @@ class Beat:
         if self.type == "map":
             e = ease(t / 1.4)
             # 広域→寄りをクロスフェードしながら拡大
-            a = view(self.wide, 0.5, 0.5, 1 + 5 * e)
+            a = view(self.wide, 0.5, 0.5, 1 + 2 * e)
             im = Image.blend(a, self.close, ease((t - 0.6) / 0.8)) if t > 0.6 else a
             d = ImageDraw.Draw(im)
             if t > 1.3:  # ピンが落ちる
-                pt = min(1, (t - 1.3) / 0.35)
-                px, py = W // 2, int(H // 2 - 260 * (1 - back(pt)))
-                for r in range(3):  # 波紋
-                    rr = int(((t - 1.6) * 60 + r * 40) % 120) if t > 1.6 else 0
-                    if rr: d.ellipse([W // 2 - rr, H // 2 - rr * 0.5, W // 2 + rr, H // 2 + rr * 0.5], outline=RED, width=4)
+                px, py = W // 2, H // 2
                 d.ellipse([px - 26, py - 86, px + 26, py - 34], fill=RED, outline=BLACK, width=4)
                 d.polygon([(px - 20, py - 50), (px + 20, py - 50), (px, py)], fill=RED, outline=BLACK)
                 d.ellipse([px - 9, py - 69, px + 9, py - 51], fill=WHITE)
@@ -209,6 +209,15 @@ class Beat:
                 if t > 0.9:
                     box_text(d, int(cx), int(yy) - 140, s["label"], font(72), BLACK, YELLOW, anchor="ct")
             return im
+        if self.type == "host":
+            im = view(self.canvas, 0.5, 0.5, 1.0 + 0.03 * (t / max(dur, 0.01)))
+            d = ImageDraw.Draw(im)
+            e = back(min(1, t / 0.4))
+            if e > 0:
+                box_text(d, int(1180 + 400 * (1 - e)), 300, s.get("name", "ホー博士"), font(110), BLACK, YELLOW, 40, 20)
+            if s.get("role") and t > 0.25:
+                box_text(d, 1180, 470, s["role"], font(52), WHITE, BLACK)
+            return im
         if self.type == "words":
             im = ImageEnhance.Brightness(view(self.canvas, 0.5, 0.5, 1.04)).enhance(0.5)
             d = ImageDraw.Draw(im)
@@ -228,10 +237,11 @@ class Beat:
 
 # ---------- 案内役 ----------
 _owl_cache = {}
-def owl_img(eyes, beak, wing):
-    k = (eyes, beak, wing)
+def owl_img(eyes, beak, wing, size=None):
+    size = size or OWL_SIZE
+    k = (eyes, beak, wing, size)
     if k not in _owl_cache:
-        _owl_cache[k] = owlmod.owl(eyes, beak, wing, size=OWL_SIZE)
+        _owl_cache[k] = owlmod.owl(eyes, beak, wing, size=size)
     return _owl_cache[k]
 
 
@@ -246,27 +256,35 @@ def mouth_track(wav_path, n):
         seg = x[i * hop:(i + 1) * hop]
         out.append(float(np.sqrt((seg ** 2).mean())) if len(seg) else 0.0)
     thr = 0.035
-    op = [r > thr for r in out]
-    # 開きっぱなしにならないよう、3フレームごとに一度閉じる
-    return [o and (i % 4 != 3) for i, o in enumerate(op)]
+    voiced = np.array([r > thr for r in out], bool)
+    # 0.3秒未満の無音は「話し続けている」とみなす（文中の息つぎで口を止めない）
+    idx = np.flatnonzero(voiced)
+    for a, b in zip(idx[:-1], idx[1:]):
+        if 1 < b - a <= int(0.3 * FPS):
+            voiced[a:b] = True
+    # 文字数には合わせず、一定のゆっくりしたリズムで開閉（8フレーム開く→8フレーム閉じる）
+    return [bool(v) and ((i // 8) % 2 == 0) for i, v in enumerate(voiced)]
 
 
-def owl_frame(i, talk, point, seed=0):
+def owl_frame(i, talk, point, seed=0, size=None, pos=None, face=None):
     t = i / FPS
     # まばたき：約3.7秒ごとに3フレーム
-    ph = (i + seed * 17) % 89
+    ph = (i + seed * 17) % 121
     eyes = "half" if ph in (0, 2) else ("closed" if ph == 1 else "open")
+    if face in ("jito", "uruuru"):
+        eyes = face          # 表情の文では、まばたきせず表情を保つ
     beak = "open" if talk else "closed"
     wing = "point" if point else "rest"
-    o = owl_img(eyes, beak, wing)
-    bob = int(5 * math.sin(t * 2 * math.pi / 1.6))
-    return o, (OWL_POS[0], OWL_POS[1] + bob)
+    o = owl_img(eyes, beak, wing, size)
+    bob = int(3 * math.sin(t * 2 * math.pi / 4.0))
+    x, y = pos or OWL_POS
+    return o, (x, y + bob)
 
 
 # ---------- 1セグメント書き出し ----------
-def render_segment(out_mp4, dur, wav_path, beat, overlay_png, talk_owl=True, seed=0, t_offset=0.0):
+def render_segment(out_mp4, dur, wav_path, beat, overlay_png, talk_owl=True, seed=0, t_offset=0.0, face=None):
     n = int(round(dur * FPS))
-    mouth = mouth_track(wav_path, n) if talk_owl else [False] * n
+    mouth = mouth_track(wav_path, n) if (talk_owl and beat.type == "host") else [False] * n
     ov = Image.open(overlay_png).convert("RGBA").resize((W, H)) if overlay_png else None
     p = subprocess.Popen(["ffmpeg", "-y", "-v", "error", "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{W}x{H}",
                           "-r", str(FPS), "-i", "-", "-c:v", "libx264", "-preset", "fast", "-crf", "20",
@@ -276,10 +294,64 @@ def render_segment(out_mp4, dur, wav_path, beat, overlay_png, talk_owl=True, see
         bg = beat.frame(t, dur + t_offset).convert("RGBA")
         if ov is not None:
             bg.alpha_composite(ov)
-        o, pos = owl_frame(i, mouth[i], beat.point and 0.6 < t < 3.2, seed)
-        bg.alpha_composite(o, pos)
+        if beat.type == "host":   # 案内役は最初と最後のピンショットだけに出す
+            o, pos = owl_frame(i, mouth[i], False, seed, size=HOST_SIZE, pos=HOST_POS, face=face)
+            bg.alpha_composite(o, pos)
         p.stdin.write(bg.convert("RGB").tobytes())
     p.stdin.close(); p.wait()
     if p.returncode:
         raise RuntimeError("ffmpeg failed")
     return n / FPS
+
+
+# ---------- 章の小見出しカード ----------
+def chapter_card(text, out_mp4, dur):
+    """方眼の地に白いカード（黒フチ＋黒い影）、太字の斜体で章題。出だしだけ小さく弾む"""
+    base = Image.new("RGB", (W, H), (232, 234, 238))
+    d = ImageDraw.Draw(base)
+    for x in range(0, W, 40):
+        d.line([(x, 0), (x, H)], fill=(205, 210, 220) if x % 200 else (180, 188, 202), width=1)
+    for y in range(0, H, 40):
+        d.line([(0, y), (W, y)], fill=(205, 210, 220) if y % 200 else (180, 188, 202), width=1)
+    # 斜体の文字（Black を横にずらして傾ける）
+    size = 150
+    while size > 60 and font(size).getlength(text) > 1180:
+        size -= 6
+    f = font(size)
+    l, t_, r, b = d.textbbox((0, 0), text, font=f)
+    tw, th = r - l + 60, b - t_ + 40
+    tim = Image.new("L", (tw, th), 0)
+    ImageDraw.Draw(tim).text((30 - l, 20 - t_), text, font=f, fill=255)
+    tim = tim.transform((tw, th), Image.AFFINE, (1, 0.18, -0.18 * th / 2, 0, 1, 0), Image.BICUBIC)
+    cw, ch = 1440, 640
+    card = Image.new("RGBA", (cw + 24, ch + 24), (0, 0, 0, 0))
+    cd = ImageDraw.Draw(card)
+    cd.rectangle([20, 20, cw + 20, ch + 20], fill=(0, 0, 0, 255))            # 影
+    cd.rectangle([0, 0, cw, ch], fill=(0, 0, 0, 255))
+    cd.rectangle([8, 8, cw - 8, ch - 8], fill=(255, 255, 255, 255))
+    ink = Image.new("RGBA", (tw, th), (20, 20, 20, 255)); ink.putalpha(tim)
+    card.alpha_composite(ink, ((cw - tw) // 2, (ch - th) // 2))
+    n = int(round(dur * FPS))
+    p = subprocess.Popen(["ffmpeg", "-y", "-v", "error", "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{W}x{H}",
+                          "-r", str(FPS), "-i", "-", "-c:v", "libx264", "-preset", "fast", "-crf", "20",
+                          "-pix_fmt", "yuv420p", "-an", out_mp4], stdin=subprocess.PIPE)
+    for i in range(n):
+        k = 0.9 + 0.1 * back(min(1, i / (0.22 * FPS)))
+        c = card.resize((int(card.width * k), int(card.height * k)), Image.BILINEAR) if k != 1 else card
+        fr = base.copy().convert("RGBA")
+        fr.alpha_composite(c, ((W - c.width) // 2, (H - c.height) // 2 - 20))
+        p.stdin.write(fr.convert("RGB").tobytes())
+    p.stdin.close(); p.wait()
+
+
+def chime_wav(path, dur, sr=24000):
+    """章カードの短い効果音（自前で合成）。高めの2音のチャイム→残りは無音"""
+    t = np.arange(int(sr * dur)) / sr
+    def tone(f, start, length=0.35, amp=0.32):
+        x = np.zeros_like(t); m = (t >= start) & (t < start + length); tt = t[m] - start
+        x[m] = amp * np.exp(-tt * 9) * (np.sin(2 * np.pi * f * tt) + 0.3 * np.sin(2 * np.pi * f * 2 * tt))
+        return x
+    y = tone(988, 0.05) + tone(1319, 0.16)
+    with wave.open(path, "wb") as w:
+        w.setnchannels(1); w.setsampwidth(2); w.setframerate(sr)
+        w.writeframes((np.clip(y, -1, 1) * 32767).astype(np.int16).tobytes())

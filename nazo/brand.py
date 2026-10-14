@@ -1,9 +1,12 @@
 # nazo/brand.py — NAZOの見た目と言い回し。render.build_video(brand=...) に渡す。
 # BUNGO(紺×金・明朝)と逆の、黒×赤・ゴシック。
 
-CHANNEL = "世界の謎を10分で解説"        # 名前が決まったら差し替える
-VOICE = {"vvm": "0.vvm", "style": 3}     # 声が決まったら差し替える（いまは ずんだもん）
-VOICE_NAME = "ずんだもん"
+CHANNEL = "ホー博士の世界の謎10分解説"
+VOICE = {"vvm": "10.vvm", "style": 42, "speed": 1.0, "pitch": 0.0, "intonation": 1.0}   # ちび式じい
+VOICE_NAME = "ちび式じい"
+HOST = "ホー博士"
+# 毎回の締め（台本に host_outro があればそちらを使う）
+HOST_OUTRO = "いかがじゃったかな。どの説が気になったか、コメントで教えてくれ。次の動画でも、また別の世界の謎を紹介するぞい。見逃さんように、チャンネル登録をして待っていてくれ。ホー博士じゃった。"
 
 PART_LABEL = {"toi": "謎", "jijitsu": "わかっていること", "setsu": "説", "shin_toi": "残る問い"}
 # 事実と説の境目を、毎回声で宣言する（このチャンネルの約束事）
@@ -26,12 +29,12 @@ h1 { font-family:"Noto Sans CJK JP"; font-weight:900; letter-spacing:.04em;
 
 def title_narr(work, k):
     """冒頭で読み上げる文。チャンネル名→題材名→ひとこと"""
-    return "世界の謎を10分解説。" + work["title"] + "。" + k.get("logline", "")
+    return "ホー博士の、世界の謎10分解説。" + work["title"] + "。" + k.get("logline", "")
 
 
 def nazo_brand(work):
     title = work["title"]
-    label = f"世界の謎10分解説 — {title}"
+    label = f"{CHANNEL} — {title}"
     return {
         "label": label,
         "part_label": PART_LABEL,
@@ -50,7 +53,10 @@ def nazo_brand(work):
                               f'padding:14px 34px;margin-bottom:36px;letter-spacing:.06em;">{CHANNEL}</div><br>'
                               f'<h1 style="position:static;display:inline-block;font-size:150px;">{title}</h1>'
                               f'</div></div>'),
-        "motion": True,          # 冒頭（最初のセクション）を、動く図解＋案内役の解説にする
+        "motion": True,
+        "host_name": HOST,
+        "host_outro": HOST_OUTRO,
+        "host_role": "世界の謎の案内役",          # 冒頭（最初のセクション）を、動く図解＋案内役の解説にする
         "voice": VOICE,
         "credit": f"参考：Wikipedia　VOICEVOX:{VOICE_NAME}",
         "accent": "#c0392b",

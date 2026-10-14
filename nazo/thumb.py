@@ -56,7 +56,7 @@ def _box(d, x, y, text, font, fg, bg, padx, pady):
     return x + w + padx * 2, y + h + pady * 2
 
 
-def build(main_copy, subject, image_path, out_png, badge="世界の謎を10分で解説"):
+def build(main_copy, subject, image_path, out_png, badge="ホー博士の世界の謎10分解説"):
     # 背景：実物を右寄せで大きく（文字の箱に隠れにくいように）。左の余白は同じ画像をぼかして埋める
     im = Image.new("RGB", (W, H), (8, 8, 8))
     if image_path and os.path.exists(image_path):
