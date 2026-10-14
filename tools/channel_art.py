@@ -23,7 +23,7 @@ png(f"""<div style="position:absolute;left:507px;top:508px;width:1546px;height:4
     <div style="font-family:'Noto Sans CJK JP';font-size:96px;letter-spacing:.3em;line-height:1">BUNGO</div>
     <div style="width:180px;height:8px;background:{GOLD};margin:34px 0 30px"></div>
     <div style="font-family:'Noto Serif CJK JP';font-size:58px;letter-spacing:.08em">名作文学を10分で読み解く</div>
-    <div style="font-family:'Noto Sans CJK JP';font-size:36px;color:#cdd9ec;letter-spacing:.1em;margin-top:22px">火・木・土 21:00 更新</div>
+
   </div>
 </div>""", 2560, 1440, "channel/banner.png")
 print("ok")
