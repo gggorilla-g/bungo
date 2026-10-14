@@ -176,7 +176,7 @@ def build_video(kousei, work, genbun, ruby, images, out_mp4, llm, brand=None):
             ch_marks.append((s["slide_heading"], sum(durs)))  # 見出し=チャプター（ズレなし）
             last_sec = i
         plabel = PART_LABEL.get(s["type"], "")
-        badge = (f'<div style="position:absolute;top:88px;right:125px;'
+        badge = (f'<div class="badge" style="position:absolute;top:88px;right:125px;'
                  f'font-family:\'Noto Sans CJK JP\';font-size:30px;color:{br["accent"]};'
                  f'letter-spacing:.2em;">{plabel}</div>') if plabel else ""
         body = (f'<div class="label">{label}</div><div class="rule"></div>{badge}'

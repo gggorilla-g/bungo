@@ -8,13 +8,15 @@ PART_INTRO = {"setsu": "ここから先は、説の話です。", "shin_toi": "�
 CSS = """
 body { background:#111111; color:#ffffff; font-family:"Noto Sans CJK JP"; }
 .scrim { background:rgba(0,0,0,{scrim}); }
-.label { color:#bbbbbb; }
-.rule { background:#c0392b; }
-h1 { font-family:"Noto Sans CJK JP"; font-weight:900; letter-spacing:.04em; }
+.label { color:#dddddd; background:rgba(0,0,0,.72); padding:8px 20px; text-shadow:none !important; }
+.rule { display:none; }
+h1 { font-family:"Noto Sans CJK JP"; font-weight:900; letter-spacing:.04em;
+     background:#000000; color:#ffffff; padding:.12em .45em .16em; text-shadow:none !important; }
+.badge { background:#c0392b; color:#ffffff !important; padding:10px 26px; letter-spacing:.12em !important; font-weight:700; }
 .credit { color:#999999; }
-.label, .credit { text-shadow:0 2px 8px rgba(0,0,0,.95); }
+.credit { color:#dddddd !important; background:rgba(0,0,0,.72); padding:6px 16px; }
 .bg { background-size:contain; background-repeat:no-repeat; background-position:center; }
-.subtitle { background:rgba(0,0,0,.62); padding:14px 36px; border-radius:8px; bottom:120px; }
+.subtitle { background:rgba(0,0,0,.72); padding:14px 36px; border-radius:0; bottom:120px; }
 """
 
 
