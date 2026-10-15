@@ -124,6 +124,7 @@ def main():
         kit = f"nazo/manual/{work['id']}"; os.makedirs(kit, exist_ok=True)
         desc = upload.make_description(k, src["meta"], credits, chapters=chapters, work_id=work["id"])
         open(f"{kit}/credits.md", "w", encoding="utf-8").write(upload.credits_md(work["title"], credits))
+        upload.assert_voice_terms(desc, upload.tags_for(k))   # クレジット・タグが欠けていたらここで止める
         txt = ("【タイトル】\n" + k["title_candidates"][0] + "\n\n【説明】\n" + desc +
                "\n\n【タグ】\n" + ",".join(upload.tags_for(k)) + "\n")
         open(f"{kit}/upload.txt", "w", encoding="utf-8").write(txt)

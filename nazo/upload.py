@@ -56,6 +56,17 @@ def tags_for(kousei):
     return t
 
 
+def assert_voice_terms(desc, tags):
+    """声の規約の必須事項（クレジット・タグ）が欠けていたら止める。欠けたまま公開すると請求対象になるため"""
+    import brand
+    need = f"VOICEVOX:{brand.VOICE_NAME}"
+    if need not in desc:
+        raise RuntimeError(f"概要欄に「{need}」のクレジットがない")
+    for t in getattr(brand, "VOICE_TAGS", []):
+        if t not in tags:
+            raise RuntimeError(f"タグ「{t}」がない")
+
+
 def make_description(kousei, meta, image_credits, chapters=None, work_id=None):
     lines = [kousei["description"], ""]
     if chapters:
@@ -112,6 +123,7 @@ def upload(video_path, thumb_path, kousei, meta, image_credits, chapters=None, w
                         "tags": tags_for(kousei), "categoryId": "27",
                         "defaultLanguage": "ja", "defaultAudioLanguage": "ja"},
             "status": status}
+    assert_voice_terms(body["snippet"]["description"], body["snippet"]["tags"])
     en = kousei.get("en")
     if en:
         body["localizations"] = {"en": {"title": en["title"][:100], "description": en["description"]}}

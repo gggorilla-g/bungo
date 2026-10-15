@@ -19,6 +19,9 @@ KATAKANA_OK = set("""
 # 断定・煽り・誤情報を呼びやすい言い回し（使ったら不採用）
 NG_PHRASES = ["真相は", "正体は", "ついに解明", "完全に解読", "間違いなく", "確実に", "宇宙人",
               "陰謀", "隠蔽", "衝撃の", "ヤバい", "閲覧注意"]
+# 声（ちび式じい）の規約で禁止：差別・誹謗中傷・政治や宗教への攻撃。人や民族・宗教を貶める言葉は自動で止める
+NG_RESPECT = ["野蛮", "未開", "土人", "劣った民族", "劣等", "邪教", "異教徒", "狂信", "呪われた民族",
+              "原始的な民族", "愚かな", "下等"]
 
 
 def _norm(t):
@@ -59,8 +62,11 @@ def validate(kousei, src):
     ja, en = src.get("text_ja", ""), src.get("text_en", "")
     ja_n = _norm(ja)
     allt = ja + "\n" + en
+    motion_txt = "".join(str(b.get("label", "")) + str(b.get("text", "")) + str(b.get("region", ""))
+                         for s in kousei["sections"] for b in s.get("motion", []))
     alltxt = narr + kousei["logline"] + "".join(kousei["title_candidates"]) + \
-        kousei["thumbnail"]["main_copy"]
+        kousei["thumbnail"]["main_copy"] + motion_txt
+    host_txt = kousei.get("host_intro", "") + kousei.get("host_outro", "")
     # 1) 数字: 本文に無い数字は使わない（年号・寸法・ページ数の捏造を止める）
     nums_src = set(re.findall(r'\d+', allt.replace(",", "")))
     for n in sorted(set(re.findall(r'\d+', alltxt.replace(",", "")))):
@@ -77,8 +83,11 @@ def validate(kousei, src):
             errs.append(f"本文にない引用: 「{q[:20]}」")
     # 4) 禁句
     for p in NG_PHRASES:
-        if p in alltxt:
+        if p in alltxt + host_txt:
             errs.append(f"禁句: {p}")
+    for p in NG_RESPECT:
+        if p in alltxt + host_txt + kousei.get("description", ""):
+            errs.append(f"規約上の禁止語（差別・宗教への攻撃）: {p}")
     return (not errs), errs
 
 
