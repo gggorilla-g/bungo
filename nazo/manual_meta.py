@@ -36,7 +36,7 @@ out = f"nazo/manual/{tid}"; os.makedirs(out, exist_ok=True)
 desc = upload.make_description(k, src["meta"], credits, chapters=chapters, work_id=tid)
 open(f"{out}/credits.md", "w", encoding="utf-8").write(upload.credits_md(job["title"], credits))
 open(f"{out}/upload.txt", "w", encoding="utf-8").write(
-    "【タイトル】\n" + k["title_candidates"][0] + "\n\n【説明】\n" + desc + "\n\n【タグ】\n" + ",".join(k["tags"]) + "\n")
+    "【タイトル】\n" + k["title_candidates"][0] + "\n\n【説明】\n" + desc + "\n\n【タグ】\n" + ",".join(upload.tags_for(k)) + "\n")
 thumb = None
 if k.get("thumb_image") in got and m4_images.download(got[k["thumb_image"]]["url"], "build/thumb_src.jpg"):
     thumb = "build/thumb_src.jpg"

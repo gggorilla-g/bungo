@@ -46,6 +46,16 @@ def credits_md(title, image_credits):
                      + [f"- {c}" for c in sorted(set(image_credits))]) + "\n"
 
 
+def tags_for(kousei):
+    """台本のタグに、声の規約で求められているタグ（例:「ちび式じい」）を必ず足す"""
+    import brand
+    t = list(kousei.get("tags", []))
+    for x in getattr(brand, "VOICE_TAGS", []):
+        if x not in t:
+            t.append(x)
+    return t
+
+
 def make_description(kousei, meta, image_credits, chapters=None, work_id=None):
     lines = [kousei["description"], ""]
     if chapters:
@@ -99,7 +109,7 @@ def upload(video_path, thumb_path, kousei, meta, image_credits, chapters=None, w
             hour=12, minute=0, second=0, microsecond=0).isoformat()  # JST 21:00
     body = {"snippet": {"title": kousei["title_candidates"][0],
                         "description": make_description(kousei, meta, image_credits, chapters, work_id),
-                        "tags": kousei["tags"], "categoryId": "27",
+                        "tags": tags_for(kousei), "categoryId": "27",
                         "defaultLanguage": "ja", "defaultAudioLanguage": "ja"},
             "status": status}
     en = kousei.get("en")

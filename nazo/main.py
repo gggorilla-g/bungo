@@ -125,7 +125,7 @@ def main():
         desc = upload.make_description(k, src["meta"], credits, chapters=chapters, work_id=work["id"])
         open(f"{kit}/credits.md", "w", encoding="utf-8").write(upload.credits_md(work["title"], credits))
         txt = ("【タイトル】\n" + k["title_candidates"][0] + "\n\n【説明】\n" + desc +
-               "\n\n【タグ】\n" + ",".join(k["tags"]) + "\n")
+               "\n\n【タグ】\n" + ",".join(upload.tags_for(k)) + "\n")
         open(f"{kit}/upload.txt", "w", encoding="utf-8").write(txt)
         open("output/upload.txt", "w", encoding="utf-8").write(txt)
         shutil.copy("output/thumb.png", f"{kit}/thumb.png")
