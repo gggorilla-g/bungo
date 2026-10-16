@@ -25,7 +25,8 @@ def via_codex(prompt, out_path):
     task = (f"$imagegen Generate exactly one image, size 1536x1024. Prompt: {prompt} "
             f"Save the final image as {os.path.abspath(out_path)} . Do not do anything else.")
     try:
-        subprocess.run(["codex", "exec", "--skip-git-repo-check", "--full-auto", task],
+        # codex 0.163 で --full-auto が廃止されたため、作業フォルダへの書き込みだけを許可する指定に変更
+        subprocess.run(["codex", "exec", "--skip-git-repo-check", "--sandbox", "workspace-write", task],
                        check=True, timeout=600)
     except Exception as e:
         print("codex失敗:", e)

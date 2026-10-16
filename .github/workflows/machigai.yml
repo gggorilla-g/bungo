@@ -3,6 +3,11 @@ on:
   schedule:
     - cron: "10 9 * * *"     # 毎日 JST 18:10 に制作 → JST 20:00 に予約公開（scheduled時）
   workflow_dispatch:
+    inputs:
+      upload:
+        description: "YouTubeに投稿する"
+        type: boolean
+        default: false
 permissions:
   contents: write
 concurrency:
@@ -22,7 +27,7 @@ jobs:
         run: |
           sudo apt-get update -q && sudo apt-get install -y -q ffmpeg fonts-noto-cjk
           pip install -q opencv-python-headless numpy Pillow google-api-python-client google-auth
-          npm install -g @openai/codex
+          npm install -g @openai/codex@0.163.0   # 版を固定（勝手な更新で引数が変わり止まったため）
       - name: Codex auth (ChatGPTプランのログイン)
         env:
           CODEX_AUTH_JSON: ${{ secrets.CODEX_AUTH_JSON }}
@@ -37,7 +42,10 @@ jobs:
           YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN_MACHIGAI }}
           PUBLISH_MODE:     ${{ vars.PUBLISH_MODE }}
         run: |
-          python machigai/run.py 2>&1 | tee machigai/state/last_run_log.txt
+          NOUP=""
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.upload }}" != "true" ]; then NOUP="--no-upload"; fi
+          if [ "${{ github.event_name }}" = "schedule" ] && [ "${{ vars.AUTO_UPLOAD }}" != "1" ]; then NOUP="--no-upload"; fi
+          python machigai/run.py $NOUP 2>&1 | tee machigai/state/last_run_log.txt
           exit ${PIPESTATUS[0]}
       - name: Commit state back
         if: always()
