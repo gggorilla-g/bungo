@@ -9,7 +9,12 @@ RED = (142, 20, 20)
 
 
 def _f(size, w="Black"):
-    return ImageFont.truetype(f"/usr/share/fonts/opentype/noto/NotoSerifCJK-{w}.ttc", size, index=0)
+    for name in (w, "Bold", "Regular"):     # 環境によって入っている太さが違う
+        try:
+            return ImageFont.truetype(f"/usr/share/fonts/opentype/noto/NotoSerifCJK-{name}.ttc", size, index=0)
+        except OSError:
+            pass
+    raise OSError("明朝体（Noto Serif CJK）が見つからない")
 
 
 def _vertical(d, text, x, y, size, fill):
