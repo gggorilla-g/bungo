@@ -79,7 +79,7 @@ def kaidan_brand(work, k):
     no = kansuji(work["no"])
     title = work["title"]
     label = f"{CHANNEL} — 第{no}話"
-    src = f"{work['author']}『{title}』" + (f"（{work['translator']}訳）" if work.get("translator") else "")
+    src = f"{work['author']}『{title}』" + (f"（{work['translator'].removesuffix('訳')}訳）" if work.get("translator") else "")
     return {
         "label": label,
         "part_label": {},

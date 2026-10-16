@@ -26,7 +26,7 @@ def _no_llm(_):
 
 
 def description(k, work, credits, chapters):
-    src = f"{work['author']}『{work['title']}』" + (f"（{work['translator']}訳）" if work.get("translator") else "")
+    src = f"{work['author']}『{work['title']}』" + (f"（{work['translator'].removesuffix('訳')}訳）" if work.get("translator") else "")
     lines = [k["description"], ""]
     if chapters:
         lines += [f"{render_ts(t) if i else '0:00'} {h}" for i, (h, t) in enumerate(chapters)] + [""]
