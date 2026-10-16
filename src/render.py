@@ -3,7 +3,9 @@
 #   読み上げる全文は合成前に yomi.prepare() の読み検査を通す（通らなければ投稿しない）。
 #   同期: 各スライドの映像と音声を同じ秒数(1/24秒単位)に揃え、映像は映像、音声は音声で
 #         無劣化連結してから最後に1回だけ多重化＋音量正規化 → 字幕と声がズレない。
-import base64, json, math, os, re, subprocess, wave
+import base64, json, math, os, re, subprocess, sys, wave
+# 動き・効果音・案内役の部品（nazo/ に置いている共通部品）を、どのチャンネルからも使えるように
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "nazo"))
 from weasyprint import HTML
 from voicevox_core.blocking import Synthesizer, Onnxruntime, OpenJtalk, VoiceModelFile
 
@@ -184,6 +186,17 @@ def motion_seg(overlay_png, wav, name, beat, t_offset, pad=0.5, talk=True, face=
     return d
 
 
+BUNGO_CSS = """
+.rule { display:none; }
+.label { background:rgba(13,27,51,.82); padding:8px 20px; color:#e8eef8; }
+h1 { background:#0d1b33; color:#ffffff; padding:.12em .45em .16em; text-shadow:none !important;
+     border-bottom:8px solid #d9a520; }
+.badge { display:none !important; }
+.credit { background:rgba(13,27,51,.78); padding:6px 16px; color:#dfe7f3; }
+.subtitle { background:rgba(13,27,51,.80); padding:14px 36px; bottom:120px; }
+"""
+
+
 def bungo_brand(work):
     """BUNGOの見た目と言い回し（既定値）。他チャンネルは同じ形のdictを渡す。"""
     label = f'BUNGO — {work["author"]}『{work["title"]}』'
@@ -200,11 +213,21 @@ def bungo_brand(work):
              f'<div style="font-size:44px;color:#cdd9ec;text-align:center;margin-top:30px;">'
              f'{work["author"]}</div></div></div>'
              f'<div class="credit">底本：青空文庫</div>'),
+        "title_card_motion": (f'<div class="label">BUNGO — 10分でわかる名作</div>'
+             f'<div class="center"><div style="text-align:center;">'
+             f'<div style="display:inline-block;background:#d9a520;color:#0d1b33;font-family:\'Noto Sans CJK JP\';'
+             f'font-weight:900;font-size:54px;padding:14px 36px;margin-bottom:34px;">{work["author"]}</div><br>'
+             f'<h1 style="position:static;display:inline-block;font-size:140px;">{work["title"]}</h1>'
+             f'</div></div>'),
         "credit": "底本：青空文庫　VOICEVOX:ずんだもん",
         "accent": "#d9a520",
-        "css": "",
+        "css": BUNGO_CSS,
         "thumb_label": "BUNGO",
         "bgm": "assets/bgm_bungo.m4a",
+        "motion": True,           # つかみ・静止画のパン・章カード・効果音（滞在時間のため）
+        "motion_first": False,    # 図解のビートは使わない（文学は画像＋文字で見せる）
+        "card_style": {"bg": (16, 30, 56), "grid": (30, 50, 84), "grid2": (40, 64, 104),
+                       "card": (246, 240, 226), "edge": (13, 27, 51), "shadow": (217, 165, 32), "ink": (13, 27, 51)},
     }
 
 
@@ -257,7 +280,7 @@ def build_video(kousei, work, genbun, ruby, images, out_mp4, llm, brand=None):
         if pool:
             return pool[min(len(pool) - 1, k * len(pool) // max(1, len(plan)))]
         return images.get(i)
-    title_img = images.get("title_image") or (pool[0] if pool else None)
+    title_img = images.get("title_image") or (pool[0] if pool else images.get(0))
     use_motion = bool(br.get("motion"))
     # つかみ（冒頭の数秒）：題材のいちばん引っかかる事実を、短い文で畳みかける
     if use_motion and hook_items:
@@ -289,7 +312,7 @@ def build_video(kousei, work, genbun, ruby, images, out_mp4, llm, brand=None):
     names.append("title")
     # 動かすセクション：台本に "motion" があるセクション（なければ最初のセクションだけ）
     motion_secs = {i for i, s_ in enumerate(kousei["sections"]) if "motion" in s_}
-    if use_motion and not motion_secs:
+    if use_motion and not motion_secs and br.get("motion_first", True):
         motion_secs = {0}
     beat_state = {}
     pan_state = {}
@@ -310,7 +333,7 @@ def build_video(kousei, work, genbun, ruby, images, out_mp4, llm, brand=None):
                 motion.chime_wav(f"{B}/{cn}_p.wav", cd, silent=True)
                 a, b2 = se.pick("card")
                 se.mix(f"{B}/{cn}_p.wav", [(b2, 0.0, 1), (a, 0.08, 1)])
-                motion.chapter_card(s["slide_heading"], f"{B}/{cn}.mp4", cd)
+                motion.chapter_card(s["slide_heading"], f"{B}/{cn}.mp4", cd, style=br.get("card_style"))
                 durs.append(cd); names.append(cn)
         plabel = PART_LABEL.get(s["type"], "")
         badge = (f'<div class="badge" style="position:absolute;top:88px;right:125px;'

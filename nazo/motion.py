@@ -323,14 +323,17 @@ def render_segment(out_mp4, dur, wav_path, beat, overlay_png, talk_owl=True, see
 
 
 # ---------- 章の小見出しカード ----------
-def chapter_card(text, out_mp4, dur):
+def chapter_card(text, out_mp4, dur, style=None):
     """方眼の地に白いカード（黒フチ＋黒い影）、太字の斜体で章題。出だしだけ小さく弾む"""
-    base = Image.new("RGB", (W, H), (232, 234, 238))
+    st = dict(bg=(232, 234, 238), grid=(205, 210, 220), grid2=(180, 188, 202), card=(255, 255, 255),
+              edge=(0, 0, 0), shadow=(0, 0, 0), ink=(20, 20, 20))
+    st.update(style or {})
+    base = Image.new("RGB", (W, H), st["bg"])
     d = ImageDraw.Draw(base)
     for x in range(0, W, 40):
-        d.line([(x, 0), (x, H)], fill=(205, 210, 220) if x % 200 else (180, 188, 202), width=1)
+        d.line([(x, 0), (x, H)], fill=st["grid"] if x % 200 else st["grid2"], width=1)
     for y in range(0, H, 40):
-        d.line([(0, y), (W, y)], fill=(205, 210, 220) if y % 200 else (180, 188, 202), width=1)
+        d.line([(0, y), (W, y)], fill=st["grid"] if y % 200 else st["grid2"], width=1)
     # 斜体の文字（Black を横にずらして傾ける）
     size = 150
     while size > 60 and font(size).getlength(text) > 1180:
@@ -344,10 +347,10 @@ def chapter_card(text, out_mp4, dur):
     cw, ch = 1440, 640
     card = Image.new("RGBA", (cw + 24, ch + 24), (0, 0, 0, 0))
     cd = ImageDraw.Draw(card)
-    cd.rectangle([20, 20, cw + 20, ch + 20], fill=(0, 0, 0, 255))            # 影
-    cd.rectangle([0, 0, cw, ch], fill=(0, 0, 0, 255))
-    cd.rectangle([8, 8, cw - 8, ch - 8], fill=(255, 255, 255, 255))
-    ink = Image.new("RGBA", (tw, th), (20, 20, 20, 255)); ink.putalpha(tim)
+    cd.rectangle([20, 20, cw + 20, ch + 20], fill=st["shadow"] + (255,))     # 影
+    cd.rectangle([0, 0, cw, ch], fill=st["edge"] + (255,))
+    cd.rectangle([8, 8, cw - 8, ch - 8], fill=st["card"] + (255,))
+    ink = Image.new("RGBA", (tw, th), st["ink"] + (255,)); ink.putalpha(tim)
     card.alpha_composite(ink, ((cw - tw) // 2, (ch - th) // 2))
     n = int(round(dur * FPS))
     p = subprocess.Popen(["ffmpeg", "-y", "-v", "error", "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{W}x{H}",

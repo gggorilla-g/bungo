@@ -9,7 +9,8 @@ import m3_script, yomi
 PART_INTRO = {"shin_toi": "最後に、もう一つの問いを。"}
 
 def sentences(k, work):
-    out = [work["title"] + "。" + work["author"] + "。" + k.get("logline", "")]
+    out = [h["say"] for h in k.get("hook", [])]
+    out += [work["title"] + "。" + work["author"] + "。" + k.get("logline", "")]
     for i, s in enumerate(k["sections"]):
         first = (i == 0) or (k["sections"][i-1]["type"] != s["type"])
         intro = PART_INTRO.get(s["type"])

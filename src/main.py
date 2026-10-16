@@ -54,7 +54,12 @@ def main():
         os.makedirs("output", exist_ok=True)
         out = f"output/{work['work_id']}.mp4"
         render.build_video(kousei, work, text, ruby, images, out, llm=m3_script._call_llm)
-        render.build_thumbnail(kousei, work, images.get(0), "output/thumb.png")
+        # サムネ：謎チャンネルと同じ強い型（箱囲みの極太文字）を紺×金で
+        sys.path.insert(0, "nazo")
+        import thumb as thumbmod
+        thumbmod.build(kousei["thumbnail"]["main_copy"], f'{work["author"]}『{work["title"]}』',
+                       images.get(0), "output/thumb.png", badge="BUNGO　10分でわかる名作",
+                       palette=thumbmod.PALETTE_BUNGO)
         # 8) 投稿 (Secrets未設定ならスキップ=ローカル/Phase1でも同一コードが動く)
         vid = None
         if os.environ.get("YT_REFRESH_TOKEN"):

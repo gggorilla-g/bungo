@@ -56,7 +56,15 @@ def _box(d, x, y, text, font, fg, bg, padx, pady):
     return x + w + padx * 2, y + h + pady * 2
 
 
-def build(main_copy, subject, image_path, out_png, badge="ホー博士の世界の謎10分解説"):
+PALETTE_NAZO = {"badge": ((255, 255, 255), (220, 30, 30)), "l1": ((255, 255, 255), (0, 0, 0)),
+                "l2": ((0, 0, 0), (255, 226, 0)), "subj": ((0, 0, 0), (255, 255, 255))}
+# BUNGO：紺×金（同じ型で色だけ変える）
+PALETTE_BUNGO = {"badge": ((13, 27, 51), (217, 165, 32)), "l1": ((255, 255, 255), (13, 27, 51)),
+                 "l2": ((13, 27, 51), (217, 165, 32)), "subj": ((13, 27, 51), (246, 240, 226))}
+
+
+def build(main_copy, subject, image_path, out_png, badge="ホー博士の世界の謎10分解説", palette=None):
+    pal = palette or PALETTE_NAZO
     # 背景：実物を右寄せで大きく（文字の箱に隠れにくいように）。左の余白は同じ画像をぼかして埋める
     im = Image.new("RGB", (W, H), (8, 8, 8))
     if image_path and os.path.exists(image_path):
@@ -77,7 +85,7 @@ def build(main_copy, subject, image_path, out_png, badge="ホー博士の世界�
     d = ImageDraw.Draw(im)
 
     # 左上：赤い箱に白文字
-    _box(d, 0, 30, badge, _font(42), (255, 255, 255), RED, 36, 16)
+    _box(d, 0, 30, badge, _font(42), pal["badge"][0], pal["badge"][1], 36, 16)
 
     # 2行コピー：1行目＝黒い箱に白文字、2行目＝黄色い箱に黒文字。どちらも極太で最大の大きさ
     lines = _lines(main_copy)
@@ -97,13 +105,13 @@ def build(main_copy, subject, image_path, out_png, badge="ホー博士の世界�
     sub_top = H - 36 - (sb - st) - 32
     area_top, area_bot = 30 + 90 + 20, sub_top - 20
     y = area_top + max(0, (area_bot - area_top - block) // 2)
-    styles = [((255, 255, 255), (0, 0, 0)), ((0, 0, 0), YELLOW)] if len(lines) > 1 else [((0, 0, 0), YELLOW)]
+    styles = [pal["l1"], pal["l2"]] if len(lines) > 1 else [pal["l2"]]
     for l, (fg_, bg_) in zip(lines, styles):
         _, y2 = _box(d, 0, y, l, f, fg_, bg_, pad, py)
         y = y2 + gap
 
     # 下：題材名を白い箱に黒文字
-    _box(d, 0, sub_top, subject, sf, (0, 0, 0), (255, 255, 255), 30, 16)
+    _box(d, 0, sub_top, subject, sf, pal["subj"][0], pal["subj"][1], 30, 16)
 
     os.makedirs(os.path.dirname(out_png) or ".", exist_ok=True)
     im.save(out_png)

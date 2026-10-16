@@ -70,6 +70,10 @@ def validate(kousei, genbun):
         return False, f"台本文字数が範囲外: {total}"
     # 「」内の引用は本文に一字一句あること（捏造引用を構造的に止める）
     g = _norm(genbun)
+    for h in kousei.get("hook", []):   # つかみの引用も本文と一字一句
+        for q in re.findall(r'「([^「」]{6,})」', h.get("say", "") + h.get("text", "")):
+            if "〓" in q or _norm(q) not in g:
+                return False, f"つかみに本文にない引用: 「{q[:20]}」"
     for s in kousei["sections"]:
         for q in re.findall(r'「([^「」]{6,})」', s.get("narration", "")):
             if "〓" in q or _norm(q) not in g:
