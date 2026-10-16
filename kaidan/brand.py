@@ -9,7 +9,18 @@ VOICE = {"vvm": "1.vvm", "style": 14, "speed": 0.92, "pitch": -0.02, "intonation
 VOICE_NAME = "冥鳴ひまり"
 # 冥鳴ひまりの規約：商用可・申請不要・クレジット必須（書式自由）→「VOICEVOX:冥鳴ひまり」を概要欄と画面に自動で入れる
 VOICE_TAGS = ["冥鳴ひまり"]
-BGM_CREDIT = "BGM: 廃墟に居る者 / ゆうり(Yuli Audio Craft)、肝試し / alaki paca（OpenTracks（旧DOVA-SYNDROME））"
+# 落ち着いた地のBGMは回ごとに入れ替える（同じ曲が続かないように）。山場だけ「肝試し」
+BGM_POOL = [("assets/bgm_kaidan_haikyo.mp3", "廃墟に居る者 / ゆうり(Yuli Audio Craft)"),
+            ("assets/bgm_kaidan_babybed.mp3", "空っぽのベビーベッド / ゆうり(Yuli Audio Craft)")]
+BGM_ALT = ("assets/bgm_kaidan_kimodameshi.mp3", "肝試し / alaki paca")
+
+
+def bgm_for(work, k):
+    """この回で使う曲と、概要欄のクレジット（実際に使った曲だけを載せる）"""
+    main = BGM_POOL[(work["no"] - 1) % len(BGM_POOL)]
+    used = [main] + ([BGM_ALT] if any(s.get("bgm") == "alt" for s in k["sections"]) else [])
+    credit = "BGM: " + "、".join(c for _, c in used) + "（OpenTracks（旧DOVA-SYNDROME））"
+    return main[0], credit
 
 KANSUJI = "〇一二三四五六七八九"
 
@@ -105,8 +116,8 @@ def kaidan_brand(work, k):
         "accent": "#8e1414",
         "css": CSS,
         "card_style": CARD_STYLE,
-        "bgm": "assets/bgm_kaidan_haikyo.mp3",   # 廃墟に居る者 / ゆうり(Yuli Audio Craft)（OpenTracks・サイト準拠）
-        "bgm_alt": "assets/bgm_kaidan_kimodameshi.mp3",   # 肝試し / alaki paca：山場（台本で "bgm": "alt" の章）だけ
+        "bgm": bgm_for(work, k)[0],
+        "bgm_alt": BGM_ALT[0],          # 山場（台本で "bgm": "alt" の章）だけ
         "scrim": 0.25,
         "outro_heading": "おしまい",
     }
