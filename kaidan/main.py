@@ -116,6 +116,15 @@ def main():
         open(f"{kit}/upload.txt", "w", encoding="utf-8").write(txt)
         open("output/upload.txt", "w", encoding="utf-8").write(txt)
         shutil.copy("output/thumb.png", f"{kit}/thumb.png")
+        # 確認用：冒頭1分は2秒ごと、全体は20秒ごとのコマ一覧（チャットから中身を確かめるため）
+        import subprocess
+        subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", out, "-vf", "fps=1/20,scale=480:-1,tile=5x9",
+                        "-frames:v", "1", f"{kit}/sheet.jpg"])
+        subprocess.run(["ffmpeg", "-v", "error", "-y", "-t", "60", "-i", out, "-vf", "fps=1/2,scale=480:-1,tile=5x6",
+                        "-frames:v", "1", f"{kit}/sheet_open.jpg"])
+        dur = subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", out],
+                             capture_output=True, text=True).stdout.strip()
+        open(f"{kit}/duration.txt", "w").write(dur + "\n")
         published.append({"work_id": work["work_id"], "no": work["no"], "title": work["title"], "video_id": None,
                           "date": datetime.date.today().isoformat(), "credits": credits})
         save(f"{S}/published.json", published)
