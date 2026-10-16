@@ -7,7 +7,9 @@ import m4_images
 
 UA = m4_images.UA
 tid = os.environ["ONLY"]
-src = json.load(open(f"nazo/state/texts/{tid}.json", encoding="utf-8"))["meta"]
+_tp = f"nazo/state/texts/{tid}.json"
+# BUNGO の作品など、謎の本文が無い題材は記事を PAGES だけで指定する
+src = json.load(open(_tp, encoding="utf-8"))["meta"] if os.path.exists(_tp) else {"title": None}
 out = f"nazo/img_catalog/{tid}" + os.environ.get("SUFFIX", ""); os.makedirs(out, exist_ok=True)
 
 files = []
