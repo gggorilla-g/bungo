@@ -66,6 +66,17 @@ def main():
             chapters = json.load(open("build/chapters.json", encoding="utf-8"))
             vid = m8_upload.upload(out, "output/thumb.png", kousei, credits,
                                    chapters=chapters, author=work["author"])
+        if not vid:   # 自動投稿しないときは、手動で上げるための一式（サムネ・タイトル・概要欄・タグ）を残す
+            kit = f"state/manual/{work['work_id']}"
+            os.makedirs(kit, exist_ok=True)
+            import shutil
+            shutil.copy("output/thumb.png", f"{kit}/thumb.png")
+            chapters = json.load(open("build/chapters.json", encoding="utf-8")) if os.path.exists("build/chapters.json") else None
+            open(f"{kit}/upload.txt", "w", encoding="utf-8").write(
+                "【タイトル】\n" + kousei["title_candidates"][0] + "\n\n【概要欄】\n"
+                + m8_upload.make_description(kousei, credits, chapters)
+                + "\n\n【タグ】\n" + ",".join(kousei["tags"]) + "\n")
+            print("手動投稿用:", kit)
         # 9) Instagramリール素材（失敗しても本編の投稿・記録には影響させない）
         try:
             import reel
