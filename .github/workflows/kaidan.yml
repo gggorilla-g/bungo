@@ -26,6 +26,7 @@ jobs:
           python src/setup_voicevox.py
       - name: Run pipeline
         run: |
+          mkdir -p kaidan/manual output
           python kaidan/main.py 2>&1 | tee kaidan/state/last_run_log.txt
           exit ${PIPESTATUS[0]}
       - name: Commit state back
@@ -33,7 +34,7 @@ jobs:
         run: |
           git config user.name "bungo-bot"
           git config user.email "bot@users.noreply.github.com"
-          git add kaidan/state/ kaidan/manual/
+          git add -A kaidan/state kaidan/manual 2>/dev/null || git add -A kaidan/state
           git diff --cached --quiet && exit 0
           git commit -m "kaidan state: $(date -u +%F)"
           for i in 1 2 3; do git pull --rebase -q && git push && break; sleep 5; done

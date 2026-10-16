@@ -4,7 +4,8 @@
 #   台本は kaidan/drafts/<作品ID>.json、原作は kaidan/state/texts/<作品ID>.json
 import json, sys
 sys.path.insert(0, "src"); sys.path.insert(0, "kaidan")
-import yomi, brand, check, yomi_gate
+import yomi, yomi_gate
+import kaidan_brand as brand, kaidan_check as check
 
 
 def load(wid):

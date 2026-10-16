@@ -3,7 +3,8 @@
 # フェイルセーフは「出さない」：検査に落ちたら欠番にしてログだけ残す。
 import json, os, sys, shutil, traceback, datetime
 sys.path.insert(0, "src"); sys.path.insert(0, "nazo"); sys.path.insert(0, "kaidan")
-import m4_images, render, thumb, check, brand
+import m4_images, render, thumb
+import kaidan_check as check, kaidan_brand as brand
 
 S = "kaidan/state"
 PALETTE_KAIDAN = {"badge": ((255, 255, 255), (142, 20, 20)), "l1": ((255, 255, 255), (0, 0, 0)),
