@@ -1,4 +1,4 @@
-指定画像の情報取得 34/34
-指定画像 34/34 枚
-画像 12 枚
-完了: アンティキティラ島の機械 → (未投稿/ローカル)
+Traceback (most recent call last):
+  File "/home/runner/work/bungo/bungo/nazo/main.py", line 57, in main
+    raise RuntimeError("事実照合に不合格: " + " / ".join(errs[:5]))
+RuntimeError: 事実照合に不合格: 本文にないカタカナ語: ファイストスギリシア
