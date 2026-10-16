@@ -18,16 +18,14 @@ for wid in sys.argv[1:]:
     # 訳者（翻訳作品のとき）を本文HTMLの見出しから拾う
     translator = ""
     try:
-        h = requests.get(x["html"].replace("https://www.aozora.gr.jp/",
-                         "https://raw.githubusercontent.com/aozorabunko/aozorabunko/master/"), timeout=60).content
+        h = requests.get(x["html"], headers=m2_extract.UA, timeout=60).content
         enc = "utf-8" if re.search(rb'charset="?utf-8', h[:2000], re.I) else "cp932"
         m = re.search(r'class="translator"[^>]*>(.*?)</', h.decode(enc, "replace"), re.S)
         translator = re.sub(r"<[^>]+>", "", m.group(1)).strip() if m else ""
         if not translator and x.get("card"):   # 図書カードの「翻訳者」欄から
-            c = requests.get(x["card"].replace("https://www.aozora.gr.jp/",
-                             "https://raw.githubusercontent.com/aozorabunko/aozorabunko/master/"), timeout=60).content
+            c = requests.get(x["card"], headers=m2_extract.UA, timeout=60).content
             ct = c.decode("utf-8" if b"utf-8" in c[:3000].lower() else "cp932", "replace")
-            m = re.search(r"翻訳者.*?<a[^>]*>(.*?)</a>", ct, re.S)
+            m = re.search(r"翻訳者</td>.*?作家名.*?<a[^>]*>(.*?)</a>", ct, re.S)
             translator = m.group(1).strip() if m else ""
     except Exception:
         pass
@@ -35,4 +33,6 @@ for wid in sys.argv[1:]:
             "url": x["card"] or x["html"], "orig": x["orig"]}
     json.dump({"meta": meta, "text": body, "ruby": ruby},
               open(f"kaidan/state/texts/{wid}.json", "w", encoding="utf-8"), ensure_ascii=False)
+    if not translator and x["role"] == "著者" and x["author"] == "小泉八雲":
+        print("訳者が取れない（要確認）:", wid)
     print("OK", wid, x["author"], x["title"], translator, len(body))
