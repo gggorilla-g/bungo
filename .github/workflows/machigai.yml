@@ -36,12 +36,22 @@ jobs:
           python src/setup_voicevox.py     # ナレーション（青山龍星）用
           npm install -g @openai/codex@0.163.0   # 版を固定（勝手な更新で引数が変わり止まったため）
       - name: Codex auth (ChatGPTプランのログイン)
+        id: auth
         env:
           CODEX_AUTH_JSON: ${{ secrets.CODEX_AUTH_JSON }}
+          OPENAI_API_KEY:  ${{ secrets.OPENAI_API_KEY }}
         run: |
           mkdir -p ~/.codex
           if [ -n "$CODEX_AUTH_JSON" ]; then printf '%s' "$CODEX_AUTH_JSON" > ~/.codex/auth.json; fi
+          # 絵を作る手段（Codexのログイン情報かOpenAIのAPIキー）が無ければ、毎日の失敗メールを出さずに静かに止める
+          if [ -z "$CODEX_AUTH_JSON" ] && [ -z "$OPENAI_API_KEY" ]; then
+            echo "::warning::CODEX_AUTH_JSON も OPENAI_API_KEY も未登録のため、間違い探しの制作をスキップしました"
+            echo "ready=0" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=1" >> "$GITHUB_OUTPUT"
+          fi
       - name: Run pipeline
+        if: steps.auth.outputs.ready == '1'
         env:
           OPENAI_API_KEY:   ${{ secrets.OPENAI_API_KEY }}
           YT_CLIENT_ID:     ${{ secrets.YT_CLIENT_ID }}
