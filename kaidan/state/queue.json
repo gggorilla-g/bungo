@@ -50,7 +50,8 @@
        "file": "File:Antokutenoubo.jpg",
        "at": "阿弥陀寺というお寺"
       }
-     ]
+     ],
+     "bgm": "main"
     },
     {
      "type": "story",
@@ -64,7 +65,8 @@
        "file": "File:Blind Musician Beating his Biwa Carrier LACMA M.2006.136.14.jpg",
        "at": "阿弥陀寺の住職"
       }
-     ]
+     ],
+     "bgm": "main"
     },
     {
      "type": "story",
@@ -78,7 +80,8 @@
        "file": "File:Yoshitoshi - 100 Aspects of the Moon - 28.jpg",
        "at": "足音が近づいて"
       }
-     ]
+     ],
+     "bgm": "calm2"
     },
     {
      "type": "story",
@@ -92,7 +95,8 @@
        "file": "File:Heike monogatari to biwa to tsuitate LCCN2008660163.jpg",
        "at": "広い広い座敷"
       }
-     ]
+     ],
+     "bgm": "calm2"
     },
     {
      "type": "story",
@@ -110,7 +114,8 @@
        "file": "File:Heike monogatari to biwa to tsuitate LCCN2008660163.jpg",
        "at": "女の声が告げました"
       }
-     ]
+     ],
+     "bgm": "calm2"
     },
     {
      "type": "story",
@@ -129,7 +134,7 @@
        "at": "数えきれないほどの鬼火"
       }
      ],
-     "bgm": "alt"
+     "bgm": "climax"
     },
     {
      "type": "story",
@@ -144,7 +149,7 @@
        "at": "今夜、迎えが来ても"
       }
      ],
-     "bgm": "alt"
+     "bgm": "climax"
     },
     {
      "type": "story",
@@ -163,7 +168,7 @@
        "at": "次の瞬間"
       }
      ],
-     "bgm": "alt"
+     "bgm": "climax"
     },
     {
      "type": "story",
@@ -181,7 +186,8 @@
        "file": "File:Tsukioka Yoshitoshi (188?) Tsuki hyaku shi - Semimaru-.jpg",
        "at": "耳なし芳一、と"
       }
-     ]
+     ],
+     "bgm": "main"
     }
    ],
    "title_candidates": [

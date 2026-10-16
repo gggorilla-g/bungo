@@ -339,15 +339,14 @@ def build_video(kousei, work, genbun, ruby, images, out_mp4, llm, brand=None):
     pan_state = {}
 
     last_sec = -1
-    alt_ranges, alt_open = [], None     # 「展開」用の曲を流す区間（台本のセクションに "bgm": "alt"）
+    bgm_marks = [(0.0, "main")]          # 展開ごとの曲の切り替え（台本のセクションに "bgm": 曲の名前）
     for k, (i, sent) in enumerate(plan):
         s = kousei["sections"][i]
         first_of_sec = (i != last_sec)
         if i != last_sec:
-            if s.get("bgm") == "alt" and alt_open is None:
-                alt_open = sum(durs)
-            elif s.get("bgm") != "alt" and alt_open is not None:
-                alt_ranges.append((alt_open, sum(durs))); alt_open = None
+            key = s.get("bgm", "main")
+            if key != bgm_marks[-1][1]:
+                bgm_marks.append((sum(durs), key))
             ch_marks.append((s["slide_heading"], sum(durs)))  # 見出し=チャプター（ズレなし）
             last_sec = i
             if use_motion and i > 0:
@@ -418,8 +417,8 @@ def build_video(kousei, work, genbun, ruby, images, out_mp4, llm, brand=None):
             durs.append(seg(f"{B}/{n}.png", f"{B}/{n}.wav", n, pad=1.2 if is_sec_end else 0.5))
         names.append(n)
 
-    if alt_open is not None:
-        alt_ranges.append((alt_open, sum(durs))); alt_open = None
+    if bgm_marks[-1][1] != "main":
+        bgm_marks.append((sum(durs), "main"))   # 締めは地の曲に戻す
     # 最後：案内役のピンショットで締め（感想の問いかけ・次回・チャンネル登録）
     if use_motion and outro_sents:
         import motion
@@ -468,9 +467,10 @@ def build_video(kousei, work, genbun, ruby, images, out_mp4, llm, brand=None):
             # 冒頭（つかみ〜概要）はミステリアスな曲、ホー博士の名乗りで本編の曲へ
             hb_loop = _bgm_loop(hook_bgm, bgm_switch_at + 5, dst_name="bgm_hook_loop.wav")
             bgm = _bgm_two(bgm, hb_loop, total, bgm_switch_at)
-        alt = br.get("bgm_alt")
-        if alt and os.path.exists(alt) and alt_ranges:
-            bgm = _bgm_alt(bgm, alt, total, alt_ranges)
+        tracks = dict(br.get("bgm_tracks") or {})
+        if tracks and len(bgm_marks) > 1:
+            tracks.setdefault("main", br["bgm"])
+            bgm = _bgm_timeline(tracks, total, bgm_marks)
         # 声の区間だけBGMを下げる。文の切れ目程度の短い無音では戻さず、下げ幅も小さく、ゆっくり動かす
         bgm = _bgm_duck(bgm, f"{B}/all_a.wav", total, br.get("bgm_volume", 0.09),
                         duck_db=br.get("bgm_duck_db", -5.0))
@@ -531,33 +531,40 @@ def _bgm_two(main_wav, hook_wav, total, t_switch, xfade=2.5):
     return dst
 
 
-def _bgm_alt(main_wav, alt_src, total, ranges, xfade=3.0):
-    """指定の区間だけ「展開」用の曲に切り替える。区間の頭から曲を頭出しし、前後はクロスフェード。
-    音量差が出ないよう平均音量をそろえる"""
+def _bgm_timeline(tracks, total, marks, xfade=3.0):
+    """展開ごとに曲を切り替える。marks = [(開始秒, 曲の名前), ...]。
+    切り替えのたびにその曲を頭から流し、前後は xfade 秒の等パワーのクロスフェード。
+    曲ごとの音量差が出ないよう、平均音量を地の曲（main）にそろえる"""
     import numpy as np
     sr = 48000
     def load(p):
         raw = subprocess.run(["ffmpeg", "-v", "error", "-i", p, "-f", "s16le", "-ac", "1", "-ar", str(sr), "-"],
                              check=True, capture_output=True).stdout
         return np.frombuffer(raw, dtype=np.int16).astype(np.float32) / 32768
-    m = load(main_wav)
     n = int((total + 1) * sr)
-    m = np.pad(m, (0, max(0, n - len(m))))[:n]
     rms = lambda x: float(np.sqrt((x ** 2).mean()) + 1e-9)
-    a = np.zeros(n, dtype=np.float32)
-    g = np.zeros(n, dtype=np.float32)
-    t = np.arange(n) / sr
-    for t0, t1 in ranges:
-        seg_len = t1 - t0 + xfade
-        src = load(_bgm_loop(alt_src, seg_len + 2, dst_name=f"bgm_alt_{int(t0)}.wav"))
-        i0 = max(0, int((t0 - xfade / 2) * sr))
-        L = min(len(src), n - i0)
-        a[i0:i0 + L] = src[:L]
-        g = np.maximum(g, np.clip(np.minimum((t - (t0 - xfade / 2)) / xfade, ((t1 + xfade / 2) - t) / xfade), 0, 1))
-    if a.any():
-        a *= rms(m[: int(60 * sr)]) / rms(a[a != 0])
-    y = m * np.cos(g * np.pi / 2) + a * np.sin(g * np.pi / 2)
-    dst = f"{B}/bgm_alt.wav"
+    ref = None
+    y = np.zeros(n, dtype=np.float32)
+    bounds = [m[0] for m in marks] + [total + 1]
+    for idx, (t0, key) in enumerate(marks):
+        t1 = bounds[idx + 1]
+        a0 = 0.0 if idx == 0 else t0 - xfade / 2          # この曲が鳴り始める時刻
+        a1 = min(total + 1, t1 + xfade / 2)               # 鳴り終わる時刻
+        src = load(_bgm_loop(tracks[key], a1 - a0 + 1, dst_name=f"bgm_tl_{idx}.wav"))
+        whole = rms(load(tracks[key]))                     # 曲全体の平均音量でそろえる
+        if ref is None:
+            ref = whole
+        src *= ref / whole
+        i0 = int(a0 * sr); L = min(len(src), int((a1 - a0) * sr), n - i0)
+        seg = src[:L].copy()
+        tt = np.arange(L) / sr + a0
+        g = np.ones(L, dtype=np.float32)
+        if idx > 0:                                        # 入り
+            g *= np.sin(np.clip((tt - a0) / xfade, 0, 1) * np.pi / 2)
+        if idx < len(marks) - 1:                           # 抜け
+            g *= np.cos(np.clip((tt - (t1 - xfade / 2)) / xfade, 0, 1) * np.pi / 2)
+        y[i0:i0 + L] += seg * g
+    dst = f"{B}/bgm_timeline.wav"
     subprocess.run(["ffmpeg", "-y", "-v", "error", "-f", "s16le", "-ar", str(sr), "-ac", "1", "-i", "-", dst],
                    input=(np.clip(y, -1, 1) * 32767).astype(np.int16).tobytes(), check=True)
     return dst

@@ -9,18 +9,21 @@ VOICE = {"vvm": "1.vvm", "style": 14, "speed": 0.92, "pitch": -0.02, "intonation
 VOICE_NAME = "冥鳴ひまり"
 # 冥鳴ひまりの規約：商用可・申請不要・クレジット必須（書式自由）→「VOICEVOX:冥鳴ひまり」を概要欄と画面に自動で入れる
 VOICE_TAGS = ["冥鳴ひまり"]
-# 落ち着いた地のBGMは回ごとに入れ替える（同じ曲が続かないように）。山場だけ「肝試し」
-BGM_POOL = [("assets/bgm_kaidan_haikyo.mp3", "廃墟に居る者 / ゆうり(Yuli Audio Craft)"),
-            ("assets/bgm_kaidan_babybed.mp3", "空っぽのベビーベッド / ゆうり(Yuli Audio Craft)")]
-BGM_ALT = ("assets/bgm_kaidan_kimodameshi.mp3", "肝試し / alaki paca")
+# BGMは展開ごとに3曲を切り替える（音で驚かせるためではなく、単調にさせず最後まで聞いてもらうため）。
+# 台本のセクションに "bgm": "main" / "calm2" / "climax"。書いていない章は直前と同じ扱いではなく main
+BGM_TRACKS = {
+    "main":   ("assets/bgm_kaidan_haikyo.mp3", "廃墟に居る者 / ゆうり(Yuli Audio Craft)"),
+    "calm2":  ("assets/bgm_kaidan_babybed.mp3", "空っぽのベビーベッド / ゆうり(Yuli Audio Craft)"),
+    "climax": ("assets/bgm_kaidan_kimodameshi.mp3", "肝試し / alaki paca"),
+}
 
 
 def bgm_for(work, k):
-    """この回で使う曲と、概要欄のクレジット（実際に使った曲だけを載せる）"""
-    main = BGM_POOL[(work["no"] - 1) % len(BGM_POOL)]
-    used = [main] + ([BGM_ALT] if any(s.get("bgm") == "alt" for s in k["sections"]) else [])
+    """地の曲と、概要欄のクレジット（実際に使った曲だけを載せる）"""
+    keys = ["main"] + [s.get("bgm", "main") for s in k["sections"]]
+    used = [BGM_TRACKS[x] for x in dict.fromkeys(keys) if x in BGM_TRACKS]
     credit = "BGM: " + "、".join(c for _, c in used) + "（OpenTracks（旧DOVA-SYNDROME））"
-    return main[0], credit
+    return BGM_TRACKS["main"][0], credit
 
 KANSUJI = "〇一二三四五六七八九"
 
@@ -117,7 +120,7 @@ def kaidan_brand(work, k):
         "css": CSS,
         "card_style": CARD_STYLE,
         "bgm": bgm_for(work, k)[0],
-        "bgm_alt": BGM_ALT[0],          # 山場（台本で "bgm": "alt" の章）だけ
+        "bgm_tracks": {key: p for key, (p, _) in BGM_TRACKS.items()},
         "scrim": 0.25,
         "outro_heading": "おしまい",
     }
