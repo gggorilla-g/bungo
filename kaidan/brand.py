@@ -9,7 +9,7 @@ VOICE = {"vvm": "1.vvm", "style": 14, "speed": 0.92, "pitch": -0.02, "intonation
 VOICE_NAME = "冥鳴ひまり"
 # 冥鳴ひまりの規約：商用可・申請不要・クレジット必須（書式自由）→「VOICEVOX:冥鳴ひまり」を概要欄と画面に自動で入れる
 VOICE_TAGS = ["冥鳴ひまり"]
-BGM_CREDIT = "BGM: 廃墟に居る者 / ゆうり(Yuli Audio Craft)（OpenTracks（旧DOVA-SYNDROME））"
+BGM_CREDIT = "BGM: 廃墟に居る者 / ゆうり(Yuli Audio Craft)、肝試し / alaki paca（OpenTracks（旧DOVA-SYNDROME））"
 
 KANSUJI = "〇一二三四五六七八九"
 
@@ -106,6 +106,7 @@ def kaidan_brand(work, k):
         "css": CSS,
         "card_style": CARD_STYLE,
         "bgm": "assets/bgm_kaidan_haikyo.mp3",   # 廃墟に居る者 / ゆうり(Yuli Audio Craft)（OpenTracks・サイト準拠）
+        "bgm_alt": "assets/bgm_kaidan_kimodameshi.mp3",   # 肝試し / alaki paca：山場（台本で "bgm": "alt" の章）だけ
         "scrim": 0.25,
         "outro_heading": "おしまい",
     }
