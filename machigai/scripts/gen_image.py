@@ -7,10 +7,13 @@
 import base64, zlib, glob, json, os, shutil, subprocess, sys, time, urllib.request
 
 STYLE = (
-    "Flat vector illustration for a spot-the-difference puzzle. "
-    "Landscape 3:2. Bright, clean colors. Solid flat color areas, no texture, no gradients, no text, no letters, no logos. "
-    "Many separate, clearly outlined small and medium objects (at least 25) spread across the whole picture, "
-    "each standing on a plain background area, not overlapping each other. "
+    # ディテールの目安：写実を10としたとき3程度。幼稚な記号絵ではなく、手の込んだ絵本・ゲーム背景くらい
+    "Detailed hand-drawn style illustration for a spot-the-difference puzzle, like a polished picture book "
+    "or a cozy game background. Landscape 3:2. Natural, pleasant colors with soft cel shading and simple "
+    "highlights (no photorealism, no heavy textures, no gradients across large areas). "
+    "Rich in small details: at least 40 distinct, clearly outlined objects of various sizes "
+    "(small items on shelves, patterns on cloth, windows, plants, tools), spread across the whole picture, "
+    "mostly not overlapping. No text, no letters, no logos. "
     "No people's faces in close-up. No real brands or famous characters."
 )
 
