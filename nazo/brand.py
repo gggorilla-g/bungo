@@ -21,7 +21,7 @@ body { background:#111111; color:#ffffff; font-family:"Noto Sans CJK JP"; }
 .rule { display:none; }
 h1 { font-family:"Noto Sans CJK JP"; font-weight:900; letter-spacing:.04em;
      background:#000000; color:#ffffff; padding:.12em .45em .16em; text-shadow:none !important; }
-.badge { background:#c0392b; color:#ffffff !important; padding:10px 26px; letter-spacing:.12em !important; font-weight:700; }
+.badge { display:none !important; }
 .credit { color:#999999; }
 .credit { color:#dddddd !important; background:rgba(0,0,0,.72); padding:6px 16px; }
 .bg { background-size:contain; background-repeat:no-repeat; background-position:center; }
