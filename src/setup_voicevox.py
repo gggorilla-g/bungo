@@ -21,7 +21,7 @@ def fetch(url, out, retries=3):
     raise RuntimeError(f"ダウンロード失敗: {url}")
 
 # 追加の声（チャンネルごと）。キャッシュがあっても足りないものだけ取る
-EXTRA = ["10.vvm", "12.vvm", "15.vvm", "6.vvm"]
+EXTRA = ["10.vvm", "12.vvm", "15.vvm", "6.vvm", "1.vvm"]   # 1=冥鳴ひまり（怪談）
 def extra():
     for v in EXTRA:
         if not os.path.exists(f"{A}/{v}"):
