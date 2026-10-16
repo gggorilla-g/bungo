@@ -45,11 +45,38 @@ def main():
         images, credits = {}, []
         for i, s in enumerate(kousei["sections"]):
             q = s.get("img_query")
-            if not q: continue
+            if not q or s.get("images"): continue   # 画像を指定済みのセクションは検索しない
             hit = m4_images.fetch_image([q], f"build/img{i}.jpg")
             if hit:
                 images[i] = f"build/img{i}.jpg"
                 if hit["credit"] not in credits: credits.append(hit["credit"])
+        # 4b) 台本で場面ごとに画像を指定している場合（謎と同じ方式。語っている内容と画像を対応させる）
+        k = kousei
+        wanted = [im["file"] for s in k["sections"] for im in s.get("images", [])]
+        wanted += [f for f in (k.get("title_image"), k.get("thumb_image")) if f]
+        wanted += [h["file"] for h in k.get("hook", []) if h.get("file")]
+        if wanted:
+            got, local = m4_images.commons_files(wanted), {}
+            for j, (f, info) in enumerate(got.items()):
+                if m4_images.download(info["url"], f"build/sel{j}.jpg", fallback=info.get("orig")):
+                    local[f] = f"build/sel{j}.jpg"
+            print(f"指定画像 {len(local)}/{len(set(wanted))} 枚")
+            used = set()
+            images["sec_list"] = {}
+            for i, s in enumerate(k["sections"]):
+                lst = [(im.get("at"), local[im["file"]]) for im in s.get("images", []) if im["file"] in local]
+                if lst:
+                    images["sec_list"][i] = lst
+                    used |= {im["file"] for im in s.get("images", []) if im["file"] in local}
+            images["hook_files"] = {h["file"]: local[h["file"]] for h in k.get("hook", []) if h.get("file") in local}
+            used |= set(images["hook_files"])
+            for key in ("title_image", "thumb_image"):
+                if k.get(key) in local:
+                    images[key] = local[k[key]]; used.add(k[key])
+            sel = sorted({got[f]["credit"] for f in used})
+            credits = sel + [c for c in credits if c not in sel]
+            if len(images["sec_list"]) == len(k["sections"]):
+                credits = sel
         # 5-7) 動画+サムネ
         os.makedirs("output", exist_ok=True)
         out = f"output/{work['work_id']}.mp4"
@@ -58,7 +85,8 @@ def main():
         sys.path.insert(0, "nazo")
         import thumb as thumbmod
         thumbmod.build(kousei["thumbnail"]["main_copy"], f'{work["author"]}『{work["title"]}』',
-                       images.get(0), "output/thumb.png", badge="BUNGO　10分でわかる名作",
+                       images.get("thumb_image") or images.get("title_image") or images.get(0),
+                       "output/thumb.png", badge="BUNGO　10分でわかる名作",
                        palette=thumbmod.PALETTE_BUNGO)
         # 8) 投稿 (Secrets未設定ならスキップ=ローカル/Phase1でも同一コードが動く)
         vid = None
