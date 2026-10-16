@@ -28,10 +28,11 @@ HOST_POS = ((W - HOST_SIZE) // 2 - 260, H - HOST_SIZE + 40)
 
 # ---------- 文字 ----------
 _fc = {}
+FAMILY = "Noto Sans CJK JP"   # チャンネルごとに差し替え（怪談は明朝 Noto Serif CJK JP）
 def font(size, weight="Black"):
-    key = (size, weight)
+    key = (size, weight, FAMILY)
     if key not in _fc:
-        for name in (f"Noto Sans CJK JP:style={weight}", "Noto Sans CJK JP:style=Bold", "Noto Sans CJK JP"):
+        for name in (f"{FAMILY}:style={weight}", f"{FAMILY}:style=Bold", "Noto Sans CJK JP:style=Bold", "Noto Sans CJK JP"):
             r = subprocess.run(["fc-match", "-f", "%{file}|%{index}", name], capture_output=True, text=True).stdout
             if "CJK" in r:
                 p, i = r.split("|"); _fc[key] = ImageFont.truetype(p, size, index=int(i or 0)); break
@@ -223,7 +224,8 @@ class Beat:
             total = sum(b[3] - b[1] + 40 for b in hs) + 20 * (len(lines) - 1)
             y = (H - total) // 2 - 40
             for i, l in enumerate(lines):
-                fg, bg = (BLACK, YELLOW) if i == len(lines) - 1 else (WHITE, BLACK)
+                last_c, other_c = HOOK_COLORS or ((BLACK, YELLOW), (WHITE, BLACK))
+                fg, bg = last_c if i == len(lines) - 1 else other_c
                 _, h_ = box_text(d, W // 2, y, l, f, fg, bg, 40, 20, anchor="ct")
                 y += h_ + 20
             return im
@@ -302,6 +304,7 @@ def owl_frame(i, talk, point, seed=0, size=None, pos=None, face=None):
 
 HOST_DRAW = None   # (フレーム番号, 話しているか, 表情) -> (RGBA画像, 位置)。None ならホー博士
 NAME_COLORS = None  # 案内役の名前の箱の色 (文字, 地)。None なら黒×黄
+HOOK_COLORS = None  # つかみの箱の色 ((最後の行の文字, 地), (ほかの行の文字, 地))。None なら黄・黒
 
 
 # ---------- 1セグメント書き出し ----------
