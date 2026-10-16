@@ -99,12 +99,20 @@ def commons_files(files, width=1920):
     """Commonsのファイル名を指定して、URLと出典表示を引く（ライセンスがPD/CC0/CC BY系のものだけ）"""
     found = {}
     files = list(dict.fromkeys(files))
-    for b in range(0, len(files), 40):
+    # 「File:」の付け忘れでも引けるように（返す辞書のキーは渡された名前のまま）
+    norm = {(f if f.startswith("File:") else "File:" + f): f for f in files}
+    q = list(norm)
+    for b in range(0, len(q), 40):
         r = requests.get("https://commons.wikimedia.org/w/api.php", params={
             "action": "query", "format": "json", "prop": "imageinfo",
-            "titles": "|".join(files[b:b + 40]), "iiprop": "url|extmetadata", "iiurlwidth": width},
+            "titles": "|".join(q[b:b + 40]), "iiprop": "url|extmetadata", "iiurlwidth": width},
             headers=UA, timeout=60).json()
+        # 正規化（空白・大文字化など）されたタイトルを、渡された名前へ戻す
+        back = {}
+        for n in r.get("query", {}).get("normalized", []):
+            back[n["to"]] = n["from"]
         for pg in r.get("query", {}).get("pages", {}).values():
+            pg["title"] = norm.get(back.get(pg.get("title"), pg.get("title")), pg.get("title"))
             info = (pg.get("imageinfo") or [{}])[0]
             meta = info.get("extmetadata", {})
             lic = meta.get("LicenseShortName", {}).get("value", "")
