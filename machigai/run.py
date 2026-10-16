@@ -62,7 +62,8 @@ def main():
     meta = {
         "title": f"【間違い探し】{theme['ja']} {search}秒で{n}つ #{ep:03d} #shorts",
         "description": (f"{search}秒で{n}か所の違いを探してください。答えは最後に出ます。\n"
-                        f"テーマ：{theme['ja']}\n\n#間違い探し #脳トレ #shorts"),
+                        f"テーマ：{theme['ja']}\n\n#間違い探し #脳トレ #shorts\n\n"
+                        f"ナレーション: VOICEVOX:青山龍星"),
         "tags": ["間違い探し", "脳トレ", "spot the difference", "puzzle", theme["ja"]],
     }
     json.dump(meta, open(f"{OUT}/meta.json", "w"), ensure_ascii=False, indent=1)

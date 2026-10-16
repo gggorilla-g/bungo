@@ -11,14 +11,26 @@ INTRO = 1.0
 REVEAL_GAP = 0.8
 HOLD = 2.5
 FONT = "/usr/share/fonts/opentype/noto/NotoSansCJK-Black.ttc"
+NAR = None
 BG = (18, 18, 18)
 RED = (230, 40, 40)
 
 def font(sz): return ImageFont.truetype(FONT, sz, index=0)  # index0 = JP
 
-def build(base, diff, ans_path, out, search=15, title=None, audio="audio.wav"):
-    global SEARCH
+def build(base, diff, ans_path, out, search=15, title=None, audio="audio.wav", narrate=True):
+    global SEARCH, INTRO, REVEAL_GAP, HOLD, NAR
     SEARCH = search
+    NAR = None
+    if narrate:
+        # ナレーション（青山龍星）。台詞の長さに合わせて、導入・答えの間隔・締めの尺を伸ばす
+        import narrate as nr
+        n0 = len(json.load(open(ans_path))["answers"])
+        L = nr.lines(n0, search)
+        NAR = {"intro": nr.say(L["intro"]), "last3": nr.say(L["last3"]), "answer": nr.say(L["answer"]),
+               "each": [nr.say(x) for x in L["each"]], "outro": nr.say(L["outro"]), "text": L}
+        INTRO = len(NAR["intro"]) / nr.SR + 0.3
+        REVEAL_GAP = max(0.8, max(len(x) for x in NAR["each"]) / nr.SR + 0.25)
+        HOLD = len(NAR["outro"]) / nr.SR + 0.8
     A = Image.open(base).convert("RGB"); B = Image.open(diff).convert("RGB")
     ans = json.load(open(ans_path))["answers"]
     iw = 920; s = iw / A.width; ih = int(A.height * s)
@@ -27,10 +39,11 @@ def build(base, diff, ans_path, out, search=15, title=None, audio="audio.wav"):
     bx, by = ax, ay + ih + 30
     n = len(ans)
     reveal_start = INTRO + SEARCH
-    total = reveal_start + 0.6 + REVEAL_GAP * n + HOLD
+    ans_gap = (len(NAR["answer"]) / 44100 + 0.1) if NAR else 0.6
+    total = reveal_start + ans_gap + REVEAL_GAP * n + HOLD
     frames = int(total * FPS)
 
-    make_audio(total, n, reveal_start, audio)   # ffmpeg起動前に音を用意
+    make_audio(total, n, reveal_start, audio, ans_gap=ans_gap)   # ffmpeg起動前に音を用意
     p = subprocess.Popen(["ffmpeg", "-y", "-loglevel", "error", "-f", "rawvideo", "-pix_fmt", "rgb24",
                           "-s", f"{W}x{H}", "-r", str(FPS), "-i", "-", "-i", audio,
                           "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "20",
@@ -53,7 +66,7 @@ def build(base, diff, ans_path, out, search=15, title=None, audio="audio.wav"):
             d.text((W//2, y0 + 110), f"{int(np.ceil(left))}", font=f_num, fill=(255, 255, 255), anchor="mm")
         else:
             d.text((W//2, 200), "答え", font=f_sub, fill=(170, 170, 170), anchor="mm")
-            k = int((t - reveal_start - 0.6) / REVEAL_GAP) + 1 if t >= reveal_start + 0.6 else 0
+            k = int((t - reveal_start - ans_gap) / REVEAL_GAP) + 1 if t >= reveal_start + ans_gap else 0
             for j, a in enumerate(ans[:max(0, min(k, n))]):
                 for ox, oy in ((ax, ay), (bx, by)):
                     cx = ox + (a["x"] + a["w"]/2) * s; cy = oy + (a["y"] + a["h"]/2) * s
@@ -64,6 +77,23 @@ def build(base, diff, ans_path, out, search=15, title=None, audio="audio.wav"):
             d.text((W//2, y0 + 110), f"{kk} / {n}", font=f_num, fill=(255, 255, 255), anchor="mm")
             if kk:
                 d.text((W//2, y0 + 10), f"難易度 {ans[kk-1].get('level', '')}", font=f_sub, fill=(170, 170, 170), anchor="mm")
+        if NAR:
+            cap = None
+            Lt = NAR["text"]
+            if t < INTRO: cap = Lt["intro"]
+            elif reveal_start - 3 <= t < reveal_start: cap = Lt["last3"]
+            elif reveal_start <= t < reveal_start + ans_gap: cap = Lt["answer"]
+            elif t >= reveal_start + ans_gap + REVEAL_GAP * n: cap = Lt["outro"]
+            if cap:
+                fc = font(46)
+                lines_ = [cap] if fc.getlength(cap) < W - 120 else cap.split("。", 1)
+                lines_ = [l if l.endswith("。") or i == len(lines_) - 1 else l + "。" for i, l in enumerate(lines_) if l]
+                yy = H - 95 - 62 * (len(lines_) - 1)
+                for l in lines_:
+                    bb = d.textbbox((W // 2, yy), l, font=fc, anchor="mm")
+                    d.rectangle((bb[0] - 24, bb[1] - 14, bb[2] + 24, bb[3] + 14), fill=(0, 0, 0))
+                    d.text((W // 2, yy), l, font=fc, fill=(255, 226, 0), anchor="mm")
+                    yy += 62
         p.stdin.write(im.tobytes())
     p.stdin.close(); p.wait()
 
@@ -72,15 +102,22 @@ def tone(freq, dur, sr=44100, vol=0.35):
     env = np.exp(-t * 18)
     return np.sin(2*np.pi*freq*t) * env * vol
 
-def make_audio(total, n, reveal_start, path, sr=44100):
+def make_audio(total, n, reveal_start, path, sr=44100, ans_gap=0.6):
     buf = np.zeros(int(sr * (total + 0.5)))
     def put(at, x):
         i = int(at*sr); buf[i:i+len(x)] += x[:len(buf)-i]
     for k in range(SEARCH):
         put(INTRO + k, tone(1500 if SEARCH - k > 3 else 2000, 0.06, sr, 0.2))
-    put(reveal_start, tone(660, 0.5, sr, 0.35))
+    put(reveal_start, tone(660, 0.5, sr, 0.25 if NAR else 0.35))
     for j in range(n):
-        put(reveal_start + 0.6 + REVEAL_GAP*j, tone(990, 0.3, sr, 0.35))
+        put(reveal_start + ans_gap + REVEAL_GAP*j, tone(990, 0.3, sr, 0.25 if NAR else 0.35))
+    if NAR:
+        put(0.15, NAR["intro"] * 0.9)
+        put(reveal_start - 3, NAR["last3"] * 0.9)
+        put(reveal_start + 0.05, NAR["answer"] * 0.9)
+        for j in range(n):
+            put(reveal_start + ans_gap + REVEAL_GAP * j + 0.12, NAR["each"][j] * 0.9)
+        put(reveal_start + ans_gap + REVEAL_GAP * n + 0.2, NAR["outro"] * 0.9)
     pcm = (np.clip(buf, -1, 1) * 32767).astype(np.int16)
     with wave.open(path, "w") as w:
         w.setnchannels(1); w.setsampwidth(2); w.setframerate(sr); w.writeframes(pcm.tobytes())
