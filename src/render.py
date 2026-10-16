@@ -282,6 +282,7 @@ def build_video(kousei, work, genbun, ruby, images, out_mp4, llm, brand=None):
         return images.get(i)
     title_img = images.get("title_image") or (pool[0] if pool else images.get(0))
     use_motion = bool(br.get("motion"))
+    bgm_switch_at = None
     # つかみ（冒頭の数秒）：題材のいちばん引っかかる事実を、短い文で畳みかける
     if use_motion and hook_items:
         import motion
@@ -310,13 +311,32 @@ def build_video(kousei, work, genbun, ruby, images, out_mp4, llm, brand=None):
               scrim=0.6 if title_img else 0.5, css_extra=css)
         durs.append(seg(f"{B}/title.png", f"{B}/title.wav", "title", pad=0.8))
     names.append("title")
+    # タイトルの直後に、案内役のピンショットで名乗って本題へ（つかみ→タイトル→「ホー博士じゃ」）
+    if use_motion and host_sents:
+        import motion
+        bgm_switch_at = sum(durs)
+        hb = motion.Beat({"type": "host", "name": br.get("host_name", "ホー博士"),
+                          "role": br.get("host_role", "")}, title_img)
+        ht = 0.0
+        for j, hs in enumerate(host_sents):
+            hn = f"h{j:02d}"
+            tts(hs, f"{B}/{hn}.wav")
+            slide("", f"{B}/{hn}_ov.png", None, subtitle=hs, transparent=True,
+                  css_extra=css + " .subtitle { left:1180px !important; right:70px !important; } ")
+            fc = host_face(hs)
+            ev = [("pop_mid", 0.0, 1), ("shimmer", 0.15, 0.9)] if j == 0 else []
+            if fc == "uruuru": ev.append(("shimmer", 0.1, 0.8))
+            if fc == "jito": ev.append(("tick_lo", 0.05, 0.9))
+            hd = motion_seg(f"{B}/{hn}_ov.png", f"{B}/{hn}.wav", hn, hb, ht,
+                            pad=0.9 if j == len(host_sents) - 1 else 0.4, face=fc, se_events=ev)
+            ht += hd
+            durs.append(hd); names.append(hn)
     # 動かすセクション：台本に "motion" があるセクション（なければ最初のセクションだけ）
     motion_secs = {i for i, s_ in enumerate(kousei["sections"]) if "motion" in s_}
     if use_motion and not motion_secs and br.get("motion_first", True):
         motion_secs = {0}
     beat_state = {}
     pan_state = {}
-    bgm_switch_at = None
 
     last_sec = -1
     for k, (i, sent) in enumerate(plan):
@@ -372,25 +392,6 @@ def build_video(kousei, work, genbun, ruby, images, out_mp4, llm, brand=None):
             beat_state["t"] += d
             durs.append(d)
             names.append(n)
-            # 概要（最初のセクション）のあと、案内役のピンショットで名乗って本題へ
-            if i == 0 and is_sec_end and host_sents:
-                bgm_switch_at = sum(durs)
-                hb = motion.Beat({"type": "host", "name": br.get("host_name", "ホー博士"),
-                                  "role": br.get("host_role", "")}, img)
-                ht = 0.0
-                for j, hs in enumerate(host_sents):
-                    hn = f"h{j:02d}"
-                    tts(hs, f"{B}/{hn}.wav")
-                    slide("", f"{B}/{hn}_ov.png", None, subtitle=hs, transparent=True,
-                          css_extra=css + " .subtitle { left:1180px !important; right:70px !important; } ")
-                    fc = host_face(hs)
-                    ev = [("pop_mid", 0.0, 1), ("shimmer", 0.15, 0.9)] if j == 0 else []
-                    if fc == "uruuru": ev.append(("shimmer", 0.1, 0.8))
-                    if fc == "jito": ev.append(("tick_lo", 0.05, 0.9))
-                    hd = motion_seg(f"{B}/{hn}_ov.png", f"{B}/{hn}.wav", hn, hb, ht,
-                                    pad=0.9 if j == len(host_sents) - 1 else 0.4, face=fc, se_events=ev)
-                    ht += hd
-                    durs.append(hd); names.append(hn)
             continue
         elif use_motion and pick(k, i):
             # 本編：静止画もゆっくりパンし、1文ごとに引き／寄りを切り替える
