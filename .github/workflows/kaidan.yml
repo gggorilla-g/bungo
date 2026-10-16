@@ -4,7 +4,7 @@ on:
 permissions:
   contents: write
 concurrency:
-  group: state-commit
+  group: kaidan
   cancel-in-progress: false
 jobs:
   build:

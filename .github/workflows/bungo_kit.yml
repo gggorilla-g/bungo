@@ -8,7 +8,7 @@ permissions:
   contents: write
   actions: read
 concurrency:
-  group: state-commit
+  group: bungo-kit
   cancel-in-progress: false
 jobs:
   kit:
