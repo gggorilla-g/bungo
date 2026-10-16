@@ -65,5 +65,6 @@ def nazo_brand(work):
         "css": CSS,
         "thumb_label": "世界の謎10分解説",
         "bgm": "assets/bgm_nazo_calming_seaside.mp3",
+        "bgm_hook": "assets/bgm_nazo_hook_ghost_house.mp3",   # 冒頭〜名乗りまで
         "scrim": 0.12,          # 画像（写本のページ等）が見えるよう暗幕は薄く。字幕は自前の帯で読ませる
     }

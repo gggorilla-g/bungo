@@ -80,7 +80,7 @@ def make_description(kousei, meta, image_credits, chapters=None, work_id=None):
         lines.append(f"参考: Wikipedia \"{meta['en_title']}\" {meta['url_en']} (CC BY-SA 4.0)")
     import brand
     lines.append(f"音声: VOICEVOX:{brand.VOICE_NAME}（合成音声）")
-    lines.append("BGM: Calming seaside / 蒲鉾さちこ（DOVA-SYNDROME）")
+    lines.append("BGM: the ghost house / 稿屋 隆（DOVA-SYNDROME）、Calming seaside / 蒲鉾さちこ（DOVA-SYNDROME）")
     if work_id:
         # 概要欄の字数を抑えるため、作者とライセンスだけを並べ、ファイル名つきの全一覧はリンク先に置く
         names = list(dict.fromkeys(_short_credit(c) for c in image_credits))

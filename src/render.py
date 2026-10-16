@@ -293,6 +293,7 @@ def build_video(kousei, work, genbun, ruby, images, out_mp4, llm, brand=None):
         motion_secs = {0}
     beat_state = {}
     pan_state = {}
+    bgm_switch_at = None
 
     last_sec = -1
     for k, (i, sent) in enumerate(plan):
@@ -350,6 +351,7 @@ def build_video(kousei, work, genbun, ruby, images, out_mp4, llm, brand=None):
             names.append(n)
             # 概要（最初のセクション）のあと、案内役のピンショットで名乗って本題へ
             if i == 0 and is_sec_end and host_sents:
+                bgm_switch_at = sum(durs)
                 hb = motion.Beat({"type": "host", "name": br.get("host_name", "ホー博士"),
                                   "role": br.get("host_role", "")}, img)
                 ht = 0.0
@@ -428,6 +430,11 @@ def build_video(kousei, work, genbun, ruby, images, out_mp4, llm, brand=None):
     if bgm and os.path.exists(bgm):
         total = sum(durs)
         bgm = _bgm_loop(bgm, total)
+        hook_bgm = br.get("bgm_hook")
+        if hook_bgm and os.path.exists(hook_bgm) and bgm_switch_at:
+            # 冒頭（つかみ〜概要）はミステリアスな曲、ホー博士の名乗りで本編の曲へ
+            hb_loop = _bgm_loop(hook_bgm, bgm_switch_at + 5, dst_name="bgm_hook_loop.wav")
+            bgm = _bgm_two(bgm, hb_loop, total, bgm_switch_at)
         # 声の区間だけBGMを下げる。文の切れ目程度の短い無音では戻さず、下げ幅も小さく、ゆっくり動かす
         bgm = _bgm_duck(bgm, f"{B}/all_a.wav", total, br.get("bgm_volume", 0.09),
                         duck_db=br.get("bgm_duck_db", -5.0))
@@ -444,7 +451,7 @@ def build_video(kousei, work, genbun, ruby, images, out_mp4, llm, brand=None):
             "-ar", "48000", out_mp4], check=True)
     return sum(durs)
 
-def _bgm_loop(src, total, xfade=4.0):
+def _bgm_loop(src, total, xfade=4.0, dst_name="bgm_loop.wav"):
     """BGMを動画の尺までつなぐ。継ぎ目は数秒のクロスフェードにして、曲の頭に戻る違和感を消す。
     曲自体は加工しない（音量・つなぎのみ）"""
     import numpy as np
@@ -458,11 +465,34 @@ def _bgm_loop(src, total, xfade=4.0):
     while len(out) < need:
         out[-n_x:] = out[-n_x:] * (1 - ramp) + x[:n_x] * ramp
         out = np.concatenate([out, x[n_x:]])
-    dst = f"{B}/bgm_loop.wav"
+    dst = f"{B}/{dst_name}"
     subprocess.run(["ffmpeg", "-y", "-v", "error", "-f", "s16le", "-ar", str(sr), "-ac", "1", "-i", "-", dst],
                    input=np.clip(out[:need], -32768, 32767).astype(np.int16).tobytes(), check=True)
     return dst
 
+
+
+def _bgm_two(main_wav, hook_wav, total, t_switch, xfade=2.5):
+    """冒頭（〜t_switch）は hook の曲、そこから本編の曲へクロスフェードでつなぐ。
+    2曲の音量差が出ないよう、それぞれの平均音量をそろえてからつなぐ"""
+    import numpy as np
+    sr = 48000
+    def load(p):
+        raw = subprocess.run(["ffmpeg", "-v", "error", "-i", p, "-f", "s16le", "-ac", "1", "-ar", str(sr), "-"],
+                             check=True, capture_output=True).stdout
+        return np.frombuffer(raw, dtype=np.int16).astype(np.float32) / 32768
+    m, h = load(main_wav), load(hook_wav)
+    n = int((total + 1) * sr)
+    m = np.pad(m, (0, max(0, n - len(m))))[:n]; h = np.pad(h, (0, max(0, n - len(h))))[:n]
+    rms = lambda x: float(np.sqrt((x[: int(60 * sr)] ** 2).mean()) + 1e-9)
+    h = h * (rms(m) / rms(h))
+    t = np.arange(n) / sr
+    g = np.clip((t - (t_switch - xfade / 2)) / xfade, 0, 1)      # 0=冒頭の曲, 1=本編の曲
+    y = h * np.cos(g * np.pi / 2) + m * np.sin(g * np.pi / 2)
+    dst = f"{B}/bgm_two.wav"
+    subprocess.run(["ffmpeg", "-y", "-v", "error", "-f", "s16le", "-ar", str(sr), "-ac", "1", "-i", "-", dst],
+                   input=(np.clip(y, -1, 1) * 32767).astype(np.int16).tobytes(), check=True)
+    return dst
 
 
 def _bgm_duck(bgm_wav, voice_wav, total, vol, duck_db=-5.0, hold=3.0, down=0.8, up=2.0):
