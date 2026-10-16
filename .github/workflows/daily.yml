@@ -5,6 +5,9 @@ on:
   workflow_dispatch:
 permissions:
   contents: write
+concurrency:
+  group: state-commit         # NAZO・MACHIGAIと同時にstateを書き戻して衝突しないように
+  cancel-in-progress: false
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -47,11 +50,17 @@ jobs:
         run: |
           git config user.name "bungo-bot"
           git config user.email "bot@users.noreply.github.com"
-          git add state/ && git diff --cached --quiet || git commit -m "state: $(date -u +%F)" && git push
+          git add state/
+          git diff --cached --quiet && exit 0
+          git commit -m "state: $(date -u +%F)"
+          # 制作中に別のコミットが入っても押し出せるよう、取り込み直して最大3回試す
+          for i in 1 2 3; do git pull --rebase -q && git push && break; sleep 5; done
       - name: Upload video artifact
+        if: always()   # 記録の書き戻しに失敗しても、できた動画は必ず残す
         uses: actions/upload-artifact@v4
-        with: { name: video, path: output/*.mp4, retention-days: 7 }
+        with: { name: video, path: output/*.mp4, retention-days: 7, if-no-files-found: ignore }
       - name: Upload reel artifact (Instagram用、無ければ何もしない)
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: reel
