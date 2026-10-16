@@ -103,9 +103,9 @@ def main():
         out = f"output/kaidan_{work['work_id']}.mp4"
         render_work = dict(work, yomi=work["yomi"])
         render.build_video(k, render_work, src["text"], src["ruby"], images, out, llm=_no_llm, brand=br)
-        thumb.build(k["thumbnail"]["main_copy"], k["thumbnail"].get("sub_copy", work["title"]),
-                    images.get("thumb_image") or images.get("title_image"), "output/thumb.png",
-                    badge=f"{brand.CHANNEL}　第{brand.kansuji(work['no'])}話", palette=PALETTE_KAIDAN)
+        import thumb_quiet       # 静かな型（煽り文句なし。題名の縦書き＋第〇話）
+        thumb_quiet.build(k.get("display_title", work["title"]), brand.kansuji(work["no"]), work["author"],
+                          images.get("thumb_image") or images.get("title_image"), "output/thumb.png")
 
         chapters = json.load(open("build/chapters.json", encoding="utf-8"))
         desc = description(k, work, credits, chapters)
