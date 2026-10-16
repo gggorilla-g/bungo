@@ -29,7 +29,8 @@ def _norm(t):
 
 
 def _narr(kousei):
-    return "".join(s.get("narration", "") for s in kousei["sections"])
+    return "".join(h.get("say", "") + h.get("text", "") for h in kousei.get("hook", [])) + \
+        "".join(s.get("narration", "") for s in kousei["sections"])
 
 
 def validate(kousei, src):

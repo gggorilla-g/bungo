@@ -81,6 +81,7 @@ def main():
         wanted = [im["file"] for s in k["sections"] for im in s.get("images", [])]
         wanted += [f for f in (k.get("title_image"), k.get("thumb_image")) if f]
         wanted += [b["file"] for s in k["sections"] for b in s.get("motion", []) if b.get("file")]
+        wanted += [h["file"] for h in k.get("hook", []) if h.get("file")]
         if wanted:
             got, local = m4_images.commons_files(wanted), {}
             print(f"指定画像の情報取得 {len(got)}/{len(set(wanted))}")
@@ -103,6 +104,8 @@ def main():
             images["motion_files"] = {b["file"]: local[b["file"]] for s in k["sections"]
                                       for b in s.get("motion", []) if b.get("file") in local}
             used |= set(images["motion_files"])
+            images["hook_files"] = {h["file"]: local[h["file"]] for h in k.get("hook", []) if h.get("file") in local}
+            used |= set(images["hook_files"])
             for key in ("title_image", "thumb_image"):
                 if k.get(key) in local:
                     images[key] = local[k[key]]; used.add(k[key])

@@ -134,7 +134,7 @@ class Beat:
         self.s, self.img, self.prev = spec, img_path, prev_canvas
         t = spec.get("type", "photo")
         self.type = t
-        if t in ("photo", "size", "year", "words", "host"):
+        if t in ("photo", "size", "year", "words", "host", "hook"):
             path = spec.get("path") or img_path
             self.canvas, self.box = stage(path) if path else (Image.new("RGB", (int(W * 1.25), int(H * 1.25)), (12, 12, 12)), (0, 0, 1, 1))
         if t == "map":
@@ -208,6 +208,24 @@ class Beat:
                     d.line([(sx_, yy - 40), (sx_, yy + 40)], fill=YELLOW, width=6)
                 if t > 0.9:
                     box_text(d, int(cx), int(yy) - 140, s["label"], font(72), BLACK, YELLOW, anchor="ct")
+            return im
+        if self.type == "hook":
+            # つかみ：暗めの画像にじわっと寄りながら、中央に大きな文字の箱
+            im = ImageEnhance.Brightness(view(self.canvas, 0.5, 0.5, 1.0 + 0.06 * (t / max(dur, 0.01)))).enhance(0.42)
+            d = ImageDraw.Draw(im)
+            lines = s["text"].split("\n")
+            base = 120
+            while base > 60 and max(font(base).getlength(l) for l in lines) > W - 300:
+                base -= 6
+            e = back(min(1, t / 0.3))
+            f = font(int(base * (0.94 + 0.06 * e)))
+            hs = [d.textbbox((0, 0), l, font=f) for l in lines]
+            total = sum(b[3] - b[1] + 40 for b in hs) + 20 * (len(lines) - 1)
+            y = (H - total) // 2 - 40
+            for i, l in enumerate(lines):
+                fg, bg = (BLACK, YELLOW) if i == len(lines) - 1 else (WHITE, BLACK)
+                _, h_ = box_text(d, W // 2, y, l, f, fg, bg, 40, 20, anchor="ct")
+                y += h_ + 20
             return im
         if self.type == "host":
             im = view(self.canvas, 0.5, 0.5, 1.0 + 0.03 * (t / max(dur, 0.01)))

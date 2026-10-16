@@ -229,10 +229,12 @@ def build_video(kousei, work, genbun, ruby, images, out_mp4, llm, brand=None):
         for sent in yomi.split_sentences(narr):
             plan.append((i, sent))
     host_sents = yomi.split_sentences(kousei["host_intro"]) if (br.get("motion") and kousei.get("host_intro")) else []
+    hook_items = kousei.get("hook", []) if br.get("motion") else []
     outro_text = kousei.get("host_outro") or br.get("host_outro", "")
     outro_sents = yomi.split_sentences(outro_text) if (br.get("motion") and outro_text) else []
     _YOMI.clear()
-    _YOMI.update(yomi.prepare([title_narr] + [s for _, s in plan] + host_sents + outro_sents, work, ruby, llm))
+    _YOMI.update(yomi.prepare([h["say"] for h in hook_items] + [title_narr] + [s for _, s in plan]
+                              + host_sents + outro_sents, work, ruby, llm))
 
     names, durs, ch_marks = [], [], []
     # ---- タイトルカード ----
@@ -257,6 +259,21 @@ def build_video(kousei, work, genbun, ruby, images, out_mp4, llm, brand=None):
         return images.get(i)
     title_img = images.get("title_image") or (pool[0] if pool else None)
     use_motion = bool(br.get("motion"))
+    # つかみ（冒頭の数秒）：題材のいちばん引っかかる事実を、短い文で畳みかける
+    if use_motion and hook_items:
+        import motion
+        for j, h in enumerate(hook_items):
+            hn = f"k{j:02d}"
+            tts(h["say"], f"{B}/{hn}.wav")
+            img = images.get("hook_files", {}).get(h.get("file")) or title_img
+            hb_ = motion.Beat({"type": "hook", "text": h.get("text", h["say"])}, img)
+            ev = [("whoosh_l", 0.0, 1), ("thud", 0.3, 1)] if j == 0 else [("thud", 0.0, 0.9), ("tick", 0.05, 0.8)]
+            if j == len(hook_items) - 1:
+                ev.append(("shimmer", 0.2, 0.8))
+            slide("", f"{B}/{hn}_ov.png", None, transparent=True, css_extra=css)
+            durs.append(motion_seg(f"{B}/{hn}_ov.png", f"{B}/{hn}.wav", hn, hb_, 0.0,
+                                   pad=0.6 if j == len(hook_items) - 1 else 0.25, se_events=ev))
+            names.append(hn)
     tts(title_narr, f"{B}/title.wav")
     if use_motion:
         import motion
