@@ -1,4 +1,0 @@
-Traceback (most recent call last):
-  File "/home/runner/work/bungo/bungo/nazo/main.py", line 57, in main
-    raise RuntimeError("事実照合に不合格: " + " / ".join(errs[:5]))
-RuntimeError: 事実照合に不合格: 本文にないカタカナ語: ファイストスギリシア
