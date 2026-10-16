@@ -4,7 +4,7 @@
 #        … 読み修正 {"原文の文": "読み上げ用テキスト"} を当てて再度カナを出し、在庫(queue)に積む
 import json, re, sys, os
 sys.path.insert(0, "src")
-import m3_script, yomi
+import m3_script, yomi, yomi_gate
 
 PART_INTRO = {"shin_toi": "最後に、もう一つの問いを。"}
 
@@ -22,9 +22,19 @@ def load(wid, kpath):
     c = json.load(open(f"state/texts/{wid}.json", encoding="utf-8"))
     return c, json.load(open(kpath, encoding="utf-8"))
 
+def gate(c, k, fixes=None):
+    """読みの関門（src/yomi_gate.py）。確認済み（台本の yomi_ok）でない問題を返す"""
+    fixes = fixes or {}
+    pairs = [(t, fixes.get(t) or yomi.base_fix(t, c["meta"], c["ruby"])) for t in sentences(k, c["meta"])]
+    ok = set(k.get("yomi_ok", []))
+    issues = yomi_gate.check(pairs, k.get("yomi_words", {}), yomi.kana)
+    return [x for x in issues if x.split("｜", 1)[1] not in {o[:50] for o in ok} | {o[:40] for o in ok}]
+
 def check(wid, kpath):
     c, k = load(wid, kpath)
     print("validate:", m3_script.validate(k, c["text"]))
+    for x in gate(c, k):
+        print("【読み要確認】", x)
     for i, t in enumerate(sentences(k, c["meta"])):
         f = yomi.base_fix(t, c["meta"], c["ruby"])
         print(f"[{i}] {t}\n     {yomi.kana(f)}")
@@ -34,6 +44,11 @@ def push(wid, kpath, fixpath):
     ok, why = m3_script.validate(k, c["text"])
     assert ok, why
     fixes = json.load(open(fixpath, encoding="utf-8")) if fixpath else {}
+    bad = gate(c, k, fixes)
+    if bad:
+        for x in bad:
+            print("【読み要確認】", x)
+        raise SystemExit(f"読みの確認が済んでいない文が {len(bad)} 件。直すか、確認して yomi_ok に入れてから積む")
     ym = {}
     for t in sentences(k, c["meta"]):
         ym[t] = fixes.get(t) or yomi.base_fix(t, c["meta"], c["ruby"])

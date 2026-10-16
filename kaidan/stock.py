@@ -4,7 +4,7 @@
 #   台本は kaidan/drafts/<作品ID>.json、原作は kaidan/state/texts/<作品ID>.json
 import json, sys
 sys.path.insert(0, "src"); sys.path.insert(0, "kaidan")
-import yomi, brand, check
+import yomi, brand, check, yomi_gate
 
 
 def load(wid):
@@ -31,9 +31,20 @@ def words_fix(t, k):
     return t
 
 
+def gate(c, k, work, fixes=None):
+    """読みの関門。固有名の読みの明示と、2エンジンの食い違いの確認が済んでいない文を返す"""
+    fixes = fixes or {}
+    pairs = [(t, fixes.get(t) or yomi.base_fix(words_fix(t, k), c["meta"], c["ruby"])) for t in sentences(k, work)]
+    ok = set(k.get("yomi_ok", []))      # 食い違いを確認して、VOICEVOX側の読みで正しいと判断した文
+    issues = yomi_gate.check(pairs, k.get("yomi_words", {}), yomi.kana)
+    return [x for x in issues if x.split("｜", 1)[1] not in {o[:50] for o in ok} | {o[:40] for o in ok}]
+
+
 def run_check(wid):
     c, k, work = load(wid)
     print("検査:", check.validate(k, c))
+    for x in gate(c, k, work):
+        print("【読み要確認】", x)
     for i, t in enumerate(sentences(k, work)):
         f = yomi.base_fix(words_fix(t, k), c["meta"], c["ruby"])
         print(f"[{i}] {t}\n     {yomi.kana(f)}")
@@ -44,6 +55,11 @@ def push(wid, fixpath=None):
     ok, why = check.validate(k, c)
     assert ok, why
     fixes = json.load(open(fixpath, encoding="utf-8")) if fixpath else {}
+    bad = gate(c, k, work, fixes)
+    if bad:
+        for x in bad:
+            print("【読み要確認】", x)
+        raise SystemExit(f"読みの確認が済んでいない文が {len(bad)} 件。直すか、確認して yomi_ok に入れてから積む")
     ym = {}
     for t in sentences(k, work):
         ym[t] = fixes.get(t) or yomi.base_fix(words_fix(t, k), c["meta"], c["ruby"])
