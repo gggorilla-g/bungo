@@ -403,6 +403,8 @@ def build_video(kousei, work, genbun, ruby, images, out_mp4, llm, brand=None):
                 ev.append((se.pick("cut"), 0.0, 0.7))
             if first_of_sec:
                 ev.append(("pop_lo", 0.02, 0.8))
+            if br.get("keyword_se"):      # 本文の言葉に合わせた音（怪談の戸を叩く音など）
+                ev += br["keyword_se"](sent)
             pan_state["img"] = img
             durs.append(pan_seg(img, f"{B}/{n}_ov.png", f"{B}/{n}.wav", n, k,
                                 pad=1.2 if is_sec_end else 0.5, se_events=ev))

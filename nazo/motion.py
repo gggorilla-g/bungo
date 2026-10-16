@@ -232,7 +232,8 @@ class Beat:
             d = ImageDraw.Draw(im)
             e = back(min(1, t / 0.4))
             if e > 0:
-                box_text(d, int(1180 + 400 * (1 - e)), 300, s.get("name", "ホー博士"), font(110), BLACK, YELLOW, 40, 20)
+                fg_, bg_ = NAME_COLORS or (BLACK, YELLOW)
+                box_text(d, int(1180 + 400 * (1 - e)), 300, s.get("name", "ホー博士"), font(110), fg_, bg_, 40, 20)
             if s.get("role") and t > 0.25:
                 box_text(d, 1180, 470, s["role"], font(52), WHITE, BLACK)
             return im
@@ -299,6 +300,10 @@ def owl_frame(i, talk, point, seed=0, size=None, pos=None, face=None):
     return o, (x, y + bob)
 
 
+HOST_DRAW = None   # (フレーム番号, 話しているか, 表情) -> (RGBA画像, 位置)。None ならホー博士
+NAME_COLORS = None  # 案内役の名前の箱の色 (文字, 地)。None なら黒×黄
+
+
 # ---------- 1セグメント書き出し ----------
 def render_segment(out_mp4, dur, wav_path, beat, overlay_png, talk_owl=True, seed=0, t_offset=0.0, face=None):
     n = int(round(dur * FPS))
@@ -313,7 +318,10 @@ def render_segment(out_mp4, dur, wav_path, beat, overlay_png, talk_owl=True, see
         if ov is not None:
             bg.alpha_composite(ov)
         if beat.type == "host":   # 案内役は最初と最後のピンショットだけに出す
-            o, pos = owl_frame(i, mouth[i], False, seed, size=HOST_SIZE, pos=HOST_POS, face=face)
+            if HOST_DRAW:          # チャンネルごとの案内役（怪談の狐面など）
+                o, pos = HOST_DRAW(i, mouth[i], face)
+            else:
+                o, pos = owl_frame(i, mouth[i], False, seed, size=HOST_SIZE, pos=HOST_POS, face=face)
             bg.alpha_composite(o, pos)
         p.stdin.write(bg.convert("RGB").tobytes())
     p.stdin.close(); p.wait()

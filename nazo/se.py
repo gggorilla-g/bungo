@@ -101,6 +101,7 @@ LIB = {
     "ding":     (lambda: ding(), 0.12),
 }
 _cache = {}
+ALIAS = {}   # チャンネルごとの音の置き換え（例：怪談では whoosh_l → 風の音）
 
 
 def sound(name):
@@ -120,6 +121,7 @@ def mix(wav_path, events):
         x = np.frombuffer(w.readframes(w.getnframes()), np.int16).astype(np.float32) / 32768
     sr = p.framerate
     for name, at, k in events:
+        name = ALIAS.get(name, name)
         s = sound(name)
         if sr != SR:   # 念のため（通常は24kHz）
             s = np.interp(np.arange(int(len(s) * sr / SR)) * SR / sr, np.arange(len(s)), s)
