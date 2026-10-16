@@ -113,12 +113,19 @@ def seg(png, wav, name, pad=0.5):
         "-tune", "stillimage", "-an", f"{B}/{name}.mp4"], check=True)
     return d
 
-def pan_seg(img_path, overlay_png, wav, name, k, pad=0.5):
+def _se(name, events):
+    if events:
+        import se
+        se.mix(f"{B}/{name}_p.wav", events)
+
+
+def pan_seg(img_path, overlay_png, wav, name, k, pad=0.5, se_events=None):
     """静止画をゆっくりパンする1カット（ffmpegだけで作るので軽い）。
     k（カット番号）で、引き／寄り と パンの向きを交互に変えて、カットにリズムを出す"""
     import motion
     d = math.ceil((_wav_len(wav) + pad) * FPS) / FPS
     _pad_wav(wav, f"{B}/{name}_p.wav", d)
+    _se(name, se_events)
     close = (k % 2 == 1)
     scale = 1.45 if close else 1.12
     canvas, _ = motion.stage(img_path, scale=scale)
@@ -148,11 +155,30 @@ def host_face(sentence):
     return None
 
 
-def motion_seg(overlay_png, wav, name, beat, t_offset, pad=0.5, talk=True, face=None):
+def beat_se(spec):
+    """ビート（図解）が出るときの効果音。種類ごとに、出るタイミングに合わせて小さく鳴らす"""
+    import se
+    t = spec.get("type", "photo")
+    if t == "year":
+        return [("tick", 0.05, 1), ("tick_lo", 0.5, 0.8), ("ding", 1.0, 1)]
+    if t == "map":
+        return [("whoosh_s", 0.0, 1), ("pop_lo", 1.3, 1), ("pop_hi", 1.7, 0.9)]
+    if t == "size":
+        return [("whoosh_s", 0.15, 1), ("tick", 0.95, 1)]
+    if t == "words":
+        n = len(str(spec.get("text", "")).split("\n"))
+        return [(se.pick("words"), 0.05 + i * 0.25, 1) for i in range(n)]
+    if t == "photo" and spec.get("zoom"):
+        return [("whoosh_s", 0.0, 0.9)]
+    return [(se.pick("cut"), 0.0, 0.8)]
+
+
+def motion_seg(overlay_png, wav, name, beat, t_offset, pad=0.5, talk=True, face=None, se_events=None):
     """動く1文。映像は motion.render_segment、音声は seg と同じく d 秒に合わせる"""
     import motion
     d = math.ceil((_wav_len(wav) + pad) * FPS) / FPS
     _pad_wav(wav, f"{B}/{name}_p.wav", d)
+    _se(name, se_events)
     motion.render_segment(f"{B}/{name}.mp4", d, f"{B}/{name}_p.wav", beat, overlay_png,
                           talk_owl=talk, t_offset=t_offset, face=face)
     return d
@@ -237,7 +263,8 @@ def build_video(kousei, work, genbun, ruby, images, out_mp4, llm, brand=None):
         slide(br.get("title_card_motion", br["title_card"]), f"{B}/title_ov.png", None,
               css_extra=css, transparent=True)
         tb = motion.Beat({"type": "photo"}, title_img)
-        durs.append(motion_seg(f"{B}/title_ov.png", f"{B}/title.wav", "title", tb, 0.0, pad=0.8))
+        durs.append(motion_seg(f"{B}/title_ov.png", f"{B}/title.wav", "title", tb, 0.0, pad=0.8,
+                               se_events=[("whoosh_l", 0.0, 1), ("thud", 0.45, 1)]))
     else:
         slide(br["title_card"], f"{B}/title.png", title_img,
               scrim=0.6 if title_img else 0.5, css_extra=css)
@@ -248,10 +275,12 @@ def build_video(kousei, work, genbun, ruby, images, out_mp4, llm, brand=None):
     if use_motion and not motion_secs:
         motion_secs = {0}
     beat_state = {}
+    pan_state = {}
 
     last_sec = -1
     for k, (i, sent) in enumerate(plan):
         s = kousei["sections"][i]
+        first_of_sec = (i != last_sec)
         if i != last_sec:
             ch_marks.append((s["slide_heading"], sum(durs)))  # 見出し=チャプター（ズレなし）
             last_sec = i
@@ -259,7 +288,10 @@ def build_video(kousei, work, genbun, ruby, images, out_mp4, llm, brand=None):
                 import motion
                 cn = f"c{i:02d}"
                 cd = round(1.6 * FPS) / FPS
-                motion.chime_wav(f"{B}/{cn}_p.wav", cd)
+                import se
+                motion.chime_wav(f"{B}/{cn}_p.wav", cd, silent=True)
+                a, b2 = se.pick("card")
+                se.mix(f"{B}/{cn}_p.wav", [(b2, 0.0, 1), (a, 0.08, 1)])
                 motion.chapter_card(s["slide_heading"], f"{B}/{cn}.mp4", cd)
                 durs.append(cd); names.append(cn)
         plabel = PART_LABEL.get(s["type"], "")
@@ -290,9 +322,12 @@ def build_video(kousei, work, genbun, ruby, images, out_mp4, llm, brand=None):
                 if spec.get("file") and images.get("motion_files", {}).get(spec["file"]):
                     spec["path"] = images["motion_files"][spec["file"]]
                 beat_state.update(beat=motion.Beat(spec, img), t=0.0, img=img, spec_at=new.get("at"))
+            ev = beat_se(spec) if new is not None else []
+            if first_of_sec:
+                ev.append(("pop_lo", 0.02, 0.8))          # 見出しの箱が出る
             slide(body, f"{B}/{n}_ov.png", None, subtitle=sent, transparent=True, css_extra=css)
             d = motion_seg(f"{B}/{n}_ov.png", f"{B}/{n}.wav", n, beat_state["beat"], beat_state["t"],
-                           pad=1.2 if is_sec_end else 0.5)
+                           pad=1.2 if is_sec_end else 0.5, se_events=ev)
             beat_state["t"] += d
             durs.append(d)
             names.append(n)
@@ -306,16 +341,28 @@ def build_video(kousei, work, genbun, ruby, images, out_mp4, llm, brand=None):
                     tts(hs, f"{B}/{hn}.wav")
                     slide("", f"{B}/{hn}_ov.png", None, subtitle=hs, transparent=True,
                           css_extra=css + " .subtitle { left:1180px !important; right:70px !important; } ")
+                    fc = host_face(hs)
+                    ev = [("pop_mid", 0.0, 1), ("shimmer", 0.15, 0.9)] if j == 0 else []
+                    if fc == "uruuru": ev.append(("shimmer", 0.1, 0.8))
+                    if fc == "jito": ev.append(("tick_lo", 0.05, 0.9))
                     hd = motion_seg(f"{B}/{hn}_ov.png", f"{B}/{hn}.wav", hn, hb, ht,
-                                    pad=0.9 if j == len(host_sents) - 1 else 0.4, face=host_face(hs))
+                                    pad=0.9 if j == len(host_sents) - 1 else 0.4, face=fc, se_events=ev)
                     ht += hd
                     durs.append(hd); names.append(hn)
             continue
         elif use_motion and pick(k, i):
             # 本編：静止画もゆっくりパンし、1文ごとに引き／寄りを切り替える
             slide(body, f"{B}/{n}_ov.png", None, subtitle=sent, transparent=True, css_extra=css)
-            durs.append(pan_seg(pick(k, i), f"{B}/{n}_ov.png", f"{B}/{n}.wav", n, k,
-                                pad=1.2 if is_sec_end else 0.5))
+            import se
+            img = pick(k, i)
+            ev = []
+            if img != pan_state.get("img"):
+                ev.append((se.pick("cut"), 0.0, 0.7))
+            if first_of_sec:
+                ev.append(("pop_lo", 0.02, 0.8))
+            pan_state["img"] = img
+            durs.append(pan_seg(img, f"{B}/{n}_ov.png", f"{B}/{n}.wav", n, k,
+                                pad=1.2 if is_sec_end else 0.5, se_events=ev))
         else:
             slide(body, f"{B}/{n}.png", pick(k, i), scrim=br.get("scrim", 0.5), subtitle=sent, css_extra=css)
             durs.append(seg(f"{B}/{n}.png", f"{B}/{n}.wav", n, pad=1.2 if is_sec_end else 0.5))
@@ -333,8 +380,13 @@ def build_video(kousei, work, genbun, ruby, images, out_mp4, llm, brand=None):
             tts(os_, f"{B}/{on}.wav")
             slide("", f"{B}/{on}_ov.png", None, subtitle=os_, transparent=True,
                   css_extra=css + " .subtitle { left:1180px !important; right:70px !important; } ")
+            fc = host_face(os_)
+            ev = [("whoosh_s", 0.0, 1), ("pop_hi", 0.2, 1)] if j == 0 else []
+            if fc == "uruuru": ev.append(("shimmer", 0.1, 0.8))
+            if fc == "jito": ev.append(("tick_lo", 0.05, 0.9))
+            if j == len(outro_sents) - 1: ev.append(("chime_b", 1.0, 0.9))
             od = motion_seg(f"{B}/{on}_ov.png", f"{B}/{on}.wav", on, ob, ot,
-                            pad=2.0 if j == len(outro_sents) - 1 else 0.4, face=host_face(os_))
+                            pad=2.0 if j == len(outro_sents) - 1 else 0.4, face=fc, se_events=ev)
             ot += od
             durs.append(od); names.append(on)
 

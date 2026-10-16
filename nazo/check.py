@@ -62,10 +62,10 @@ def validate(kousei, src):
     ja, en = src.get("text_ja", ""), src.get("text_en", "")
     ja_n = _norm(ja)
     allt = ja + "\n" + en
-    motion_txt = "".join(str(b.get("label", "")) + str(b.get("text", "")) + str(b.get("region", ""))
-                         for s in kousei["sections"] for b in s.get("motion", []))
+    motion_txt = "\n".join("\n".join([str(b.get("label", "")), str(b.get("text", "")), str(b.get("region", ""))])
+                           for s in kousei["sections"] for b in s.get("motion", []))
     alltxt = narr + kousei["logline"] + "".join(kousei["title_candidates"]) + \
-        kousei["thumbnail"]["main_copy"] + motion_txt
+        kousei["thumbnail"]["main_copy"] + "\n" + motion_txt
     host_txt = kousei.get("host_intro", "") + kousei.get("host_outro", "")
     # 1) 数字: 本文に無い数字は使わない（年号・寸法・ページ数の捏造を止める）
     nums_src = set(re.findall(r'\d+', allt.replace(",", "")))

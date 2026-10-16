@@ -344,14 +344,14 @@ def chapter_card(text, out_mp4, dur):
     p.stdin.close(); p.wait()
 
 
-def chime_wav(path, dur, sr=24000):
+def chime_wav(path, dur, sr=24000, silent=False):
     """章カードの短い効果音（自前で合成）。高めの2音のチャイム→残りは無音"""
     t = np.arange(int(sr * dur)) / sr
     def tone(f, start, length=0.35, amp=0.32):
         x = np.zeros_like(t); m = (t >= start) & (t < start + length); tt = t[m] - start
         x[m] = amp * np.exp(-tt * 9) * (np.sin(2 * np.pi * f * tt) + 0.3 * np.sin(2 * np.pi * f * 2 * tt))
         return x
-    y = tone(988, 0.05) + tone(1319, 0.16)
+    y = np.zeros_like(t) if silent else tone(988, 0.05) + tone(1319, 0.16)
     with wave.open(path, "wb") as w:
         w.setnchannels(1); w.setsampwidth(2); w.setframerate(sr)
         w.writeframes((np.clip(y, -1, 1) * 32767).astype(np.int16).tobytes())
