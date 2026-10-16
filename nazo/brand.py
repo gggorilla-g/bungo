@@ -30,8 +30,8 @@ h1 { font-family:"Noto Sans CJK JP"; font-weight:900; letter-spacing:.04em;
 
 
 def title_narr(work, k):
-    """冒頭で読み上げる文。チャンネル名→題材名→ひとこと"""
-    return "ホー博士の、世界の謎10分解説。" + work["title"] + "。" + k.get("logline", "")
+    """冒頭で読み上げる文。題材名だけ（チャンネル名は画面に出し、名乗りはホー博士がすぐ続けるので重ねない）"""
+    return work["title"] + "。"
 
 
 def nazo_brand(work):
