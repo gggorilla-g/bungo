@@ -33,7 +33,7 @@ def description(k, work, credits, chapters):
     lines += ["※この動画は、権利の切れた古典の怪談を、いまの言葉で語り直した朗読です。実話ではありません。", "",
               "#怪談 #百物語 #朗読", "", "──",
               f"原作: {src}（青空文庫 {work.get('url', 'https://www.aozora.gr.jp/')}）",
-              f"語り: VOICEVOX:{brand.VOICE_NAME}"]
+              f"語り: VOICEVOX:{brand.VOICE_NAME}", brand.BGM_CREDIT]
     for c in credits:
         lines.append(f"画像: {c}")
     return "\n".join(lines)
