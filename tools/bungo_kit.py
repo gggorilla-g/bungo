@@ -10,14 +10,22 @@ meta = json.load(open(f"state/texts/{w}.json", encoding="utf-8"))["meta"]
 kit = f"state/manual/{w}"
 os.makedirs(kit, exist_ok=True)
 os.makedirs("build", exist_ok=True)
-hit = m4_images.fetch_image([k["sections"][0]["img_query"]], "build/img0.jpg")
-credits = [hit["credit"]] if hit else []
-thumb.build(k["thumbnail"]["main_copy"], f'{meta["author"]}『{meta["title"]}』',
-            "build/img0.jpg" if hit else None, f"{kit}/thumb.png",
-            badge="BUNGO　10分でわかる名作", palette=thumb.PALETTE_BUNGO)
-open(f"{kit}/upload.txt", "w", encoding="utf-8").write(
-    "【タイトル】\n" + k["title_candidates"][0] + "\n\n【概要欄】\n"
-    + m8_upload.make_description(k, credits) + "\n\n【タグ】\n" + ",".join(k["tags"]) + "\n")
+# 本番の制作がキット（チャプター付き）を残していれば、サムネと概要欄はそちらを使う
+if not os.path.exists(f"{kit}/upload.txt"):
+    src_img, credits = None, []
+    if k.get("thumb_image"):
+        got = m4_images.commons_files([k["thumb_image"]])
+        if got and m4_images.download(next(iter(got.values()))["url"], "build/thumb_src.jpg"):
+            src_img = "build/thumb_src.jpg"
+    if not src_img:
+        hit = m4_images.fetch_image([k["sections"][0]["img_query"]], "build/img0.jpg")
+        if hit:
+            src_img, credits = "build/img0.jpg", [hit["credit"]]
+    thumb.build(k["thumbnail"]["main_copy"], f'{meta["author"]}『{meta["title"]}』',
+                src_img, f"{kit}/thumb.png", badge="BUNGO　10分でわかる名作", palette=thumb.PALETTE_BUNGO)
+    open(f"{kit}/upload.txt", "w", encoding="utf-8").write(
+        "【タイトル】\n" + k["title_candidates"][0] + "\n\n【概要欄】\n"
+        + m8_upload.make_description(k, credits) + "\n\n【タグ】\n" + ",".join(k["tags"]) + "\n")
 
 # 確認用：20秒ごとのコマを並べた一覧
 v = os.environ.get("VIDEO")
