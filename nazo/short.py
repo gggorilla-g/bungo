@@ -114,9 +114,9 @@ def build(work_id):
     kit = f"nazo/manual/{work_id}"; os.makedirs(kit, exist_ok=True)
     title = f"{k['thumbnail']['main_copy'].replace(chr(10), '')}「{subj}」 #ショート #世界の謎"
     open(f"{kit}/short_upload.txt", "w", encoding="utf-8").write(
-        f"【タイトル】\n{title}\n\n【説明】\n続きは本編で：{nazo_brand.CHANNEL}\n（本編のリンクは「関連動画」に設定してください）\n\n"
+        f"【タイトル】\n{title}\n\n【説明】\n続きは本編で：{nazo_brand.CHANNEL}\n\n"
         f"音声: VOICEVOX:{nazo_brand.VOICE_NAME}\nBGM: the ghost house / 稿屋 隆（DOVA-SYNDROME）\n"
-        + "".join(f"画像: {got[f]['credit']}\n" for f in dict.fromkeys(files) if f in local) + f"\n【タグ】\n{','.join(nazo_brand.VOICE_TAGS + ['世界の謎', subj])}\n")
+        + "".join(f"画像: {got[f]['credit']}\n" for f in dict.fromkeys(files) if f in local) + f"\n【タグ】\n{','.join(nazo_brand.VOICE_TAGS + ['世界の謎', subj])}\n\n【メモ（貼らない）】\nアップ後、編集画面の「関連動画」に本編を選ぶ\n")
     subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", out, "-vf", "fps=1/3,scale=270:-1,tile=6x2",
                     "-frames:v", "1", f"{kit}/short_sheet.jpg"])
     print("short", out, round(total, 1), "秒")
