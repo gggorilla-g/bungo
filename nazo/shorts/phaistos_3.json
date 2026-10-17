@@ -15,7 +15,11 @@
    ],
    "fast": true,
    "host": "mid",
-   "greet": true
+   "greet": true,
+   "alts": [
+    "File:Phaistos Disc — Side B.jpg",
+    "File:Discos Phaitos Umzeichnung.png"
+   ]
   },
   {
    "say": "三千五百年以上前に作られた、粘土の円盤。",
@@ -28,7 +32,11 @@
     1.35
    ],
    "fast": true,
-   "host": "none"
+   "host": "none",
+   "alts": [
+    "File:Phaistos Disc — Side B.jpg",
+    "File:Discos Phaitos Umzeichnung.png"
+   ]
   },
   {
    "say": "ところが、この文字は、手で書いたものではない。",
@@ -40,7 +48,12 @@
     2.2,
     2.5
    ],
-   "host": "mid"
+   "host": "mid",
+   "alts": [
+    "File:Phaistos Disc — Side B.jpg",
+    "File:Discos Phaitos Umzeichnung.png"
+   ],
+   "emph": true
   },
   {
    "say": "四十五種類の文字、ひとつひとつに、はんこのような型があったと考えられておる。",
@@ -58,7 +71,12 @@
     1.6,
     1.15
    ],
-   "host": "small"
+   "host": "small",
+   "alts": [
+    "File:Discos Phaitos Umzeichnung.png",
+    "File:Phaistos Disc — Side A.jpg"
+   ],
+   "emph": true
   },
   {
    "say": "型を並べて押す。これは、のちの活字の印刷と、同じ考え方じゃ。",
@@ -77,7 +95,12 @@
     1.0
    ],
    "dim": 0.55,
-   "host": "big"
+   "host": "big",
+   "alts": [
+    "File:Phaistos Disc — Side B.jpg",
+    "File:Discos Phaitos Umzeichnung.png"
+   ],
+   "emph": true
   },
   {
    "say": "答えは、関連動画の本編で、くわしく話しておる。",

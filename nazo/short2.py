@@ -16,8 +16,10 @@ YEL, BLK, WHT, RED = (255, 226, 0), (0, 0, 0), (255, 255, 255), (192, 57, 43)
 IMG_Y, IMG_H = 250, 960            # 絵を置く帯
 TEL_Y = 1235                       # テロップの位置
 HOST = {"none": 0, "small": 330, "mid": 450, "big": 600}
-SPEED = 1.15                       # ショートは本編より少し速く
-GAP = 0.08                         # 文と文のすき間（間を作らない）
+SPEED = 1.2                        # ショートは本編より速く
+GAP = 0.04                         # 文と文のすき間（間を作らない）
+CUT = 1.1                          # 1つの文の中でも、この秒数ごとに寄る場所を変えて切る
+SPOTS = [(0.32, 0.35), (0.66, 0.42), (0.45, 0.68), (0.62, 0.62), (0.4, 0.45), (0.55, 0.3)]
 B = "build_short2"
 
 
@@ -85,6 +87,20 @@ def diagram(kind, glyphs, t):
     return im
 
 
+def cut_plan(ln, d, li):
+    """画像の文を CUT 秒ごとに切る。最初のカットは台本の zoom、あとは別の場所へ寄る／引く（Ver.2 濃い版）"""
+    if not ln.get("file") or ln.get("main_thumb"):
+        return [(0.0, None)]
+    files = [ln["file"]] + ln.get("alts", [])
+    n = max(1, int(d / CUT + 0.35))
+    out = [(0.0, (ln["file"],) + tuple(ln.get("zoom", [0.5, 0.5, 1.0, 1.08])))]
+    for c in range(1, n):
+        cx, cy = SPOTS[(li * 3 + c) % len(SPOTS)]
+        z = 1.15 if c % 3 == 2 else 2.0 + 0.4 * ((li + c) % 2)     # 寄り・寄り・引き の順
+        out.append((c * d / n, (files[c % len(files)], cx, cy, z, z * 1.06)))
+    return out
+
+
 def loud_offset(path, win=8.0):
     """BGMのいちばん盛り上がっているところの開始秒"""
     wav = f"{B}/bgm_full.wav"
@@ -114,14 +130,21 @@ def build(sid):
         render._YOMI[ln["say"]] = fixes.get(ln["say"]) or yomi.base_fix(ln["say"], {"title": "", "author": ""}, {})
         print("読み:", ln["say"], "→", yomi.kana(render._YOMI[ln["say"]]))
     # 画像
-    files = list(dict.fromkeys([ln["file"] for ln in lines if ln.get("file")] + sp.get("glyphs", [])))
+    files = list(dict.fromkeys([f for ln in lines if ln.get("file") for f in [ln["file"]] + ln.get("alts", [])]
+                               + sp.get("glyphs", [])))
     got = m4_images.commons_files(files, width=2400) if files else {}
     local = {}
     for j, (fn, info) in enumerate(got.items()):
         if m4_images.download(info["url"], f"{B}/img{j}.png", fallback=info.get("orig")):
             local[fn] = f"{B}/img{j}.png"
     print(f"画像 {len(local)}/{len(files)}")
-    imgs = {fn: Image.open(p).convert("RGB") for fn, p in local.items() if fn not in sp.get("glyphs", [])}
+    def _rgb(p):           # 透明な部分（線画など）は紙の色の上に
+        im = Image.open(p)
+        if im.mode in ("RGBA", "LA", "P"):
+            im = im.convert("RGBA")
+            return Image.alpha_composite(Image.new("RGBA", im.size, (226, 214, 190, 255)), im).convert("RGB")
+        return im.convert("RGB")
+    imgs = {fn: _rgb(p) for fn, p in local.items() if fn not in sp.get("glyphs", [])}
     _gc = {}
     for g in sp.get("glyphs", []):            # 同じ文字は同じ画像（模式図で「同じ型」を表すため）
         if g in local and g not in _gc:
@@ -132,13 +155,18 @@ def build(sid):
         glyphs = [_w[id(g)] for g in glyphs]
     main_thumb = Image.open(f"nazo/manual/{main}/thumb.png").convert("RGB") if os.path.exists(f"nazo/manual/{main}/thumb.png") else None
     # 音声（A・B共通）
-    wavs, durs = [], []
+    wavs, durs, plans = [], [], []
     for li, ln in enumerate(lines):
         wav = f"{B}/l{li}.wav"
         render.tts(ln["say"], wav)
         d = math.ceil((render._wav_len(wav) + (0.9 if li == len(lines) - 1 else GAP)) * FPS) / FPS
         render._pad_wav(wav, f"{B}/l{li}_p.wav", d)
-        se.mix(f"{B}/l{li}_p.wav", [("pop_mid" if li % 2 else "pop_hi", 0.0, 0.8)] +
+        cuts = cut_plan(ln, d, li)
+        ev = [(("whoosh_s" if c % 2 else "tick"), t0, 0.7) for c, (t0, _) in enumerate(cuts) if c > 0]
+        if ln.get("emph"):
+            ev.append(("thud", 0.02, 1.0))
+        plans.append(cuts)
+        se.mix(f"{B}/l{li}_p.wav", ev + [("pop_mid" if li % 2 else "pop_hi", 0.0, 0.8)] +
                ([("whoosh_l", 0.0, 1)] if li == (1 if lines[0].get("greet") else 0) else []) + ([("chime_b", d - 0.8, 0.8)] if li == len(lines) - 1 else []))
         wavs.append(f"{B}/l{li}_p.wav"); durs.append(d)
     open(f"{B}/a.txt", "w").write("\n".join(f"file '{os.path.basename(a)}'" for a in wavs))
@@ -179,10 +207,23 @@ def build(sid):
                     fr.paste(th, (60, IMG_Y + 140))
                     ImageDraw.Draw(fr).text((W // 2, IMG_Y + 60), "関連動画の本編", font=motion.font(52), fill=YEL, anchor="mt")
                 elif src:
-                    cx, cy, z0, z1 = ln.get("zoom", [0.5, 0.5, 1.0, 1.08])
-                    k = ease_out(t / 1.0) if ln.get("fast") else t / d       # 冒頭は一気に寄る
-                    z = z0 + (z1 - z0) * (0.85 * k + 0.15 * t / d if ln.get("fast") else k)
-                    img = crop_zoom(src, cx, cy, z, W, IMG_H)
+                    cuts = plans[li]
+                    ci = max(c for c, (t0, _) in enumerate(cuts) if t0 <= t + 1e-6)
+                    t0 = cuts[ci][0]; t1 = cuts[ci + 1][0] if ci + 1 < len(cuts) else d
+                    fn, cx, cy, z0, z1 = cuts[ci][1]
+                    tc = t - t0
+                    if ci == 0 and ln.get("fast"):
+                        k = 0.85 * ease_out(tc / 1.0) + 0.15 * tc / (t1 - t0)   # 冒頭は一気に寄る
+                    else:
+                        k = tc / max(t1 - t0, 0.1)
+                    z = z0 + (z1 - z0) * k
+                    if ci > 0:
+                        z *= 1 + 0.10 * (1 - ease_out(tc / 0.18))             # 切った瞬間に少し寄って止まる
+                    img = crop_zoom(imgs.get(fn, src), cx, cy, z, W, IMG_H)
+                    if ci > 0 and tc < 2 / FPS:                                # 切り替わりの2コマだけ白く光る
+                        img = Image.blend(img, Image.new("RGB", img.size, (255, 255, 255)), 0.35)
+                    if ln.get("emph") and t < 0.3:                              # 強調の文は頭で小さく揺れる
+                        img = img.transform(img.size, Image.AFFINE, (1, 0, int(8 * math.sin(t * 60)), 0, 1, 0))
                     if ln.get("dim"):
                         img = ImageEnhance.Brightness(img).enhance(1 - (1 - ln["dim"]) * min(1, t / d * 1.5))
                     fr.paste(img, (0, IMG_Y))
