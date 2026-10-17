@@ -57,7 +57,8 @@ def host_outro(work, k):
     src = f"{work['author']}の、{work['title']}"
     return (f"……これで、今宵のお話は、おしまい。原作は、{src}でございました。"
             f"百物語は、まだまだ続きます。次の夜も、どうぞお越しくださいませ。"
-            f"チャンネル登録をしてお待ちいただければ、宵狐、うれしゅうございます。")
+            f"チャンネル登録をしてお待ちいただければ、宵狐、うれしゅうございます。"
+            f"それでは、また次の夜に。この世とあの世の境で、お待ちしております。")
 
 
 CSS = """
@@ -130,6 +131,10 @@ def kaidan_brand(work, k):
         "bgm_tracks": {key: p for key, (p, _) in BGM_TRACKS.items()},
         "scrim": 0.25,
         "outro_heading": "おしまい",
+        "end_pad": 3.5,                  # 話の最後の一文のあと、余韻の間
+        "end_fade": 3.0,                 # その間にゆっくり暗くなる
+        "end_black": 1.5,                # 暗いまま少し置く
+        "outro_fade_in": 1.6,            # 語り部は暗がりから浮かび上がる
     }
 
 

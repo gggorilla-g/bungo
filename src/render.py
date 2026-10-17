@@ -166,6 +166,15 @@ def pan_seg(img_path, overlay_png, wav, name, k, pad=0.5, se_events=None):
     return d
 
 
+def _fade_seg(name, kind, fd, dur):
+    """書き出し済みの区間の映像に、暗転（out）か暗がりからの浮かび上がり（in）をかける"""
+    st = max(0.0, dur - fd) if kind == "out" else 0.0
+    subprocess.run(["ffmpeg", "-y", "-v", "error", "-i", f"{B}/{name}.mp4", "-vf",
+                    f"fade=t={kind}:st={st:.3f}:d={fd:.3f},format=yuv420p", "-c:v", "libx264", "-preset", "fast",
+                    "-crf", "21", "-an", f"{B}/{name}_f.mp4"], check=True)
+    os.replace(f"{B}/{name}_f.mp4", f"{B}/{name}.mp4")
+
+
 def host_face(sentence):
     """ホー博士の表情：問いかけ・念押しはジト目、お願いはうるうる"""
     if any(w in sentence for w in ("登録", "待っていて", "お願い", "うれしい")):
@@ -433,8 +442,9 @@ def build_video(kousei, work, genbun, ruby, images, out_mp4, llm, brand=None):
             if br.get("keyword_se"):      # 本文の言葉に合わせた音（怪談の戸を叩く音など）
                 ev += br["keyword_se"](sent)
             pan_state["img"] = img
+            last_pad = br.get("end_pad", 1.2) if k == len(plan) - 1 else 1.2   # 話の最後は余韻の間を長く
             durs.append(pan_seg(img, f"{B}/{n}_ov.png", f"{B}/{n}.wav", n, k,
-                                pad=1.2 if is_sec_end else 0.5, se_events=ev))
+                                pad=last_pad if is_sec_end else 0.5, se_events=ev))
         else:
             slide(body, f"{B}/{n}.png", pick(k, i), scrim=br.get("scrim", 0.5), subtitle=sent, css_extra=css)
             durs.append(seg(f"{B}/{n}.png", f"{B}/{n}.wav", n, pad=1.2 if is_sec_end else 0.5))
@@ -442,6 +452,18 @@ def build_video(kousei, work, genbun, ruby, images, out_mp4, llm, brand=None):
 
     if bgm_marks[-1][1] != "main":
         bgm_marks.append((sum(durs), "main"))   # 締めは地の曲に戻す
+    # 話のあと：ゆっくり暗くなって、暗いまま少し置く（余韻）。語り部はそこから浮かび上がる
+    if br.get("end_fade") and names:
+        fd = br["end_fade"]
+        _fade_seg(names[-1], "out", fd, durs[-1])
+        nb = "endblk"
+        bd = round(br.get("end_black", 1.5) * FPS) / FPS
+        subprocess.run(["ffmpeg", "-y", "-v", "error", "-f", "lavfi", "-i", f"color=black:s=1920x1080:r={FPS}",
+                        "-frames:v", str(int(round(bd * FPS))), "-c:v", "libx264", "-preset", "fast", "-crf", "21",
+                        "-pix_fmt", "yuv420p", f"{B}/{nb}.mp4"], check=True)
+        import motion
+        motion.chime_wav(f"{B}/{nb}_p.wav", bd, silent=True)
+        durs.append(bd); names.append(nb)
     # 最後：案内役のピンショットで締め（感想の問いかけ・次回・チャンネル登録）
     if use_motion and outro_sents:
         import motion
@@ -455,13 +477,17 @@ def build_video(kousei, work, genbun, ruby, images, out_mp4, llm, brand=None):
             slide("", f"{B}/{on}_ov.png", None, subtitle=os_, transparent=True,
                   css_extra=css + " .subtitle { left:1180px !important; right:70px !important; } ")
             fc = host_face(os_)
-            ev = [("whoosh_s", 0.0, 1), ("pop_hi", 0.2, 1)] if j == 0 else []
+            ev = [("whoosh_s", 0.0, 1), ("pop_hi", 0.2, 1)] if (j == 0 and not br.get("end_fade")) else []
             if fc == "uruuru": ev.append(("shimmer", 0.1, 0.8))
             if fc == "jito": ev.append(("tick_lo", 0.05, 0.9))
             if j == len(outro_sents) - 1: ev.append(("chime_b", 1.0, 0.9))
             od = motion_seg(f"{B}/{on}_ov.png", f"{B}/{on}.wav", on, ob, ot,
                             pad=2.0 if j == len(outro_sents) - 1 else 0.4, face=fc, se_events=ev)
             ot += od
+            if j == 0 and br.get("end_fade"):
+                _fade_seg(on, "in", br.get("outro_fade_in", 1.6), od)
+            if j == len(outro_sents) - 1 and br.get("end_fade"):
+                _fade_seg(on, "out", 1.8, od)        # 締めの言葉のあとも、静かに暗くなって終わる
             durs.append(od); names.append(on)
 
     json.dump([[h, int(t)] for h, t in ch_marks],
