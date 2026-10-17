@@ -17,7 +17,7 @@ def load(wid):
 
 def sentences(k, work):
     out = [h["say"] for h in k.get("hook", [])]
-    out += [f"第{brand.kansuji(work['no'])}話。{k.get('display_title', work['title'])}。"]
+    out += [f"{k.get('display_title', work['title'])}。"]
     out += yomi.split_sentences(brand.host_intro(work, k))
     for s in k["sections"]:
         out += yomi.split_sentences(s["narration"])

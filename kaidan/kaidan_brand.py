@@ -43,13 +43,13 @@ def kansuji(n):
 
 def host_intro(work, k):
     """名乗り（第二話から）。京ことばは頭のあいさつ「ようおこしやす」だけ。あとは丁寧な語り口。
-    締めは案内の口上「この世とあの世の境、〇〇へ、ご案内いたします」（第四話から毎回「この世とあの世の境」を入れる）。
+    締めは案内の口上「この世とあの世の境、〇〇へ、ご案内いたします」（第三話から毎回「この世とあの世の境」を入れる）。
     〇〇は台本の kojo_place（無ければ「この世とあの世の境へ」だけ）"""
     where = k.get("where") or "古く"
     place = k.get("kojo_place")
     gate = f"この世とあの世の境、{place}へ" if place else "この世とあの世の境へ"
     return (f"今宵も、ようおこしやす。語り部の、宵狐でございます。"
-            f"百物語、第{kansuji(work['no'])}話。これは、{where}に伝わるお話。"
+            f"これは、{where}に伝わるお話。"
             f"{gate}、ご案内いたします。")
 
 
@@ -97,19 +97,19 @@ def host_draw(i, talking, face):
 def kaidan_brand(work, k):
     no = kansuji(work["no"])
     title = work["title"]
-    label = f"{CHANNEL} — 第{no}話"
+    label = CHANNEL                  # 動画の中では「第〇話」に触れない（サムネとタイトルにだけ出す）
     src = f"{work['author']}『{title}』" + (f"（{work['translator'].removesuffix('訳')}訳）" if work.get("translator") else "")
     return {
         "label": label,
         "part_label": {},
         "part_intro": {},
-        "title_narr": lambda _k: f"第{no}話。{k.get('display_title', title)}。",
+        "title_narr": lambda _k: f"{k.get('display_title', title)}。",
         "title_card": "",
         "title_card_motion": (f'<div class="label">{label}</div>'
                               f'<div class="center"><div style="text-align:center;">'
                               f'<div style="display:inline-block;background:#8e1414;color:#fff;font-size:50px;font-weight:900;'
                               f'padding:12px 32px;margin-bottom:34px;letter-spacing:.12em;font-family:\'Noto Serif CJK JP\';">'
-                              f'{CHANNEL}　第{no}話</div><br>'
+                              f'{CHANNEL}</div><br>'
                               f'<div style="display:inline-block;background:#000;color:#fff;font-size:150px;font-weight:900;'
                               f'padding:.1em .45em;font-family:\'Noto Serif CJK JP\';">{k.get("display_title", title)}</div>'
                               f'</div></div>'),
