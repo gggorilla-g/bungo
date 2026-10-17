@@ -64,8 +64,7 @@ def build(title, no_kanji, author, img_path, out):
     for ch in lab:
         d.text((181, yy + fs // 2), ch, font=_f(fs, "Bold"), fill=(255, 255, 255), anchor="mm"); yy += fs + 20
     # チャンネル名：左上に横書きで、ひと目でわかる大きさに
-    d.rectangle([150, 46, 160, 94], fill=RED)
-    d.text((176, 70), "今晩の百物語", font=_f(50), fill=INK, anchor="lm")
+    d.text((150, 70), "今晩の百物語", font=_f(50), fill=INK, anchor="lm")
     if author:
         d.text((560 if len(cols) == 1 else 600, 662), author, font=_f(28, "Bold"), fill=SUB, anchor="rm")
     im.save(out)
