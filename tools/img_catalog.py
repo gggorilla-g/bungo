@@ -30,6 +30,10 @@ for cat in [c.strip() for c in os.environ.get("CATEGORY", "").split(";") if c.st
         files += [m["title"].split(":", 1)[1] for m in r["query"]["categorymembers"]]
         if "continue" not in r or len(files) > 400: break
         cont = r["continue"]
+for q in [x.strip() for x in os.environ.get("SEARCH", "").split(";") if x.strip()]:   # Commonsの画像検索（語で探す）
+    r = requests.get("https://commons.wikimedia.org/w/api.php", params={"action": "query", "format": "json",
+        "list": "search", "srsearch": q, "srnamespace": 6, "srlimit": 40}, headers=UA, timeout=30).json()
+    files += [m["title"].split(":", 1)[1] for m in r.get("query", {}).get("search", [])]
 files = [f for f in dict.fromkeys(files) if f.lower().endswith((".jpg", ".jpeg", ".png", ".tif", ".tiff"))
          and not any(w in f.lower() for w in m4_images.SKIP_WORDS)]
 print("候補", len(files))
