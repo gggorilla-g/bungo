@@ -139,7 +139,7 @@ def build(sid):
         d = math.ceil((render._wav_len(wav) + (0.9 if li == len(lines) - 1 else GAP)) * FPS) / FPS
         render._pad_wav(wav, f"{B}/l{li}_p.wav", d)
         se.mix(f"{B}/l{li}_p.wav", [("pop_mid" if li % 2 else "pop_hi", 0.0, 0.8)] +
-               ([("whoosh_l", 0.0, 1)] if li == 0 else []) + ([("chime_b", d - 0.8, 0.8)] if li == len(lines) - 1 else []))
+               ([("whoosh_l", 0.0, 1)] if li == (1 if lines[0].get("greet") else 0) else []) + ([("chime_b", d - 0.8, 0.8)] if li == len(lines) - 1 else []))
         wavs.append(f"{B}/l{li}_p.wav"); durs.append(d)
     open(f"{B}/a.txt", "w").write("\n".join(f"file '{os.path.basename(a)}'" for a in wavs))
     subprocess.run(["ffmpeg", "-y", "-v", "error", "-f", "concat", "-safe", "0", "-i", "a.txt", "all_a.wav"], check=True, cwd=B)
@@ -155,9 +155,10 @@ def build(sid):
             d = durs[li]; n = int(round(d * FPS))
             mouth = motion.mouth_track(wavs[li], n)
             hsz = HOST[ln.get("host", "small")]
-            if var == "B" and li == 0:
-                hsz = 0
-            if var == "A" and li == 0:
+            first = 1 if lines[0].get("greet") else 0     # 冒頭のあいさつ（1秒）があれば、謎の映像はその次の文
+            if var == "B" and li <= first:
+                hsz = 0                                   # B：あいさつは声だけ。謎の映像の文まで博士は出さない
+            if var == "A" and li <= first:
                 hsz = HOST["mid"]
             out = f"{B}/{var}{li}.mp4"
             p = subprocess.Popen(["ffmpeg", "-y", "-v", "error", "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{W}x{H}",
@@ -198,7 +199,7 @@ def build(sid):
                 if hsz:
                     # 出てきた最初の文だけ、下から少し持ち上がって登場
                     prev = HOST[lines[li - 1].get("host", "small")] if li else 0
-                    if var == "B" and li == 1: prev = 0
+                    if var == "B" and li == first + 1: prev = 0
                     rise = int(80 * (1 - ease_out(t / 0.35))) if prev == 0 else 0
                     o, _ = motion.owl_frame(i, mouth[i], hsz >= HOST["big"], li, size=hsz)
                     fr.paste(o, (W - o.width + 30, H - o.height - 40 + rise), o)
@@ -231,7 +232,7 @@ def build(sid):
         f"音声: VOICEVOX:{nazo_brand.VOICE_NAME}\nBGM: the ghost house / 稿屋 隆（DOVA-SYNDROME）\n"
         + "".join(f"画像: {got[fn]['credit']}\n" for fn in used) +
         f"\n【タグ】\n{','.join(nazo_brand.VOICE_TAGS + ['世界の謎', 'ファイストスの円盤', 'ショート'])}\n\n"
-        "【メモ（貼らない）】\nA・Bの2本ある。Aは冒頭からホー博士、Bは2文目から。両方投稿して数字を比べる\n"
+        "【メモ（貼らない）】\nA・Bの2本ある。Aは冒頭からホー博士、Bは謎の映像のあとから。両方投稿して数字を比べる\n"
         "アップ後、編集画面の「関連動画」に本編を選ぶ\n")
     print("short2", outs, round(total, 1), "秒")
 
