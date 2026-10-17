@@ -42,20 +42,20 @@ def kansuji(n):
 
 
 def host_intro(work, k):
-    """名乗り（第二話から）。「信じるか信じないか」は言わず、京言葉の口上「〇〇な世界へ、おこしやす」で本編へ"""
+    """名乗り（第二話から）。宵狐は京ことば寄りのやわらかい語り口。
+    「おこしやす」は迎える言葉なので、頭のあいさつに使う。締めは案内の口上「〇〇へ、ご案内しまひょ」。
+    〇〇は台本の kojo_place で変えられる（既定「この世とあの世の境」）"""
     where = k.get("where") or "古く"
-    s = (f"今宵も、ようこそおいでくださいました。語り部の、宵狐でございます。"
-         f"百物語、第{kansuji(work['no'])}話。これは、{where}に伝わるお話。")
-    # 締めは京言葉の口上。「〇〇な世界」は回ごとに台本の kojo_world で変えられる（例「雪の降る夜の」）
-    world = k.get("kojo_world") or "この世とあの世の境の"
-    s += f"ほな、{world}世界へ、おこしやす。"
-    return s
+    place = k.get("kojo_place") or "この世とあの世の境"
+    return (f"今宵も、ようおこしやす。語り部の、宵狐でございます。"
+            f"百物語、第{kansuji(work['no'])}話。これは、{where}に伝わるお話。"
+            f"ほな、{place}へ、ご案内しまひょ。")
 
 
 def host_outro(work, k):
-    src = f"{work['author']}の、{work['title']}" if not work.get("translator") else f"{work['author']}の、{work['title']}"
+    src = f"{work['author']}の、{work['title']}"
     return (f"……これで、今宵のお話は、おしまい。原作は、{src}でございました。"
-            f"百物語は、まだまだ続きます。次の夜も、どうぞお越しくださいませ。"
+            f"百物語は、まだまだ続きます。次の夜も、どうぞおこしやす。"
             f"チャンネル登録をしてお待ちいただければ、宵狐、うれしゅうございます。")
 
 
