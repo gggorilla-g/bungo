@@ -19,4 +19,5 @@ jobs:
       - run: pip install -q requests && ONLY="${{ inputs.only }}" CATEGORY="${{ inputs.category }}" PAGES="${{ inputs.pages }}" SUFFIX="${{ inputs.suffix }}" SEARCH="${{ inputs.search }}" python tools/img_catalog.py
       - run: |
           git config user.name "bungo-bot"; git config user.email "bot@users.noreply.github.com"
-          git add nazo/img_catalog && git commit -q -m "img catalog: ${{ inputs.only }}" && git pull -q --rebase && git push -q || true
+          git add nazo/img_catalog && git commit -q -m "img catalog: ${{ inputs.only }}" || exit 0
+          for i in 1 2 3 4; do git pull -q --rebase && git push -q && break; sleep 6; done
