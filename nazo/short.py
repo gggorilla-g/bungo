@@ -116,7 +116,7 @@ def build(work_id):
     open(f"{kit}/short_upload.txt", "w", encoding="utf-8").write(
         f"【タイトル】\n{title}\n\n【説明】\n続きは本編で：{nazo_brand.CHANNEL}\n（本編のリンクは「関連動画」に設定してください）\n\n"
         f"音声: VOICEVOX:{nazo_brand.VOICE_NAME}\nBGM: the ghost house / 稿屋 隆（DOVA-SYNDROME）\n"
-        f"画像: Wikimedia Commons（出典の一覧は本編の概要欄）\n\n【タグ】\n{','.join(nazo_brand.VOICE_TAGS + ['世界の謎', subj])}\n")
+        + "".join(f"画像: {got[f]['credit']}\n" for f in dict.fromkeys(files) if f in local) + f"\n【タグ】\n{','.join(nazo_brand.VOICE_TAGS + ['世界の謎', subj])}\n")
     subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", out, "-vf", "fps=1/3,scale=270:-1,tile=6x2",
                     "-frames:v", "1", f"{kit}/short_sheet.jpg"])
     print("short", out, round(total, 1), "秒")
