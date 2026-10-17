@@ -125,7 +125,7 @@ def kaidan_brand(work, k):
         "card_style": CARD_STYLE,
         "card_dur": 3.2,
         "card_se": [("k_bonsho", 0.05, 1.0)],
-        "bgm_volume": 0.055,             # 寝る前に聞く人向けに控えめ（既定 0.09）
+        "bgm_volume": 0.075,             # ほんの少し控えめ（既定 0.09）
         "bgm": bgm_for(work, k)[0],
         "bgm_tracks": {key: p for key, (p, _) in BGM_TRACKS.items()},
         "scrim": 0.25,
