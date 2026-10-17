@@ -1,0 +1,23 @@
+{
+ "main": "phaistos",
+ "angle": "技術型",
+ "title": "3500年以上前の「印刷物」？ ファイストスの円盤 #Shorts #世界の謎",
+ "lines": [
+  {"say": "三千五百年以上前に作られた、粘土の円盤。", "text": "3500年以上前の\n粘土の円盤",
+   "file": "File:Phaistos Disc — Side A.jpg", "zoom": [0.5, 0.5, 1.0, 1.35], "fast": true, "host": "none"},
+  {"say": "ところが、この文字は、手で書いたものではない。", "text": "この文字は\n手書きではない",
+   "file": "File:Phaistos Disc — Side A.jpg", "zoom": [0.42, 0.42, 2.2, 2.5], "host": "mid"},
+  {"say": "四十五種類の文字、ひとつひとつに、はんこのような型があったと考えられておる。", "text": "45種類の文字ごとに\nはんこの型",
+   "diagram": "stamps", "host": "small"},
+  {"say": "その型を押して、全部で二百四十一個の文字を並べた。", "text": "型を押して\n241個を並べた",
+   "file": "File:Phaistos Disc — Side B.jpg", "zoom": [0.5, 0.5, 1.6, 1.15], "host": "small"},
+  {"say": "型を並べて押す。これは、のちの活字の印刷と、同じ考え方じゃ。", "text": "のちの活字の印刷と\n同じ考え方",
+   "diagram": "type", "host": "mid"},
+  {"say": "では、これは、世界最古の印刷物と呼べるのか。", "text": "世界最古の\n印刷物なのか？",
+   "file": "File:Phaistos Disc — Side A.jpg", "zoom": [0.5, 0.5, 1.3, 1.0], "dim": 0.55, "host": "big"},
+  {"say": "答えは、関連動画の本編で、くわしく話しておるぞい。", "text": "答えは本編で",
+   "main_thumb": true, "host": "big"}
+ ],
+ "glyphs": ["File:Phaistos glyph 01.png", "File:Phaistos glyph 02.png", "File:Phaistos glyph 12.png",
+            "File:Phaistos glyph 02.png", "File:Phaistos glyph 35.png", "File:Phaistos glyph 12.png"]
+}
