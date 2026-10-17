@@ -121,7 +121,10 @@ def _se(name, events):
         se.mix(f"{B}/{name}_p.wav", events)
 
 
-PAN_MODE = "pan"   # "pan"＝1文ごとに引き／寄りとパンを切り替える（謎・BUNGO）、"fix"＝動かさない（怪談）
+PAN_MODE = "pan"   # "pan"＝1文ごとに引き／寄りとパンを切り替える（謎・BUNGO）、"fix"＝動かさない、
+                   # "slow"＝ごくゆっくり横に流す。同じ画像の間は文をまたいで動きがつながる（怪談）
+_SLOW = {"img": None, "t": 0.0, "dir": 1}
+SLOW_PX_PER_SEC = 7.0
 
 
 def pan_seg(img_path, overlay_png, wav, name, k, pad=0.5, se_events=None):
@@ -131,8 +134,8 @@ def pan_seg(img_path, overlay_png, wav, name, k, pad=0.5, se_events=None):
     d = math.ceil((_wav_len(wav) + pad) * FPS) / FPS
     _pad_wav(wav, f"{B}/{name}_p.wav", d)
     _se(name, se_events)
-    close = (k % 2 == 1) and PAN_MODE != "fix"
-    scale = 1.45 if close else (1.0 if PAN_MODE == "fix" else 1.12)
+    close = (k % 2 == 1) and PAN_MODE == "pan"
+    scale = 1.45 if close else {"fix": 1.0, "slow": 1.10}.get(PAN_MODE, 1.12)
     canvas, _ = motion.stage(img_path, scale=scale)
     canvas.save(f"{B}/{name}_bg.jpg", quality=92)
     cw, ch = canvas.size
@@ -144,7 +147,17 @@ def pan_seg(img_path, overlay_png, wav, name, k, pad=0.5, se_events=None):
     if PAN_MODE == "fix":                 # 同じ画像が続いても絵が動かず、字幕だけが変わる（カットに見えない）
         x0 = x1 = mx / 2; y = my / 2
     n = int(round(d * FPS))
-    fc = (f"[0:v]crop=1920:1080:x='{x0:.1f}+({x1 - x0:.1f})*t/{d:.3f}':y={y:.1f},setsar=1[b];"
+    xexpr = f"{x0:.1f}+({x1 - x0:.1f})*t/{d:.3f}"
+    if PAN_MODE == "slow":                # 同じ画像の間は前の文の続きから動かす（切れ目が見えない）
+        if _SLOW["img"] != img_path:
+            _SLOW.update(img=img_path, t=0.0, dir=-_SLOW["dir"])
+        t0 = _SLOW["t"]; _SLOW["t"] += d
+        y = my / 2
+        if _SLOW["dir"] > 0:
+            xexpr = f"min({mx:.1f},{SLOW_PX_PER_SEC}*({t0:.3f}+t))"
+        else:
+            xexpr = f"max(0,{mx:.1f}-{SLOW_PX_PER_SEC}*({t0:.3f}+t))"
+    fc = (f"[0:v]crop=1920:1080:x='{xexpr}':y={y:.1f},setsar=1[b];"
           f"[1:v]scale=1920:1080[o];[b][o]overlay=0:0,format=yuv420p[v]")
     subprocess.run(["ffmpeg", "-y", "-v", "error", "-loop", "1", "-framerate", str(FPS), "-i", f"{B}/{name}_bg.jpg",
                     "-loop", "1", "-framerate", str(FPS), "-i", overlay_png, "-filter_complex", fc,

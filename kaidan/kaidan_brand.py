@@ -114,7 +114,7 @@ def kaidan_brand(work, k):
                               f'</div></div>'),
         "motion": True,
         "motion_first": False,
-        "pan_mode": "fix",               # カメラは動かさない（せわしないカット割りをしない）           # 図解は使わない（物語は画像のゆっくりしたパンで見せる）
+        "pan_mode": "slow",              # ごくゆっくりの横パン。同じ画像の間は文をまたいでつながる（カット割りしない）
         "host_name": HOST,
         "host_role": "百物語の語り部",
         "host_outro": host_outro(work, k),
