@@ -15,79 +15,80 @@
    ],
    "fast": true,
    "host": "mid",
-   "greet": true,
-   "alts": [
-    "File:Phaistos Disc — Side B.jpg",
-    "File:Discos Phaitos Umzeichnung.png"
-   ]
+   "greet": true
   },
   {
-   "say": "三千五百年以上前に作られた、粘土の円盤。",
-   "text": "3500年以上前の\n粘土の円盤",
+   "say": "この円盤の文字、手で書いたものではない。",
+   "text": "この円盤の文字\n手書きではない",
    "file": "File:Phaistos Disc — Side A.jpg",
+   "alts": [
+    "File:Discos Phaitos Umzeichnung.png",
+    "File:Phaistos Disc — Side B.jpg"
+   ],
    "zoom": [
-    0.5,
-    0.5,
-    1.12,
-    1.35
+    0.42,
+    0.42,
+    1.4,
+    2.3
    ],
    "fast": true,
-   "host": "none",
-   "alts": [
-    "File:Phaistos Disc — Side B.jpg",
-    "File:Discos Phaitos Umzeichnung.png"
-   ]
-  },
-  {
-   "say": "ところが、この文字は、手で書いたものではない。",
-   "text": "この文字は\n手書きではない",
-   "file": "File:Phaistos Disc — Side A.jpg",
-   "zoom": [
-    0.42,
-    0.42,
-    2.2,
-    2.5
-   ],
    "host": "mid",
-   "alts": [
-    "File:Phaistos Disc — Side B.jpg",
-    "File:Discos Phaitos Umzeichnung.png"
-   ],
    "emph": true
   },
   {
-   "say": "四十五種類の文字、ひとつひとつに、はんこのような型があったと考えられておる。",
-   "text": "45種類の文字ごとに\nはんこの型",
-   "diagram": "stamps",
+   "say": "三千五百年以上前、粘土に、型を押して作ったと考えられておる。",
+   "text": "3500年以上前\n粘土に型を押した",
+   "file": "File:Phaistos Disc — Side B.jpg",
+   "alts": [
+    "File:Phaistos Disc — Side A.jpg",
+    "File:Discos Phaitos Umzeichnung.png"
+   ],
+   "zoom": [
+    0.5,
+    0.5,
+    1.2,
+    1.5
+   ],
    "host": "small"
   },
   {
-   "say": "その型を押して、全部で二百四十一個の文字を並べた。",
-   "text": "型を押して\n241個を並べた",
-   "file": "File:Phaistos Disc — Side B.jpg",
+   "say": "同じ形の文字が、何度も出てくる。",
+   "text": "同じ形が\nくり返し出てくる",
+   "diagram": "stamps",
+   "host": "small",
+   "point": true
+  },
+  {
+   "say": "押された文字は、全部で二百四十一個。",
+   "text": "押された文字は\n241個",
+   "file": "File:Discos Phaitos Umzeichnung.png",
+   "alts": [
+    "File:Phaistos Disc — Side A.jpg",
+    "File:Phaistos Disc — Side B.jpg"
+   ],
    "zoom": [
-    0.5,
+    0.3,
     0.5,
     1.6,
-    1.15
+    2.0
    ],
    "host": "small",
-   "alts": [
-    "File:Discos Phaitos Umzeichnung.png",
-    "File:Phaistos Disc — Side A.jpg"
-   ],
    "emph": true
   },
   {
-   "say": "型を並べて押す。これは、のちの活字の印刷と、同じ考え方じゃ。",
-   "text": "のちの活字の印刷と\n同じ考え方",
+   "say": "型で文字を写す。活字の印刷と、同じ仕組みじゃ。",
+   "text": "型で文字を写す\n活字の印刷と同じ",
    "diagram": "type",
-   "host": "mid"
+   "host": "small",
+   "point": true
   },
   {
-   "say": "では、これは、世界最古の印刷物と呼べるのか。",
-   "text": "世界最古の\n印刷物なのか？",
+   "say": "では、これを、印刷物と呼べるのか。",
+   "text": "これは\n印刷物と呼べるのか？",
    "file": "File:Phaistos Disc — Side A.jpg",
+   "alts": [
+    "File:Phaistos Disc — Side B.jpg"
+   ],
    "zoom": [
     0.5,
     0.5,
@@ -96,21 +97,18 @@
    ],
    "dim": 0.55,
    "host": "big",
-   "alts": [
-    "File:Phaistos Disc — Side B.jpg",
-    "File:Discos Phaitos Umzeichnung.png"
-   ],
-   "emph": true
+   "emph": true,
+   "point": true
   },
   {
-   "say": "答えは、関連動画の本編で、くわしく話しておる。",
-   "text": "答えは本編で",
+   "say": "最古の印刷物という説を、関連動画の本編で、確かめておる。",
+   "text": "「最古の印刷物」説を\n本編で検証",
    "main_thumb": true,
    "host": "big"
   },
   {
    "say": "ホー博士じゃったぞい。",
-   "text": "ホー博士じゃったぞい",
+   "text": "関連動画から",
    "main_thumb": true,
    "host": "big"
   }
@@ -122,5 +120,6 @@
   "File:Phaistos glyph 02.png",
   "File:Phaistos glyph 35.png",
   "File:Phaistos glyph 12.png"
- ]
+ ],
+ "cta_head": "この円盤は印刷物なのか？ 本編で検証"
 }

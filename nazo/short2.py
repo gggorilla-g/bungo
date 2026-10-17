@@ -57,7 +57,7 @@ def diagram(kind, glyphs, t):
     d = ImageDraw.Draw(im)
     f = motion.font(46, "Bold")
     if kind == "stamps":
-        d.text((W // 2, 40), "文字ごとの「型」", font=f, fill=YEL, anchor="mt")
+        d.text((W // 2, 40), "型", font=f, fill=YEL, anchor="mt")
         uniq = list({id(g): g for g in glyphs}.values())[:3]
         for j, g in enumerate(uniq):              # 上段：型
             tile = glyph_tile(g, 150, "stamp")
@@ -69,10 +69,8 @@ def diagram(kind, glyphs, t):
         n = min(len(glyphs), 1 + int(t * 4))       # 押した跡が1つずつ増える
         for j, g in enumerate(glyphs[:n]):
             im.paste(glyph_tile(g, 110, "print"), (70 + j * 160, 570))
-        d.text((W // 2, 830), "同じ型の文字が、何度も出てくる", font=motion.font(40, "Bold"), fill=WHT, anchor="mt")
     else:   # type：円盤と活字の考え方を並べる
-        d.text((W // 2, 40), "考え方が同じ", font=f, fill=YEL, anchor="mt")
-        for col, (label, items) in enumerate((("円盤", glyphs[:3]), ("活字の印刷", ["印", "刷", "物"]))):
+        for col, (label, items) in enumerate((("円盤", glyphs[:3]), ("活字", ["印", "刷", "物"]))):
             x0 = 60 + col * 500
             d.text((x0 + 220, 140), label, font=f, fill=WHT, anchor="mt")
             for j, it in enumerate(items):
@@ -82,8 +80,6 @@ def diagram(kind, glyphs, t):
                     d.text((x0 + 220, y + 85), it, font=motion.font(110), fill=(230, 230, 230), anchor="mm")
                 else:
                     im.paste(glyph_tile(it, 130, "stamp"), (x0 + 130, y))
-            if t > 0.5 + col * 0.4:
-                d.text((x0 + 220, 830), "型を並べて押す", font=motion.font(40, "Bold"), fill=YEL, anchor="mt")
     return im
 
 
@@ -205,7 +201,7 @@ def build(sid):
                 elif ln.get("main_thumb") and main_thumb:
                     th = main_thumb.resize((960, 540), Image.LANCZOS)
                     fr.paste(th, (60, IMG_Y + 140))
-                    ImageDraw.Draw(fr).text((W // 2, IMG_Y + 60), "関連動画の本編", font=motion.font(52), fill=YEL, anchor="mt")
+                    ImageDraw.Draw(fr).text((W // 2, IMG_Y + 60), sp.get("cta_head", "関連動画の本編"), font=motion.font(52), fill=YEL, anchor="mt")
                 elif src:
                     cuts = plans[li]
                     ci = max(c for c, (t0, _) in enumerate(cuts) if t0 <= t + 1e-6)
@@ -228,7 +224,7 @@ def build(sid):
                         img = ImageEnhance.Brightness(img).enhance(1 - (1 - ln["dim"]) * min(1, t / d * 1.5))
                     fr.paste(img, (0, IMG_Y))
                 dr = ImageDraw.Draw(fr)
-                motion.box_text(dr, W // 2, 90, nazo_brand.CHANNEL, f_ch, WHT, RED, 26, 12, anchor="ct")
+                motion.box_text(dr, W // 2, 90, "ホー博士｜世界の謎", f_ch, WHT, RED, 26, 12, anchor="ct")
                 e = motion.back(min(1, t / 0.22))
                 ft = motion.font(int(92 * (0.9 + 0.1 * e)) if max(len(x) for x in tel) <= 9 else int(80 * (0.9 + 0.1 * e)))
                 y = TEL_Y
@@ -242,7 +238,7 @@ def build(sid):
                     prev = HOST[lines[li - 1].get("host", "small")] if li else 0
                     if var == "B" and li == first + 1: prev = 0
                     rise = int(80 * (1 - ease_out(t / 0.35))) if prev == 0 else 0
-                    o, _ = motion.owl_frame(i, mouth[i], hsz >= HOST["big"], li, size=hsz)
+                    o, _ = motion.owl_frame(i, mouth[i], bool(ln.get("point")), li, size=hsz)
                     fr.paste(o, (W - o.width + 30, H - o.height - 40 + rise), o)
                 dr.text((30, H - 50), f"VOICEVOX:{nazo_brand.VOICE_NAME}", font=f_cr, fill=(200, 200, 200))
                 p.stdin.write(fr.tobytes())
