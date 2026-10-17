@@ -213,5 +213,10 @@
   "声の主": "声のヌシ"
  },
  "title_image": "File:The ghost of Taira Tomomori.jpg",
- "thumb_image": "File:Tsukioka Yoshitoshi (188?) Tsuki hyaku shi - Semimaru-.jpg"
+ "thumb_image": "File:Tsukioka Yoshitoshi (188?) Tsuki hyaku shi - Semimaru-.jpg",
+ "thumb_copy": "耳だけ、\n書き忘れた",
+ "thumb_focus": [
+  0.5,
+  0.35
+ ]
 }

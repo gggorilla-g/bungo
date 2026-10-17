@@ -58,27 +58,27 @@ def build(title, no_kanji, author, img_path, out, copy="", focus=(0.6, 0.4)):
     im = Image.composite(Image.new("RGB", (W, H), (0, 0, 0)), im, shade)
     d = ImageDraw.Draw(im)
     # チャンネル名（左上）
-    _shadow_text(im, (64, 44), "今晩の百物語", _f(46), INK)
+    _shadow_text(im, (64, 40), "今晩の百物語", _f(54), INK)
     # 話の中の一言：大きく
     if copy:
         lines = copy.split("\n")
         n = max(len(l) for l in lines)
-        size = min(132, int(620 / max(n, 1)))
-        _shadow_text(im, (60, 150), copy, _f(size), INK, spacing=int(size * 0.18))
-        bb = ImageDraw.Draw(im).multiline_textbbox((60, 150), copy, font=_f(size), spacing=int(size * 0.18))
-        y_tag = bb[3] + 40
+        size = min(168, int(760 / max(n, 1)))
+        _shadow_text(im, (56, 140), copy, _f(size), INK, spacing=int(size * 0.18))
+        bb = ImageDraw.Draw(im).multiline_textbbox((56, 140), copy, font=_f(size), spacing=int(size * 0.18))
+        y_tag = bb[3] + 36
     else:
         y_tag = 300
     # 朱の札：第〇話　題名
     d = ImageDraw.Draw(im)
     lab = f"第{no_kanji}話"
-    f1, f2 = _f(40, "Bold"), _f(72)
+    f1, f2 = _f(48, "Bold"), _f(92)
     w1 = d.textlength(lab, font=f1)
     w2 = d.textlength(title, font=f2)
-    d.rectangle([64, y_tag, 64 + w1 + 36, y_tag + 64], fill=RED)
-    d.text((64 + 18, y_tag + 32), lab, font=f1, fill=(255, 255, 255), anchor="lm")
-    _shadow_text(im, (64 + w1 + 60, y_tag + 32), title, f2, INK, anchor="lm")
+    d.rectangle([64, y_tag, 64 + w1 + 40, y_tag + 76], fill=RED)
+    d.text((64 + 20, y_tag + 38), lab, font=f1, fill=(255, 255, 255), anchor="lm")
+    _shadow_text(im, (64 + w1 + 66, y_tag + 38), title, f2, INK, anchor="lm")
     if author:
-        _shadow_text(im, (66, y_tag + 104), author, _f(30, "Bold"), SUB)
+        _shadow_text(im, (66, y_tag + 118), author, _f(34, "Bold"), SUB)
     im.save(out)
     return out
