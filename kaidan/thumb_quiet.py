@@ -50,21 +50,22 @@ def build(title, no_kanji, author, img_path, out):
     # 題名：縦書き。長い題名は2列に分ける
     cols = [title] if len(title) <= 7 else [title[: (len(title) + 1) // 2], title[(len(title) + 1) // 2:]]
     n = max(len(c) for c in cols)
-    size = min(118, int(600 / (n * 1.07)))
+    size = min(104, int(560 / (n * 1.07)))
     x = 330 if len(cols) == 1 else 390
     for c in cols:
-        _vertical(d, c, x, 60, size, INK)
+        _vertical(d, c, x, 128, size, INK)
         x -= int(size * 1.2)
     # 朱の札「第〇話」
     lab = f"第{no_kanji}話"
     fs = 40
     hh = len(lab) * (fs + 20) + 14
-    d.rectangle([150, 64, 212, 64 + hh], fill=RED)
-    yy = 78
+    d.rectangle([150, 132, 212, 132 + hh], fill=RED)
+    yy = 146
     for ch in lab:
         d.text((181, yy + fs // 2), ch, font=_f(fs, "Bold"), fill=(255, 255, 255), anchor="mm"); yy += fs + 20
-    d.text((181, 590), "今晩の", font=_f(26, "Bold"), fill=SUB, anchor="mm")
-    d.text((181, 626), "百物語", font=_f(26, "Bold"), fill=SUB, anchor="mm")
+    # チャンネル名：左上に横書きで、ひと目でわかる大きさに
+    d.rectangle([150, 46, 160, 94], fill=RED)
+    d.text((176, 70), "今晩の百物語", font=_f(50), fill=INK, anchor="lm")
     if author:
         d.text((560 if len(cols) == 1 else 600, 662), author, font=_f(28, "Bold"), fill=SUB, anchor="rm")
     im.save(out)
