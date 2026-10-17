@@ -97,7 +97,7 @@ def host_draw(i, talking, face):
 def kaidan_brand(work, k):
     no = kansuji(work["no"])
     title = work["title"]
-    label = CHANNEL                  # 動画の中では「第〇話」に触れない（サムネとタイトルにだけ出す）
+    label = f"{CHANNEL} — 第{no}話"   # 画面には出す。語り（セリフ）では「第〇話」と言わない
     src = f"{work['author']}『{title}』" + (f"（{work['translator'].removesuffix('訳')}訳）" if work.get("translator") else "")
     return {
         "label": label,
@@ -109,7 +109,7 @@ def kaidan_brand(work, k):
                               f'<div class="center"><div style="text-align:center;">'
                               f'<div style="display:inline-block;background:#8e1414;color:#fff;font-size:50px;font-weight:900;'
                               f'padding:12px 32px;margin-bottom:34px;letter-spacing:.12em;font-family:\'Noto Serif CJK JP\';">'
-                              f'{CHANNEL}</div><br>'
+                              f'{CHANNEL}　第{no}話</div><br>'
                               f'<div style="display:inline-block;background:#000;color:#fff;font-size:150px;font-weight:900;'
                               f'padding:.1em .45em;font-family:\'Noto Serif CJK JP\';">{k.get("display_title", title)}</div>'
                               f'</div></div>'),
