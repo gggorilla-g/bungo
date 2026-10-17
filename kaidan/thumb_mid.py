@@ -73,7 +73,7 @@ def build(title, no_kanji, author, img_path, out, copy="", focus=(0.6, 0.4)):
     bb = ImageDraw.Draw(im).textbbox((56, 196), title, font=_f(ts))
     if copy:
         n = max(len(l) for l in copy.split("\n"))
-        size = min(92, int(600 / max(n, 1)))
+        size = min(92, int(800 / max(n, 1)))   # 長い一言は小さく（左の暗がりの幅に収める）
         _shadow_text(im, (60, bb[3] + 40), copy, _f(size, "Bold"), INK, spacing=int(size * 0.2))
     im.save(out)
     return out
