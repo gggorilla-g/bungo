@@ -1,5 +1,7 @@
 name: KAIDAN video
 on:
+  schedule:
+    - cron: "20 3 * * *"     # 毎日 JST 12:20 に制作（在庫が無ければ何もしない）→ 夜の公開に回す
   workflow_dispatch:
 permissions:
   contents: write
