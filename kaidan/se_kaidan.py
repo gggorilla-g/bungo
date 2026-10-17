@@ -171,3 +171,60 @@ def install():
     se.ALIAS.update(ALIAS)
     se.ROT.clear(); se.ROT.update(ROT)
     se._count.clear()
+
+
+# ---- 怪談の効果音（採用版）：俗っぽくない、不協和のさりげない短い音 ----
+# 演出的な音（戸を叩く・足音など）は使わない。どれもやわらかく立ち上がり、小さく、短い
+def dyad(f1, f2, d=1.6, attack=0.08, k=2.2, glassy=False):
+    t = _t(d)
+    env = np.minimum(1, t / attack) * np.exp(-t * k)
+    y = np.sin(2 * np.pi * f1 * t) + np.sin(2 * np.pi * f2 * t)
+    if glassy:   # ガラスのような倍音を少しだけ
+        y += 0.3 * np.sin(2 * np.pi * f1 * 2.76 * t) * np.exp(-t * 6)
+    return y * env
+
+
+def swell(f1=110, f2=116.5, d=2.4):
+    """低い不協和のふくらみ（ゆっくり立ち上がって消える）"""
+    t = _t(d)
+    env = np.sin(np.pi * t / d) ** 2
+    return (np.sin(2 * np.pi * f1 * t) + np.sin(2 * np.pi * f2 * t) + 0.4 * np.sin(2 * np.pi * f1 * 1.5 * t)) * env
+
+
+def bonsho(f=82.0, d=3.1):
+    """遠くの鐘「ぼーん」：低い基音と、ずれた倍音がうなりながら長く残る"""
+    t = _t(d)
+    parts = ((1.0, 1.0, 0.7), (2.06, 0.55, 1.0), (2.74, 0.35, 1.4), (3.9, 0.18, 2.2), (5.4, 0.08, 3.0))
+    y = sum(a * np.sin(2 * np.pi * f * m * t) * np.exp(-t * k) for m, a, k in parts)
+    y *= 1 + 0.18 * np.sin(2 * np.pi * 1.7 * t)          # うなり
+    strike = _noise(0.08, 200, 1200) * np.exp(-np.arange(int(SR * 0.08)) / SR * 40) * 0.25
+    y[: len(strike)] += strike
+    return y * np.minimum(1, t / 0.01) * np.minimum(1, (d - t) / 0.8)   # 章カードの尺の中で自然に消える
+
+
+SUBTLE = {
+    "k_bonsho":   (lambda: bonsho(), 0.16),
+    "k_dis_m2":   (lambda: dyad(440, 466.2), 0.07),            # 短2度（ぶつかる2音）
+    "k_dis_tri":  (lambda: dyad(330, 466.2, 1.8), 0.07),       # 増4度
+    "k_dis_glass": (lambda: dyad(1318.5, 1864.7, 1.2, 0.02, 3.5, True), 0.05),  # 高い増4度、ガラス質
+    "k_dis_lo":   (lambda: swell(), 0.09),                     # 低いふくらみ
+}
+SUBTLE_ALIAS = {
+    "whoosh_l": "k_dis_lo", "whoosh_s": "k_dis_glass", "thud": "k_dis_lo", "shimmer": "k_dis_glass",
+    "pop_lo": "k_dis_m2", "pop_mid": "k_dis_tri", "pop_hi": "k_dis_glass", "chime_a": "k_dis_tri",
+    "chime_b": "k_dis_m2", "chime_c": "k_dis_tri", "tick": "k_dis_glass", "tick_lo": "k_dis_m2",
+    "paper": "k_dis_glass", "ding": "k_dis_tri",
+}
+SUBTLE_ROT = {
+    "card":  [("k_dis_lo", "k_dis_tri"), ("k_dis_lo", "k_dis_m2")],
+    "words": ["k_dis_glass", "k_dis_m2"],
+    "cut":   ["k_dis_glass", "k_dis_m2", "k_dis_tri"],
+}
+
+
+def install_subtle():
+    for k, v in SUBTLE.items():
+        se.LIB[k] = v
+    se.ALIAS.clear(); se.ALIAS.update(SUBTLE_ALIAS)
+    se.ROT.clear(); se.ROT.update(SUBTLE_ROT)
+    se._count.clear()

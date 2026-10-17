@@ -121,6 +121,9 @@ def _se(name, events):
         se.mix(f"{B}/{name}_p.wav", events)
 
 
+PAN_MODE = "pan"   # "pan"＝1文ごとに引き／寄りとパンを切り替える（謎・BUNGO）、"fix"＝動かさない（怪談）
+
+
 def pan_seg(img_path, overlay_png, wav, name, k, pad=0.5, se_events=None):
     """静止画をゆっくりパンする1カット（ffmpegだけで作るので軽い）。
     k（カット番号）で、引き／寄り と パンの向きを交互に変えて、カットにリズムを出す"""
@@ -128,8 +131,8 @@ def pan_seg(img_path, overlay_png, wav, name, k, pad=0.5, se_events=None):
     d = math.ceil((_wav_len(wav) + pad) * FPS) / FPS
     _pad_wav(wav, f"{B}/{name}_p.wav", d)
     _se(name, se_events)
-    close = (k % 2 == 1)
-    scale = 1.45 if close else 1.12
+    close = (k % 2 == 1) and PAN_MODE != "fix"
+    scale = 1.45 if close else (1.0 if PAN_MODE == "fix" else 1.12)
     canvas, _ = motion.stage(img_path, scale=scale)
     canvas.save(f"{B}/{name}_bg.jpg", quality=92)
     cw, ch = canvas.size
@@ -138,6 +141,8 @@ def pan_seg(img_path, overlay_png, wav, name, k, pad=0.5, se_events=None):
     x0 = (mx - span) / 2 if (k // 2) % 2 == 0 else (mx + span) / 2
     x1 = (mx + span) / 2 if (k // 2) % 2 == 0 else (mx - span) / 2
     y = my * (0.42 if close else 0.5)
+    if PAN_MODE == "fix":                 # 同じ画像が続いても絵が動かず、字幕だけが変わる（カットに見えない）
+        x0 = x1 = mx / 2; y = my / 2
     n = int(round(d * FPS))
     fc = (f"[0:v]crop=1920:1080:x='{x0:.1f}+({x1 - x0:.1f})*t/{d:.3f}':y={y:.1f},setsar=1[b];"
           f"[1:v]scale=1920:1080[o];[b][o]overlay=0:0,format=yuv420p[v]")
@@ -237,6 +242,8 @@ def build_video(kousei, work, genbun, ruby, images, out_mp4, llm, brand=None):
     br = brand or bungo_brand(work)
     if br.get("voice"):
         set_voice(**br["voice"])
+    global PAN_MODE
+    PAN_MODE = br.get("pan_mode", "pan")
     label = br["label"]
     PART_LABEL = br["part_label"]
     PART_INTRO = br["part_intro"]
@@ -352,11 +359,14 @@ def build_video(kousei, work, genbun, ruby, images, out_mp4, llm, brand=None):
             if use_motion and i > 0:
                 import motion
                 cn = f"c{i:02d}"
-                cd = round(1.6 * FPS) / FPS
+                cd = round(br.get("card_dur", 1.6) * FPS) / FPS
                 import se
                 motion.chime_wav(f"{B}/{cn}_p.wav", cd, silent=True)
-                a, b2 = se.pick("card")
-                se.mix(f"{B}/{cn}_p.wav", [(b2, 0.0, 1), (a, 0.08, 1)])
+                if br.get("card_se"):          # チャンネル固有の章の音（怪談は鐘の「ぼーん」）
+                    se.mix(f"{B}/{cn}_p.wav", br["card_se"])
+                else:
+                    a, b2 = se.pick("card")
+                    se.mix(f"{B}/{cn}_p.wav", [(b2, 0.0, 1), (a, 0.08, 1)])
                 motion.chapter_card(s["slide_heading"], f"{B}/{cn}.mp4", cd, style=br.get("card_style"))
                 durs.append(cd); names.append(cn)
         plabel = PART_LABEL.get(s["type"], "")

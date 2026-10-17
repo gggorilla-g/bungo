@@ -334,11 +334,36 @@ def render_segment(out_mp4, dur, wav_path, beat, overlay_png, talk_owl=True, see
 
 
 # ---------- 章の小見出しカード ----------
+def _fade_card(text, out_mp4, dur, st):
+    """暗い地に、章題だけが静かに浮かんで消える（枠・傾き・弾みなし）。怪談用"""
+    size = 96
+    while size > 56 and font(size, "Bold").getlength(text) > 1300:
+        size -= 4
+    f = font(size, "Bold")
+    base = Image.new("RGB", (W, H), st.get("bg", (6, 6, 8)))
+    n = int(round(dur * FPS))
+    fin, fout = 0.9 * FPS, 0.7 * FPS
+    p = subprocess.Popen(["ffmpeg", "-y", "-v", "error", "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{W}x{H}",
+                          "-r", str(FPS), "-i", "-", "-c:v", "libx264", "-preset", "fast", "-crf", "20",
+                          "-pix_fmt", "yuv420p", "-an", out_mp4], stdin=subprocess.PIPE)
+    ink = st.get("ink", (232, 228, 220))
+    for i in range(n):
+        a = min(1.0, i / fin, (n - 1 - i) / fout)
+        fr = base.copy()
+        d = ImageDraw.Draw(fr)
+        col = tuple(int(b + (c - b) * max(0, a)) for c, b in zip(ink, fr.getpixel((0, 0))))
+        d.text((W // 2, H // 2), text, font=f, fill=col, anchor="mm")
+        p.stdin.write(fr.tobytes())
+    p.stdin.close(); p.wait()
+
+
 def chapter_card(text, out_mp4, dur, style=None):
     """方眼の地に白いカード（黒フチ＋黒い影）、太字の斜体で章題。出だしだけ小さく弾む"""
     st = dict(bg=(232, 234, 238), grid=(205, 210, 220), grid2=(180, 188, 202), card=(255, 255, 255),
               edge=(0, 0, 0), shadow=(0, 0, 0), ink=(20, 20, 20))
     st.update(style or {})
+    if st.get("kind") == "fade":
+        return _fade_card(text, out_mp4, dur, st)
     base = Image.new("RGB", (W, H), st["bg"])
     d = ImageDraw.Draw(base)
     for x in range(0, W, 40):

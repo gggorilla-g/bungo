@@ -72,8 +72,8 @@ h1 { display:none !important; }
             font-family:"Noto Serif CJK JP"; font-weight:700; }
 """
 
-CARD_STYLE = dict(bg=(8, 8, 10), grid=(20, 20, 24), grid2=(28, 26, 30), card=(14, 12, 14),
-                  edge=(150, 24, 24), shadow=(60, 8, 8), ink=(240, 236, 228))
+# 章のアイキャッチ：暗い地に章題が静かに浮かんで消える＋遠くの鐘「ぼーん」（第二話から）
+CARD_STYLE = dict(kind="fade", bg=(6, 6, 8), ink=(232, 228, 220))
 
 
 # ---- 語り部の絵（提灯の炎がゆらぐ。じっと見る場面では首をかしげる）----
@@ -113,7 +113,8 @@ def kaidan_brand(work, k):
                               f'padding:.1em .45em;font-family:\'Noto Serif CJK JP\';">{k.get("display_title", title)}</div>'
                               f'</div></div>'),
         "motion": True,
-        "motion_first": False,           # 図解は使わない（物語は画像のゆっくりしたパンで見せる）
+        "motion_first": False,
+        "pan_mode": "fix",               # カメラは動かさない（せわしないカット割りをしない）           # 図解は使わない（物語は画像のゆっくりしたパンで見せる）
         "host_name": HOST,
         "host_role": "百物語の語り部",
         "host_outro": host_outro(work, k),
@@ -122,6 +123,9 @@ def kaidan_brand(work, k):
         "accent": "#8e1414",
         "css": CSS,
         "card_style": CARD_STYLE,
+        "card_dur": 3.2,
+        "card_se": [("k_bonsho", 0.05, 1.0)],
+        "bgm_volume": 0.055,             # 寝る前に聞く人向けに控えめ（既定 0.09）
         "bgm": bgm_for(work, k)[0],
         "bgm_tracks": {key: p for key, (p, _) in BGM_TRACKS.items()},
         "scrim": 0.25,
@@ -136,3 +140,5 @@ def install_motion():
     motion.NAME_COLORS = ((255, 255, 255), (142, 20, 20))
     motion.HOOK_COLORS = (((255, 255, 255), (142, 20, 20)), ((255, 255, 255), (0, 0, 0)))
     motion.FAMILY = "Noto Serif CJK JP"
+    import se_kaidan
+    se_kaidan.install_subtle()         # 効果音：不協和のさりげない短い音（第二話から）
