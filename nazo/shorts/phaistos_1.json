@@ -1,0 +1,149 @@
+{
+ "main": "phaistos",
+ "angle": "発見型",
+ "title": "宮殿の跡から出た、誰も読めない円盤 #Shorts #世界の謎",
+ "cta_head": "型はどこへ消えた？ 本編で追う",
+ "glyphs": [
+  "File:Phaistos glyph 01.png",
+  "File:Phaistos glyph 02.png",
+  "File:Phaistos glyph 12.png",
+  "File:Phaistos glyph 02.png",
+  "File:Phaistos glyph 35.png",
+  "File:Phaistos glyph 12.png"
+ ],
+ "lines": [
+  {
+   "say": "ホー博士じゃ。",
+   "text": "ホー博士じゃ",
+   "file": "File:Phaistos Disc — Side A.jpg",
+   "zoom": [
+    0.5,
+    0.5,
+    1.0,
+    1.12
+   ],
+   "fast": true,
+   "host": "mid",
+   "greet": true
+  },
+  {
+   "say": "1908年、クレタ島の宮殿の跡から、粘土の円盤が見つかった。",
+   "text": "1908年 クレタ島\n宮殿跡から出た円盤",
+   "file": "File:Phaistos Disc — Side A.jpg",
+   "alts": [
+    "File:Phaistos Disc — Side B.jpg",
+    "File:Discos Phaitos Umzeichnung.png"
+   ],
+   "zoom": [
+    0.5,
+    0.5,
+    1.12,
+    1.4
+   ],
+   "fast": true,
+   "host": "mid",
+   "emph": true
+  },
+  {
+   "say": "直径は、わずか16センチ。",
+   "text": "直径\nわずか16センチ",
+   "file": "File:Phaistos Disc — Side B.jpg",
+   "alts": [
+    "File:Phaistos Disc — Side A.jpg"
+   ],
+   "zoom": [
+    0.5,
+    0.5,
+    1.0,
+    1.1
+   ],
+   "host": "small"
+  },
+  {
+   "say": "両面に、絵のような文字が、渦を巻いて並んでおる。",
+   "text": "両面に\n渦巻きの文字",
+   "file": "File:Discos Phaitos Umzeichnung.png",
+   "alts": [
+    "File:Phaistos Disc — Side A.jpg",
+    "File:Phaistos Disc — Side B.jpg"
+   ],
+   "zoom": [
+    0.3,
+    0.5,
+    1.3,
+    1.7
+   ],
+   "host": "small"
+  },
+  {
+   "say": "同じ文字は、形も大きさも、ぴたりと同じ。",
+   "text": "同じ文字は\n形も大きさも同じ",
+   "diagram": "stamps",
+   "host": "small",
+   "point": true
+  },
+  {
+   "say": "いちばん多いのは、羽根飾りのついた頭。19回も押されておる。",
+   "text": "羽根飾りの頭\n19回",
+   "file": "File:Phaistos Disc — Side A.jpg",
+   "alts": [
+    "File:Discos Phaitos Umzeichnung.png",
+    "File:Phaistos Disc — Side B.jpg"
+   ],
+   "zoom": [
+    0.45,
+    0.4,
+    2.2,
+    2.6
+   ],
+   "host": "small",
+   "emph": true
+  },
+  {
+   "say": "なのに、同じ型で押された物は、ほかにひとつも見つかっていない。",
+   "text": "同じ型の物は\nほかにひとつもない",
+   "file": "File:Phaistos Disc — Side B.jpg",
+   "alts": [
+    "File:Phaistos Disc — Side A.jpg",
+    "File:Discos Phaitos Umzeichnung.png"
+   ],
+   "zoom": [
+    0.5,
+    0.5,
+    1.4,
+    1.1
+   ],
+   "host": "mid",
+   "emph": true
+  },
+  {
+   "say": "では、その型は、どこへ消えたのか。",
+   "text": "その型は\nどこへ消えた？",
+   "file": "File:Phaistos Disc — Side A.jpg",
+   "alts": [
+    "File:Phaistos Disc — Side B.jpg"
+   ],
+   "zoom": [
+    0.5,
+    0.5,
+    1.3,
+    1.0
+   ],
+   "dim": 0.55,
+   "host": "big",
+   "point": true
+  },
+  {
+   "say": "その謎を、関連動画の本編で、追いかけておる。",
+   "text": "円盤の謎を\n本編で追う",
+   "main_thumb": true,
+   "host": "big"
+  },
+  {
+   "say": "ホー博士じゃったぞい。",
+   "text": "関連動画から",
+   "main_thumb": true,
+   "host": "big"
+  }
+ ]
+}

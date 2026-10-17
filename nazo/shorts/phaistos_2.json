@@ -1,0 +1,149 @@
+{
+ "main": "phaistos",
+ "angle": "未解読型",
+ "title": "100年以上、誰にも読めない文字 ファイストスの円盤 #Shorts #世界の謎",
+ "cta_head": "どの説が正しい？ 本編で比べる",
+ "glyphs": [
+  "File:Phaistos glyph 01.png",
+  "File:Phaistos glyph 02.png",
+  "File:Phaistos glyph 12.png",
+  "File:Phaistos glyph 02.png",
+  "File:Phaistos glyph 35.png",
+  "File:Phaistos glyph 12.png"
+ ],
+ "lines": [
+  {
+   "say": "ホー博士じゃ。",
+   "text": "ホー博士じゃ",
+   "file": "File:Phaistos Disc — Side B.jpg",
+   "zoom": [
+    0.5,
+    0.5,
+    1.0,
+    1.12
+   ],
+   "fast": true,
+   "host": "mid",
+   "greet": true
+  },
+  {
+   "say": "この円盤の文字は、今も、誰にも読めない。",
+   "text": "この文字\n今も誰にも読めない",
+   "file": "File:Phaistos Disc — Side B.jpg",
+   "alts": [
+    "File:Phaistos Disc — Side A.jpg",
+    "File:Discos Phaitos Umzeichnung.png"
+   ],
+   "zoom": [
+    0.5,
+    0.5,
+    1.12,
+    1.45
+   ],
+   "fast": true,
+   "host": "mid",
+   "emph": true
+  },
+  {
+   "say": "見つかってから、百年以上たっておる。",
+   "text": "見つかってから\n100年以上",
+   "file": "File:Phaistos Disc — Side A.jpg",
+   "alts": [
+    "File:Phaistos Disc — Side B.jpg"
+   ],
+   "zoom": [
+    0.5,
+    0.5,
+    1.0,
+    1.15
+   ],
+   "host": "small"
+  },
+  {
+   "say": "読めない理由は、大きく三つある。",
+   "text": "読めない理由は\n3つ",
+   "file": "File:Discos Phaitos Umzeichnung.png",
+   "alts": [
+    "File:Phaistos Disc — Side A.jpg"
+   ],
+   "zoom": [
+    0.5,
+    0.5,
+    1.1,
+    1.3
+   ],
+   "host": "mid",
+   "point": true
+  },
+  {
+   "say": "ひとつ。同じ文字の資料が、ほかに見つかっていない。",
+   "text": "① 同じ文字の資料が\nほかにない",
+   "file": "File:Phaistos Disc — Side A.jpg",
+   "alts": [
+    "File:Discos Phaitos Umzeichnung.png",
+    "File:Phaistos Disc — Side B.jpg"
+   ],
+   "zoom": [
+    0.4,
+    0.4,
+    2.0,
+    2.4
+   ],
+   "host": "small",
+   "emph": true
+  },
+  {
+   "say": "ふたつ。商売の記録のような、決まった型の文章ではない。",
+   "text": "② 決まった型の\n文章ではない",
+   "file": "File:Phaistos Disc — Side B.jpg",
+   "alts": [
+    "File:Discos Phaitos Umzeichnung.png",
+    "File:Phaistos Disc — Side A.jpg"
+   ],
+   "zoom": [
+    0.55,
+    0.45,
+    2.0,
+    2.4
+   ],
+   "host": "small",
+   "emph": true
+  },
+  {
+   "say": "みっつ。文字の種類が、四十五しかない。",
+   "text": "③ 文字の種類が\n45しかない",
+   "diagram": "stamps",
+   "host": "small",
+   "point": true,
+   "emph": true
+  },
+  {
+   "say": "それでも、読めたという人は、今も絶えない。",
+   "text": "それでも\n「読めた」という人",
+   "file": "File:Phaistos Disc — Side A.jpg",
+   "alts": [
+    "File:Phaistos Disc — Side B.jpg"
+   ],
+   "zoom": [
+    0.5,
+    0.5,
+    1.3,
+    1.0
+   ],
+   "dim": 0.55,
+   "host": "big"
+  },
+  {
+   "say": "その説を、関連動画の本編で、比べておる。",
+   "text": "いくつもの説を\n本編で比べる",
+   "main_thumb": true,
+   "host": "big"
+  },
+  {
+   "say": "ホー博士じゃったぞい。",
+   "text": "関連動画から",
+   "main_thumb": true,
+   "host": "big"
+  }
+ ]
+}
