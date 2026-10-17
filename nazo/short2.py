@@ -2,7 +2,7 @@
 #   本編のあらすじを縮めるのではなく、本編から「単独で成り立つ疑問」を1つ切り出す。
 #   最初の数秒は謎の物そのものを大きく見せ、ホー博士は情報が変わるところで大きさを変えて出る。
 #   中盤で本編の疑問を匂わせ、最後に関連動画（本編）へ誘う。テロップは隙間なく出し続ける。
-#   台本: nazo/shorts/<ID>.json   実行: ID=phaistos_3 python nazo/short2.py （A・Bの2本を作る）
+#   台本: nazo/shorts/<ID>.json   実行: ID=phaistos_3 python nazo/short2.py （A版。VARIANTS=A,B で比較用にB版も）
 #     A: 冒頭からホー博士が出る   B: 謎の映像から始め、2文目でホー博士が出る
 import json, math, os, subprocess, sys, wave
 import numpy as np
@@ -177,7 +177,7 @@ def build(sid):
     print("BGM開始", off, "秒")
     f_ch, f_cr = motion.font(40), motion.font(26, "Bold")
     outs = []
-    for var in ("A", "B"):
+    for var in os.environ.get("VARIANTS", "A").split(","):   # 既定はA（冒頭からホー博士）。比べたいときだけ VARIANTS=A,B
         vids = []
         for li, ln in enumerate(lines):
             d = durs[li]; n = int(round(d * FPS))
@@ -273,7 +273,7 @@ def build(sid):
         f"音声: VOICEVOX:{nazo_brand.VOICE_NAME}\nBGM: the ghost house / 稿屋 隆（DOVA-SYNDROME）\n"
         + "".join(f"画像: {got[fn]['credit']}\n" for fn in used) +
         f"\n【タグ】\n{','.join(nazo_brand.VOICE_TAGS + ['世界の謎', 'ファイストスの円盤', 'ショート'])}\n\n"
-        "【メモ（貼らない）】\nA・Bの2本ある。Aは冒頭からホー博士、Bは謎の映像のあとから。両方投稿して数字を比べる\n"
+        "【メモ（貼らない）】\n"
         "アップ後、編集画面の「関連動画」に本編を選ぶ\n")
     print("short2", outs, round(total, 1), "秒")
 
