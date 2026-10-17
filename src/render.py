@@ -369,6 +369,7 @@ def build_video(kousei, work, genbun, ruby, images, out_mp4, llm, brand=None):
 
     last_sec = -1
     bgm_marks = [(0.0, "main")]          # 展開ごとの曲の切り替え（台本のセクションに "bgm": 曲の名前）
+    hush_marks = []                      # BGMを止める区間（台本のセクションに "hush": [語, ...]）
     for k, (i, sent) in enumerate(plan):
         s = kousei["sections"][i]
         first_of_sec = (i != last_sec)
@@ -400,7 +401,16 @@ def build_video(kousei, work, genbun, ruby, images, out_mp4, llm, brand=None):
                 f'text-shadow:0 2px 16px rgba(0,0,0,.8);">{s["slide_heading"]}</h1>'
                 f'<div class="credit">{br["credit"]}</div>')
         n = f"s{k:03d}"
-        tts(sent, f"{B}/{n}.wav")
+        hushed = any(w in sent for w in s.get("hush", [])) and br.get("hush_voice")
+        if hushed:            # ここぞという一文：声を低く・ゆっくり、BGMを止める
+            global SPEED, PITCH
+            _sp, _pi = SPEED, PITCH
+            SPEED, PITCH = SPEED * br["hush_voice"].get("speed", 0.9), PITCH + br["hush_voice"].get("pitch", -0.05)
+            tts(sent, f"{B}/{n}.wav")
+            SPEED, PITCH = _sp, _pi
+            hush_marks.append([sum(durs), None])
+        else:
+            tts(sent, f"{B}/{n}.wav")
         is_sec_end = (k == len(plan) - 1) or (plan[k+1][0] != i)
         if use_motion and i in motion_secs:
             import motion
@@ -449,6 +459,8 @@ def build_video(kousei, work, genbun, ruby, images, out_mp4, llm, brand=None):
             slide(body, f"{B}/{n}.png", pick(k, i), scrim=br.get("scrim", 0.5), subtitle=sent, css_extra=css)
             durs.append(seg(f"{B}/{n}.png", f"{B}/{n}.wav", n, pad=1.2 if is_sec_end else 0.5))
         names.append(n)
+        if hush_marks and hush_marks[-1][1] is None:
+            hush_marks[-1][1] = sum(durs)
 
     if bgm_marks[-1][1] != "main":
         bgm_marks.append((sum(durs), "main"))   # 締めは地の曲に戻す
@@ -522,7 +534,7 @@ def build_video(kousei, work, genbun, ruby, images, out_mp4, llm, brand=None):
             bgm = _bgm_timeline(tracks, total, bgm_marks)
         # 声の区間だけBGMを下げる。文の切れ目程度の短い無音では戻さず、下げ幅も小さく、ゆっくり動かす
         bgm = _bgm_duck(bgm, f"{B}/all_a.wav", total, br.get("bgm_volume", 0.09),
-                        duck_db=br.get("bgm_duck_db", -5.0))
+                        duck_db=br.get("bgm_duck_db", -5.0), hush=hush_marks)
         fc = ("[1:a]aresample=48000[v];[2:a]aresample=48000[m];"
               "[v][m]amix=inputs=2:normalize=0:duration=first,loudnorm=I=-16:TP=-1.5:LRA=11[a]")
         subprocess.run(["ffmpeg", "-y", "-v", "error", "-i", f"{B}/all_v.mp4", "-i", f"{B}/all_a.wav",
@@ -619,7 +631,7 @@ def _bgm_timeline(tracks, total, marks, xfade=3.0):
     return dst
 
 
-def _bgm_duck(bgm_wav, voice_wav, total, vol, duck_db=-5.0, hold=3.0, down=0.8, up=2.0):
+def _bgm_duck(bgm_wav, voice_wav, total, vol, duck_db=-5.0, hold=3.0, down=0.8, up=2.0, hush=None):
     """BGMの音量カーブを先に計算して掛ける（コンプレッサーを使わない）。
     - 声のある区間で duck_db だけ下げる（下げ幅は小さめ）
     - hold 秒未満の無音（文と文の間）は「声が続いている」とみなし、BGMを戻さない
@@ -658,6 +670,15 @@ def _bgm_duck(bgm_wav, voice_wav, total, vol, duck_db=-5.0, hold=3.0, down=0.8, 
     fade = np.ones(n)
     fi, fo = int(2 * sr), int(4 * sr)
     fade[:fi] = np.linspace(0, 1, fi); fade[-fo:] *= np.linspace(1, 0, fo)
+    for a, b in (hush or []):           # ここぞという一文：直前0.5秒で消し、あと3秒かけて戻す
+        if b is None: continue
+        ia, ib = int(a * sr), int(b * sr)
+        r0, r1 = int(0.5 * sr), int(3.0 * sr)
+        env = np.ones(n)
+        env[max(0, ia - r0):ia] = np.linspace(1, 0, ia - max(0, ia - r0))
+        env[ia:ib] = 0
+        e = min(n, ib + r1); env[ib:e] = np.linspace(0, 1, e - ib)
+        fade *= env
     out = m * gain * fade * vol
     dst = f"{B}/bgm_ducked.wav"
     subprocess.run(["ffmpeg", "-y", "-v", "error", "-f", "s16le", "-ar", str(sr), "-ac", "1", "-i", "-", dst],

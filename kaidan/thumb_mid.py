@@ -36,6 +36,33 @@ def _shadow_text(im, xy, text, font, fill, anchor="la", spacing=0):
     ImageDraw.Draw(im).multiline_text(xy, text, font=font, fill=fill, anchor=anchor, spacing=spacing)
 
 
+BLOOD = (214, 30, 30)
+
+
+def _rich_text(im, xy, text, font, spacing):
+    """［］で囲んだ言葉だけ赤くする（例「誰もいない［墓］の前で、」）"""
+    import re
+    x0, y = xy
+    lh = font.getbbox("あ")[3] + spacing
+    for line in text.split("\n"):
+        segs = [(t, i % 2 == 1) for i, t in enumerate(re.split(r"[［］]", line)) if t]
+        plain = "".join(t for t, _ in segs)
+        sh = Image.new("L", im.size, 0)
+        ImageDraw.Draw(sh).text((x0, y), plain, font=font, fill=255)
+        sh = sh.filter(ImageFilter.GaussianBlur(10))
+        im.paste((0, 0, 0), (0, 0), sh.point(lambda v: min(255, int(v * 1.6))))
+        d = ImageDraw.Draw(im)
+        x = x0
+        for t, red in segs:
+            if red:   # 明るい絵の上でも沈まないよう、赤い字には暗い縁
+                d.text((x, y), t, font=font, fill=BLOOD, stroke_width=4, stroke_fill=(20, 0, 0))
+            else:
+                d.text((x, y), t, font=font, fill=INK)
+            x += d.textlength(t, font=font)
+        y += lh
+    return y
+
+
 def build(title, no_kanji, author, img_path, out, copy="", focus=(0.6, 0.4)):
     im = Image.new("RGB", (W, H), (10, 10, 12))
     if img_path:
@@ -69,11 +96,15 @@ def build(title, no_kanji, author, img_path, out, copy="", focus=(0.6, 0.4)):
     if author:
         _shadow_text(im, (64 + w1 + 60, 149), author, _f(34, "Bold"), SUB, anchor="lm")
     ts = min(160, int(720 / max(len(title), 1)))
+    glow = Image.new("L", im.size, 0)                 # 題名の背後に、にじむような暗い赤
+    ImageDraw.Draw(glow).text((56, 196), title, font=_f(ts), fill=255)
+    glow = glow.filter(ImageFilter.GaussianBlur(22)).point(lambda v: min(255, int(v * 1.3)))
+    im.paste((120, 0, 0), (0, 0), glow)
     _shadow_text(im, (56, 196), title, _f(ts), INK)
     bb = ImageDraw.Draw(im).textbbox((56, 196), title, font=_f(ts))
     if copy:
-        n = max(len(l) for l in copy.split("\n"))
+        n = max(len(l.replace("［", "").replace("］", "")) for l in copy.split("\n"))
         size = min(92, int(800 / max(n, 1)))   # 長い一言は小さく（左の暗がりの幅に収める）
-        _shadow_text(im, (60, bb[3] + 40), copy, _f(size, "Bold"), INK, spacing=int(size * 0.2))
+        _rich_text(im, (60, bb[3] + 40), copy, _f(size, "Black"), int(size * 0.2))
     im.save(out)
     return out

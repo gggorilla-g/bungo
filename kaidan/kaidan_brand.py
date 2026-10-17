@@ -131,6 +131,7 @@ def kaidan_brand(work, k):
         "bgm_tracks": {key: p for key, (p, _) in BGM_TRACKS.items()},
         "scrim": 0.25,
         "outro_heading": "おしまい",
+        "hush_voice": {"speed": 0.88, "pitch": -0.05},   # ここぞという一文（台本の "hush"）：低く、ゆっくり。BGMは止める
         "end_pad": 3.5,                  # 話の最後の一文のあと、余韻の間
         "end_fade": 3.0,                 # その間にゆっくり暗くなる
         "end_black": 1.5,                # 暗いまま少し置く

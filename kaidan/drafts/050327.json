@@ -144,6 +144,9 @@
      "file": "File:SekienRokurokubi.jpg",
      "at": "そっと襖を開け"
     }
+   ],
+   "hush": [
+    "頭がありませんでした"
    ]
   },
   {
@@ -182,6 +185,9 @@
      "file": "File:Kwaidan, Stories and Studies of Strange Things - Frontispiece.png",
      "at": "左の袖"
     }
+   ],
+   "hush": [
+    "あの木のうしろに隠れている"
    ]
   },
   {
@@ -226,7 +232,7 @@
  "yomi_ok": [
   "ろくろ首の塚と呼ばれる塚は、今もそこにある。"
  ],
- "thumb_copy": "親切な木こりの家で、\n夜中に、そっと襖を開けた。",
+ "thumb_copy": "親切な木こりの家で、\n夜中に、そっと［襖を開けた］。",
  "thumb_focus": [
   0.3,
   0.5
