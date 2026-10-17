@@ -27,11 +27,12 @@ def main():
     for w in have & done:
         os.remove(f"{D}/{w}.json")
     have -= done
-    need = N - len(have - queued)
+    only = [x for x in os.environ.get("ONLY", "").split(",") if x]
+    need = len(only) if only else N - len(have - queued)
     if need <= 0:
         print("在庫用本文は足りている"); return
     skip = done | queued | have | {w for w, n in fails.items() if n >= 3}
-    for meta in m1_select.select_candidates(skip, need):
+    for meta in m1_select.select_candidates(skip, need, only or None):
         try:
             text, ruby = m2_extract.fetch_text(meta["url"])
         except Exception as e:

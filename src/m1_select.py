@@ -31,8 +31,11 @@ def select_next(published_ids):
     c = select_candidates(published_ids, 1)
     return c[0] if c else None
 
-def select_candidates(published_ids, n):
+def select_candidates(published_ids, n, only=None):
+    """only: 作品名のリスト。指定したときはその作品だけを選ぶ（新字新仮名が無ければ新字旧仮名も可）"""
     rows = load_catalog()
+    if only:
+        rows = sorted([r for r in rows if r["作品名"] in only], key=lambda r: "新字新仮名" not in r["文字遣い種別"])
     cands, seen = [], set()
     for r in rows:
         key = (r["作品名"], r["姓"] + r["名"])
@@ -40,7 +43,7 @@ def select_candidates(published_ids, n):
             continue
         if r["作品著作権フラグ"] != "なし":         # 著作権存続作品は構造的に除外
             continue
-        if "新字新仮名" not in r["文字遣い種別"]:    # 可読性・TTS精度のため
+        if "新字新仮名" not in r["文字遣い種別"] and not (only and "新字" in r["文字遣い種別"]):    # 可読性・TTS精度のため
             continue
         if r["作品ID"] in published_ids:
             continue
@@ -57,6 +60,8 @@ def select_candidates(published_ids, n):
                   "こころ","坊っちゃん","吾輩は猫である","銀河鉄道の夜","注文の多い料理店",
                   "セロ弾きのゴーシュ","山月記","檸檬","舞姫","高瀬舟","たけくらべ",
                   "ごん狐","手袋を買いに","走れメロス","桜の樹の下には"]
+        if only:
+            print("選定:", title, author, r["文字遣い種別"], r["作品ID"])
         if title in FAMOUS:   # 完全一致（「吾輩は猫である」上篇自序 等の付随文を誤って優先しない）
             score += 1000
         seen.add(r["作品ID"]); seen.add((title, author))

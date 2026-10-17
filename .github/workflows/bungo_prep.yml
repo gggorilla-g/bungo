@@ -1,0 +1,24 @@
+name: BUNGO prep
+on:
+  workflow_dispatch:
+    inputs:
+      only: { description: "本文を取る作品名（, 区切り）", required: true }
+permissions:
+  contents: write
+concurrency:
+  group: state-commit
+  cancel-in-progress: false
+jobs:
+  prep:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: |
+          pip install -q -r requirements.txt
+          ONLY="${{ inputs.only }}" python src/prefetch.py 2>&1 | tee state/prefetch_log.txt
+      - run: |
+          git config user.name "bungo-bot"; git config user.email "bot@users.noreply.github.com"
+          git add -A state/texts state/prefetch_log.txt && git commit -q -m "bungo prep: ${{ inputs.only }}" || exit 0
+          for i in 1 2 3; do git pull --rebase -q && git push -q && break; sleep 5; done
