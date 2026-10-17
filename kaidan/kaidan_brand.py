@@ -43,12 +43,14 @@ def kansuji(n):
 
 def host_intro(work, k):
     """名乗り（第二話から）。京ことばは頭のあいさつ「ようおこしやす」だけ。あとは丁寧な語り口。
-    締めは案内の口上「〇〇へ、ご案内いたします」。〇〇は台本の kojo_place（既定「この世とあの世の境」）"""
+    締めは案内の口上「この世とあの世の境、〇〇へ、ご案内いたします」（第四話から毎回「この世とあの世の境」を入れる）。
+    〇〇は台本の kojo_place（無ければ「この世とあの世の境へ」だけ）"""
     where = k.get("where") or "古く"
-    place = k.get("kojo_place") or "この世とあの世の境"
+    place = k.get("kojo_place")
+    gate = f"この世とあの世の境、{place}へ" if place else "この世とあの世の境へ"
     return (f"今宵も、ようおこしやす。語り部の、宵狐でございます。"
             f"百物語、第{kansuji(work['no'])}話。これは、{where}に伝わるお話。"
-            f"{place}へ、ご案内いたします。")
+            f"{gate}、ご案内いたします。")
 
 
 def host_outro(work, k):

@@ -14,7 +14,7 @@ import brand as nazo_brand
 W, H, FPS = 1080, 1920, 30
 YEL, BLK, WHT, RED = (255, 226, 0), (0, 0, 0), (255, 255, 255), (192, 57, 43)
 IMG_Y, IMG_H = 250, 960            # 絵を置く帯
-TEL_Y = 1250                       # テロップの位置
+TEL_Y = 1235                       # テロップの位置
 HOST = {"none": 0, "small": 330, "mid": 450, "big": 600}
 SPEED = 1.15                       # ショートは本編より少し速く
 GAP = 0.08                         # 文と文のすき間（間を作らない）
@@ -194,13 +194,14 @@ def build(sid):
                     fg_, bg_ = (BLK, YEL) if j == len(tel) - 1 else (WHT, BLK)
                     _, hh = motion.box_text(dr, W // 2, y, l, ft, fg_, bg_, 34, 18, anchor="ct")
                     y += hh + 14
+                hsz = min(hsz, H - 40 - y - 10) if hsz else 0     # 博士はテロップにかぶらない大きさまで
                 if hsz:
                     # 出てきた最初の文だけ、下から少し持ち上がって登場
                     prev = HOST[lines[li - 1].get("host", "small")] if li else 0
                     if var == "B" and li == 1: prev = 0
                     rise = int(80 * (1 - ease_out(t / 0.35))) if prev == 0 else 0
                     o, _ = motion.owl_frame(i, mouth[i], hsz >= HOST["big"], li, size=hsz)
-                    fr.paste(o, (W - hsz + 30, H - hsz - 40 + rise), o)
+                    fr.paste(o, (W - o.width + 30, H - o.height - 40 + rise), o)
                 dr.text((30, H - 50), f"VOICEVOX:{nazo_brand.VOICE_NAME}", font=f_cr, fill=(200, 200, 200))
                 p.stdin.write(fr.tobytes())
             p.stdin.close(); p.wait()
