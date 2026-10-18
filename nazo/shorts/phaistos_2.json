@@ -13,20 +13,6 @@
  ],
  "lines": [
   {
-   "say": "ホー博士じゃ。",
-   "text": "ホー博士じゃ",
-   "file": "File:Phaistos Disc — Side B.jpg",
-   "zoom": [
-    0.5,
-    0.5,
-    1.0,
-    1.12
-   ],
-   "fast": true,
-   "host": "mid",
-   "greet": true
-  },
-  {
    "say": "この円盤の文字は、今も、誰にも読めない。",
    "text": "この文字\n今も誰にも読めない",
    "file": "File:Phaistos Disc — Side B.jpg",
@@ -41,7 +27,7 @@
     1.45
    ],
    "fast": true,
-   "host": "mid",
+   "host": "small",
    "emph": true
   },
   {

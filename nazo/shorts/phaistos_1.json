@@ -13,18 +13,22 @@
  ],
  "lines": [
   {
-   "say": "ホー博士じゃ。",
-   "text": "ホー博士じゃ",
+   "say": "この円盤と同じ物は、世界のどこにも見つかっていない。",
+   "text": "同じ物が\nどこにもない円盤",
    "file": "File:Phaistos Disc — Side A.jpg",
+   "alts": [
+    "File:Discos Phaitos Umzeichnung.png",
+    "File:Phaistos Disc — Side B.jpg"
+   ],
    "zoom": [
     0.5,
     0.5,
     1.0,
-    1.12
+    1.35
    ],
    "fast": true,
-   "host": "mid",
-   "greet": true
+   "host": "small",
+   "emph": true
   },
   {
    "say": "1908年、クレタ島の宮殿の跡から、粘土の円盤が見つかった。",
@@ -40,9 +44,8 @@
     1.12,
     1.4
    ],
-   "fast": true,
-   "host": "mid",
-   "emph": true
+   "host": "small",
+   "emph": false
   },
   {
    "say": "直径は、わずか16センチ。",
