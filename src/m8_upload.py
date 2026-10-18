@@ -74,7 +74,8 @@ def upload(video_path, thumb_path, kousei, image_credits, chapters=None, author=
     yt.thumbnails().set(videoId=vid, media_body=MediaFileUpload(thumb_path)).execute()
     if author:
         try:
-            add_to_author_playlist(yt, vid, author)
+            if os.environ.get("YT_PLAYLIST") == "1":   # 再生リストへの追加は権限が別に要るので、既定では行わない（手動で追加）
+                add_to_author_playlist(yt, vid, author)
         except Exception as e:
             print("playlist追加失敗(投稿自体は成功):", e)
     return vid
