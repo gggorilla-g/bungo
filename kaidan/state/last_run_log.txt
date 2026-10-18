@@ -1,5 +1,1 @@
-/home/runner/work/bungo/bungo/kaidan/main.py:60: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
-  today = (datetime.datetime.utcnow() + datetime.timedelta(hours=9)).date().isoformat()   # 日本時間の日付
-WARNING: JPCommonLabel_insert_pause() in jpcommon_label.c: First mora should not be short pause.
-指定画像 13/13 枚
-完了: 第3話 ろくろ首 → 手動投稿用 kaidan/manual/050327
+今日の分はもう作ってある。何もしない
