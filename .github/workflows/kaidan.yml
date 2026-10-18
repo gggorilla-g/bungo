@@ -3,6 +3,8 @@ on:
   schedule:
     - cron: "20 3 * * *"     # 毎日 JST 12:20 に制作（在庫が無ければ何もしない）→ 夜の公開に回す
   workflow_dispatch:
+    inputs:
+      upload: { description: "YouTubeに投稿する", type: boolean, default: false }
 permissions:
   contents: write
 concurrency:
@@ -27,7 +29,15 @@ jobs:
           pip install -q -r requirements.txt
           python src/setup_voicevox.py
       - name: Run pipeline
+        env:
+          YT_CLIENT_ID:     ${{ secrets.YT_CLIENT_ID }}
+          YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
+          YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN_KAIDAN }}
+          # 投稿する条件: 手動実行で「投稿する」を選んだとき／定期実行でAUTO_UPLOAD変数が1のとき（API監査の通過後に1にする）
+          DO_UPLOAD:        ${{ (inputs.upload == true && '1') || (github.event_name == 'schedule' && vars.AUTO_UPLOAD == '1' && '1') || '0' }}
+          PUBLISH_MODE:     ${{ vars.PUBLISH_MODE }}
         run: |
+          if [ "$DO_UPLOAD" != "1" ]; then export YT_REFRESH_TOKEN=""; echo "投稿なしモード"; fi
           mkdir -p kaidan/manual output
           python kaidan/main.py 2>&1 | tee kaidan/state/last_run_log.txt
           exit ${PIPESTATUS[0]}

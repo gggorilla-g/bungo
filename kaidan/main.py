@@ -133,7 +133,11 @@ def main():
         dur = subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", out],
                              capture_output=True, text=True).stdout.strip()
         open(f"{kit}/duration.txt", "w").write(dur + "\n")
-        published.append({"work_id": work["work_id"], "no": work["no"], "title": work["title"], "video_id": None,
+        import kaidan_upload as yt_upload   # YT_REFRESH_TOKEN が空（投稿なしモード）なら None が返る
+        vid = yt_upload.upload(out, "output/thumb.png", k["title_candidates"][0], desc, tags, k.get("en"))
+        if vid:
+            print(f"投稿しました: https://youtu.be/{vid}")
+        published.append({"work_id": work["work_id"], "no": work["no"], "title": work["title"], "video_id": vid,
                           "date": today, "credits": credits})
         save(f"{S}/published.json", published)
         save(f"{S}/queue.json", queue)
