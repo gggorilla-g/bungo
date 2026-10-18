@@ -12,12 +12,16 @@ S = "nazo/state"
 
 def sentences(k, work):
     """render.build_video が読み上げる文と同じ並び・同じ切り方"""
-    out = [brand.title_narr(work, k)]   # render が読む冒頭文と同じ
+    out = [h["say"] for h in k.get("hook", [])]           # つかみ
+    out += [brand.title_narr(work, k)]   # render が読む冒頭文と同じ
     for i, s in enumerate(k["sections"]):
         intro = brand.PART_INTRO.get(s["type"])
         first = (i == 0) or (k["sections"][i - 1]["type"] != s["type"])
         narr = (intro + s["narration"]) if (intro and first) else s["narration"]
         out += yomi.split_sentences(narr)   # render.build_video と同じ区切り方
+    if k.get("host_intro"):                                 # ホー博士の名乗りと締め
+        out += yomi.split_sentences(k["host_intro"])
+    out += yomi.split_sentences(k.get("host_outro") or brand.HOST_OUTRO)
     return list(dict.fromkeys(out))
 
 
