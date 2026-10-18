@@ -57,7 +57,7 @@ def main():
     published = load(f"{S}/published.json", [])
     failures = load(f"{S}/failures.json", [])
     queue = load(f"{S}/queue.json", [])
-    today = (datetime.datetime.utcnow() + datetime.timedelta(hours=9)).date().isoformat()   # 日本時間の日付
+    today = (datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(hours=9)).date().isoformat()   # 日本時間の日付
     if published and published[-1].get("date") == today and not os.environ.get("FORCE"):
         # 定時の起動はGitHub側で数時間遅れることがある。手動で先に作った日は、遅れて来た定時分で2本目を作らない
         print("今日の分はもう作ってある。何もしない"); return
@@ -128,6 +128,8 @@ def main():
                         "-frames:v", "1", f"{kit}/sheet.jpg"])
         subprocess.run(["ffmpeg", "-v", "error", "-y", "-t", "60", "-i", out, "-vf", "fps=1/2,scale=480:-1,tile=5x6",
                         "-frames:v", "1", f"{kit}/sheet_open.jpg"])
+        subprocess.run(["ffmpeg", "-v", "error", "-y", "-sseof", "-45", "-i", out, "-vf", "fps=1,scale=480:-1,tile=9x5",
+                        "-frames:v", "1", f"{kit}/sheet_end.jpg"])   # 終わり45秒は1秒ごと（暗転と語り部の確認用）
         dur = subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", out],
                              capture_output=True, text=True).stdout.strip()
         open(f"{kit}/duration.txt", "w").write(dur + "\n")
