@@ -57,6 +57,10 @@ def main():
     published = load(f"{S}/published.json", [])
     failures = load(f"{S}/failures.json", [])
     queue = load(f"{S}/queue.json", [])
+    today = (datetime.datetime.utcnow() + datetime.timedelta(hours=9)).date().isoformat()   # 日本時間の日付
+    if published and published[-1].get("date") == today and not os.environ.get("FORCE"):
+        # 定時の起動はGitHub側で数時間遅れることがある。手動で先に作った日は、遅れて来た定時分で2本目を作らない
+        print("今日の分はもう作ってある。何もしない"); return
     if not queue:
         print("在庫切れ: チャットで「怪談の在庫補充」を。今回は何もしない"); return
     work = queue.pop(0)
@@ -128,7 +132,7 @@ def main():
                              capture_output=True, text=True).stdout.strip()
         open(f"{kit}/duration.txt", "w").write(dur + "\n")
         published.append({"work_id": work["work_id"], "no": work["no"], "title": work["title"], "video_id": None,
-                          "date": datetime.date.today().isoformat(), "credits": credits})
+                          "date": today, "credits": credits})
         save(f"{S}/published.json", published)
         save(f"{S}/queue.json", queue)
         print(f"完了: 第{work['no']}話 {work['title']} → 手動投稿用 {kit}")
