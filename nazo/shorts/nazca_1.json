@@ -1,0 +1,120 @@
+{
+ "main": "nazca",
+ "angle": "事実型",
+ "title": "ナスカの地上絵、大部分は動物じゃない #Shorts #世界の謎",
+ "cta_head": "何のために描いた？ 本編で比べる",
+ "lines": [
+  {
+   "say": "ナスカの地上絵の大部分は、動物の絵ではない。",
+   "text": "ナスカの地上絵\n大部分は動物ではない",
+   "file": "File:Líneas de Nazca, Nazca, Perú, 2015-07-29, DD 52.JPG",
+   "alts": [
+    "File:Nasca - Trapecio - panoramio.jpg",
+    "File:Líneas de Nazca, Nazca, Perú, 2015-07-29, DD 55.JPG"
+   ],
+   "host": "small",
+   "zoom": [
+    0.5,
+    0.5,
+    1.0,
+    1.35
+   ],
+   "emph": true,
+   "fast": true
+  },
+  {
+   "say": "地平線まで続く、まっすぐな線と、細長い台形じゃ。",
+   "text": "地平線まで続く\n直線と台形",
+   "file": "File:Nasca - Trapecio - panoramio.jpg",
+   "alts": [
+    "File:Líneas de Nazca, Nazca, Perú, 2015-07-29, DD 55.JPG",
+    "File:Nazca Lines, Trapezoids.JPG"
+   ],
+   "host": "small",
+   "zoom": [
+    0.5,
+    0.5,
+    1.2,
+    1.6
+   ]
+  },
+  {
+   "say": "線をすべてつなぐと、長さは1300キロメートルを超える。",
+   "text": "線をつなぐと\n1300km超",
+   "file": "File:Líneas de Nazca, Nazca, Perú, 2015-07-29, DD 55.JPG",
+   "alts": [
+    "File:LAS LÍNEAS DE NAZCA - THE NAZCA LINES PLANO PARCIAL 04.jpg",
+    "File:Nazca Lines, Trapezoids.JPG"
+   ],
+   "host": "small",
+   "zoom": [
+    0.5,
+    0.5,
+    1.3,
+    1.6
+   ],
+   "emph": true
+  },
+  {
+   "say": "はちどりの絵は、長さ93メートル。",
+   "text": "はちどりの絵\n長さ93m",
+   "file": "File:Líneas de Nazca, Nazca, Perú, 2015-07-29, DD 52.JPG",
+   "alts": [
+    "File:04-Nazca Lines-nX-20.jpg"
+   ],
+   "host": "small",
+   "zoom": [
+    0.5,
+    0.45,
+    1.1,
+    1.5
+   ]
+  },
+  {
+   "say": "確認された地上絵は、733点。",
+   "text": "確認された地上絵\n733点",
+   "file": "File:NEO nazca lines big.jpg",
+   "alts": [
+    "File:Nazca Lines SPOT 1311.jpg",
+    "File:Geoglifo La Familia - panoramio.jpg"
+   ],
+   "host": "small",
+   "zoom": [
+    0.5,
+    0.5,
+    1.0,
+    1.3
+   ],
+   "emph": true
+  },
+  {
+   "say": "では、空を飛べなかった人々は、何のために描いたのか。",
+   "text": "何のために\n描いたのか？",
+   "file": "File:Nasca - Trapecio - panoramio.jpg",
+   "alts": [
+    "File:Líneas de Nazca, Nazca, Perú, 2015-07-29, DD 52.JPG"
+   ],
+   "host": "big",
+   "zoom": [
+    0.5,
+    0.5,
+    1.3,
+    1.0
+   ],
+   "dim": 0.55,
+   "point": true
+  },
+  {
+   "say": "三つの説を、関連動画の本編で、比べておる。",
+   "text": "3つの説を\n本編で比べる",
+   "main_thumb": true,
+   "host": "big"
+  },
+  {
+   "say": "ホー博士じゃったぞい。",
+   "text": "関連動画から",
+   "main_thumb": true,
+   "host": "big"
+  }
+ ]
+}

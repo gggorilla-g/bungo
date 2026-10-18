@@ -1,0 +1,117 @@
+{
+ "main": "nazca",
+ "angle": "説型",
+ "title": "地上絵の近くから出た、遠い国の貝 #Shorts #世界の謎",
+ "cta_head": "祈りの道？ 本編で比べる",
+ "lines": [
+  {
+   "say": "ナスカの地上絵の近くから、遠い国の貝が見つかっておる。",
+   "text": "地上絵の近くから\n遠い国の貝",
+   "file": "File:Diorama (detalle). Vestimenta de cuentas de concha spondylus. La Florida, Quito, Ecuador.jpg",
+   "alts": [
+    "File:Líneas de Nazca, Nazca, Perú, 2015-07-29, DD 52.JPG"
+   ],
+   "host": "small",
+   "zoom": [
+    0.5,
+    0.45,
+    1.0,
+    1.35
+   ],
+   "emph": true,
+   "fast": true
+  },
+  {
+   "say": "鮮やかな赤い、スポンディルス貝。",
+   "text": "赤い\nスポンディルス貝",
+   "file": "File:Diorama (detalle). Vestimenta de cuentas de concha spondylus. La Florida, Quito, Ecuador.jpg",
+   "alts": [
+    "File:Cup with Hummingbirds LACMA M.73.48.40.jpg"
+   ],
+   "host": "small",
+   "zoom": [
+    0.5,
+    0.4,
+    1.3,
+    1.7
+   ]
+  },
+  {
+   "say": "とれるのは、隣の国、エクアドルだけじゃ。",
+   "text": "とれるのは\nエクアドルだけ",
+   "file": "File:Nazca Lines SPOT 1311.jpg",
+   "alts": [
+    "File:Diorama (detalle). Vestimenta de cuentas de concha spondylus. La Florida, Quito, Ecuador.jpg"
+   ],
+   "host": "small",
+   "zoom": [
+    0.5,
+    0.5,
+    1.0,
+    1.3
+   ],
+   "emph": true
+  },
+  {
+   "say": "この貝は、雨乞いの儀式に使われておった。",
+   "text": "雨乞いの儀式に\n使われた貝",
+   "file": "File:Diorama (detalle). Vestimenta de cuentas de concha spondylus. La Florida, Quito, Ecuador.jpg",
+   "alts": [
+    "File:Cup with Hummingbirds LACMA M.73.48.40.jpg"
+   ],
+   "host": "small",
+   "zoom": [
+    0.5,
+    0.5,
+    1.4,
+    1.1
+   ]
+  },
+  {
+   "say": "地上絵の多くは、一筆書き。人が列になって歩いた道という説がある。",
+   "text": "一筆書きの線は\n祈りの道？",
+   "file": "File:04-Nazca Lines-nX-10.jpg",
+   "alts": [
+    "File:Líneas de Nazca, Nazca, Perú, 2015-07-29, DD 52.JPG",
+    "File:04-Nazca Lines-nX-20.jpg"
+   ],
+   "host": "small",
+   "zoom": [
+    0.45,
+    0.5,
+    1.1,
+    1.5
+   ],
+   "point": true
+  },
+  {
+   "say": "地上絵は、雨を祈る場所だったのか。",
+   "text": "雨を祈る\n場所だったのか？",
+   "file": "File:Líneas de Nazca, Nazca, Perú, 2015-07-29, DD 52.JPG",
+   "alts": [
+    "File:04-Nazca Lines-nX-10.jpg"
+   ],
+   "host": "big",
+   "zoom": [
+    0.5,
+    0.5,
+    1.3,
+    1.0
+   ],
+   "emph": true,
+   "dim": 0.55
+  },
+  {
+   "say": "ほかの説も、関連動画の本編で、比べておる。",
+   "text": "ほかの説も\n本編で比べる",
+   "main_thumb": true,
+   "host": "big"
+  },
+  {
+   "say": "ホー博士じゃったぞい。",
+   "text": "関連動画から",
+   "main_thumb": true,
+   "host": "big"
+  }
+ ]
+}

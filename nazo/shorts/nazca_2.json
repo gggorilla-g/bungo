@@ -1,0 +1,118 @@
+{
+ "main": "nazca",
+ "angle": "方法型",
+ "title": "巨大な地上絵、2人で描けるのか #Shorts #世界の謎",
+ "cta_head": "描いた理由は？ 本編で比べる",
+ "lines": [
+  {
+   "say": "今のナスカで、2人の女性が、30分で30メートル以上の地上絵を描いた。",
+   "text": "2人で30分\n30m以上の地上絵",
+   "file": "File:Geoglifo La Familia - panoramio.jpg",
+   "alts": [
+    "File:Líneas de Nazca, Nazca, Perú, 2015-07-29, DD 52.JPG",
+    "File:Líneas de Nazca, Nazca, Perú, 2015-07-29, DD 55.JPG"
+   ],
+   "host": "small",
+   "zoom": [
+    0.5,
+    0.5,
+    1.0,
+    1.35
+   ],
+   "emph": true,
+   "fast": true
+  },
+  {
+   "say": "道具は使わない。目と歩幅だけで、距離を測るのじゃ。",
+   "text": "道具なし\n目と歩幅だけ",
+   "file": "File:Geoglifo La Familia - panoramio.jpg",
+   "alts": [
+    "File:04-Nazca Lines-nX-20.jpg"
+   ],
+   "host": "small",
+   "zoom": [
+    0.4,
+    0.5,
+    1.4,
+    1.8
+   ]
+  },
+  {
+   "say": "足で黒い石をどけると、下から明るい地面が出てくる。",
+   "text": "黒い石をどけると\n明るい線が出る",
+   "file": "File:Líneas de Nazca, Nazca, Perú, 2015-07-29, DD 55.JPG",
+   "alts": [
+    "File:Líneas de Nazca, Nazca, Perú, 2015-07-29, DD 52.JPG"
+   ],
+   "host": "small",
+   "zoom": [
+    0.4,
+    0.45,
+    1.8,
+    2.2
+   ]
+  },
+  {
+   "say": "その線の幅は、20センチほど。",
+   "text": "線の幅\n20センチ",
+   "file": "File:Líneas de Nazca, Nazca, Perú, 2015-07-29, DD 55.JPG",
+   "alts": [
+    "File:Líneas de Nazca, Nazca, Perú, 2015-07-29, DD 52.JPG"
+   ],
+   "host": "small",
+   "zoom": [
+    0.5,
+    0.5,
+    2.2,
+    2.6
+   ],
+   "emph": true
+  },
+  {
+   "say": "古い動物の地上絵も、線の幅は同じくらいじゃった。",
+   "text": "古い地上絵も\n同じ線の幅",
+   "file": "File:Líneas de Nazca, Nazca, Perú, 2015-07-29, DD 52.JPG",
+   "alts": [
+    "File:04-Nazca Lines-nX-10.jpg",
+    "File:04-Nazca Lines-nX-20.jpg"
+   ],
+   "host": "small",
+   "zoom": [
+    0.5,
+    0.5,
+    1.1,
+    1.4
+   ],
+   "emph": true
+  },
+  {
+   "say": "では、何のために、こんな絵を描いたのか。",
+   "text": "何のために\n描いたのか？",
+   "file": "File:NEO nazca lines big.jpg",
+   "alts": [
+    "File:Nasca - Trapecio - panoramio.jpg"
+   ],
+   "host": "big",
+   "zoom": [
+    0.5,
+    0.5,
+    1.3,
+    1.0
+   ],
+   "dim": 0.55,
+   "point": true
+  },
+  {
+   "say": "描いた理由の説を、関連動画の本編で、比べておる。",
+   "text": "描いた理由は\n本編で比べる",
+   "main_thumb": true,
+   "host": "big"
+  },
+  {
+   "say": "ホー博士じゃったぞい。",
+   "text": "関連動画から",
+   "main_thumb": true,
+   "host": "big"
+  }
+ ]
+}
