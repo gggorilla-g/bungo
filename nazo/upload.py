@@ -91,21 +91,6 @@ def make_description(kousei, meta, image_credits, chapters=None, work_id=None):
     return "\n".join(lines)
 
 
-def add_to_series(yt, video_id, series):
-    pl_id = None
-    res = yt.playlists().list(part="snippet", mine=True, maxResults=50).execute()
-    for p in res.get("items", []):
-        if p["snippet"]["title"] == series:
-            pl_id = p["id"]; break
-    if not pl_id:
-        pl_id = yt.playlists().insert(part="snippet,status", body={
-            "snippet": {"title": series, "description": f"{series}の未解決の謎"},
-            "status": {"privacyStatus": "public"}}).execute()["id"]
-    yt.playlistItems().insert(part="snippet", body={"snippet": {
-        "playlistId": pl_id,
-        "resourceId": {"kind": "youtube#video", "videoId": video_id}}}).execute()
-
-
 def upload(video_path, thumb_path, kousei, meta, image_credits, chapters=None, work_id=None):
     creds = Credentials(None, refresh_token=os.environ["YT_REFRESH_TOKEN"],
                         client_id=os.environ["YT_CLIENT_ID"],
@@ -134,9 +119,4 @@ def upload(video_path, thumb_path, kousei, meta, image_credits, chapters=None, w
         _, res = req.next_chunk()
     vid = res["id"]
     yt.thumbnails().set(videoId=vid, media_body=MediaFileUpload(thumb_path)).execute()
-    if kousei.get("series"):
-        try:
-            add_to_series(yt, vid, kousei["series"])
-        except Exception as e:
-            print("再生リスト追加失敗(投稿自体は成功):", e)
     return vid

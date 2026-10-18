@@ -24,21 +24,6 @@ def make_description(kousei, image_credits, chapters=None):
     lines.append("底本: 青空文庫 https://www.aozora.gr.jp/")
     return "\n".join(lines)
 
-def add_to_author_playlist(yt, video_id, author):
-    """作者名の再生リストを探し、なければ作って追加(連続再生の導線)"""
-    pl_id = None
-    res = yt.playlists().list(part="snippet", mine=True, maxResults=50).execute()
-    for p in res.get("items", []):
-        if p["snippet"]["title"] == author:
-            pl_id = p["id"]; break
-    if not pl_id:
-        pl_id = yt.playlists().insert(part="snippet,status", body={
-            "snippet": {"title": author, "description": f"{author}の作品を10分で読み解く"},
-            "status": {"privacyStatus": "public"}}).execute()["id"]
-    yt.playlistItems().insert(part="snippet", body={"snippet": {
-        "playlistId": pl_id,
-        "resourceId": {"kind": "youtube#video", "videoId": video_id}}}).execute()
-
 def upload(video_path, thumb_path, kousei, image_credits, chapters=None, author=None):
     creds = Credentials(None,
         refresh_token=os.environ["YT_REFRESH_TOKEN"],
@@ -72,10 +57,4 @@ def upload(video_path, thumb_path, kousei, image_credits, chapters=None, author=
         _, res = req.next_chunk()
     vid = res["id"]
     yt.thumbnails().set(videoId=vid, media_body=MediaFileUpload(thumb_path)).execute()
-    if author:
-        try:
-            if os.environ.get("YT_PLAYLIST") == "1":   # 再生リストへの追加は権限が別に要るので、既定では行わない（手動で追加）
-                add_to_author_playlist(yt, vid, author)
-        except Exception as e:
-            print("playlist追加失敗(投稿自体は成功):", e)
     return vid
