@@ -33,24 +33,40 @@ def dur(path):
 
 
 def thumb(paths, n, minutes, out):
+    """睡眠用まとめのサムネ：夜の藍に、語り部の宵狐と大きな題字。下に各話のサムネを札のように並べて「中身の量」を見せる"""
+    import sys as _s
+    _s.path.insert(0, "kaidan")
+    from kitsune import kitsune
     W, H = 1280, 720
-    im = Image.new("RGB", (W, H), (8, 8, 10))
-    cols, rows = 3, 2
-    for i, p in enumerate(paths[:6]):
-        t = Image.open(p).convert("RGB").resize((W // cols, H // rows))
-        im.paste(t, ((i % cols) * W // cols, (i // cols) * H // rows))
-    im = im.filter(ImageFilter.GaussianBlur(2))
-    shade = Image.new("RGB", (W, H), (0, 0, 0))
-    im = Image.blend(im, shade, 0.55)
-    d = ImageDraw.Draw(im)
+    bg = Image.open(paths[0]).convert("RGB").resize((W, H)).filter(ImageFilter.GaussianBlur(18))
+    im = Image.blend(bg, Image.new("RGB", (W, H), (10, 12, 30)), 0.72)
+    glow = Image.new("L", (W, H), 0)
+    ImageDraw.Draw(glow).ellipse([60, 120, 520, 620], fill=120)
+    im.paste((90, 40, 20), (0, 0), glow.filter(ImageFilter.GaussianBlur(90)))
+    fox = kitsune(lamp=0.85, tilt=-4, size=620)
+    im.paste(fox, (20, 40), fox)
     f = lambda s, w="Black": ImageFont.truetype(f"/usr/share/fonts/opentype/noto/NotoSerifCJK-{w}.ttc", s, index=0)
-    d.rectangle([0, 210, W, 520], fill=(10, 0, 0))
-    d.text((W // 2, 300), "睡眠用　怪談朗読", font=f(96), fill=(246, 242, 234), anchor="mm")
-    d.text((W // 2, 430), f"{n}話まとめ", font=f(110), fill=(214, 30, 30), anchor="mm",
-           stroke_width=4, stroke_fill=(20, 0, 0))
-    d.rectangle([W - 330, 560, W - 40, 670], fill=(150, 18, 18))
-    d.text((W - 185, 615), f"約{minutes}分", font=f(64, "Bold"), fill=(255, 255, 255), anchor="mm")
-    d.text((50, 40), "今晩の百物語", font=f(54), fill=(246, 242, 234))
+    d = ImageDraw.Draw(im)
+    x = 560
+    d.rectangle([x, 70, x + 200, 128], fill=(150, 18, 18))
+    d.text((x + 100, 99), "睡眠用", font=f(44, "Bold"), fill=(255, 255, 255), anchor="mm")
+    d.text((x + 230, 99), "今晩の百物語", font=f(40, "Bold"), fill=(196, 190, 182), anchor="lm")
+    sh = Image.new("L", (W, H), 0)
+    ImageDraw.Draw(sh).text((x - 6, 150), "怪談朗読", font=f(170), fill=255)
+    im.paste((0, 0, 0), (0, 0), sh.filter(ImageFilter.GaussianBlur(12)))
+    d.text((x - 6, 150), "怪談朗読", font=f(170), fill=(246, 242, 234))
+    d.text((x, 360), f"{n}話", font=f(110), fill=(246, 242, 234), stroke_width=3, stroke_fill=(0, 0, 0))
+    w6 = d.textlength(f"{n}話", font=f(110))
+    d.text((x + w6 + 24, 360), f"約{minutes}分", font=f(110), fill=(214, 30, 30), stroke_width=4, stroke_fill=(20, 0, 0))
+    # 各話の札（サムネを小さく並べる）
+    cw, ch, gap = 100, 56, 8
+    total = len(paths) * cw + (len(paths) - 1) * gap
+    x0 = x + 4
+    for i, p in enumerate(paths[:6]):
+        t = Image.open(p).convert("RGB").resize((cw, ch))
+        px = x0 + i * (cw + gap)
+        d.rectangle([px - 3, 535, px + cw + 2, 538 + ch + 2], fill=(214, 180, 120))
+        im.paste(t, (px, 538))
     im.save(out)
 
 
