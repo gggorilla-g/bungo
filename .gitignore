@@ -6,3 +6,5 @@ __pycache__/
 output_test.mp4
 machigai/out/
 build_short/
+gamelab/history.json
+build_game/
