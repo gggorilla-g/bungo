@@ -1,7 +1,7 @@
 name: NAZO video
 on:
   schedule:
-    - cron: "35 3 * * 1,5"   # 月金 JST 12:35 に制作 → 同日 JST 21:00 に予約公開
+    - cron: "35 3 * * 5"     # 週1（金）JST 12:35 に制作 → 同日 JST 21:00 に予約公開（2026-10-21 PDCAで週1に）
   workflow_dispatch:
     inputs:
       only:
