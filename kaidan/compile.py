@@ -86,6 +86,9 @@ def main(name, ids):
                         "-crf", "21", "-pix_fmt", "yuv420p", "-r", "24", "-c:a", "aac", "-b:a", "160k", "-ar", "48000", "-ac", "2", seg],
                        check=True)
         short = re.sub(r"^【怪談朗読】", "", title).split("｜")[0]
+        m = re.search(r"「(.+?)」", short)          # 古い題名の形（〜「耳なし芳一」【…】）から作品名だけ取る
+        if m:
+            short = f"{m.group(1)}（{re.search(r'原作: (.+?)『', ' '.join(cr)).group(1)}）"
         chapters.append(f"{ts(t)} {short}")
         titles.append(short.split("（")[0])
         t += dur(seg)
@@ -118,15 +121,6 @@ def main(name, ids):
         f"【タイトル】\n{ttl}\n\n【説明】\n{desc}\n\n【タグ】\n{','.join(tg)}\n")
     subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", out, "-vf", f"fps=1/{max(60, int(t / 40))},scale=480:-1,tile=8x5",
                     "-frames:v", "1", f"{kit}/sheet.jpg"])
-    # つなぎ目（各話の終わり前後10秒）
-    marks, acc = [], 0.0
-    for p in parts[:-1]:
-        acc += dur(p)
-        marks.append(acc)
-    if marks:
-        sel = "+".join(f"between(t,{m - 8:.1f},{m + 6:.1f})" for m in marks)
-        subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", out, "-vf", f"select='{sel}',fps=1,scale=360:-1,tile=14x{len(marks)}",
-                        "-frames:v", "1", "-fps_mode", "vfr", f"{kit}/sheet_joints.jpg"])
     open(f"{kit}/duration.txt", "w").write(f"{t:.1f}\n")
     print(f"完了: {ttl}（{t / 60:.1f}分）")
 
