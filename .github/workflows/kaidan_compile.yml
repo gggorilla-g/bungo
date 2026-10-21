@@ -1,0 +1,54 @@
+name: KAIDAN sleep compilation
+on:
+  workflow_dispatch:
+    inputs:
+      name: { description: "まとめ名（例 sleep_01）", required: true }
+      parts: { description: "実行ID:作品ID をカンマ区切りで（話の順）", required: true }
+permissions:
+  contents: write
+  actions: read
+concurrency:
+  group: kaidan-compile
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - name: Install deps
+        run: |
+          sudo apt-get update -q && sudo apt-get install -y -q ffmpeg fonts-noto-cjk fonts-noto-cjk-extra
+          pip install -q pillow
+      - name: Download episodes
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          ids=""
+          IFS=',' read -ra P <<< "${{ inputs.parts }}"
+          for p in "${P[@]}"; do
+            run="${p%%:*}"; wid="${p##*:}"
+            gh run download "$run" -n kaidan-video -D "dl/$wid" -R "${{ github.repository }}"
+            ls -la "dl/$wid"
+            ids="$ids $wid"
+          done
+          echo "IDS=$ids" >> "$GITHUB_ENV"
+      - name: Compile
+        run: python kaidan/compile.py "${{ inputs.name }}" $IDS
+      - name: Commit kit
+        run: |
+          git config user.name "bungo-bot"; git config user.email "bot@users.noreply.github.com"
+          git add kaidan/manual/${{ inputs.name }}
+          git commit -q -m "KAIDAN: 睡眠用まとめ ${{ inputs.name }}" || exit 0
+          for i in 1 2 3; do git pull --rebase -q && git push -q && break; sleep 5; done
+      - name: Upload video
+        uses: actions/upload-artifact@v4
+        with:
+          name: kaidan-compile-${{ inputs.name }}
+          path: |
+            output/*.mp4
+            kaidan/manual/${{ inputs.name }}/thumb.png
+            kaidan/manual/${{ inputs.name }}/upload.txt
+          retention-days: 90
