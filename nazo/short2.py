@@ -115,7 +115,9 @@ def build(sid):
     main = sp["main"]
     os.makedirs(B, exist_ok=True); os.makedirs("output", exist_ok=True)
     render.B = B
-    v = dict(nazo_brand.VOICE); v["speed"] = v.get("speed", 1.0) * SPEED
+    v = dict(sp.get("voice") or nazo_brand.VOICE); v["speed"] = v.get("speed", 1.0) * SPEED
+    vname = sp.get("voice_name", nazo_brand.VOICE_NAME)       # 台本で声を替えられる（例：ずんだもんの雑学ショート）
+    label = sp.get("label", "ホー博士｜世界の謎")
     render.set_voice(**v)
     fixes = {}
     if os.path.exists(f"nazo/drafts/{main}_yomi.json"):
@@ -168,7 +170,7 @@ def build(sid):
     open(f"{B}/a.txt", "w").write("\n".join(f"file '{os.path.basename(a)}'" for a in wavs))
     subprocess.run(["ffmpeg", "-y", "-v", "error", "-f", "concat", "-safe", "0", "-i", "a.txt", "all_a.wav"], check=True, cwd=B)
     total = render._wav_len(f"{B}/all_a.wav")
-    bgm = nazo_brand.nazo_brand({"title": ""}).get("bgm_hook")
+    bgm = sp["bgm"] if "bgm" in sp else nazo_brand.nazo_brand({"title": ""}).get("bgm_hook")
     off = loud_offset(bgm) if bgm and os.path.exists(bgm) else 0.0
     print("BGM開始", off, "秒")
     f_ch, f_cr = motion.font(40), motion.font(26, "Bold")
@@ -224,7 +226,7 @@ def build(sid):
                         img = ImageEnhance.Brightness(img).enhance(1 - (1 - ln["dim"]) * min(1, t / d * 1.5))
                     fr.paste(img, (0, IMG_Y))
                 dr = ImageDraw.Draw(fr)
-                motion.box_text(dr, W // 2, 90, "ホー博士｜世界の謎", f_ch, WHT, RED, 26, 12, anchor="ct")
+                motion.box_text(dr, W // 2, 90, label, f_ch, WHT, RED, 26, 12, anchor="ct")
                 e = motion.back(min(1, t / 0.22))
                 ft = motion.font(int(92 * (0.9 + 0.1 * e)) if max(len(x) for x in tel) <= 9 else int(80 * (0.9 + 0.1 * e)))
                 y = TEL_Y
@@ -240,7 +242,7 @@ def build(sid):
                     rise = int(80 * (1 - ease_out(t / 0.35))) if prev == 0 else 0
                     o, _ = motion.owl_frame(i, mouth[i], bool(ln.get("point")), li, size=hsz)
                     fr.paste(o, (W - o.width + 30, H - o.height - 40 + rise), o)
-                dr.text((30, H - 50), f"VOICEVOX:{nazo_brand.VOICE_NAME}", font=f_cr, fill=(200, 200, 200))
+                dr.text((30, H - 50), f"VOICEVOX:{vname}", font=f_cr, fill=(200, 200, 200))
                 p.stdin.write(fr.tobytes())
             p.stdin.close(); p.wait()
             vids.append(out)
@@ -265,10 +267,10 @@ def build(sid):
     # 投稿用
     used = [fn for fn in files if fn in local]
     open(f"nazo/manual/{main}/short2_{sid}_upload.txt", "w", encoding="utf-8").write(
-        f"【タイトル】\n{sp['title']}\n\n【説明】\n本編は関連動画から：{nazo_brand.CHANNEL}\n\n"
-        f"音声: VOICEVOX:{nazo_brand.VOICE_NAME}\nBGM: the ghost house / 稿屋 隆（DOVA-SYNDROME）\n"
+        f"【タイトル】\n{sp['title']}\n\n【説明】\n{sp.get('desc', '本編は関連動画から：' + nazo_brand.CHANNEL)}\n\n"
+        f"音声: VOICEVOX:{vname}\n" + ("BGM: the ghost house / 稿屋 隆（DOVA-SYNDROME）\n" if bgm else "")
         + "".join(f"画像: {got[fn]['credit']}\n" for fn in used) +
-        f"\n【タグ】\n{','.join(nazo_brand.VOICE_TAGS + ['世界の謎', 'ファイストスの円盤', 'ショート'])}\n\n"
+        f"\n【タグ】\n{','.join(sp.get('tags') or (nazo_brand.VOICE_TAGS + ['世界の謎', 'ショート']))}\n\n"
         "【メモ（貼らない）】\n"
         "アップ後、編集画面の「関連動画」に本編を選ぶ\n")
     print("short2", outs, round(total, 1), "秒")
