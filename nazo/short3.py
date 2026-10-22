@@ -129,6 +129,26 @@ def draw_fx(pan, fx, t, d, place):
         if u > 0.5:
             big_text(dr, W // 4, 120, fx["left"], 64, WHT, 8)
             big_text(dr, W * 3 // 4, 120, fx["right"], 64, YEL, 8)
+    elif k == "title":                   # 冒頭のタイトルをバーンと（放射の集中線＋拡大して止まる＋揺れ）
+        pan.paste((10, 10, 14), (0, 0, W, PH))
+        rays = Image.new("RGBA", (W, PH), (0, 0, 0, 0))
+        rd = ImageDraw.Draw(rays)
+        cx, cy = W // 2, PH // 2
+        for a in range(0, 360, 10):
+            r1 = math.radians(a + u * 40); r2 = math.radians(a + 5 + u * 40)
+            rd.polygon([(cx, cy), (cx + 1600 * math.cos(r1), cy + 1600 * math.sin(r1)),
+                        (cx + 1600 * math.cos(r2), cy + 1600 * math.sin(r2))], fill=tuple(fx.get("ray", [200, 30, 30])) + (120,))
+        pan.paste(rays, (0, 0), rays)
+        rows = fx["text"].split("\n")
+        for j, row in enumerate(rows):
+            p = back((u - 0.12 * j) / 0.22)
+            if p <= 0:
+                continue
+            size = int(fx.get("size", 150) * (2.2 - 1.2 * p))
+            y = int(PH * (0.5 + (j - (len(rows) - 1) / 2) * 0.24))
+            sh = int(10 * math.sin(u * 70)) if u < 0.35 + 0.12 * j else 0
+            cols = fx.get("colors") or [WHT] * (len(rows) - 1) + [YEL]
+            big_text(dr, W // 2 + sh, y, row, size, tuple(cols[j]), 16, BLK)
     elif k == "rank":                    # 左上の番号札
         p = back(u / 0.25)
         f = motion.font(int(96 * p) or 1)
@@ -187,7 +207,8 @@ def build(sid):
             at = fx.get("at", 0.15)
             ev += {"stamp": [("thud", at, 1.0)], "count": [("tick", at + i * 0.08, 0.5) for i in range(6)],
                    "vs": [("whoosh_s", at, 0.9)], "ring": [("pop_hi", at, 0.8)], "warn": [("thud", at, 1.0), ("whoosh_l", at, 0.6)],
-                   "split": [("whoosh_l", at, 0.8)], "rank": [("pop_lo", at, 0.8)]}.get(fx["type"], [])
+                   "split": [("whoosh_l", at, 0.8)], "rank": [("pop_lo", at, 0.8)],
+                   "title": [("thud", at, 1.0), ("thud", at + 0.12, 0.8), ("whoosh_l", at, 0.7)]}.get(fx["type"], [])
         if ln.get("digest"):
             n = len(ln["digest"]); per = max(0.25, (d - 0.3) / n)
             ev += [("pop_hi", i * per, 0.9) for i in range(n)]
@@ -228,6 +249,8 @@ def build(sid):
                 pan = cover(src, cx, cy, z0 + (z1 - z0) * ease(t / d), W, PH)
             else:
                 pan = pbg.copy()
+            if ln.get("title_card"):                   # タイトルの文は写真なし
+                pan = Image.new("RGB", (W, PH), (10, 10, 14))
             if t < 2 / FPS and li:                       # 文の頭で2コマだけ白く光る
                 pan = Image.blend(pan, Image.new("RGB", pan.size, WHT), 0.3)
             for fx in ln.get("fx", []):
