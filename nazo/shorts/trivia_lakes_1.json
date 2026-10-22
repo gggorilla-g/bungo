@@ -1,0 +1,275 @@
+{
+ "main": "trivia_lakes",
+ "angle": "名前型",
+ "label": "名前がひどいシリーズ",
+ "owl": false,
+ "title": "カナダの湖、名前が番号 #Shorts #雑学 #カナダ",
+ "desc": "カナダの湖の名前の話です。内容はWikipediaの記述にもとづいています。",
+ "tags": [
+  "ずんだもん",
+  "雑学",
+  "カナダ",
+  "湖",
+  "実験湖沼群",
+  "ショート"
+ ],
+ "voice": {
+  "vvm": "0.vvm",
+  "style": 3,
+  "speed": 1.0,
+  "pitch": 0.0,
+  "intonation": 1.15
+ },
+ "voice_name": "ずんだもん",
+ "bgm": null,
+ "lines": [
+  {
+   "say": "カナダの湖は、数え方しだいで、200万にもなるのだ。",
+   "text": "カナダの湖\n最大200万",
+   "file": "File:Long lake in Kawartha (9775729093).jpg",
+   "alts": [],
+   "host": "none",
+   "zoom": [
+    0.5,
+    0.5,
+    1.0,
+    1.4
+   ],
+   "emph": true,
+   "fast": true,
+   "spots": [
+    [
+     0.3,
+     0.6
+    ],
+    [
+     0.7,
+     0.55
+    ]
+   ]
+  },
+  {
+   "say": "じゃあ、名前はどうしてるのだ？",
+   "text": "名前は\nどうしてる？",
+   "file": "File:Experimental Lakes Area.jpg",
+   "alts": [],
+   "host": "none",
+   "zoom": [
+    0.5,
+    0.5,
+    1.0,
+    1.3
+   ],
+   "spots": [
+    [
+     0.4,
+     0.7
+    ],
+    [
+     0.6,
+     0.4
+    ]
+   ]
+  },
+  {
+   "say": "オンタリオ州だけで、長い湖という意味のロングレイクが、ウィキペディアに載っているだけで15もあるのだ。",
+   "text": "「長い湖」が\n15か所",
+   "file": "File:Long lake in Kawartha (9775729093).jpg",
+   "alts": [],
+   "host": "none",
+   "zoom": [
+    0.4,
+    0.55,
+    1.2,
+    1.6
+   ],
+   "spots": [
+    [
+     0.6,
+     0.6
+    ],
+    [
+     0.3,
+     0.5
+    ]
+   ]
+  },
+  {
+   "say": "さらに、名前じゃなくて、番号の湖まであるのだ。",
+   "text": "名前じゃなくて\n番号",
+   "file": "File:Lake 223 ELA.png",
+   "alts": [],
+   "host": "none",
+   "zoom": [
+    0.2,
+    0.88,
+    2.2,
+    2.6
+   ],
+   "emph": true,
+   "fast": true,
+   "spots": [
+    [
+     0.25,
+     0.86
+    ],
+    [
+     0.5,
+     0.4
+    ]
+   ]
+  },
+  {
+   "say": "239番湖、227番湖、226番湖。",
+   "text": "239番湖\n227番湖",
+   "file": "File:Image of Lake 239 at IISD Experimental Lakes Area from above.jpg",
+   "alts": [],
+   "host": "none",
+   "zoom": [
+    0.5,
+    0.5,
+    1.0,
+    1.3
+   ],
+   "spots": [
+    [
+     0.35,
+     0.4
+    ],
+    [
+     0.6,
+     0.7
+    ]
+   ]
+  },
+  {
+   "say": "じつはここ、湖をまるごと実験に使う場所なのだ。",
+   "text": "湖まるごと\n実験場",
+   "file": "File:IISD Experimental Lakes Area on the banks of Lake 239 in 2016.jpg",
+   "alts": [],
+   "host": "none",
+   "zoom": [
+    0.5,
+    0.5,
+    1.0,
+    1.3
+   ],
+   "spots": [
+    [
+     0.7,
+     0.6
+    ],
+    [
+     0.3,
+     0.5
+    ]
+   ]
+  },
+  {
+   "say": "いまでは、58の湖が、実験用になっているのだ。",
+   "text": "58の湖が\n実験用",
+   "file": "File:Experimental Lakes Area.jpg",
+   "alts": [],
+   "host": "none",
+   "zoom": [
+    0.5,
+    0.45,
+    1.0,
+    1.4
+   ],
+   "spots": [
+    [
+     0.3,
+     0.4
+    ],
+    [
+     0.7,
+     0.45
+    ]
+   ]
+  },
+  {
+   "say": "226番湖は、カーテンで真ん中を仕切ったのだ。",
+   "text": "湖を\nカーテンで仕切る",
+   "file": "File:Image of Lake 239 at IISD Experimental Lakes Area from above.jpg",
+   "alts": [],
+   "host": "none",
+   "zoom": [
+    0.4,
+    0.45,
+    1.3,
+    1.7
+   ],
+   "emph": true,
+   "spots": [
+    [
+     0.55,
+     0.6
+    ],
+    [
+     0.3,
+     0.3
+    ]
+   ]
+  },
+  {
+   "say": "片方にだけリンを入れたら、そっちだけ藻だらけになったのだ。",
+   "text": "リンを入れた側だけ\n藻だらけ",
+   "file": "File:Image of Lake 239 at IISD Experimental Lakes Area from above.jpg",
+   "alts": [],
+   "host": "none",
+   "zoom": [
+    0.6,
+    0.6,
+    1.5,
+    2.0
+   ],
+   "spots": [
+    [
+     0.45,
+     0.55
+    ],
+    [
+     0.7,
+     0.4
+    ]
+   ]
+  },
+  {
+   "say": "湖を汚す大きな原因はリンだと、この実験で示されたのだ。",
+   "text": "大きな原因は\nリン",
+   "file": "File:Experimental Lakes Area.jpg",
+   "alts": [],
+   "host": "none",
+   "zoom": [
+    0.5,
+    0.6,
+    1.2,
+    1.5
+   ],
+   "spots": [
+    [
+     0.4,
+     0.5
+    ],
+    [
+     0.6,
+     0.65
+    ]
+   ]
+  },
+  {
+   "say": "名前は番号でも、世界の役に立ってるのだ。",
+   "text": "名前は番号でも\n世界の役に立つ",
+   "file": "File:Long lake in Kawartha (9775729093).jpg",
+   "alts": [],
+   "host": "none",
+   "zoom": [
+    0.5,
+    0.5,
+    1.0,
+    1.1
+   ]
+  }
+ ]
+}
