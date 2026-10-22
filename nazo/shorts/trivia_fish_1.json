@@ -29,15 +29,13 @@
    "say": "地方名が、ババアの魚が、実在するのだ。",
    "text": "地方名が\n「ババア」の魚",
    "file": "File:Lycodes tanakae Uozu.jpg",
-   "alts": [
-    "File:Tanakagenge.jpg"
-   ],
+   "alts": [],
    "host": "none",
    "zoom": [
-    0.3,
-    0.45,
+    0.2,
+    0.5,
     1.0,
-    1.5
+    1.4
    ],
    "emph": true,
    "fast": true
@@ -46,45 +44,39 @@
    "say": "正式な名前は、タナカゲンゲ。体長は1メートルにもなるのだ。",
    "text": "タナカゲンゲ\n体長1mにも",
    "file": "File:Lycodes tanakae Uozu.jpg",
-   "alts": [
-    "File:Tanakagenge.jpg"
-   ],
+   "alts": [],
    "host": "none",
    "zoom": [
-    0.45,
+    0.4,
     0.5,
-    1.2,
-    1.6
+    1.0,
+    1.3
    ]
   },
   {
    "say": "ほかにも、ババチャン、ナンダとも呼ばれるのだ。",
    "text": "ババチャン\nナンダ",
-   "file": "File:Tanakagenge.jpg",
-   "alts": [
-    "File:Lycodes tanakae Uozu.jpg"
-   ],
+   "file": "File:Lycodes tanakae Uozu.jpg",
+   "alts": [],
    "host": "none",
    "zoom": [
-    0.6,
-    0.5,
+    0.15,
+    0.45,
     1.3,
-    1.8
+    1.7
    ]
   },
   {
    "say": "しかも、刺身や鍋で食べられるのだ。",
    "text": "刺身に\n鍋に",
    "file": "File:Lycodes tanakae Uozu.jpg",
-   "alts": [
-    "File:Tanakagenge.jpg"
-   ],
+   "alts": [],
    "host": "none",
    "zoom": [
-    0.2,
-    0.4,
-    1.4,
-    1.9
+    0.55,
+    0.6,
+    1.1,
+    1.5
    ]
   },
   {
@@ -132,15 +124,13 @@
    "say": "そして、その名も、オジサン。",
    "text": "その名も\nオジサン",
    "file": "File:Ojisan.jpg",
-   "alts": [
-    "File:Manybar Goatfish foraging - Parupeneus multifasciatus.jpg"
-   ],
+   "alts": [],
    "host": "none",
    "zoom": [
     0.45,
     0.5,
     1.0,
-    1.5
+    1.3
    ],
    "emph": true,
    "fast": true
@@ -149,30 +139,26 @@
    "say": "顔のヒゲが、正面から見ると、おじさんに見えるからなのだ。",
    "text": "顔のヒゲが\nおじさん顔",
    "file": "File:Ojisan.jpg",
-   "alts": [
-    "File:Manybar Goatfish foraging - Parupeneus multifasciatus.jpg"
-   ],
+   "alts": [],
    "host": "none",
    "zoom": [
-    0.42,
+    0.2,
     0.62,
-    1.8,
-    2.4
+    1.5,
+    2.0
    ]
   },
   {
    "say": "最後は、スベスベマンジュウガニ。",
    "text": "スベスベ\nマンジュウガニ",
    "file": "File:Atergatis floridus2.jpg",
-   "alts": [
-    "File:Specimen of Female Atergatis floridus.JPG"
-   ],
+   "alts": [],
    "host": "none",
    "zoom": [
     0.5,
-    0.45,
+    0.5,
     1.0,
-    1.4
+    1.3
    ],
    "emph": true,
    "fast": true
@@ -181,15 +167,13 @@
    "say": "名前はかわいいのに、フグと同じ毒を持つものもいるのだ。",
    "text": "名前はかわいいのに\n毒がある",
    "file": "File:Atergatis floridus2.jpg",
-   "alts": [
-    "File:Specimen of Female Atergatis floridus.JPG"
-   ],
+   "alts": [],
    "host": "none",
    "zoom": [
     0.5,
     0.45,
-    1.5,
-    2.0
+    1.3,
+    1.7
    ],
    "dim": 0.7
   },
@@ -197,16 +181,15 @@
    "say": "名前で判断しちゃ、ダメなのだ。",
    "text": "名前で\n判断するな",
    "file": "File:Atergatis floridus2.jpg",
-   "alts": [
-    "File:Lycodes tanakae Uozu.jpg"
-   ],
+   "alts": [],
    "host": "none",
    "zoom": [
     0.5,
     0.5,
     1.0,
-    1.2
+    1.1
    ]
   }
- ]
+ ],
+ "owl": false
 }

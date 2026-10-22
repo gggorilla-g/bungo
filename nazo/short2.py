@@ -184,7 +184,7 @@ def build(sid):
             first = 1 if lines[0].get("greet") else 0     # 冒頭のあいさつ（1秒）があれば、謎の映像はその次の文
             if var == "B" and li <= first:
                 hsz = 0                                   # B：あいさつは声だけ。謎の映像の文まで博士は出さない
-            if var == "A" and li <= first:
+            if var == "A" and li <= first and sp.get("owl", True):
                 hsz = HOST["mid"]
             out = f"{B}/{var}{li}.mp4"
             p = subprocess.Popen(["ffmpeg", "-y", "-v", "error", "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{W}x{H}",
