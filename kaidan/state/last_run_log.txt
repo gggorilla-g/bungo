@@ -1,3 +1,4 @@
 WARNING: JPCommonLabel_insert_pause() in jpcommon_label.c: First mora should not be short pause.
-指定画像 14/14 枚
-完了: 第6話 影を踏まれた女 → 手動投稿用 kaidan/manual/056160
+ライセンス対象外のため不使用: File:The street railway review (1891) (14575320877).jpg No restrictions
+指定画像 11/12 枚
+完了: 第7話 停車場の少女 → 手動投稿用 kaidan/manual/045544
