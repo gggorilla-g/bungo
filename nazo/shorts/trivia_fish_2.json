@@ -1,0 +1,287 @@
+{
+ "main": "trivia_fish",
+ "label": "名前がひどい生き物",
+ "title": "名前がひどすぎる海の生き物4選 #Shorts #深海魚 #雑学",
+ "desc": "名前がひどすぎる海の生き物を4つ紹介します。内容はWikipediaの記述にもとづいています。",
+ "tags": [
+  "ずんだもん",
+  "雑学",
+  "魚",
+  "深海魚",
+  "タナカゲンゲ",
+  "ウッカリカサゴ",
+  "オジサン",
+  "スベスベマンジュウガニ",
+  "ショート"
+ ],
+ "voice": {
+  "vvm": "0.vvm",
+  "style": 3,
+  "speed": 1.0,
+  "pitch": 0.0,
+  "intonation": 1.15
+ },
+ "voice_name": "ずんだもん",
+ "lines": [
+  {
+   "say": "名前がひどすぎる海の生き物、4つ紹介するのだ。",
+   "text": "名前がひどすぎる\n海の生き物4選",
+   "file": null,
+   "digest": [
+    {
+     "file": "File:Lycodes tanakae Uozu.jpg",
+     "name": "ババア",
+     "cx": 0.15,
+     "cy": 0.45
+    },
+    {
+     "file": "File:UkkariKG.jpg",
+     "name": "ウッカリ"
+    },
+    {
+     "file": "File:Ojisan.jpg",
+     "name": "オジサン",
+     "cx": 0.3
+    },
+    {
+     "file": "File:Atergatis floridus2.jpg",
+     "name": "スベスベ"
+    }
+   ]
+  },
+  {
+   "say": "まずは、地方名が、ババアの魚。",
+   "text": "地方名が\n「ババア」",
+   "file": "File:Lycodes tanakae Uozu.jpg",
+   "fx": [
+    {
+     "type": "rank",
+     "text": "No.1",
+     "at": 0.0
+    },
+    {
+     "type": "stamp",
+     "text": "ババア",
+     "at": 0.9,
+     "y": 0.25
+    }
+   ]
+  },
+  {
+   "say": "正式な名前は、タナカゲンゲ。体長は1メートルにもなるのだ。",
+   "text": "タナカゲンゲ\n体長1mにも",
+   "file": "File:Lycodes tanakae Uozu.jpg",
+   "fx": [
+    {
+     "type": "count",
+     "to": 1,
+     "unit": "m",
+     "label": "体長",
+     "at": 1.3
+    }
+   ]
+  },
+  {
+   "say": "ほかにも、ババチャン、ナンダとも呼ばれるのだ。",
+   "text": "ババチャン\nナンダ",
+   "file": "File:Lycodes tanakae Uozu.jpg",
+   "fit": "cover",
+   "zoom": [
+    0.15,
+    0.45,
+    1.3,
+    1.7
+   ],
+   "fx": [
+    {
+     "type": "stamp",
+     "text": "ババチャン",
+     "at": 0.4,
+     "y": 0.25,
+     "size": 140,
+     "tilt": 6
+    },
+    {
+     "type": "stamp",
+     "text": "ナンダ",
+     "at": 1.3,
+     "y": 0.7,
+     "size": 170,
+     "color": [
+      255,
+      226,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "say": "しかも、刺身や鍋で食べられるのだ。",
+   "text": "刺身に\n鍋に",
+   "file": "File:Lycodes tanakae Uozu.jpg",
+   "fx": [
+    {
+     "type": "stamp",
+     "text": "食べられる",
+     "at": 0.5,
+     "y": 0.3,
+     "size": 150,
+     "color": [
+      255,
+      226,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "say": "次は、ウッカリカサゴ。",
+   "text": "次は\nウッカリカサゴ",
+   "file": "File:UkkariKG.jpg",
+   "fx": [
+    {
+     "type": "rank",
+     "text": "No.2",
+     "at": 0.0
+    }
+   ]
+  },
+  {
+   "say": "カサゴとそっくりで、うっかりすると見分けられないから、この名前なのだ。",
+   "text": "カサゴとそっくり\nうっかり間違える",
+   "file": "File:UkkariKG.jpg",
+   "fx": [
+    {
+     "type": "stamp",
+     "text": "うっかり",
+     "at": 1.6,
+     "y": 0.25
+    }
+   ]
+  },
+  {
+   "say": "胸びれのすじが、18本ならカサゴ、19本ならウッカリなのだ。",
+   "text": "胸びれ19本なら\nウッカリ",
+   "file": "File:UkkariKG.jpg",
+   "fx": [
+    {
+     "type": "vs",
+     "left": {
+      "label": "カサゴ",
+      "value": "18本"
+     },
+     "right": {
+      "label": "ウッカリ",
+      "value": "19本"
+     },
+     "at": 0.1
+    }
+   ]
+  },
+  {
+   "say": "3つ目は、その名も、オジサン。",
+   "text": "その名も\nオジサン",
+   "file": "File:Ojisan.jpg",
+   "fx": [
+    {
+     "type": "rank",
+     "text": "No.3",
+     "at": 0.0
+    },
+    {
+     "type": "stamp",
+     "text": "オジサン",
+     "at": 0.9,
+     "y": 0.25
+    }
+   ]
+  },
+  {
+   "say": "顔のヒゲが、正面から見ると、おじさんに見えるからなのだ。",
+   "text": "顔のヒゲが\nおじさん顔",
+   "file": "File:Ojisan.jpg",
+   "fx": [
+    {
+     "type": "ring",
+     "x": 0.27,
+     "y": 0.79,
+     "r": 0.08,
+     "label": "ヒゲ",
+     "at": 0.4
+    }
+   ]
+  },
+  {
+   "say": "最後は、スベスベマンジュウガニ。",
+   "text": "スベスベ\nマンジュウガニ",
+   "file": "File:Atergatis floridus2.jpg",
+   "fx": [
+    {
+     "type": "rank",
+     "text": "No.4",
+     "at": 0.0
+    }
+   ]
+  },
+  {
+   "say": "名前はまじで和菓子。なのに、毒を持つものもいるのだ。",
+   "text": "名前はまじで和菓子\nなのに毒",
+   "file": "File:Atergatis floridus2.jpg",
+   "fx": [
+    {
+     "type": "warn",
+     "text": "毒",
+     "at": 1.3,
+     "y": 0.55
+    }
+   ]
+  },
+  {
+   "say": "スベスベで、まんじゅうで、毒。情報量が多すぎるのだ。",
+   "text": "スベスベ・まんじゅう・毒\n情報量が多すぎる",
+   "file": "File:Atergatis floridus2.jpg",
+   "fit": "cover",
+   "zoom": [
+    0.5,
+    0.45,
+    1.2,
+    1.8
+   ],
+   "fx": [
+    {
+     "type": "stamp",
+     "text": "スベスベ",
+     "at": 0.0,
+     "y": 0.2,
+     "size": 130,
+     "tilt": -10
+    },
+    {
+     "type": "stamp",
+     "text": "まんじゅう",
+     "at": 0.5,
+     "y": 0.45,
+     "size": 130,
+     "tilt": 8,
+     "color": [
+      255,
+      226,
+      0
+     ]
+    },
+    {
+     "type": "stamp",
+     "text": "毒",
+     "at": 1.0,
+     "y": 0.72,
+     "size": 220
+    }
+   ]
+  },
+  {
+   "say": "名前で判断しちゃ、ダメなのだ。",
+   "text": "名前で\n判断するな",
+   "file": "File:Atergatis floridus2.jpg"
+  }
+ ]
+}
