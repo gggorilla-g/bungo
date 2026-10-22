@@ -91,7 +91,7 @@ def cut_plan(ln, d, li):
     n = max(1, int(d / CUT + 0.35))
     out = [(0.0, (ln["file"],) + tuple(ln.get("zoom", [0.5, 0.5, 1.0, 1.08])))]
     for c in range(1, n):
-        cx, cy = SPOTS[(li * 3 + c) % len(SPOTS)]
+        cx, cy = (ln["spots"][(c - 1) % len(ln["spots"])] if ln.get("spots") else SPOTS[(li * 3 + c) % len(SPOTS)])
         z = 1.15 if c % 3 == 2 else 2.0 + 0.4 * ((li + c) % 2)     # 寄り・寄り・引き の順
         out.append((c * d / n, (files[c % len(files)], cx, cy, z, z * 1.06)))
     return out
