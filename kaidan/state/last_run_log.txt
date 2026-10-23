@@ -1,4 +1,3 @@
 WARNING: JPCommonLabel_insert_pause() in jpcommon_label.c: First mora should not be short pause.
-ライセンス対象外のため不使用: File:The street railway review (1891) (14575320877).jpg No restrictions
-指定画像 11/12 枚
-完了: 第7話 停車場の少女 → 手動投稿用 kaidan/manual/045544
+指定画像 9/9 枚
+完了: 第8話 貉 → 手動投稿用 kaidan/manual/042928
