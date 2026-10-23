@@ -5,7 +5,8 @@
 名前がひどすぎる海の生き物を4つ紹介します。内容はWikipediaの記述にもとづいています。
 
 音声: VOICEVOX:ずんだもん
-BGM・効果音: オリジナル
+BGM: オリジナル
+効果音: オリジナル
 画像: Totti / CC BY-SA 4.0 / Wikimedia Commons（File:Lycodes tanakae Uozu.jpg）
 画像: Izuzuki / CC BY-SA 3.0 / Wikimedia Commons（File:UkkariKG.jpg）
 画像: Izuzuki / CC BY-SA 3.0 / Wikimedia Commons（File:Ojisan.jpg）
