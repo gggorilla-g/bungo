@@ -202,18 +202,32 @@ def build(sid):
         render.tts(ln["say"], wav)
         d = math.ceil((render._wav_len(wav) + (0.9 if li == len(lines) - 1 else GAP)) * FPS) / FPS
         render._pad_wav(wav, f"{B}/l{li}_p.wav", d)
-        ev = [("pop_mid" if li % 2 else "pop_hi", 0.0, 0.8)]
+        ev = [("pop_big" if li % 2 else "bubble", 0.0, 0.9), ("zip_up", 0.0, 0.7)]   # 文の頭は毎回鳴らす
         for fx in ln.get("fx", []):
             at = fx.get("at", 0.15)
-            ev += {"stamp": [("thud", at, 1.0)], "count": [("tick", at + i * 0.08, 0.5) for i in range(6)],
-                   "vs": [("whoosh_s", at, 0.9)], "ring": [("pop_hi", at, 0.8)], "warn": [("thud", at, 1.0), ("whoosh_l", at, 0.6)],
-                   "split": [("whoosh_l", at, 0.8)], "rank": [("pop_lo", at, 0.8)],
-                   "title": [("thud", at, 1.0), ("thud", at + 0.12, 0.8), ("whoosh_l", at, 0.7)]}.get(fx["type"], [])
+            ty = fx["type"]
+            if ty == "title":
+                rows = len(fx["text"].split("\n"))
+                ev += [("boom", at, 1.0), ("crash", at, 0.8)] + [("thud", at + 0.12 * j, 1.0) for j in range(rows)] + [("kira", at + 0.5, 0.9)]
+            elif ty == "stamp":
+                ev += [("boom" if li % 2 else "boing", at, 1.0), ("crash", at, 0.45)]
+            elif ty == "count":
+                ev += [("drumroll", at, 1.0), ("ding", at + max(0.6, d * 0.5 - at), 1.2)]
+            elif ty == "vs":
+                ev += [("zip_up", at, 1.0), ("zip_dn", at + 0.15, 1.0), ("boom", at + 0.45, 0.9)]
+            elif ty == "ring":
+                ev += [("bubble", at, 1.0), ("kira", at + 0.35, 0.9)]
+            elif ty == "warn":
+                ev += [("buzzer", at, 1.0), ("boom", at, 0.8)]
+            elif ty == "split":
+                ev += [("whoosh_l", at, 1.0), ("slide_dn", at + 0.5, 0.8)]
+            elif ty == "rank":
+                ev += [("slide_up", at, 0.9), ("boing", at + 0.25, 0.9)]
         if ln.get("digest"):
             n = len(ln["digest"]); per = max(0.25, (d - 0.3) / n)
-            ev += [("pop_hi", i * per, 0.9) for i in range(n)]
+            ev += [("pop_big" if i % 2 else "zip_up", i * per, 1.0) for i in range(n)]
         if li == len(lines) - 1:
-            ev.append(("chime_b", d - 0.8, 0.8))
+            ev += [("chime_b", d - 0.8, 1.0), ("crash", d - 0.8, 0.5)]
         se.mix(f"{B}/l{li}_p.wav", ev)
         wavs.append(f"{B}/l{li}_p.wav"); durs.append(d)
     open(f"{B}/a.txt", "w").write("\n".join(f"file '{os.path.basename(a)}'" for a in wavs))
@@ -273,15 +287,24 @@ def build(sid):
     subprocess.run(["ffmpeg", "-y", "-v", "error", "-f", "concat", "-safe", "0", "-i", "v.txt", "-c", "copy", "all.mp4"],
                    check=True, cwd=B)
     out = f"output/short3_{sid}.mp4"
-    subprocess.run(["ffmpeg", "-y", "-v", "error", "-i", f"{B}/all.mp4", "-i", f"{B}/all_a.wav", "-af",
-                    "loudnorm=I=-14:TP=-1.5:LRA=11", "-c:v", "copy", "-c:a", "aac", "-b:a", "192k", out], check=True)
+    import chip, wave as _w, numpy as _np                 # 自作BGM（8ビット風）を声の下に小さく敷く
+    y = chip.bgm(total + 0.5, sp.get("bgm_kind", "bounce"))
+    with _w.open(f"{B}/bgm.wav", "wb") as o:
+        o.setnchannels(1); o.setsampwidth(2); o.setframerate(chip.SR)
+        o.writeframes((y * 32767).astype(_np.int16).tobytes())
+    vol = sp.get("bgm_vol", 0.13)
+    fc = (f"[1:a]aresample=48000[v];[2:a]aresample=48000,volume={vol}[m];[v][m]amix=inputs=2:normalize=0:duration=first,"
+          "loudnorm=I=-14:TP=-1.5:LRA=11[a]")
+    subprocess.run(["ffmpeg", "-y", "-v", "error", "-i", f"{B}/all.mp4", "-i", f"{B}/all_a.wav", "-i", f"{B}/bgm.wav",
+                    "-filter_complex", fc, "-map", "0:v", "-map", "[a]", "-c:v", "copy", "-c:a", "aac", "-b:a", "192k", out],
+                   check=True)
     kit = f"nazo/manual/{main}"; os.makedirs(kit, exist_ok=True)
     subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", out, "-vf", "fps=1/1.5,scale=270:-1,tile=10x3",
                     "-frames:v", "1", f"{kit}/short3_{sid}_sheet.jpg"])
     used = [fn for fn in files if fn in imgs]
     open(f"{kit}/short3_{sid}_upload.txt", "w", encoding="utf-8").write(
         f"【タイトル】\n{sp['title']}\n\n【説明】\n{sp.get('desc', '')}\n\n"
-        f"音声: VOICEVOX:{sp.get('voice_name', '')}\n" + "".join(f"画像: {got[fn]['credit']}\n" for fn in used) +
+        f"音声: VOICEVOX:{sp.get('voice_name', '')}\n" + "BGM・効果音: オリジナル\n" + "".join(f"画像: {got[fn]['credit']}\n" for fn in used) +
         f"\n【タグ】\n{','.join(sp.get('tags', []))}\n")
     print("short3", out, round(total, 1), "秒")
 

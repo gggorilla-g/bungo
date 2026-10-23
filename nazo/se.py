@@ -83,6 +83,60 @@ def ding(f=1568, d=0.7):
     return (np.sin(2 * np.pi * f * t) + 0.3 * np.sin(2 * np.pi * f * 2.76 * t) * np.exp(-t * 8)) * _env(t, 0.002, 5)
 
 
+# ---- バラエティ番組風の派手な音（雑学ショート用。こちらは大きめ） ----
+def boing(d=0.45):
+    t = _t(d)
+    f = 180 + 260 * np.exp(-t * 6) * (1 + 0.35 * np.sin(2 * np.pi * 14 * t))
+    return np.sin(2 * np.pi * np.cumsum(f) / SR) * _env(t, 0.003, 6)
+
+
+def zip_(d=0.18, up=True):
+    t = _t(d)
+    f = (600 + 3400 * (t / d)) if up else (4000 - 3400 * (t / d))
+    return np.sign(np.sin(2 * np.pi * np.cumsum(f) / SR)) * 0.5 * np.sin(np.pi * t / d)
+
+
+def crash(d=1.0):
+    t = _t(d)
+    return _bp_noise(d, 3000, 11000) * _env(t, 0.002, 4) + 0.5 * thud(d)[: len(t)]
+
+
+def boom(d=0.6):
+    t = _t(d)
+    f = 70 * (1 + 1.5 * np.exp(-t * 18))
+    return np.tanh(3 * np.sin(2 * np.pi * np.cumsum(f) / SR)) * _env(t, 0.002, 5)
+
+
+def buzzer(d=0.5):
+    t = _t(d)
+    return np.sign(np.sin(2 * np.pi * 150 * t)) * 0.6 * np.sign(np.sin(2 * np.pi * 153 * t)) * np.minimum(1, (d - t) * 20)
+
+
+def drumroll(d=0.9):
+    t = _t(d)
+    hits = (np.sin(2 * np.pi * 28 * t) > 0.6).astype(float)
+    return _bp_noise(d, 150, 1200) * (0.4 + 0.6 * hits) * np.minimum(1, t / d * 1.5)
+
+
+def kira(d=0.6):
+    t = _t(d)
+    y = sum(np.sin(2 * np.pi * f * t) * _env(np.maximum(t - k * 0.05, 0), 0.001, 9) * (t >= k * 0.05)
+            for k, f in enumerate((2093, 2637, 3136, 4186, 5274)))
+    return y
+
+
+def slide(d=0.5, up=True):
+    t = _t(d)
+    f = (400 + 1400 * (t / d) ** 1.5) if up else (1800 - 1400 * (t / d) ** 0.7)
+    return np.sin(2 * np.pi * np.cumsum(f) / SR) * np.sin(np.pi * t / d)
+
+
+def bubble(d=0.14):
+    t = _t(d)
+    f = 400 + 1600 * (t / d)
+    return np.sin(2 * np.pi * np.cumsum(f) / SR) * _env(t, 0.002, 20)
+
+
 # 名前 → (波形, 基本の音量)。音量はピークに対する倍率（声よりかなり小さく）
 LIB = {
     "pop_lo":   (lambda: pop(520), 0.16),
@@ -99,6 +153,19 @@ LIB = {
     "shimmer":  (lambda: shimmer(), 0.10),
     "paper":    (lambda: paper(), 0.10),
     "ding":     (lambda: ding(), 0.12),
+    # 派手な音（雑学ショート）
+    "boing":    (lambda: boing(), 0.32),
+    "zip_up":   (lambda: zip_(0.18, True), 0.18),
+    "zip_dn":   (lambda: zip_(0.18, False), 0.18),
+    "crash":    (lambda: crash(), 0.30),
+    "boom":     (lambda: boom(), 0.45),
+    "buzzer":   (lambda: buzzer(), 0.22),
+    "drumroll": (lambda: drumroll(), 0.25),
+    "kira":     (lambda: kira(), 0.22),
+    "slide_up": (lambda: slide(0.45, True), 0.25),
+    "slide_dn": (lambda: slide(0.5, False), 0.25),
+    "bubble":   (lambda: bubble(), 0.30),
+    "pop_big":  (lambda: pop(900, 0.15), 0.35),
 }
 _cache = {}
 ALIAS = {}   # チャンネルごとの音の置き換え（例：怪談では whoosh_l → 風の音）
