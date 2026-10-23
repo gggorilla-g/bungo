@@ -317,5 +317,12 @@
  ],
  "bgm_file": "assets/enc/bgm_trivia_mood2.mp3",
  "bgm_credit": "ムード２ / 今川彰人オーケストラ（OpenTracks（旧DOVA-SYNDROME））",
- "bgm_vol": 0.16
+ "bgm_vol": 0.16,
+ "themes": [
+  "orange_rays",
+  "pink_grad",
+  "blue_waves",
+  "mint_black",
+  "green_red"
+ ]
 }

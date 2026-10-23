@@ -8,7 +8,32 @@
 import json, math, os, subprocess, sys
 from PIL import Image, ImageDraw, ImageFilter, ImageEnhance
 sys.path.insert(0, "src"); sys.path.insert(0, "nazo")
-import render, yomi, motion, se, m4_images
+import render, yomi, motion, se, m4_images, theme
+THEME = None          # いまの文の配色（nazo/theme.py の名前）。None なら従来の見た目
+_cache = {}
+
+
+def styled(src, key, kind):
+    """写真を配色に合わせて加工したもの（2色刷り・網点）。重いので1回だけ作って使い回す"""
+    k = (id(src), key, kind)
+    if k not in _cache:
+        th = theme.THEMES[key]
+        im = theme.duotone(src, *th["duo"])
+        if kind == "halftone":
+            im = theme.halftone(im)
+        _cache[k] = im
+    return _cache[k]
+
+
+def framed(im, th):
+    """写真に縁と影をつけて、切り抜いて貼ったような見た目に"""
+    e = 12
+    out = Image.new("RGBA", (im.width + e * 2 + 18, im.height + e * 2 + 18), (0, 0, 0, 0))
+    od = ImageDraw.Draw(out)
+    od.rectangle([18, 18, out.width - 1, out.height - 1], fill=th["side"] + (255,))
+    od.rectangle([0, 0, im.width + e * 2 - 1, im.height + e * 2 - 1], fill=th["edge"] + (255,))
+    out.paste(im, (e, e))
+    return out
 
 W, H, FPS = 1080, 1920, 30
 YEL, BLK, WHT, RED = (255, 226, 0), (0, 0, 0), (255, 255, 255), (220, 40, 40)
@@ -58,7 +83,12 @@ def draw_fx(pan, fx, t, d, place):
     if u < 0:
         return
     k = fx["type"]
-    if k == "stamp":                     # どんと押す大文字（少し傾けて揺らす）
+    if k == "stamp" and THEME:           # 配色ありの押し文字：立体の押し出し文字
+        s = 1.6 - 0.6 * back(u / 0.25)
+        sh = int(14 * math.sin(u * 80)) if u < 0.3 else 0
+        theme.extrude_text(pan, W // 2 + sh, int(PH * fx.get("y", 0.5)), fx["text"], fx.get("size", 190) * s,
+                           theme.THEMES[THEME], angle=-fx.get("tilt", -8))
+    elif k == "stamp":                     # どんと押す大文字（少し傾けて揺らす）
         s = 1.6 - 0.6 * back(u / 0.25)
         size = int(fx.get("size", 190) * s)
         lay = Image.new("RGBA", (W, PH), (0, 0, 0, 0))
@@ -129,6 +159,18 @@ def draw_fx(pan, fx, t, d, place):
         if u > 0.5:
             big_text(dr, W // 4, 120, fx["left"], 64, WHT, 8)
             big_text(dr, W * 3 // 4, 120, fx["right"], 64, YEL, 8)
+    elif k == "title" and THEME:         # 配色ありのタイトル：背景の上に立体の押し出し文字を1行ずつ
+        pan.paste(theme.background(THEME, W, PH, u))
+        th = theme.THEMES[THEME]
+        rows = fx["text"].split("\n")
+        for j, row in enumerate(rows):
+            p = back((u - 0.12 * j) / 0.22)
+            if p <= 0:
+                continue
+            size = int(fx.get("size", 150) * (2.0 - 1.0 * p))
+            y = int(PH * (0.5 + (j - (len(rows) - 1) / 2) * 0.26))
+            sh = int(10 * math.sin(u * 70)) if u < 0.35 + 0.12 * j else 0
+            theme.extrude_text(pan, W // 2 + sh, y, row, size, th, angle=(4 if j % 2 else -4))
     elif k == "title":                   # 冒頭のタイトルをバーンと（放射の集中線＋拡大して止まる＋揺れ）
         pan.paste((10, 10, 14), (0, 0, W, PH))
         rays = Image.new("RGBA", (W, PH), (0, 0, 0, 0))
@@ -165,7 +207,8 @@ def digest_frame(pan, items, imgs, t, d):
         if u < 0:
             continue
         p = back(u / 0.22)
-        tile = cover(imgs[it["file"]], it.get("cx", 0.5), it.get("cy", 0.5), 1.0, cw, ch)
+        srcimg = styled(imgs[it["file"]], THEME, "halftone") if THEME else imgs[it["file"]]
+        tile = cover(srcimg, it.get("cx", 0.5), it.get("cy", 0.5), 1.0, cw, ch)
         tile = tile.resize((max(1, int(cw * (0.6 + 0.4 * p))), max(1, int(ch * (0.6 + 0.4 * p)))))
         x = 20 + (i % 2) * (W // 2) + (cw - tile.width) // 2
         y = 30 + (i // 2) * (PH // 2) + (ch - tile.height) // 2
@@ -235,7 +278,13 @@ def build(sid):
     total = render._wav_len(f"{B}/all_a.wav")
     f_ch, f_cr = motion.font(40), motion.font(26, "Bold")
     vids = []
+    themes, sec = sp.get("themes"), 0
+    global THEME
     for li, ln in enumerate(lines):
+        if themes:
+            if any(fx["type"] == "rank" for fx in ln.get("fx", [])):
+                sec += 1
+            THEME = ln.get("theme") or themes[sec % len(themes)]
         d = durs[li]; n = int(round(d * FPS))
         out = f"{B}/v{li}.mp4"
         p = subprocess.Popen(["ffmpeg", "-y", "-v", "error", "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{W}x{H}",
@@ -248,11 +297,20 @@ def build(sid):
         tel = ln["text"].split("\n")
         for i in range(n):
             t = i / FPS
-            fr = bg_full.copy()
+            fr = theme.background(THEME, W, H, t) if THEME else bg_full.copy()
             place = None
             if ln.get("digest"):
-                pan = Image.new("RGB", (W, PH), (14, 14, 18))
+                pan = theme.background(THEME, W, PH, t) if THEME else Image.new("RGB", (W, PH), (14, 14, 18))
                 digest_frame(pan, ln["digest"], imgs, t, d)
+            elif src and THEME and ln.get("fit", "contain") == "contain":   # 背景の上に、縁つきの写真を貼る
+                pan = theme.background(THEME, W, PH, t)
+                im, x0, y0, k = contain(src, 0.9 + 0.05 * t / d)
+                fm = framed(im, theme.THEMES[THEME])
+                pan.paste(fm, (x0 - 12, y0 - 12), fm)
+                place = (x0, y0, k, src)
+            elif src and THEME:                                              # 寄りは2色刷りにして変化を
+                cx, cy, z0, z1 = ln.get("zoom", [0.5, 0.5, 1.0, 1.15])
+                pan = cover(styled(src, THEME, "duo"), cx, cy, z0 + (z1 - z0) * ease(t / d), W, PH)
             elif src and ln.get("fit", "contain") == "contain":
                 pan = pbg.copy()
                 im, x0, y0, k = contain(src, 1.0 + 0.06 * t / d)
