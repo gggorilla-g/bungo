@@ -314,5 +314,8 @@
    "text": "名前で\n判断するな",
    "file": "File:Atergatis floridus2.jpg"
   }
- ]
+ ],
+ "bgm_file": "assets/enc/bgm_trivia_mood2.mp3",
+ "bgm_credit": "ムード２ / 今川彰人オーケストラ（OpenTracks（旧DOVA-SYNDROME））",
+ "bgm_vol": 0.16
 }

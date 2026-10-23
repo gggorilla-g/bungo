@@ -287,11 +287,18 @@ def build(sid):
     subprocess.run(["ffmpeg", "-y", "-v", "error", "-f", "concat", "-safe", "0", "-i", "v.txt", "-c", "copy", "all.mp4"],
                    check=True, cwd=B)
     out = f"output/short3_{sid}.mp4"
-    import chip, wave as _w, numpy as _np                 # 自作BGM（8ビット風）を声の下に小さく敷く
-    y = chip.bgm(total + 0.5, sp.get("bgm_kind", "bounce"))
-    with _w.open(f"{B}/bgm.wav", "wb") as o:
-        o.setnchannels(1); o.setsampwidth(2); o.setframerate(chip.SR)
-        o.writeframes((y * 32767).astype(_np.int16).tobytes())
+    bgm_file = sp.get("bgm_file")                          # 台本でフリー音源を指定（復号済みのファイルがあれば使う）
+    if bgm_file and os.path.exists(bgm_file):
+        subprocess.run(["ffmpeg", "-y", "-v", "error", "-stream_loop", "-1", "-i", bgm_file, "-t", f"{total + 0.5:.2f}",
+                        "-af", f"afade=t=out:st={max(0, total - 1.0):.2f}:d=1.0", "-ar", "24000", "-ac", "1", f"{B}/bgm.wav"], check=True)
+        bgm_credit = sp.get("bgm_credit", "")
+    else:                                                  # なければ自作BGM（8ビット風）
+        import chip, wave as _w, numpy as _np
+        y = chip.bgm(total + 0.5, sp.get("bgm_kind", "bounce"))
+        with _w.open(f"{B}/bgm.wav", "wb") as o:
+            o.setnchannels(1); o.setsampwidth(2); o.setframerate(chip.SR)
+            o.writeframes((y * 32767).astype(_np.int16).tobytes())
+        bgm_credit = "オリジナル"
     vol = sp.get("bgm_vol", 0.13)
     fc = (f"[1:a]aresample=48000[v];[2:a]aresample=48000,volume={vol}[m];[v][m]amix=inputs=2:normalize=0:duration=first,"
           "loudnorm=I=-14:TP=-1.5:LRA=11[a]")
@@ -304,7 +311,7 @@ def build(sid):
     used = [fn for fn in files if fn in imgs]
     open(f"{kit}/short3_{sid}_upload.txt", "w", encoding="utf-8").write(
         f"【タイトル】\n{sp['title']}\n\n【説明】\n{sp.get('desc', '')}\n\n"
-        f"音声: VOICEVOX:{sp.get('voice_name', '')}\n" + "BGM・効果音: オリジナル\n" + "".join(f"画像: {got[fn]['credit']}\n" for fn in used) +
+        f"音声: VOICEVOX:{sp.get('voice_name', '')}\n" + f"BGM: {bgm_credit}\n効果音: オリジナル\n" + "".join(f"画像: {got[fn]['credit']}\n" for fn in used) +
         f"\n【タグ】\n{','.join(sp.get('tags', []))}\n")
     print("short3", out, round(total, 1), "秒")
 

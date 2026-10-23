@@ -19,11 +19,14 @@ jobs:
       - name: Cache VOICEVOX assets
         uses: actions/cache@v4
         with: { path: vv_assets, key: vv-assets-0.16.4 }
-      - run: |
+      - env:
+          ASSET_KEY: ${{ secrets.ASSET_KEY }}   # 音源は再配布できないので、暗号化してリポジトリに置き、制作時だけ復号する
+        run: |
           sudo apt-get update -q && sudo apt-get install -y -q ffmpeg fonts-noto-cjk fonts-noto-cjk-extra poppler-utils
           pip install -q -r requirements.txt
           python src/setup_voicevox.py
           case "${{ inputs.script }}" in nazo/short.py|nazo/short2.py|nazo/short3.py) ;; *) exit 1;; esac
+          if [ -n "$ASSET_KEY" ]; then for f in assets/enc/*.enc; do [ -e "$f" ] && openssl enc -d -aes-256-cbc -pbkdf2 -in "$f" -out "${f%.enc}" -pass env:ASSET_KEY; done; fi
           ID="${{ inputs.id }}" python "${{ inputs.script }}"
       - run: |
           git config user.name "bungo-bot"; git config user.email "bot@users.noreply.github.com"

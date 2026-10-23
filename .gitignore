@@ -9,3 +9,4 @@ build_short/
 gamelab/history.json
 build_game/
 gamelab/evolve.log
+assets/enc/*.mp3
