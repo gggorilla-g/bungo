@@ -64,6 +64,11 @@ def background(name, w, h, t):
         a = np.linspace(0, 1, h)[:, None, None]
         arr = (np.array(c0) * (1 - a) + np.array(c2) * a) * np.ones((1, w, 1))
         im = Image.fromarray(arr.astype(np.uint8))
+    elif kind == "panels" and h < 1500:     # 絵の帯の中：飾り枠は写真に隠れるので、黒地に細い縁だけ
+        im = Image.new("RGB", (w, h), c0)
+        d = ImageDraw.Draw(im)
+        d.rectangle([16, 16, w - 17, h - 17], outline=c2, width=6)
+        d.rectangle([34, 34, w - 35, h - 35], outline=c1, width=3)
     elif kind == "panels":                  # 黒地にミントとピンクの飾り枠
         im = Image.new("RGB", (w, h), c0)
         d = ImageDraw.Draw(im)

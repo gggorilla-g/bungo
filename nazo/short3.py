@@ -75,8 +75,9 @@ def big_text(d, x, y, text, size, fg, stroke=10, sfill=BLK, anchor="mm"):
     d.text((x, y), text, font=motion.font(size), fill=fg, stroke_width=stroke, stroke_fill=sfill, anchor=anchor)
 
 
-def draw_fx(pan, fx, t, d, place):
-    """pan: 絵の帯（W×PH）に描く。t: 文の中の経過秒、d: 文の長さ、place: contain配置 (x0,y0,k,src) か None"""
+def draw_fx(pan, fx, t, d, place, OY=0):
+    """pan: 絵の帯を上下に OY ずつ広げた画像（帯は y=OY から PH の高さ）。帯からはみ出しても切れないようにするため。
+    t: 文の中の経過秒、d: 文の長さ、place: contain配置 (x0,y0,k,src) か None"""
     dr = ImageDraw.Draw(pan)
     at = fx.get("at", 0.15)
     u = t - at
@@ -86,44 +87,44 @@ def draw_fx(pan, fx, t, d, place):
     if k == "stamp" and THEME:           # 配色ありの押し文字：立体の押し出し文字
         s = 1.6 - 0.6 * back(u / 0.25)
         sh = int(14 * math.sin(u * 80)) if u < 0.3 else 0
-        theme.extrude_text(pan, W // 2 + sh, int(PH * fx.get("y", 0.5)), fx["text"], fx.get("size", 190) * s,
+        theme.extrude_text(pan, W // 2 + sh, OY + int(PH * fx.get("y", 0.5)), fx["text"], fx.get("size", 190) * s,
                            theme.THEMES[THEME], angle=-fx.get("tilt", -8))
     elif k == "stamp":                     # どんと押す大文字（少し傾けて揺らす）
         s = 1.6 - 0.6 * back(u / 0.25)
         size = int(fx.get("size", 190) * s)
-        lay = Image.new("RGBA", (W, PH), (0, 0, 0, 0))
+        lay = Image.new("RGBA", pan.size, (0, 0, 0, 0))
         ld = ImageDraw.Draw(lay)
-        big_text(ld, W // 2, int(PH * fx.get("y", 0.5)), fx["text"], size, tuple(fx.get("color", RED)), 14, WHT)
-        lay = lay.rotate(fx.get("tilt", -8), center=(W // 2, PH * fx.get("y", 0.5)))
+        big_text(ld, W // 2, OY + int(PH * fx.get("y", 0.5)), fx["text"], size, tuple(fx.get("color", RED)), 14, WHT)
+        lay = lay.rotate(fx.get("tilt", -8), center=(W // 2, OY + PH * fx.get("y", 0.5)))
         if u < 0.3:
             lay = lay.transform(lay.size, Image.AFFINE, (1, 0, int(14 * math.sin(u * 80)), 0, 1, 0))
         pan.paste(lay, (0, 0), lay)
     elif k == "count":                   # 数字がぐるぐる上がって止まる
         dim = Image.new("RGBA", (W, PH), (0, 0, 0, 150))
-        pan.paste(dim, (0, 0), dim)
+        pan.paste(dim, (0, OY), dim)
         v = fx["to"] * ease(u / max(0.6, d * 0.5 - at))
         txt = f"{int(round(v)):,}" if fx["to"] >= 10 else f"{v:.1f}".rstrip("0").rstrip(".")
         if fx.get("label"):
-            big_text(dr, W // 2, int(PH * 0.33), fx["label"], 80, WHT, 8)
-        big_text(dr, W // 2, int(PH * 0.55), txt + fx.get("unit", ""), fx.get("size", 200), YEL, 12)
+            big_text(dr, W // 2, OY + int(PH * 0.33), fx["label"], 80, WHT, 8)
+        big_text(dr, W // 2, OY + int(PH * 0.55), txt + fx.get("unit", ""), fx.get("size", 200), YEL, 12)
     elif k == "vs":                      # 左右に分けて比べる（左右から滑り込む）
         e = ease(u / 0.35)
         for side, key, col in ((-1, "left", (40, 90, 160)), (1, "right", (180, 50, 50))):
             it = fx[key]
             x = int(W / 4 * (2 + side) + side * (1 - e) * W / 2)
             box = Image.new("RGBA", (W // 2 - 20, PH - 120), col + (215,))
-            pan.paste(box, (x - box.width // 2, 60), box)
-            big_text(dr, x, 200, it["label"], it.get("size", 64), WHT, 8)
+            pan.paste(box, (x - box.width // 2, OY + 60), box)
+            big_text(dr, x, OY + 200, it["label"], it.get("size", 64), WHT, 8)
             if u > 0.45:
                 p = back((u - 0.45) / 0.25)
-                big_text(dr, x, PH // 2 + 60, it["value"], int(150 * (0.6 + 0.4 * p)), YEL, 12)
+                big_text(dr, x, OY + PH // 2 + 60, it["value"], int(150 * (0.6 + 0.4 * p)), YEL, 12)
         if u > 0.3:
-            big_text(dr, W // 2, PH // 2 + 60, "VS", 90, WHT, 10)
+            big_text(dr, W // 2, OY + PH // 2 + 60, "VS", 90, WHT, 10)
     elif k == "ring":                    # 写真の一点を丸で囲んで名札（contain配置のとき）
         if not place:
             return
         x0, y0, sc, src = place
-        cx, cy = x0 + fx["x"] * src.width * sc, y0 + fx["y"] * src.height * sc
+        cx, cy = x0 + fx["x"] * src.width * sc, OY + y0 + fx["y"] * src.height * sc
         r = fx.get("r", 0.1) * W
         a = 360 * ease(u / 0.4)
         dr.arc([cx - r, cy - r, cx + r, cy + r], -90, -90 + a, fill=YEL, width=14)
@@ -142,7 +143,7 @@ def draw_fx(pan, fx, t, d, place):
             td.polygon([(i + 45, 0), (i + 90, 0), (i + 45, 180), (i, 180)], fill=BLK + (255,))
         off = int((1 - e) * W) - int(u * 120) % 90
         band = tape.crop((max(0, -off), 0, max(0, -off) + W, 180))
-        y = int(PH * fx.get("y", 0.5)) - 90
+        y = OY + int(PH * fx.get("y", 0.5)) - 90
         pan.paste(band.rotate(-6, expand=False), (0, y), band.rotate(-6, expand=False))
         if u > 0.2:
             motion.box_text(dr, W // 2, y + 40, fx["text"], motion.font(int(110 * back((u - 0.2) / 0.25)) or 1),
@@ -154,13 +155,13 @@ def draw_fx(pan, fx, t, d, place):
         g = ease((u - 0.6) / 1.6)
         ld.rectangle([W // 2, 0, W, PH], fill=(60, 170, 60, int(170 * g)))
         ld.rectangle([0, 0, W // 2, PH], fill=(40, 110, 200, 70))
-        pan.paste(lay, (0, 0), lay)
-        dr.rectangle([W // 2 - 10, 0, W // 2 + 10, int(PH * e)], fill=WHT)
+        pan.paste(lay, (0, OY), lay)
+        dr.rectangle([W // 2 - 10, OY, W // 2 + 10, OY + int(PH * e)], fill=WHT)
         if u > 0.5:
-            big_text(dr, W // 4, 120, fx["left"], 64, WHT, 8)
-            big_text(dr, W * 3 // 4, 120, fx["right"], 64, YEL, 8)
+            big_text(dr, W // 4, OY + 120, fx["left"], 64, WHT, 8)
+            big_text(dr, W * 3 // 4, OY + 120, fx["right"], 64, YEL, 8)
     elif k == "title" and THEME:         # 配色ありのタイトル：背景の上に立体の押し出し文字を1行ずつ
-        pan.paste(theme.background(THEME, W, PH, u))
+        pan.paste(theme.background(THEME, W, PH, u), (0, OY))
         th = theme.THEMES[THEME]
         rows = fx["text"].split("\n")
         for j, row in enumerate(rows):
@@ -168,33 +169,33 @@ def draw_fx(pan, fx, t, d, place):
             if p <= 0:
                 continue
             size = int(fx.get("size", 150) * (2.0 - 1.0 * p))
-            y = int(PH * (0.5 + (j - (len(rows) - 1) / 2) * 0.26))
+            y = OY + int(PH * (0.5 + (j - (len(rows) - 1) / 2) * 0.26))
             sh = int(10 * math.sin(u * 70)) if u < 0.35 + 0.12 * j else 0
             theme.extrude_text(pan, W // 2 + sh, y, row, size, th, angle=(4 if j % 2 else -4))
     elif k == "title":                   # 冒頭のタイトルをバーンと（放射の集中線＋拡大して止まる＋揺れ）
-        pan.paste((10, 10, 14), (0, 0, W, PH))
+        pan.paste((10, 10, 14), (0, OY, W, OY + PH))
         rays = Image.new("RGBA", (W, PH), (0, 0, 0, 0))
         rd = ImageDraw.Draw(rays)
-        cx, cy = W // 2, PH // 2
+        cx, cy = W // 2, OY + PH // 2
         for a in range(0, 360, 10):
             r1 = math.radians(a + u * 40); r2 = math.radians(a + 5 + u * 40)
             rd.polygon([(cx, cy), (cx + 1600 * math.cos(r1), cy + 1600 * math.sin(r1)),
                         (cx + 1600 * math.cos(r2), cy + 1600 * math.sin(r2))], fill=tuple(fx.get("ray", [200, 30, 30])) + (120,))
-        pan.paste(rays, (0, 0), rays)
+        pan.paste(rays, (0, OY), rays)
         rows = fx["text"].split("\n")
         for j, row in enumerate(rows):
             p = back((u - 0.12 * j) / 0.22)
             if p <= 0:
                 continue
             size = int(fx.get("size", 150) * (2.2 - 1.2 * p))
-            y = int(PH * (0.5 + (j - (len(rows) - 1) / 2) * 0.24))
+            y = OY + int(PH * (0.5 + (j - (len(rows) - 1) / 2) * 0.24))
             sh = int(10 * math.sin(u * 70)) if u < 0.35 + 0.12 * j else 0
             cols = fx.get("colors") or [WHT] * (len(rows) - 1) + [YEL]
             big_text(dr, W // 2 + sh, y, row, size, tuple(cols[j]), 16, BLK)
     elif k == "rank":                    # 左上の番号札
         p = back(u / 0.25)
         f = motion.font(int(96 * p) or 1)
-        motion.box_text(dr, 40, 30, fx["text"], f, WHT, RED, 30, 12, anchor="lt")
+        motion.box_text(dr, 40, OY + 30, fx["text"], f, WHT, RED, 30, 12, anchor="lt")
 
 
 def digest_frame(pan, items, imgs, t, d):
@@ -279,8 +280,12 @@ def build(sid):
     f_ch, f_cr = motion.font(40), motion.font(26, "Bold")
     vids = []
     themes, sec = sp.get("themes"), 0
+    nrank = sum(1 for ln in lines if any(fx["type"] == "rank" for fx in ln.get("fx", [])))
+    rank_i = 0
     global THEME
     for li, ln in enumerate(lines):
+        if any(fx["type"] == "rank" for fx in ln.get("fx", [])):
+            rank_i += 1
         if themes:
             if any(fx["type"] == "rank" for fx in ln.get("fx", [])):
                 sec += 1
@@ -325,11 +330,23 @@ def build(sid):
                 pan = Image.new("RGB", (W, PH), (10, 10, 14))
             if t < 2 / FPS and li:                       # 文の頭で2コマだけ白く光る
                 pan = Image.blend(pan, Image.new("RGB", pan.size, WHT), 0.3)
+            if t < 0.2 and li:                           # 文の頭で少し寄った絵がパッと戻る（目を引く）
+                z = 1 + 0.06 * (1 - t / 0.2)
+                pan = cover(pan, 0.5, 0.5, z, W, PH)
+            M = PY                                       # 帯の上下にはみ出して描ける余白（文字が帯で切れないように）
+            ext = fr.crop((0, PY - M, W, PY + PH + M))
+            ext.paste(pan, (0, M))
             for fx in ln.get("fx", []):
-                draw_fx(pan, fx, t, d, place)
-            fr.paste(pan, (0, PY))
+                draw_fx(ext, fx, t, d, place, OY=M)
+            fr.paste(ext, (0, PY - M))
             dr = ImageDraw.Draw(fr)
             motion.box_text(dr, W // 2, 90, sp.get("label", ""), f_ch, WHT, RED, 26, 12, anchor="ct")
+            if nrank:                                    # いま何個目か（最後まで見たくなるように）
+                gx = W // 2 - (nrank * 70 - 20) // 2
+                for q in range(nrank):
+                    on = q < rank_i
+                    dr.rounded_rectangle([gx + q * 70, 170, gx + q * 70 + 50, 186], 8,
+                                         fill=YEL if on else (255, 255, 255), outline=BLK, width=3)
             e = motion.back(min(1, t / 0.22))
             ft = motion.font(int(92 * (0.9 + 0.1 * e)) if max(len(x) for x in tel) <= 9 else int(80 * (0.9 + 0.1 * e)))
             y = TEL_Y
