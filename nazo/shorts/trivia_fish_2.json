@@ -162,8 +162,8 @@
    "face": "焦り"
   },
   {
-   "say": "ババアは食べられるのだ。",
-   "text": "ババアは\n食べられる",
+   "say": "しかも刺身や鍋で食べられるのだ。",
+   "text": "刺身に\n鍋に",
    "file": "File:Lycodes tanakae Uozu.jpg",
    "fx": [
     {
@@ -180,6 +180,26 @@
     }
    ],
    "face": "笑顔"
+  },
+  {
+   "say": "ババアは食べられるのだ。",
+   "text": "ババアは\n食べられる",
+   "file": "File:Lycodes tanakae Uozu.jpg",
+   "fx": [
+    {
+     "type": "stamp",
+     "text": "ババア",
+     "at": 0.1,
+     "y": 0.3,
+     "size": 170,
+     "color": [
+      255,
+      226,
+      0
+     ]
+    }
+   ],
+   "face": "ドヤ"
   },
   {
    "say": "次は、ウッカリカサゴ。",
