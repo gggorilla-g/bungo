@@ -1,0 +1,305 @@
+{
+ "main": "trivia_history",
+ "label": "歴史のおバカ事件",
+ "title": "【実話】鳥に負けた軍隊 #Shorts #雑学 #エミュー戦争",
+ "desc": "1932年、オーストラリアで起きた「エミュー戦争」を紹介します。数字はWikipediaの記述（エミュー戦争）にもとづいています。",
+ "tags": [
+  "ずんだもん",
+  "雑学",
+  "エミュー戦争",
+  "エミュー",
+  "オーストラリア",
+  "歴史",
+  "ショート"
+ ],
+ "voice": {
+  "vvm": "0.vvm",
+  "style": 3,
+  "speed": 1.0,
+  "pitch": 0.0,
+  "intonation": 1.15
+ },
+ "voice_name": "ずんだもん",
+ "bgm_file": "assets/enc/bgm_trivia_mood2.mp3",
+ "bgm_credit": "ムード２ / 今川彰人オーケストラ（OpenTracks（旧DOVA-SYNDROME））",
+ "bgm_vol": 0.16,
+ "themes": [
+  "pink_grad",
+  "orange_rays",
+  "blue_waves",
+  "mint_black",
+  "green_red"
+ ],
+ "yomi": {
+  "レッツ脳とけ！": "レッツのーとけ！",
+  "1932年オーストラリア。": "せんきゅうひゃくさんじゅうにねんオーストラリア。",
+  "武器は機関銃2丁。": "武器は機関銃にちょう。"
+ },
+ "lines": [
+  {
+   "say": "鳥に負けた軍隊の話！",
+   "text": "鳥に負けた\n軍隊の話",
+   "face": "指差し",
+   "theme": "pink_grad",
+   "fx": [
+    {
+     "type": "title",
+     "text": "鳥に\n負けた\n軍隊",
+     "at": 0.4,
+     "size": 200,
+     "gap": 215,
+     "tilt": 0,
+     "cy": 0.36,
+     "cx": 0.5
+    }
+   ]
+  },
+  {
+   "say": "レッツゴー！",
+   "text": "レッツゴー！",
+   "pin": true,
+   "theme": "pink_grad"
+  },
+  {
+   "say": "相手はなんとこの鳥なのだ。",
+   "text": "相手は\nこの鳥",
+   "file": "File:Cute and curious (17957181160).jpg",
+   "theme": "orange_rays",
+   "face": "驚き",
+   "flash": true,
+   "fx": [
+    {
+     "type": "stamp",
+     "text": "エミュー",
+     "at": 0.5,
+     "y": 0.25,
+     "size": 170,
+     "color": [
+      255,
+      226,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "say": "1932年オーストラリア。",
+   "text": "1932年\nオーストラリア",
+   "file": "File:CSIRO ScienceImage 10326 Emus.jpg",
+   "theme": "orange_rays",
+   "face": "通常"
+  },
+  {
+   "say": "約2万羽のエミューが小麦畑を荒らしていたのだ。",
+   "text": "約2万羽が\n小麦畑を荒らす",
+   "file": "File:Cunnamulla mob (17372851674).jpg",
+   "theme": "orange_rays",
+   "face": "焦り",
+   "fx": [
+    {
+     "type": "count",
+     "to": 20000,
+     "unit": "羽",
+     "label": "エミュー",
+     "at": 0.2
+    }
+   ]
+  },
+  {
+   "say": "そこで軍隊が出動したのだ。",
+   "text": "そこで\n軍隊が出動",
+   "file": "File:Australian soldiers resting during Emu War.jpg",
+   "theme": "blue_waves",
+   "face": "ドヤ",
+   "flash": true,
+   "fx": [
+    {
+     "type": "stamp",
+     "text": "出動",
+     "at": 0.4,
+     "y": 0.3,
+     "size": 190,
+     "color": [
+      255,
+      226,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "say": "武器は機関銃2丁。",
+   "text": "武器は\n機関銃2丁",
+   "file": "File:Australian gunners operating a Lewis machine gun during World War I (4041503856).jpg",
+   "theme": "blue_waves",
+   "face": "ドヤ",
+   "fx": [
+    {
+     "type": "stamp",
+     "text": "機関銃",
+     "at": 0.3,
+     "y": 0.3,
+     "size": 180,
+     "color": [
+      230,
+      40,
+      40
+     ]
+    }
+   ]
+  },
+  {
+   "say": "ところがエミューはバラバラに逃げて全然当たらないのだ。",
+   "text": "バラバラに逃げて\n全然当たらない",
+   "file": "File:A close encounter (17968372636).jpg",
+   "theme": "mint_black",
+   "face": "焦り",
+   "flash": true,
+   "fx": [
+    {
+     "type": "stamp",
+     "text": "当たらない",
+     "at": 1.2,
+     "y": 0.3,
+     "size": 150,
+     "color": [
+      255,
+      226,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "say": "2回目の作戦で撃った弾は9860発。",
+   "text": "撃った弾\n9860発",
+   "file": "File:Australian gunners operating a Lewis machine gun during World War I (4041503856).jpg",
+   "fit": "cover",
+   "theme": "mint_black",
+   "face": "驚き",
+   "fx": [
+    {
+     "type": "count",
+     "to": 9860,
+     "unit": "発",
+     "label": "撃った弾",
+     "at": 0.2
+    }
+   ]
+  },
+  {
+   "say": "倒せたのは986羽なのだ。",
+   "text": "倒せたのは\n986羽",
+   "file": "File:Dromaius novaehollandiae (29619241217).jpg",
+   "theme": "mint_black",
+   "face": "泣き",
+   "fx": [
+    {
+     "type": "vs",
+     "left": {
+      "label": "撃った弾",
+      "value": "9860発"
+     },
+     "right": {
+      "label": "倒した数",
+      "value": "986羽"
+     },
+     "at": 0.1
+    }
+   ]
+  },
+  {
+   "say": "指揮官はこう言ったのだ。",
+   "text": "指揮官いわく",
+   "file": "File:Cute and curious (17957181160).jpg",
+   "fit": "cover",
+   "zoom": [
+    0.5,
+    0.3,
+    1.0,
+    1.2
+   ],
+   "theme": "green_red",
+   "face": "通常",
+   "flash": true
+  },
+  {
+   "say": "エミューは戦車みたいに不死身なのだ。",
+   "text": "エミューは\n戦車みたいに不死身",
+   "file": "File:Cute and curious (17957181160).jpg",
+   "fit": "cover",
+   "zoom": [
+    0.5,
+    0.3,
+    1.2,
+    1.5
+   ],
+   "theme": "green_red",
+   "face": "驚き",
+   "fx": [
+    {
+     "type": "stamp",
+     "text": "不死身",
+     "at": 0.6,
+     "y": 0.3,
+     "size": 200,
+     "color": [
+      255,
+      226,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "say": "結局軍隊は撤退したのだ。",
+   "text": "結局\n軍隊は撤退",
+   "file": "File:Australian soldiers resting during Emu War.jpg",
+   "theme": "green_red",
+   "face": "青ざめ",
+   "fx": [
+    {
+     "type": "warn",
+     "text": "撤退",
+     "at": 0.4,
+     "y": 0.5
+    }
+   ]
+  },
+  {
+   "say": "鳥に負けてるのだ！",
+   "text": "鳥に\n負けてる！",
+   "file": "File:Dromaius novaehollandiae (29619241217).jpg",
+   "theme": "green_red",
+   "face": "怒り",
+   "fx": [
+    {
+     "type": "stamp",
+     "text": "完敗",
+     "at": 0.1,
+     "y": 0.35,
+     "size": 220,
+     "color": [
+      230,
+      40,
+      40
+     ]
+    }
+   ]
+  },
+  {
+   "say": "ほかにも知ってたらコメントで教えるのだ！",
+   "text": "ほかにも知ってたら\nコメントで教えて",
+   "file": "File:Dromaius novaehollandiae (29619241217).jpg",
+   "theme": "green_red",
+   "face": "笑顔"
+  },
+  {
+   "say": "レッツ脳とけ！",
+   "text": "レッツ\n脳とけ！",
+   "face": "笑顔",
+   "logo": true,
+   "theme": "pink_grad"
+  }
+ ]
+}
