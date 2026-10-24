@@ -211,9 +211,11 @@ def draw_fx(pan, fx, t, d, place, OY=0):
             if p <= 0:
                 continue
             size = int(fx.get("size", 150) * (2.0 - 1.0 * p))
-            y = OY + int(PH * (fx.get("cy", 0.5) + (j - (len(rows) - 1) / 2) * 0.26))
+            gap = fx.get("gap", PH * 0.26)               # 行の間隔（px）。詰めるとタイトルコールらしくなる
+            y = OY + int(PH * fx.get("cy", 0.5) + (j - (len(rows) - 1) / 2) * gap)
             sh = int(10 * math.sin(u * 70)) if u < 0.35 + 0.12 * j else 0
-            theme.extrude_text(pan, int(W * fx.get("cx", 0.5)) + sh, y, row, size, th, angle=(4 if j % 2 else -4))
+            tilt = fx.get("tilt", 4)
+            theme.extrude_text(pan, int(W * fx.get("cx", 0.5)) + sh, y, row, size, th, angle=(tilt if j % 2 else -tilt))
     elif k == "title":                   # 冒頭のタイトルをバーンと（放射の集中線＋拡大して止まる＋揺れ）
         pan.paste((10, 10, 14), (0, OY, W, OY + PH))
         rays = Image.new("RGBA", (W, PH), (0, 0, 0, 0))
