@@ -355,6 +355,7 @@ def build(sid):
         pbg = panel_bg(src) if src else Image.new("RGB", (W, PH), (20, 20, 24))
         tel = ln["text"].split("\n")
         is_title = any(fx["type"] == "title" for fx in ln.get("fx", []))
+        topic = ln.get("flash", any(fx["type"] == "rank" for fx in ln.get("fx", [])))
         use_z = os.path.isdir(ZDIR) and sp.get("zunda", True) and not ln.get("digest")
         z_right = any(fx["type"] == "ring" and fx.get("x", 0.5) < 0.4 for fx in ln.get("fx", []))   # 丸で囲む所が左なら右へ逃げる
         lv = mouth_levels(f"{B}/l{li}.wav", n) if use_z else None
@@ -387,7 +388,7 @@ def build(sid):
                 pan = pbg.copy()
             if ln.get("title_card"):                   # タイトルの文は写真なし
                 pan = Image.new("RGB", (W, PH), (10, 10, 14))
-            if t < 2 / FPS and li:                       # 文の頭で2コマだけ白く光る
+            if t < 2 / FPS and topic:                    # 話題（生き物）が変わる文の頭だけ、2コマ白く光る
                 pan = Image.blend(pan, Image.new("RGB", pan.size, WHT), 0.3)
             if t < 0.2 and li:                           # 文の頭で少し寄った絵がパッと戻る（目を引く）
                 z = 1 + 0.06 * (1 - t / 0.2)
