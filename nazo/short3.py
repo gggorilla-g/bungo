@@ -282,12 +282,14 @@ def build(sid):
     render.set_voice(**v)
     fixes = sp.get("yomi", {})
     lines = sp["lines"]
+    yomi_log = []                                   # 読み上げのかな（読み間違いの確認用に保存）
     for ln in lines:
         yt = fixes.get(ln["say"]) or yomi.base_fix(ln["say"], {"title": "", "author": ""}, {})
         if sp.get("tight", True):                # たたみかける：読点「、」は抜く（句点は残す）
             yt = re.sub(r"[、,]", "", yt)
         render._YOMI[ln["say"]] = yt
         print("読み:", ln["say"], "→", yomi.kana(render._YOMI[ln["say"]]))
+        yomi_log.append(f'{ln["say"]}\n  → {yomi.kana(render._YOMI[ln["say"]])}')
     files = list(dict.fromkeys([f for ln in lines for f in ([ln["file"]] if ln.get("file") else []) +
                                 [x["file"] for x in ln.get("digest", [])]]))
     got = m4_images.commons_files(files, width=2000)
@@ -503,6 +505,7 @@ def build(sid):
                     f"{kit}/short3_{sid}_end.jpg"])
     subprocess.run(["ffmpeg", "-v", "error", "-y", "-sseof", "-6", "-i", out, "-vf", "fps=2,scale=216:-1,tile=6x2",
                     "-frames:v", "1", f"{kit}/short3_{sid}_tail.jpg"])
+    open(f"{kit}/short3_{sid}_yomi.txt", "w", encoding="utf-8").write("\n".join(yomi_log) + "\n")
     used = [fn for fn in files if fn in imgs]
     open(f"{kit}/short3_{sid}_upload.txt", "w", encoding="utf-8").write(
         (f"【動画】https://github.com/{os.environ['GITHUB_REPOSITORY']}/actions/runs/{os.environ['GITHUB_RUN_ID']}\n\n" if os.environ.get("GITHUB_RUN_ID") else "") +
