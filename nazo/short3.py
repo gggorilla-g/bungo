@@ -276,7 +276,7 @@ def build(sid):
     for li, ln in enumerate(lines):
         wav = f"{B}/l{li}.wav"
         render.tts(ln["say"], wav)
-        d = math.ceil((render._wav_len(wav) + (1.8 if li == len(lines) - 1 else GAP)) * FPS) / FPS
+        d = math.ceil((render._wav_len(wav) + (1.0 if li == len(lines) - 1 else GAP)) * FPS) / FPS
         render._pad_wav(wav, f"{B}/l{li}_p.wav", d)
         ev = [("pop_big" if li % 2 else "bubble", 0.0, 0.9), ("zip_up", 0.0, 0.7)]   # 文の頭は毎回鳴らす
         for fx in ln.get("fx", []):
@@ -305,7 +305,9 @@ def build(sid):
             n = len(ln["digest"]); per = max(0.25, (d - 0.3) / n)
             ev += [("pop_big" if i % 2 else "zip_up", i * per, 1.0) for i in range(n)]
         if li == len(lines) - 1:
-            ev += [("boom", d - 1.5, 1.0), ("crash", d - 1.5, 0.6), ("chime_b", d - 1.2, 1.0), ("kira", d - 1.0, 0.9)]
+            ev += [("chime_b", d - 0.8, 1.0)]
+        if ln.get("logo"):
+            ev += [("boom", 0.0, 1.0), ("crash", 0.0, 0.6), ("kira", 0.3, 0.9)]
         se.mix(f"{B}/l{li}_p.wav", ev)
         wavs.append(f"{B}/l{li}_p.wav"); durs.append(d)
     open(f"{B}/a.txt", "w").write("\n".join(f"file '{os.path.basename(a)}'" for a in wavs))
@@ -378,10 +380,11 @@ def build(sid):
             for fx in ln.get("fx", []):
                 draw_fx(ext, fx, t, d, place, OY=M)
             fr.paste(ext, (0, PY - M))
-            logo_t = t - (d - 1.5) if li == len(lines) - 1 and sp.get("channel_logo", True) else -1
-            if logo_t >= 0:                              # 締め：チャンネルのロゴをドンと出す
+            logo_t = t if ln.get("logo") else -1
+            if logo_t >= 0:                              # 締め：チャンネルのロゴをドンと出し、ずんだもんが「レッツ！脳とけ！」
                 lp = theme.background("pink_grad", W, PH, logo_t)
-                theme.channel_logo(lp, 430, PH // 2 - 20, 1.0, logo_t, char=zunda_img("笑顔", 2, 0) if os.path.isdir(ZDIR) else None)
+                theme.channel_logo(lp, 430, PH // 2 - 20, 1.0, logo_t,
+                                   char=zunda_img("笑顔", lv[i] if lv else 2, 0) if os.path.isdir(ZDIR) else None)
                 fr.paste(lp, (0, PY))
             if use_z and logo_t < 0:                                    # 左下でずんだもんが喋る（テロップのすぐ上）
                 gf = int(sum(durs[:li]) * FPS) + i
@@ -394,7 +397,7 @@ def build(sid):
                         pop = back(min(1, t / 0.45))
                         zi = zi.resize((max(1, int(zi.width * pop)), max(1, int(zi.height * pop))))
                         zi = zi.rotate(720 * (1 - ease(t / 0.6)), expand=True, resample=Image.BICUBIC)
-                        fr.paste(zi, (170 - zi.width // 2, TEL_Y - 190 - zi.height // 2), zi)
+                        fr.paste(zi, (144 - zi.width // 2, TEL_Y - 190 - zi.height // 2), zi)
                         zi = None
                     if zi is not None and is_title:          # タイトル中は少し小さく、文字の下に収める
                         zi = zi.resize((int(zi.width * 0.85), int(zi.height * 0.85)))
@@ -403,7 +406,7 @@ def build(sid):
                     elif z_right:
                         zi = zi.transpose(Image.FLIP_LEFT_RIGHT)
                     if zi is not None:
-                        fr.paste(zi, (W - zi.width + 30 if z_right else -30, TEL_Y - 20 - zi.height - hop), zi)
+                        fr.paste(zi, (W - zi.width + 96 if z_right else -96, TEL_Y - 20 - zi.height - hop), zi)
             dr = ImageDraw.Draw(fr)
             motion.box_text(dr, W // 2, 90, sp.get("label", ""), f_ch, WHT, RED, 26, 12, anchor="ct")
             if nrank:                                    # いま何個目か（最後まで見たくなるように）

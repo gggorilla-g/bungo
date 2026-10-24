@@ -140,4 +140,4 @@ def channel_logo(base, cx, cy, sc, t, name=("ずんだもんの", "脳がとけ�
         extrude_text(base, int(cx), int(cy + dy * sc), row, size * sc * k, th, angle=(-5 if j % 2 else 4))
     if char is not None and t > 0.25:
         ch = char.resize((int(char.width * sc), int(char.height * sc)))
-        base.paste(ch, (int(cx + 200 * sc), int(cy + 20 * sc)), ch)
+        base.paste(ch, (int(cx + 130 * sc), int(cy + 20 * sc)), ch)

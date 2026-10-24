@@ -55,7 +55,7 @@
      "cy": 0.34
     }
    ],
-   "face": "ドヤ"
+   "face": "指差し"
   },
   {
    "say": "最後のやつは、名前がまさかの和菓子なのだ。",
@@ -336,6 +336,12 @@
    "text": "ほかにもいたら\nコメントで教えて",
    "face": "笑顔",
    "file": "File:Atergatis floridus2.jpg"
+  },
+  {
+   "say": "レッツ！脳とけ！",
+   "text": "レッツ！\n脳とけ！",
+   "face": "笑顔",
+   "logo": true
   }
  ],
  "bgm_file": "assets/enc/bgm_trivia_mood2.mp3",
@@ -347,5 +353,8 @@
   "blue_waves",
   "mint_black",
   "green_red"
- ]
+ ],
+ "yomi": {
+  "レッツ！脳とけ！": "レッツ！のーとけ！"
+ }
 }
