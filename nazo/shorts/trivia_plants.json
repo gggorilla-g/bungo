@@ -41,6 +41,35 @@
  },
  "lines": [
   {
+   "say": "屁糞は早乙女なのだ。",
+   "text": "屁糞は\n早乙女",
+   "file": "File:Paederia scandens 2.JPG",
+   "fit": "cover",
+   "zoom": [
+    0.5,
+    0.45,
+    1.15,
+    1.0
+   ],
+   "face": "ドヤ",
+   "hook": true,
+   "theme": "pink_grad",
+   "fx": [
+    {
+     "type": "stamp",
+     "text": "屁糞＝早乙女",
+     "at": 0.0,
+     "y": 0.35,
+     "size": 158,
+     "color": [
+      230,
+      40,
+      40
+     ]
+    }
+   ]
+  },
+  {
    "say": "名前がひどすぎる植物！",
    "text": "名前がひどすぎる\n植物",
    "face": "指差し",

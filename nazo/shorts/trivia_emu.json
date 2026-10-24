@@ -37,6 +37,35 @@
  },
  "lines": [
   {
+   "say": "軍隊が鳥に負けたのだ。",
+   "text": "軍隊が\n鳥に負けた",
+   "file": "File:Cute and curious (17957181160).jpg",
+   "fit": "cover",
+   "zoom": [
+    0.5,
+    0.45,
+    1.15,
+    1.0
+   ],
+   "face": "ドヤ",
+   "hook": true,
+   "theme": "pink_grad",
+   "fx": [
+    {
+     "type": "stamp",
+     "text": "完敗",
+     "at": 0.0,
+     "y": 0.35,
+     "size": 230,
+     "color": [
+      230,
+      40,
+      40
+     ]
+    }
+   ]
+  },
+  {
    "say": "鳥に負けた軍隊の話！",
    "text": "鳥に負けた\n軍隊の話",
    "face": "指差し",
