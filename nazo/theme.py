@@ -125,3 +125,19 @@ def extrude_text(base, x, y, text, size, th, depth=None, anchor="mm", angle=0):
     if angle:
         lay = lay.rotate(angle, center=(x, y), resample=Image.BICUBIC)
     base.paste(lay, (0, 0), lay)
+
+
+def channel_logo(base, cx, cy, sc, t, name=("ずんだもんの", "脳がとける", "雑学"), char=None):
+    """チャンネルのロゴ（立体文字3段＋右下にずんだもん）。sc: 大きさの倍率、t: 出てからの秒"""
+    th = THEMES["pink_grad"]
+    sizes = (70, 150, 210)
+    ys = (-200, -60, 140)
+    for j, (row, size, dy) in enumerate(zip(name, sizes, ys)):
+        p = min(1.0, max(0.0, (t - 0.08 * j) / 0.2))
+        if p <= 0:
+            continue
+        k = 2 - p if p < 1 else 1
+        extrude_text(base, int(cx), int(cy + dy * sc), row, size * sc * k, th, angle=(-5 if j % 2 else 4))
+    if char is not None and t > 0.25:
+        ch = char.resize((int(char.width * sc), int(char.height * sc)))
+        base.paste(ch, (int(cx + 200 * sc), int(cy + 20 * sc)), ch)

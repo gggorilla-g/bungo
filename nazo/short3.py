@@ -276,7 +276,7 @@ def build(sid):
     for li, ln in enumerate(lines):
         wav = f"{B}/l{li}.wav"
         render.tts(ln["say"], wav)
-        d = math.ceil((render._wav_len(wav) + (0.9 if li == len(lines) - 1 else GAP)) * FPS) / FPS
+        d = math.ceil((render._wav_len(wav) + (1.8 if li == len(lines) - 1 else GAP)) * FPS) / FPS
         render._pad_wav(wav, f"{B}/l{li}_p.wav", d)
         ev = [("pop_big" if li % 2 else "bubble", 0.0, 0.9), ("zip_up", 0.0, 0.7)]   # 文の頭は毎回鳴らす
         for fx in ln.get("fx", []):
@@ -303,7 +303,7 @@ def build(sid):
             n = len(ln["digest"]); per = max(0.25, (d - 0.3) / n)
             ev += [("pop_big" if i % 2 else "zip_up", i * per, 1.0) for i in range(n)]
         if li == len(lines) - 1:
-            ev += [("chime_b", d - 0.8, 1.0), ("crash", d - 0.8, 0.5)]
+            ev += [("boom", d - 1.5, 1.0), ("crash", d - 1.5, 0.6), ("chime_b", d - 1.2, 1.0), ("kira", d - 1.0, 0.9)]
         se.mix(f"{B}/l{li}_p.wav", ev)
         wavs.append(f"{B}/l{li}_p.wav"); durs.append(d)
     open(f"{B}/a.txt", "w").write("\n".join(f"file '{os.path.basename(a)}'" for a in wavs))
@@ -375,7 +375,12 @@ def build(sid):
             for fx in ln.get("fx", []):
                 draw_fx(ext, fx, t, d, place, OY=M)
             fr.paste(ext, (0, PY - M))
-            if use_z:                                    # 左下でずんだもんが喋る（テロップのすぐ上）
+            logo_t = t - (d - 1.5) if li == len(lines) - 1 and sp.get("channel_logo", True) else -1
+            if logo_t >= 0:                              # 締め：チャンネルのロゴをドンと出す
+                lp = theme.background("pink_grad", W, PH, logo_t)
+                theme.channel_logo(lp, 430, PH // 2 - 20, 1.0, logo_t, char=zunda_img("笑顔", 2, 0) if os.path.isdir(ZDIR) else None)
+                fr.paste(lp, (0, PY))
+            if use_z and logo_t < 0:                                    # 左下でずんだもんが喋る（テロップのすぐ上）
                 gf = int(sum(durs[:li]) * FPS) + i
                 blink = gf % 110 < 4
                 face = "指差し" if any(a <= t < a + 0.7 for a in stamps) else ln.get("face", "通常")
