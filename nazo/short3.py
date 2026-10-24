@@ -292,7 +292,7 @@ def build(sid):
         render.tts(ln["say"], wav)
         d = math.ceil((render._wav_len(wav) + (1.0 if li == len(lines) - 1 else GAP)) * FPS) / FPS
         render._pad_wav(wav, f"{B}/l{li}_p.wav", d)
-        ev = [("pop_big" if li % 2 else "bubble", 0.0, 0.9), ("zip_up", 0.0, 0.7)]   # 文の頭は毎回鳴らす
+        ev = [("pop_big", 0.0, 0.9)] + ([("zip_up", 0.0, 0.35)] if li % 2 else [])   # 文の頭はポンが主役、ピュンは控えめに
         for fx in ln.get("fx", []):
             at = fx.get("at", 0.15)
             ty = fx["type"]
@@ -306,7 +306,7 @@ def build(sid):
             elif ty == "count":
                 ev += [("drumroll", at, 1.0), ("ding", at + max(0.6, d * 0.5 - at), 1.2)]
             elif ty == "vs":
-                ev += [("zip_up", at, 1.0), ("zip_dn", at + 0.15, 1.0), ("boom", at + 0.45, 0.9)]
+                ev += [("zip_long", at, 1.0), ("boom", at + 0.5, 0.9)]   # ピュピューンと重ねず、ピューン一本に
             elif ty == "ring":
                 ev += [("bubble", at, 1.0), ("kira", at + 0.35, 0.9)]
             elif ty == "warn":
@@ -317,7 +317,7 @@ def build(sid):
                 ev += [("slide_up", at, 0.9), ("boing", at + 0.25, 0.9)]
         if ln.get("digest"):
             n = len(ln["digest"]); per = max(0.25, (d - 0.3) / n)
-            ev += [("pop_big" if i % 2 else "zip_up", i * per, 1.0) for i in range(n)]
+            ev += [("pop_big", i * per, 1.0) for i in range(n)]
         if li == len(lines) - 1:
             ev += [("chime_b", d - 0.8, 1.0)]
         if ln.get("pin"):

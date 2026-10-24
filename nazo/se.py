@@ -157,6 +157,7 @@ LIB = {
     "boing":    (lambda: boing(), 0.32),
     "zip_up":   (lambda: zip_(0.18, True), 0.18),
     "zip_dn":   (lambda: zip_(0.18, False), 0.18),
+    "zip_long": (lambda: zip_(0.45, True), 0.16),     # ピューン（一本で長め）
     "crash":    (lambda: crash(), 0.30),
     "boom":     (lambda: boom(), 0.45),
     "buzzer":   (lambda: buzzer(), 0.22),
