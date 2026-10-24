@@ -464,7 +464,7 @@ def build(sid):
                 _, hh = motion.box_text(dr, W // 2, y, l, ft, fg_, bg_, 34, 18, anchor="ct")
                 y += hh + 14
             if footer is not None and is_title:            # タイトル画面：ロゴはタイトル文字のすぐ下の空きに
-                if t > 0.9:
+                if t > 0.7:                                  # 最後の行が落ちるのと同時に出す
                     fr.paste(footer, (60, PY + 690), footer)
             elif footer is not None and not ln.get("logo"):  # テロップの下の空きに、チャンネルロゴを小さく
                 fr.paste(footer, (0, TEL_Y + 255), footer)   # 位置は固定（テロップの行数で動かさない）
