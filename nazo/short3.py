@@ -386,7 +386,7 @@ def build(sid):
                 face = "指差し" if any(a <= t < a + 0.7 for a in stamps) else ln.get("face", "通常")
                 zi = zunda_img(face, lv[i], blink)
                 if zi is not None:
-                    hop = int(10 * abs(math.sin(t * 9))) if lv[i] else 0
+                    hop = int(8 * math.sin(math.pi * t / 0.25)) if t < 0.25 else 0   # 文の頭で一度だけ小さく跳ねる
                     pop = back(min(1, t / 0.3)) if li == 1 else 1
                     if pop < 1:
                         zi = zi.resize((max(1, int(zi.width * pop)), max(1, int(zi.height * pop))))
@@ -437,6 +437,8 @@ def build(sid):
     kit = f"nazo/manual/{main}"; os.makedirs(kit, exist_ok=True)
     subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", out, "-vf", "fps=1/1.5,scale=270:-1,tile=10x3",
                     "-frames:v", "1", f"{kit}/short3_{sid}_sheet.jpg"])
+    subprocess.run(["ffmpeg", "-v", "error", "-y", "-sseof", "-0.4", "-i", out, "-frames:v", "1", "-vf", "scale=540:-1",
+                    f"{kit}/short3_{sid}_end.jpg"])
     used = [fn for fn in files if fn in imgs]
     open(f"{kit}/short3_{sid}_upload.txt", "w", encoding="utf-8").write(
         f"【タイトル】\n{sp['title']}\n\n【説明】\n{sp.get('desc', '')}\n\n"
