@@ -399,6 +399,8 @@ def build(sid):
             elif src:
                 cx, cy, z0, z1 = ln.get("zoom", [0.5, 0.5, 1.0, 1.15])
                 pan = cover(src, cx, cy, z0 + (z1 - z0) * ease(t / d), W, PH)
+            elif THEME:                                  # 写真なし：配色の背景だけ（文字の演出が主役）
+                pan = theme.background(THEME, W, PH, t)
             else:
                 pan = pbg.copy()
             if ln.get("title_card"):                   # タイトルの文は写真なし
