@@ -344,6 +344,10 @@ def build(sid):
     total = render._wav_len(f"{B}/all_a.wav")
     f_ch, f_cr = motion.font(40), motion.font(26, "Bold")
     vids = []
+    footer = None
+    if sp.get("footer_logo", True):                       # 小さいチャンネルロゴ（1回だけ描いて使い回す）
+        footer = Image.new("RGBA", (W, 300), (0, 0, 0, 0))
+        theme.channel_logo(footer, W // 2 - 40, 150, 0.42, 9.0)
     themes, sec = sp.get("themes"), 0
     nrank = sum(1 for ln in lines if any(fx["type"] == "rank" for fx in ln.get("fx", [])))
     rank_i = 0
@@ -459,6 +463,8 @@ def build(sid):
                 fg_, bg_ = (BLK, YEL) if j == len(tel) - 1 else (WHT, BLK)
                 _, hh = motion.box_text(dr, W // 2, y, l, ft, fg_, bg_, 34, 18, anchor="ct")
                 y += hh + 14
+            if footer is not None and not ln.get("logo"):  # テロップの下の空きに、チャンネルロゴを小さく
+                fr.paste(footer, (0, y + 40), footer)
             dr.text((30, H - 50), f"VOICEVOX:{sp.get('voice_name', '')}", font=f_cr, fill=(200, 200, 200))
             p.stdin.write(fr.tobytes())
         p.stdin.close(); p.wait()
