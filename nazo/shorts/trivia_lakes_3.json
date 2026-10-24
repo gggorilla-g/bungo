@@ -122,11 +122,6 @@
    "face": "驚き",
    "fx": [
     {
-     "type": "rank",
-     "text": "No.1",
-     "at": 0.05
-    },
-    {
      "type": "count",
      "to": 2000000,
      "unit": "",
@@ -140,6 +135,11 @@
    "text": "This Lake\nThat Lake",
    "face": "通常",
    "fx": [
+    {
+     "type": "rank",
+     "text": "No.1",
+     "at": 0.05
+    },
     {
      "type": "stamp",
      "text": "This Lake",
@@ -207,7 +207,7 @@
      "text": "指さしただけ",
      "at": 0.1,
      "y": 0.45,
-     "size": 158,
+     "size": 126,
      "color": [
       230,
       40,
@@ -269,7 +269,7 @@
      "text": "And Another Lake",
      "at": 0.9,
      "y": 0.45,
-     "size": 59,
+     "size": 47,
      "color": [
       255,
       226,
@@ -288,7 +288,7 @@
      "text": "さらに別の湖",
      "at": 0.3,
      "y": 0.45,
-     "size": 158,
+     "size": 126,
      "color": [
       230,
       40,
