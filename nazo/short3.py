@@ -53,6 +53,16 @@ def zunda_img(face, mouth, blink):
     return None
 
 
+def zunda_big(face, mouth, h):
+    """ピンショット用の大きい立ち絵（毎回読み直すが1文に数枚なので軽い）"""
+    k = f"{face}_{mouth}_0"
+    if not os.path.exists(f"{ZDIR}/{k}.png"):
+        k = f"通常_{mouth}_0"
+    im = Image.open(f"{ZDIR}/{k}.png").convert("RGBA")
+    im = im.resize((int(im.width * h / im.height), h), Image.LANCZOS)
+    return im.transpose(Image.FLIP_LEFT_RIGHT) if face == "指差し" else im
+
+
 def mouth_levels(wav, n):
     """声の大きさから、コマごとの口の開き（0,1,2）"""
     import wave as _w, numpy as _np
@@ -310,6 +320,8 @@ def build(sid):
             ev += [("pop_big" if i % 2 else "zip_up", i * per, 1.0) for i in range(n)]
         if li == len(lines) - 1:
             ev += [("chime_b", d - 0.8, 1.0)]
+        if ln.get("pin"):
+            ev += [("boom", 0.0, 1.0), ("zip_up", 0.0, 0.8), ("kira", 0.15, 1.0)]
         if ln.get("logo"):
             ev += [("boom", 0.0, 1.0), ("crash", 0.0, 0.6), ("kira", 0.3, 0.9)]
         se.mix(f"{B}/l{li}_p.wav", ev)
@@ -384,13 +396,20 @@ def build(sid):
             for fx in ln.get("fx", []):
                 draw_fx(ext, fx, t, d, place, OY=M)
             fr.paste(ext, (0, PY - M))
+            if ln.get("pin") and os.path.isdir(ZDIR):   # ずんだもんのピンショット：普通→すぐ指差しで「レッツゴー！」
+                pp = theme.background(THEME or "pink_grad", W, PH, t)
+                face = "通常" if t < 0.12 else "指差し"
+                z = 1.18 - 0.18 * ease(t / 0.2)
+                zb = zunda_big(face, lv[i] if lv else 2, int(PH * 1.05 * z))
+                pp.paste(zb, ((W - zb.width) // 2, PH - zb.height + int(PH * 0.12)), zb)
+                fr.paste(pp, (0, PY))
             logo_t = t if ln.get("logo") else -1
             if logo_t >= 0:                              # 締め：チャンネルのロゴをドンと出し、ずんだもんが「レッツ！脳とけ！」
                 lp = theme.background("pink_grad", W, PH, logo_t)
                 theme.channel_logo(lp, 430, PH // 2 - 20, 1.0, logo_t,
                                    char=zunda_img("笑顔", lv[i] if lv else 2, 0) if os.path.isdir(ZDIR) else None)
                 fr.paste(lp, (0, PY))
-            if use_z and logo_t < 0:                                    # 左下でずんだもんが喋る（テロップのすぐ上）
+            if use_z and logo_t < 0 and not ln.get("pin"):                                    # 左下でずんだもんが喋る（テロップのすぐ上）
                 gf = int(sum(durs[:li]) * FPS) + i
                 blink = gf % 110 < 4
                 face = "指差し" if any(a <= t < a + 0.7 for a in stamps) else ln.get("face", "通常")
