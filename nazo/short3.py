@@ -394,8 +394,10 @@ def build(sid):
                         pop = back(min(1, t / 0.45))
                         zi = zi.resize((max(1, int(zi.width * pop)), max(1, int(zi.height * pop))))
                         zi = zi.rotate(720 * (1 - ease(t / 0.6)), expand=True, resample=Image.BICUBIC)
-                        fr.paste(zi, (170 - zi.width // 2, TEL_Y - 220 - zi.height // 2), zi)
+                        fr.paste(zi, (170 - zi.width // 2, TEL_Y - 190 - zi.height // 2), zi)
                         zi = None
+                    if zi is not None and is_title:          # タイトル中は少し小さく、文字の下に収める
+                        zi = zi.resize((int(zi.width * 0.85), int(zi.height * 0.85)))
                     if zi is None:
                         pass
                     elif z_right:
