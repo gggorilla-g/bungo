@@ -463,7 +463,10 @@ def build(sid):
                 fg_, bg_ = (BLK, YEL) if j == len(tel) - 1 else (WHT, BLK)
                 _, hh = motion.box_text(dr, W // 2, y, l, ft, fg_, bg_, 34, 18, anchor="ct")
                 y += hh + 14
-            if footer is not None and not ln.get("logo"):  # テロップの下の空きに、チャンネルロゴを小さく
+            if footer is not None and is_title:            # タイトル画面：ロゴはタイトル文字のすぐ下の空きに
+                if t > 0.9:
+                    fr.paste(footer, (60, PY + 690), footer)
+            elif footer is not None and not ln.get("logo"):  # テロップの下の空きに、チャンネルロゴを小さく
                 fr.paste(footer, (0, TEL_Y + 255), footer)   # 位置は固定（テロップの行数で動かさない）
             dr.text((30, H - 50), f"VOICEVOX:{sp.get('voice_name', '')}", font=f_cr, fill=(200, 200, 200))
             p.stdin.write(fr.tobytes())
