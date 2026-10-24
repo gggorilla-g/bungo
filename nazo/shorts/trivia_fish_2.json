@@ -331,6 +331,26 @@
    "face": "青ざめ"
   },
   {
+   "say": "まんじゅうなのに食べられないのだ！",
+   "text": "まんじゅうなのに\n食べられない！",
+   "file": "File:Atergatis floridus2.jpg",
+   "face": "泣き",
+   "fx": [
+    {
+     "type": "stamp",
+     "text": "食べられない",
+     "at": 0.3,
+     "y": 0.4,
+     "size": 150,
+     "color": [
+      230,
+      40,
+      40
+     ]
+    }
+   ]
+  },
+  {
    "say": "スベスベで、まんじゅうで、毒。情報量が多すぎるのだ。",
    "text": "スベスベ・まんじゅう・毒\n情報量が多すぎる",
    "file": "File:Atergatis floridus2.jpg",
