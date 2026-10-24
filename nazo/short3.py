@@ -382,7 +382,9 @@ def build(sid):
         is_title = any(fx["type"] == "title" for fx in ln.get("fx", []))
         topic = ln.get("flash", any(fx["type"] == "rank" for fx in ln.get("fx", [])))
         use_z = os.path.isdir(ZDIR) and sp.get("zunda", True) and not ln.get("digest")
-        z_right = any(fx["type"] == "ring" and fx.get("x", 0.5) < 0.4 for fx in ln.get("fx", []))   # 丸で囲む所が左なら右へ逃げる
+        z_right = any((fx["type"] == "ring" and fx.get("x", 0.5) < 0.4) or
+                      (fx["type"] == "map" and fx.get("province") in ("British Columbia", "Yukon", "Alberta"))
+                      for fx in ln.get("fx", []))   # 見せたい所が左なら、ずんだもんは右へ   # 丸で囲む所が左なら右へ逃げる
         lv = mouth_levels(f"{B}/l{li}.wav", n) if use_z else None
         stamps = [fx.get("at", 0.15) for fx in ln.get("fx", []) if fx["type"] in ("stamp", "warn", "vs")]
         for i in range(n):
