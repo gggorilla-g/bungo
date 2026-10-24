@@ -62,13 +62,6 @@
    "say": "最後はまさかの番号なのだ。",
    "text": "最後は\nまさかの番号",
    "file": "File:Lake 223 ELA.png",
-   "fit": "cover",
-   "zoom": [
-    0.2,
-    0.88,
-    2.2,
-    2.6
-   ],
    "face": "ドヤ",
    "theme": "pink_grad",
    "fx": [
@@ -114,7 +107,7 @@
   {
    "say": "オンタリオ州だけで長い湖という意味のロングレイクがウィキペディアに載っているだけで15もあるのだ。",
    "text": "「長い湖」が\n15か所",
-   "file": "File:Long Lake FN.JPG",
+   "file": "File:Long lake in Kawartha (9775729093).jpg",
    "face": "驚き",
    "theme": "blue_waves",
    "flash": true,
@@ -138,6 +131,13 @@
      "label": "ロングレイク",
      "at": 3.2
     }
+   ],
+   "fit": "cover",
+   "zoom": [
+    0.5,
+    0.5,
+    1.0,
+    1.3
    ]
   },
   {
