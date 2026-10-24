@@ -262,9 +262,8 @@ def build(sid):
     lines = sp["lines"]
     for ln in lines:
         yt = fixes.get(ln["say"]) or yomi.base_fix(ln["say"], {"title": "", "author": ""}, {})
-        if sp.get("tight", True):                # 句読点で間が空かないよう、文中の「、」「。」「！」を抜く
-            body, end = yt[:-1], yt[-1:]
-            yt = re.sub(r"[、。！？!?,]", "", body) + end
+        if sp.get("tight", True):                # たたみかける：読点「、」は抜く（句点は残す）
+            yt = re.sub(r"[、,]", "", yt)
         render._YOMI[ln["say"]] = yt
         print("読み:", ln["say"], "→", yomi.kana(render._YOMI[ln["say"]]))
     files = list(dict.fromkeys([f for ln in lines for f in ([ln["file"]] if ln.get("file") else []) +

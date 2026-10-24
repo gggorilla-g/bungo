@@ -341,7 +341,8 @@
    "say": "レッツ！脳とけ！",
    "text": "レッツ！\n脳とけ！",
    "face": "笑顔",
-   "logo": true
+   "logo": true,
+   "theme": "pink_grad"
   }
  ],
  "bgm_file": "assets/enc/bgm_trivia_mood2.mp3",
