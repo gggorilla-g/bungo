@@ -130,7 +130,7 @@
   {
    "say": "武器は機関銃2丁。",
    "text": "武器は\n機関銃2丁",
-   "file": "File:Australian gunners operating a Lewis machine gun during World War I (4041503856).jpg",
+   "file": "File:Aircraft Lewis Machine Gun.jpg",
    "theme": "blue_waves",
    "face": "ドヤ",
    "fx": [
@@ -173,7 +173,7 @@
   {
    "say": "2回目の作戦で撃った弾は9860発。",
    "text": "撃った弾\n9860発",
-   "file": "File:Australian gunners operating a Lewis machine gun during World War I (4041503856).jpg",
+   "file": "File:Aircraft Lewis Machine Gun.jpg",
    "fit": "cover",
    "theme": "mint_black",
    "face": "驚き",

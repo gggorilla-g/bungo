@@ -168,7 +168,8 @@ def draw_fx(pan, fx, t, d, place, OY=0):
             big_text(dr, x, OY + 200, it["label"], it.get("size", 64), WHT, 8)
             if u > 0.45:
                 p = back((u - 0.45) / 0.25)
-                big_text(dr, x, OY + PH // 2 + 60, it["value"], int(150 * (0.6 + 0.4 * p)), YEL, 12)
+                vs_size = min(150, int(W / 2 * 0.85 / max(1, len(it["value"]))))   # 長い数字は枠に収まる大きさに
+                big_text(dr, x, OY + PH // 2 + 60, it["value"], int(vs_size * (0.6 + 0.4 * p)), YEL, 12)
         if u > 0.3:
             big_text(dr, W // 2, OY + PH // 2 + 60, "VS", 90, WHT, 10)
     elif k == "ring":                    # 写真の一点を丸で囲んで名札（contain配置のとき）
