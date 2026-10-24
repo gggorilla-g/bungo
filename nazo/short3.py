@@ -5,7 +5,7 @@
 #     file / fit: "contain"（全体を見せる。既定）| "cover"（寄り） / zoom: [cx, cy, z0, z1]（coverのとき）
 #     fx: [{type: stamp|count|vs|ring|warn|split|rank, ...}]  … 下の draw_fx を参照
 #     digest: [{"file":..., "name":...}, ...]  … 冒頭の一気見せ
-import json, math, os, subprocess, sys
+import json, math, os, re, subprocess, sys
 from PIL import Image, ImageDraw, ImageFilter, ImageEnhance
 sys.path.insert(0, "src"); sys.path.insert(0, "nazo")
 import render, yomi, motion, se, m4_images, theme
@@ -255,12 +255,17 @@ def build(sid):
     main = sp["main"]
     os.makedirs(B, exist_ok=True); os.makedirs("output", exist_ok=True)
     render.B = B
+    render.TIGHT = sp.get("tight", True)
     v = dict(sp["voice"]); v["speed"] = v.get("speed", 1.0) * SPEED
     render.set_voice(**v)
     fixes = sp.get("yomi", {})
     lines = sp["lines"]
     for ln in lines:
-        render._YOMI[ln["say"]] = fixes.get(ln["say"]) or yomi.base_fix(ln["say"], {"title": "", "author": ""}, {})
+        yt = fixes.get(ln["say"]) or yomi.base_fix(ln["say"], {"title": "", "author": ""}, {})
+        if sp.get("tight", True):                # 句読点で間が空かないよう、文中の「、」「。」「！」を抜く
+            body, end = yt[:-1], yt[-1:]
+            yt = re.sub(r"[、。！？!?,]", "", body) + end
+        render._YOMI[ln["say"]] = yt
         print("読み:", ln["say"], "→", yomi.kana(render._YOMI[ln["say"]]))
     files = list(dict.fromkeys([f for ln in lines for f in ([ln["file"]] if ln.get("file") else []) +
                                 [x["file"] for x in ln.get("digest", [])]]))
@@ -453,6 +458,8 @@ def build(sid):
                     "-frames:v", "1", f"{kit}/short3_{sid}_sheet.jpg"])
     subprocess.run(["ffmpeg", "-v", "error", "-y", "-sseof", "-0.4", "-i", out, "-frames:v", "1", "-vf", "scale=540:-1",
                     f"{kit}/short3_{sid}_end.jpg"])
+    subprocess.run(["ffmpeg", "-v", "error", "-y", "-sseof", "-6", "-i", out, "-vf", "fps=2,scale=216:-1,tile=6x2",
+                    "-frames:v", "1", f"{kit}/short3_{sid}_tail.jpg"])
     used = [fn for fn in files if fn in imgs]
     open(f"{kit}/short3_{sid}_upload.txt", "w", encoding="utf-8").write(
         f"【タイトル】\n{sp['title']}\n\n【説明】\n{sp.get('desc', '')}\n\n"

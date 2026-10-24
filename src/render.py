@@ -40,6 +40,7 @@ def syn():
             _syn.load_voice_model(m)
     return _syn
 
+TIGHT = False  # True で間を詰める（ショート用）
 _YOMI = {}  # 原文 → 読み上げ用テキスト（yomi.prepareの結果）
 
 def tts(text, out_wav):
@@ -50,6 +51,11 @@ def tts(text, out_wav):
     aq.speed_scale = SPEED
     aq.pitch_scale = PITCH
     aq.intonation_scale = INTONATION
+    if TIGHT:                                  # ショート用：文頭・文末の無音と息継ぎの間を詰める
+        aq.pre_phoneme_length = 0.03
+        aq.post_phoneme_length = 0.03
+        if hasattr(aq, "pause_length_scale"):
+            aq.pause_length_scale = 0.3
     open(out_wav, "wb").write(syn().synthesis(aq, style_id=STYLE))
 
 CSS_BASE = """
