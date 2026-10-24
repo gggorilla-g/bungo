@@ -332,7 +332,8 @@ def build(sid):
                    if src else Image.new("RGB", (W, H), (16, 16, 18)))
         pbg = panel_bg(src) if src else Image.new("RGB", (W, PH), (20, 20, 24))
         tel = ln["text"].split("\n")
-        use_z = os.path.isdir(ZDIR) and sp.get("zunda", True)
+        use_z = os.path.isdir(ZDIR) and sp.get("zunda", True) and not any(fx["type"] == "title" for fx in ln.get("fx", []))
+        z_right = any(fx["type"] == "ring" and fx.get("x", 0.5) < 0.4 for fx in ln.get("fx", []))   # 丸で囲む所が左なら右へ逃げる
         lv = mouth_levels(f"{B}/l{li}.wav", n) if use_z else None
         stamps = [fx.get("at", 0.15) for fx in ln.get("fx", []) if fx["type"] in ("stamp", "warn", "vs")]
         for i in range(n):
@@ -381,10 +382,12 @@ def build(sid):
                 zi = zunda_img(face, lv[i], blink)
                 if zi is not None:
                     hop = int(10 * abs(math.sin(t * 9))) if lv[i] else 0
-                    pop = back(min(1, (sum(durs[:li]) + t) / 0.3)) if li < 2 else 1
+                    pop = back(min(1, t / 0.3)) if li == 1 else 1
                     if pop < 1:
                         zi = zi.resize((max(1, int(zi.width * pop)), max(1, int(zi.height * pop))))
-                    fr.paste(zi, (-30, TEL_Y - 20 - zi.height - hop), zi)
+                    if z_right:
+                        zi = zi.transpose(Image.FLIP_LEFT_RIGHT)
+                    fr.paste(zi, (W - zi.width + 30 if z_right else -30, TEL_Y - 20 - zi.height - hop), zi)
             dr = ImageDraw.Draw(fr)
             motion.box_text(dr, W // 2, 90, sp.get("label", ""), f_ch, WHT, RED, 26, 12, anchor="ct")
             if nrank:                                    # いま何個目か（最後まで見たくなるように）
