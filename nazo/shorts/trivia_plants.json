@@ -1,0 +1,431 @@
+{
+ "main": "trivia_plants",
+ "label": "名前がひどい植物",
+ "title": "名前がひどすぎる植物4選 #Shorts #雑学 #植物",
+ "desc": "名前がひどすぎる身近な植物を4つ紹介します。名前の由来は自治体の植物資料や百科事典の記述にもとづいています。",
+ "tags": [
+  "ずんだもん",
+  "雑学",
+  "植物",
+  "雑草",
+  "ヘクソカズラ",
+  "ママコノシリヌグイ",
+  "ハキダメギク",
+  "オオイヌノフグリ",
+  "ショート"
+ ],
+ "voice": {
+  "vvm": "0.vvm",
+  "style": 3,
+  "speed": 1.0,
+  "pitch": 0.0,
+  "intonation": 1.15
+ },
+ "voice_name": "ずんだもん",
+ "bgm_file": "assets/enc/bgm_trivia_mood2.mp3",
+ "bgm_credit": "ムード２ / 今川彰人オーケストラ（OpenTracks（旧DOVA-SYNDROME））",
+ "bgm_vol": 0.16,
+ "themes": [
+  "pink_grad",
+  "orange_rays",
+  "blue_waves",
+  "mint_black",
+  "green_red"
+ ],
+ "yomi": {
+  "レッツ脳とけ！": "レッツのーとけ！",
+  "漢字で書くと継子の尻拭い。": "かんじでかくとままこのしりぬぐい。",
+  "このトゲで継子のお尻を拭くという意味なのだ。": "このトゲでままこのおしりをふくといういみなのだ。",
+  "漢字で書くと屁と糞のカズラなのだ。": "かんじでかくとへとくそのかずらなのだ。"
+ },
+ "lines": [
+  {
+   "say": "名前がひどすぎる植物！",
+   "text": "名前がひどすぎる\n植物",
+   "face": "指差し",
+   "fx": [
+    {
+     "type": "title",
+     "text": "名前が\nひどすぎる\n植物",
+     "at": 0.4,
+     "size": 190,
+     "gap": 205,
+     "tilt": 0,
+     "cy": 0.36,
+     "cx": 0.5
+    }
+   ]
+  },
+  {
+   "say": "レッツゴー！",
+   "text": "レッツゴー！",
+   "pin": true,
+   "theme": "pink_grad"
+  },
+  {
+   "say": "最後のやつは名前がまさかの下ネタなのだ。",
+   "text": "最後のやつ\n名前がまさかの下ネタ",
+   "face": "ドヤ",
+   "digest": [
+    {
+     "file": "File:Paederia scandens 2.JPG",
+     "name": "ヘクソ"
+    },
+    {
+     "file": "File:Persicaria senticosa 3.JPG",
+     "name": "ママコ"
+    },
+    {
+     "file": "File:20160618Galinsoga quadriradiata1.jpg",
+     "name": "ハキダメ"
+    },
+    {
+     "file": "File:20140224Veronica persica.jpg",
+     "name": "イヌノ…"
+    }
+   ]
+  },
+  {
+   "say": "まずはヘクソカズラ。",
+   "text": "まずは\nヘクソカズラ",
+   "file": "File:Paederia scandens 2.JPG",
+   "face": "通常",
+   "fx": [
+    {
+     "type": "rank",
+     "text": "No.1",
+     "at": 0.05
+    },
+    {
+     "type": "stamp",
+     "text": "ヘクソ",
+     "at": 0.5,
+     "y": 0.3,
+     "size": 200,
+     "color": [
+      255,
+      226,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "say": "漢字で書くと屁と糞のカズラなのだ。",
+   "text": "漢字で書くと\n屁糞葛",
+   "file": "File:Paederia scandens2.jpg",
+   "face": "青ざめ",
+   "fx": [
+    {
+     "type": "stamp",
+     "text": "屁糞葛",
+     "at": 0.8,
+     "y": 0.35,
+     "size": 200,
+     "color": [
+      230,
+      40,
+      40
+     ]
+    }
+   ]
+  },
+  {
+   "say": "葉っぱをもむとくさいからなのだ。",
+   "text": "もむと\nくさい",
+   "file": "File:Paederia scandens2.jpg",
+   "fit": "cover",
+   "face": "焦り",
+   "fx": [
+    {
+     "type": "stamp",
+     "text": "くさい",
+     "at": 0.5,
+     "y": 0.35,
+     "size": 190,
+     "color": [
+      255,
+      226,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "say": "でも別名はサオトメバナ。",
+   "text": "でも別名は\nサオトメバナ",
+   "file": "File:Paederia scandens 2.JPG",
+   "face": "驚き",
+   "fx": [
+    {
+     "type": "stamp",
+     "text": "早乙女花",
+     "at": 0.5,
+     "y": 0.3,
+     "size": 170,
+     "color": [
+      255,
+      226,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "say": "落差がすごすぎるのだ！",
+   "text": "落差が\nすごすぎる！",
+   "file": "File:Paederia scandens 2.JPG",
+   "fit": "cover",
+   "face": "怒り",
+   "fx": [
+    {
+     "type": "stamp",
+     "text": "落差",
+     "at": 0.1,
+     "y": 0.35,
+     "size": 220,
+     "color": [
+      230,
+      40,
+      40
+     ]
+    }
+   ]
+  },
+  {
+   "say": "次はママコノシリヌグイ。",
+   "text": "次は\nママコノシリヌグイ",
+   "file": "File:Persicaria senticosa 3.JPG",
+   "face": "通常",
+   "fx": [
+    {
+     "type": "rank",
+     "text": "No.2",
+     "at": 0.05
+    }
+   ]
+  },
+  {
+   "say": "漢字で書くと継子の尻拭い。",
+   "text": "漢字で書くと\n継子の尻拭い",
+   "file": "File:Persicaria senticosa 3.JPG",
+   "face": "驚き",
+   "fx": [
+    {
+     "type": "stamp",
+     "text": "尻拭い",
+     "at": 0.6,
+     "y": 0.3,
+     "size": 190,
+     "color": [
+      255,
+      226,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "say": "茎には下向きのトゲがびっしりなのだ。",
+   "text": "茎には\n下向きのトゲ",
+   "file": "File:Persicaria senticosa 5.JPG",
+   "face": "青ざめ",
+   "fx": [
+    {
+     "type": "stamp",
+     "text": "トゲ",
+     "at": 0.6,
+     "y": 0.3,
+     "size": 220,
+     "color": [
+      230,
+      40,
+      40
+     ]
+    }
+   ]
+  },
+  {
+   "say": "このトゲで継子のお尻を拭くという意味なのだ。",
+   "text": "このトゲで\nお尻を拭く",
+   "file": "File:Persicaria senticosa 5.JPG",
+   "fit": "cover",
+   "face": "泣き",
+   "fx": [
+    {
+     "type": "warn",
+     "text": "いたい",
+     "at": 0.8,
+     "y": 0.5
+    }
+   ]
+  },
+  {
+   "say": "いじわるすぎるのだ！",
+   "text": "いじわる\nすぎる！",
+   "file": "File:Persicaria senticosa 3.JPG",
+   "fit": "cover",
+   "face": "怒り",
+   "fx": [
+    {
+     "type": "stamp",
+     "text": "ひどい",
+     "at": 0.1,
+     "y": 0.35,
+     "size": 220,
+     "color": [
+      230,
+      40,
+      40
+     ]
+    }
+   ]
+  },
+  {
+   "say": "3つ目はハキダメギク。",
+   "text": "3つ目は\nハキダメギク",
+   "file": "File:20160618Galinsoga quadriradiata1.jpg",
+   "face": "通常",
+   "fx": [
+    {
+     "type": "rank",
+     "text": "No.3",
+     "at": 0.05
+    },
+    {
+     "type": "stamp",
+     "text": "ハキダメ",
+     "at": 0.6,
+     "y": 0.3,
+     "size": 180,
+     "color": [
+      255,
+      226,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "say": "最初に見つかった株がたまたま掃き溜めに生えていたからなのだ。",
+   "text": "最初に見つかったのが\n掃き溜め",
+   "file": "File:20160618Galinsoga quadriradiata1.jpg",
+   "fit": "cover",
+   "face": "焦り",
+   "fx": [
+    {
+     "type": "stamp",
+     "text": "ゴミ置き場",
+     "at": 1.4,
+     "y": 0.3,
+     "size": 160,
+     "color": [
+      255,
+      226,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "say": "見つかった場所で決めないでほしいのだ！",
+   "text": "場所で\n決めないで！",
+   "file": "File:20160618Galinsoga quadriradiata1.jpg",
+   "face": "怒り",
+   "fx": [
+    {
+     "type": "stamp",
+     "text": "雑すぎ",
+     "at": 0.1,
+     "y": 0.35,
+     "size": 210,
+     "color": [
+      230,
+      40,
+      40
+     ]
+    }
+   ]
+  },
+  {
+   "say": "最後はオオイヌノフグリ。",
+   "text": "最後は\nオオイヌノフグリ",
+   "file": "File:20140224Veronica persica.jpg",
+   "face": "通常",
+   "fx": [
+    {
+     "type": "rank",
+     "text": "No.4",
+     "at": 0.05
+    }
+   ]
+  },
+  {
+   "say": "フグリとは睾丸のことなのだ。",
+   "text": "フグリ＝\n睾丸",
+   "file": "File:20140224Veronica persica.jpg",
+   "face": "青ざめ",
+   "fx": [
+    {
+     "type": "stamp",
+     "text": "睾丸",
+     "at": 0.6,
+     "y": 0.3,
+     "size": 220,
+     "color": [
+      230,
+      40,
+      40
+     ]
+    }
+   ]
+  },
+  {
+   "say": "実の形が犬の睾丸に似ているからなのだ。",
+   "text": "実の形が\n犬の睾丸そっくり",
+   "file": "File:20140224Veronica persica.jpg",
+   "fit": "cover",
+   "face": "焦り"
+  },
+  {
+   "say": "こんなにかわいい花なのに！",
+   "text": "こんなに\nかわいい花なのに！",
+   "file": "File:20140224Veronica persica.jpg",
+   "fit": "cover",
+   "zoom": [
+    0.5,
+    0.5,
+    1.1,
+    1.4
+   ],
+   "face": "泣き",
+   "fx": [
+    {
+     "type": "stamp",
+     "text": "かわいいのに",
+     "at": 0.3,
+     "y": 0.3,
+     "size": 150,
+     "color": [
+      255,
+      226,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "say": "ほかにも知ってたらコメントで教えるのだ！",
+   "text": "ほかにも知ってたら\nコメントで教えて",
+   "file": "File:20140224Veronica persica.jpg",
+   "face": "笑顔"
+  },
+  {
+   "say": "レッツ脳とけ！",
+   "text": "レッツ\n脳とけ！",
+   "face": "笑顔",
+   "logo": true,
+   "theme": "pink_grad"
+  }
+ ]
+}
