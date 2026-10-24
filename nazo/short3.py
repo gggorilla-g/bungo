@@ -8,7 +8,7 @@
 import json, math, os, re, subprocess, sys
 from PIL import Image, ImageDraw, ImageFilter, ImageEnhance
 sys.path.insert(0, "src"); sys.path.insert(0, "nazo")
-import render, yomi, motion, se, m4_images, theme
+import render, yomi, motion, se, m4_images, theme, mapfx
 THEME = None          # いまの文の配色（nazo/theme.py の名前）。None なら従来の見た目
 _cache = {}
 
@@ -246,6 +246,10 @@ def draw_fx(pan, fx, t, d, place, OY=0):
             sh = int(10 * math.sin(u * 70)) if u < 0.35 + 0.12 * j else 0
             cols = fx.get("colors") or [WHT] * (len(rows) - 1) + [YEL]
             big_text(dr, W // 2 + sh, y, row, size, tuple(cols[j]), 16, BLK)
+    elif k == "map":                     # カナダの地図：州が光り、ピンが落ちる
+        mapfx.draw_map(pan, OY, PH, u, fx)
+    elif k == "sign":                    # 湖のイラストと、道路案内風の看板
+        mapfx.draw_sign(pan, OY, PH, u, fx)
     elif k == "rank":                    # 左上の番号札
         p = back(u / 0.25)
         f = motion.font(int(96 * p) or 1)
@@ -330,6 +334,10 @@ def build(sid):
                 ev += [("whoosh_l", at, 1.0), ("slide_dn", at + 0.5, 0.8)]
             elif ty == "rank":
                 ev += [("slide_up", at, 0.9), ("boing", at + 0.25, 0.9)]
+            elif ty == "map":
+                ev += [("whoosh_l", at, 0.8), ("pop_big", at + 0.45, 0.9)] + ([("boing", at + 0.75, 1.0)] if fx.get("pin") else [])
+            elif ty == "sign":
+                ev += [("zip_long", at, 0.7), ("boom", at + 0.3, 1.0)] + ([("pop_big", at + 0.55, 0.9)] if fx.get("sub") else [])
         if ln.get("digest"):
             n = len(ln["digest"]); per = max(0.25, (d - 0.3) / n)
             ev += [("pop_big", i * per, 1.0) for i in range(n)]

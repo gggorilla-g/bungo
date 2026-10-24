@@ -141,28 +141,10 @@
      "at": 0.05
     },
     {
-     "type": "stamp",
-     "text": "This Lake",
-     "at": 0.3,
-     "y": 0.3,
-     "size": 105,
-     "color": [
-      255,
-      226,
-      0
-     ]
-    },
-    {
-     "type": "stamp",
-     "text": "That Lake",
-     "at": 1.2,
-     "y": 0.62,
-     "size": 105,
-     "color": [
-      255,
-      226,
-      0
-     ]
+     "type": "map",
+     "province": "Ontario",
+     "label": "オンタリオ州",
+     "at": 0.1
     }
    ]
   },
@@ -172,28 +154,10 @@
    "face": "驚き",
    "fx": [
     {
-     "type": "stamp",
-     "text": "この湖",
-     "at": 0.3,
-     "y": 0.3,
-     "size": 220,
-     "color": [
-      230,
-      40,
-      40
-     ]
-    },
-    {
-     "type": "stamp",
-     "text": "あの湖",
-     "at": 1.0,
-     "y": 0.62,
-     "size": 220,
-     "color": [
-      230,
-      40,
-      40
-     ]
+     "type": "sign",
+     "text": "This Lake / That Lake",
+     "sub": "この湖・あの湖",
+     "at": 0.0
     }
    ]
   },
@@ -227,16 +191,14 @@
      "at": 0.05
     },
     {
-     "type": "stamp",
-     "text": "Another Lake",
-     "at": 0.4,
-     "y": 0.45,
-     "size": 79,
-     "color": [
-      255,
-      226,
-      0
-     ]
+     "type": "map",
+     "province": "British Columbia",
+     "pin": [
+      49.89,
+      -120.23
+     ],
+     "label": "ブリティッシュコロンビア州",
+     "at": 0.1
     }
    ]
   },
@@ -246,16 +208,10 @@
    "face": "焦り",
    "fx": [
     {
-     "type": "stamp",
-     "text": "別の湖",
-     "at": 0.2,
-     "y": 0.45,
-     "size": 220,
-     "color": [
-      230,
-      40,
-      40
-     ]
+     "type": "sign",
+     "text": "Another Lake",
+     "sub": "別の湖",
+     "at": 0.0
     }
    ]
   },
@@ -265,16 +221,9 @@
    "face": "驚き",
    "fx": [
     {
-     "type": "stamp",
+     "type": "sign",
      "text": "And Another Lake",
-     "at": 0.9,
-     "y": 0.45,
-     "size": 47,
-     "color": [
-      255,
-      226,
-      0
-     ]
+     "at": 0.6
     }
    ]
   },
@@ -284,16 +233,10 @@
    "face": "青ざめ",
    "fx": [
     {
-     "type": "stamp",
-     "text": "さらに別の湖",
-     "at": 0.3,
-     "y": 0.45,
-     "size": 126,
-     "color": [
-      230,
-      40,
-      40
-     ]
+     "type": "sign",
+     "text": "And Another Lake",
+     "sub": "さらに別の湖",
+     "at": 0.0
     }
    ]
   },
@@ -327,16 +270,10 @@
      "at": 0.05
     },
     {
-     "type": "stamp",
-     "text": "Stupid Lake",
-     "at": 0.5,
-     "y": 0.45,
-     "size": 86,
-     "color": [
-      255,
-      226,
-      0
-     ]
+     "type": "map",
+     "province": "Manitoba",
+     "label": "マニトバ州",
+     "at": 0.1
     }
    ]
   },
@@ -346,16 +283,10 @@
    "face": "驚き",
    "fx": [
     {
-     "type": "stamp",
-     "text": "バカ湖",
-     "at": 0.3,
-     "y": 0.45,
-     "size": 220,
-     "color": [
-      230,
-      40,
-      40
-     ]
+     "type": "sign",
+     "text": "Stupid Lake",
+     "sub": "バカ湖",
+     "at": 0.0
     }
    ]
   },
@@ -397,16 +328,14 @@
    "face": "驚き",
    "fx": [
     {
-     "type": "stamp",
-     "text": "実在",
-     "at": 0.3,
-     "y": 0.45,
-     "size": 220,
-     "color": [
-      230,
-      40,
-      40
-     ]
+     "type": "map",
+     "province": "Ontario",
+     "pin": [
+      44.64,
+      -76.91
+     ],
+     "label": "オンタリオ州",
+     "at": 0.0
     }
    ]
   },
