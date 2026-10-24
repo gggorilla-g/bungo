@@ -284,6 +284,26 @@
    "face": "笑顔"
   },
   {
+   "say": "そのまますぎるのだ！",
+   "text": "そのまま\nすぎる！",
+   "file": "File:Ojisan.jpg",
+   "face": "怒り",
+   "fx": [
+    {
+     "type": "stamp",
+     "text": "そのまま!?",
+     "at": 0.1,
+     "y": 0.4,
+     "size": 170,
+     "color": [
+      255,
+      226,
+      0
+     ]
+    }
+   ]
+  },
+  {
    "say": "最後は、スベスベマンジュウガニ。",
    "text": "スベスベ\nマンジュウガニ",
    "file": "File:Atergatis floridus2.jpg",
