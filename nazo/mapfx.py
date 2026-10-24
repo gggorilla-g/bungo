@@ -106,7 +106,7 @@ def draw_sign(pan, OY, PH, u, spec):
     # 看板（上から落ちて、少し揺れて止まる）
     e = _back(u / 0.35)
     sw = min(940, 120 + 46 * len(spec["text"]))
-    sh = 300 if spec.get("sub") else 200
+    sh = 340 if spec.get("sub") else 200
     cx = W // 2
     top = OY + int(PH * 0.08) - int(500 * (1 - e))
     ang = 4 * math.sin(u * 9) * math.exp(-u * 2.5) if u > 0.35 else 0
@@ -120,10 +120,10 @@ def draw_sign(pan, OY, PH, u, spec):
     bd.text((20 + sw // 2, 110 if spec.get("sub") else sh // 2), spec["text"], font=font(fs), fill=(255, 255, 255), anchor="mm")
     if spec.get("sub") and u > 0.5:
         p = _back((u - 0.5) / 0.25)
-        f2 = font(int(76 * p) or 1)
-        bb = bd.textbbox((20 + sw // 2, 225), spec["sub"], font=f2, anchor="mm")
+        f2 = font(int(104 * p) or 1)
+        bb = bd.textbbox((20 + sw // 2, 250), spec["sub"], font=f2, anchor="mm")
         bd.rectangle([bb[0] - 18, bb[1] - 8, bb[2] + 18, bb[3] + 8], fill=(255, 226, 0))
-        bd.text((20 + sw // 2, 225), spec["sub"], font=f2, fill=(0, 0, 0), anchor="mm")
+        bd.text((20 + sw // 2, 250), spec["sub"], font=f2, fill=(0, 0, 0), anchor="mm")
     if ang:
         board = board.rotate(ang, center=(board.width // 2, 0), resample=Image.BICUBIC)
     pan.paste(board, (cx - board.width // 2, top), board)
