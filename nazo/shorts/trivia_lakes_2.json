@@ -1,0 +1,351 @@
+{
+ "main": "trivia_lakes",
+ "label": "名前が適当すぎる",
+ "title": "カナダの湖、名前が番号 #Shorts #雑学 #カナダ",
+ "desc": "カナダの湖の名前の話です。内容はWikipediaの記述（カナダの湖、Experimental Lakes Area）にもとづいています。",
+ "tags": [
+  "ずんだもん",
+  "雑学",
+  "カナダ",
+  "湖",
+  "実験湖沼群",
+  "ショート"
+ ],
+ "voice": {
+  "vvm": "0.vvm",
+  "style": 3,
+  "speed": 1.0,
+  "pitch": 0.0,
+  "intonation": 1.15
+ },
+ "voice_name": "ずんだもん",
+ "bgm_file": "assets/enc/bgm_trivia_mood2.mp3",
+ "bgm_credit": "ムード２ / 今川彰人オーケストラ（OpenTracks（旧DOVA-SYNDROME））",
+ "bgm_vol": 0.16,
+ "themes": [
+  "pink_grad",
+  "orange_rays",
+  "blue_waves",
+  "mint_black",
+  "green_red"
+ ],
+ "yomi": {
+  "レッツ脳とけ！": "レッツのーとけ！",
+  "239番湖、227番湖、226番湖。": "にひゃくさんじゅうきゅうばんこにひゃくにじゅうななばんこにひゃくにじゅうろくばんこ。",
+  "226番湖はカーテンで真ん中を仕切ったのだ。": "にひゃくにじゅうろくばんこはカーテンでまんなかをしきったのだ。"
+ },
+ "lines": [
+  {
+   "say": "名前が適当すぎるカナダの湖！",
+   "text": "名前が適当すぎる\nカナダの湖",
+   "face": "指差し",
+   "fx": [
+    {
+     "type": "title",
+     "text": "名前が\n適当すぎる\nカナダの湖",
+     "at": 0.4,
+     "size": 175,
+     "gap": 195,
+     "tilt": 0,
+     "cy": 0.36,
+     "cx": 0.5
+    }
+   ]
+  },
+  {
+   "say": "レッツゴー！",
+   "text": "レッツゴー！",
+   "pin": true,
+   "theme": "pink_grad"
+  },
+  {
+   "say": "最後はまさかの番号なのだ。",
+   "text": "最後は\nまさかの番号",
+   "file": "File:Lake 223 ELA.png",
+   "fit": "cover",
+   "zoom": [
+    0.2,
+    0.88,
+    2.2,
+    2.6
+   ],
+   "face": "ドヤ",
+   "theme": "pink_grad",
+   "fx": [
+    {
+     "type": "stamp",
+     "text": "223",
+     "at": 0.5,
+     "y": 0.3,
+     "size": 220,
+     "color": [
+      255,
+      226,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "say": "カナダの湖は数え方しだいで200万にもなるのだ。",
+   "text": "カナダの湖\n最大200万",
+   "file": "File:Long lake in Kawartha (9775729093).jpg",
+   "face": "驚き",
+   "theme": "orange_rays",
+   "flash": true,
+   "fx": [
+    {
+     "type": "count",
+     "to": 2000000,
+     "unit": "",
+     "label": "カナダの湖",
+     "at": 0.3
+    }
+   ]
+  },
+  {
+   "say": "じゃあ名前はどうしてるのだ？",
+   "text": "名前は\nどうしてる？",
+   "file": "File:Long lake in Kawartha (9775729093).jpg",
+   "fit": "cover",
+   "face": "焦り",
+   "theme": "orange_rays"
+  },
+  {
+   "say": "オンタリオ州だけで長い湖という意味のロングレイクがウィキペディアに載っているだけで15もあるのだ。",
+   "text": "「長い湖」が\n15か所",
+   "file": "File:Long Lake FN.JPG",
+   "face": "驚き",
+   "theme": "blue_waves",
+   "flash": true,
+   "fx": [
+    {
+     "type": "stamp",
+     "text": "Long Lake",
+     "at": 0.6,
+     "y": 0.3,
+     "size": 150,
+     "color": [
+      255,
+      226,
+      0
+     ]
+    },
+    {
+     "type": "count",
+     "to": 15,
+     "unit": "か所",
+     "label": "ロングレイク",
+     "at": 3.2
+    }
+   ]
+  },
+  {
+   "say": "見たまんまなのだ！",
+   "text": "見たまんま！",
+   "file": "File:Long lake in Kawartha (9775729093).jpg",
+   "fit": "cover",
+   "face": "怒り",
+   "theme": "blue_waves",
+   "fx": [
+    {
+     "type": "stamp",
+     "text": "そのまま",
+     "at": 0.1,
+     "y": 0.35,
+     "size": 210,
+     "color": [
+      230,
+      40,
+      40
+     ]
+    }
+   ]
+  },
+  {
+   "say": "さらに名前じゃなくて番号の湖まであるのだ。",
+   "text": "名前じゃなくて\n番号",
+   "file": "File:Lake 223 ELA.png",
+   "face": "青ざめ",
+   "theme": "mint_black",
+   "flash": true,
+   "fx": [
+    {
+     "type": "stamp",
+     "text": "番号",
+     "at": 0.9,
+     "y": 0.3,
+     "size": 220,
+     "color": [
+      255,
+      226,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "say": "239番湖、227番湖、226番湖。",
+   "text": "239番湖\n227番湖",
+   "file": "File:Image of Lake 239 at IISD Experimental Lakes Area from above.jpg",
+   "face": "焦り",
+   "theme": "mint_black",
+   "fx": [
+    {
+     "type": "stamp",
+     "text": "239",
+     "at": 0.2,
+     "y": 0.25,
+     "size": 170,
+     "color": [
+      255,
+      226,
+      0
+     ]
+    },
+    {
+     "type": "stamp",
+     "text": "227",
+     "at": 0.9,
+     "y": 0.5,
+     "size": 170,
+     "color": [
+      255,
+      226,
+      0
+     ]
+    },
+    {
+     "type": "stamp",
+     "text": "226",
+     "at": 1.6,
+     "y": 0.75,
+     "size": 170,
+     "color": [
+      255,
+      226,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "say": "じつはここ湖をまるごと実験に使う場所なのだ。",
+   "text": "湖まるごと\n実験場",
+   "file": "File:IISD Experimental Lakes Area on the banks of Lake 239 in 2016.jpg",
+   "face": "驚き",
+   "theme": "green_red",
+   "flash": true,
+   "fx": [
+    {
+     "type": "stamp",
+     "text": "実験場",
+     "at": 0.8,
+     "y": 0.3,
+     "size": 200,
+     "color": [
+      230,
+      40,
+      40
+     ]
+    }
+   ]
+  },
+  {
+   "say": "いまでは58の湖が実験用になっているのだ。",
+   "text": "58の湖が\n実験用",
+   "file": "File:Experimental Lakes Area.jpg",
+   "face": "通常",
+   "theme": "green_red",
+   "fx": [
+    {
+     "type": "count",
+     "to": 58,
+     "unit": "",
+     "label": "実験用の湖",
+     "at": 0.3
+    }
+   ]
+  },
+  {
+   "say": "226番湖はカーテンで真ん中を仕切ったのだ。",
+   "text": "湖を\nカーテンで仕切る",
+   "file": "File:Image of Lake 239 at IISD Experimental Lakes Area from above.jpg",
+   "fit": "cover",
+   "face": "驚き",
+   "theme": "green_red",
+   "fx": [
+    {
+     "type": "split",
+     "left": "そのまま",
+     "right": "リンを入れる",
+     "at": 0.4
+    }
+   ]
+  },
+  {
+   "say": "片方にだけリンを入れたらそっちだけ藻だらけになったのだ。",
+   "text": "リンを入れた側だけ\n藻だらけ",
+   "file": "File:Image of Lake 239 at IISD Experimental Lakes Area from above.jpg",
+   "fit": "cover",
+   "zoom": [
+    0.6,
+    0.6,
+    1.5,
+    2.0
+   ],
+   "face": "青ざめ",
+   "theme": "green_red",
+   "fx": [
+    {
+     "type": "split",
+     "left": "きれい",
+     "right": "藻だらけ",
+     "at": 0.1
+    }
+   ]
+  },
+  {
+   "say": "湖を汚す大きな原因はリンだとこの実験で示されたのだ。",
+   "text": "大きな原因は\nリン",
+   "file": "File:Experimental Lakes Area.jpg",
+   "face": "ドヤ",
+   "theme": "green_red",
+   "fx": [
+    {
+     "type": "stamp",
+     "text": "リン",
+     "at": 1.2,
+     "y": 0.3,
+     "size": 220,
+     "color": [
+      255,
+      226,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "say": "名前は番号でも世界の役に立ってるのだ！",
+   "text": "名前は番号でも\n世界の役に立つ",
+   "file": "File:Long lake in Kawartha (9775729093).jpg",
+   "face": "笑顔",
+   "theme": "green_red"
+  },
+  {
+   "say": "ほかにも知ってたらコメントで教えるのだ！",
+   "text": "ほかにも知ってたら\nコメントで教えて",
+   "file": "File:Long lake in Kawartha (9775729093).jpg",
+   "face": "笑顔",
+   "theme": "green_red"
+  },
+  {
+   "say": "レッツ脳とけ！",
+   "text": "レッツ\n脳とけ！",
+   "face": "笑顔",
+   "logo": true,
+   "theme": "pink_grad"
+  }
+ ]
+}
