@@ -63,6 +63,15 @@ def zunda_big(face, mouth, h):
     return im.transpose(Image.FLIP_LEFT_RIGHT) if face == "指差し" else im
 
 
+def voiced_len(wav):
+    """声が実際に鳴り終わるまでの秒数（末尾の無音を除く）"""
+    import wave as _w, numpy as _np
+    with _w.open(wav) as w:
+        sr = w.getframerate(); a = _np.abs(_np.frombuffer(w.readframes(w.getnframes()), _np.int16))
+    idx = _np.nonzero(a > max(300, a.max() * 0.03))[0]
+    return (idx[-1] / sr + 0.02) if len(idx) else len(a) / sr
+
+
 def mouth_levels(wav, n):
     """声の大きさから、コマごとの口の開き（0,1,2）"""
     import wave as _w, numpy as _np
@@ -292,7 +301,8 @@ def build(sid):
     for li, ln in enumerate(lines):
         wav = f"{B}/l{li}.wav"
         render.tts(ln["say"], wav)
-        d = math.ceil((render._wav_len(wav) + (1.0 if li == len(lines) - 1 else GAP)) * FPS) / FPS
+        vl = voiced_len(wav) if sp.get("tight", True) else render._wav_len(wav)   # 声の後ろの無音は切る（間で冷めないように）
+        d = math.ceil((vl + (1.0 if li == len(lines) - 1 else GAP)) * FPS) / FPS
         render._pad_wav(wav, f"{B}/l{li}_p.wav", d)
         ev = [("pop_big", 0.0, 0.9)] + ([("zip_up", 0.0, 0.35)] if li % 2 else [])   # 文の頭はポンが主役、ピュンは控えめに
         for fx in ln.get("fx", []):

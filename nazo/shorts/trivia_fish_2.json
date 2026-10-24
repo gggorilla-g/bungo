@@ -24,7 +24,7 @@
  "voice_name": "ずんだもん",
  "lines": [
   {
-   "say": "名前がひどすぎる海の生き物を紹介するのだ！",
+   "say": "名前がひどすぎる、海の生き物！",
    "text": "名前がひどすぎる\n海の生き物",
    "file": "File:Lycodes tanakae Uozu.jpg",
    "title_card": true,
@@ -32,7 +32,7 @@
     {
      "type": "title",
      "text": "名前が\nひどすぎる\n海の生き物",
-     "at": 0.55,
+     "at": 0.4,
      "size": 190,
      "colors": [
       [
