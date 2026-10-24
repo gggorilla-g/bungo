@@ -26,7 +26,7 @@ jobs:
           pip install -q -r requirements.txt
           python src/setup_voicevox.py
           case "${{ inputs.script }}" in nazo/short.py|nazo/short2.py|nazo/short3.py) ;; *) exit 1;; esac
-          if [ -n "$ASSET_KEY" ]; then for f in assets/enc/*.enc; do [ -e "$f" ] && openssl enc -d -aes-256-cbc -pbkdf2 -in "$f" -out "${f%.enc}" -pass env:ASSET_KEY; done; fi
+          if [ -n "$ASSET_KEY" ]; then for f in assets/enc/*.enc; do [ -e "$f" ] && openssl enc -d -aes-256-cbc -pbkdf2 -in "$f" -out "${f%.enc}" -pass env:ASSET_KEY; done; for t in assets/enc/*.tar; do [ -e "$t" ] && tar xf "$t" -C assets/enc; done; fi
           ID="${{ inputs.id }}" python "${{ inputs.script }}"
       - run: |
           git config user.name "bungo-bot"; git config user.email "bot@users.noreply.github.com"

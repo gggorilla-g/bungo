@@ -35,6 +35,38 @@ def framed(im, th):
     out.paste(im, (e, e))
     return out
 
+ZDIR = "assets/enc/parts"   # ずんだもん立ち絵の差分（坂本アヒル氏の素材から作成。暗号化して置き、制作時だけ復号）
+_zp = {}
+
+
+def zunda_img(face, mouth, blink):
+    """表情・口（0閉 1半 2開）・瞬き の画像。無い組み合わせは近いものに落とす"""
+    for f in (face, "通常"):
+        for b in ((blink, 0) if blink else (0,)):
+            k = f"{f}_{mouth}_{b}"
+            if k not in _zp and os.path.exists(f"{ZDIR}/{k}.png"):
+                im = Image.open(f"{ZDIR}/{k}.png").convert("RGBA")
+                im = im.resize((int(im.width * ZH / im.height), ZH), Image.LANCZOS)
+                _zp[k] = im.transpose(Image.FLIP_LEFT_RIGHT) if f == "指差し" else im   # 写真の方を指さす向きに
+            if k in _zp:
+                return _zp[k]
+    return None
+
+
+def mouth_levels(wav, n):
+    """声の大きさから、コマごとの口の開き（0,1,2）"""
+    import wave as _w, numpy as _np
+    with _w.open(wav) as w:
+        sr = w.getframerate(); a = _np.frombuffer(w.readframes(w.getnframes()), _np.int16).astype(_np.float32)
+    hop = sr / FPS
+    rms = _np.array([_np.sqrt(_np.mean(a[int(i * hop):int((i + 1) * hop)] ** 2)) if int(i * hop) < len(a) else 0 for i in range(n)])
+    pk = max(rms.max(), 1)
+    lv = [0 if r < pk * 0.12 else (1 if r < pk * 0.45 else 2) for r in rms]
+    return [lv[i] if lv[i] == 0 or i == 0 else max(1, lv[i]) for i in range(n)]   # 細かい点滅を抑える
+
+
+ZH = 400            # 立ち絵の高さ（px）
+
 W, H, FPS = 1080, 1920, 30
 YEL, BLK, WHT, RED = (255, 226, 0), (0, 0, 0), (255, 255, 255), (220, 40, 40)
 PY, PH = 250, 960                  # 絵の帯
@@ -300,6 +332,9 @@ def build(sid):
                    if src else Image.new("RGB", (W, H), (16, 16, 18)))
         pbg = panel_bg(src) if src else Image.new("RGB", (W, PH), (20, 20, 24))
         tel = ln["text"].split("\n")
+        use_z = os.path.isdir(ZDIR) and sp.get("zunda", True)
+        lv = mouth_levels(f"{B}/l{li}.wav", n) if use_z else None
+        stamps = [fx.get("at", 0.15) for fx in ln.get("fx", []) if fx["type"] in ("stamp", "warn", "vs")]
         for i in range(n):
             t = i / FPS
             fr = theme.background(THEME, W, H, t) if THEME else bg_full.copy()
@@ -339,6 +374,17 @@ def build(sid):
             for fx in ln.get("fx", []):
                 draw_fx(ext, fx, t, d, place, OY=M)
             fr.paste(ext, (0, PY - M))
+            if use_z:                                    # 左下でずんだもんが喋る（テロップのすぐ上）
+                gf = int(sum(durs[:li]) * FPS) + i
+                blink = gf % 110 < 4
+                face = "指差し" if any(a <= t < a + 0.7 for a in stamps) else ln.get("face", "通常")
+                zi = zunda_img(face, lv[i], blink)
+                if zi is not None:
+                    hop = int(10 * abs(math.sin(t * 9))) if lv[i] else 0
+                    pop = back(min(1, (sum(durs[:li]) + t) / 0.3)) if li < 2 else 1
+                    if pop < 1:
+                        zi = zi.resize((max(1, int(zi.width * pop)), max(1, int(zi.height * pop))))
+                    fr.paste(zi, (-30, TEL_Y - 20 - zi.height - hop), zi)
             dr = ImageDraw.Draw(fr)
             motion.box_text(dr, W // 2, 90, sp.get("label", ""), f_ch, WHT, RED, 26, 12, anchor="ct")
             if nrank:                                    # いま何個目か（最後まで見たくなるように）
@@ -386,7 +432,7 @@ def build(sid):
     used = [fn for fn in files if fn in imgs]
     open(f"{kit}/short3_{sid}_upload.txt", "w", encoding="utf-8").write(
         f"【タイトル】\n{sp['title']}\n\n【説明】\n{sp.get('desc', '')}\n\n"
-        f"音声: VOICEVOX:{sp.get('voice_name', '')}\n" + f"BGM: {bgm_credit}\n効果音: オリジナル\n" + "".join(f"画像: {got[fn]['credit']}\n" for fn in used) +
+        f"音声: VOICEVOX:{sp.get('voice_name', '')}\n" + ("立ち絵: 坂本アヒル\n" if os.path.isdir(ZDIR) and sp.get("zunda", True) else "") + f"BGM: {bgm_credit}\n効果音: オリジナル\n" + "".join(f"画像: {got[fn]['credit']}\n" for fn in used) +
         f"\n【タグ】\n{','.join(sp.get('tags', []))}\n")
     print("short3", out, round(total, 1), "秒")
 

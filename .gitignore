@@ -10,3 +10,5 @@ gamelab/history.json
 build_game/
 gamelab/evolve.log
 assets/enc/*.mp3
+assets/enc/*.tar
+assets/enc/parts/
