@@ -201,9 +201,9 @@ def draw_fx(pan, fx, t, d, place, OY=0):
             if p <= 0:
                 continue
             size = int(fx.get("size", 150) * (2.0 - 1.0 * p))
-            y = OY + int(PH * (0.5 + (j - (len(rows) - 1) / 2) * 0.26))
+            y = OY + int(PH * (fx.get("cy", 0.5) + (j - (len(rows) - 1) / 2) * 0.26))
             sh = int(10 * math.sin(u * 70)) if u < 0.35 + 0.12 * j else 0
-            theme.extrude_text(pan, W // 2 + sh, y, row, size, th, angle=(4 if j % 2 else -4))
+            theme.extrude_text(pan, int(W * fx.get("cx", 0.5)) + sh, y, row, size, th, angle=(4 if j % 2 else -4))
     elif k == "title":                   # 冒頭のタイトルをバーンと（放射の集中線＋拡大して止まる＋揺れ）
         pan.paste((10, 10, 14), (0, OY, W, OY + PH))
         rays = Image.new("RGBA", (W, PH), (0, 0, 0, 0))
@@ -234,7 +234,7 @@ def digest_frame(pan, items, imgs, t, d):
     """冒頭の一気見せ：顔ぶれが1つずつポップして並ぶ（2×2）"""
     n = len(items)
     per = max(0.25, (d - 0.3) / n)
-    cw, ch = W // 2 - 30, PH // 2 - 40
+    cw, ch = W // 2 - 30, PH // 2 - 60
     for i, it in enumerate(items):
         u = t - i * per
         if u < 0:
@@ -247,7 +247,7 @@ def digest_frame(pan, items, imgs, t, d):
         y = 30 + (i // 2) * (PH // 2) + (ch - tile.height) // 2
         pan.paste(tile, (x, y))
         dr = ImageDraw.Draw(pan)
-        motion.box_text(dr, x + tile.width // 2, y + tile.height - 20, it["name"], motion.font(46), BLK, YEL, 16, 8, anchor="cb")
+        motion.box_text(dr, x + tile.width // 2, y + tile.height - 70, it["name"], motion.font(46), BLK, YEL, 16, 8, anchor="ct")
 
 
 def build(sid):
@@ -283,6 +283,8 @@ def build(sid):
             at = fx.get("at", 0.15)
             ty = fx["type"]
             if ty == "title":
+                if os.path.isdir(ZDIR) and sp.get("zunda", True):
+                    ev += [("whoosh_l", 0.0, 1.0), ("boing", 0.45, 1.0)]
                 rows = len(fx["text"].split("\n"))
                 ev += [("boom", at, 1.0), ("crash", at, 0.8)] + [("thud", at + 0.12 * j, 1.0) for j in range(rows)] + [("kira", at + 0.5, 0.9)]
             elif ty == "stamp":
@@ -332,7 +334,8 @@ def build(sid):
                    if src else Image.new("RGB", (W, H), (16, 16, 18)))
         pbg = panel_bg(src) if src else Image.new("RGB", (W, PH), (20, 20, 24))
         tel = ln["text"].split("\n")
-        use_z = os.path.isdir(ZDIR) and sp.get("zunda", True) and not any(fx["type"] == "title" for fx in ln.get("fx", []))
+        is_title = any(fx["type"] == "title" for fx in ln.get("fx", []))
+        use_z = os.path.isdir(ZDIR) and sp.get("zunda", True) and not ln.get("digest")
         z_right = any(fx["type"] == "ring" and fx.get("x", 0.5) < 0.4 for fx in ln.get("fx", []))   # 丸で囲む所が左なら右へ逃げる
         lv = mouth_levels(f"{B}/l{li}.wav", n) if use_z else None
         stamps = [fx.get("at", 0.15) for fx in ln.get("fx", []) if fx["type"] in ("stamp", "warn", "vs")]
@@ -387,12 +390,18 @@ def build(sid):
                 zi = zunda_img(face, lv[i], blink)
                 if zi is not None:
                     hop = int(8 * math.sin(math.pi * t / 0.25)) if t < 0.25 else 0   # 文の頭で一度だけ小さく跳ねる
-                    pop = back(min(1, t / 0.3)) if li == 1 else 1
-                    if pop < 1:
+                    if is_title and t < 0.6:                 # くるくる回りながらドンと出る
+                        pop = back(min(1, t / 0.45))
                         zi = zi.resize((max(1, int(zi.width * pop)), max(1, int(zi.height * pop))))
-                    if z_right:
+                        zi = zi.rotate(720 * (1 - ease(t / 0.6)), expand=True, resample=Image.BICUBIC)
+                        fr.paste(zi, (170 - zi.width // 2, TEL_Y - 220 - zi.height // 2), zi)
+                        zi = None
+                    if zi is None:
+                        pass
+                    elif z_right:
                         zi = zi.transpose(Image.FLIP_LEFT_RIGHT)
-                    fr.paste(zi, (W - zi.width + 30 if z_right else -30, TEL_Y - 20 - zi.height - hop), zi)
+                    if zi is not None:
+                        fr.paste(zi, (W - zi.width + 30 if z_right else -30, TEL_Y - 20 - zi.height - hop), zi)
             dr = ImageDraw.Draw(fr)
             motion.box_text(dr, W // 2, 90, sp.get("label", ""), f_ch, WHT, RED, 26, 12, anchor="ct")
             if nrank:                                    # いま何個目か（最後まで見たくなるように）

@@ -32,8 +32,8 @@
     {
      "type": "title",
      "text": "名前が\nひどすぎる\n海の生き物",
-     "at": 0.0,
-     "size": 175,
+     "at": 0.55,
+     "size": 130,
      "colors": [
       [
        255,
@@ -50,7 +50,9 @@
        226,
        0
       ]
-     ]
+     ],
+     "cx": 0.6,
+     "cy": 0.38
     }
    ],
    "face": "ドヤ"
@@ -328,6 +330,12 @@
    "text": "名前で\n判断するな",
    "file": "File:Atergatis floridus2.jpg",
    "face": "ドヤ"
+  },
+  {
+   "say": "ほかにも名前がひどい生き物がいたら、コメントで教えてほしいのだ。",
+   "text": "ほかにもいたら\nコメントで教えて",
+   "face": "笑顔",
+   "file": "File:Atergatis floridus2.jpg"
   }
  ],
  "bgm_file": "assets/enc/bgm_trivia_mood2.mp3",
