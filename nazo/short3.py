@@ -505,6 +505,7 @@ def build(sid):
                     "-frames:v", "1", f"{kit}/short3_{sid}_tail.jpg"])
     used = [fn for fn in files if fn in imgs]
     open(f"{kit}/short3_{sid}_upload.txt", "w", encoding="utf-8").write(
+        (f"【動画】https://github.com/{os.environ['GITHUB_REPOSITORY']}/actions/runs/{os.environ['GITHUB_RUN_ID']}\n\n" if os.environ.get("GITHUB_RUN_ID") else "") +
         f"【タイトル】\n{sp['title']}\n\n【説明】\n{sp.get('desc', '')}\n\n"
         f"音声: VOICEVOX:{sp.get('voice_name', '')}\n" + ("立ち絵: 坂本アヒル\n" if os.path.isdir(ZDIR) and sp.get("zunda", True) else "") + f"BGM: {bgm_credit}\n効果音: オリジナル\n" + "".join(f"画像: {got[fn]['credit']}\n" for fn in used) +
         f"\n【タグ】\n{','.join(sp.get('tags', []))}\n")
