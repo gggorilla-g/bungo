@@ -537,7 +537,7 @@ def build(sid):
                 theme.channel_logo(lp, 430, PH // 2 - 20, 1.0, logo_t, name=CH_NAME, logo_theme=LOGO_TH,
                                    char=zunda_img("笑顔", lv[i] if lv else 2, 0) if os.path.isdir(ZDIR) else None)
                 fr.paste(lp, (0, PY))
-            if use_z and logo_t < 0 and not ln.get("pin") and not ln.get("up"):                                  # 左下でずんだもんが喋る（テロップのすぐ上）
+            if use_z and logo_t < 0 and not ln.get("pin") and not ln.get("up") and not any(f["type"] in ("globe", "orbit", "beans", "hole", "dash") for f in ln.get("fx", [])):   # 図解の中にずんだもんがいる文は、左下の分を出さない                                  # 左下でずんだもんが喋る（テロップのすぐ上）
                 gf = int(sum(durs[:li]) * FPS) + i
                 blink = gf % 110 < 4
                 face = "指差し" if any(a <= t < a + 0.7 for a in stamps) else ln.get("face", "通常")

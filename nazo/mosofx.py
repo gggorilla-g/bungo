@@ -129,7 +129,7 @@ def draw(pan, OY, PH, u, dur, fx, char=None):
                     d.rectangle([x - 8, y, x + 8, y + 50], fill=(120, 80, 40))
                     d.ellipse([x - 40, y - 60, x + 40, y + 10], fill=LAND2, outline=BLK, width=4)
     elif k == "orbit":
-        cx, cy, r = W // 2, OY + int(PH * 0.44), int(PH * 0.22)
+        cx, cy, r = W // 2, OY + int(PH * 0.42), int(PH * 0.26)
         earth(pan, cx, cy, r, u * 20)
         R = r + 70
         laps = fx.get("to", 7.5) * ease(u / max(0.6, dur * 0.8))
@@ -141,7 +141,7 @@ def draw(pan, OY, PH, u, dur, fx, char=None):
             d.ellipse([x - w / 2, y - w / 2, x + w / 2, y + w / 2], fill=(255, 255, 160 + min(95, q * 3)))
         x, y = cx + R * math.cos(ang), cy + R * 0.38 * math.sin(ang)
         if char is not None:
-            c = char.resize((char.width * 3 // 5, char.height * 3 // 5))
+            c = char.resize((char.width * 3 // 4, char.height * 3 // 4))
             pan.paste(c, (int(x - c.width / 2), int(y - c.height * 0.8)), c)
         counter(d, W, OY, PH, fmt(laps, fx.get("to", 7.5)), fx.get("unit", "周"), fx.get("label", ""))
     elif k == "beans":
