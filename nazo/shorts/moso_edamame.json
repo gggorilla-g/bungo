@@ -1,0 +1,245 @@
+{
+ "main": "moso_science",
+ "label": "もしもの科学",
+ "title": "枝豆77億本で月に届くのだ。もしも枝豆を月まで並べたら #Shorts #科学 #もしも",
+ "desc": "もしも枝豆を月まで並べたら、を本気で計算するのだ。\n\n次に計算する「もしも」は、コメントで決めるのだ。\n\n数値：月までの平均距離384,400km、枝豆のさや1本は5cmとして計算（384,400km÷5cm＝約76.9億本）、世界の人口 約80億人、1秒に1本並べると約76.9億秒＝約244年。",
+ "tags": [
+  "ずんだもん",
+  "科学",
+  "もしも",
+  "空想科学",
+  "妄想科学",
+  "光の速さ",
+  "月",
+  "ショート"
+ ],
+ "voice": {
+  "vvm": "0.vvm",
+  "style": 3,
+  "speed": 1.0,
+  "pitch": 0.0,
+  "intonation": 1.15
+ },
+ "voice_name": "ずんだもん",
+ "bgm_file": "assets/enc/bgm_trivia_mood2.mp3",
+ "bgm_credit": "ムード２ / 今川彰人オーケストラ（OpenTracks（旧DOVA-SYNDROME））",
+ "bgm_vol": 0.16,
+ "themes": [
+  "space",
+  "blueprint",
+  "nebula"
+ ],
+ "yomi": {
+  "レッツ妄想！": "レッツもーそー！"
+ },
+ "lines": [
+  {
+   "say": "枝豆77億本で月に届くのだ。",
+   "text": "枝豆77億本で\n月に届く",
+   "face": "ドヤ",
+   "hook": true,
+   "theme": "space",
+   "fx": [
+    {
+     "type": "beans",
+     "to": 77,
+     "unit": "億本",
+     "label": "",
+     "at": 0.0
+    }
+   ]
+  },
+  {
+   "say": "もしも枝豆を月まで並べたら？",
+   "text": "もしも\n枝豆を月まで並べたら",
+   "face": "指差し",
+   "theme": "space",
+   "fx": [
+    {
+     "type": "title",
+     "text": "もしも\n枝豆を月まで\n並べたら",
+     "at": 0.4,
+     "size": 170,
+     "gap": 185,
+     "tilt": 0,
+     "cy": 0.36,
+     "cx": 0.5
+    }
+   ]
+  },
+  {
+   "say": "レッツゴー！",
+   "text": "レッツゴー！",
+   "pin": true,
+   "theme": "space"
+  },
+  {
+   "say": "月までは38万4400キロ。",
+   "text": "月まで\n38万4400km",
+   "theme": "blueprint",
+   "fx": [
+    {
+     "type": "count",
+     "to": 384400,
+     "unit": "km",
+     "label": "月までの距離",
+     "at": 0.15,
+     "size": 150
+    }
+   ]
+  },
+  {
+   "say": "枝豆のさや1本を5センチとするのだ。",
+   "text": "さや1本\n5cmとする",
+   "file": "File:@ Black Frog Edamame.jpg",
+   "theme": "space",
+   "fx": [
+    {
+     "type": "stamp",
+     "text": "1本5cm",
+     "at": 0.3,
+     "y": 0.4,
+     "size": 170,
+     "color": [
+      255,
+      226,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "say": "割り算すると約77億本！",
+   "text": "割り算すると\n約77億本",
+   "theme": "space",
+   "fx": [
+    {
+     "type": "beans",
+     "to": 77,
+     "unit": "億本",
+     "label": "月まで並べると",
+     "at": 0.0
+    }
+   ]
+  },
+  {
+   "say": "世界の人口は約80億人。",
+   "text": "世界の人口\n約80億人",
+   "theme": "blueprint",
+   "fx": [
+    {
+     "type": "count",
+     "to": 80,
+     "unit": "億人",
+     "label": "世界の人口",
+     "at": 0.15
+    }
+   ]
+  },
+  {
+   "say": "1人1本並べれば月に届くのだ！",
+   "text": "1人1本で\n月に届く",
+   "face": "ドヤ",
+   "up": true,
+   "theme": "nebula",
+   "fx": [
+    {
+     "type": "stamp",
+     "text": "1人1本",
+     "at": 0.2,
+     "y": 0.13,
+     "size": 200,
+     "color": [
+      230,
+      40,
+      40
+     ]
+    }
+   ]
+  },
+  {
+   "say": "ずんだもんがひとりで1秒1本並べると244年かかるのだ。",
+   "text": "ひとりで1秒1本だと\n244年",
+   "theme": "blueprint",
+   "fx": [
+    {
+     "type": "count",
+     "to": 244,
+     "unit": "年",
+     "label": "1秒1本で",
+     "at": 0.15
+    }
+   ]
+  },
+  {
+   "say": "寿命が足りないのだ！",
+   "text": "寿命が\n足りない",
+   "face": "泣き",
+   "up": true,
+   "theme": "space",
+   "fx": [
+    {
+     "type": "stamp",
+     "text": "244年",
+     "at": 0.2,
+     "y": 0.13,
+     "size": 200,
+     "color": [
+      230,
+      40,
+      40
+     ]
+    }
+   ]
+  },
+  {
+   "say": "次に計算するもしもはコメントで決めるのだ！",
+   "text": "次のもしもは\nコメントで決める",
+   "face": "笑顔",
+   "up": true,
+   "theme": "nebula",
+   "fx": [
+    {
+     "type": "stamp",
+     "text": "コメントで決定",
+     "at": 0.2,
+     "y": 0.13,
+     "size": 150,
+     "color": [
+      255,
+      226,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "say": "レッツ妄想！",
+   "text": "レッツ\n妄想！",
+   "face": "笑顔",
+   "logo": true
+  },
+  {
+   "say": "でも枝豆は食べたいのだ。もし並べたら",
+   "text": "枝豆は食べたい\nもし並べたら",
+   "face": "焦り",
+   "theme": "space",
+   "loop": true,
+   "fx": [
+    {
+     "type": "beans",
+     "to": 77,
+     "unit": "億本",
+     "label": "",
+     "at": 0.0
+    }
+   ]
+  }
+ ],
+ "channel_name": [
+  "ずんだもんの",
+  "妄想",
+  "科学"
+ ],
+ "logo_theme": "space"
+}
