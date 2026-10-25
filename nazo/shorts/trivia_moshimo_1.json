@@ -1,17 +1,16 @@
 {
- "main": "trivia_moshimo",
+ "main": "moso_science",
  "label": "もしもの科学",
- "title": "地球が止まると人類は吹っ飛ぶのだ。もしもを本気で計算 #Shorts #雑学 #科学",
+ "title": "地球が止まると人類は吹っ飛ぶのだ。もしもを本気で計算 #Shorts #科学 #もしも",
  "desc": "もしもを本気で計算するのだ。\n地球の自転が止まったら、光の速さで走ったら、枝豆を月まで並べたら、地球に穴を掘って飛び込んだら。\n\n次に計算する「もしも」は、コメントで決めるのだ。\n\n数値の出典：光の速さ（秒速299,792km）、地球の赤道一周（約40,075km）、月までの平均距離（384,400km）、地球を貫く穴の落下時間（Klotz, American Journal of Physics 2015：約38分）。枝豆のさや1本は5cmとして計算。",
  "tags": [
   "ずんだもん",
-  "雑学",
   "科学",
   "もしも",
   "空想科学",
+  "妄想科学",
   "光の速さ",
   "月",
-  "脳がとける雑学",
   "ショート"
  ],
  "voice": {
@@ -26,42 +25,27 @@
  "bgm_credit": "ムード２ / 今川彰人オーケストラ（OpenTracks（旧DOVA-SYNDROME））",
  "bgm_vol": 0.16,
  "themes": [
-  "pink_grad",
-  "orange_rays",
-  "blue_waves",
-  "mint_black",
-  "green_red"
+  "space",
+  "blueprint",
+  "nebula"
  ],
  "yomi": {
-  "レッツ脳とけ！": "レッツのーとけ！"
+  "レッツ妄想！": "レッツもーそー！"
  },
  "lines": [
   {
    "say": "地球が止まると人類は吹っ飛ぶのだ。",
    "text": "地球が止まると\n人類は吹っ飛ぶ",
-   "file": "File:The Earth seen from Apollo 17.jpg",
-   "fit": "cover",
-   "zoom": [
-    0.5,
-    0.5,
-    1.2,
-    1.0
-   ],
    "face": "青ざめ",
    "hook": true,
-   "theme": "pink_grad",
+   "theme": "space",
    "fx": [
     {
-     "type": "stamp",
-     "text": "吹っ飛ぶ",
+     "type": "globe",
      "at": 0.0,
-     "y": 0.4,
-     "size": 220,
-     "color": [
-      230,
-      40,
-      40
-     ]
+     "stop": 0.35,
+     "face": "泣き",
+     "stop_label": "吹っ飛ぶ"
     }
    ]
   },
@@ -69,6 +53,7 @@
    "say": "もしもを本気で計算するのだ！",
    "text": "もしもを\n本気で計算",
    "face": "指差し",
+   "theme": "space",
    "fx": [
     {
      "type": "title",
@@ -86,20 +71,21 @@
    "say": "レッツゴー！",
    "text": "レッツゴー！",
    "pin": true,
-   "theme": "pink_grad"
+   "theme": "space"
   },
   {
    "say": "最後のやつは地球に穴をあけるのだ。",
    "text": "最後のやつ\n地球に穴をあける",
    "face": "青ざめ",
-   "theme": "pink_grad",
+   "up": true,
+   "theme": "nebula",
    "fx": [
     {
      "type": "stamp",
      "text": "地球に穴",
-     "at": 0.6,
-     "y": 0.45,
-     "size": 220,
+     "at": 0.4,
+     "y": 0.13,
+     "size": 200,
      "color": [
       230,
       40,
@@ -111,29 +97,34 @@
   {
    "say": "もしも地球の自転が急に止まったら？",
    "text": "もしも\n自転が止まったら？",
-   "file": "File:The Earth seen from Apollo 17.jpg",
    "face": "焦り",
+   "theme": "space",
    "fx": [
     {
      "type": "rank",
      "text": "No.1",
      "at": 0.05
+    },
+    {
+     "type": "globe",
+     "at": 0.0,
+     "stop": 99,
+     "spin_label": "いつも回ってる"
     }
    ]
   },
   {
    "say": "赤道のあたりは時速1670キロで回ってるのだ。",
    "text": "赤道は\n時速約1670km",
-   "file": "File:The Earth seen from Apollo 17.jpg",
-   "fit": "cover",
    "face": "驚き",
+   "theme": "blueprint",
    "fx": [
     {
      "type": "count",
      "to": 1670,
      "unit": "km",
      "label": "赤道の速さ（時速）",
-     "at": 0.3
+     "at": 0.2
     }
    ]
   },
@@ -141,25 +132,30 @@
    "say": "人も家も新幹線の5倍で吹っ飛ぶのだ！",
    "text": "新幹線の5倍で\n吹っ飛ぶ",
    "face": "泣き",
+   "theme": "space",
    "fx": [
     {
-     "type": "vs",
-     "left": {
-      "label": "新幹線（最高）",
-      "value": "320km"
-     },
-     "right": {
-      "label": "赤道",
-      "value": "1670km"
-     },
-     "at": 0.1
+     "type": "globe",
+     "at": 0.0,
+     "stop": 0.25,
+     "face": "泣き",
+     "stop_label": "新幹線の5倍"
     }
    ]
+  },
+  {
+   "say": "ブレーキは静かにかけてほしいのだ！",
+   "text": "ブレーキは\n静かにかけて",
+   "face": "泣き",
+   "up": true,
+   "theme": "space"
   },
   {
    "say": "もしもずんだもんが光の速さで走ったら？",
    "text": "もしも\n光の速さで走ったら？",
    "face": "驚き",
+   "up": true,
+   "theme": "nebula",
    "fx": [
     {
      "type": "rank",
@@ -169,44 +165,59 @@
     {
      "type": "stamp",
      "text": "秒速30万km",
-     "at": 0.9,
-     "y": 0.45,
-     "size": 135,
+     "at": 0.5,
+     "y": 0.13,
+     "size": 128,
      "color": [
       255,
       226,
       0
      ]
     }
-   ],
-   "file": "File:The Earth seen from Apollo 17.jpg"
+   ]
   },
   {
    "say": "1秒で地球を7周半するのだ。",
    "text": "1秒で\n地球を7周半",
-   "file": "File:The Earth seen from Apollo 17.jpg",
-   "face": "驚き",
+   "theme": "nebula",
    "fx": [
     {
-     "type": "count",
+     "type": "orbit",
      "to": 7.5,
      "unit": "周",
-     "label": "1秒で地球を",
-     "at": 0.3
+     "label": "1秒で",
+     "at": 0.0,
+     "face": "ドヤ"
     }
    ]
   },
   {
    "say": "フルマラソンがまばたきより早く終わるのだ！",
    "text": "フルマラソンが\nまばたきより早く終わる",
+   "theme": "blueprint",
+   "fx": [
+    {
+     "type": "dash",
+     "at": 0.1,
+     "time": "0.00014秒",
+     "label": "フルマラソン 42.195km",
+     "face": "ドヤ"
+    }
+   ]
+  },
+  {
+   "say": "スタートした瞬間にゴールなのだ！",
+   "text": "スタートした瞬間\nゴール",
    "face": "ドヤ",
+   "up": true,
+   "theme": "nebula",
    "fx": [
     {
      "type": "stamp",
-     "text": "0.00014秒",
+     "text": "一瞬",
      "at": 0.2,
-     "y": 0.45,
-     "size": 170,
+     "y": 0.13,
+     "size": 200,
      "color": [
       230,
       40,
@@ -218,8 +229,9 @@
   {
    "say": "もしも枝豆を月まで並べたら？",
    "text": "もしも\n枝豆を月まで並べたら？",
-   "file": "File:2019-01-20 21-58MEZ The moon in true colour.jpg",
+   "file": "File:@ Black Frog Edamame.jpg",
    "face": "通常",
+   "theme": "space",
    "fx": [
     {
      "type": "rank",
@@ -231,7 +243,7 @@
      "text": "枝豆",
      "at": 0.8,
      "y": 0.3,
-     "size": 220,
+     "size": 200,
      "color": [
       255,
       226,
@@ -243,30 +255,30 @@
   {
    "say": "月まで枝豆約77億本なのだ。",
    "text": "月まで枝豆\n約77億本（さや5cm）",
-   "file": "File:@ Black Frog Edamame.jpg",
-   "face": "焦り",
+   "theme": "space",
    "fx": [
     {
-     "type": "count",
+     "type": "beans",
      "to": 77,
      "unit": "億本",
      "label": "月まで38万4400km",
-     "at": 0.3
+     "at": 0.0
     }
    ]
   },
   {
    "say": "世界中の人が1本ずつ並べれば月に届くのだ！",
    "text": "1人1本で\n月に届く",
-   "file": "File:2019-01-20 21-58MEZ The moon in true colour.jpg",
    "face": "ドヤ",
+   "up": true,
+   "theme": "space",
    "fx": [
     {
      "type": "stamp",
      "text": "1人1本",
      "at": 0.2,
-     "y": 0.4,
-     "size": 220,
+     "y": 0.13,
+     "size": 200,
      "color": [
       230,
       40,
@@ -278,8 +290,9 @@
   {
    "say": "もしも地球の反対側まで穴を掘って飛び込んだら？",
    "text": "もしも地球に穴を\n掘って飛び込んだら？",
-   "file": "File:The Earth seen from Apollo 17.jpg",
    "face": "青ざめ",
+   "up": true,
+   "theme": "blueprint",
    "fx": [
     {
      "type": "rank",
@@ -289,9 +302,9 @@
     {
      "type": "stamp",
      "text": "穴",
-     "at": 1.2,
-     "y": 0.45,
-     "size": 230,
+     "at": 0.9,
+     "y": 0.13,
+     "size": 200,
      "color": [
       230,
       40,
@@ -303,28 +316,13 @@
   {
    "say": "反対側に着くまで約38分なのだ。",
    "text": "反対側まで\n約38分",
-   "file": "File:The Earth seen from Apollo 17.jpg",
-   "fit": "cover",
-   "face": "驚き",
+   "theme": "blueprint",
    "fx": [
     {
-     "type": "count",
+     "type": "hole",
      "to": 38,
-     "unit": "分",
-     "label": "地球の裏まで",
-     "at": 0.3
-    },
-    {
-     "type": "stamp",
-     "text": "論文あり",
-     "at": 1.4,
-     "y": 0.75,
-     "size": 120,
-     "color": [
-      255,
-      226,
-      0
-     ]
+     "at": 0.0,
+     "face": "焦り"
     }
    ]
   },
@@ -332,13 +330,15 @@
    "say": "地球の裏までアニメ2話より早いのだ！",
    "text": "地球の裏まで\nアニメ2話より早い",
    "face": "ドヤ",
+   "up": true,
+   "theme": "blueprint",
    "fx": [
     {
      "type": "stamp",
      "text": "アニメ2話より早い",
      "at": 0.1,
-     "y": 0.45,
-     "size": 105,
+     "y": 0.13,
+     "size": 100,
      "color": [
       230,
       40,
@@ -351,12 +351,14 @@
    "say": "次に計算するもしもはコメントで決めるのだ！",
    "text": "次のもしもは\nコメントで決める",
    "face": "笑顔",
+   "up": true,
+   "theme": "nebula",
    "fx": [
     {
      "type": "stamp",
      "text": "コメントで決定",
      "at": 0.2,
-     "y": 0.4,
+     "y": 0.13,
      "size": 150,
      "color": [
       255,
@@ -367,27 +369,31 @@
    ]
   },
   {
-   "say": "レッツ脳とけ！",
-   "text": "レッツ\n脳とけ！",
+   "say": "レッツ妄想！",
+   "text": "レッツ\n妄想！",
    "face": "笑顔",
-   "logo": true,
-   "theme": "pink_grad"
+   "logo": true
   },
   {
    "say": "でも地球は止まらないのだ。もし止まったら",
    "text": "地球は止まらない\nもし止まったら",
-   "file": "File:The Earth seen from Apollo 17.jpg",
-   "fit": "cover",
    "face": "焦り",
-   "fx": [],
+   "theme": "space",
    "loop": true,
-   "theme": "pink_grad",
-   "zoom": [
-    0.5,
-    0.5,
-    1.2,
-    1.0
+   "fx": [
+    {
+     "type": "globe",
+     "at": 0.0,
+     "stop": 99,
+     "spin_label": "今日も回ってる"
+    }
    ]
   }
- ]
+ ],
+ "channel_name": [
+  "ずんだもんの",
+  "妄想",
+  "科学"
+ ],
+ "logo_theme": "space"
 }

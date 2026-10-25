@@ -8,7 +8,9 @@
 import json, math, os, re, subprocess, sys
 from PIL import Image, ImageDraw, ImageFilter, ImageEnhance
 sys.path.insert(0, "src"); sys.path.insert(0, "nazo")
-import render, yomi, motion, se, m4_images, theme, mapfx
+import render, yomi, motion, se, m4_images, theme, mapfx, mosofx
+CH_NAME = ("ずんだもんの", "脳がとける", "雑学")   # チャンネルのロゴの3段（台本の channel_name で変える）
+LOGO_TH = "pink_grad"                           # ロゴ・ピンショット・アップの配色（台本の logo_theme）
 THEME = None          # いまの文の配色（nazo/theme.py の名前）。None なら従来の見た目
 _cache = {}
 
@@ -68,7 +70,7 @@ SHAKE = {"泣き": 10, "青ざめ": 12, "焦り": 10, "驚き": 14, "怒り": 18
 
 def up_panel(face, mouth, blink, t, d, thm):
     """ツッコミ用のアップ：顔が帯いっぱいにドンと寄る。集中線、驚き系は揺れる"""
-    pan = theme.background(thm or "pink_grad", W, PH, t)
+    pan = theme.background(thm or LOGO_TH, W, PH, t)
     dr = ImageDraw.Draw(pan, "RGBA")
     cx, cy = W // 2, int(PH * 0.42)
     for a in range(0, 360, 6):                       # 集中線（コマごとに少し回して動きを出す）
@@ -328,6 +330,9 @@ def draw_fx(pan, fx, t, d, place, OY=0):
         mapfx.draw_map(pan, OY, PH, u, fx)
     elif k == "sign":                    # 湖のイラストと、道路案内風の看板
         mapfx.draw_sign(pan, OY, PH, u, fx)
+    elif k in ("globe", "orbit", "beans", "hole", "dash"):   # 妄想科学の図解モーション
+        ch = zunda_img(fx.get("face", "驚き"), 1, 0) if os.path.isdir(ZDIR) else None
+        mosofx.draw(pan, OY, PH, u, d - at, fx, ch)
     elif k == "rank":                    # 左上の番号札
         p = back(u / 0.25)
         f = motion.font(int(96 * p) or 1)
@@ -355,7 +360,10 @@ def digest_frame(pan, items, imgs, t, d):
 
 
 def build(sid):
+    global CH_NAME, LOGO_TH
     sp = json.load(open(f"nazo/shorts/{sid}.json", encoding="utf-8"))
+    CH_NAME = tuple(sp.get("channel_name", CH_NAME))
+    LOGO_TH = sp.get("logo_theme", LOGO_TH)
     main = sp["main"]
     os.makedirs(B, exist_ok=True); os.makedirs("output", exist_ok=True)
     render.B = B
@@ -437,7 +445,7 @@ def build(sid):
     footer = None
     if sp.get("footer_logo", True):                       # 小さいチャンネルロゴ（1回だけ描いて使い回す）
         footer = Image.new("RGBA", (W, 300), (0, 0, 0, 0))
-        theme.channel_logo(footer, W // 2 - 40, 150, 0.42, 9.0)
+        theme.channel_logo(footer, W // 2 - 40, 150, 0.42, 9.0, name=CH_NAME, logo_theme=LOGO_TH)
     themes, sec = sp.get("themes"), 0
     nrank = sum(1 for ln in lines if any(fx["type"] == "rank" for fx in ln.get("fx", [])))
     rank_i = 0
@@ -517,7 +525,7 @@ def build(sid):
                 draw_fx(ext, fx, t, d, place, OY=M)
             fr.paste(ext, (0, PY - M))
             if ln.get("pin") and os.path.isdir(ZDIR):   # ずんだもんのピンショット：普通→すぐ指差しで「レッツゴー！」
-                pp = theme.background(THEME or "pink_grad", W, PH, t)
+                pp = theme.background(THEME or LOGO_TH, W, PH, t)
                 face = "通常" if t < 0.12 else "指差し"
                 z = 1.18 - 0.18 * ease(t / 0.2)
                 zb = zunda_big(face, lv[i] if lv else 2, int(PH * 1.05 * z))
@@ -525,8 +533,8 @@ def build(sid):
                 fr.paste(pp, (0, PY))
             logo_t = t if ln.get("logo") else -1
             if logo_t >= 0:                              # 締め：チャンネルのロゴをドンと出し、ずんだもんが「レッツ！脳とけ！」
-                lp = theme.background("pink_grad", W, PH, logo_t)
-                theme.channel_logo(lp, 430, PH // 2 - 20, 1.0, logo_t,
+                lp = theme.background(LOGO_TH, W, PH, logo_t)
+                theme.channel_logo(lp, 430, PH // 2 - 20, 1.0, logo_t, name=CH_NAME, logo_theme=LOGO_TH,
                                    char=zunda_img("笑顔", lv[i] if lv else 2, 0) if os.path.isdir(ZDIR) else None)
                 fr.paste(lp, (0, PY))
             if use_z and logo_t < 0 and not ln.get("pin") and not ln.get("up"):                                  # 左下でずんだもんが喋る（テロップのすぐ上）

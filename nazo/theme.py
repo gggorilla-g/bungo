@@ -25,6 +25,12 @@ THEMES = {
                     "face": (255, 246, 90), "side": (0, 0, 0), "edge": (0, 0, 0), "duo": ((90, 20, 120), (255, 160, 220))},
     "mint_black":  {"bg": "panels", "c": [(10, 10, 12), (240, 140, 216), (142, 240, 200)],
                     "face": (240, 140, 216), "side": (10, 10, 12), "edge": (142, 240, 200), "duo": ((50, 60, 140), (240, 150, 220))},
+    "space":       {"bg": "space", "c": [(8, 10, 40), (20, 30, 90), (70, 60, 160)],
+                    "face": (255, 226, 0), "side": (230, 40, 90), "edge": (10, 10, 30), "duo": ((10, 15, 60), (150, 220, 255))},
+    "blueprint":   {"bg": "grid", "c": [(18, 70, 150), (30, 95, 185), (140, 190, 240)],
+                    "face": (255, 255, 255), "side": (10, 40, 100), "edge": (10, 40, 100), "duo": ((10, 40, 100), (200, 230, 255))},
+    "nebula":      {"bg": "nebula", "c": [(30, 10, 60), (110, 30, 140), (240, 90, 170)],
+                    "face": (130, 255, 220), "side": (60, 10, 90), "edge": (20, 0, 40), "duo": ((40, 10, 80), (255, 170, 230))},
     "green_red":   {"bg": "stripes", "c": [(30, 90, 40), (226, 72, 40), (246, 208, 128)],
                     "face": (246, 208, 128), "side": (30, 90, 40), "edge": (30, 90, 40), "duo": ((30, 90, 40), (246, 208, 128))},
 }
@@ -76,6 +82,36 @@ def background(name, w, h, t):
                                       (w // 2 + 20, h - 260, w - 40, h - 40, c2)):
             d.rounded_rectangle([x0, y0, x1, y1], 36, fill=col)
             d.rounded_rectangle([x0 + 14, y0 + 14, x1 - 14, y1 - 14], 26, outline=c0, width=4)
+    elif kind in ("space", "nebula"):       # 宇宙：濃紺のグラデーションに星がまたたく（星雲は色のもや付き）
+        a = np.linspace(0, 1, h)[:, None, None]
+        arr = (np.array(c0) * (1 - a) + np.array(c1) * a) * np.ones((1, w, 1))
+        im = Image.fromarray(arr.astype(np.uint8))
+        d = ImageDraw.Draw(im, "RGBA")
+        if kind == "nebula":
+            for j in range(5):
+                x = (j * 397 % w); y = (j * 613 % h); r = 260 + j * 60
+                for q in range(6):
+                    rr = r * (1 - q / 6)
+                    d.ellipse([x - rr, y - rr * 0.7, x + rr, y + rr * 0.7], fill=c2 + (10,))
+        rng = np.random.default_rng(11)
+        for x, y, s, ph in zip(rng.integers(0, w, 160), rng.integers(0, h, 160), rng.uniform(1, 4, 160), rng.uniform(0, 6, 160)):
+            b = int(160 + 95 * math.sin(t * 3 + ph))
+            d.ellipse([x - s, y - s, x + s, y + s], fill=(255, 255, 255, b))
+        if h > 1500:                        # 遠くの惑星（全面の背景だけ。絵の帯には出さない）
+            d.ellipse([w - 260, int(h * 0.08), w + 120, int(h * 0.08) + 380], fill=c2 + (200,))
+            d.arc([w - 380, int(h * 0.08) + 120, w + 240, int(h * 0.08) + 260], 160, 380, fill=(200, 190, 255, 200), width=10)
+    elif kind == "grid":                    # 方眼紙（計算ノート）：細い線と太い線、ゆっくり流れる
+        im = Image.new("RGB", (w, h), c1)
+        d = ImageDraw.Draw(im)
+        off = int(t * 20) % 40
+        for x in range(-40 + off, w + 40, 40):
+            d.line([(x, 0), (x, h)], fill=(60, 125, 210), width=2)
+        for y in range(-40 + off, h + 40, 40):
+            d.line([(0, y), (w, y)], fill=(60, 125, 210), width=2)
+        for x in range(-200 + off * 5 // 5, w + 200, 200):
+            d.line([(x, 0), (x, h)], fill=c2, width=3)
+        for y in range(-200 + off, h + 200, 200):
+            d.line([(0, y), (w, y)], fill=c2, width=3)
     elif kind == "stripes":                 # 太い縦じま（緑と朱）
         im = Image.new("RGB", (w, h), c0)
         d = ImageDraw.Draw(im)
@@ -127,9 +163,9 @@ def extrude_text(base, x, y, text, size, th, depth=None, anchor="mm", angle=0):
     base.paste(lay, (0, 0), lay)
 
 
-def channel_logo(base, cx, cy, sc, t, name=("ずんだもんの", "脳がとける", "雑学"), char=None):
+def channel_logo(base, cx, cy, sc, t, name=("ずんだもんの", "脳がとける", "雑学"), char=None, logo_theme="pink_grad"):
     """チャンネルのロゴ（立体文字3段＋右下にずんだもん）。sc: 大きさの倍率、t: 出てからの秒"""
-    th = THEMES["pink_grad"]
+    th = THEMES[logo_theme]
     sizes = (70, 150, 210)
     ys = (-200, -60, 140)
     for j, (row, size, dy) in enumerate(zip(name, sizes, ys)):
