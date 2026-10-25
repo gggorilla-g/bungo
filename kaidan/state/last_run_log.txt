@@ -1,3 +1,3 @@
 WARNING: JPCommonLabel_insert_pause() in jpcommon_label.c: First mora should not be short pause.
-指定画像 9/9 枚
-完了: 第9話 幽霊滝の伝説 → 手動投稿用 kaidan/manual/059432
+指定画像 11/11 枚
+完了: 第10話 鐘ヶ淵 → 手動投稿用 kaidan/manual/043544
