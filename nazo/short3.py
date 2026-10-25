@@ -126,6 +126,53 @@ def big_text(d, x, y, text, size, fg, stroke=10, sfill=BLK, anchor="mm"):
     d.text((x, y), text, font=motion.font(size), fill=fg, stroke_width=stroke, stroke_fill=sfill, anchor=anchor)
 
 
+def _busy(im):
+    """写真の「見どころ」の強さの地図（0〜1）。輪郭がくっきりした所（ピントの合った被写体）ほど大きい。
+    ボケた背景・空・地面の広い所は小さく出る"""
+    import numpy as _np
+    g = im.convert("L").resize((im.width // 4 or 1, im.height // 4 or 1), Image.BILINEAR).filter(ImageFilter.GaussianBlur(1))
+    a = _np.asarray(g, dtype=_np.float32)
+    gx = _np.zeros_like(a); gy = _np.zeros_like(a)
+    gx[:, 1:-1] = a[:, 2:] - a[:, :-2]; gy[1:-1, :] = a[2:, :] - a[:-2, :]
+    m = Image.fromarray(_np.clip(_np.hypot(gx, gy) * 4, 0, 255).astype(_np.uint8)).filter(ImageFilter.BoxBlur(5))
+    m = _np.asarray(m.resize((im.width, im.height), Image.BILINEAR), dtype=_np.float32)
+    return m / max(float(_np.percentile(m, 97)), 1e-3)
+
+
+def auto_y(ln, src, fx, use_z, z_right):
+    """押し文字・警告テープを、写真の見どころ（被写体の顔など）とずんだもんを避けた高さに置く。
+    台本の y は「なるべくこの辺」という希望として扱う（台本を書く側は写真を見ていないため）。
+    写真が無い文や、fx に "y_fixed": true があるときは台本の y のまま"""
+    import numpy as _np
+    want = fx.get("y", 0.5)
+    if src is None or fx.get("y_fixed") or ln.get("digest") or ln.get("title_card"):
+        return want
+    busy = _np.zeros((PH, W), _np.float32)
+    if ln.get("fit", "contain") == "contain":
+        im, x0, y0, _ = contain(src, 0.95)
+        busy[y0:y0 + im.height, x0:x0 + im.width] = _busy(im)
+    else:                                          # 寄り：ズームの始めと終わりの両方で避ける
+        cx, cy, z0, z1 = ln.get("zoom", [0.5, 0.5, 1.0, 1.15])
+        busy = _np.maximum(_busy(cover(src, cx, cy, z0, W, PH)), _busy(cover(src, cx, cy, z1, W, PH)))
+    if use_z:                                      # 左下（または右下）のずんだもん
+        zx0, zx1 = (W - 360, W) if z_right else (0, 360)
+        busy[int(PH * 0.6):, zx0:zx1] = _np.maximum(busy[int(PH * 0.6):, zx0:zx1], 1.5)
+    if fx["type"] == "warn":
+        bw, bh = W, 180
+    else:
+        size = fx.get("size", 190)
+        bw, bh = min(W, int(size * len(fx["text"]) * 1.05)), int(size * 1.25)
+    x0 = (W - bw) // 2
+    best, best_s = want, None
+    for y in [i / 100 for i in range(16, 85, 3)]:
+        yc = int(PH * y)
+        r = busy[max(0, yc - bh // 2):min(PH, yc + bh // 2), x0:x0 + bw]
+        sc = (float(r.mean()) if r.size else 9) + abs(y - want) * 0.15   # 希望の高さに少しだけ寄せる
+        if best_s is None or sc < best_s:
+            best, best_s = y, sc
+    return best
+
+
 def draw_fx(pan, fx, t, d, place, OY=0):
     """pan: 絵の帯を上下に OY ずつ広げた画像（帯は y=OY から PH の高さ）。帯からはみ出しても切れないようにするため。
     t: 文の中の経過秒、d: 文の長さ、place: contain配置 (x0,y0,k,src) か None"""
@@ -138,15 +185,16 @@ def draw_fx(pan, fx, t, d, place, OY=0):
     if k == "stamp" and THEME:           # 配色ありの押し文字：立体の押し出し文字
         s = 1.6 - 0.6 * back(u / 0.25)
         sh = int(14 * math.sin(u * 80)) if u < 0.3 else 0
-        theme.extrude_text(pan, W // 2 + sh, OY + int(PH * fx.get("y", 0.5)), fx["text"], fx.get("size", 190) * s,
+        theme.extrude_text(pan, W // 2 + sh, OY + int(PH * fx.get("_y", fx.get("y", 0.5))), fx["text"], fx.get("size", 190) * s,
                            theme.THEMES[THEME], angle=-fx.get("tilt", -8))
     elif k == "stamp":                     # どんと押す大文字（少し傾けて揺らす）
         s = 1.6 - 0.6 * back(u / 0.25)
         size = int(fx.get("size", 190) * s)
         lay = Image.new("RGBA", pan.size, (0, 0, 0, 0))
         ld = ImageDraw.Draw(lay)
-        big_text(ld, W // 2, OY + int(PH * fx.get("y", 0.5)), fx["text"], size, tuple(fx.get("color", RED)), 14, WHT)
-        lay = lay.rotate(fx.get("tilt", -8), center=(W // 2, OY + PH * fx.get("y", 0.5)))
+        yy = fx.get("_y", fx.get("y", 0.5))
+        big_text(ld, W // 2, OY + int(PH * yy), fx["text"], size, tuple(fx.get("color", RED)), 14, WHT)
+        lay = lay.rotate(fx.get("tilt", -8), center=(W // 2, OY + PH * yy))
         if u < 0.3:
             lay = lay.transform(lay.size, Image.AFFINE, (1, 0, int(14 * math.sin(u * 80)), 0, 1, 0))
         pan.paste(lay, (0, 0), lay)
@@ -195,7 +243,7 @@ def draw_fx(pan, fx, t, d, place, OY=0):
             td.polygon([(i + 45, 0), (i + 90, 0), (i + 45, 180), (i, 180)], fill=BLK + (255,))
         off = int((1 - e) * W) - int(u * 120) % 90
         band = tape.crop((max(0, -off), 0, max(0, -off) + W, 180))
-        y = OY + int(PH * fx.get("y", 0.5)) - 90
+        y = OY + int(PH * fx.get("_y", fx.get("y", 0.5))) - 90
         pan.paste(band.rotate(-6, expand=False), (0, y), band.rotate(-6, expand=False))
         if u > 0.2:
             motion.box_text(dr, W // 2, y + 40, fx["text"], motion.font(int(110 * back((u - 0.2) / 0.25)) or 1),
@@ -387,6 +435,10 @@ def build(sid):
                       for fx in ln.get("fx", []))   # 見せたい所が左なら、ずんだもんは右へ   # 丸で囲む所が左なら右へ逃げる
         lv = mouth_levels(f"{B}/l{li}.wav", n) if use_z else None
         stamps = [fx.get("at", 0.15) for fx in ln.get("fx", []) if fx["type"] in ("stamp", "warn", "vs")]
+        for fx in ln.get("fx", []):
+            if fx["type"] in ("stamp", "warn"):
+                fx["_y"] = auto_y(ln, src, fx, use_z, z_right)
+                print("文字の位置:", fx["text"], fx.get("y", 0.5), "→", fx["_y"])
         for i in range(n):
             t = i / FPS
             fr = theme.background(THEME, W, H, t) if THEME else bg_full.copy()
