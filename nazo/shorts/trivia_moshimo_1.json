@@ -1,0 +1,399 @@
+{
+ "main": "trivia_moshimo",
+ "label": "もしもの科学",
+ "title": "人間はいま時速1700キロで動いてるのだ。もしもを本気で計算 #Shorts #雑学 #科学",
+ "desc": "もしもを本気で計算するのだ。\n光の速さで走ったら、地球の自転が止まったら、枝豆を月まで並べたら、地球に穴を掘って飛び込んだら。\n\n計算してほしい「もしも」があったら、コメントで教えてほしいのだ。\n\n数値の出典：光の速さ（秒速299,792km）、地球の赤道一周（約40,075km）、月までの平均距離（384,400km）、地球を貫く穴の落下時間（Klotz, American Journal of Physics 2015：約38分）。枝豆のさや1本は5cmとして計算。",
+ "tags": [
+  "ずんだもん",
+  "雑学",
+  "科学",
+  "もしも",
+  "空想科学",
+  "光の速さ",
+  "月",
+  "脳がとける雑学",
+  "ショート"
+ ],
+ "voice": {
+  "vvm": "0.vvm",
+  "style": 3,
+  "speed": 1.0,
+  "pitch": 0.0,
+  "intonation": 1.15
+ },
+ "voice_name": "ずんだもん",
+ "bgm_file": "assets/enc/bgm_trivia_mood2.mp3",
+ "bgm_credit": "ムード２ / 今川彰人オーケストラ（OpenTracks（旧DOVA-SYNDROME））",
+ "bgm_vol": 0.16,
+ "themes": [
+  "pink_grad",
+  "orange_rays",
+  "blue_waves",
+  "mint_black",
+  "green_red"
+ ],
+ "yomi": {
+  "レッツ脳とけ！": "レッツのーとけ！"
+ },
+ "lines": [
+  {
+   "say": "人間はいま時速1700キロで動いてるのだ。",
+   "text": "人間はいま\n時速1700kmで動いてる",
+   "file": "File:The Earth seen from Apollo 17.jpg",
+   "fit": "cover",
+   "zoom": [
+    0.5,
+    0.5,
+    1.2,
+    1.0
+   ],
+   "face": "ドヤ",
+   "hook": true,
+   "theme": "pink_grad",
+   "fx": [
+    {
+     "type": "stamp",
+     "text": "時速1700km",
+     "at": 0.0,
+     "y": 0.4,
+     "size": 118,
+     "color": [
+      230,
+      40,
+      40
+     ]
+    }
+   ]
+  },
+  {
+   "say": "もしもを本気で計算するのだ！",
+   "text": "もしもを\n本気で計算",
+   "face": "指差し",
+   "fx": [
+    {
+     "type": "title",
+     "text": "もしもを\n本気で\n計算",
+     "at": 0.4,
+     "size": 200,
+     "gap": 215,
+     "tilt": 0,
+     "cy": 0.36,
+     "cx": 0.5
+    }
+   ]
+  },
+  {
+   "say": "レッツゴー！",
+   "text": "レッツゴー！",
+   "pin": true,
+   "theme": "pink_grad"
+  },
+  {
+   "say": "最後のやつは地球に穴をあけるのだ。",
+   "text": "最後のやつ\n地球に穴をあける",
+   "face": "青ざめ",
+   "theme": "pink_grad",
+   "fx": [
+    {
+     "type": "stamp",
+     "text": "地球に穴",
+     "at": 0.6,
+     "y": 0.45,
+     "size": 220,
+     "color": [
+      230,
+      40,
+      40
+     ]
+    }
+   ]
+  },
+  {
+   "say": "もしもずんだもんが光の速さで走ったら？",
+   "text": "もしも\n光の速さで走ったら？",
+   "face": "驚き",
+   "fx": [
+    {
+     "type": "rank",
+     "text": "No.1",
+     "at": 0.05
+    },
+    {
+     "type": "stamp",
+     "text": "秒速30万km",
+     "at": 0.9,
+     "y": 0.45,
+     "size": 135,
+     "color": [
+      255,
+      226,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "say": "1秒で地球を7周半するのだ。",
+   "text": "1秒で\n地球を7周半",
+   "file": "File:The Earth seen from Apollo 17.jpg",
+   "face": "驚き",
+   "fx": [
+    {
+     "type": "count",
+     "to": 7.5,
+     "unit": "周",
+     "label": "1秒で地球を",
+     "at": 0.3
+    }
+   ]
+  },
+  {
+   "say": "フルマラソンは0.00014秒で終わるのだ！",
+   "text": "フルマラソン\n0.00014秒",
+   "face": "ドヤ",
+   "fx": [
+    {
+     "type": "stamp",
+     "text": "0.00014秒",
+     "at": 0.2,
+     "y": 0.45,
+     "size": 118,
+     "color": [
+      230,
+      40,
+      40
+     ]
+    }
+   ]
+  },
+  {
+   "say": "もしも地球の自転が急に止まったら？",
+   "text": "もしも\n自転が止まったら？",
+   "file": "File:The Earth seen from Apollo 17.jpg",
+   "face": "焦り",
+   "fx": [
+    {
+     "type": "rank",
+     "text": "No.2",
+     "at": 0.05
+    }
+   ]
+  },
+  {
+   "say": "赤道のあたりは時速1700キロで回ってるのだ。",
+   "text": "赤道のあたりは\n時速1700km",
+   "file": "File:The Earth seen from Apollo 17.jpg",
+   "fit": "cover",
+   "face": "驚き",
+   "fx": [
+    {
+     "type": "count",
+     "to": 1700,
+     "unit": "km",
+     "label": "赤道の速さ（時速）",
+     "at": 0.3
+    }
+   ]
+  },
+  {
+   "say": "急に止まったらそのスピードで吹っ飛ぶのだ。",
+   "text": "そのスピードで\n吹っ飛ぶ",
+   "face": "青ざめ",
+   "fx": [
+    {
+     "type": "warn",
+     "text": "吹っ飛ぶ",
+     "at": 0.5,
+     "y": 0.45
+    }
+   ]
+  },
+  {
+   "say": "新幹線の5倍以上なのだ！",
+   "text": "新幹線の\n5倍以上",
+   "face": "泣き",
+   "fx": [
+    {
+     "type": "vs",
+     "left": {
+      "label": "新幹線（最高）",
+      "value": "320km"
+     },
+     "right": {
+      "label": "赤道",
+      "value": "1700km"
+     },
+     "at": 0.1
+    }
+   ]
+  },
+  {
+   "say": "もしも枝豆を月まで並べたら？",
+   "text": "もしも\n枝豆を月まで並べたら？",
+   "file": "File:2019-01-20 21-58MEZ The moon in true colour.jpg",
+   "face": "通常",
+   "fx": [
+    {
+     "type": "rank",
+     "text": "No.3",
+     "at": 0.05
+    },
+    {
+     "type": "stamp",
+     "text": "枝豆",
+     "at": 0.8,
+     "y": 0.3,
+     "size": 220,
+     "color": [
+      255,
+      226,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "say": "月までは38万4400キロ。",
+   "text": "月まで\n38万4400km",
+   "file": "File:2019-01-20 21-58MEZ The moon in true colour.jpg",
+   "fit": "cover",
+   "face": "驚き",
+   "fx": [
+    {
+     "type": "count",
+     "to": 384400,
+     "unit": "km",
+     "label": "月までの距離",
+     "at": 0.3,
+     "size": 150
+    }
+   ]
+  },
+  {
+   "say": "さや1本5センチとすると約77億本いるのだ。",
+   "text": "さや1本5cmで\n約77億本",
+   "file": "File:@ Black Frog Edamame.jpg",
+   "face": "焦り",
+   "fx": [
+    {
+     "type": "count",
+     "to": 77,
+     "unit": "億本",
+     "label": "枝豆",
+     "at": 0.3
+    }
+   ]
+  },
+  {
+   "say": "世界中の人が1本ずつ並べれば月に届くのだ！",
+   "text": "1人1本で\n月に届く",
+   "file": "File:2019-01-20 21-58MEZ The moon in true colour.jpg",
+   "face": "ドヤ",
+   "fx": [
+    {
+     "type": "stamp",
+     "text": "1人1本",
+     "at": 0.2,
+     "y": 0.4,
+     "size": 220,
+     "color": [
+      230,
+      40,
+      40
+     ]
+    }
+   ]
+  },
+  {
+   "say": "もしも地球の反対側まで穴を掘って飛び込んだら？",
+   "text": "もしも\n地球に穴を掘って飛び込んだら？",
+   "file": "File:The Earth seen from Apollo 17.jpg",
+   "face": "青ざめ",
+   "fx": [
+    {
+     "type": "rank",
+     "text": "No.4",
+     "at": 0.05
+    },
+    {
+     "type": "stamp",
+     "text": "穴",
+     "at": 1.2,
+     "y": 0.45,
+     "size": 230,
+     "color": [
+      230,
+      40,
+      40
+     ]
+    }
+   ]
+  },
+  {
+   "say": "反対側に着くまで約38分なのだ。",
+   "text": "反対側まで\n約38分",
+   "file": "File:The Earth seen from Apollo 17.jpg",
+   "fit": "cover",
+   "face": "驚き",
+   "fx": [
+    {
+     "type": "count",
+     "to": 38,
+     "unit": "分",
+     "label": "地球の裏まで",
+     "at": 0.3
+    }
+   ]
+  },
+  {
+   "say": "研究者がちゃんと計算してるのだ。",
+   "text": "研究者が\nちゃんと計算",
+   "face": "ドヤ",
+   "fx": [
+    {
+     "type": "stamp",
+     "text": "論文あり",
+     "at": 0.3,
+     "y": 0.45,
+     "size": 220,
+     "color": [
+      255,
+      226,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "say": "地球の裏まで授業1コマより短いのだ！",
+   "text": "地球の裏まで\n授業1コマより短い",
+   "face": "ドヤ",
+   "fx": [
+    {
+     "type": "stamp",
+     "text": "授業より短い",
+     "at": 0.1,
+     "y": 0.45,
+     "size": 158,
+     "color": [
+      230,
+      40,
+      40
+     ]
+    }
+   ]
+  },
+  {
+   "say": "ほかにも計算してほしいもしもはコメントで教えるのだ！",
+   "text": "計算してほしいもしもを\nコメントで教えて",
+   "face": "笑顔"
+  },
+  {
+   "say": "レッツ脳とけ！",
+   "text": "レッツ\n脳とけ！",
+   "face": "笑顔",
+   "logo": true,
+   "theme": "pink_grad"
+  }
+ ]
+}
