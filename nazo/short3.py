@@ -63,6 +63,36 @@ def zunda_big(face, mouth, h):
     return im.transpose(Image.FLIP_LEFT_RIGHT) if face == "指差し" else im
 
 
+SHAKE = {"泣き": 10, "青ざめ": 12, "焦り": 10, "驚き": 14, "怒り": 18}
+
+
+def up_panel(face, mouth, blink, t, d, thm):
+    """ツッコミ用のアップ：顔が帯いっぱいにドンと寄る。集中線、驚き系は揺れる"""
+    pan = theme.background(thm or "pink_grad", W, PH, t)
+    dr = ImageDraw.Draw(pan, "RGBA")
+    cx, cy = W // 2, int(PH * 0.42)
+    for a in range(0, 360, 6):                       # 集中線（コマごとに少し回して動きを出す）
+        r = math.radians(a + (int(t * 15) % 2) * 3)
+        w = 4 + (a * 7 % 5) * 3
+        r0 = 330 + (a * 13 % 7) * 25
+        dr.polygon([(cx + r0 * math.cos(r - 0.006 * w), cy + r0 * math.sin(r - 0.006 * w)),
+                    (cx + 1500 * math.cos(r), cy + 1500 * math.sin(r)),
+                    (cx + r0 * math.cos(r + 0.006 * w), cy + r0 * math.sin(r + 0.006 * w))], fill=(255, 255, 255, 170))
+    z = 1.0 + 0.3 * (1 - ease(min(1, t / 0.15)))     # 一瞬で寄って止まる
+    h = int(PH * 1.75 * z)
+    k = f"{face}_{mouth}_{1 if blink else 0}"
+    if not os.path.exists(f"{ZDIR}/{k}.png"):
+        k = f"{face}_{mouth}_0" if os.path.exists(f"{ZDIR}/{face}_{mouth}_0.png") else f"通常_{mouth}_0"
+    im = Image.open(f"{ZDIR}/{k}.png").convert("RGBA")
+    im = im.resize((int(im.width * h / im.height), h), Image.LANCZOS)
+    if face == "指差し":
+        im = im.transpose(Image.FLIP_LEFT_RIGHT)
+    amp = SHAKE.get(face, 0) * math.exp(-t * 3)
+    sx, sy = int(amp * math.sin(t * 70)), int(amp * 0.6 * math.cos(t * 55))
+    pan.paste(im, ((W - im.width) // 2 + sx, cy - int(h * 0.38) + sy), im)
+    return pan
+
+
 def voiced_len(wav):
     """声が実際に鳴り終わるまでの秒数（末尾の無音を除く）"""
     import wave as _w, numpy as _np
@@ -391,6 +421,8 @@ def build(sid):
             ev += [("pop_big", i * per, 1.0) for i in range(n)]
         if li == len(lines) - 1 and not ln.get("loop"):
             ev += [("chime_b", d - 0.8, 1.0)]
+        if ln.get("up"):
+            ev += [("boom", 0.0, 0.8)]
         if ln.get("pin"):
             ev += [("boom", 0.0, 1.0), ("zip_up", 0.0, 0.8), ("kira", 0.15, 1.0)]
         if ln.get("logo"):
@@ -467,6 +499,8 @@ def build(sid):
                 pan = theme.background(THEME, W, PH, t)
             else:
                 pan = pbg.copy()
+            if ln.get("up") and use_z:                 # ツッコミはずんだもんの顔のアップ
+                pan = up_panel(ln.get("face", "驚き"), lv[i], (int(sum(durs[:li]) * FPS) + i) % 110 < 4, t, d, THEME)
             if ln.get("title_card"):                   # タイトルの文は写真なし
                 pan = Image.new("RGB", (W, PH), (10, 10, 14))
             if t < 2 / FPS and topic:                    # 話題（生き物）が変わる文の頭だけ、2コマ白く光る
@@ -478,6 +512,8 @@ def build(sid):
             ext = fr.crop((0, PY - M, W, PY + PH + M))
             ext.paste(pan, (0, M))
             for fx in ln.get("fx", []):
+                if ln.get("up") and fx["type"] in ("stamp", "warn"):   # アップのときは顔にかぶせず上へ
+                    fx = dict(fx, y=0.13)
                 draw_fx(ext, fx, t, d, place, OY=M)
             fr.paste(ext, (0, PY - M))
             if ln.get("pin") and os.path.isdir(ZDIR):   # ずんだもんのピンショット：普通→すぐ指差しで「レッツゴー！」
@@ -493,7 +529,7 @@ def build(sid):
                 theme.channel_logo(lp, 430, PH // 2 - 20, 1.0, logo_t,
                                    char=zunda_img("笑顔", lv[i] if lv else 2, 0) if os.path.isdir(ZDIR) else None)
                 fr.paste(lp, (0, PY))
-            if use_z and logo_t < 0 and not ln.get("pin"):                                    # 左下でずんだもんが喋る（テロップのすぐ上）
+            if use_z and logo_t < 0 and not ln.get("pin") and not ln.get("up"):                                  # 左下でずんだもんが喋る（テロップのすぐ上）
                 gf = int(sum(durs[:li]) * FPS) + i
                 blink = gf % 110 < 4
                 face = "指差し" if any(a <= t < a + 0.7 for a in stamps) else ln.get("face", "通常")
