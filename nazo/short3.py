@@ -309,7 +309,7 @@ def build(sid):
         wav = f"{B}/l{li}.wav"
         render.tts(ln["say"], wav)
         vl = voiced_len(wav) if sp.get("tight", True) else render._wav_len(wav)   # 声の後ろの無音は切る（間で冷めないように）
-        d = math.ceil((vl + (1.0 if li == len(lines) - 1 else GAP)) * FPS) / FPS
+        d = math.ceil((vl + ((0.0 if ln.get("loop") else 1.0) if li == len(lines) - 1 else GAP)) * FPS) / FPS
         render._pad_wav(wav, f"{B}/l{li}_p.wav", d)
         ev = [("pop_big", 0.0, 0.9)] + ([("zip_up", 0.0, 0.35)] if li % 2 else [])   # 文の頭はポンが主役、ピュンは控えめに
         for fx in ln.get("fx", []):
@@ -341,7 +341,7 @@ def build(sid):
         if ln.get("digest"):
             n = len(ln["digest"]); per = max(0.25, (d - 0.3) / n)
             ev += [("pop_big", i * per, 1.0) for i in range(n)]
-        if li == len(lines) - 1:
+        if li == len(lines) - 1 and not ln.get("loop"):
             ev += [("chime_b", d - 0.8, 1.0)]
         if ln.get("pin"):
             ev += [("boom", 0.0, 1.0), ("zip_up", 0.0, 0.8), ("kira", 0.15, 1.0)]
