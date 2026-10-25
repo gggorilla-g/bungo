@@ -115,7 +115,7 @@ def draw(pan, OY, PH, u, dur, fx, char=None):
             txt(d, W // 2, OY + int(PH * 0.08), fx.get("stop_label", "急停止"), 90, RED, 10)
             for j, (sy, kind) in enumerate(((-0.55, "house"), (-0.1, "char"), (0.3, "house"), (0.65, "tree"))):
                 x0 = cx + r * math.sqrt(max(0, 1 - sy * sy)) - 30
-                x = x0 + p * (700 + j * 120)
+                x = x0 + p * (360 + j * 70)
                 y = cy + sy * r - p * 120 * (j - 1.5)
                 for q in range(1, 6):                # 動きの線
                     d.line([(x - q * 60, y + (q % 2) * 20 - 10), (x - q * 60 - 50, y + (q % 2) * 20 - 10)], fill=WHT, width=6)
