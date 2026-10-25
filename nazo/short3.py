@@ -521,7 +521,7 @@ def build(sid):
             ext.paste(pan, (0, M))
             for fx in ln.get("fx", []):
                 if ln.get("up") and fx["type"] in ("stamp", "warn"):   # アップのときは顔にかぶせず上へ
-                    fx = dict(fx, y=0.13)
+                    fx = dict(fx, y=0.13, _y=0.13)
                 draw_fx(ext, fx, t, d, place, OY=M)
             fr.paste(ext, (0, PY - M))
             if ln.get("pin") and os.path.isdir(ZDIR):   # ずんだもんのピンショット：普通→すぐ指差しで「レッツゴー！」
