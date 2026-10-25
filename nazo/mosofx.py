@@ -120,7 +120,7 @@ def draw(pan, OY, PH, u, dur, fx, char=None):
                 for q in range(1, 6):                # 動きの線
                     d.line([(x - q * 60, y + (q % 2) * 20 - 10), (x - q * 60 - 50, y + (q % 2) * 20 - 10)], fill=WHT, width=6)
                 if kind == "char" and char is not None:
-                    c = char.resize((char.width // 2, char.height // 2)).rotate(-p * 720, expand=True)
+                    c = char.resize((char.width * 4 // 5, char.height * 4 // 5)).rotate(-p * 540, expand=True)
                     pan.paste(c, (int(x - c.width / 2), int(y - c.height / 2)), c)
                 elif kind == "house":
                     d.rectangle([x - 40, y - 20, x + 40, y + 40], fill=(240, 220, 180), outline=BLK, width=4)
@@ -141,7 +141,7 @@ def draw(pan, OY, PH, u, dur, fx, char=None):
             d.ellipse([x - w / 2, y - w / 2, x + w / 2, y + w / 2], fill=(255, 255, 160 + min(95, q * 3)))
         x, y = cx + R * math.cos(ang), cy + R * 0.38 * math.sin(ang)
         if char is not None:
-            c = char.resize((char.width * 2 // 5, char.height * 2 // 5))
+            c = char.resize((char.width * 3 // 5, char.height * 3 // 5))
             pan.paste(c, (int(x - c.width / 2), int(y - c.height * 0.8)), c)
         counter(d, W, OY, PH, fmt(laps, fx.get("to", 7.5)), fx.get("unit", "周"), fx.get("label", ""))
     elif k == "beans":
@@ -168,7 +168,7 @@ def draw(pan, OY, PH, u, dur, fx, char=None):
         p = ease(u / max(0.6, dur * 0.85)) if fx.get("ease", True) else min(1, u / max(0.6, dur * 0.85))
         y = cy - r + 2 * r * (0.5 - 0.5 * math.cos(math.pi * min(1, u / max(0.6, dur * 0.85))))   # 真ん中で一番速い
         if char is not None:
-            c = char.resize((char.width * 2 // 5, char.height * 2 // 5)).rotate(u * 400, expand=True)
+            c = char.resize((char.width * 3 // 5, char.height * 3 // 5)).rotate(u * 400, expand=True)
             pan.paste(c, (int(cx - c.width / 2), int(y - c.height / 2)), c)
         for lab, yy in (("日本", cy - r - 40), (fx.get("bottom", "地球の裏"), cy + r + 40)):
             txt(d, cx + 200, yy, lab, 52, WHT, 7)
@@ -185,7 +185,7 @@ def draw(pan, OY, PH, u, dur, fx, char=None):
             for q in range(0, int(x) - 80, 30):
                 d.line([(80 + q, y - 20 + (q // 30 % 3) * 20), (80 + q + 20, y - 20 + (q // 30 % 3) * 20)], fill=YEL, width=6)
         if char is not None:
-            c = char.resize((char.width // 2, char.height // 2))
+            c = char.resize((char.width * 7 // 10, char.height * 7 // 10))
             pan.paste(c, (int(x - c.width / 2), y + 50 - c.height), c)
         if u > 0.2:
             txt(d, W // 2, OY + int(PH * 0.2), fx.get("time", ""), 130, YEL, 12)
