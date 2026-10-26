@@ -363,7 +363,7 @@ def draw_fx(pan, fx, t, d, place, OY=0):
         mapfx.draw_map(pan, OY, PH, u, fx)
     elif k == "sign":                    # 湖のイラストと、道路案内風の看板
         mapfx.draw_sign(pan, OY, PH, u, fx)
-    elif k in ("globe", "orbit", "beans", "hole", "dash"):   # 妄想科学の図解モーション
+    elif k in mosofx.TYPES:   # 妄想科学の図解モーション
         ch = zunda_img(fx.get("face", "驚き"), 1, 0) if os.path.isdir(ZDIR) else None
         mosofx.draw(pan, OY, PH, u, d - at, fx, ch)
     elif k == "rank":                    # 左上の番号札
@@ -591,7 +591,7 @@ def build(sid):
                     zd, (zx, zy) = zunda_dance(logo_t - d0, lv[i] if lv else 0)
                     lp.paste(zd, (zx, zy), zd)
                 fr.paste(lp, (0, PY))
-            if use_z and logo_t < 0 and not ln.get("pin") and not ln.get("up") and not ln.get("dance") and not any(f["type"] in ("globe", "orbit", "beans", "hole", "dash") for f in ln.get("fx", [])):   # 図解の中にずんだもんがいる文は、左下の分を出さない                                  # 左下でずんだもんが喋る（テロップのすぐ上）
+            if use_z and logo_t < 0 and not ln.get("pin") and not ln.get("up") and not ln.get("dance") and not any(f["type"] in mosofx.TYPES for f in ln.get("fx", [])):   # 図解の中にずんだもんがいる文は、左下の分を出さない                                  # 左下でずんだもんが喋る（テロップのすぐ上）
                 gf = int(sum(durs[:li]) * FPS) + i
                 blink = gf % 110 < 4
                 face = "指差し" if any(a <= t < a + 0.7 for a in stamps) else ln.get("face", "通常")

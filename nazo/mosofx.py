@@ -4,8 +4,12 @@
 #   beans : 地球から月まで枝豆が並んでいき、本数が上がる
 #   hole  : 地球の断面のトンネルをずんだもんが落ちていき、経過時間が上がる
 #   dash  : コースをずんだもんが一瞬で走り抜け、時間が出る
+#   fate  : ずんだもんがひどい目にあう（roast 焼き枝豆／squash ぺしゃんこ／stretch ずんだ麺／fade 赤くなって消える）
+#   bh    : ブラックホールに向かってずんだもんが落ちていく
 import math
 from PIL import Image, ImageDraw, ImageFont
+
+TYPES = ("globe", "orbit", "beans", "hole", "dash", "fate", "bh")
 
 FONT = "/usr/share/fonts/opentype/noto/NotoSansCJK-Black.ttc"
 _fc = {}
@@ -81,6 +85,32 @@ def bean(d, x, y, ang, s=1.0):
     for k in (-1, 0, 1):
         px, py = x + ca * k * 9 * s, y + sa * k * 9 * s
         d.ellipse([px - 7 * s, py - 7 * s, px + 7 * s, py + 7 * s], fill=(120, 190, 60), outline=(40, 90, 30), width=max(1, int(2 * s)))
+
+
+def tint(c, col, a):
+    """キャラ画像を col の色に a(0〜1) だけ寄せる（透明部分はそのまま）"""
+    rgb = Image.blend(c.convert("RGB"), Image.new("RGB", c.size, col), max(0.0, min(1.0, a)))
+    rgb.putalpha(c.getchannel("A"))
+    return rgb
+
+
+def fade(c, a):
+    c = c.copy()
+    c.putalpha(c.getchannel("A").point(lambda v: int(v * max(0.0, min(1.0, a)))))
+    return c
+
+
+def blackhole(d, cx, cy, r, u):
+    """降着円盤つきのブラックホール（横から見た図）"""
+    for q in range(6, 0, -1):                       # 外側ほど暗い光の輪
+        rr = r * (1 + q * 0.35)
+        col = (255, 120 + q * 15, 20 + q * 10)
+        d.ellipse([cx - rr, cy - rr * 0.22, cx + rr, cy + rr * 0.22], outline=col, width=10)
+    d.ellipse([cx - r, cy - r, cx + r, cy + r], fill=BLK, outline=(255, 200, 80), width=6)
+    for q in range(5):                               # 吸い込まれる線
+        a = u * 2.5 + q * 1.26
+        x0, y0 = cx + math.cos(a) * r * 2.6, cy + math.sin(a) * r * 1.6
+        d.line([(x0, y0), (cx + math.cos(a) * r * 1.2, cy + math.sin(a) * r * 1.05)], fill=WHT, width=4)
 
 
 def counter(d, W, OY, PH, val, unit, label, y=0.86, size=120, x=None):
@@ -168,7 +198,10 @@ def draw(pan, OY, PH, u, dur, fx, char=None):
         p = ease(u / max(0.6, dur * 0.85)) if fx.get("ease", True) else min(1, u / max(0.6, dur * 0.85))
         y = cy - r + 2 * r * (0.5 - 0.5 * math.cos(math.pi * min(1, u / max(0.6, dur * 0.85))))   # 真ん中で一番速い
         if char is not None:
-            c = char.resize((char.width * 3 // 5, char.height * 3 // 5)).rotate(u * 400, expand=True)
+            c = char.resize((char.width * 3 // 5, char.height * 3 // 5))
+            if fx.get("heat"):                      # 深いほど焦げる
+                c = tint(c, (120, 60, 15), 0.7 * min(1, (y - (cy - r)) / r))
+            c = c.rotate(u * 400, expand=True)
             pan.paste(c, (int(cx - c.width / 2), int(y - c.height / 2)), c)
         for lab, yy in (("日本", cy - r - 40), (fx.get("bottom", "地球の裏"), cy + r + 40)):
             txt(d, cx + 200, yy, lab, 52, WHT, 7)
@@ -190,3 +223,65 @@ def draw(pan, OY, PH, u, dur, fx, char=None):
         if u > 0.2:
             txt(d, W // 2, OY + int(PH * 0.2), fx.get("time", ""), 130, YEL, 12)
             txt(d, W // 2, OY + int(PH * 0.33), fx.get("label", ""), 60, WHT, 8)
+    elif k == "fate":
+        mode = fx.get("mode", "roast")
+        p = ease(u / max(0.5, dur * fx.get("speed", 0.7)))
+        cx, cy = W // 2, OY + int(PH * 0.5)
+        if char is not None:
+            c = char.resize((char.width * 3 // 2, char.height * 3 // 2))
+            if mode == "roast":                      # だんだん焦げ色に、炎と湯気
+                c = tint(c, (120, 60, 15), 0.62 * p)
+                for q in range(9):
+                    fx_ = cx - 300 + q * 75
+                    h = 160 + 110 * abs(math.sin(u * 9 + q))
+                    base_y = cy + c.height // 2 - 10
+                    d.polygon([(fx_ - 46, base_y), (fx_ + 46, base_y), (fx_, base_y - h)], fill=(255, 120 + (q % 3) * 40, 0))
+                    d.polygon([(fx_ - 16, base_y), (fx_ + 16, base_y), (fx_, base_y - h * 0.55)], fill=YEL)
+                pan.paste(c, (int(cx - c.width / 2), int(cy - c.height / 2 + math.sin(u * 30) * 4)), c)
+                if p > 0.3:
+                    for q in range(3):               # 湯気
+                        x = cx - 120 + q * 120
+                        y = cy - c.height // 2 - 40 - (u * 120 + q * 40) % 140
+                        d.arc([x - 30, y - 30, x + 30, y + 30], 200, 340, fill=WHT, width=8)
+            elif mode == "squash":                   # 上からつぶされてぺしゃんこ
+                sy = 1 - 0.72 * p
+                sx = 1 + 0.6 * p
+                c = c.resize((max(1, int(c.width * sx)), max(1, int(c.height * sy))))
+                floor = cy + int(PH * 0.18)
+                d.rectangle([0, floor, W, floor + 16], fill=WHT)
+                top = floor - c.height
+                d.rectangle([cx - 340, OY, cx + 340, top], fill=(110, 110, 125), outline=BLK, width=6)
+                txt(d, cx, max(OY + 80, top - 90), fx.get("weight", ""), 90, WHT, 10)
+                pan.paste(c, (int(cx - c.width / 2), top), c)
+            elif mode == "stretch":                  # 縦にびよーん
+                bcy = OY + int(PH * 0.86)
+                blackhole(d, cx, bcy, int(PH * 0.09), u)
+                sy = 1 + 0.95 * p
+                sx = 1 - 0.68 * p
+                c = c.resize((max(1, int(c.width * sx)), max(1, int(c.height * sy))))
+                c = tint(c, (255, 200, 120), 0.2 * p)
+                pan.paste(c, (int(cx - c.width / 2), bcy - c.height + int(PH * 0.03 * p)), c)
+            elif mode == "fade":                     # 外から見ると、赤くなって止まって消える
+                blackhole(d, cx, OY + int(PH * 0.74), int(PH * 0.11), u * 0.3)
+                slow = 1 - (1 - min(1, u / max(0.5, dur * 0.8))) ** 4
+                c = c.resize((c.width * 2 // 3, c.height * 2 // 3))
+                c = fade(tint(c, (200, 0, 0), 0.8 * slow), 1 - 0.92 * slow)
+                y = OY + int(PH * 0.3) + int(PH * 0.22 * slow)
+                pan.paste(c, (int(cx - c.width / 2), y), c)
+        lab = fx.get("label", "")
+        if lab and p > 0.55:
+            s_ = back(min(1, (p - 0.55) / 0.3))
+            ly = fx.get("label_y", 0.1 if mode in ("stretch", "fade") else 0.86)
+            txt(d, cx, OY + int(PH * ly), lab, int(150 * max(0.3, s_)), RED, 14)
+    elif k == "bh":                                  # 遠くからブラックホールへ落ちていく
+        cx, cy, r = W // 2, OY + int(PH * 0.6), int(PH * 0.13)
+        blackhole(d, cx, cy, r, u)
+        p = ease(u / max(0.5, dur * 0.85))
+        if char is not None:
+            sc = 0.8 - 0.35 * p
+            c = char.resize((max(1, int(char.width * sc)), max(1, int(char.height * sc * (1 + 0.8 * p))))).rotate(u * 90, expand=True)
+            x = cx - W * 0.35 * (1 - p)
+            y = OY + PH * 0.12 + (cy - r * 1.6 - OY - PH * 0.12) * p
+            pan.paste(c, (int(x - c.width / 2), int(y - c.height / 2)), c)
+        if fx.get("label"):
+            txt(d, W // 2, OY + int(PH * 0.08), fx["label"], 70, WHT, 8)
