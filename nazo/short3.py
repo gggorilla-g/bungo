@@ -96,7 +96,7 @@ def up_panel(face, mouth, blink, t, d, thm):
 
 
 DANCE_POSES = [("笑顔", False), ("指差し", False), ("ドヤ", True), ("指差し", True), ("笑顔", False), ("驚き", True)]
-DANCE_BEAT = 0.33
+DANCE_BEAT = 0.375   # ジングル（160BPM）の拍に合わせる
 
 
 def zunda_dance(t, mouth):
