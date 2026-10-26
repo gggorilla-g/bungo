@@ -6,10 +6,12 @@
 #   dash  : コースをずんだもんが一瞬で走り抜け、時間が出る
 #   fate  : ずんだもんがひどい目にあう（roast 焼き枝豆／squash ぺしゃんこ／stretch ずんだ麺／fade 赤くなって消える）
 #   bh    : ブラックホールに向かってずんだもんが落ちていく
+#   left  : 地球が去っていき、ずんだもんだけ宇宙に取り残される（タイムマシン）
+#   fate faint : 宇宙空間でゆっくり回りながら気を失う
 import math
 from PIL import Image, ImageDraw, ImageFont
 
-TYPES = ("globe", "orbit", "beans", "hole", "dash", "fate", "bh")
+TYPES = ("globe", "orbit", "beans", "hole", "dash", "fate", "bh", "left")
 
 FONT = "/usr/share/fonts/opentype/noto/NotoSansCJK-Black.ttc"
 _fc = {}
@@ -111,6 +113,14 @@ def blackhole(d, cx, cy, r, u):
         a = u * 2.5 + q * 1.26
         x0, y0 = cx + math.cos(a) * r * 2.6, cy + math.sin(a) * r * 1.6
         d.line([(x0, y0), (cx + math.cos(a) * r * 1.2, cy + math.sin(a) * r * 1.05)], fill=WHT, width=4)
+
+
+def stars(d, W, OY, PH):
+    for q in range(60):
+        x = (q * 397) % W
+        y = OY + (q * 631) % PH
+        r = 2 + q % 3
+        d.ellipse([x - r, y - r, x + r, y + r], fill=WHT)
 
 
 def counter(d, W, OY, PH, val, unit, label, y=0.86, size=120, x=None):
@@ -261,6 +271,13 @@ def draw(pan, OY, PH, u, dur, fx, char=None):
                 c = c.resize((max(1, int(c.width * sx)), max(1, int(c.height * sy))))
                 c = tint(c, (255, 200, 120), 0.2 * p)
                 pan.paste(c, (int(cx - c.width / 2), bcy - c.height + int(PH * 0.03 * p)), c)
+            elif mode == "faint":                    # 宇宙でゆっくり回って気を失う
+                stars(d, W, OY, PH)
+                c = tint(c.resize((c.width * 3 // 4, c.height * 3 // 4)), (60, 90, 200), 0.35 * p).rotate(u * 25, expand=True)
+                pan.paste(c, (int(cx - c.width / 2), int(cy - c.height / 2 + math.sin(u * 2) * 20)), c)
+                if p > 0.4:
+                    for q in range(3):
+                        txt(d, cx + 150 + q * 50, cy - 260 - q * 50 - (u * 40) % 30, "z", 60 + q * 15, WHT, 6)
             elif mode == "fade":                     # 外から見ると、赤くなって止まって消える
                 blackhole(d, cx, OY + int(PH * 0.74), int(PH * 0.11), u * 0.3)
                 slow = 1 - (1 - min(1, u / max(0.5, dur * 0.8))) ** 4
@@ -285,3 +302,18 @@ def draw(pan, OY, PH, u, dur, fx, char=None):
             pan.paste(c, (int(x - c.width / 2), int(y - c.height / 2)), c)
         if fx.get("label"):
             txt(d, W // 2, OY + int(PH * 0.08), fx["label"], 70, WHT, 8)
+    elif k == "left":                               # 地球が去っていき、ずんだもんだけ取り残される
+        stars(d, W, OY, PH)
+        p = ease(u / max(0.5, dur * 0.8))
+        r = int(PH * 0.2 * (1 - 0.7 * p))
+        ex = W // 2 + int(W * 0.38 * p)
+        ey = OY + int(PH * 0.55) - int(PH * 0.15 * p)
+        earth(pan, ex, ey, max(10, r), u * 30)
+        if p > 0.05:
+            for q in range(1, 6):
+                d.line([(ex - r - q * 50, ey + (q % 2) * 24 - 12), (ex - r - q * 50 - 34, ey + (q % 2) * 24 - 12)], fill=WHT, width=6)
+        if char is not None:
+            c = char.resize((char.width * 9 // 10, char.height * 9 // 10)).rotate(math.sin(u * 2) * 12, expand=True)
+            pan.paste(c, (int(W * 0.3 - c.width / 2), int(OY + PH * 0.45 - c.height / 2)), c)
+        if fx.get("label") and p > 0.5:
+            txt(d, W // 2, OY + int(PH * 0.1), fx["label"], 110, RED, 12)
