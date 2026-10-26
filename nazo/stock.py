@@ -22,6 +22,7 @@ def sentences(k, work):
     if k.get("host_intro"):                                 # ホー博士の名乗りと締め
         out += yomi.split_sentences(k["host_intro"])
     out += yomi.split_sentences(k.get("host_outro") or brand.HOST_OUTRO)
+    out += [c["say"] for s in k["sections"] for c in s.get("cutins", [])]   # ホー博士のカットイン
     return list(dict.fromkeys(out))
 
 
