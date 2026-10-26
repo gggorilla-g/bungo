@@ -12,6 +12,7 @@ concurrency:
 jobs:
   short:
     runs-on: ubuntu-latest
+    timeout-minutes: 45     # apt が固まったときに延々と待たない
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -22,7 +23,10 @@ jobs:
       - env:
           ASSET_KEY: ${{ secrets.ASSET_KEY }}   # 音源は再配布できないので、暗号化してリポジトリに置き、制作時だけ復号する
         run: |
-          sudo apt-get update -q && sudo apt-get install -y -q ffmpeg fonts-noto-cjk fonts-noto-cjk-extra poppler-utils
+          for i in 1 2 3; do   # apt が固まることがあるので、時間を切って3回まで試す
+            timeout 300 sudo apt-get update -q && timeout 600 sudo apt-get install -y -q ffmpeg fonts-noto-cjk fonts-noto-cjk-extra poppler-utils && break
+            sleep 10
+          done
           pip install -q -r requirements.txt
           python src/setup_voicevox.py
           case "${{ inputs.script }}" in nazo/short.py|nazo/short2.py|nazo/short3.py) ;; *) exit 1;; esac
