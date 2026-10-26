@@ -1,4 +1,12 @@
+Traceback (most recent call last):
+  File "/home/runner/work/bungo/bungo/nazo/main.py", line 121, in main
+    render.build_video(k, work, "", {}, images, out, llm=_no_llm, brand=br)
+  File "/home/runner/work/bungo/bungo/src/render.py", line 295, in build_video
+    _YOMI.update(yomi.prepare([h["say"] for h in hook_items] + [title_narr] + [s for _, s in plan]
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/bungo/bungo/src/yomi.py", line 121, in prepare
+    raise RuntimeError(f"検査済みの読みがない文が{len(missing)}件: {missing[0][:30]}")
+RuntimeError: 検査済みの読みがない文が8件: 畑も持たずに、じゃと？
 指定画像の情報取得 36/36
 指定画像 36/36 枚
 画像 12 枚
-完了: ギョベクリ・テペ → (未投稿/ローカル)
