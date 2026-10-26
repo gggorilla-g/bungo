@@ -7,7 +7,7 @@
  "logline": "畑を持たない人々が立てた、巨大な石柱の話です。",
  "series": "古代の遺跡",
  "thumbnail": {
-  "main_copy": "1万年前の\n巨大な石柱",
+  "main_copy": "メソポタミアより\n5千年古い",
   "sub_copy": "ギョベクリ・テペ"
  },
  "description": "トルコ南東部の丘に残る「ギョベクリ・テペ」。農耕より前に、狩猟採集の人々が巨大な石柱を立てた遺跡です。\n何のために立て、なぜ埋めたのか。わかっていることと4つの説を、10分で整理します。\nどの説も定説ではありません。",
@@ -15,15 +15,42 @@
   "title": "Göbekli Tepe: Giant Stone Pillars Before Farming | Unsolved Mysteries in 10 Min (JP)",
   "description": "Göbekli Tepe explained in about 10 minutes: what we know about the stone pillars and carvings, and four main theories about why they were built.\nJapanese narration with Japanese subtitles. Facts are based on Wikipedia; theories are presented as theories."
  },
- "tags": ["ギョベクリ・テペ", "トルコ", "古代遺跡", "新石器時代", "狩猟採集民", "農耕の始まり", "世界遺産", "歴史ミステリー", "世界の謎", "Göbekli Tepe"],
+ "tags": [
+  "ギョベクリ・テペ",
+  "トルコ",
+  "古代遺跡",
+  "新石器時代",
+  "狩猟採集民",
+  "農耕の始まり",
+  "世界遺産",
+  "歴史ミステリー",
+  "世界の謎",
+  "Göbekli Tepe"
+ ],
  "title_image": "File:Göbekli Tepe site (1).JPG",
  "thumb_image": "File:Göbekli Tepe site (1).JPG",
  "host_intro": "こんばんは、ホー博士じゃ。農耕が文明を生んだ、という順番が、ひっくり返るかもしれん遺跡じゃ。何のために石柱を立て、なぜ埋めたのか。最後には、最近わかってきた意外な暮らしの話もするぞい。",
  "hook": [
-  {"say": "文字も車輪もない時代に、重さ15トンの石柱が立てられました。", "text": "文字も車輪もない時代\n重さ15トンの石柱", "file": "File:Gobeklitepe.jpg"},
-  {"say": "立てたのは、畑も家畜も持たない人々でした。", "text": "畑も家畜も\n持たない人々", "file": "File:Göbekli Tepe site (1).JPG"},
-  {"say": "メソポタミア文明より、5千年程度も古い遺跡です。", "text": "メソポタミア文明より\n5千年程度古い", "file": "File:Göbekli Tepe Pillar.JPG"},
-  {"say": "そして、遺構は意図的に埋められていました。", "text": "そして遺構は\n意図的に埋められた", "file": "File:Göbeklitepe Şanlıurfa.jpg"}
+  {
+   "say": "文字も車輪もない時代に、重さ15トンの石柱が立てられました。",
+   "text": "文字も車輪もない時代\n重さ15トンの石柱",
+   "file": "File:Gobeklitepe.jpg"
+  },
+  {
+   "say": "立てたのは、畑も家畜も持たない人々でした。",
+   "text": "畑も家畜も\n持たない人々",
+   "file": "File:Göbekli Tepe site (1).JPG"
+  },
+  {
+   "say": "メソポタミア文明より、5千年程度も古い遺跡です。",
+   "text": "メソポタミア文明より\n5千年程度古い",
+   "file": "File:Göbekli Tepe Pillar.JPG"
+  },
+  {
+   "say": "そして、遺構は意図的に埋められていました。",
+   "text": "そして遺構は\n意図的に埋められた",
+   "file": "File:Göbeklitepe Şanlıurfa.jpg"
+  }
  ],
  "sections": [
   {
@@ -31,13 +58,33 @@
    "slide_heading": "農耕より前の石柱",
    "narration": "ギョベクリ・テペは、トルコ南東部の丘に残る、巨大な石柱の遺跡です。シャンルウルファの北東12kmにあり、1963年に初めて記録されました。調査したのは、イスタンブール大学とシカゴ大学です。その後、ドイツ考古学研究所が重要性に気づき、1995年から発掘が始まりました。2018年には世界遺産となり、今は屋根に守られながら、調査が続いています。文明は農耕から始まった。そんな順番を思い浮かべることはないでしょうか。食べ物を育て、暮らしが落ち着いてから、大きな建物を造るという順番です。ところが、この遺跡は農耕や畜産の始まりよりも前に築かれました。栽培植物や家畜の痕跡は、見つかっていません。築いたのは、狩猟採集で暮らす人々だったのです。畑を持たない人々が、なぜこれほどの石を切り出し、立てたのか。そして、なぜそれを埋めてしまったのでしょうか。",
    "images": [
-    {"file": "File:Göbekli Tepe, Urfa.jpg"},
-    {"file": "File:Göbekli Tepe location map.PNG", "at": "シャンルウルファ"},
-    {"file": "File:Göbekli Tepe - landscape.jpg", "at": "調査したのは"},
-    {"file": "File:Göbeklitepe Ören Yeri 2023.jpg", "at": "2018年"},
-    {"file": "File:Gobeklitepe Panorama.jpg", "at": "文明は農耕から"},
-    {"file": "File:Reliefs of animals, Göbekli Tepe Layer III, circa 9000 BCE.jpg", "at": "築いたのは"},
-    {"file": "File:Göbeklitepe Şanlıurfa.jpg", "at": "畑を持たない"}
+    {
+     "file": "File:Göbekli Tepe, Urfa.jpg"
+    },
+    {
+     "file": "File:Göbekli Tepe location map.PNG",
+     "at": "シャンルウルファ"
+    },
+    {
+     "file": "File:Göbekli Tepe - landscape.jpg",
+     "at": "調査したのは"
+    },
+    {
+     "file": "File:Göbeklitepe Ören Yeri 2023.jpg",
+     "at": "2018年"
+    },
+    {
+     "file": "File:Gobeklitepe Panorama.jpg",
+     "at": "文明は農耕から"
+    },
+    {
+     "file": "File:Reliefs of animals, Göbekli Tepe Layer III, circa 9000 BCE.jpg",
+     "at": "築いたのは"
+    },
+    {
+     "file": "File:Göbeklitepe Şanlıurfa.jpg",
+     "at": "畑を持たない"
+    }
    ]
   },
   {
@@ -45,13 +92,33 @@
    "slide_heading": "墓標と思われた石",
    "narration": "地名の意味は「太鼓腹の丘」です。遺丘の高さは15メートル、直径はおよそ300メートルあります。1963年の調査では、地表に見えていた石板は、墓標だと考えられました。新石器時代の層の上に、後の時代の墓地があると見なされたのです。地元の人々にとっても、石は農作業の邪魔になるものでした。そうして、どかされてきた石もありました。1994年、ドイツ考古学研究所の考古学者が、その古い記録を読み直します。墓標とされた石は、もっと古いものではないか。そう考えて、翌年から発掘が始まりました。建てられた時期は、紀元前1万年から紀元前8000年の間です。初期の遺構は、放射性炭素年代測定で、紀元前9600年から紀元前8800年と見積もられました。メソポタミア文明を、5千年程度さかのぼります。文字も、車輪も、土器も、金属も、まだない時代の建物です。墓標だと思われた石の下には、それほど古い営みが眠っていました。",
    "images": [
-    {"file": "File:Göbekli Tepe surrounding area.JPG"},
-    {"file": "File:Göbekli Tepe site (2).JPG", "at": "1963年の調査"},
-    {"file": "File:Göbekli Tepe Fields.JPG", "at": "地元の人々"},
-    {"file": "File:Gobekli Tepe 1.jpg", "at": "1994年"},
-    {"file": "File:Stratigraphy of Göbekli Tepe.png", "at": "建てられた時期"},
-    {"file": "File:Earliest carbon 14 dates for Göbekli Tepe as of 2013.jpg", "at": "放射性炭素"},
-    {"file": "File:Göbekli Tepe (2).jpg", "at": "文字も、車輪も"}
+    {
+     "file": "File:Göbekli Tepe surrounding area.JPG"
+    },
+    {
+     "file": "File:Göbekli Tepe site (2).JPG",
+     "at": "1963年の調査"
+    },
+    {
+     "file": "File:Göbekli Tepe Fields.JPG",
+     "at": "地元の人々"
+    },
+    {
+     "file": "File:Gobekli Tepe 1.jpg",
+     "at": "1994年"
+    },
+    {
+     "file": "File:Stratigraphy of Göbekli Tepe.png",
+     "at": "建てられた時期"
+    },
+    {
+     "file": "File:Earliest carbon 14 dates for Göbekli Tepe as of 2013.jpg",
+     "at": "放射性炭素"
+    },
+    {
+     "file": "File:Göbekli Tepe (2).jpg",
+     "at": "文字も、車輪も"
+    }
    ]
   },
   {
@@ -59,14 +126,37 @@
    "slide_heading": "石に刻まれた生き物",
    "narration": "遺構では、丁字型の石柱が円を描くように並んでいます。円の直径は10から30メートルです。物理探査では、200本以上の石柱と、20の円が確認されています。中心の石柱は高さ5.5メートル、重さは推計15トンです。石切り場には、長さ7メートルの未完成の石柱も残っています。その重さは50トン前後とされています。切り出すのに使われたのは、フリントの刃物でした。柱の下半分には、人の腕や、ふんどしの彫刻があります。そこから、石柱は人や神をかたどったものだという説があります。刻まれた生き物にも、目が留まります。ライオン、イノシシ、キツネ、ヘビ、サソリ、そしてハゲワシ。食用のシカなどより、恐ろしい生き物が多く刻まれています。ただし、狩りの場面や、傷ついた動物は描かれていません。そして紀元前8000年以降のどこかで、遺構は意図的に埋められました。理由はわかっていませんが、そのおかげで今まで残ったのです。埋めた土からは、動物の骨や人の骨も見つかっています。",
    "images": [
-    {"file": "File:Göbekli Tepe site (1).JPG"},
-    {"file": "File:The archaeological site of Göbekli Tepe - main excavation area.png", "at": "物理探査"},
-    {"file": "File:Gobeklitepe.jpg", "at": "中心の石柱"},
-    {"file": "File:Pillar-gobeklitepe-6.jpg", "at": "石切り場"},
-    {"file": "File:Göbekli Tepe Pilar Arm and Fox.JPG", "at": "柱の下半分"},
-    {"file": "File:Göbekli Tepe Enclosure C Pillar 27 relief.jpg", "at": "刻まれた生き物"},
-    {"file": "File:Gobekli Tepe 4.jpg", "at": "狩りの場面"},
-    {"file": "File:Göbeklitepe Building C 3145.jpg", "at": "紀元前8000年以降"}
+    {
+     "file": "File:Göbekli Tepe site (1).JPG"
+    },
+    {
+     "file": "File:The archaeological site of Göbekli Tepe - main excavation area.png",
+     "at": "物理探査"
+    },
+    {
+     "file": "File:Gobeklitepe.jpg",
+     "at": "中心の石柱"
+    },
+    {
+     "file": "File:Pillar-gobeklitepe-6.jpg",
+     "at": "石切り場"
+    },
+    {
+     "file": "File:Göbekli Tepe Pilar Arm and Fox.JPG",
+     "at": "柱の下半分"
+    },
+    {
+     "file": "File:Göbekli Tepe Enclosure C Pillar 27 relief.jpg",
+     "at": "刻まれた生き物"
+    },
+    {
+     "file": "File:Gobekli Tepe 4.jpg",
+     "at": "狩りの場面"
+    },
+    {
+     "file": "File:Göbeklitepe Building C 3145.jpg",
+     "at": "紀元前8000年以降"
+    }
    ]
   },
   {
@@ -74,10 +164,21 @@
    "slide_heading": "神殿と巡礼の説",
    "narration": "まず、ここを最古の宗教施設とみる説があります。周囲160キロから人が集まる、巡礼地だったという説です。円く並ぶ石柱や、人をかたどったような彫刻が、その考えを支えます。日々の食べ物を得ることとは別に、集まる目的があったと考える人もいます。見つかった動物の骨には、解体されたものがあります。これを、集会で食べた食事の跡とみる説もあります。同じ場所に集まり、食べ物を分け合い、石柱に向き合う。そんな光景を思い浮かべる説です。ただし、骨があるだけでは、宗教の集まりだったとは決められません。石柱の並びからも、そこで何が行われたかを直接知ることはできません。さらに、住まいとみられる跡も見つかっていて、この説を考え直す材料になっています。",
    "images": [
-    {"file": "File:Gobekli Tepe 5.jpg"},
-    {"file": "File:Göbekli Tepe (4).jpg", "at": "周囲160キロ"},
-    {"file": "File:Gobekli Tepe 3.jpg", "at": "見つかった動物の骨"},
-    {"file": "File:Göbekli Tepe (5).jpg", "at": "ただし"}
+    {
+     "file": "File:Gobekli Tepe 5.jpg"
+    },
+    {
+     "file": "File:Göbekli Tepe (4).jpg",
+     "at": "周囲160キロ"
+    },
+    {
+     "file": "File:Gobekli Tepe 3.jpg",
+     "at": "見つかった動物の骨"
+    },
+    {
+     "file": "File:Göbekli Tepe (5).jpg",
+     "at": "ただし"
+    }
    ]
   },
   {
@@ -85,10 +186,21 @@
    "slide_heading": "死者と祖先の説",
    "narration": "次に、死者や祖先に関わる場所だったという説です。手がかりとして注目されるのは、ハゲワシの彫刻です。死者を鳥に任せる風習と関係するのではないか、と考える人もいます。人の骨が見つかっていることも、この説で取り上げられます。人や神をかたどったとも言われる石柱は、祖先を表していたのではないか。恐ろしい生き物の姿も、死者を守る意味を持っていたという見方があります。しかし、この説には、はっきりした弱点があります。墓が見つかっていないことです。人の骨が出たことと、そこが埋葬の場所だったことは、同じではありません。ハゲワシが刻まれていることも、それだけでは風習の証明になりません。",
    "images": [
-    {"file": "File:Göbekli Tepe Pillar.JPG"},
-    {"file": "File:Gobekli Tepe ithyphallic statuette. Şanlıurfa - Archeology Museum, July 2025 (frontal).jpg", "at": "祖先を表して"},
-    {"file": "File:Göbekli Tepe Leopard.JPG", "at": "恐ろしい生き物"},
-    {"file": "File:Gobekli Tepe 6.jpg", "at": "しかし"}
+    {
+     "file": "File:Göbekli Tepe Pillar.JPG"
+    },
+    {
+     "file": "File:Gobekli Tepe ithyphallic statuette. Şanlıurfa - Archeology Museum, July 2025 (frontal).jpg",
+     "at": "祖先を表して"
+    },
+    {
+     "file": "File:Göbekli Tepe Leopard.JPG",
+     "at": "恐ろしい生き物"
+    },
+    {
+     "file": "File:Gobekli Tepe 6.jpg",
+     "at": "しかし"
+    }
    ]
   },
   {
@@ -96,9 +208,17 @@
    "slide_heading": "人が集まり麦が育つ",
    "narration": "さらに、人が集まったことが、農耕の始まりにつながったという説です。遺跡から32キロ離れたカラジャ山には、野生の麦があります。その麦は、今の麦に遺伝的に最も近いとされています。この地域で、麦の栽培が始まった可能性を示す手がかりです。大勢の人が集まれば、その人々を支える食べ物が必要になります。その必要が、麦を育てる工夫を生んだのではないか、という説です。農耕が始まったから、大きな建物を造れた。その順番を、逆から眺める考え方でもあります。ただし、遺跡から栽培植物は見つかっていません。近くに野生の麦があることだけでは、栽培の始まりは説明できません。集まることと、育てること。二つをつなぐ証拠は、まだ限られています。",
    "images": [
-    {"file": "File:Göbekli Tepe Fields.JPG"},
-    {"file": "File:Göbekli Tepe - landscape.jpg", "at": "大勢の人が"},
-    {"file": "File:Gobekli Tepe 7.jpg", "at": "ただし"}
+    {
+     "file": "File:Göbekli Tepe Fields.JPG"
+    },
+    {
+     "file": "File:Göbekli Tepe - landscape.jpg",
+     "at": "大勢の人が"
+    },
+    {
+     "file": "File:Gobekli Tepe 7.jpg",
+     "at": "ただし"
+    }
    ]
   },
   {
@@ -106,10 +226,21 @@
    "slide_heading": "人が住んでいた説",
    "narration": "そして最近では、ここに人が住んでいたという説もあります。住まいとみられる跡や、7000個以上のすり石が報告されています。すり石は、穀物をすりつぶすのに使われたとみられています。建物には、屋根があった可能性もあります。こうした手がかりから、祈るためだけの場所ではなかったと考える人もいます。石柱に向き合う営みと、食べ物を用意する営みが、同じ丘にあったのかもしれません。ただし、すり石があるからといって、育てた穀物とは限りません。栽培植物が見つかっていないという点は、ここでも変わりません。暮らしの跡があっても、宗教の場という考えがすぐに消えるわけではないのです。",
    "images": [
-    {"file": "File:Gobekli Tepe Building F in 2014 3208.jpg"},
-    {"file": "File:Göbeklitepe Building C 3143.jpg", "at": "すり石"},
-    {"file": "File:Gobekli Tepe Under temporary roof in 2014 3127.jpg", "at": "屋根があった"},
-    {"file": "File:Göbekli Tepe (3).jpg", "at": "ただし"}
+    {
+     "file": "File:Gobekli Tepe Building F in 2014 3208.jpg"
+    },
+    {
+     "file": "File:Göbeklitepe Building C 3143.jpg",
+     "at": "すり石"
+    },
+    {
+     "file": "File:Gobekli Tepe Under temporary roof in 2014 3127.jpg",
+     "at": "屋根があった"
+    },
+    {
+     "file": "File:Göbekli Tepe (3).jpg",
+     "at": "ただし"
+    }
    ]
   },
   {
@@ -117,10 +248,21 @@
    "slide_heading": "まだ5パーセント",
    "narration": "ここまでの話は、すべて暫定的なものです。発掘は、全体の5パーセントも進んでいないからです。物理探査で見つかった円の多くは、今も土の中に眠っています。2020年には、37km離れたカラハン・テペで、同じ時期の遺跡が見つかりました。丘は一つではなかったのです。巨大な石柱があることと、その目的がわかることの間には、まだ大きな隔たりがあります。神殿だったのか、祖先の場所だったのか、それとも暮らしの場だったのか。そして、なぜ自分たちの手で埋めたのか。遺跡の写真や、上から撮った映像は、インターネットで誰でも見ることができます。石柱を一本ずつ見て、キツネやハゲワシの彫刻を探してみてください。一万年前の誰かが、何を思って刻んだのか。その答えは、まだ土の下にあるのかもしれません。",
    "images": [
-    {"file": "File:Gobeklitepe Panorama.jpg"},
-    {"file": "File:Karahan Tepe overview.jpg", "at": "2020年"},
-    {"file": "File:Göbekli Tepe Pilar Arm and Fox.JPG", "at": "石柱を一本ずつ"},
-    {"file": "File:Göbekli Tepe site (1).JPG", "at": "一万年前"}
+    {
+     "file": "File:Gobeklitepe Panorama.jpg"
+    },
+    {
+     "file": "File:Karahan Tepe overview.jpg",
+     "at": "2020年"
+    },
+    {
+     "file": "File:Göbekli Tepe Pilar Arm and Fox.JPG",
+     "at": "石柱を一本ずつ"
+    },
+    {
+     "file": "File:Göbekli Tepe site (1).JPG",
+     "at": "一万年前"
+    }
    ]
   }
  ],
