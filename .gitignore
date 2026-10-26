@@ -12,3 +12,7 @@ gamelab/evolve.log
 assets/enc/*.mp3
 assets/enc/*.tar
 assets/enc/parts/
+
+# 手元での試し制作用（コミットしない）
+assets/enc/parts
+build_short3/
