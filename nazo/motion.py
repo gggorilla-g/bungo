@@ -433,12 +433,12 @@ def cutin_segment(out_mp4, dur, wav_path, face=None, stamp="", subtitle="", seed
         fr = Image.new("RGB", (W, H), bgc)
         d = ImageDraw.Draw(fr, "RGBA")
         for a in range(0, 360, 6):                       # 集中線
-            r = math.radians(a + (i % 2) * 3)
+            r = math.radians(a + t * 4)                  # ゆっくり回すだけ（コマごとに揺らすとチカチカする）
             w = 0.004 * (2 + (a * 7) % 5)
             r0 = 420 + (a * 13 % 7) * 30
             d.polygon([(cx + r0 * math.cos(r - w), cy + r0 * math.sin(r - w)),
                        (cx + 2400 * math.cos(r), cy + 2400 * math.sin(r)),
-                       (cx + r0 * math.cos(r + w), cy + r0 * math.sin(r + w))], fill=ray + (170,))
+                       (cx + r0 * math.cos(r + w), cy + r0 * math.sin(r + w))], fill=ray + (120,))
         z = 1.0 + 0.3 * (1 - min(1.0, t / 0.15) ** 0.5)   # 一瞬で寄って止まる
         size = int(1500 * z)
         eyes = face if face in ("jito", "uruuru") else ("closed" if (i + seed * 17) % 121 == 1 else "open")
