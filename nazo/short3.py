@@ -114,6 +114,20 @@ def zunda_dance(t, mouth):
     return im, (W - im.width + 60, int(PH - im.height + 50 - hop))   # 腰の切れ目は帯の下に沈める
 
 
+def dance_panel(t, mouth, thm):
+    """冒頭用：帯いっぱいにずんだもんが踊りながら喋る（歌なし）"""
+    pan = theme.background(thm or LOGO_TH, W, PH, t)
+    k = int(t / DANCE_BEAT) % len(DANCE_POSES); u = (t % DANCE_BEAT) / DANCE_BEAT
+    face, flip = DANCE_POSES[k]
+    im = zunda_big(face, mouth, int(PH * 0.95))
+    if flip:
+        im = im.transpose(Image.FLIP_LEFT_RIGHT)
+    hop = abs(math.sin(math.pi * u)) * 22
+    im = im.rotate(5 * math.sin(2 * math.pi * t / (DANCE_BEAT * 2)), expand=True, resample=Image.BICUBIC)
+    pan.paste(im, ((W - im.width) // 2, int(PH - im.height + 70 - hop)), im)   # 腰の切れ目は帯の下に沈める
+    return pan
+
+
 def voiced_len(wav):
     """声が実際に鳴り終わるまでの秒数（末尾の無音を除く）"""
     import wave as _w, numpy as _np
@@ -542,6 +556,8 @@ def build(sid):
                 pan = theme.background(THEME, W, PH, t)
             else:
                 pan = pbg.copy()
+            if ln.get("dance") and use_z:              # 冒頭などで、ずんだもんが踊りながら喋る
+                pan = dance_panel(t, lv[i], THEME)
             if ln.get("up") and use_z:                 # ツッコミはずんだもんの顔のアップ
                 pan = up_panel(ln.get("face", "驚き"), lv[i], (int(sum(durs[:li]) * FPS) + i) % 110 < 4, t, d, THEME)
             if ln.get("title_card"):                   # タイトルの文は写真なし
@@ -555,7 +571,7 @@ def build(sid):
             ext = fr.crop((0, PY - M, W, PY + PH + M))
             ext.paste(pan, (0, M))
             for fx in ln.get("fx", []):
-                if ln.get("up") and fx["type"] in ("stamp", "warn"):   # アップのときは顔にかぶせず上へ
+                if (ln.get("up") or ln.get("dance")) and fx["type"] in ("stamp", "warn"):   # アップのときは顔にかぶせず上へ
                     fx = dict(fx, y=0.13, _y=0.13)
                 draw_fx(ext, fx, t, d, place, OY=M)
             fr.paste(ext, (0, PY - M))
@@ -575,7 +591,7 @@ def build(sid):
                     zd, (zx, zy) = zunda_dance(logo_t - d0, lv[i] if lv else 0)
                     lp.paste(zd, (zx, zy), zd)
                 fr.paste(lp, (0, PY))
-            if use_z and logo_t < 0 and not ln.get("pin") and not ln.get("up") and not any(f["type"] in ("globe", "orbit", "beans", "hole", "dash") for f in ln.get("fx", [])):   # 図解の中にずんだもんがいる文は、左下の分を出さない                                  # 左下でずんだもんが喋る（テロップのすぐ上）
+            if use_z and logo_t < 0 and not ln.get("pin") and not ln.get("up") and not ln.get("dance") and not any(f["type"] in ("globe", "orbit", "beans", "hole", "dash") for f in ln.get("fx", [])):   # 図解の中にずんだもんがいる文は、左下の分を出さない                                  # 左下でずんだもんが喋る（テロップのすぐ上）
                 gf = int(sum(durs[:li]) * FPS) + i
                 blink = gf % 110 < 4
                 face = "指差し" if any(a <= t < a + 0.7 for a in stamps) else ln.get("face", "通常")
