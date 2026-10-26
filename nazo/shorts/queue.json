@@ -1,28 +1,46 @@
 {
- "note": "雑学ショートの投稿順。毎日18〜21時にゲンタが手動で投稿。posted=trueは投稿済み。",
+ "note": "ずんだもん2チャンネル（雑学・妄想科学）のショート投稿順。毎日18〜21時にゲンタが手動で投稿。channelで投稿先を区別。posted=trueは投稿済み。",
  "items": [
   {
    "date": "2026-10-24",
    "id": "trivia_fish_2",
    "main": "trivia_fish",
-   "posted": true
+   "posted": true,
+   "channel": "雑学"
   },
   {
    "date": "2026-10-25",
    "id": "trivia_emu",
    "main": "trivia_history",
-   "posted": true
+   "posted": true,
+   "channel": "雑学"
   },
   {
    "date": "2026-10-26",
    "id": "trivia_plants",
    "main": "trivia_plants",
-   "posted": false
+   "posted": true,
+   "channel": "雑学"
   },
   {
    "date": "2026-10-27",
    "id": "trivia_lakes_3",
    "main": "trivia_lakes",
+   "posted": false,
+   "channel": "雑学"
+  },
+  {
+   "date": "2026-10-27",
+   "id": "moso_edamame",
+   "main": "moso_science",
+   "channel": "妄想科学",
+   "posted": false
+  },
+  {
+   "date": "2026-10-28",
+   "id": "moso_hole",
+   "main": "moso_science",
+   "channel": "妄想科学",
    "posted": false
   }
  ]
