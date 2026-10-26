@@ -8,10 +8,12 @@
 #   bh    : ブラックホールに向かってずんだもんが落ちていく
 #   left  : 地球が去っていき、ずんだもんだけ宇宙に取り残される（タイムマシン）
 #   fate faint : 宇宙空間でゆっくり回りながら気を失う
+#   fate freeze / fossil : 凍る／化石になる
+#   moongone : 夜空の月がぽんと消え、見上げるずんだもんが取り残される
 import math
 from PIL import Image, ImageDraw, ImageFont
 
-TYPES = ("globe", "orbit", "beans", "hole", "dash", "fate", "bh", "left")
+TYPES = ("globe", "orbit", "beans", "hole", "dash", "fate", "bh", "left", "moongone")
 
 FONT = "/usr/share/fonts/opentype/noto/NotoSansCJK-Black.ttc"
 _fc = {}
@@ -278,6 +280,30 @@ def draw(pan, OY, PH, u, dur, fx, char=None):
                 if p > 0.4:
                     for q in range(3):
                         txt(d, cx + 150 + q * 50, cy - 260 - q * 50 - (u * 40) % 30, "z", 60 + q * 15, WHT, 6)
+            elif mode == "freeze":                   # だんだん青白くなり、氷の結晶がつく
+                c = tint(c, (170, 220, 255), 0.6 * p)
+                pan.paste(c, (int(cx - c.width / 2 + (math.sin(u * 50) * 6 if p < 0.8 else 0)), int(cy - c.height / 2)), c)
+                for q in range(int(14 * p)):
+                    x = cx - c.width // 2 + (q * 173) % c.width
+                    y = cy - c.height // 2 + (q * 251) % c.height
+                    for a in range(3):
+                        dx, dy = 26 * math.cos(a * math.pi / 3), 26 * math.sin(a * math.pi / 3)
+                        d.line([(x - dx, y - dy), (x + dx, y + dy)], fill=(230, 245, 255), width=6)
+                for q in range(20):                  # 雪
+                    x = (q * 211 + u * 60) % W
+                    y = OY + (q * 137 + u * 220) % PH
+                    d.ellipse([x - 6, y - 6, x + 6, y + 6], fill=WHT)
+            elif mode == "fossil":                   # 灰色の石になり、ひびが入る
+                g = c.convert("L").convert("RGB")
+                g = Image.blend(c.convert("RGB"), g, min(1, p * 1.3))
+                g = Image.blend(g, Image.new("RGB", c.size, (150, 140, 120)), 0.35 * p)
+                g.putalpha(c.getchannel("A"))
+                pan.paste(g, (int(cx - c.width / 2), int(cy - c.height / 2)), g)
+                if p > 0.6:
+                    x0, y0 = cx - 60, cy - c.height // 2 + 80
+                    pts = [(x0, y0), (x0 + 40, y0 + 90), (x0 - 10, y0 + 170), (x0 + 50, y0 + 280), (x0 + 10, y0 + 380)]
+                    d.line(pts, fill=(60, 50, 40), width=7)
+                d.rectangle([0, cy + c.height // 2 - 20, W, OY + PH], fill=(120, 95, 70))
             elif mode == "fade":                     # 外から見ると、赤くなって止まって消える
                 blackhole(d, cx, OY + int(PH * 0.74), int(PH * 0.11), u * 0.3)
                 slow = 1 - (1 - min(1, u / max(0.5, dur * 0.8))) ** 4
@@ -317,3 +343,25 @@ def draw(pan, OY, PH, u, dur, fx, char=None):
             pan.paste(c, (int(W * 0.3 - c.width / 2), int(OY + PH * 0.45 - c.height / 2)), c)
         if fx.get("label") and p > 0.5:
             txt(d, W // 2, OY + int(PH * 0.1), fx["label"], 110, RED, 12)
+    elif k == "moongone":                           # 月がぽんと消える
+        stars(d, W, OY, PH)
+        gone = fx.get("gone", 0.5)
+        mx, my, mr = int(W * 0.7), OY + int(PH * 0.22), int(PH * 0.1)
+        if u < gone:
+            moon(pan, mx, my, mr)
+        else:
+            q = min(1, (u - gone) / 0.35)
+            for j in range(10):                     # ぽんと散る
+                a = j * math.pi / 5
+                rr = mr * (0.5 + 1.6 * q)
+                x, y = mx + rr * math.cos(a), my + rr * math.sin(a)
+                w = max(2, int(22 * (1 - q)))
+                d.ellipse([x - w, y - w, x + w, y + w], fill=(225, 225, 215))
+            if q >= 1:
+                txt(d, mx, my, "？", 160, WHT, 10)
+        d.rectangle([0, OY + int(PH * 0.82), W, OY + PH], fill=(30, 40, 30))
+        if char is not None:
+            c = char.resize((char.width * 9 // 10, char.height * 9 // 10))
+            pan.paste(c, (int(W * 0.3 - c.width / 2), OY + int(PH * 0.82) - c.height), c)
+        if fx.get("label") and u > gone + 0.3:
+            txt(d, W // 2, OY + int(PH * 0.42), fx["label"], 110, RED, 12)
