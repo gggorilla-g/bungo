@@ -290,9 +290,11 @@ def build_video(kousei, work, genbun, ruby, images, out_mp4, llm, brand=None):
     hook_items = kousei.get("hook", []) if br.get("motion") else []
     outro_text = kousei.get("host_outro") or br.get("host_outro", "")
     outro_sents = yomi.split_sentences(outro_text) if (br.get("motion") and outro_text) else []
+    cutin_says = [c["say"] for s_ in kousei["sections"] for c in s_.get("cutins", [])] if br.get("motion") else []
     _YOMI.clear()
     _YOMI.update(yomi.prepare([h["say"] for h in hook_items] + [title_narr] + [s for _, s in plan]
-                              + host_sents + outro_sents, work, ruby, llm))
+                              + host_sents + outro_sents + cutin_says, work, ruby, llm))
+    cutin_done = set()
 
     names, durs, ch_marks = [], [], []
     # ---- タイトルカード ----
@@ -406,6 +408,20 @@ def build_video(kousei, work, genbun, ruby, images, out_mp4, llm, brand=None):
                 f'<h1 style="bottom:auto;top:185px;font-size:{br.get("heading_px", 64)}px;'
                 f'text-shadow:0 2px 16px rgba(0,0,0,.8);">{s["slide_heading"]}</h1>'
                 f'<div class="credit">{br["credit"]}</div>')
+        if use_motion:        # 案内役のカットイン：台本の "cutins" の "at" の語を含む文の直前に1〜2秒
+            import motion
+            for ci, c in enumerate(s.get("cutins", [])):
+                if (i, ci) in cutin_done or c["at"] not in sent:
+                    continue
+                cutin_done.add((i, ci))
+                cn = f"q{i:02d}{ci}"
+                tts(c["say"], f"{B}/{cn}.wav")
+                cd = math.ceil((_wav_len(f"{B}/{cn}.wav") + 0.35) * FPS) / FPS
+                _pad_wav(f"{B}/{cn}.wav", f"{B}/{cn}_p.wav", cd)
+                _se(cn, [("whoosh_s", 0.0, 1), ("thud", 0.06, 1)] + ([("tick_lo", 0.2, 0.9)] if c.get("face") == "jito" else []))
+                motion.cutin_segment(f"{B}/{cn}.mp4", cd, f"{B}/{cn}.wav", face=c.get("face"),
+                                     stamp=c.get("stamp", ""), subtitle=c["say"], seed=ci)
+                durs.append(cd); names.append(cn)
         n = f"s{k:03d}"
         hushed = any(w in sent for w in s.get("hush", [])) and br.get("hush_voice")
         if hushed:            # ここぞという一文：声を低く・ゆっくり、BGMを止める

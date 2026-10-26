@@ -85,6 +85,14 @@
      "file": "File:Göbeklitepe Şanlıurfa.jpg",
      "at": "畑を持たない"
     }
+   ],
+   "cutins": [
+    {
+     "at": "築いたのは",
+     "say": "畑も持たずに、じゃと？",
+     "stamp": "狩猟採集民！？",
+     "face": "jito"
+    }
    ]
   },
   {
@@ -118,6 +126,13 @@
     {
      "file": "File:Göbekli Tepe (2).jpg",
      "at": "文字も、車輪も"
+    }
+   ],
+   "cutins": [
+    {
+     "at": "メソポタミア文明を",
+     "say": "5千年も前の話じゃぞ。",
+     "stamp": "5千年前"
     }
    ]
   },
@@ -157,6 +172,19 @@
      "file": "File:Göbeklitepe Building C 3145.jpg",
      "at": "紀元前8000年以降"
     }
+   ],
+   "cutins": [
+    {
+     "at": "中心の石柱は",
+     "say": "15トンを石器で、じゃと？",
+     "stamp": "15トン！？",
+     "face": "jito"
+    },
+    {
+     "at": "ただし、狩りの場面",
+     "say": "恐ろしい生き物ばかりじゃのう。",
+     "stamp": "ハゲワシ"
+    }
    ]
   },
   {
@@ -179,6 +207,14 @@
      "file": "File:Göbekli Tepe (5).jpg",
      "at": "ただし"
     }
+   ],
+   "cutins": [
+    {
+     "at": "ただし、骨が",
+     "say": "ここが、この説の弱いところじゃ。",
+     "stamp": "弱点",
+     "face": "jito"
+    }
    ]
   },
   {
@@ -200,6 +236,14 @@
     {
      "file": "File:Gobekli Tepe 6.jpg",
      "at": "しかし"
+    }
+   ],
+   "cutins": [
+    {
+     "at": "墓が見つかって",
+     "say": "肝心の墓が、ないんじゃ。",
+     "stamp": "墓なし",
+     "face": "uruuru"
     }
    ]
   },
@@ -241,6 +285,13 @@
      "file": "File:Göbekli Tepe (3).jpg",
      "at": "ただし"
     }
+   ],
+   "cutins": [
+    {
+     "at": "7000個以上",
+     "say": "7000個じゃと！？",
+     "stamp": "7000個"
+    }
    ]
   },
   {
@@ -262,6 +313,14 @@
     {
      "file": "File:Göbekli Tepe site (1).JPG",
      "at": "一万年前"
+    }
+   ],
+   "cutins": [
+    {
+     "at": "5パーセントも",
+     "say": "まだ5パーセント、じゃ。",
+     "stamp": "5%",
+     "face": "jito"
     }
    ]
   }

@@ -412,3 +412,51 @@ def chime_wav(path, dur, sr=24000, silent=False):
     with wave.open(path, "wb") as w:
         w.setnchannels(1); w.setsampwidth(2); w.setframerate(sr)
         w.writeframes((np.clip(y, -1, 1) * 32767).astype(np.int16).tobytes())
+
+
+# ---------- 案内役のカットイン（ずんだもんのアップと同じ型：一瞬で寄る・集中線・揺れ） ----------
+CUTIN_COLORS = ((20, 20, 26), (255, 214, 0))   # (地, 集中線)
+
+
+def cutin_segment(out_mp4, dur, wav_path, face=None, stamp="", subtitle="", seed=0):
+    """章の途中に1〜2秒、ホー博士の顔のアップを差し込む。face: None/jito/uruuru"""
+    n = int(round(dur * FPS))
+    mouth = mouth_track(wav_path, n)
+    bgc, ray = CUTIN_COLORS
+    p = subprocess.Popen(["ffmpeg", "-y", "-v", "error", "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{W}x{H}",
+                          "-r", str(FPS), "-i", "-", "-c:v", "libx264", "-preset", "fast", "-crf", "20",
+                          "-pix_fmt", "yuv420p", "-an", out_mp4], stdin=subprocess.PIPE)
+    cx, cy = int(W * 0.66), int(H * 0.46)
+    fs = font(120)
+    for i in range(n):
+        t = i / FPS
+        fr = Image.new("RGB", (W, H), bgc)
+        d = ImageDraw.Draw(fr, "RGBA")
+        for a in range(0, 360, 6):                       # 集中線
+            r = math.radians(a + (i % 2) * 3)
+            w = 0.004 * (2 + (a * 7) % 5)
+            r0 = 420 + (a * 13 % 7) * 30
+            d.polygon([(cx + r0 * math.cos(r - w), cy + r0 * math.sin(r - w)),
+                       (cx + 2400 * math.cos(r), cy + 2400 * math.sin(r)),
+                       (cx + r0 * math.cos(r + w), cy + r0 * math.sin(r + w))], fill=ray + (170,))
+        z = 1.0 + 0.3 * (1 - min(1.0, t / 0.15) ** 0.5)   # 一瞬で寄って止まる
+        size = int(1500 * z)
+        eyes = face if face in ("jito", "uruuru") else ("closed" if (i + seed * 17) % 121 == 1 else "open")
+        o = owl_img(eyes, "open" if mouth[i] else "closed", "rest", size)
+        amp = (10 if face else 6) * math.exp(-t * 4)
+        sx, sy = int(amp * math.sin(t * 70)), int(amp * 0.6 * math.cos(t * 55))
+        fr.paste(o, (cx - o.width // 2 + sx, cy - int(o.height * 0.36) + sy), o)
+        if stamp and t > 0.12:                          # 決め文字（左上、白縁の黄色）
+            e = min(1.0, (t - 0.12) / 0.15)
+            f2 = font(int(150 * (1.5 - 0.5 * e)))
+            d.text((90, 150), stamp, font=f2, fill=(255, 214, 0), stroke_width=12, stroke_fill=(0, 0, 0), anchor="lt")
+        if subtitle:                                    # 字幕（下の黒帯）
+            fb = font(64)
+            tw = fb.getlength(subtitle)
+            d.rectangle([W // 2 - tw / 2 - 40, H - 190, W // 2 + tw / 2 + 40, H - 80], fill=(0, 0, 0, 220))
+            d.text((W // 2, H - 135), subtitle, font=fb, fill=(255, 255, 255), anchor="mm")
+        p.stdin.write(fr.tobytes())
+    p.stdin.close(); p.wait()
+    if p.returncode:
+        raise RuntimeError("ffmpeg failed")
+    return n / FPS

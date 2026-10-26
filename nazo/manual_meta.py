@@ -23,9 +23,13 @@ for i, s in enumerate(k["sections"]):
     plan += [(i, x) for x in yomi.split_sentences(narr)]
 t = dur(br["title_narr"](k), 0.8)
 chapters, last = [], -1
+done = set()
 for n, (i, sent) in enumerate(plan):
     if i != last:
         chapters.append([k["sections"][i]["slide_heading"], int(t)]); last = i
+    for ci, c in enumerate(k["sections"][i].get("cutins", [])):   # ホー博士のカットイン（render と同じ位置・長さ）
+        if (i, ci) not in done and c["at"] in sent:
+            done.add((i, ci)); t += dur(c["say"], 0.35)
     end = (n == len(plan) - 1) or (plan[n + 1][0] != i)
     t += dur(sent, 1.2 if end else 0.5)
 
