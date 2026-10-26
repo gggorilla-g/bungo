@@ -240,7 +240,8 @@ def draw(pan, OY, PH, u, dur, fx, char=None):
         p = ease(u / max(0.5, dur * fx.get("speed", 0.7)))
         cx, cy = W // 2, OY + int(PH * 0.5)
         if char is not None:
-            c = char.resize((char.width * 3 // 2, char.height * 3 // 2))
+            h0 = min(char.height * 3 // 2, int(PH * 0.5))       # 画面の高さに収める
+            c = char.resize((max(1, char.width * h0 // char.height), h0))
             if mode == "roast":                      # だんだん焦げ色に、炎と湯気
                 c = tint(c, (120, 60, 15), 0.62 * p)
                 for q in range(9):
@@ -268,7 +269,7 @@ def draw(pan, OY, PH, u, dur, fx, char=None):
             elif mode == "stretch":                  # 縦にびよーん
                 bcy = OY + int(PH * 0.86)
                 blackhole(d, cx, bcy, int(PH * 0.09), u)
-                sy = 1 + 0.95 * p
+                sy = 1 + (PH * 0.8 / c.height - 1) * p      # 上端まで伸びて切れないように
                 sx = 1 - 0.68 * p
                 c = c.resize((max(1, int(c.width * sx)), max(1, int(c.height * sy))))
                 c = tint(c, (255, 200, 120), 0.2 * p)
@@ -306,7 +307,7 @@ def draw(pan, OY, PH, u, dur, fx, char=None):
                 d.rectangle([0, cy + c.height // 2 - 20, W, OY + PH], fill=(120, 95, 70))
             elif mode == "fade":                     # 外から見ると、赤くなって止まって消える
                 blackhole(d, cx, OY + int(PH * 0.74), int(PH * 0.11), u * 0.3)
-                slow = 1 - (1 - min(1, u / max(0.5, dur * 0.8))) ** 4
+                slow = 1 - (1 - min(1, u / max(1.5, dur * 0.9))) ** 3
                 c = c.resize((c.width * 2 // 3, c.height * 2 // 3))
                 c = fade(tint(c, (200, 0, 0), 0.8 * slow), 1 - 0.92 * slow)
                 y = OY + int(PH * 0.3) + int(PH * 0.22 * slow)
