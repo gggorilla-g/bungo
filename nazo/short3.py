@@ -6,7 +6,7 @@
 #     fx: [{type: stamp|count|vs|ring|warn|split|rank, ...}]  … 下の draw_fx を参照
 #     digest: [{"file":..., "name":...}, ...]  … 冒頭の一気見せ
 import json, math, os, re, subprocess, sys
-from PIL import Image, ImageDraw, ImageFilter, ImageEnhance
+from PIL import ImageOps, Image, ImageDraw, ImageFilter, ImageEnhance
 sys.path.insert(0, "src"); sys.path.insert(0, "nazo")
 import render, yomi, motion, se, m4_images, theme, mapfx, mosofx
 CH_NAME = ("ずんだもんの", "脳がとける", "雑学")   # チャンネルのロゴの3段（台本の channel_name で変える）
@@ -339,24 +339,31 @@ def draw_fx(pan, fx, t, d, place, OY=0):
         motion.box_text(dr, 40, OY + 30, fx["text"], f, WHT, RED, 30, 12, anchor="lt")
 
 
+DIGEST_PER = 0.17   # 冒頭の一気見せ：1枚ごとの間隔（ぽんぽんぽんぽん）
+
+
 def digest_frame(pan, items, imgs, t, d):
-    """冒頭の一気見せ：顔ぶれが1つずつポップして並ぶ（2×2）"""
-    n = len(items)
-    per = max(0.25, (d - 0.3) / n)
+    """冒頭の一気見せ：顔ぶれが短い間隔で次々にポンと飛び出して並ぶ（2×2）"""
     cw, ch = W // 2 - 30, PH // 2 - 60
     for i, it in enumerate(items):
-        u = t - i * per
+        u = t - 0.05 - i * DIGEST_PER
         if u < 0:
             continue
-        p = back(u / 0.22)
+        p = back(u / 0.16)
         srcimg = styled(imgs[it["file"]], THEME, "halftone") if THEME else imgs[it["file"]]
         tile = cover(srcimg, it.get("cx", 0.5), it.get("cy", 0.5), 1.0, cw, ch)
-        tile = tile.resize((max(1, int(cw * (0.6 + 0.4 * p))), max(1, int(ch * (0.6 + 0.4 * p)))))
+        tile = ImageOps.expand(tile, border=10, fill=WHT)
+        sc = max(0.05, 0.3 + 0.7 * p)
+        tile = tile.resize((max(1, int(tile.width * sc)), max(1, int(tile.height * sc))))
+        ang = (4 if i % 2 else -4) * max(0.0, 1 - u / 0.3)
+        if ang:
+            tile = tile.convert("RGBA").rotate(ang, expand=True, resample=Image.BICUBIC)
         x = 20 + (i % 2) * (W // 2) + (cw - tile.width) // 2
         y = 30 + (i // 2) * (PH // 2) + (ch - tile.height) // 2
-        pan.paste(tile, (x, y))
-        dr = ImageDraw.Draw(pan)
-        motion.box_text(dr, x + tile.width // 2, y + tile.height - 70, it["name"], motion.font(46), BLK, YEL, 16, 8, anchor="ct")
+        pan.paste(tile, (x, y), tile if tile.mode == "RGBA" else None)
+        if u > 0.12:
+            dr = ImageDraw.Draw(pan)
+            motion.box_text(dr, x + tile.width // 2, y + tile.height - 70, it["name"], motion.font(46), BLK, YEL, 16, 8, anchor="ct")
 
 
 def build(sid):
@@ -425,8 +432,8 @@ def build(sid):
             elif ty == "sign":
                 ev += [("zip_long", at, 0.7), ("boom", at + 0.3, 1.0)] + ([("pop_big", at + 0.55, 0.9)] if fx.get("sub") else [])
         if ln.get("digest"):
-            n = len(ln["digest"]); per = max(0.25, (d - 0.3) / n)
-            ev += [("pop_big", i * per, 1.0) for i in range(n)]
+            n = len(ln["digest"])
+            ev += [("pop_big", 0.05 + i * DIGEST_PER, 1.0) for i in range(n)]
         if li == len(lines) - 1 and not ln.get("loop"):
             ev += [("chime_b", d - 0.8, 1.0)]
         if ln.get("up"):
