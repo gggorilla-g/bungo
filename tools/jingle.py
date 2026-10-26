@@ -106,8 +106,13 @@ def main(out="assets/jingle_letsnotoke.wav"):
     add(buf, np.random.default_rng(2).normal(0, 1, int(1.2 * SR)) * np.exp(-np.arange(int(1.2 * SR)) / SR * 3.5) * 0.12, end)
     add(buf, kick() * 1.2, end)
     # 歌（伴奏より前に出す）
+    vox = np.zeros_like(buf)
     for st, text, notes in PHRASES:
-        add(buf, sing(text, notes) * 1.4, INTRO * B + st * B - 0.02)
+        add(vox, sing(text, notes) * 1.4, INTRO * B + st * B - 0.02)
+    buf += vox
+    with wave.open(out.replace(".wav", "_voice.wav"), "wb") as w:   # 口パク用（歌声だけ）
+        w.setnchannels(1); w.setsampwidth(2); w.setframerate(SR)
+        w.writeframes((np.clip(vox, -1, 1) * 32767).astype(np.int16).tobytes())
     buf = np.tanh(buf * 1.6) / np.tanh(1.6)        # 軽く潰して元気な音圧に
     buf = buf / max(1e-6, np.abs(buf).max()) * 0.92
     with wave.open(out, "wb") as w:

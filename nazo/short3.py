@@ -95,6 +95,9 @@ def up_panel(face, mouth, blink, t, d, thm):
     return pan
 
 
+DEFAULT_CH = ("ずんだもんの", "脳がとける", "雑学")
+JINGLE = "assets/jingle_letsnotoke.wav"          # tools/jingle.py で作るオリジナルのジングル
+JINGLE_VOICE = "assets/jingle_letsnotoke_voice.wav"   # 口パク用（歌声だけ）
 DANCE_POSES = [("笑顔", False), ("指差し", False), ("ドヤ", True), ("指差し", True), ("笑顔", False), ("驚き", True)]
 DANCE_BEAT = 0.375   # ジングル（160BPM）の拍に合わせる
 
@@ -414,9 +417,16 @@ def build(sid):
     print(f"画像 {len(imgs)}/{len(files)}")
     # 音声と効果音
     wavs, durs = [], []
+    jingle = sp.get("jingle", JINGLE if CH_NAME == DEFAULT_CH else None)   # 締めのジングル（雑学チャンネルのみ）
+    jingle = jingle if jingle and os.path.exists(jingle) else None
+    jingle_li = None
     for li, ln in enumerate(lines):
         wav = f"{B}/l{li}.wav"
-        render.tts(ln["say"], wav)
+        if ln.get("logo") and jingle:                   # 締めは「のうがとける ざつがく」の歌に差し替える
+            import shutil
+            shutil.copy(jingle, wav); jingle_li = li
+        else:
+            render.tts(ln["say"], wav)
         vl = voiced_len(wav) if sp.get("tight", True) else render._wav_len(wav)   # 声の後ろの無音は切る（間で冷めないように）
         d = math.ceil((vl + ((0.0 if ln.get("loop") else 1.0) if li == len(lines) - 1 else GAP)) * FPS) / FPS
         render._pad_wav(wav, f"{B}/l{li}_p.wav", d)
@@ -456,7 +466,9 @@ def build(sid):
             ev += [("boom", 0.0, 0.8)]
         if ln.get("pin"):
             ev += [("boom", 0.0, 1.0), ("zip_up", 0.0, 0.8), ("kira", 0.15, 1.0)]
-        if ln.get("logo"):
+        if ln.get("logo") and li == jingle_li:
+            ev = []                                    # 歌に効果音を重ねない
+        elif ln.get("logo"):
             ev += [("boom", 0.0, 1.0), ("crash", 0.0, 0.6), ("kira", 0.3, 0.9)]
         se.mix(f"{B}/l{li}_p.wav", ev)
         wavs.append(f"{B}/l{li}_p.wav"); durs.append(d)
@@ -489,14 +501,14 @@ def build(sid):
         bg_full = (ImageEnhance.Brightness(cover(src, 0.5, 0.5, 1.0, W, H).filter(ImageFilter.GaussianBlur(30))).enhance(0.3)
                    if src else Image.new("RGB", (W, H), (16, 16, 18)))
         pbg = panel_bg(src) if src else Image.new("RGB", (W, PH), (20, 20, 24))
-        tel = ln["text"].split("\n")
+        tel = ["のうがとける", "ざつがく"] if li == jingle_li else ln["text"].split("\n")
         is_title = any(fx["type"] == "title" for fx in ln.get("fx", []))
         topic = ln.get("flash", any(fx["type"] == "rank" for fx in ln.get("fx", [])))
         use_z = os.path.isdir(ZDIR) and sp.get("zunda", True) and not ln.get("digest")
         z_right = any((fx["type"] == "ring" and fx.get("x", 0.5) < 0.4) or
                       (fx["type"] == "map" and fx.get("province") in ("British Columbia", "Yukon", "Alberta"))
                       for fx in ln.get("fx", []))   # 見せたい所が左なら、ずんだもんは右へ   # 丸で囲む所が左なら右へ逃げる
-        lv = mouth_levels(f"{B}/l{li}.wav", n) if use_z else None
+        lv = mouth_levels(JINGLE_VOICE if (li == jingle_li and os.path.exists(JINGLE_VOICE)) else f"{B}/l{li}.wav", n) if use_z else None
         stamps = [fx.get("at", 0.15) for fx in ln.get("fx", []) if fx["type"] in ("stamp", "warn", "vs")]
         for fx in ln.get("fx", []):
             if fx["type"] in ("stamp", "warn"):
@@ -558,8 +570,9 @@ def build(sid):
             if logo_t >= 0:                              # 締め：チャンネルのロゴをドンと出し、ずんだもんが「レッツ！脳とけ！」
                 lp = theme.background(LOGO_TH, W, PH, logo_t)
                 theme.channel_logo(lp, 430, PH // 2 - 20, 1.0, logo_t, name=CH_NAME, logo_theme=LOGO_TH, char=None)
-                if os.path.isdir(ZDIR) and logo_t > 0.2:     # ロゴの横でずんだもんが踊る（控えめ）
-                    zd, (zx, zy) = zunda_dance(logo_t - 0.2, lv[i] if lv else 0)
+                d0 = DANCE_BEAT if li == jingle_li else 0.2  # 歌のときは前奏の1拍のあとから踊る
+                if os.path.isdir(ZDIR) and logo_t > d0:     # ロゴの横でずんだもんが踊る（控えめ）
+                    zd, (zx, zy) = zunda_dance(logo_t - d0, lv[i] if lv else 0)
                     lp.paste(zd, (zx, zy), zd)
                 fr.paste(lp, (0, PY))
             if use_z and logo_t < 0 and not ln.get("pin") and not ln.get("up") and not any(f["type"] in ("globe", "orbit", "beans", "hole", "dash") for f in ln.get("fx", [])):   # 図解の中にずんだもんがいる文は、左下の分を出さない                                  # 左下でずんだもんが喋る（テロップのすぐ上）
@@ -624,7 +637,11 @@ def build(sid):
             o.writeframes((y * 32767).astype(_np.int16).tobytes())
         bgm_credit = "オリジナル"
     vol = sp.get("bgm_vol", 0.13)
-    fc = (f"[1:a]aresample=48000[v];[2:a]aresample=48000,volume={vol}[m];[v][m]amix=inputs=2:normalize=0:duration=first,"
+    duck = ""
+    if jingle_li is not None:                          # ジングルの間はBGMを止める（曲がぶつからないように）
+        js = sum(durs[:jingle_li]); je = js + durs[jingle_li]
+        duck = f",volume=0:enable='between(t,{js - 0.05:.2f},{je + 0.5:.2f})'"
+    fc = (f"[1:a]aresample=48000[v];[2:a]aresample=48000,volume={vol}{duck}[m];[v][m]amix=inputs=2:normalize=0:duration=first,"
           "loudnorm=I=-14:TP=-1.5:LRA=11[a]")
     subprocess.run(["ffmpeg", "-y", "-v", "error", "-i", f"{B}/all.mp4", "-i", f"{B}/all_a.wav", "-i", f"{B}/bgm.wav",
                     "-filter_complex", fc, "-map", "0:v", "-map", "[a]", "-c:v", "copy", "-c:a", "aac", "-b:a", "192k", out],
