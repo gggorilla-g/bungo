@@ -95,6 +95,22 @@ def up_panel(face, mouth, blink, t, d, thm):
     return pan
 
 
+DANCE_POSES = [("笑顔", False), ("指差し", False), ("ドヤ", True), ("指差し", True), ("笑顔", False), ("驚き", True)]
+DANCE_BEAT = 0.33
+
+
+def zunda_dance(t, mouth):
+    """締めのダンス：拍ごとにポーズと向きを変え、小さく跳ねて左右に少し傾く（ボヨンボヨンさせない）"""
+    k = int(t / DANCE_BEAT) % len(DANCE_POSES); u = (t % DANCE_BEAT) / DANCE_BEAT
+    face, flip = DANCE_POSES[k]
+    im = zunda_big(face, mouth if u < 0.6 else 0, 470)
+    if flip:
+        im = im.transpose(Image.FLIP_LEFT_RIGHT)
+    hop = abs(math.sin(math.pi * u)) * 16
+    im = im.rotate(5 * math.sin(2 * math.pi * t / (DANCE_BEAT * 2)), expand=True, resample=Image.BICUBIC)
+    return im, (W - im.width + 60, int(PH - im.height + 50 - hop))   # 腰の切れ目は帯の下に沈める
+
+
 def voiced_len(wav):
     """声が実際に鳴り終わるまでの秒数（末尾の無音を除く）"""
     import wave as _w, numpy as _np
@@ -541,8 +557,10 @@ def build(sid):
             logo_t = t if ln.get("logo") else -1
             if logo_t >= 0:                              # 締め：チャンネルのロゴをドンと出し、ずんだもんが「レッツ！脳とけ！」
                 lp = theme.background(LOGO_TH, W, PH, logo_t)
-                theme.channel_logo(lp, 430, PH // 2 - 20, 1.0, logo_t, name=CH_NAME, logo_theme=LOGO_TH,
-                                   char=zunda_img("笑顔", lv[i] if lv else 2, 0) if os.path.isdir(ZDIR) else None)
+                theme.channel_logo(lp, 430, PH // 2 - 20, 1.0, logo_t, name=CH_NAME, logo_theme=LOGO_TH, char=None)
+                if os.path.isdir(ZDIR) and logo_t > 0.2:     # ロゴの横でずんだもんが踊る（控えめ）
+                    zd, (zx, zy) = zunda_dance(logo_t - 0.2, lv[i] if lv else 0)
+                    lp.paste(zd, (zx, zy), zd)
                 fr.paste(lp, (0, PY))
             if use_z and logo_t < 0 and not ln.get("pin") and not ln.get("up") and not any(f["type"] in ("globe", "orbit", "beans", "hole", "dash") for f in ln.get("fx", [])):   # 図解の中にずんだもんがいる文は、左下の分を出さない                                  # 左下でずんだもんが喋る（テロップのすぐ上）
                 gf = int(sum(durs[:li]) * FPS) + i
