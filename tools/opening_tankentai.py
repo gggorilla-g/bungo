@@ -8,7 +8,7 @@ from PIL import Image, ImageDraw, ImageFont, ImageFilter
 W, H, FPS = 1920, 1080, 30
 BPM = 150
 B = 60 / BPM                      # 1拍 0.4秒
-TOTAL = 24 * B                    # 24拍 = 9.6秒
+TOTAL = 32 * B                    # 32拍 = 12.8秒
 SR = 44100
 FONT = "/usr/share/fonts/opentype/noto/NotoSansCJK-Black.ttc"
 PARTS = "assets/enc/parts"
@@ -204,7 +204,7 @@ def frame(t):
     d = ImageDraw.Draw(img)
     beat = t / B
 
-    if beat < 8:                                                     # ── 1〜2: ずんだもん「大変なのだ！」／GM「地球は、もうダメだ。」
+    if beat < 19:                                                    # ── 1〜2: ずんだもん「大変なのだ！」／GMとのやりとり3往復
         # 左のコマ：ずんだもん（赤い網点＋集中線）
         p1 = back(beat / 0.9)
         shake = (math.sin(t * 70) * 10 * max(0, 1 - beat / 1.2))
@@ -213,7 +213,7 @@ def frame(t):
             c = HT_RED.crop((0, 0, w, h)).convert("RGBA")
             cd = ImageDraw.Draw(c)
             rays(cd, w * 0.5, h * 0.55, 18, t * 20, [(255, 90, 60), RED])
-            z = outline(zunda("驚き" if beat < 4 else "焦り", int(h * 1.15)), 10)
+            z = outline(zunda("驚き" if beat < 4 else "焦り" if beat < 10.5 else "青ざめ" if beat < 14.5 else "怒り" if beat < 16.5 else "泣き", int(h * 1.15)), 10)
             c.alpha_composite(z, (int(w / 2 - z.width / 2), int(h * 0.12)))
             return c
         lw = 1840 if beat < 4 else 1840 - (1840 - 900) * ease((beat - 4) / 0.8)   # 最初は全面、GMが来たら半分
@@ -230,16 +230,24 @@ def frame(t):
                 return c
             panel(img, (x0, 40, x0 + 960 - 60, 1040), right)
         # 吹き出し・効果音
-        bubble(img, 1250 if beat < 4 else 640, 300, "大変なのだ！", 84, back((beat - 0.6) / 0.5), "jag", tail=(-0.4, 1))
+        if beat < 6.8:
+            bubble(img, 1250 if beat < 4 else 640, 300, "大変なのだ！", 84, back((beat - 0.6) / 0.5), "jag", tail=(-0.4, 1))
         sfx(img, 300, 880, "ドーン！", 150, back(beat / 0.5) * (1 if beat < 3.6 else max(0, 1 - (beat - 3.6) * 3)), rot=-12)
-        if beat >= 5.4:
-            bubble(img, 1430, 190, "地球は、\nもうダメだ。", 70, back((beat - 5.4) / 0.4), "box", tail=(0.2, 1), fg=WHT, bg=BLK)
-        if beat >= 6.6:
-            bubble(img, 560, 900, "ええーっ！？", 84, back((beat - 6.6) / 0.35), "round", tail=(0.5, -1))
+        # GM（右上の黒い四角）とずんだもん（左下）のやりとり。最新の1つずつだけ出す
+        gm_lines = [(5.4, "地球は、\nもうダメだ。"), (8.6, "君には、住める星を\n探してもらう。"), (12.0, "宇宙服はない。\n予算がない。"), (16.4, "…行け。")]
+        zu_lines = [(6.8, "ええーっ！？", "round"), (10.4, "ずんだもん\nひとりでなのだ！？", "round"), (14.2, "ひどいのだ！", "jag"), (17.4, "行くのだ…。", "round")]
+        cur = [g for g in gm_lines if beat >= g[0]]
+        if cur:
+            at, txt_ = cur[-1]
+            bubble(img, 1430, 200, txt_, 64, back((beat - at) / 0.4), "box", tail=(0.2, 1), fg=WHT, bg=BLK)
+        cur = [z for z in zu_lines if beat >= z[0]]
+        if cur:
+            at, txt_, kind = cur[-1]
+            bubble(img, 520, 880, txt_, 72, back((beat - at) / 0.35), kind, tail=(0.5, -1))
         caption(img, 70, 70, "ある日――", 50, (beat - 0.2) / 0.6)
 
-    elif beat < 13:                                                   # ── 3: 宇宙へ。星が流れ、ずんだもんが飛ぶ
-        u = beat - 8
+    elif beat < 24:                                                   # ── 3: 宇宙へ。星が流れ、ずんだもんが飛ぶ
+        u = beat - 19
         img.alpha_composite(HT_SPACE.convert("RGBA"))
         d = ImageDraw.Draw(img)
         for i in range(80):                                            # 星
@@ -258,10 +266,10 @@ def frame(t):
         img.alpha_composite(z, (int(zx - z.width / 2), int(zy - z.height / 2)))
         caption(img, 70, 70, "任務：移住できる星を探せ！", 56, (u - 0.2) / 0.7)
         sfx(img, 1350, 760, "ビューン！", 140, back((u - 0.8) / 0.4) * max(0, min(1, (4.6 - u) * 2)), rot=-8, col=WHT, edge=CYA)
-        bubble(img, zx - 420, zy + 40, "宇宙服は！？", 64, back((u - 2.4) / 0.35) * (1 if u < 4.4 else 0), "round", tail=(1, -0.3))
+        bubble(img, zx - 420, zy + 40, "宇宙服が\nほしいのだ！", 60, back((u - 2.4) / 0.35) * (1 if u < 4.4 else 0), "round", tail=(1, -0.3))
 
     else:                                                             # ── 4: タイトル
-        u = beat - 13
+        u = beat - 24
         img.alpha_composite(HT_YEL.convert("RGBA"))
         d = ImageDraw.Draw(img)
         rays(d, W * 0.5, H * 0.46, 24, t * 14, [(255, 150, 0, 255), (255, 212, 0, 0)])
@@ -371,19 +379,27 @@ def music(out_wav):
         for st, n, ln in mel[bar]:                                      # メロディ
             add(buf, osc(note(n), ln * B * 0.95, "saw", 0.11, a=0.01, dec=1.5, vib=0.004), b0 + st * B)
             add(buf, osc(note(n) * 2, ln * B * 0.95, "square", 0.03, a=0.01, dec=2), b0 + st * B)
-    # 8拍目（ダメだ）・12拍目（宇宙へ）に合わせて小さなアクセント
-    add(buf, noise(0.4, 6, 0.18, 2), 8 * B)
-    # 20拍目：Dでジャーン（タイトル）
-    end = 20 * B
+    # 20〜23拍：Aのまま盛り上げ（スネア連打と上がっていく音）→ 24拍目でタイトル
+    for q in range(16):
+        add(buf, snare(), 20 * B + q * B / 4, 0.25 + q * 0.05)
+    for q in range(8):
+        for n in ["A2", "C#3", "E3", "A3"]:
+            add(buf, osc(note(n) * 2, B * 0.35, "saw", 0.04 + q * 0.004, dec=7), 20 * B + q * B / 2)
+        add(buf, osc(note("A1"), B * 0.45, "square", 0.22, dec=5), 20 * B + q * B / 2)
+    t3 = np.arange(int(4 * B * SR)) / SR
+    add(buf, np.sin(2 * np.pi * np.cumsum(300 + 900 * (t3 / t3[-1]) ** 2) / SR) * 0.05 * (t3 / t3[-1]), 20 * B)
+    add(buf, noise(0.4, 6, 0.18, 2), 19 * B)                            # 宇宙へ
+    # 24拍目：Dでジャーン（タイトル）
+    end = 24 * B
     for n in ("D3", "A3", "D4", "F#4", "A4", "D5"):
-        add(buf, osc(note(n), 1.7, "saw", 0.07, dec=1.6), end)
-    add(buf, noise(1.6, 2.5, 0.22, 3), end)
+        add(buf, osc(note(n), 3.0, "saw", 0.07, dec=1.1), end)
+    add(buf, noise(2.6, 1.8, 0.22, 3), end)
     add(buf, kick(), end, 1.4)
-    # タイトルの入りの前（13拍目＝5.2秒）にも一発
-    add(buf, noise(0.5, 5, 0.25, 4), 13 * B); add(buf, kick(), 13 * B, 1.3)
+    for q, n in enumerate(("A4", "D5", "F#5", "A5")):                   # 最後に上がっていく決め
+        add(buf, osc(note(n), B * 0.9 if q < 3 else B * 3, "saw", 0.1, a=0.01, dec=1.2), end + (2 + q * 0.5) * B)
     # 効果音：ビューン（8.9拍あたり）
     t2 = np.arange(int(0.6 * SR)) / SR
-    add(buf, np.sin(2 * np.pi * np.cumsum(1200 - 900 * t2 / t2[-1]) / SR) * np.exp(-t2 * 3) * 0.08, 8.8 * B)
+    add(buf, np.sin(2 * np.pi * np.cumsum(1200 - 900 * t2 / t2[-1]) / SR) * np.exp(-t2 * 3) * 0.08, 19.8 * B)
     buf = np.tanh(buf * 1.4) / np.tanh(1.4)
     buf = buf / max(1e-6, np.abs(buf).max()) * 0.9
     fade = np.ones_like(buf); n = int(0.3 * SR); fade[-n:] = np.linspace(1, 0, n)
@@ -409,7 +425,7 @@ def main(out="output/opening_tankentai.mp4"):
 
 if __name__ == "__main__":
     if len(sys.argv) > 1 and sys.argv[1] == "--stills":
-        for tt in (0.5, 1.2, 2.3, 3.0, 3.8, 4.4, 5.6, 6.6, 7.6, 9.0):
+        for tt in (1.0, 2.4, 3.0, 4.0, 4.6, 5.6, 6.4, 7.2, 8.4, 11.0):
             frame(tt).save(f"{sys.argv[2]}/op_{tt:.1f}.jpg", quality=85)
     else:
         main(*sys.argv[1:])
