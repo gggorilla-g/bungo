@@ -17,11 +17,13 @@ def L(who, say, face="通常", **fx):
 # ── 0. 冒頭（木星で落ち続ける）
 scene("cold", "jupiter_fall", chapter="オープニング")
 L(Z, "地面は、まだなのだ？", "焦り", fall=True)
-L(G, "ない。", fall=True)
-L(Z, "着陸先が、ないのだ！？", "驚き", fall=True, up=True)
+L(G, "ない。", fall=True, hold=1.0)
+L(Z, "着陸先が、ないのだ…！？", "青ざめ", fall=True, hold=0.8)
+L(Z, "暗いのだ…、どこまで落ちるのだ…。", "泣き", fall=True, hold=1.8)
 scene("op", "opening")                                    # アメコミ風オープニング（GMの任務説明を含む）
 scene("brief", "gmroom")
 L(Z, "今月の家賃が、払えないのだ…。枝豆しか食べてないのだ…。", "泣き")
+L(Z, "YouTubeの動画も、全然伸びないのだ…。なんでこんなに伸びないのだ…。", "泣き")
 L(G, "家賃に、困っているようだな。")
 L(Z, "だ、誰なのだ！？", "驚き", up=True)
 L(G, "ひとつ、仕事をやろう。")

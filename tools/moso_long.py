@@ -83,6 +83,12 @@ def damaged(im, level):
     return out
 
 
+def fade(c, a):
+    c = c.copy()
+    c.putalpha(c.getchannel("A").point(lambda v: int(v * max(0.0, min(1.0, a)))))
+    return c
+
+
 def outline(im, px=6):
     a = im.getchannel("A").filter(ImageFilter.MaxFilter(px * 2 + 1))
     base = Image.new("RGBA", im.size, (0, 0, 0, 0)); base.putalpha(a)
@@ -221,6 +227,26 @@ def planet(img, kind, cx, cy, r, t, ring=False, tilt=False):
         ex, ey = math.sin(a) * r * 1.5, -math.cos(a) * r * 1.5
         d.line([(cx - ex, cy - ey), (cx + ex, cy + ey)], fill=WHT, width=6)
         d.text((cx + ex + 20, cy + ey - 20), "自転軸", font=font(36), fill=WHT, anchor="lm", stroke_width=4, stroke_fill=BLK)
+
+
+def abyss(t, k):
+    """冒頭：木星の雲の奥へ落ちていき、だんだん暗い深みに飲み込まれる（k=0〜1）"""
+    img = Image.new("RGBA", (W, H), (0, 0, 0, 255))
+    d = ImageDraw.Draw(img)
+    dark = 1 - 0.85 * k
+    for j in range(16):
+        y = (j * 100 - t * (160 + 120 * k)) % (H + 200) - 100
+        c = [(205, 160, 120), (160, 110, 80), (225, 190, 150), (185, 125, 90)][j % 4]
+        c = tuple(int(v * dark) for v in c)
+        d.rectangle([0, y, W, y + 64 + (j % 3) * 24], fill=c)
+    if 0.25 < k < 0.95 and (int(t * 10) % 37) in (0, 1):    # 木星の雷（遠くで一瞬光る）
+        img.alpha_composite(Image.new("RGBA", (W, H), (230, 230, 255, 70)))
+    vg = Image.new("L", (W, H), 0)                          # 周りから闇が閉じていく
+    r = int((1.3 - 1.05 * k) * W / 2)
+    ImageDraw.Draw(vg).ellipse([W / 2 - r, H / 2 - r * 0.75, W / 2 + r, H / 2 + r * 0.75], fill=255)
+    vg = vg.filter(ImageFilter.GaussianBlur(160))
+    black = Image.new("RGBA", (W, H), (0, 0, 0, 255))
+    return Image.composite(img, black, vg)
 
 
 def background(kind, t):
@@ -474,7 +500,7 @@ def synth(vv, text, out):
     os.replace(out + ".tmp", out)
     if vv.get("echo"):
         tmp = out + ".e.wav"
-        subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-i", out, "-af", "aecho=0.8:0.55:60|130:0.28|0.16", tmp], check=True)
+        subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-i", out, "-af", "aecho=0.8:0.55:60|130:0.28|0.16", "-f", "wav", tmp], check=True)
         os.replace(tmp, out)
 
 
@@ -539,7 +565,9 @@ def build(script, out, t_from=None, t_to=None):
             chapters.append((t, sc["chapter"]))
         sc["_t0"] = t
         for ln in sc["lines"]:
-            vv = meta["voices"][ln["who"]]
+            vv = dict(meta["voices"][ln["who"]])
+            if sc["id"] == "cold":
+                vv["echo"] = True                           # 深い穴の中のような反響
             import hashlib                                   # セリフと声で名前を決める（行を足しても取り違えない）
             p = f"{work}/v_" + hashlib.md5((ln["who"] + meta["yomi"].get(ln["say"], ln["say"]) + json.dumps(vv, sort_keys=True) + json.dumps(READ_FIX, ensure_ascii=False)).encode()).hexdigest()[:12] + ".wav"
             if not os.path.exists(p):
@@ -592,6 +620,14 @@ def build(script, out, t_from=None, t_to=None):
         subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-i", op_seg[2], "-ac", "1", "-ar", str(SR), tmpw], check=True)
         ox = load_wav(tmpw); mix[a0:a0 + len(ox)] += ox * 0.8
     mix += b[:len(mix)]
+    for sc in scenes:                                       # 冒頭の深淵：低いうなりがだんだん大きくなる
+        if sc["id"] == "cold" and "_t0" in sc:
+            a0, a1 = int(sc["_t0"] * SR), int((sc["_t1"] + 0.8) * SR)
+            tt_ = np.arange(a1 - a0) / SR
+            k_ = tt_ / tt_[-1]
+            dr = (np.sin(2 * np.pi * 41 * tt_) * 0.6 + np.sin(2 * np.pi * 55 * tt_ + np.sin(tt_ * 0.7)) * 0.4) * (0.05 + 0.25 * k_)
+            nz = np.convolve(np.random.default_rng(9).normal(0, 1, len(tt_)), np.ones(400) / 400, "same") * (0.4 * k_)
+            mix[a0:a1] += (dr + nz).astype(np.float32)[:len(mix) - a0]
     mix = mix / max(1e-6, np.abs(mix).max()) * 0.92
     wav_out = f"{work}/mix.wav"
     with wave.open(wav_out, "wb") as w:
@@ -661,7 +697,11 @@ def frame(tt, tl, scenes):
     lv = env[fi] if speaking and fi < len(env) else 0
     mouth = 0 if lv < 0.02 else 1 if lv < 0.07 else 2
     blink = 1 if (int(tt * FPS) % 90) < 3 else 0
-    img = background("jupiter_fall" if fx.get("fall") else sc["bg"], tt)
+    if sc["id"] == "cold":
+        k_ab = min(1, max(0, (tt - sc["_t0"]) / max(1, sc["_t1"] - sc["_t0"])))
+        img = abyss(tt, k_ab)
+    else:
+        img = background("jupiter_fall" if fx.get("fall") else sc["bg"], tt)
     d = ImageDraw.Draw(img)
     zface = ln["face"] if ln["who"] == "z" else "通常"
     # 直前のずんだもんの表情を保つ（GMが話している間）
@@ -701,7 +741,12 @@ def frame(tt, tl, scenes):
         mosofx.draw(reg, 0, 900, u, max(1.5, t1 - t0), {"type": "fate", "mode": fx["fate"], "label": "", "hmax": 0.78,
                                                        "weight": fx.get("weight", "")}, ch)
         img.paste(reg.convert("RGBA"), (200, 0))
-    if fx.get("fall"):
+    if fx.get("fall") and sc["id"] == "cold":              # 小さくなりながら闇へ
+        sz = int(520 * (1 - 0.8 * k_ab))
+        z = outline(zunda("焦り" if ln["who"] == "g" else zface, max(60, sz), zmouth, blink)).rotate(math.sin(tt * 0.7) * 12 + tt * 8, expand=True, resample=Image.BICUBIC)
+        z = fade(z, 1 - 0.6 * k_ab) if k_ab > 0 else z
+        img.alpha_composite(z, (int(W / 2 - z.width / 2), int(H / 2 - 60 - z.height / 2)))
+    elif fx.get("fall"):
         z = outline(zunda("焦り" if ln["who"] == "g" else zface, 520, zmouth, blink)).rotate(math.sin(tt * 0.8) * 10, expand=True, resample=Image.BICUBIC)
         img.alpha_composite(z, (int(W / 2 - z.width / 2), int(420 - z.height / 2 + math.sin(tt * 1.2) * 10)))
         for q in range(6):                                 # 落ちている線（ゆっくり上へ流れる）
