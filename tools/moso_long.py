@@ -44,6 +44,8 @@ def zunda(face, h, mouth=1, blink=0):
         for b in ((blink, 0) if blink else (0,)):
             p = f"{PARTS}/{f}_{mouth}_{b}.png"
             k = (p, h)
+            if k not in _zc and len(_zc) > 150:       # 寄り・着地で大きさが毎コマ変わるので、ためこみすぎない（メモリ切れ対策）
+                _zc.clear(); _dmg.clear()
             if k not in _zc and os.path.exists(p):
                 im = Image.open(p).convert("RGBA")
                 _zc[k] = im.resize((int(im.width * h / im.height), h), Image.LANCZOS)
@@ -62,6 +64,8 @@ def damaged(im, level):
     k = (id(im), level)
     if k in _dmg:
         return _dmg[k]
+    if len(_dmg) > 150:
+        _dmg.clear()
     w, h = im.size
     a = im.getchannel("A")
     rgb = Image.blend(im.convert("RGB"), Image.new("RGB", im.size, (110, 80, 50)), min(0.3, 0.045 * level))
