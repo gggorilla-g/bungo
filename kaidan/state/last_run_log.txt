@@ -1,3 +1,1 @@
-WARNING: JPCommonLabel_insert_pause() in jpcommon_label.c: First mora should not be short pause.
-指定画像 9/9 枚
-完了: 第11話 皿屋敷 → 手動投稿用 kaidan/manual/004484
+在庫切れ: チャットで「怪談の在庫補充」を。今回は何もしない
