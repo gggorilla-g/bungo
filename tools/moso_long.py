@@ -679,7 +679,7 @@ def build(script, out, t_from=None, t_to=None):
         if sc.get("card") and "_t0" in sc:
             se_ev += [("shimmer", sc["_t0"], 0.7)]
         if sc["bg"] in PLANET and sc["id"] != "earth2" and "_t0" in sc and not sc["lines"][0]["fx"].get("fall"):
-            se_ev += [("slide_dn", sc["_t0"], 0.5), ("thud", sc["_t0"] + 1.3, 0.7)]
+            se_ev += [("whoosh_l", sc["_t0"] + 0.3, 0.35), ("pop_lo", sc["_t0"] + 1.3, 0.5)]   # ぴゅーんの音は耳ざわりなので、やわらかい風切りと着地の小さな音に
     for name, at, kk in se_ev:
         s = se.sound(name)
         s = np.interp(np.arange(int(len(s) * SR / se.SR)) * se.SR / SR, np.arange(len(s)), s).astype(np.float32)
@@ -876,8 +876,8 @@ def frame(tt, tl, scenes):
     if landing:
         arrive(img, sc["bg"], u, zface, dmg)
     if not hide_z:
-        if fx.get("up") and ln["who"] == "z":                    # 寄り：ゆっくり近づく（揺らさない。顔は隠さない）
-            k_ = ease(u / 0.8)
+        if fx.get("up") and ln["who"] == "z" and u < 1.6:       # 寄り：すっと近づいて、1.6秒で戻る（長いアップは多すぎるので短く）
+            k_ = ease(u / 0.35) if u < 1.2 else 1 - ease((u - 1.2) / 0.4)
             hz = int(600 + 500 * k_)
             z = outline(damaged(zunda(zface, hz, zmouth, blink), dmg), 6)
             img.alpha_composite(z, (int(330 + 150 * k_ - z.width / 2), int(890 + 260 * k_ - z.height)))
