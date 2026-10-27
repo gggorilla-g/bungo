@@ -505,7 +505,7 @@ def build(sid):
         if any(fx["type"] == "rank" for fx in ln.get("fx", [])):
             rank_i += 1
         if themes:
-            if any(fx["type"] == "rank" for fx in ln.get("fx", [])):
+            if any(fx["type"] == "rank" for fx in ln.get("fx", [])) or ln.get("sec"):   # 章の頭で配色を変える
                 sec += 1
             THEME = ln.get("theme") or themes[sec % len(themes)]
         d = durs[li]; n = int(round(d * FPS))

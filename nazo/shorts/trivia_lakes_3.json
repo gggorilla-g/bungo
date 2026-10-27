@@ -25,11 +25,11 @@
  "bgm_credit": "ムード２ / 今川彰人オーケストラ（OpenTracks（旧DOVA-SYNDROME））",
  "bgm_vol": 0.16,
  "themes": [
-  "pink_grad",
-  "orange_rays",
-  "blue_waves",
-  "mint_black",
-  "green_red"
+  "sky_clouds",
+  "forest",
+  "deep_sea",
+  "kraft",
+  "tomato"
  ],
  "yomi": {
   "レッツ脳とけ！": "レッツのーとけ！",
@@ -42,7 +42,6 @@
    "text": "「バカ」という\n名前の湖",
    "face": "笑顔",
    "hook": true,
-   "theme": "pink_grad",
    "fx": [
     {
      "type": "stamp",
@@ -57,7 +56,8 @@
      ]
     }
    ],
-   "dance": true
+   "dance": true,
+   "theme": "sky_clouds"
   },
   {
    "say": "ディスレイクとザットレイク。",
@@ -309,8 +309,7 @@
    "say": "レッツ脳とけ！",
    "text": "レッツ\n脳とけ！",
    "face": "笑顔",
-   "logo": true,
-   "theme": "pink_grad"
+   "logo": true
   }
  ]
 }

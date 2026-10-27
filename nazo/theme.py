@@ -33,6 +33,27 @@ THEMES = {
                     "face": (130, 255, 220), "side": (60, 10, 90), "edge": (20, 0, 40), "duo": ((40, 10, 80), (255, 170, 230))},
     "green_red":   {"bg": "stripes", "c": [(30, 90, 40), (226, 72, 40), (246, 208, 128)],
                     "face": (246, 208, 128), "side": (30, 90, 40), "edge": (30, 90, 40), "duo": ((30, 90, 40), (246, 208, 128))},
+    # ── 2026-10-27 追加：毎回ちがう見た目にするための配色（雑学はネタに合わせて選ぶ）
+    "lemon_dots":  {"bg": "dots", "c": [(250, 214, 40), (255, 232, 110), (255, 246, 190)],
+                    "face": (255, 255, 255), "side": (220, 60, 40), "edge": (40, 20, 10), "duo": ((60, 40, 10), (255, 236, 150))},
+    "kraft":       {"bg": "kraft", "c": [(150, 110, 70), (190, 150, 105), (225, 200, 160)],
+                    "face": (255, 250, 235), "side": (90, 55, 30), "edge": (60, 35, 20), "duo": ((70, 45, 25), (240, 220, 185))},
+    "chalk":       {"bg": "chalk", "c": [(22, 58, 44), (34, 78, 60), (230, 235, 220)],
+                    "face": (255, 255, 255), "side": (240, 200, 60), "edge": (15, 40, 30), "duo": ((15, 40, 30), (210, 235, 215))},
+    "checker":     {"bg": "checker", "c": [(20, 20, 24), (245, 245, 240), (230, 50, 60)],
+                    "face": (255, 226, 0), "side": (230, 50, 60), "edge": (20, 20, 24), "duo": ((20, 20, 24), (245, 245, 240))},
+    "sky_clouds":  {"bg": "clouds", "c": [(90, 170, 240), (140, 200, 250), (255, 255, 255)],
+                    "face": (255, 255, 255), "side": (30, 90, 170), "edge": (20, 60, 130), "duo": ((25, 70, 140), (220, 240, 255))},
+    "rail":        {"bg": "rail", "c": [(30, 34, 40), (60, 66, 76), (0, 150, 210)],
+                    "face": (255, 255, 255), "side": (0, 110, 170), "edge": (10, 12, 16), "duo": ((15, 25, 40), (200, 225, 240))},
+    "tomato":      {"bg": "diag", "c": [(220, 60, 50), (240, 90, 70), (255, 220, 200)],
+                    "face": (255, 255, 255), "side": (120, 20, 20), "edge": (60, 10, 10), "duo": ((90, 20, 20), (255, 210, 190))},
+    "deep_sea":    {"bg": "bubbles", "c": [(5, 20, 50), (10, 45, 90), (90, 200, 230)],
+                    "face": (140, 240, 255), "side": (10, 60, 110), "edge": (0, 10, 30), "duo": ((5, 20, 50), (150, 230, 250))},
+    "forest":      {"bg": "leaves", "c": [(40, 90, 50), (70, 130, 70), (190, 225, 150)],
+                    "face": (250, 240, 170), "side": (30, 70, 40), "edge": (20, 45, 25), "duo": ((25, 60, 30), (220, 240, 190))},
+    "newspaper":   {"bg": "news", "c": [(238, 234, 222), (225, 220, 205), (30, 30, 30)],
+                    "face": (20, 20, 20), "side": (200, 40, 40), "edge": (255, 255, 255), "duo": ((25, 25, 25), (240, 236, 225))},
 }
 _grain = {}
 
@@ -118,6 +139,79 @@ def background(name, w, h, t):
         for x in range(-200, w + 200, 220):
             off = int(30 * math.sin(t * 2))
             d.rectangle([x + off, 0, x + off + 90, h], fill=c1)
+    elif kind == "dots":                    # 水玉がゆっくり斜めに流れる
+        off = (t * 30) % 120
+        for y in range(-120, h + 120, 120):
+            for x in range(-120, w + 120, 120):
+                xx = x + off + (60 if (y // 120) % 2 else 0); yy = y + off
+                d.ellipse([xx - 26, yy - 26, xx + 26, yy + 26], fill=c2)
+    elif kind == "kraft":                   # クラフト紙：繊維のすじと、角のマスキングテープ
+        rng = np.random.default_rng(3)
+        for _ in range(500):
+            x, y = int(rng.integers(0, w)), int(rng.integers(0, h)); L = int(rng.integers(20, 90))
+            d.line([(x, y), (x + L, y + int(rng.integers(-4, 5)))], fill=c0 if rng.random() < .5 else c2, width=2)
+        for (x, y, a) in ((60, 60, -30), (w - 60, h - 60, -30)):
+            tp = Image.new("RGBA", (260, 70), (240, 230, 190, 210)); tp = tp.rotate(a, expand=True)
+            im.paste(tp, (x - tp.width // 2, y - tp.height // 2), tp)
+    elif kind == "chalk":                   # 黒板：ふちの木枠と、うっすら消した跡
+        im = Image.new("RGB", (w, h), c1); d = ImageDraw.Draw(im, "RGBA")
+        rng = np.random.default_rng(8)
+        for _ in range(40):
+            x, y = int(rng.integers(0, w)), int(rng.integers(0, h))
+            d.ellipse([x - 160, y - 50, x + 160, y + 50], fill=c2 + (8,))
+        d.rectangle([0, 0, w - 1, h - 1], outline=(120, 80, 40), width=24)
+    elif kind == "checker":                 # 白黒の市松がゆっくり横へ
+        im = Image.new("RGB", (w, h), c1); d = ImageDraw.Draw(im)
+        S = 135; off = int(t * 25) % (2 * S)
+        for y in range(0, h + S, S):
+            for x in range(-2 * S, w + S, S):
+                if ((x // S) + (y // S)) % 2 == 0:
+                    d.rectangle([x + off, y, x + off + S - 1, y + S - 1], fill=c0)
+        d.rectangle([0, int(h * .46), w, int(h * .46) + 26], fill=c2)
+    elif kind == "clouds":                  # 青空に白い雲が流れる
+        a = np.linspace(0, 1, h)[:, None, None]
+        arr = (np.array(c0) * (1 - a) + np.array(c1) * a) * np.ones((1, w, 1))
+        im = Image.fromarray(arr.astype(np.uint8)); d = ImageDraw.Draw(im)
+        for j in range(7):
+            cx = (j * 331 + t * (20 + j * 6)) % (w + 500) - 250; cy = (j * 271) % h
+            for (dx, dy, r) in ((0, 0, 80), (70, -30, 95), (150, 0, 75), (75, 25, 85)):
+                d.ellipse([cx + dx - r, cy + dy - r * .7, cx + dx + r, cy + dy + r * .7], fill=c2)
+    elif kind == "rail":                    # 駅のホーム：濃いグレーに路線色の帯と枕木
+        im = Image.new("RGB", (w, h), c0); d = ImageDraw.Draw(im)
+        off = int(t * 120) % 160
+        for x in range(-160 + off, w + 160, 160):
+            d.rectangle([x, int(h * .78), x + 70, int(h * .92)], fill=c1)
+        d.rectangle([0, int(h * .80), w, int(h * .80) + 10], fill=(170, 170, 175))
+        d.rectangle([0, int(h * .88), w, int(h * .88) + 10], fill=(170, 170, 175))
+        d.rectangle([0, int(h * .10), w, int(h * .10) + 40], fill=c2)
+    elif kind == "diag":                    # 太い斜めじま
+        im = Image.new("RGB", (w, h), c0); d = ImageDraw.Draw(im)
+        off = int(t * 40) % 200
+        for x in range(-h - 200, w + 200, 200):
+            d.polygon([(x + off, 0), (x + off + 90, 0), (x + off + 90 + h, h), (x + off + h, h)], fill=c1)
+    elif kind == "bubbles":                 # 深海：下から泡がのぼる
+        a = np.linspace(0, 1, h)[:, None, None]
+        arr = (np.array(c1) * (1 - a) + np.array(c0) * a) * np.ones((1, w, 1))
+        im = Image.fromarray(arr.astype(np.uint8)); d = ImageDraw.Draw(im, "RGBA")
+        rng = np.random.default_rng(21)
+        for x, sp, r, ph in zip(rng.integers(0, w, 40), rng.uniform(60, 160, 40), rng.uniform(6, 22, 40), rng.uniform(0, h, 40)):
+            y = h - ((ph + t * sp) % (h + 60))
+            d.ellipse([x - r, y - r, x + r, y + r], outline=c2 + (170,), width=3)
+    elif kind == "leaves":                  # 葉っぱの形が散らばってゆれる
+        rng = np.random.default_rng(13)
+        for x, y, r, ph in zip(rng.integers(0, w, 46), rng.integers(0, h, 46), rng.uniform(30, 70, 46), rng.uniform(0, 6, 46)):
+            lf = Image.new("RGBA", (int(r * 2.4), int(r * 1.2)), (0, 0, 0, 0))
+            ImageDraw.Draw(lf).ellipse([0, 0, lf.width - 1, lf.height - 1], fill=(c0 if ph < 3 else c2) + (255,))
+            lf = lf.rotate(ph * 60 + math.sin(t + ph) * 10, expand=True)
+            im.paste(lf, (int(x - lf.width / 2), int(y - lf.height / 2)), lf)
+    elif kind == "news":                    # 新聞：段組みの灰色の行と、太い罫
+        im = Image.new("RGB", (w, h), c0); d = ImageDraw.Draw(im)
+        cols = 4; cw = w // cols
+        for c in range(cols):
+            for y in range(40, h, 26):
+                d.line([(c * cw + 24, y), (c * cw + cw - 24 - (40 if (y // 26 + c) % 7 == 0 else 0), y)], fill=(185, 180, 168), width=8)
+            d.line([(c * cw, 0), (c * cw, h)], fill=c2, width=3)
+        d.rectangle([0, 0, w, 14], fill=c2)
     return grain(im, 14)
 
 

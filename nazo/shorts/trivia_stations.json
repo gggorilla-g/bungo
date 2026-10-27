@@ -25,11 +25,11 @@
  "bgm_credit": "ムード２ / 今川彰人オーケストラ（OpenTracks（旧DOVA-SYNDROME））",
  "bgm_vol": 0.16,
  "themes": [
-  "pink_grad",
-  "orange_rays",
-  "blue_waves",
-  "mint_black",
-  "green_red"
+  "rail",
+  "newspaper",
+  "lemon_dots",
+  "chalk",
+  "checker"
  ],
  "yomi": {
   "レッツ脳とけ！": "レッツのーとけ！",
@@ -47,7 +47,6 @@
    "text": "「ハゲ」という\n名前の駅",
    "face": "笑顔",
    "hook": true,
-   "theme": "pink_grad",
    "dance": true,
    "fx": [
     {
@@ -62,18 +61,14 @@
       40
      ]
     }
-   ]
+   ],
+   "theme": "rail"
   },
   {
    "say": "高知県の半家駅。",
    "text": "高知県の\n半家駅",
    "face": "通常",
    "fx": [
-    {
-     "type": "rank",
-     "text": "No.1",
-     "at": 0.05
-    },
     {
      "type": "station",
      "name": "半家",
@@ -86,7 +81,8 @@
      ],
      "at": 0.1
     }
-   ]
+   ],
+   "sec": true
   },
   {
    "say": "本当にはげと読むのだ。",
@@ -153,11 +149,6 @@
    "face": "通常",
    "fx": [
     {
-     "type": "rank",
-     "text": "No.2",
-     "at": 0.05
-    },
-    {
      "type": "station",
      "name": "大歩危",
      "kana": "おおぼけ",
@@ -171,7 +162,8 @@
      "left": "小歩危",
      "right": "土佐岩原"
     }
-   ]
+   ],
+   "sec": true
   },
   {
    "say": "読みはおおぼけ。となりの駅は、こぼけなのだ。",
@@ -240,11 +232,6 @@
    "face": "通常",
    "fx": [
     {
-     "type": "rank",
-     "text": "No.3",
-     "at": 0.05
-    },
-    {
      "type": "station",
      "name": "母恋",
      "kana": "ぼこい",
@@ -256,7 +243,8 @@
      ],
      "at": 0.1
     }
-   ]
+   ],
+   "sec": true
   },
   {
    "say": "読みはぼこい。由来はアイヌ語なのだ。",
@@ -323,11 +311,6 @@
    "face": "通常",
    "fx": [
     {
-     "type": "rank",
-     "text": "No.4",
-     "at": 0.05
-    },
-    {
      "type": "station",
      "name": "おもちゃのまち",
      "kana": "おもちゃのまち",
@@ -339,7 +322,8 @@
      ],
      "at": 0.1
     }
-   ]
+   ],
+   "sec": true
   },
   {
    "say": "名付けたのは、おもちゃ会社の創業者なのだ。",
@@ -385,8 +369,8 @@
    "say": "レッツ脳とけ！",
    "text": "レッツ\n脳とけ！",
    "face": "笑顔",
-   "logo": true,
-   "theme": "pink_grad"
+   "logo": true
   }
- ]
+ ],
+ "format": "journey"
 }
