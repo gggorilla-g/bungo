@@ -288,14 +288,14 @@ def count(img, to, unit, label, u):
 def solar_map(img, u):
     d = ImageDraw.Draw(img)
     y = 420
-    d.ellipse([-260, y - 220, 60, y + 220], fill=(255, 190, 40))
+    d.ellipse([-330, y - 220, -10, y + 220], fill=(255, 190, 40))
     names = ["水星", "金星", "地球", "火星", "木星", "土星", "天王星", "海王星"]
     cols = [PLANET[k][0] for k in ("mercury", "venus", "earth", "mars", "jupiter", "saturn", "uranus", "neptune")]
     for i, (n, c) in enumerate(zip(names, cols)):
         p = ease((u - i * 0.12) / 0.4)
         if p <= 0:
             continue
-        x = 210 + i * 215
+        x = 270 + i * 205
         r = [22, 34, 36, 28, 80, 68, 50, 48][i] * p
         d.ellipse([x - r, y - r, x + r, y + r], fill=c, outline=WHT if n != "地球" else (120, 120, 120), width=4)
         d.text((x, y + 110), n, font=font(36), fill=(150, 150, 150) if n == "地球" else WHT, anchor="mm")
@@ -348,9 +348,9 @@ def earth_points(img, n):
     pts = ["呼吸できる空気", "液体の水", "立てる地面"]
     for i in range(n):
         y = 260 + i * 120
-        d.rounded_rectangle([760, y - 45, 1180, y + 45], 16, fill=(255, 255, 255, 235), outline=BLK, width=4)
-        d.text((790, y), "✓ " + pts[i] if False else pts[i], font=font(46), fill=BLK, anchor="lm")
-        d.line([(1130, y), (1150, y + 20), (1190, y - 30)], fill=(40, 170, 80), width=12)
+        d.rounded_rectangle([600, y - 45, 1000, y + 45], 16, fill=(255, 255, 255, 235), outline=BLK, width=4)
+        d.text((630, y), pts[i], font=font(46), fill=BLK, anchor="lm")
+        d.line([(940, y), (960, y + 20), (1000, y - 30)], fill=(40, 170, 80), width=12)
 
 
 # ── 音声
@@ -545,7 +545,7 @@ def frame(tt, tl, scenes):
     lv = env[fi] if speaking and fi < len(env) else 0
     mouth = 0 if lv < 0.02 else 1 if lv < 0.07 else 2
     blink = 1 if (int(tt * FPS) % 90) < 3 else 0
-    img = background(sc["bg"], tt)
+    img = background("jupiter_fall" if fx.get("fall") else sc["bg"], tt)
     d = ImageDraw.Draw(img)
     zface = ln["face"] if ln["who"] == "z" else "通常"
     # 直前のずんだもんの表情を保つ（GMが話している間）
