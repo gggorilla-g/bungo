@@ -1,0 +1,58 @@
+{
+ "mercury": {
+  "title": "File:Mercury in true color.jpg",
+  "license": "Public domain",
+  "artist": "NASA/Johns Hopkins University Applied Physics Laboratory/Arizona State University/Carnegie Institution of Washington",
+  "credit": "<a rel=\"nofollow\" class=\"external free\" href=\"https://photojournal.jpl.nasa.gov/catalog/PIA11364\">https://photojournal.jpl.nasa.gov/catalog/PIA11364</a>",
+  "page": "https://commons.wikimedia.org/wiki/File:Mercury_in_true_color.jpg"
+ },
+ "venus": {
+  "title": "File:Venus-real color.jpg",
+  "license": "Public domain",
+  "artist": "NASA or Ricardo Nunes",
+  "credit": "<a rel=\"nofollow\" class=\"external free\" href=\"http://www.astrosurf.com/nunes/explor/explor_m10.htm\">http://www.astrosurf.com/nunes/explor/explor_m10.htm</a>",
+  "page": "https://commons.wikimedia.org/wiki/File:Venus-real_color.jpg"
+ },
+ "mars": {
+  "title": "File:Mars Valles Marineris.jpeg",
+  "license": "Public domain",
+  "artist": "NASA / USGS (see <a rel=\"nofollow\" class=\"external text\" data-mw-original-href=\"http://photojournal.jpl.nasa.gov/catalog/PIA04304\" href=\"https://photojournal.jpl.nasa.gov/catalog/PIA04304\">PIA04304 catalog page</a>)",
+  "credit": "<a rel=\"nofollow\" class=\"external free\" data-mw-original-href=\"http://nssdc.gsfc.nasa.gov/photo_gallery/photogallery-mars.html\" href=\"https://nssdc.gsfc.nasa.gov/photo_gallery/photogallery-mars.html\">http://nssdc.gsfc.nasa.gov/photo_gallery/photogallery-mars.html</a> <a rel=\"nofollow\" class=\"external free\" data-mw-original-href=\"http://nssdc.gsfc.nasa.gov/image/planetary/mars/marsglobe1.jpg\" href=\"https://nssdc.gsfc.nasa.gov/image/planetary/mars/marsglobe1.jpg\">http://nssdc.gsfc.nasa.gov/image/planetary/mars/marsglobe1.jpg</a>",
+  "page": "https://commons.wikimedia.org/wiki/File:Mars_Valles_Marineris.jpeg"
+ },
+ "jupiter": {
+  "title": "File:Jupiter New Horizons.jpg",
+  "license": "Public domain",
+  "artist": "NASA/Johns Hopkins University Applied Physics Laboratory/Southwest Research Institute",
+  "credit": "National Aeronautics and Space Administration",
+  "page": "https://commons.wikimedia.org/wiki/File:Jupiter_New_Horizons.jpg"
+ },
+ "saturn": {
+  "title": "File:Saturn during Equinox.jpg",
+  "license": "Public domain",
+  "artist": "<a href=\"https://en.wikipedia.org/wiki/National_Aeronautics_and_Space_Administration\" class=\"extiw\" title=\"w:National Aeronautics and Space Administration\">NASA</a> / <a href=\"https://en.wikipedia.org/wiki/Jet_Propulsion_Laboratory\" class=\"extiw\" title=\"w:Jet Propulsion Laboratory\">JPL</a> / <a href=\"https://en.wikipedia.org/wiki/Space_Science_Institute\" class=\"extiw\" title=\"w:Space Science Institute\">Space Science Institute</a>",
+  "credit": "<a rel=\"nofollow\" class=\"external free\" href=\"http://www.ciclops.org/view/5155/Saturn-Four-Years-On\">http://www.ciclops.org/view/5155/Saturn-Four-Years-On</a> <a rel=\"nofollow\" class=\"external free\" data-mw-original-href=\"http://www.nasa.gov/images/content/365640main_PIA11141_full.jpg\" href=\"https://www.nasa.gov/images/content/365640main_PIA11141_full.jpg\">http://www.nasa.gov/images/content/365640main_PIA11141_full.jpg</a> <a rel=\"nofollow\" class=\"external free\" data-mw-original-href=\"http://photojournal.jpl.nasa.gov/catalog/PIA11141\" href=\"https://photojournal.jpl.nasa.gov/catalog/PIA11141\">http://photojournal.jpl.nasa.gov/catalog/PIA11141</a>",
+  "page": "https://commons.wikimedia.org/wiki/File:Saturn_during_Equinox.jpg"
+ },
+ "uranus": {
+  "title": "File:Uranus2.jpg",
+  "license": "Public domain",
+  "artist": "NASA/JPL-Caltech",
+  "credit": "<a rel=\"nofollow\" class=\"external free\" href=\"https://web.archive.org/web/20090119235457/http://planetquest.jpl.nasa.gov/milestones_show/slide1.html\">https://web.archive.org/web/20090119235457/http://planetquest.jpl.nasa.gov/milestones_show/slide1.html</a> (<a rel=\"nofollow\" class=\"external text\" href=\"https://web.archive.org/web/20090419230258/http://planetquest.jpl.nasa.gov/milestones_show/uranus.jpg\">image link</a>)<br><a rel=\"nofollow\" class=\"external free\" data-mw-original-href=\"http://photojournal.jpl.nasa.gov/catalog/PIA18182\" href=\"https://photojournal.jpl.nasa.gov/catalog/PIA18182\">http://photojournal.jpl.nasa.gov/catalog/PIA18182</a> (<a rel=\"nofollow\" class=\"external text\" data-mw-original-href=\"http://photojournal.jpl.nasa.gov/jpeg/PIA18182.jpg\" href=\"https://photojournal.jpl.nasa.gov/jpeg/PIA18182.jpg\">image link</a>)",
+  "page": "https://commons.wikimedia.org/wiki/File:Uranus2.jpg"
+ },
+ "neptune": {
+  "title": "File:Neptune Full.jpg",
+  "license": "Public domain",
+  "artist": "NASA",
+  "credit": "<a rel=\"nofollow\" class=\"external text\" data-mw-original-href=\"http://photojournal.jpl.nasa.gov/catalog/PIA01492\" href=\"https://photojournal.jpl.nasa.gov/catalog/PIA01492\">JPL image</a>",
+  "page": "https://commons.wikimedia.org/wiki/File:Neptune_Full.jpg"
+ },
+ "earth": {
+  "title": "File:The Earth seen from Apollo 17.jpg",
+  "license": "Public domain",
+  "artist": "<div class=\"fn value\">\nNASA/Apollo 17 crew; taken by either <a href=\"https://en.wikipedia.org/wiki/Harrison_Schmitt\" class=\"extiw\" title=\"en:Harrison Schmitt\">Harrison Schmitt</a> or <a href=\"https://en.wikipedia.org/wiki/Ronald_Evans_(astronaut)\" class=\"extiw\" title=\"en:Ronald Evans (astronaut)\">Ron Evans</a></div>",
+  "credit": "<a rel=\"nofollow\" class=\"external free\" href=\"https://web.archive.org/web/20160112123725/http://grin.hq.nasa.gov/ABSTRACTS/GPN-2000-001138.html\">https://web.archive.org/web/20160112123725/http://grin.hq.nasa.gov/ABSTRACTS/GPN-2000-001138.html</a> (<a rel=\"nofollow\" class=\"external text\" href=\"https://web.archive.org/web/20150707070617/http://grin.hq.nasa.gov/IMAGES/LARGE/GPN-2000-001138.jpg\">image link</a>); see also <a rel=\"nofollow\" class=\"external free\" href=\"https://www.nasa.gov/multimedia/imagegallery/image_feature_329.html\">https://www.nasa.gov/multimedia/imagegallery/image_feature_329.html</a>",
+  "page": "https://commons.wikimedia.org/wiki/File:The_Earth_seen_from_Apollo_17.jpg"
+ }
+}
