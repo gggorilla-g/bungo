@@ -366,7 +366,7 @@ def count(img, to, unit, label, u):
 
 def solar_map(img, u):
     d = ImageDraw.Draw(img)
-    y = 420
+    y = 190                                           # ずんだもんの頭より上に並べる（水星・金星が隠れないように）
     d.ellipse([-330, y - 220, -10, y + 220], fill=(255, 190, 40))
     names = ["水星", "金星", "地球", "火星", "木星", "土星", "天王星", "海王星"]
     cols = [PLANET[k][0] for k in ("mercury", "venus", "earth", "mars", "jupiter", "saturn", "uranus", "neptune")]
@@ -376,8 +376,14 @@ def solar_map(img, u):
             continue
         x = 270 + i * 205
         r = [22, 34, 36, 28, 80, 68, 50, 48][i] * p
-        d.ellipse([x - r, y - r, x + r, y + r], fill=c, outline=WHT if n != "地球" else (120, 120, 120), width=4)
-        d.text((x, y + 110), n, font=font(36), fill=(150, 150, 150) if n == "地球" else WHT, anchor="mm")
+        key = ("mercury", "venus", "earth", "mars", "jupiter", "saturn", "uranus", "neptune")[i]
+        ph = photo(key, max(4, int(r * (0.7 if key == "saturn" else 1))))
+        if ph is not None:                            # 地図の惑星も写真で
+            m = ph.convert("L").point(lambda v: 255 if v > 28 else v * 9)
+            img.paste(ph, (int(x - ph.width / 2), int(y - ph.height / 2)), m)
+        else:
+            d.ellipse([x - r, y - r, x + r, y + r], fill=c)
+        d.text((x, y + 108), n, font=font(34), fill=(150, 150, 150) if n == "地球" else WHT, anchor="mm", stroke_width=4, stroke_fill=BLK)
         if n != "地球":
             d.ellipse([x - r - 14, y - r - 14, x + r + 14, y + r + 14], outline=YEL, width=5)
 
