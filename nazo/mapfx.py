@@ -127,3 +127,54 @@ def draw_sign(pan, OY, PH, u, spec):
     if ang:
         board = board.rotate(ang, center=(board.width // 2, 0), resample=Image.BICUBIC)
     pan.paste(board, (cx - board.width // 2, top), board)
+
+
+def draw_station(pan, OY, PH, u, spec):
+    """駅のホームと、駅名標（白い板に大きな駅名、ふりがな、ローマ字、両どなりの駅）が落ちてきて揺れる。
+    spec: {name（漢字）, kana, roma, left, right（となりの駅、任意）, line（線の色 [r,g,b]、任意）, sub（ツッコミの一言、任意）}"""
+    W = pan.width
+    d = ImageDraw.Draw(pan)
+    # ホーム（床と黄色い点字ブロック、線路）
+    fy = OY + int(PH * 0.7)
+    d.rectangle([0, fy, W, OY + PH], fill=(150, 150, 150))
+    d.rectangle([0, fy + 30, W, fy + 70], fill=(250, 210, 0))
+    for x in range(0, W, 40):
+        d.ellipse([x + 12, fy + 42, x + 26, fy + 56], fill=(220, 180, 0))
+    d.rectangle([0, OY + int(PH * 0.9), W, OY + PH], fill=(90, 70, 60))
+    for x in range(-40, W, 120):
+        d.rectangle([x, OY + int(PH * 0.92), x + 70, OY + int(PH * 0.95)], fill=(60, 45, 40))
+    # 駅名標
+    e = _back(u / 0.35)
+    bw, bh = 980, 420
+    line = tuple(spec.get("line", (0, 140, 70)))
+    top = OY + int(PH * 0.1) - int(560 * (1 - e))
+    ang = 3 * math.sin(u * 9) * math.exp(-u * 2.5) if u > 0.35 else 0
+    board = Image.new("RGBA", (bw + 40, bh + 300), (0, 0, 0, 0))
+    bd = ImageDraw.Draw(board)
+    for px in (bw * 0.2, bw * 0.8):                       # 支柱
+        bd.rectangle([20 + px - 14, bh, 20 + px + 14, bh + 290], fill=(120, 120, 130), outline=(50, 50, 60), width=3)
+    bd.rectangle([20, 0, 20 + bw, bh], fill=(255, 255, 255), outline=(40, 40, 40), width=8)
+    cx = 20 + bw // 2
+    if spec.get("kana"):
+        bd.text((cx, 62), spec["kana"], font=font(54), fill=(30, 30, 30), anchor="mm")
+    name = spec["name"]
+    fs = min(200, int(820 / max(1, len(name))))
+    bd.text((cx, 180), name, font=font(fs), fill=(0, 0, 0), anchor="mm")
+    bd.rectangle([20, 278, 20 + bw, 318], fill=line)              # 線の色の帯
+    if spec.get("roma"):
+        bd.text((cx, 298), spec["roma"], font=font(30), fill=(255, 255, 255), anchor="mm")
+    for side, txt_ in (("left", spec.get("left")), ("right", spec.get("right"))):
+        if txt_:
+            x = 70 if side == "left" else bw - 30
+            bd.text((x, 368), ("← " + txt_) if side == "left" else (txt_ + " →"), font=font(40), fill=(30, 30, 30),
+                    anchor="lm" if side == "left" else "rm")
+    if spec.get("sub") and u > 0.5:
+        p = _back((u - 0.5) / 0.25)
+        fs2 = min(84, int((bw - 80) / max(1, len(spec["sub"]))))      # 板の幅に収める
+        f2 = font(int(fs2 * p) or 1)
+        bb = bd.textbbox((cx, bh + 64), spec["sub"], font=f2, anchor="mm")
+        bd.rectangle([bb[0] - 18, bb[1] - 8, bb[2] + 18, bb[3] + 8], fill=(255, 226, 0), outline=(0, 0, 0), width=5)
+        bd.text((cx, bh + 64), spec["sub"], font=f2, fill=(0, 0, 0), anchor="mm")
+    if ang:
+        board = board.rotate(ang, center=(board.width // 2, 0), resample=Image.BICUBIC)
+    pan.paste(board, (W // 2 - board.width // 2, top), board)

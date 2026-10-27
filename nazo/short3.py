@@ -363,6 +363,8 @@ def draw_fx(pan, fx, t, d, place, OY=0):
         mapfx.draw_map(pan, OY, PH, u, fx)
     elif k == "sign":                    # 湖のイラストと、道路案内風の看板
         mapfx.draw_sign(pan, OY, PH, u, fx)
+    elif k == "station":                 # 駅のホームと駅名標
+        mapfx.draw_station(pan, OY, PH, u, fx)
     elif k in mosofx.TYPES:   # 妄想科学の図解モーション
         ch = zunda_img(fx.get("face", "驚き"), 1, 0) if os.path.isdir(ZDIR) else None
         mosofx.draw(pan, OY, PH, u, d - at, fx, ch)
@@ -469,7 +471,7 @@ def build(sid):
                 ev += [("slide_up", at, 0.9), ("boing", at + 0.25, 0.9)]
             elif ty == "map":
                 ev += [("whoosh_l", at, 0.8), ("pop_big", at + 0.45, 0.9)] + ([("boing", at + 0.75, 1.0)] if fx.get("pin") else [])
-            elif ty == "sign":
+            elif ty in ("sign", "station"):
                 ev += [("zip_long", at, 0.7), ("boom", at + 0.3, 1.0)] + ([("pop_big", at + 0.55, 0.9)] if fx.get("sub") else [])
         if ln.get("digest"):
             n = len(ln["digest"])
