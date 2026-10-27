@@ -515,7 +515,8 @@ def build(script, out, t_from=None, t_to=None):
         sc["_t0"] = t
         for ln in sc["lines"]:
             vv = meta["voices"][ln["who"]]
-            p = f"{work}/v{k:03d}.wav"
+            import hashlib                                   # セリフと声で名前を決める（行を足しても取り違えない）
+            p = f"{work}/v_" + hashlib.md5((ln["who"] + meta["yomi"].get(ln["say"], ln["say"]) + json.dumps(vv, sort_keys=True) + json.dumps(READ_FIX, ensure_ascii=False)).encode()).hexdigest()[:12] + ".wav"
             if not os.path.exists(p):
                 synth(vv, meta["yomi"].get(ln["say"], ln["say"]), p)
             x = load_wav(p)
