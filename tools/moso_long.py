@@ -647,6 +647,12 @@ def frame(tt, tl, scenes):
         banner(img, fx["rule"], u)
     if fx.get("next"):
         banner(img, fx["next"], u)
+    if fx.get("goal"):                               # 再生数の目標（大きな数字で）
+        g_ = fx["goal"]; s_ = back(u / 0.4)
+        if s_ > 0.02:
+            d.rounded_rectangle([760, 220, 1700, 600], 30, fill=(10, 14, 40, 235), outline=YEL, width=6)
+            d.text((1230, 300), g_[0], font=font(int(60 * s_)), fill=WHT, anchor="mm")
+            d.text((1230, 460), g_[1], font=font(int(170 * s_)), fill=YEL, anchor="mm", stroke_width=10, stroke_fill=BLK)
     if fx.get("judge"):
         stamp_judge(img, fx["judge"], u)
     if fx.get("logo"):
