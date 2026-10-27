@@ -148,6 +148,9 @@ def photo(kind, r):
     k = (kind, r)
     if k in _photo:
         return _photo[k]
+    if len(_photo) > 60:                       # 地図の惑星は大きさが毎コマ変わるので、ためこみすぎない（メモリ切れで止まった）
+        for kk in [kk for kk in _photo if kk[1] < 1000]:
+            del _photo[kk]
     for name in (f"{kind}_hi", kind):
         p = f"assets/planets/{name}.jpg"
         if os.path.exists(p):
