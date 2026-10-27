@@ -108,7 +108,8 @@ def manzai_panel(t, mouth, thm):
         dr.rounded_rectangle([wx, 90, wx + 480, 390], 26, fill=(140, 200, 240, 255), outline=(230, 230, 235, 255), width=12)
         for q in range(3):                                                      # 窓の外の家並み
             hx = (wx + 40 + q * 170 - t * 600) % 480 + wx
-            dr.rectangle([hx, 290, min(wx + 470, hx + 90), 380], fill=(90, 150, 90, 255))
+            if hx < wx + 450:
+                dr.rectangle([hx, 290, min(wx + 470, hx + 90), 380], fill=(90, 150, 90, 255))
     dr.rectangle([0, 40, W, 60], fill=(200, 200, 205, 255))                     # 網棚のバー
     for q in range(6):                                                          # つり革（ゆれる）
         x = 90 + q * 180; a = math.sin(t * 3 + q) * 0.25
