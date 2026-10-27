@@ -1,0 +1,18 @@
+name: Fetch Commons files (PD only)
+on:
+  workflow_dispatch:
+    inputs:
+      out: { description: "保存先フォルダ（例 assets/planets）", required: true }
+      spec: { description: "key=File:名前.jpg を ; 区切りで", required: true }
+permissions:
+  contents: write
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: pip install -q requests && python tools/fetch_commons.py "${{ inputs.out }}" "${{ inputs.spec }}"
+      - run: |
+          git config user.name "bungo-bot"; git config user.email "bot@users.noreply.github.com"
+          git add "${{ inputs.out }}" && git commit -q -m "PD画像を取得: ${{ inputs.out }}" || exit 0
+          for i in 1 2 3; do git pull -q --rebase && git push -q && break; sleep 5; done
