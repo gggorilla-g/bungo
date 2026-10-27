@@ -464,7 +464,8 @@ def synth(vv, text, out):
     q = s.create_audio_query(re.sub(r"[「」『』]", "", text), vv["style"])
     q.speed_scale = vv.get("speed", 1.0); q.intonation_scale = vv.get("intonation", 1.0)
     q.pre_phoneme_length = 0.05; q.post_phoneme_length = 0.08
-    open(out, "wb").write(s.synthesis(q, vv["style"]))
+    open(out + ".tmp", "wb").write(s.synthesis(q, vv["style"]))   # 途中で止まっても壊れたファイルを残さない
+    os.replace(out + ".tmp", out)
     if vv.get("echo"):
         tmp = out + ".e.wav"
         subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-i", out, "-af", "aecho=0.8:0.55:60|130:0.28|0.16", tmp], check=True)
