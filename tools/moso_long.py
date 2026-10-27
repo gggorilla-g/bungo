@@ -299,8 +299,8 @@ def subtitle(img, who, text):
     d = ImageDraw.Draw(img)
     band = Image.new("RGBA", (W, 190), (0, 0, 0, 170))
     img.alpha_composite(band, (0, H - 190))
-    col = ZCOL if who == "z" else GCOL
-    name = "ずんだもん" if who == "z" else "マスター"
+    col = {"z": ZCOL, "g": GCOL, "n": (95, 100, 120)}[who]
+    name = {"z": "ずんだもん", "g": "マスター", "n": "ナレーション"}[who]
     f = font(30)
     tw = f.getbbox(name)[2]
     d.rounded_rectangle([60, H - 178, 60 + tw + 40, H - 136], 10, fill=col)
@@ -309,7 +309,7 @@ def subtitle(img, who, text):
     fs = 56 if max(len(l) for l in lines) <= 21 else 50
     for i, l in enumerate(lines):
         y = H - 95 + (i - (len(lines) - 1) / 2) * 68
-        d.text((W // 2, y), l, font=font(fs), fill=WHT if who == "z" else (255, 236, 150), anchor="mm", stroke_width=7, stroke_fill=BLK)
+        d.text((W // 2, y), l, font=font(fs), fill=(255, 236, 150) if who == "g" else WHT, anchor="mm", stroke_width=7, stroke_fill=BLK)
 
 
 def corner_note(img):
@@ -709,7 +709,7 @@ def frame(tt, tl, scenes):
     d = ImageDraw.Draw(img)
     zface = ln["face"] if ln["who"] == "z" else "通常"
     # 直前のずんだもんの表情を保つ（GMが話している間）
-    if ln["who"] == "g":
+    if ln["who"] != "z":
         prev = [r for r in tl if r[0] < t0 and r[2] is sc and r[3]["who"] == "z"]
         zface = prev[-1][3]["face"] if prev else "通常"
     zmouth = mouth if ln["who"] == "z" else 0
