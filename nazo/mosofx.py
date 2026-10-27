@@ -262,8 +262,11 @@ def draw(pan, OY, PH, u, dur, fx, char=None):
                 c = c.resize((max(1, int(c.width * sx)), max(1, int(c.height * sy))))
                 floor = cy + int(PH * 0.18)
                 d.rectangle([0, floor, W, floor + 16], fill=WHT)
+                if c.height > floor - OY - 60:            # 大きく描くとき、上の重しの分の余白を残す
+                    k_ = (floor - OY - 60) / c.height
+                    c = c.resize((max(1, int(c.width * k_)), max(1, int(c.height * k_))))
                 top = floor - c.height
-                d.rectangle([cx - 340, OY, cx + 340, top], fill=(110, 110, 125), outline=BLK, width=6)
+                d.rectangle([cx - 340, OY, cx + 340, max(OY, top)], fill=(110, 110, 125), outline=BLK, width=6)
                 txt(d, cx, max(OY + 80, top - 90), fx.get("weight", ""), 90, WHT, 10)
                 pan.paste(c, (int(cx - c.width / 2), top), c)
             elif mode == "stretch":                  # 縦にびよーん
