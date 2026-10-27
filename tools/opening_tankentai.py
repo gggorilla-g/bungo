@@ -86,8 +86,9 @@ def burst(d, cx, cy, r, n=14, col=YEL, jag=0.72, rot=0):
     d.polygon(pts2, fill=col)
 
 
-def bubble(img, cx, cy, text, size, s=1.0, kind="round", tail=(0, 1), fg=BLK, bg=WHT):
-    """吹き出し。s=ポップの拡大率。kind: round（ふつう）/ jag（ギザギザ、叫び）/ box（四角、GM）"""
+def bubble(img, cx, cy, text, size, s=1.0, kind="round", tail=(0, 1), fg=BLK, bg=WHT, to=None, gap=70):
+    """吹き出し。s=ポップの拡大率。kind: round（ふつう）/ jag（ギザギザ、叫び）/ box（四角、GM）
+    to=(x,y)：しっぽの先を話している人の口へ向ける（gap だけ手前で止めて、顔にかぶせない）"""
     if s <= 0.02:
         return
     lines = text.split("\n")
@@ -96,9 +97,20 @@ def bubble(img, cx, cy, text, size, s=1.0, kind="round", tail=(0, 1), fg=BLK, bg
     th = int(size * s * 1.25 * len(lines))
     pw, ph = tw / 2 + 60 * s, th / 2 + 50 * s
     d = ImageDraw.Draw(img)
-    tx, ty = cx + tail[0] * pw * 1.2, cy + tail[1] * ph * 1.6
-    tri = [(cx - 40 * s, cy + ph * 0.5 * tail[1]), (cx + 40 * s, cy + ph * 0.5 * tail[1]), (tx, ty)]
+    if to is not None:
+        vx, vy = to[0] - cx, to[1] - cy
+        L = max(1.0, math.hypot(vx, vy))
+        ux, uy = vx / L, vy / L
+        tx, ty = to[0] - ux * gap, to[1] - uy * gap
+        bw_ = 44 * s
+        tri = [(cx - uy * bw_, cy + ux * bw_), (cx + uy * bw_, cy - ux * bw_), (tx, ty)]
+    else:
+        tx, ty = cx + tail[0] * pw * 1.2, cy + tail[1] * ph * 1.6
+        tri = [(cx - 40 * s, cy + ph * 0.5 * tail[1]), (cx + 40 * s, cy + ph * 0.5 * tail[1]), (tx, ty)]
     if kind == "jag":
+        if to is not None:
+            d.polygon([(tri[0][0] - 8, tri[0][1]), (tri[1][0] + 8, tri[1][1]), (tx + 5, ty + 5)], fill=BLK)
+            d.polygon(tri, fill=bg)
         burst(d, cx, cy, max(pw, ph) * 1.25, n=16, col=bg, jag=0.82)
     elif kind == "box":
         d.polygon([(p[0] + 6, p[1]) for p in tri], fill=fg)
@@ -207,19 +219,25 @@ def frame(t):
     if beat < 19:                                                    # ── 1〜2: ずんだもん「大変なのだ！」／GMとのやりとり3往復
         # 左のコマ：ずんだもん（赤い網点＋集中線）
         p1 = back(beat / 0.9)
+        zface = "驚き" if beat < 4 else "焦り" if beat < 10.5 else "青ざめ" if beat < 14.5 else "怒り" if beat < 16.5 else "泣き"
+        k = ease((beat - 4) / 0.8) if beat >= 4 else 0              # GMが来たら、ずんだもんを少し小さく上へ（下に吹き出しの場所を空ける）
+        zsc, zcx, ztop = 1.15 - 0.2 * k, 0.5, 0.12 - 0.04 * k
         shake = (math.sin(t * 70) * 10 * max(0, 1 - beat / 1.2))
 
         def left(w, h):
             c = HT_RED.crop((0, 0, w, h)).convert("RGBA")
             cd = ImageDraw.Draw(c)
             rays(cd, w * 0.5, h * 0.55, 18, t * 20, [(255, 90, 60), RED])
-            z = outline(zunda("驚き" if beat < 4 else "焦り" if beat < 10.5 else "青ざめ" if beat < 14.5 else "怒り" if beat < 16.5 else "泣き", int(h * 1.15)), 10)
-            c.alpha_composite(z, (int(w / 2 - z.width / 2), int(h * 0.12)))
+            z = outline(zunda(zface, int(h * zsc)), 10)
+            c.alpha_composite(z, (int(w * zcx - z.width / 2), int(h * ztop)))
             return c
         lw = 1840 if beat < 4 else 1840 - (1840 - 900) * ease((beat - 4) / 0.8)   # 最初は全面、GMが来たら半分
         sc = 1.15 - 0.15 * min(1, p1)
         bx = (40 + shake, 40, 40 + min(1840, lw * sc) + shake, 1040)
         panel(img, bx, left)
+        pw_, ph_ = bx[2] - bx[0], bx[3] - bx[1]
+        zh_ = int(ph_ * zsc); zw_ = int(721 * zh_ / 600)
+        mouth = (bx[0] + pw_ * zcx - zw_ / 2 + 0.454 * zw_, bx[1] + ph_ * ztop + 0.483 * zh_)
         if beat >= 4:                                                 # 右のコマ：GM（斜めに差し込む）
             q = ease((beat - 4) / 0.8)
             x0 = 1920 + (1920 * 0.5 - 1920) * q
@@ -230,8 +248,8 @@ def frame(t):
                 return c
             panel(img, (x0, 40, x0 + 960 - 60, 1040), right)
         # 吹き出し・効果音
-        if beat < 6.8:
-            bubble(img, 1250 if beat < 4 else 640, 300, "大変なのだ！", 84, back((beat - 0.6) / 0.5), "jag", tail=(-0.4, 1))
+        if beat < 4.2:
+            bubble(img, 1330, 300, "大変なのだ！", 80, back((beat - 0.6) / 0.5) * (1 if beat < 3.9 else 0), "jag", to=mouth, gap=330)
         sfx(img, 300, 880, "ドーン！", 150, back(beat / 0.5) * (1 if beat < 3.6 else max(0, 1 - (beat - 3.6) * 3)), rot=-12)
         # GM（右上の黒い四角）とずんだもん（左下）のやりとり。最新の1つずつだけ出す
         gm_lines = [(5.4, "地球は、\nもうダメだ。"), (8.6, "君には、住める星を\n探してもらう。"), (12.0, "宇宙服はない。\n予算がない。"), (16.4, "…行け。")]
@@ -239,12 +257,13 @@ def frame(t):
         cur = [g for g in gm_lines if beat >= g[0]]
         if cur:
             at, txt_ = cur[-1]
-            bubble(img, 1430, 200, txt_, 64, back((beat - at) / 0.4), "box", tail=(0.2, 1), fg=WHT, bg=BLK)
+            bubble(img, 1430, 200, txt_, 64, back((beat - at) / 0.4), "box", fg=WHT, bg=BLK, to=(x0 + 900 * 0.55, 40 + 1000 * 0.72 - 300 * 1.05), gap=120)
         cur = [z for z in zu_lines if beat >= z[0]]
         if cur:
             at, txt_, kind = cur[-1]
-            bubble(img, 520, 880, txt_, 72, back((beat - at) / 0.35), kind, tail=(0.5, -1))
-        caption(img, 70, 70, "ある日――", 50, (beat - 0.2) / 0.6)
+            bubble(img, 470, 880 if kind == "round" else 810, txt_, 64 if kind == "round" else 54, back((beat - at) / 0.35), kind, to=mouth, gap=110)
+        if beat < 4:
+            caption(img, 70, 70, "ある日――", 50, (beat - 0.2) / 0.6)
 
     elif beat < 24:                                                   # ── 3: 宇宙へ。星が流れ、ずんだもんが飛ぶ
         u = beat - 19
@@ -266,7 +285,7 @@ def frame(t):
         img.alpha_composite(z, (int(zx - z.width / 2), int(zy - z.height / 2)))
         caption(img, 70, 70, "任務：移住できる星を探せ！", 56, (u - 0.2) / 0.7)
         sfx(img, 1350, 760, "ビューン！", 140, back((u - 0.8) / 0.4) * max(0, min(1, (4.6 - u) * 2)), rot=-8, col=WHT, edge=CYA)
-        bubble(img, zx - 420, zy + 40, "宇宙服が\nほしいのだ！", 60, back((u - 2.4) / 0.35) * (1 if u < 4.4 else 0), "round", tail=(1, -0.3))
+        bubble(img, zx - 480, zy + 60, "宇宙服が\nほしいのだ！", 60, back((u - 2.4) / 0.35) * (1 if u < 4.4 else 0), "round", to=(zx - 30, zy + 10), gap=90)
 
     else:                                                             # ── 4: タイトル
         u = beat - 24
@@ -294,7 +313,7 @@ def frame(t):
             z = outline(zunda("笑顔", 470), 10)
             zx, zy = 1690 + (1 - j) * 500, 1080 - z.height + 30 - hop
             img.alpha_composite(z, (int(zx - z.width / 2), int(zy)))
-            bubble(img, 1330, 960, "出発なのだ！", 60, back((u - 2.2) / 0.4), "jag", tail=(0.8, -0.2))
+            bubble(img, 1290, 960, "出発なのだ！", 60, back((u - 2.2) / 0.4), "jag", to=(zx - z.width / 2 + 0.454 * z.width, zy + 0.483 * z.height), gap=90)
         if flash > 0:
             img.alpha_composite(Image.new("RGBA", (W, H), (255, 255, 255, int(220 * flash))))
     # 1拍目ごとの全体の小さなズーム（ノリ）
