@@ -1,18 +1,19 @@
-build/
-output/
-vv_assets/
-__pycache__/
-*.pyc
-output_test.mp4
-machigai/out/
-build_short/
-gamelab/history.json
-build_game/
-gamelab/evolve.log
-assets/enc/*.mp3
-assets/enc/*.tar
-assets/enc/parts/
 
 # 手元での試し制作用（コミットしない）
+*.pyc
+__pycache__/
+assets/enc/*.mp3
+assets/enc/*.tar
 assets/enc/parts
+assets/enc/parts/
+build/
+build_game/
+build_long/
+build_short/
 build_short3/
+gamelab/evolve.log
+gamelab/history.json
+machigai/out/
+output/
+output_test.mp4
+vv_assets/
