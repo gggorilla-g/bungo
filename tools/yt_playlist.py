@@ -45,9 +45,16 @@ else:
         "status": {"privacyStatus": PRIVACY}}).execute()["id"]
     print("再生リストを作った:", pl)
 
+import time
+from googleapiclient.errors import HttpError
 have, tok = set(), None
 while True:
-    r = yt.playlistItems().list(part="snippet", playlistId=pl, maxResults=50, pageToken=tok).execute()
+    try:
+        r = yt.playlistItems().list(part="snippet", playlistId=pl, maxResults=50, pageToken=tok).execute()
+    except HttpError as e:                       # 作ったばかり・空の再生リストは見つからないと返ることがある
+        if e.resp.status == 404:
+            break
+        raise
     have |= {it["snippet"]["resourceId"]["videoId"] for it in r["items"]}
     tok = r.get("nextPageToken")
     if not tok:
@@ -55,7 +62,14 @@ while True:
 for _, vid, title, _ in targets:
     if vid in have:
         continue
-    yt.playlistItems().insert(part="snippet", body={"snippet": {"playlistId": pl, "resourceId": {"kind": "youtube#video", "videoId": vid}}}).execute()
+    for k in range(5):                           # 作った直後は反映待ちで失敗することがあるので、待って試し直す
+        try:
+            yt.playlistItems().insert(part="snippet", body={"snippet": {"playlistId": pl, "resourceId": {"kind": "youtube#video", "videoId": vid}}}).execute()
+            break
+        except HttpError as e:
+            if e.resp.status != 404 or k == 4:
+                raise
+            time.sleep(5)
     print("追加:", title)
 st = yt.playlists().list(part="status,contentDetails", id=pl).execute()["items"][0]
 print("公開設定:", st["status"]["privacyStatus"], "／本数:", st["contentDetails"]["itemCount"])
