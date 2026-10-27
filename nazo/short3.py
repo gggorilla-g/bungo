@@ -643,6 +643,8 @@ def build(sid):
                    check=True, cwd=B)
     out = f"output/short3_{sid}.mp4"
     bgm_file = sp.get("bgm_file")                          # 台本でフリー音源を指定（復号済みのファイルがあれば使う）
+    if bgm_file and not os.path.exists(bgm_file) and not os.environ.get("ALLOW_CHIP_BGM"):
+        sys.exit(f"BGM {bgm_file} がない（復号前）。8ビット風に差し替わるので止めた。投稿用はCIで作る")
     if bgm_file and os.path.exists(bgm_file):
         subprocess.run(["ffmpeg", "-y", "-v", "error", "-stream_loop", "-1", "-i", bgm_file, "-t", f"{total + 0.5:.2f}",
                         "-af", f"afade=t=out:st={max(0, total - 1.0):.2f}:d=1.0", "-ar", "24000", "-ac", "1", f"{B}/bgm.wav"], check=True)
