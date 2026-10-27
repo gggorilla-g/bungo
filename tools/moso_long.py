@@ -478,13 +478,18 @@ def synth(vv, text, out):
         os.replace(tmp, out)
 
 
-def bgm(total):
-    """落ち着いた宇宙っぽいパッド（オリジナル）。声のじゃまをしない小さめの音量"""
-    t = np.arange(int(total * SR)) / SR
-    chords = [[146.8, 220.0, 277.2, 370.0], [123.5, 185.0, 246.9, 293.7], [98.0, 196.0, 246.9, 293.7], [110.0, 164.8, 220.0, 277.2]]
+MOODS = {   # 感情に合わせたBGMの和音（どれも小さく、声のじゃまをしない）
+    "calm":   [[146.8, 220.0, 277.2, 370.0], [123.5, 185.0, 246.9, 293.7], [98.0, 196.0, 246.9, 293.7], [110.0, 164.8, 220.0, 277.2]],
+    "tense":  [[73.4, 146.8, 174.6, 220.0], [69.3, 138.6, 174.6, 207.7], [73.4, 146.8, 174.6, 220.0], [65.4, 130.8, 155.6, 196.0]],
+    "wonder": [[196.0, 293.7, 370.0, 493.9], [220.0, 329.6, 415.3, 554.4], [164.8, 246.9, 329.6, 415.3], [185.0, 277.2, 370.0, 466.2]],
+    "warm":   [[130.8, 196.0, 261.6, 329.6], [110.0, 164.8, 220.0, 261.6], [87.3, 174.6, 220.0, 261.6], [98.0, 146.8, 196.0, 246.9]],
+    "comic":  [[146.8, 220.0, 293.7, 370.0], [164.8, 246.9, 329.6, 392.0], [123.5, 185.0, 246.9, 293.7], [110.0, 164.8, 220.0, 277.2]],
+}
+
+
+def pad(t, chords, seg=6.0):
     y = np.zeros_like(t)
-    seg = 6.0
-    for i, ch in enumerate(chords * int(total / seg / 4 + 2)):
+    for i, ch in enumerate(chords * int(len(t) / SR / seg / 4 + 2)):
         a, b = int(i * seg * SR), int((i + 1) * seg * SR + SR)
         if a >= len(t):
             break
@@ -492,6 +497,19 @@ def bgm(total):
         env = np.minimum(1, tt / 1.5) * np.minimum(1, np.maximum(0, (seg + 1 - tt)) / 1.5)
         for f in ch:
             y[a:b] += (np.sin(2 * np.pi * f * tt) + 0.3 * np.sin(2 * np.pi * f * 2.003 * tt)) * env * 0.05
+    return y
+
+
+def bgm(total, marks=None):
+    """落ち着いた宇宙っぽいパッド（オリジナル）。marks=[(開始秒, 気分)] で、場面の感情に合わせて和音を変える（3秒でつなぐ）"""
+    t = np.arange(int(total * SR)) / SR
+    marks = marks or [(0, "calm")]
+    layers = {m: pad(t, MOODS[m]) for m in {m for _, m in marks}}
+    y = np.zeros_like(t)
+    for i, (st, m) in enumerate(marks):
+        en = marks[i + 1][0] if i + 1 < len(marks) else total
+        w = np.clip((t - st + 1.5) / 3.0, 0, 1) * np.clip((en - t + 1.5) / 3.0, 0, 1)
+        y += layers[m] * w
     pulse = (np.sin(2 * np.pi * 0.5 * t) > 0.995).astype(np.float32)
     y += np.convolve(pulse, np.exp(-np.arange(int(0.3 * SR)) / SR * 12) * np.sin(2 * np.pi * 880 * np.arange(int(0.3 * SR)) / SR), "same")[:len(y)] * 0.02
     return (y / (np.abs(y).max() + 1e-9) * 0.10).astype(np.float32)
@@ -531,7 +549,7 @@ def build(script, out, t_from=None, t_to=None):
                 t += GM_PRE
             n = len(x) // (SR // FPS) + 1
             env = np.array([np.sqrt(np.mean(x[i * (SR // FPS):(i + 1) * (SR // FPS)] ** 2) + 1e-12) for i in range(n)])
-            hold = 0.6 if ln["fx"].get("judge") else 0.0
+            hold = 0.6 if ln["fx"].get("judge") else ln["fx"].get("hold", 0.0)   # 見とれる・しんみりする間
             tl.append([t, t + len(x) / SR + hold, sc, ln, x, env])
             t += len(x) / SR + hold + GAP
             k += 1
@@ -558,7 +576,15 @@ def build(script, out, t_from=None, t_to=None):
         s = se.sound(name)
         s = np.interp(np.arange(int(len(s) * SR / se.SR)) * se.SR / SR, np.arange(len(s)), s).astype(np.float32)
         i = int(at * SR); mix[i:i + len(s)] += s[:max(0, len(mix) - i)] * kk
-    b = bgm(total + 1)
+    marks = []                                     # 場面ごとの気分（台本の meta.moods で決める）
+    for sc in scenes:
+        if "_t0" in sc:
+            marks.append((sc["_t0"], meta.get("moods", {}).get(sc["id"], "calm")))
+    for t0, t1, sc, ln, x, _ in tl:                # 行ごとの上書き（例：火星で希望 → 落胆）
+        if ln["fx"].get("mood"):
+            marks.append((t0, ln["fx"]["mood"]))
+    marks.sort()
+    b = bgm(total + 1, marks)
     if op_seg:   # オープニングの間はBGMを止めて、オープニングの音を入れる
         a0, a1 = int(op_seg[0] * SR), int(op_seg[1] * SR)
         b[a0:a1] = 0

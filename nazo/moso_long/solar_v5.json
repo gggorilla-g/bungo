@@ -1,5 +1,19 @@
 {
  "meta": {
+  "moods": {
+   "cold": "tense",
+   "brief": "comic",
+   "mercury": "calm",
+   "venus": "calm",
+   "mars": "wonder",
+   "jupiter": "tense",
+   "saturn": "wonder",
+   "uranus": "calm",
+   "neptune": "comic",
+   "result": "calm",
+   "earth": "warm",
+   "ending": "warm"
+  },
   "title": "ずんだもんが太陽系の7惑星に移住してみた結果【妄想科学】",
   "yomi": {
    "レッツ妄想！": "レッツもーそー！",
@@ -733,7 +747,8 @@
      "say": "さらに地表の気圧は、地球の約0.6パーセント。",
      "face": "通常",
      "fx": {
-      "hl": 3
+      "hl": 3,
+      "mood": "calm"
      }
     },
     {
@@ -1030,6 +1045,14 @@
     "立てる地面 なし"
    ],
    "lines": [
+    {
+     "who": "z",
+     "say": "…きれいなのだ。",
+     "face": "笑顔",
+     "fx": {
+      "hold": 2.0
+     }
+    },
     {
      "who": "z",
      "say": "土星には、立派な環があるのだ。",
@@ -1645,7 +1668,9 @@
      "who": "z",
      "say": "人間がそのまま住めるのは、地球だけだったのだ。",
      "face": "笑顔",
-     "fx": {}
+     "fx": {
+      "hold": 2.5
+     }
     },
     {
      "who": "z",
