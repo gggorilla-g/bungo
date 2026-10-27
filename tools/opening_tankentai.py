@@ -430,7 +430,8 @@ def music(out_wav):
 
 def main(out="output/opening_tankentai.mp4"):
     os.makedirs(os.path.dirname(out) or ".", exist_ok=True)
-    wav = out.replace(".mp4", ".wav")
+    final, out = out, out.replace(".mp4", ".part.mp4")      # 書き終わってから名前を付ける（途中で止めても欠けたOPが残らない）
+    wav = final.replace(".mp4", ".wav")
     music(wav)
     n = int(TOTAL * FPS)
     p = subprocess.Popen(["ffmpeg", "-loglevel", "error", "-y", "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{W}x{H}", "-r", str(FPS),
@@ -439,7 +440,8 @@ def main(out="output/opening_tankentai.mp4"):
     for i in range(n):
         p.stdin.write(frame(i / FPS).tobytes())
     p.stdin.close(); p.wait()
-    print(out, f"{TOTAL:.1f}s")
+    os.replace(out, final)
+    print(final, f"{TOTAL:.1f}s")
 
 
 if __name__ == "__main__":

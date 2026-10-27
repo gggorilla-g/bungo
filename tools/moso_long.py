@@ -253,6 +253,72 @@ def abyss(t, k):
     return Image.composite(img, black, vg)
 
 
+ROCKY = ("mercury", "venus", "mars", "earth")          # 立てる地面がある星（ガスの星には地面を描かない）
+GROUND_Y = 820                                           # 地面のある星で、ずんだもんの足が来る高さ
+_ground = {}
+
+
+def ground(img, kind):
+    """足もとに、その星の写真を大きくした丸い地面（小さな星に立っているように見せる）"""
+    if kind not in _ground:
+        R = 1500
+        ph = photo(kind, R)
+        lay = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+        if ph is not None:
+            cx, cy = 330, GROUND_Y + R - 6
+            src = ph.resize((2 * R, 2 * R)) if ph.size != (2 * R, 2 * R) else ph
+            m = Image.new("L", (2 * R, 2 * R), 0)
+            ImageDraw.Draw(m).ellipse([0, 0, 2 * R - 1, 2 * R - 1], fill=255)
+            lay.paste(src.convert("RGBA"), (cx - R, cy - R), m)
+            sh = Image.new("RGBA", (W, H), (0, 0, 0, 0))       # 地平線の明るいふちと、下に向かう影
+            sd = ImageDraw.Draw(sh)
+            sd.ellipse([cx - R, cy - R, cx + R, cy + R], outline=(255, 255, 255, 90), width=5)
+            lay.alpha_composite(sh)
+        _ground[kind] = lay
+    img.alpha_composite(_ground[kind])
+    d = ImageDraw.Draw(img, "RGBA")
+    d.ellipse([330 - 170, GROUND_Y - 18, 330 + 170, GROUND_Y + 18], fill=(0, 0, 0, 90))   # 足もとの影
+
+
+def arrive(img, kind, u, face, dmg):
+    """章の頭：ずんだもんが宇宙からぴゅーんと飛んできて、その星に降り立つ"""
+    d = ImageDraw.Draw(img, "RGBA")
+    rocky = kind in ROCKY
+    gy = GROUND_Y if rocky else 890
+    T = 1.3
+    if u < T:                                            # 右上の宇宙から、弧をえがいて降りてくる
+        k = ease(u / T)
+        p0, p1, p2 = (W + 250, -250), (1000, 80), (330, gy - 270)
+        x = (1 - k) ** 2 * p0[0] + 2 * (1 - k) * k * p1[0] + k * k * p2[0]
+        y = (1 - k) ** 2 * p0[1] + 2 * (1 - k) * k * p1[1] + k * k * p2[1]
+        for q in range(1, 9):                            # 飛んできた跡
+            kq = max(0, k - q * 0.035)
+            xq = (1 - kq) ** 2 * p0[0] + 2 * (1 - kq) * kq * p1[0] + kq * kq * p2[0]
+            yq = (1 - kq) ** 2 * p0[1] + 2 * (1 - kq) * kq * p1[1] + kq * kq * p2[1]
+            r = 30 * (1 - q / 9) * (0.4 + 0.6 * k)
+            d.ellipse([xq - r, yq - r, xq + r, yq + r], fill=(160, 230, 120, int(150 * (1 - q / 9))))
+        z = outline(damaged(zunda("驚き", int(160 + 380 * k), 0, 0), dmg)).rotate(-(1 - k) * 540, expand=True, resample=Image.BICUBIC)
+        img.alpha_composite(z, (int(x - z.width / 2), int(y - z.height / 2)))
+        if u < 1.0:
+            d.text((x + 120, y - 160), "ぴゅーん", font=font(64), fill=YEL, anchor="mm", stroke_width=7, stroke_fill=BLK)
+        return
+    v = u - T                                            # 着地：少しつぶれて戻る＋砂ぼこり（ガスの星は雲のもや）
+    sq = 1 - 0.18 * math.exp(-v * 9) * math.cos(v * 18) if v < 0.6 else 1
+    z = outline(damaged(zunda(face if v > 0.5 else "驚き", 540, 0, 0), dmg), 6)
+    z = z.resize((int(z.width * (2 - sq)), int(z.height * sq)))
+    img.alpha_composite(z, (int(330 - z.width / 2), int(gy - z.height)))
+    if v < 0.9:
+        col = PLANET[kind][0] if kind in PLANET else (200, 200, 200)
+        for q in range(10):
+            a = math.pi * (q / 9)
+            rr = 60 + 260 * ease(v / 0.9)
+            px, py = 330 + math.cos(a) * rr, gy - math.sin(a) * rr * 0.25
+            r = 34 * (1 - v / 0.9) + 6
+            d.ellipse([px - r, py - r, px + r, py + r], fill=col + (int(200 * (1 - v / 0.9)),))
+    if 0.05 < v < 1.0:
+        d.text((330, gy - 600), "着地" if rocky else "着地…？", font=font(70), fill=WHT, anchor="mm", stroke_width=8, stroke_fill=BLK)
+
+
 def background(kind, t):
     img = Image.new("RGBA", (W, H), (8, 10, 30, 255))
     d = ImageDraw.Draw(img)
@@ -559,9 +625,10 @@ def build(script, out, t_from=None, t_to=None):
     for sc in scenes:
         if sc["bg"] == "opening":
             op = "output/opening_tankentai.mp4"
-            if not os.path.exists(op):
+            probe = lambda: float(subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", op], capture_output=True, text=True).stdout or 0)
+            if not os.path.exists(op) or probe() < 12.5:     # ないか、途中で切れていたら作り直す（OPは12.8秒）
                 subprocess.run([sys.executable, "tools/opening_tankentai.py", op], check=True)
-            dur = float(subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", op], capture_output=True, text=True).stdout)
+            dur = probe()
             op_seg = (t, t + dur, op)
             t += dur + 0.3
             continue
@@ -604,6 +671,8 @@ def build(script, out, t_from=None, t_to=None):
     for sc in scenes:
         if sc.get("card") and "_t0" in sc:
             se_ev += [("shimmer", sc["_t0"], 0.7)]
+        if sc["bg"] in PLANET and sc["id"] != "earth2" and "_t0" in sc and not sc["lines"][0]["fx"].get("fall"):
+            se_ev += [("slide_dn", sc["_t0"], 0.5), ("thud", sc["_t0"] + 1.3, 0.7)]
     for name, at, kk in se_ev:
         s = se.sound(name)
         s = np.interp(np.arange(int(len(s) * SR / se.SR)) * se.SR / SR, np.arange(len(s)), s).astype(np.float32)
@@ -716,7 +785,11 @@ def frame(tt, tl, scenes):
     dmg = sum(1 for r in tl if r[3]["fx"].get("judge") and r[1] < tt)        # これまでに受けた判定の数
     if sc["bg"] == "earth" or sc["id"] in ("ending",):
         dmg = min(dmg, 7)
-    hide_z = bool(fx.get("fate") or fx.get("empty") or fx.get("fall") or fx.get("blown") or fx.get("jump") or fx.get("ringfall"))
+    landing = sc["bg"] in PLANET and sc["id"] != "earth2" and ln is sc["lines"][0] and not fx.get("fall")
+    hide_z = bool(landing or fx.get("fate") or fx.get("empty") or fx.get("fall") or fx.get("blown") or fx.get("jump") or fx.get("ringfall"))
+    on_ground = sc["bg"] in ROCKY and not (fx.get("fall") or fx.get("jump") or fx.get("map"))
+    if on_ground:
+        ground(img, sc["bg"])
     # 場面ごとの大きな絵
     if sc["bg"] == "gmroom":
         talk = lv * 6 if ln["who"] == "g" else 0
@@ -793,6 +866,8 @@ def frame(tt, tl, scenes):
         for q in range(int(30 * wind)):
             yy = (q * 61) % 860 + 40; xx = (q * 233 + tt * 1100) % (W + 400) - 400
             d.line([(xx, yy), (xx + 260, yy)], fill=(220, 230, 255), width=4)
+    if landing:
+        arrive(img, sc["bg"], u, zface, dmg)
     if not hide_z:
         if fx.get("up") and ln["who"] == "z":                    # 寄り：ゆっくり近づく（揺らさない。顔は隠さない）
             k_ = ease(u / 0.8)
@@ -805,7 +880,7 @@ def frame(tt, tl, scenes):
             if wind:
                 z = z.rotate(-wind * 12, expand=True, resample=Image.BICUBIC)
             bob = math.sin(tt * 2.4) * 4
-            img.alpha_composite(z, (int(330 - z.width / 2 + lean), int(890 - z.height + bob)))
+            img.alpha_composite(z, (int(330 - z.width / 2 + lean), int((GROUND_Y if on_ground else 890) - z.height + bob)))
     # GM（惑星の場面では右上の通信窓）
     if ln["who"] == "g" and sc["bg"] != "gmroom":
         wx, wy, ww, wh = 1500, 60, 380, 260
