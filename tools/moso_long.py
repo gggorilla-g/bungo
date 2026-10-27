@@ -103,7 +103,52 @@ def stars(d, t, drift=6):
         d.ellipse([x - r, y - r, x + r, y + r], fill=(a, a, min(255, a + 20)))
 
 
+_photo = {}
+
+
+def photo(kind, r):
+    """NASAの写真（パブリックドメイン, assets/planets）。黒い背景を切り、直径2rに合わせる"""
+    k = (kind, r)
+    if k in _photo:
+        return _photo[k]
+    for name in (f"{kind}_hi", kind):
+        p = f"assets/planets/{name}.jpg"
+        if os.path.exists(p):
+            break
+    else:
+        return None
+    im = Image.open(p).convert("RGB")
+    g = np.asarray(im.convert("L"))
+    ys, xs = np.nonzero(g > 30)
+    x0, x1, y0, y1 = xs.min(), xs.max(), ys.min(), ys.max()
+    if kind == "saturn":                       # 環ごと。本体の直径を基準にする（環は本体の約2.3倍の幅）
+        body = (x1 - x0) / 2.3
+        sc = 2 * r / body
+    else:
+        sc = 2 * r / max(x1 - x0, y1 - y0)
+    im = im.crop((x0, y0, x1 + 1, y1 + 1))
+    im = im.resize((max(1, int(im.width * sc)), max(1, int(im.height * sc))), Image.LANCZOS)
+    _photo[k] = im
+    return im
+
+
 def planet(img, kind, cx, cy, r, t, ring=False, tilt=False):
+    ph = photo(kind, r)
+    if ph is not None:                          # 写真は「明るい方を残す」重ね方で、黒い背景を宇宙になじませる
+        from PIL import ImageChops
+        x0, y0 = int(cx - ph.width / 2), int(cy - ph.height / 2)
+        box = (max(0, x0), max(0, y0), min(W, x0 + ph.width), min(H, y0 + ph.height))
+        reg = img.crop(box).convert("RGB")
+        part = ph.crop((box[0] - x0, box[1] - y0, box[2] - x0, box[3] - y0))
+        m = part.convert("L").point(lambda v: 255 if v > 28 else v * 9)   # 星が惑星の上に透けないように
+        img.paste(Image.composite(part, reg, m), box[:2])
+        if tilt:
+            d = ImageDraw.Draw(img)
+            a = math.radians(98)
+            ex, ey = math.sin(a) * r * 1.5, -math.cos(a) * r * 1.5
+            d.line([(cx - ex, cy - ey), (cx + ex, cy + ey)], fill=WHT, width=6)
+            d.text((cx + ex + 20, cy + ey - 20), "自転軸", font=font(36), fill=WHT, anchor="lm", stroke_width=4, stroke_fill=BLK)
+        return
     col, dark, band, _ = PLANET[kind]
     lay = Image.new("RGBA", (2 * r + 40, 2 * r + 40), (0, 0, 0, 0))
     d = ImageDraw.Draw(lay)
@@ -167,7 +212,10 @@ def background(kind, t):
     stars(d, t)
     if kind in PLANET:
         r = PLANET[kind][3]
-        planet(img, kind, 1420, 470, r, t)
+        if kind == "saturn":
+            planet(img, kind, 1290, 470, 250, t)
+        else:
+            planet(img, kind, 1420, 470, r, t)
     return img
 
 
@@ -191,7 +239,7 @@ def subtitle(img, who, text):
     band = Image.new("RGBA", (W, 190), (0, 0, 0, 170))
     img.alpha_composite(band, (0, H - 190))
     col = ZCOL if who == "z" else GCOL
-    name = "ずんだもん" if who == "z" else "GM"
+    name = "ずんだもん" if who == "z" else "マスター"
     f = font(30)
     tw = f.getbbox(name)[2]
     d.rounded_rectangle([60, H - 178, 60 + tw + 40, H - 136], 10, fill=col)
@@ -331,14 +379,14 @@ def results(img, u, rank=None):
                 d.line([(x - 70, y - 70), (x + 70, y + 70)], fill=RED, width=18); d.line([(x + 70, y - 70), (x - 70, y + 70)], fill=RED, width=18)
         return
     d.rounded_rectangle([700, 90, 1860, 860], 26, fill=(10, 14, 40, 230), outline=YEL, width=5)
-    d.text((1280, 160), "ずんだもんの体験ランキング", font=font(56), fill=YEL, anchor="mm")
-    d.text((1280, 225), "（科学的な危険度の順位ではありません）", font=font(28, True), fill=(200, 200, 210), anchor="mm")
-    rows = [(3, "海王星", "報告する場所から追い出された"), (2, "水星", "暑さから逃げた先が寒すぎた"), (1, "金星", "熱い・圧力・日陰でも助からない")]
+    d.text((1280, 160), "もし住むなら ランキング", font=font(56), fill=YEL, anchor="mm")
+    d.text((1280, 225), "（どれも、そのままでは住めません）", font=font(28, True), fill=(200, 200, 210), anchor="mm")
+    rows = [(3, "金星", "上空50kmは気圧・温度が地球に近い"), (2, "水星", "北極のクレーターの影に氷"), (1, "火星", "1日が約24時間40分・氷がある")]
     for i, (n, nm, why) in enumerate(rows):
         if rank == 0 or n < rank:
             continue
         y = 330 + (3 - n) * 170
-        d.text((760, y), f"第{n}位", font=font(60), fill=RED if n == 1 else WHT, anchor="lm")
+        d.text((760, y), f"第{n}位", font=font(60), fill=YEL if n == 1 else WHT, anchor="lm")
         d.text((1000, y - 18), nm, font=font(64), fill=WHT, anchor="lm")
         d.text((1000, y + 46), why, font=font(34, True), fill=(210, 210, 220), anchor="lm")
 
@@ -366,6 +414,7 @@ def load_wav(path):
 
 
 _syn = {}
+READ_FIX = {"金星": "きんせい", "大赤斑": "だいせきはん", "環": "わ", "170分の1": "ひゃくななじゅうぶんのいち", "天王星": "てんのうせい", "水深": "すいしん", "日陰": "ひかげ", "一等地": "いっとうち"}
 
 
 def synth(vv, text, out):
@@ -379,6 +428,8 @@ def synth(vv, text, out):
             s.load_voice_model(m)
         _syn[key] = s
     s = _syn[key]
+    for k_, v_ in READ_FIX.items():                     # 読み間違いやすい語（金星→きんぼし 等）
+        text = text.replace(k_, v_)
     q = s.create_audio_query(re.sub(r"[「」『』]", "", text), vv["style"])
     q.speed_scale = vv.get("speed", 1.0); q.intonation_scale = vv.get("intonation", 1.0)
     q.pre_phoneme_length = 0.05; q.post_phoneme_length = 0.08
@@ -561,12 +612,11 @@ def frame(tt, tl, scenes):
     if fx.get("map"):
         solar_map(img, u)
     if fx.get("ring"):
-        planet(img, "saturn", 1420, 470, PLANET["saturn"][3], tt)
         for q in range(140):                              # 環の粒が回る
             a = q * 0.37 + tt * 0.4
-            rr = PLANET["saturn"][3] * (1.45 + (q % 7) * 0.06)
-            px, py = 1420 + rr * math.cos(a), 470 + rr * 0.28 * math.sin(a)
-            d.ellipse([px - 5, py - 5, px + 5, py + 5], fill=(240, 225, 190))
+            rr = 250 * (1.6 + (q % 7) * 0.08)
+            px, py = 1290 + rr * math.cos(a), 470 + rr * 0.16 * math.sin(a)
+            d.ellipse([px - 3, py - 3, px + 3, py + 3], fill=(240, 225, 190))
     if fx.get("tilt"):
         img.paste((8, 10, 30, 255), (900, 60, W, 880)); stars(d, tt)
         planet(img, "uranus", 1420, 470, PLANET["uranus"][3], tt, tilt=True)
@@ -632,7 +682,7 @@ def frame(tt, tl, scenes):
         win = Image.new("RGBA", (ww, wh), (14, 8, 28, 235))
         win.alpha_composite(gm_figure(ww, wh, ww // 2, int(wh * 1.12), 0.42, 1.0, lv * 6))
         ImageDraw.Draw(win).rectangle([0, 0, ww - 1, wh - 1], outline=(170, 120, 255), width=6)
-        ImageDraw.Draw(win).text((14, 12), "通信：GM", font=font(26), fill=(220, 200, 255))
+        ImageDraw.Draw(win).text((14, 12), "通信：マスター", font=font(26), fill=(220, 200, 255))
         img.alpha_composite(win, (wx, wy))
     # データカード・数字・判定
     if sc.get("card"):
@@ -659,7 +709,6 @@ def frame(tt, tl, scenes):
         d.text((W // 2 + 200, 330), "ずんだもんの", font=font(70), fill=WHT, anchor="mm", stroke_width=8, stroke_fill=BLK)
         d.text((W // 2 + 200, 470), "妄想科学", font=font(170), fill=YEL, anchor="mm", stroke_width=12, stroke_fill=BLK)
     subtitle(img, ln["who"], ln["say"])
-    corner_note(img)
     return img.convert("RGB")
 
 
