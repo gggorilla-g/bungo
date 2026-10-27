@@ -1,0 +1,13 @@
+チャンネル: ずんだもんの脳がとける雑学
+対象の動画 4 本（全4本中、公開中でタイトルに「#雑学」）
+再生リストを作った: PLI51TrG7zjCo
+Traceback (most recent call last):
+  File "/home/runner/work/bungo/bungo/tools/yt_playlist.py", line 50, in <module>
+    r = yt.playlistItems().list(part="snippet", playlistId=pl, maxResults=50, pageToken=tok).execute()
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/googleapiclient/_helpers.py", line 130, in positional_wrapper
+    return wrapped(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/googleapiclient/http.py", line 1018, in execute
+    raise HttpError(resp, content, uri=self.uri)
+googleapiclient.errors.HttpError: <HttpError 404 when requesting https://youtube.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=PLI51TrG7zjCo&maxResults=50&alt=json returned "The playlist identified with the request's <code>playlistId</code> parameter cannot be found.". Details: "[{'message': "The playlist identified with the request's <code>playlistId</code> parameter cannot be found.", 'domain': 'youtube.playlistItem', 'reason': 'playlistNotFound', 'location': 'playlistId', 'locationType': 'parameter'}]">
