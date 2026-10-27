@@ -65,6 +65,7 @@ def zunda_big(face, mouth, h):
     return im.transpose(Image.FLIP_LEFT_RIGHT) if face == "指差し" else im
 
 
+UP_MAX = 1.0                                     # アップを見せる秒数（2026-10-28 ゲンタ「アップが多すぎるし長い」）
 SHAKE = {"泣き": 10, "青ざめ": 12, "焦り": 10, "驚き": 14, "怒り": 18}
 
 
@@ -496,7 +497,7 @@ def build(sid):
         vl = voiced_len(wav) if sp.get("tight", True) else render._wav_len(wav)   # 声の後ろの無音は切る（間で冷めないように）
         d = math.ceil((vl + ((0.0 if ln.get("loop") else 1.0) if li == len(lines) - 1 else GAP)) * FPS) / FPS
         render._pad_wav(wav, f"{B}/l{li}_p.wav", d)
-        ev = [("pop_big", 0.0, 0.9)] + ([("zip_up", 0.0, 0.35)] if li % 2 else [])   # 文の頭はポンが主役、ピュンは控えめに
+        ev = [("pop_big", 0.0, 0.9)]                                  # 文の頭はポンだけ（ピュイーンは耳ざわりなので鳴らさない）
         for fx in ln.get("fx", []):
             at = fx.get("at", 0.15)
             ty = fx["type"]
@@ -510,19 +511,19 @@ def build(sid):
             elif ty == "count":
                 ev += [("drumroll", at, 1.0), ("ding", at + max(0.6, d * 0.5 - at), 1.2)]
             elif ty == "vs":
-                ev += [("zip_long", at, 1.0), ("boom", at + 0.5, 0.9)]   # ピュピューンと重ねず、ピューン一本に
+                ev += [("whoosh_s", at, 1.0), ("boom", at + 0.5, 0.9)]
             elif ty == "ring":
                 ev += [("bubble", at, 1.0), ("kira", at + 0.35, 0.9)]
             elif ty == "warn":
                 ev += [("buzzer", at, 1.0), ("boom", at, 0.8)]
             elif ty == "split":
-                ev += [("whoosh_l", at, 1.0), ("slide_dn", at + 0.5, 0.8)]
+                ev += [("whoosh_l", at, 1.0), ("pop_lo", at + 0.5, 0.8)]
             elif ty == "rank":
-                ev += [("slide_up", at, 0.9), ("boing", at + 0.25, 0.9)]
+                ev += [("pop_mid", at, 0.9), ("boing", at + 0.25, 0.9)]
             elif ty == "map":
                 ev += [("whoosh_l", at, 0.8), ("pop_big", at + 0.45, 0.9)] + ([("boing", at + 0.75, 1.0)] if fx.get("pin") else [])
             elif ty in ("sign", "station"):
-                ev += [("zip_long", at, 0.7), ("boom", at + 0.3, 1.0)] + ([("pop_big", at + 0.55, 0.9)] if fx.get("sub") else [])
+                ev += [("whoosh_s", at, 0.8), ("boom", at + 0.3, 1.0)] + ([("pop_big", at + 0.55, 0.9)] if fx.get("sub") else [])
         if ln.get("digest"):
             n = len(ln["digest"])
             ev += [("pop_big", 0.05 + i * DIGEST_PER, 1.0) for i in range(n)]
@@ -531,7 +532,7 @@ def build(sid):
         if ln.get("up"):
             ev += [("boom", 0.0, 0.8)]
         if ln.get("pin"):
-            ev += [("boom", 0.0, 1.0), ("zip_up", 0.0, 0.8), ("kira", 0.15, 1.0)]
+            ev += [("boom", 0.0, 1.0), ("kira", 0.15, 1.0)]
         if ln.get("logo") and li == jingle_li:
             ev = []                                    # 歌に効果音を重ねない
         elif ln.get("logo"):
@@ -612,7 +613,7 @@ def build(sid):
                 pan = dance_panel(t, lv[i], THEME)
             if ln.get("manzai"):                       # ずんだもん2人のわちゃわちゃ漫才
                 pan = manzai_panel(t, lv[i], THEME)
-            if ln.get("up") and use_z:                 # ツッコミはずんだもんの顔のアップ
+            if ln.get("up") and use_z and t < UP_MAX:  # ツッコミはずんだもんの顔のアップ（一瞬だけ。長いと多く感じる）
                 pan = up_panel(ln.get("face", "驚き"), lv[i], (int(sum(durs[:li]) * FPS) + i) % 110 < 4, t, d, THEME)
             if ln.get("title_card"):                   # タイトルの文は写真なし
                 pan = Image.new("RGB", (W, PH), (10, 10, 14))
