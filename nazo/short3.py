@@ -95,6 +95,55 @@ def up_panel(face, mouth, blink, t, d, thm):
     return pan
 
 
+def manzai_panel(t, mouth, thm):
+    """電車の中で、ずんだもん2人（大ボケ・小ボケ）がわちゃわちゃ漫才する"""
+    pan = theme.background(thm or LOGO_TH, W, PH, t)
+    dr = ImageDraw.Draw(pan, "RGBA")
+    # 電車の中：窓の帯（外の景色が流れる）、つり革、座席
+    dr.rectangle([0, 60, W, 420], fill=(30, 40, 55, 255))
+    for q in range(5):
+        x = (q * 300 - t * 900) % (W + 300) - 300
+        dr.rectangle([x, 60, x + 26, 420], fill=(90, 110, 130, 255))            # 外の電柱が流れる
+    for wx in (40, 560):
+        dr.rounded_rectangle([wx, 90, wx + 480, 390], 26, fill=(140, 200, 240, 255), outline=(230, 230, 235, 255), width=12)
+        for q in range(3):                                                      # 窓の外の家並み
+            hx = (wx + 40 + q * 170 - t * 600) % 480 + wx
+            dr.rectangle([hx, 290, min(wx + 470, hx + 90), 380], fill=(90, 150, 90, 255))
+    dr.rectangle([0, 40, W, 60], fill=(200, 200, 205, 255))                     # 網棚のバー
+    for q in range(6):                                                          # つり革（ゆれる）
+        x = 90 + q * 180; a = math.sin(t * 3 + q) * 0.25
+        ex, ey = x + 120 * math.sin(a), 40 + 120 * math.cos(a)
+        dr.line([(x, 40), (ex, ey)], fill=(230, 230, 230, 255), width=6)
+        dr.ellipse([ex - 22, ey - 4, ex + 22, ey + 40], outline=(245, 245, 245, 255), width=7)
+    dr.rectangle([0, PH - 170, W, PH], fill=(70, 120, 200, 255))                # 座席
+    # 2人：拍ごとにボケとツッコミが入れかわる
+    beat = 0.45
+    k = int(t / beat); u = (t % beat) / beat
+    tsk = k % 2                                                                 # 0: 右がツッコむ / 1: 左がツッコむ
+    hit = math.exp(-u * 6) if u < 0.6 else 0
+    poses = [("ドヤ", "驚き"), ("笑顔", "怒り"), ("驚き", "焦り"), ("笑顔", "ドヤ")]
+    fl, fr_ = poses[k % len(poses)]
+    for side in (0, 1):
+        face = fl if side == 0 else fr_
+        h = int(PH * (0.86 if side == 0 else 0.68))                             # 大ボケは大きく、小ボケは小さく
+        talking = (side == tsk)
+        im = zunda_big(face, mouth if talking else 0, h)
+        if side == 1:
+            im = im.transpose(Image.FLIP_LEFT_RIGHT)                            # 向かい合う
+        hop = abs(math.sin(math.pi * u)) * (30 if side == 0 else 40)
+        lean = (40 * hit if talking else -30 * hit) * (1 if side == 0 else -1)   # ツッコむ側が前に出て、ボケ側がのけぞる
+        rot = (-10 * hit if talking else 14 * hit) * (1 if side == 0 else -1)
+        im = im.rotate(rot + 4 * math.sin(t * 9 + side * 2), expand=True, resample=Image.BICUBIC)
+        cx = (W * 0.30 if side == 0 else W * 0.74) + lean
+        pan.paste(im, (int(cx - im.width / 2), int(PH - im.height + 60 - hop)), im)
+        lab = "大ボケ" if side == 0 else "小ボケ"
+        big_text(ImageDraw.Draw(pan), int(cx), int(PH - h + 20 - hop), lab, 64, (255, 226, 0), 8)
+    if hit > 0.3:                                                               # ツッコミの瞬間
+        x = W * (0.55 if tsk == 0 else 0.48)
+        big_text(ImageDraw.Draw(pan), int(x), int(PH * 0.30), "ビシッ", int(90 + 40 * hit), (255, 255, 255), 10)
+    return pan
+
+
 DEFAULT_CH = ("ずんだもんの", "脳がとける", "雑学")
 JINGLE = "assets/jingle_letsnotoke.wav"          # tools/jingle.py で作るオリジナルのジングル
 JINGLE_VOICE = "assets/jingle_letsnotoke_voice.wav"   # 口パク用（歌声だけ）
@@ -560,6 +609,8 @@ def build(sid):
                 pan = pbg.copy()
             if ln.get("dance") and use_z:              # 冒頭などで、ずんだもんが踊りながら喋る
                 pan = dance_panel(t, lv[i], THEME)
+            if ln.get("manzai"):                       # ずんだもん2人のわちゃわちゃ漫才
+                pan = manzai_panel(t, lv[i], THEME)
             if ln.get("up") and use_z:                 # ツッコミはずんだもんの顔のアップ
                 pan = up_panel(ln.get("face", "驚き"), lv[i], (int(sum(durs[:li]) * FPS) + i) % 110 < 4, t, d, THEME)
             if ln.get("title_card"):                   # タイトルの文は写真なし
