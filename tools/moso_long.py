@@ -52,6 +52,37 @@ def zunda(face, h, mouth=1, blink=0):
     raise FileNotFoundError(face)
 
 
+_dmg = {}
+
+
+def damaged(im, level):
+    """星をまわるたびにボロボロになる（焦げ・ばんそうこう）。目と口にはかけない"""
+    if level <= 0:
+        return im
+    k = (id(im), level)
+    if k in _dmg:
+        return _dmg[k]
+    w, h = im.size
+    a = im.getchannel("A")
+    rgb = Image.blend(im.convert("RGB"), Image.new("RGB", im.size, (110, 80, 50)), min(0.3, 0.045 * level))
+    out = rgb.convert("RGBA"); out.putalpha(a)
+    d = ImageDraw.Draw(out)
+    # ばんそうこう（頭、おでこの端、ほお、腕）。顔の中心（目と口）は避ける
+    spots = [(0.58, 0.29, 20), (0.37, 0.53, -25), (0.31, 0.66, 15), (0.60, 0.66, -10), (0.36, 0.13, -15), (0.56, 0.52, 25), (0.45, 0.90, 10)]
+    for i, (fx_, fy_, ang) in enumerate(spots[:level]):
+        bw, bh = int(w * 0.11), int(w * 0.045)
+        tape = Image.new("RGBA", (bw, bh), (0, 0, 0, 0))
+        td = ImageDraw.Draw(tape)
+        td.rounded_rectangle([0, 0, bw - 1, bh - 1], bh // 2, fill=(245, 215, 175), outline=(150, 110, 80), width=max(1, bh // 10))
+        td.rectangle([bw * 0.38, 2, bw * 0.62, bh - 3], fill=(250, 235, 210))
+        tape = tape.rotate(ang, expand=True, resample=Image.BICUBIC)
+        if a.getpixel((int(w * fx_), int(h * fy_))) < 200:      # 体の外には貼らない
+            continue
+        out.alpha_composite(tape, (int(w * fx_ - tape.width / 2), int(h * fy_ - tape.height / 2)))
+    _dmg[k] = out
+    return out
+
+
 def outline(im, px=6):
     a = im.getchannel("A").filter(ImageFilter.MaxFilter(px * 2 + 1))
     base = Image.new("RGBA", im.size, (0, 0, 0, 0)); base.putalpha(a)
@@ -604,7 +635,10 @@ def frame(tt, tl, scenes):
         prev = [r for r in tl if r[0] < t0 and r[2] is sc and r[3]["who"] == "z"]
         zface = prev[-1][3]["face"] if prev else "通常"
     zmouth = mouth if ln["who"] == "z" else 0
-    hide_z = bool(fx.get("fate") or fx.get("empty") or fx.get("fall") or fx.get("blown") or fx.get("jump"))
+    dmg = sum(1 for r in tl if r[3]["fx"].get("judge") and r[1] < tt)        # これまでに受けた判定の数
+    if sc["bg"] == "earth" or sc["id"] in ("ending",):
+        dmg = min(dmg, 7)
+    hide_z = bool(fx.get("fate") or fx.get("empty") or fx.get("fall") or fx.get("blown") or fx.get("jump") or fx.get("ringfall"))
     # 場面ごとの大きな絵
     if sc["bg"] == "gmroom":
         talk = lv * 6 if ln["who"] == "g" else 0
@@ -628,11 +662,11 @@ def frame(tt, tl, scenes):
         earth_points(img, fx["earthpt"])
     # ずんだもん（左に立つ。顔は隠さない）
     if fx.get("fate"):
-        reg = img.crop((520, 40, 1400, 880)).convert("RGB")
-        ch = zunda(zface if ln["who"] == "z" else "泣き", 400, 1, 0)
-        mosofx.draw(reg, 0, 840, u + (tt - t0 if False else 0), max(1.5, t1 - t0), {"type": "fate", "mode": fx["fate"], "label": "",
-                                                                                      "weight": fx.get("weight", "")}, ch)
-        img.paste(reg.convert("RGBA"), (520, 40))
+        reg = img.crop((200, 0, 1500, 900)).convert("RGB")
+        ch = damaged(zunda(zface if ln["who"] == "z" else "泣き", 460, zmouth, 0), dmg)
+        mosofx.draw(reg, 0, 900, u, max(1.5, t1 - t0), {"type": "fate", "mode": fx["fate"], "label": "", "hmax": 0.78,
+                                                       "weight": fx.get("weight", "")}, ch)
+        img.paste(reg.convert("RGBA"), (200, 0))
     if fx.get("fall"):
         z = outline(zunda("焦り" if ln["who"] == "g" else zface, 520, zmouth, blink)).rotate(math.sin(tt * 0.8) * 10, expand=True, resample=Image.BICUBIC)
         img.alpha_composite(z, (int(W / 2 - z.width / 2), int(420 - z.height / 2 + math.sin(tt * 1.2) * 10)))
@@ -654,6 +688,19 @@ def frame(tt, tl, scenes):
             img.alpha_composite(z, (int(x0 - z.width / 2), int(800 - z.height - hop)))
             d.text((x0, 850), lab, font=font(44), fill=WHT, anchor="mm", stroke_width=5, stroke_fill=BLK)
         d.text((1290, 140), "同じ勢いで跳ぶと 約2.6倍", font=font(52), fill=YEL, anchor="mm", stroke_width=6, stroke_fill=BLK)
+    if fx.get("ringfall"):
+        k_ = min(1, u / 2.2)
+        y = 180 + 640 * (k_ ** 2)
+        z = outline(damaged(zunda("驚き" if k_ < 0.3 else "泣き", 360, zmouth, 0), dmg)).rotate(k_ * 120, expand=True, resample=Image.BICUBIC)
+        img.alpha_composite(z, (int(1180 - z.width / 2), int(y - z.height / 2)))
+        for q in range(40):                                   # 手前の粒（ずんだもんの前を通る）
+            a = q * 0.61 + tt * 0.5
+            rr = 250 * (1.6 + (q % 5) * 0.1)
+            px, py = 1290 + rr * math.cos(a), 470 + rr * 0.16 * math.sin(a)
+            if math.sin(a) > 0:
+                d.ellipse([px - 6, py - 6, px + 6, py + 6], fill=(240, 225, 190))
+        if k_ > 0.35:
+            d.text((1180, 120), "すり抜け", font=font(70), fill=YEL, anchor="mm", stroke_width=8, stroke_fill=BLK)
     if fx.get("blown"):
         k = ease((tt - t0) / 1.2)
         z = outline(zunda("泣き", 560, zmouth, 0)).rotate(k * 400, expand=True, resample=Image.BICUBIC)
@@ -667,11 +714,11 @@ def frame(tt, tl, scenes):
         if fx.get("up") and ln["who"] == "z":                    # 寄り：ゆっくり近づく（揺らさない。顔は隠さない）
             k_ = ease(u / 0.8)
             hz = int(600 + 500 * k_)
-            z = outline(zunda(zface, hz, zmouth, blink), 6)
+            z = outline(damaged(zunda(zface, hz, zmouth, blink), dmg), 6)
             img.alpha_composite(z, (int(330 + 150 * k_ - z.width / 2), int(890 + 260 * k_ - z.height)))
         else:
             lean = int(wind * 40)
-            z = outline(zunda(zface, 540, zmouth, blink), 6)
+            z = outline(damaged(zunda(zface, 540, zmouth, blink), dmg), 6)
             if wind:
                 z = z.rotate(-wind * 12, expand=True, resample=Image.BICUBIC)
             bob = math.sin(tt * 2.4) * 4

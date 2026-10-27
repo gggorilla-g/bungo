@@ -240,7 +240,7 @@ def draw(pan, OY, PH, u, dur, fx, char=None):
         p = ease(u / max(0.5, dur * fx.get("speed", 0.7)))
         cx, cy = W // 2, OY + int(PH * 0.5)
         if char is not None:
-            h0 = min(char.height * 3 // 2, int(PH * 0.5))       # 画面の高さに収める
+            h0 = min(char.height * 3 // 2, int(PH * fx.get("hmax", 0.5)))   # 画面の高さに収める
             c = char.resize((max(1, char.width * h0 // char.height), h0))
             if mode == "roast":                      # だんだん焦げ色に、炎と湯気
                 c = tint(c, (120, 60, 15), 0.62 * p)
