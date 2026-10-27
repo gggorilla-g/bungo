@@ -231,14 +231,18 @@ def planet(img, kind, cx, cy, r, t, ring=False, tilt=False):
 
 def abyss(t, k):
     """冒頭：木星の雲の奥へ落ちていき、だんだん暗い深みに飲み込まれる（k=0〜1）"""
-    img = Image.new("RGBA", (W, H), (0, 0, 0, 255))
-    d = ImageDraw.Draw(img)
+    sw, sh_ = W // 6, H // 6                                # 小さく描いて引き伸ばし、雲のようにぼかす
+    small = Image.new("RGB", (sw, sh_), (0, 0, 0))
+    d = ImageDraw.Draw(small)
     dark = 1 - 0.85 * k
     for j in range(16):
-        y = (j * 100 - t * (160 + 120 * k)) % (H + 200) - 100
+        y = ((j * 100 - t * (160 + 120 * k)) % (H + 200) - 100) / 6
         c = [(205, 160, 120), (160, 110, 80), (225, 190, 150), (185, 125, 90)][j % 4]
         c = tuple(int(v * dark) for v in c)
-        d.rectangle([0, y, W, y + 64 + (j % 3) * 24], fill=c)
+        pts = [(x, y + 3 * math.sin(x / 18 + j + t * 0.4)) for x in range(0, sw + 8, 8)]
+        hh = (64 + (j % 3) * 24) / 6
+        d.polygon(pts + [(x, yy + hh) for x, yy in reversed(pts)], fill=c)
+    img = small.filter(ImageFilter.GaussianBlur(1.6)).resize((W, H), Image.BICUBIC).convert("RGBA")
     if 0.25 < k < 0.95 and (int(t * 10) % 37) in (0, 1):    # 木星の雷（遠くで一瞬光る）
         img.alpha_composite(Image.new("RGBA", (W, H), (230, 230, 255, 70)))
     vg = Image.new("L", (W, H), 0)                          # 周りから闇が閉じていく
