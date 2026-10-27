@@ -14,7 +14,7 @@ FONT_B = "/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc"
 PARTS = "assets/enc/parts"
 WHT, BLK, YEL, RED = (255, 255, 255), (0, 0, 0), (255, 214, 0), (226, 36, 44)
 ZCOL, GCOL = (60, 190, 90), (120, 70, 190)          # 話し手の色（ずんだもん緑、GM紫）
-GAP, GM_PRE, SCENE_GAP = 0.5, 0.25, 1.0            # セリフの間（GMは一拍おいて静かに返す）
+GAP, GM_PRE, SCENE_GAP = 0.2, 0.1, 0.6             # セリフの間（会話はテンポよく。2026-10-27 ゲンタ「もう少しテンポ良く」）
 _fc = {}
 
 
