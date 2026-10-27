@@ -705,7 +705,7 @@ def frame(tt, tl, scenes):
         k_ab = min(1, max(0, (tt - sc["_t0"]) / max(1, sc["_t1"] - sc["_t0"])))
         img = abyss(tt, k_ab)
     else:
-        img = background("jupiter_fall" if fx.get("fall") else sc["bg"], tt)
+        img = background("jupiter_fall" if fx.get("fall") else "space" if fx.get("jump") else sc["bg"], tt)   # ジャンプ比較は惑星の写真を外す
     d = ImageDraw.Draw(img)
     zface = ln["face"] if ln["who"] == "z" else "通常"
     # 直前のずんだもんの表情を保つ（GMが話している間）
