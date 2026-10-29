@@ -15,6 +15,16 @@ if got:
 subject = os.environ.get("SUBJECT") or k["thumbnail"].get("sub_copy", "")
 print(thumb.build(k["thumbnail"]["main_copy"], subject, src, f"nazo/manual/{i}/thumb.png"))
 
+# 「テストと比較」用の別案（台本の thumb_variants: [{key, main_copy, image}] → thumb_<key>.png）
+for v in k.get("thumb_variants", []):
+    vsrc = None
+    g = m4_images.commons_files([v["image"]]) if v.get("image") else {}
+    if g:
+        inf = next(iter(g.values()))
+        if m4_images.download(inf["url"], f"build/thumb_src_{v['key']}.jpg", fallback=inf.get("orig")):
+            vsrc = f"build/thumb_src_{v['key']}.jpg"
+    print(thumb.build(v["main_copy"], subject, vsrc or src, f"nazo/manual/{i}/thumb_{v['key']}.png"))
+
 # 画像の出典の全一覧（ファイル名つき）も作り直す
 import upload
 files = [im["file"] for s in k["sections"] for im in s.get("images", [])]
