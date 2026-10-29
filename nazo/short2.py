@@ -157,7 +157,8 @@ def build(sid):
     for li, ln in enumerate(lines):
         wav = f"{B}/l{li}.wav"
         render.tts(ln["say"], wav)
-        d = math.ceil((render._wav_len(wav) + (0.9 if li == len(lines) - 1 else GAP)) * FPS) / FPS
+        last = li == len(lines) - 1
+        d = math.ceil((render._wav_len(wav) + ((GAP if ln.get("loop") else 0.9) if last else GAP)) * FPS) / FPS   # ループの締めは間を空けず頭へつなぐ
         render._pad_wav(wav, f"{B}/l{li}_p.wav", d)
         cuts = cut_plan(ln, d, li)
         ev = [(("whoosh_s" if c % 2 else "tick"), t0, 0.7) for c, (t0, _) in enumerate(cuts) if c > 0]
@@ -165,7 +166,7 @@ def build(sid):
             ev.append(("thud", 0.02, 1.0))
         plans.append(cuts)
         se.mix(f"{B}/l{li}_p.wav", ev + [("pop_mid" if li % 2 else "pop_hi", 0.0, 0.8)] +
-               ([("whoosh_l", 0.0, 1)] if li == (1 if lines[0].get("greet") else 0) else []) + ([("chime_b", d - 0.8, 0.8)] if li == len(lines) - 1 else []))
+               ([("whoosh_l", 0.0, 1)] if li == (1 if lines[0].get("greet") else 0) else []) + ([("chime_b", d - 0.8, 0.8)] if li == len(lines) - 1 and not ln.get("loop") else []))
         wavs.append(f"{B}/l{li}_p.wav"); durs.append(d)
     open(f"{B}/a.txt", "w").write("\n".join(f"file '{os.path.basename(a)}'" for a in wavs))
     subprocess.run(["ffmpeg", "-y", "-v", "error", "-f", "concat", "-safe", "0", "-i", "a.txt", "all_a.wav"], check=True, cwd=B)
