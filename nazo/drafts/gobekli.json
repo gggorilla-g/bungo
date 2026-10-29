@@ -328,12 +328,20 @@
  "host_outro": "石を立てた理由も、埋めた理由も、まだ土の下というわけじゃな。畑より先に、人が集まる場所があった。そう考えると、わしらの暮らしの始まりも、少し違って見えてくるのう。みなさんは、何のための丘だったと思うかの。コメントで教えてほしいぞい。次の謎も気になる方は、チャンネル登録をして待っていてくれ。ホー博士じゃった。",
  "thumb_variants": [
   {
-   "key": "B",
+   "key": "D",
+   "style": "v2",
    "main_copy": "わざと\n埋めた",
    "image": "File:Göbekli Tepe Pillar.JPG"
   },
   {
-   "key": "C",
+   "key": "E",
+   "style": "v2",
+   "main_copy": "畑より先に\n神殿？",
+   "image": "File:Gobeklitepe.jpg"
+  },
+  {
+   "key": "F",
+   "style": "v2",
    "main_copy": "発掘は\nまだ5%",
    "image": "File:Gobeklitepe Panorama.jpg"
   }

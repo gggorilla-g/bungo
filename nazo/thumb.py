@@ -116,3 +116,38 @@ def build(main_copy, subject, image_path, out_png, badge="ホー博士の世界�
     os.makedirs(os.path.dirname(out_png) or ".", exist_ok=True)
     im.save(out_png)
     return out_png
+
+
+def build_v2(main_copy, subject, image_path, out_png, badge="ホー博士の世界の謎", eyes="open"):
+    """v2（2026-10-29）：箱をやめ、実物の写真を全面に。極太の縁取り文字2行と、驚くホー博士を大きく。
+    1行目 白、2行目 黄。左を暗く落として文字を読ませる。札と題材名は小さく。"""
+    import sys
+    sys.path.insert(0, os.path.dirname(__file__))
+    import owl as owl_mod
+    im = Image.new("RGB", (W, H), (8, 8, 8))
+    if image_path and os.path.exists(image_path):
+        src = ImageOps.exif_transpose(Image.open(image_path)).convert("RGB")
+        src = ImageEnhance.Contrast(src).enhance(1.3)
+        src = ImageEnhance.Color(src).enhance(1.25)
+        im = ImageOps.fit(src, (W, H), Image.LANCZOS, centering=(0.6, 0.45))
+        im = im.filter(ImageFilter.UnsharpMask(radius=2, percent=90, threshold=3))
+    shade = Image.new("L", (W, H), 0)                      # 左から右へ暗さが抜ける
+    sd = ImageDraw.Draw(shade)
+    for x in range(W):
+        sd.line([(x, 0), (x, H)], fill=int(225 * max(0.0, 1 - x / (W * 0.7)) ** 1.1))
+    im = Image.composite(Image.new("RGB", (W, H), (0, 0, 0)), im, shade)
+    d = ImageDraw.Draw(im)
+    lines = _lines(main_copy)
+    f = _font(min(_fit(l, 740, 190).size for l in lines))
+    y = 95 if len(lines) > 1 else 200
+    for l, col in zip(lines, [(255, 255, 255), YELLOW] if len(lines) > 1 else [YELLOW]):
+        _outlined(d, (44, y), l, f, col, 14)
+        t, b = d.textbbox((0, 0), l, font=f)[1::2]
+        y += (b - t) + 40
+    ow = owl_mod.owl(eyes=eyes, beak="open", wing="rest", size=380)
+    im.paste(ow, (W - ow.width + 10, H - ow.height + 30), ow)
+    bf = _font(30, "Bold")
+    _box(d, 0, 26, badge, bf, (255, 255, 255), RED, 22, 10)
+    _outlined(d, (46, H - 84), subject, _font(46), (255, 255, 255), 8)
+    im.save(out_png)
+    return out_png

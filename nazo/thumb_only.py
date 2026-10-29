@@ -23,7 +23,8 @@ for v in k.get("thumb_variants", []):
         inf = next(iter(g.values()))
         if m4_images.download(inf["url"], f"build/thumb_src_{v['key']}.jpg", fallback=inf.get("orig")):
             vsrc = f"build/thumb_src_{v['key']}.jpg"
-    print(thumb.build(v["main_copy"], subject, vsrc or src, f"nazo/manual/{i}/thumb_{v['key']}.png"))
+    fn = thumb.build_v2 if v.get("style") == "v2" else thumb.build
+    print(fn(v["main_copy"], subject, vsrc or src, f"nazo/manual/{i}/thumb_{v['key']}.png"))
 
 # 画像の出典の全一覧（ファイル名つき）も作り直す
 import upload
