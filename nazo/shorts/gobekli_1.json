@@ -1,0 +1,142 @@
+{
+ "main": "gobekli",
+ "angle": "順番逆転型",
+ "title": "畑より先に、15トンの石柱。ギョベクリ・テペ #Shorts #世界の謎 #古代史",
+ "cta_head": "なぜ立て、なぜ埋めた？ 本編で検証",
+ "lines": [
+  {
+   "say": "ホー博士じゃ。",
+   "text": "ホー博士じゃ",
+   "file": "File:Gobeklitepe.jpg",
+   "zoom": [
+    0.5,
+    0.5,
+    1.0,
+    1.12
+   ],
+   "fast": true,
+   "host": "mid",
+   "greet": true
+  },
+  {
+   "say": "この石柱、畑ができるより前に、立てられた。",
+   "text": "畑ができるより前の\n石柱",
+   "file": "File:Göbekli Tepe Pillar.JPG",
+   "alts": [
+    "File:Gobeklitepe.jpg"
+   ],
+   "zoom": [
+    0.5,
+    0.45,
+    1.3,
+    2.0
+   ],
+   "fast": true,
+   "host": "mid",
+   "emph": true
+  },
+  {
+   "say": "重さは、推計十五トン。",
+   "text": "重さ\n推計15トン",
+   "file": "File:Göbekli Tepe site (1).JPG",
+   "zoom": [
+    0.5,
+    0.5,
+    1.2,
+    1.6
+   ],
+   "host": "small",
+   "emph": true
+  },
+  {
+   "say": "立てたのは、狩猟採集で暮らす人々じゃ。",
+   "text": "立てたのは\n狩猟採集の人々",
+   "file": "File:Reliefs of animals, Göbekli Tepe Layer III, circa 9000 BCE.jpg",
+   "zoom": [
+    0.5,
+    0.5,
+    1.1,
+    1.5
+   ],
+   "host": "small"
+  },
+  {
+   "say": "メソポタミア文明より、五千年程度も古い。",
+   "text": "メソポタミアより\n5千年程度古い",
+   "file": "File:Gobeklitepe Panorama.jpg",
+   "zoom": [
+    0.5,
+    0.5,
+    1.0,
+    1.4
+   ],
+   "host": "small",
+   "emph": true
+  },
+  {
+   "say": "石柱には、人の腕とキツネが、刻まれておる。",
+   "text": "石柱に刻まれた\n人の腕とキツネ",
+   "file": "File:Göbekli Tepe Pilar Arm and Fox.JPG",
+   "zoom": [
+    0.5,
+    0.5,
+    1.2,
+    1.8
+   ],
+   "host": "small",
+   "point": true
+  },
+  {
+   "say": "そして遺跡は、わざと埋められていた。",
+   "text": "そして遺跡は\nわざと埋められた",
+   "file": "File:Göbeklitepe Şanlıurfa.jpg",
+   "zoom": [
+    0.5,
+    0.5,
+    1.2,
+    1.5
+   ],
+   "host": "small",
+   "emph": true
+  },
+  {
+   "say": "しかも、発掘はまだ、五パーセントも進んでおらん。",
+   "text": "発掘はまだ\n5%も進んでいない",
+   "file": "File:Göbekli Tepe surrounding area.JPG",
+   "zoom": [
+    0.5,
+    0.5,
+    1.0,
+    1.3
+   ],
+   "host": "small"
+  },
+  {
+   "say": "なぜ立て、なぜ埋めたのか。",
+   "text": "なぜ立て\nなぜ埋めたのか？",
+   "file": "File:Göbekli Tepe Pillar.JPG",
+   "zoom": [
+    0.5,
+    0.5,
+    1.3,
+    1.0
+   ],
+   "dim": 0.55,
+   "host": "big",
+   "emph": true,
+   "point": true
+  },
+  {
+   "say": "神殿か、墓か、住まいか。関連動画の本編で、説を順に見ていくぞい。",
+   "text": "神殿？墓？住まい？\n本編で検証",
+   "main_thumb": true,
+   "host": "big"
+  },
+  {
+   "say": "ホー博士じゃったぞい。",
+   "text": "関連動画から",
+   "main_thumb": true,
+   "host": "big"
+  }
+ ]
+}
