@@ -4,7 +4,7 @@
 #   中盤で本編の疑問を匂わせ、最後に関連動画（本編）へ誘う。テロップは隙間なく出し続ける。
 #   台本: nazo/shorts/<ID>.json   実行: ID=phaistos_3 python nazo/short2.py （A版。VARIANTS=A,B で比較用にB版も）
 #     A: 冒頭からホー博士が出る   B: 謎の映像から始め、2文目でホー博士が出る
-import json, math, os, subprocess, sys, wave
+import json, math, os, re, subprocess, sys, wave
 import numpy as np
 from PIL import Image, ImageDraw, ImageFilter, ImageEnhance
 sys.path.insert(0, "src"); sys.path.insert(0, "nazo")
@@ -126,6 +126,8 @@ def build(sid):
     lines = sp["lines"]
     for ln in lines:
         render._YOMI[ln["say"]] = fixes.get(ln["say"]) or yomi.base_fix(ln["say"], {"title": "", "author": ""}, {})
+        if sp.get("tight", True):                # ショートは読点で間を作らない（2026-10-29 ゲンタさん）。句点は残す
+            render._YOMI[ln["say"]] = re.sub(r"[、,]", "", render._YOMI[ln["say"]])
         print("読み:", ln["say"], "→", yomi.kana(render._YOMI[ln["say"]]))
     # 画像
     files = list(dict.fromkeys([f for ln in lines if ln.get("file") for f in [ln["file"]] + ln.get("alts", [])]
