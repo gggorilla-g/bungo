@@ -74,14 +74,14 @@
    "emph": true
   },
   {
-   "say": "石柱には、人の腕とキツネが、刻まれておる。",
-   "text": "石柱に刻まれた\n人の腕とキツネ",
-   "file": "File:Göbekli Tepe Pilar Arm and Fox.JPG",
+   "say": "石柱には、キツネなどの動物が、刻まれておる。",
+   "text": "石柱に刻まれた\nキツネなどの動物",
+   "file": "File:Göbekli Tepe Pillar.JPG",
    "zoom": [
     0.5,
-    0.5,
-    1.2,
-    1.8
+    0.75,
+    1.4,
+    1.9
    ],
    "host": "small",
    "point": true
@@ -102,12 +102,12 @@
   {
    "say": "しかも、発掘はまだ、五パーセントも進んでおらん。",
    "text": "発掘はまだ\n5%も進んでいない",
-   "file": "File:Göbekli Tepe surrounding area.JPG",
+   "file": "File:Gobeklitepe Panorama.jpg",
    "zoom": [
     0.5,
-    0.5,
-    1.0,
-    1.3
+    0.65,
+    1.1,
+    1.5
    ],
    "host": "small"
   },
