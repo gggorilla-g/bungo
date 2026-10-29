@@ -56,6 +56,13 @@
    "main": "trivia_stations",
    "channel": "雑学",
    "posted": false
+  },
+  {
+   "date": "2026-10-29",
+   "id": "trivia_names",
+   "main": "trivia_names",
+   "channel": "雑学",
+   "posted": false
   }
  ]
 }

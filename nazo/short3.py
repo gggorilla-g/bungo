@@ -473,6 +473,16 @@ def build(sid):
         render._YOMI[ln["say"]] = yt
         print("読み:", ln["say"], "→", yomi.kana(render._YOMI[ln["say"]]))
         yomi_log.append(f'{ln["say"]}\n  → {yomi.kana(render._YOMI[ln["say"]])}')
+    _wk = {}                                       # 台本に "wiki": [言語, 記事名] があれば、その記事の写真（ライセンスOKのもの）を使う
+    for ln in lines:
+        if ln.get("wiki") and not ln.get("file"):
+            key = tuple(ln["wiki"])
+            if key not in _wk:
+                _wk[key] = m4_images.article_images([key], max_n=6, min_width=700)
+            hits = _wk[key]
+            if hits:
+                ln["file"] = hits[min(ln.get("wiki_i", 0), len(hits) - 1)]["file"]
+                print("記事の写真:", key, "→", ln["file"])
     files = list(dict.fromkeys([f for ln in lines for f in ([ln["file"]] if ln.get("file") else []) +
                                 [x["file"] for x in ln.get("digest", [])]]))
     got = m4_images.commons_files(files, width=2000)
