@@ -365,7 +365,7 @@ def draw(pan, OY, PH, u, dur, fx, char=None):
         d.line([(px + pw - 30, py), (px + pw + 30, py - 70)], fill=BLK, width=10)                       # レバー
         d.ellipse([px + pw + 16, py - 90, px + pw + 46, py - 60], fill=RED, outline=BLK, width=3)
         m = int(min(60, u * 40))                     # 戻った時間の表示
-        txt(d, cx, OY + int(PH * 0.08), f"−{m:02d}分", 80, YEL, 9)
+        txt(d, cx, OY + int(PH * 0.95), f"−{m:02d}分", 80, YEL, 9)
     elif k == "left":                               # 地球が去っていき、ずんだもんだけ取り残される
         stars(d, W, OY, PH)
         p = ease(u / max(0.5, dur * 0.8))
