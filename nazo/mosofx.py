@@ -13,7 +13,7 @@
 import math
 from PIL import Image, ImageDraw, ImageFont
 
-TYPES = ("globe", "orbit", "beans", "hole", "dash", "fate", "bh", "left", "moongone")
+TYPES = ("globe", "orbit", "beans", "hole", "dash", "fate", "bh", "left", "moongone", "tmachine")
 
 FONT = "/usr/share/fonts/opentype/noto/NotoSansCJK-Black.ttc"
 _fc = {}
@@ -332,6 +332,40 @@ def draw(pan, OY, PH, u, dur, fx, char=None):
             pan.paste(c, (int(x - c.width / 2), int(y - c.height / 2)), c)
         if fx.get("label"):
             txt(d, W // 2, OY + int(PH * 0.08), fx["label"], 70, WHT, 8)
+    elif k == "tmachine":                           # タイムマシンに乗るずんだもん（オリジナルの形：真鍮の丸いポッド＋大きな時計）
+        cx, cy = W // 2, OY + int(PH * 0.5)
+        for q in range(14):                         # 時間のトンネル：回る輪と、逆回りに流れる時計の数字
+            rr = int(PH * (0.08 + 0.07 * q) + (u * 160) % (PH * 0.07))
+            col = (60 + q * 8, 40 + q * 4, 140 + q * 6)
+            d.ellipse([cx - rr * 1.3, cy - rr, cx + rr * 1.3, cy + rr], outline=col, width=6)
+        for q in range(12):
+            a = math.radians(q * 30 - u * 120)
+            rr = PH * 0.42
+            txt(d, int(cx + rr * 1.25 * math.cos(a)), int(cy + rr * math.sin(a)), str(12 - q if q else 12), 46, (200, 190, 255), 5)
+        shake = int(6 * math.sin(u * 40))
+        px, py, pw, ph = cx + shake, cy + int(PH * 0.12), int(W * 0.34), int(PH * 0.2)
+        d.ellipse([px - pw, py + ph * 0.55, px + pw, py + ph * 1.25], fill=(80, 230, 255))          # 下で光る輪
+        if char is not None:                         # ずんだもんがポッドに乗っている（胸から上）
+            c = char.resize((int(char.width * 1.25), int(char.height * 1.25))).rotate(4 * math.sin(u * 6), expand=True)
+            pan.paste(c, (int(px - c.width / 2), int(py - c.height * 0.80)), c)
+        d.ellipse([px - pw, py - ph * 0.35, px + pw, py + ph * 1.05], fill=(196, 150, 70), outline=BLK, width=6)   # 真鍮のポッド
+        d.ellipse([px - pw + 18, py - ph * 0.35 + 10, px + pw - 18, py + ph * 0.3], fill=(225, 185, 100), outline=BLK, width=4)
+        for q in range(7):                           # リベット
+            rx = px - pw + 40 + q * (2 * pw - 80) / 6
+            d.ellipse([rx - 8, py + ph * 0.75 - 8, rx + 8, py + ph * 0.75 + 8], fill=(120, 90, 40), outline=BLK, width=2)
+        dr_ = int(ph * 0.55)                         # 前面の大きな時計：針が逆回り
+        dx, dy = px, py + int(ph * 0.42)
+        d.ellipse([dx - dr_, dy - dr_, dx + dr_, dy + dr_], fill=WHT, outline=BLK, width=6)
+        for q in range(12):
+            a = math.radians(q * 30)
+            d.line([(dx + dr_ * 0.8 * math.sin(a), dy - dr_ * 0.8 * math.cos(a)), (dx + dr_ * 0.92 * math.sin(a), dy - dr_ * 0.92 * math.cos(a))], fill=BLK, width=4)
+        for ln_, sp, wd in ((0.55, -720, 8), (0.8, -8640, 5)):
+            a = math.radians(sp * u / 6)
+            d.line([(dx, dy), (dx + dr_ * ln_ * math.sin(a), dy - dr_ * ln_ * math.cos(a))], fill=RED if wd == 5 else BLK, width=wd)
+        d.line([(px + pw - 30, py), (px + pw + 30, py - 70)], fill=BLK, width=10)                       # レバー
+        d.ellipse([px + pw + 16, py - 90, px + pw + 46, py - 60], fill=RED, outline=BLK, width=3)
+        m = int(min(60, u * 40))                     # 戻った時間の表示
+        txt(d, cx, OY + int(PH * 0.08), f"−{m:02d}分", 80, YEL, 9)
     elif k == "left":                               # 地球が去っていき、ずんだもんだけ取り残される
         stars(d, W, OY, PH)
         p = ease(u / max(0.5, dur * 0.8))
