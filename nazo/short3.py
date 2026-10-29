@@ -146,6 +146,15 @@ def manzai_panel(t, mouth, thm):
     return pan
 
 
+def talk_panel(face, mouth, t, thm):
+    """アップから戻ったあと：帯の中に中くらいのずんだもん。口は声に合わせて動く"""
+    pan = theme.background(thm or LOGO_TH, W, PH, t)
+    im = zunda_big(face, mouth, int(PH * 0.82))
+    bob = math.sin(t * 5) * 6
+    pan.paste(im, ((W - im.width) // 2, int(PH - im.height + 60 + bob)), im)
+    return pan
+
+
 DEFAULT_CH = ("ずんだもんの", "脳がとける", "雑学")
 JINGLE = "assets/jingle_letsnotoke.wav"          # tools/jingle.py で作るオリジナルのジングル
 JINGLE_VOICE = "assets/jingle_letsnotoke_voice.wav"   # 口パク用（歌声だけ）
@@ -625,6 +634,8 @@ def build(sid):
                 pan = manzai_panel(t, lv[i], THEME)
             if ln.get("up") and use_z and t < UP_MAX:  # ツッコミはずんだもんの顔のアップ（一瞬だけ。長いと多く感じる）
                 pan = up_panel(ln.get("face", "驚き"), lv[i], (int(sum(durs[:li]) * FPS) + i) % 110 < 4, t, d, THEME)
+            elif ln.get("up") and use_z and not src and not any(f["type"] not in ("stamp",) for f in ln.get("fx", [])):
+                pan = talk_panel(ln.get("face", "驚き"), lv[i], t, THEME)   # アップのあとも話し続けるので、口の動くずんだもんを残す（声だけになるのを防ぐ）
             if ln.get("title_card"):                   # タイトルの文は写真なし
                 pan = Image.new("RGB", (W, PH), (10, 10, 14))
             if t < 2 / FPS and topic:                    # 話題（生き物）が変わる文の頭だけ、2コマ白く光る
