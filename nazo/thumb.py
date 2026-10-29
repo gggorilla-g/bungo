@@ -129,7 +129,16 @@ def build_v2(main_copy, subject, image_path, out_png, badge="ホー博士の世�
         src = ImageOps.exif_transpose(Image.open(image_path)).convert("RGB")
         src = ImageEnhance.Contrast(src).enhance(1.3)
         src = ImageEnhance.Color(src).enhance(1.25)
-        im = ImageOps.fit(src, (W, H), Image.LANCZOS, centering=(0.6, 0.45))
+        if src.width / src.height >= 1.3:                  # 横長：全面に
+            im = ImageOps.fit(src, (W, H), Image.LANCZOS, centering=(0.6, 0.45))
+        else:                                             # 縦長（石柱など）：物を右に丸ごと見せ、残りはぼかした同じ写真
+            im = ImageEnhance.Brightness(ImageOps.fit(src, (W, H), Image.LANCZOS).filter(ImageFilter.GaussianBlur(26))).enhance(0.6)
+            fw = int(src.width * H / src.height)
+            fg = src.resize((fw, H), Image.LANCZOS)
+            m = Image.new("L", (fw, H), 255); md = ImageDraw.Draw(m)
+            for x in range(min(90, fw // 4)):
+                md.line([(x, 0), (x, H)], fill=int(255 * x / min(90, fw // 4)))
+            im.paste(fg, (W - 170 - fw, 0), m)
         im = im.filter(ImageFilter.UnsharpMask(radius=2, percent=90, threshold=3))
     shade = Image.new("L", (W, H), 0)                      # 左から右へ暗さが抜ける
     sd = ImageDraw.Draw(shade)
