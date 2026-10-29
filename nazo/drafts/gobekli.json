@@ -328,16 +328,19 @@
  "host_outro": "石を立てた理由も、埋めた理由も、まだ土の下というわけじゃな。畑より先に、人が集まる場所があった。そう考えると、わしらの暮らしの始まりも、少し違って見えてくるのう。みなさんは、何のための丘だったと思うかの。コメントで教えてほしいぞい。次の謎も気になる方は、チャンネル登録をして待っていてくれ。ホー博士じゃった。",
  "thumb_variants": [
   {
-   "key": "G",
+   "key": "J",
    "style": "v3",
-   "main_copy": "1万年前に\nわざと埋めた",
-   "sticker": "常識が逆転？",
-   "circle": [
-    880,
-    500,
-    120
-   ],
+   "main_copy": "狩猟採集民が\nこれを建てた？",
+   "sticker": "推計15トン",
+   "circle": null,
    "image": "File:Göbekli Tepe Pillar.JPG"
+  },
+  {
+   "key": "K",
+   "style": "v3",
+   "main_copy": "なぜ\n土の中に？",
+   "sticker": "約1万1600年前",
+   "image": "File:Göbeklitepe Şanlıurfa.jpg"
   },
   {
    "key": "H",
@@ -345,13 +348,6 @@
    "main_copy": "畑より先に\n15トン",
    "sticker": "誰が立てた？",
    "image": "File:Gobeklitepe.jpg"
-  },
-  {
-   "key": "I",
-   "style": "v3",
-   "main_copy": "発掘まだ5%\n謎だらけ",
-   "sticker": "未解明",
-   "image": "File:Gobeklitepe Panorama.jpg"
   }
  ]
 }
