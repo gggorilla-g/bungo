@@ -160,3 +160,41 @@ def build_v2(main_copy, subject, image_path, out_png, badge="ホー博士の世�
     _outlined(d, (46, H - 84), subject, _font(46), (255, 255, 255), 8)
     im.save(out_png)
     return out_png
+
+
+def build_v3(main_copy, subject, image_path, out_png, sticker="", circle=None, eyes="open"):
+    """v3（2026-10-29、ゲンタ「もっと俗っぽく、とにかく見てもらう」）：v2に、赤い丸と矢印、
+    斜めの赤いギザギザ札、汗をかいて驚くホー博士を足す。彩度も強め。煽りは事実の範囲で。"""
+    import math
+    tmp = out_png + ".base.png"
+    build_v2(main_copy, subject, image_path, tmp, eyes=eyes)
+    im = Image.open(tmp).convert("RGB"); os.remove(tmp)
+    im = ImageEnhance.Color(im).enhance(1.25)
+    d = ImageDraw.Draw(im)
+    if circle:                                            # 見てほしい所に赤い丸と、文字から伸びる矢印
+        cx, cy, r = circle
+        for w in (16, 10):
+            d.ellipse([cx - r, cy - r, cx + r, cy + r], outline=(0, 0, 0) if w == 16 else (235, 25, 25), width=w)
+        ax, ay = cx - r - 150, cy + 40
+        d.line([(ax, ay), (cx - r - 10, cy + 5)], fill=(235, 25, 25), width=16)
+        a = math.atan2((cy + 5) - ay, (cx - r - 10) - ax)
+        tip = (cx - r - 4, cy + 5)
+        d.polygon([tip, (tip[0] - 46 * math.cos(a - 0.5), tip[1] - 46 * math.sin(a - 0.5)),
+                   (tip[0] - 46 * math.cos(a + 0.5), tip[1] - 46 * math.sin(a + 0.5))], fill=(235, 25, 25))
+    if sticker:                                           # 右上に、斜めの赤いギザギザ札
+        lay = Image.new("RGBA", (520, 260), (0, 0, 0, 0)); ld = ImageDraw.Draw(lay)
+        pts = []
+        for k in range(28):
+            ang = 2 * math.pi * k / 28; rr = 1.0 if k % 2 == 0 else 0.82
+            pts.append((260 + 250 * rr * math.cos(ang), 130 + 120 * rr * math.sin(ang)))
+        ld.polygon(pts, fill=(235, 25, 25), outline=(255, 255, 255))
+        sf = _fit(sticker, 380, 74)
+        ld.text((260, 130), sticker, font=sf, fill=(255, 255, 255), anchor="mm", stroke_width=6, stroke_fill=(0, 0, 0))
+        lay = lay.rotate(8, expand=True, resample=Image.BICUBIC)
+        im.paste(lay, (W - lay.width + 20, -10), lay)
+    d = ImageDraw.Draw(im)                                # ホー博士の汗
+    for (x, y) in ((1000, 470), (1215, 455)):
+        d.polygon([(x, y), (x - 14, y + 34), (x + 14, y + 34)], fill=(120, 200, 255), outline=(0, 0, 0))
+        d.ellipse([x - 14, y + 20, x + 14, y + 48], fill=(120, 200, 255), outline=(0, 0, 0), width=2)
+    im.save(out_png)
+    return out_png
