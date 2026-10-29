@@ -1,0 +1,178 @@
+{
+ "main": "stonehenge",
+ "angle": "運搬型",
+ "title": "250km運ばれた巨石 ストーンヘンジ #Shorts #世界の謎 #古代史",
+ "cta_head": "どうやって運んだ？ 本編で検証",
+ "lines": [
+  {
+   "say": "この石は二百五十キロ先から運ばれたとされる。",
+   "text": "この石は\n250km先から来た",
+   "file": "File:Stonehenge (14342774836).jpg",
+   "alts": [
+    "File:Stonehenge closeup.jpg"
+   ],
+   "zoom": [
+    0.5,
+    0.55,
+    1.0,
+    1.3
+   ],
+   "fast": true,
+   "host": "mid",
+   "emph": true
+  },
+  {
+   "say": "出どころはウェールズのプレセリの丘じゃ。",
+   "text": "出どころは\nウェールズの丘",
+   "file": "File:Carn Menyn bluestones - geograph.org.uk - 1451509.jpg",
+   "alts": [
+    "File:Preseli Hills - geograph.org.uk - 1729208.jpg"
+   ],
+   "zoom": [
+    0.5,
+    0.5,
+    1.2,
+    1.5
+   ],
+   "fast": true,
+   "host": "mid"
+  },
+  {
+   "say": "高さはおよそ二メートル。",
+   "text": "高さは\nおよそ2m",
+   "file": "File:Dressed Welsh bluestone.jpg",
+   "zoom": [
+    0.3,
+    0.5,
+    1.4,
+    1.7
+   ],
+   "host": "small",
+   "emph": true
+  },
+  {
+   "say": "そんな石が最大八十個も並んでおった。",
+   "text": "そんな石が\n最大80個",
+   "file": "File:Stone Plan Coloured.jpg",
+   "zoom": [
+    0.45,
+    0.45,
+    1.3,
+    1.6
+   ],
+   "host": "small",
+   "emph": true
+  },
+  {
+   "say": "二千十一年にはウェールズで石切り場も見つかった。",
+   "text": "2011年\n石切り場も見つかった",
+   "file": "File:160412 W Preseli Hills from NE (Tony Holkham).jpg",
+   "zoom": [
+    0.5,
+    0.5,
+    1.1,
+    1.4
+   ],
+   "host": "small"
+  },
+  {
+   "say": "では人はどう運んだのか。",
+   "text": "では人は\nどう運んだのか",
+   "file": "File:Stonehenge - geograph.org.uk - 1621129.jpg",
+   "zoom": [
+    0.5,
+    0.4,
+    1.2,
+    1.5
+   ],
+   "host": "small",
+   "point": true
+  },
+  {
+   "say": "二千一年には石を運ぶ実験があった。",
+   "text": "2001年\n石を運ぶ実験",
+   "file": "File:Preseli Hills - geograph.org.uk - 1729208.jpg",
+   "zoom": [
+    0.5,
+    0.5,
+    1.1,
+    1.4
+   ],
+   "host": "small"
+  },
+  {
+   "say": "陸ではそりを引いて進んだ。",
+   "text": "陸では\nそりを引いた",
+   "file": "File:June in Wales - geograph.org.uk - 455244.jpg",
+   "zoom": [
+    0.5,
+    0.6,
+    1.2,
+    1.5
+   ],
+   "host": "small"
+  },
+  {
+   "say": "ところが船に載せた石は海に沈んだ。",
+   "text": "船に載せた石は\n海に沈んだ",
+   "file": "File:Carn Ingli from Newport Beach - geograph.org.uk - 296538.jpg",
+   "zoom": [
+    0.5,
+    0.5,
+    1.1,
+    1.5
+   ],
+   "host": "small",
+   "emph": true,
+   "point": true
+  },
+  {
+   "say": "氷河が運んだという説もある。",
+   "text": "氷河が運んだ\nという説も",
+   "file": "File:Carn Menyn, the Stonehenge debate - geograph.org.uk - 1451298.jpg",
+   "zoom": [
+    0.5,
+    0.5,
+    1.1,
+    1.4
+   ],
+   "host": "small"
+  },
+  {
+   "say": "だが氷河の証拠は見つかっておらん。",
+   "text": "氷河の証拠は\n見つかっていない",
+   "file": "File:Stonehenge cloudy sunset.jpg",
+   "zoom": [
+    0.5,
+    0.5,
+    1.2,
+    1.0
+   ],
+   "dim": 0.55,
+   "host": "big",
+   "emph": true
+  },
+  {
+   "say": "関連動画の本編で説を順に見ていくぞい。",
+   "text": "どう運んだ？\n本編で検証",
+   "main_thumb": true,
+   "host": "big"
+  },
+  {
+   "say": "手がかりはこの石にある。",
+   "text": "手がかりは\nこの石に",
+   "file": "File:Stonehenge (14342774836).jpg",
+   "zoom": [
+    0.5,
+    0.55,
+    1.3,
+    1.0
+   ],
+   "host": "mid",
+   "loop": true
+  }
+ ],
+ "yomi": {
+  "二千十一年にはウェールズで石切り場も見つかった。": "二千十一年にはウェールズでいしきりばも見つかった。"
+ }
+}
