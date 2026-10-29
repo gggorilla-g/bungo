@@ -1,0 +1,49 @@
+name: CODEX ask
+# Claude から Codex に相談する（codex_ask/<id>/prompt.md を渡し、返答と画像を codex_ask/<id>/ に書き戻す）
+on:
+  workflow_dispatch:
+    inputs:
+      id:
+        description: "codex_ask/ の下の相談ID"
+        required: true
+permissions:
+  contents: write
+concurrency:
+  group: state-commit
+  cancel-in-progress: false
+jobs:
+  ask:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: "22" }
+      - name: Install Codex
+        run: npm install -g @openai/codex@0.163.0
+      - name: Codex auth
+        env:
+          CODEX_AUTH_JSON: ${{ secrets.CODEX_AUTH_JSON }}
+          OPENAI_API_KEY:  ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          mkdir -p ~/.codex
+          if [ -n "$CODEX_AUTH_JSON" ]; then printf '%s' "$CODEX_AUTH_JSON" > ~/.codex/auth.json; echo "auth: chatgpt login"; fi
+          if [ -n "$OPENAI_API_KEY" ]; then echo "auth: api key"; fi
+      - name: Ask
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          D="codex_ask/${{ inputs.id }}"
+          cd "$D"
+          codex exec --skip-git-repo-check --sandbox workspace-write "$(cat prompt.md)" > answer.md 2> codex_log.txt || echo "codex exit $?" >> codex_log.txt
+          tail -40 codex_log.txt
+          ls -la
+      - name: Commit back
+        if: always()
+        run: |
+          git config user.name "bungo-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add codex_ask/
+          git diff --cached --quiet && exit 0
+          git commit -m "codex ask: ${{ inputs.id }}"
+          for i in 1 2 3; do git pull --rebase -q && git push && break; sleep 5; done
