@@ -1,0 +1,238 @@
+{
+ "voice": {
+  "vvm": "0.vvm",
+  "style": 3,
+  "speed": 1.0,
+  "pitch": 0.0,
+  "intonation": 1.15
+ },
+ "voice_name": "ずんだもん",
+ "bgm_file": "assets/enc/bgm_trivia_mood2.mp3",
+ "bgm_credit": "ムード２ / 今川彰人オーケストラ（OpenTracks（旧DOVA-SYNDROME））",
+ "bgm_vol": 0.16,
+ "main": "trivia_names10",
+ "label": "名前がひどい生き物",
+ "format": "story",
+ "title": "おならが100度の虫がいるのだ。名前がひどすぎる生き物 #Shorts #雑学 #虫",
+ "desc": "その名もヘッピリムシ（ミイデラゴミムシ）。\n\n・危険を感じると、過酸化水素とヒドロキノンの反応で100℃以上のガスを噴射する。噴射のときの「ぷっ」という音から屁放り虫と呼ばれる（Wikipedia日本語版「ミイデラゴミムシ」）。\n・ヒキガエルに飲み込ませた実験では、43%のカエルが12〜107分のあいだに吐き出し、吐き出された虫はすべて生きていた（Sugiura & Sato, Biology Letters 2018／ギズモード・ジャパン 2018年2月）。\n\n本編は関連動画から：名前がひどすぎる生き物10選【ずんだもんの脳がとける雑学】",
+ "tags": [
+  "ずんだもん",
+  "雑学",
+  "虫",
+  "名前がひどい",
+  "ヘッピリムシ",
+  "ミイデラゴミムシ",
+  "脳がとける雑学",
+  "ショート"
+ ],
+ "themes": [
+  "mint_black",
+  "orange_rays",
+  "chalk"
+ ],
+ "yomi": {
+  "レッツ脳とけ！": "レッツのーとけ！",
+  "おならが100度の虫がいるのだ。": "おならがひゃくどのむしがいるのだ。",
+  "漢字で書くと屁をひる虫なのだ。": "かんじでかくとへをひるむしなのだ。",
+  "おなかの中で2つの薬を反応させて100度以上にするのだ。": "おなかのなかでふたつのくすりをはんのうさせてひゃくどいじょうにするのだ。",
+  "実験ではカエルの43パーセントが吐き出したのだ。": "じっけんではかえるのよんじゅうさんぱーせんとがはきだしたのだ。",
+  "長いと107分後に吐き出されて生きていたのだ。": "ながいとひゃくななふんごにはきだされていきていたのだ。",
+  "残りの9種は関連動画の本編で全部見られるのだ。": "のこりのきゅうしゅはかんれんどうがのほんぺんでぜんぶみられるのだ。"
+ },
+ "lines": [
+  {
+   "say": "おならが100度の虫がいるのだ。",
+   "text": "おならが\n100度の虫",
+   "face": "ドヤ",
+   "hook": true,
+   "dance": true,
+   "fx": [
+    {
+     "type": "stamp",
+     "text": "100℃",
+     "at": 0.0,
+     "y": 0.35,
+     "size": 240,
+     "color": [
+      230,
+      40,
+      40
+     ]
+    }
+   ]
+  },
+  {
+   "say": "その名もヘッピリムシなのだ。",
+   "text": "その名も\nヘッピリムシ",
+   "face": "指差し",
+   "file": "File:Pheropsophus (Stenaptinus) jessoensis.jpg",
+   "fx": [
+    {
+     "type": "stamp",
+     "text": "屁放り虫",
+     "at": 0.5,
+     "y": 0.75,
+     "size": 190,
+     "color": [
+      255,
+      226,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "say": "漢字で書くと屁をひる虫なのだ。",
+   "text": "漢字で書くと\n屁をひる虫",
+   "face": "焦り",
+   "file": "File:Pheropsophus (Stenaptinus) jessoensis.jpg"
+  },
+  {
+   "say": "図鑑の名前はミイデラゴミムシ。",
+   "text": "図鑑の名前は\nミイデラゴミムシ",
+   "face": "通常",
+   "file": "File:Pheropsophus jessoensis on the concrete-block wall - 2.jpg"
+  },
+  {
+   "say": "こっちにもゴミが入ってるのだ！",
+   "text": "こっちにも\nゴミが入ってる",
+   "face": "怒り",
+   "up": true
+  },
+  {
+   "say": "つかまえるとお尻からガスを噴き出すのだ。",
+   "text": "つかまえると\nお尻からガス",
+   "face": "驚き",
+   "file": "File:Pheropsophus jessoensis on the concrete-block wall - 4.jpg",
+   "fx": [
+    {
+     "type": "stamp",
+     "text": "ぷしゅー",
+     "at": 0.5,
+     "y": 0.3,
+     "size": 190,
+     "color": [
+      255,
+      255,
+      255
+     ]
+    }
+   ]
+  },
+  {
+   "say": "おなかの中で2つの薬を反応させて100度以上にするのだ。",
+   "text": "体の中で反応させて\n100度以上",
+   "face": "青ざめ",
+   "file": "File:Pheropsophus jessoensis on the concrete-block wall - 4.jpg",
+   "fx": [
+    {
+     "type": "count",
+     "to": 100,
+     "unit": "℃",
+     "label": "ガスの温度（以上）",
+     "at": 0.4
+    }
+   ]
+  },
+  {
+   "say": "噴くときぷっと音がするからヘッピリムシなのだ。",
+   "text": "ぷっと鳴るから\nヘッピリムシ",
+   "face": "笑顔",
+   "file": "File:Pheropsophus jessoensis on the concrete-block wall - 1.jpg",
+   "fx": [
+    {
+     "type": "stamp",
+     "text": "ぷっ",
+     "at": 0.5,
+     "y": 0.35,
+     "size": 260,
+     "color": [
+      255,
+      226,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "say": "カエルに丸のみされても終わりじゃないのだ。",
+   "text": "カエルに丸のみ\nされても…",
+   "face": "驚き",
+   "file": "File:Pheropsophus jessoensis on the concrete-block wall - 3.jpg"
+  },
+  {
+   "say": "実験ではカエルの43パーセントが吐き出したのだ。",
+   "text": "カエルの43%が\n吐き出した",
+   "face": "驚き",
+   "file": "File:Pheropsophus jessoensis on the concrete-block wall - 3.jpg",
+   "fx": [
+    {
+     "type": "count",
+     "to": 43,
+     "unit": "%",
+     "label": "吐き出したカエル",
+     "at": 0.3
+    }
+   ]
+  },
+  {
+   "say": "長いと107分後に吐き出されて生きていたのだ。",
+   "text": "107分後に\n生きて出てきた",
+   "face": "驚き",
+   "file": "File:Pheropsophus jessoensis on the concrete-block wall - 1.jpg",
+   "fx": [
+    {
+     "type": "stamp",
+     "text": "生還",
+     "at": 0.6,
+     "y": 0.35,
+     "size": 230,
+     "color": [
+      255,
+      226,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "say": "おならが最強の武器なのだ！",
+   "text": "おならが\n最強の武器",
+   "face": "ドヤ",
+   "up": true
+  },
+  {
+   "say": "レッツ脳とけ！",
+   "text": "レッツ\n脳とけ！",
+   "face": "笑顔",
+   "logo": true
+  },
+  {
+   "say": "残りの9種は関連動画の本編で全部見られるのだ。",
+   "text": "名前がひどい生き物\n残り9種は本編で",
+   "face": "指差し",
+   "file": "File:Pheropsophus (Stenaptinus) jessoensis.jpg",
+   "fx": [
+    {
+     "type": "stamp",
+     "text": "本編へ",
+     "at": 0.4,
+     "y": 0.35,
+     "size": 200,
+     "color": [
+      255,
+      226,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "say": "ちなみにこの虫…",
+   "text": "ちなみに\nこの虫…",
+   "face": "ドヤ",
+   "file": "File:Pheropsophus (Stenaptinus) jessoensis.jpg",
+   "loop": true
+  }
+ ]
+}

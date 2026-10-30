@@ -1,0 +1,2350 @@
+{
+ "meta": {
+  "id": "trivia_long_names10",
+  "main": "trivia_names10",
+  "title": "名前がひどすぎる生き物10選【ずんだもんの脳がとける雑学】",
+  "voice": {
+   "vvm": "0.vvm",
+   "style": 3,
+   "speed": 1.04,
+   "intonation": 1.15
+  },
+  "voice_name": "ずんだもん",
+  "yomi": {},
+  "yomi_words": {
+   "おなら虫": "おならむし",
+   "噴ける": "ふける",
+   "黄色、": "きいろ、",
+   "日本魚類学会": "にほんぎょるいがっかい",
+   "日本": "にほん",
+   "亀戸天神社": "かめいどてんじんしゃ",
+   "瓜": "うり",
+   "実は、いい": "みは、いい",
+   "乾かした実は": "かわかしたみは",
+   "生薬": "しょうやく",
+   "小枝": "こえだ",
+   "九品寺": "くほんじ",
+   "小学4年生": "しょうがくよねんせい",
+   "北野天満宮": "きたのてんまんぐう"
+  }
+ },
+ "sections": [
+  {
+   "id": "sloth",
+   "name": "ナマケモノ",
+   "theme": "forest",
+   "mood": "comic",
+   "lines": [
+    {
+     "say": "ナマケモノは、40分も息を止められるのだ。",
+     "face": "ドヤ",
+     "img": "nazo/trivia_long/names10/photos/sloth/sloth_02.jpg",
+     "fx": [
+      {
+       "type": "stamp",
+       "text": "40分",
+       "at": 0.1,
+       "y": 0.42,
+       "size": 230,
+       "x": 0.5,
+       "color": [
+        255,
+        214,
+        0
+       ]
+      }
+     ],
+     "dance": true
+    },
+    {
+     "say": "名前は「怠け者」なのに、なのだ。",
+     "face": "驚き",
+     "img": "nazo/trivia_long/names10/photos/sloth/sloth_02.jpg",
+     "fx": [
+      {
+       "type": "stamp",
+       "text": "怠け者",
+       "at": 1.6,
+       "y": 0.75,
+       "size": 150,
+       "x": 0.5
+      }
+     ],
+     "chapter": true
+    },
+    {
+     "say": "動きがゆっくりだから、この名前になったのだ。",
+     "face": "通常",
+     "img": "nazo/trivia_long/names10/photos/sloth/sloth_24.jpg"
+    },
+    {
+     "say": "英語の名前のスロースも、怠けるという意味なのだ。",
+     "face": "焦り",
+     "img": "nazo/trivia_long/names10/photos/sloth/sloth_24.jpg",
+     "fx": [
+      {
+       "type": "stamp",
+       "text": "sloth＝怠惰",
+       "at": 0.25,
+       "y": 0.8,
+       "size": 110,
+       "x": 0.5
+      }
+     ]
+    },
+    {
+     "say": "でも水に入ると、話が変わるのだ。",
+     "face": "指差し",
+     "img": "nazo/trivia_long/names10/photos/sloth/sloth_20.jpg",
+     "z": [
+      0.5,
+      0.45,
+      1.0,
+      1.25
+     ]
+    },
+    {
+     "say": "長い腕で水をかいて、すいすい泳ぐのだ。",
+     "face": "笑顔",
+     "img": "nazo/trivia_long/names10/photos/sloth/sloth_20.jpg",
+     "fx": [
+      {
+       "type": "swim",
+       "at": 0.2
+      }
+     ]
+    },
+    {
+     "say": "川をわたって、島から島へ泳ぐこともあるのだ。",
+     "face": "通常",
+     "img": "nazo/trivia_long/names10/photos/sloth/sloth_20.jpg"
+    },
+    {
+     "say": "心臓の動きをゆっくりにして、水の中で最大40分、息を止められるのだ。",
+     "face": "驚き",
+     "img": "nazo/trivia_long/names10/photos/sloth/sloth_20.jpg",
+     "fx": [
+      {
+       "type": "count",
+       "to": 40,
+       "unit": "分",
+       "label": "水の中で息を止められる時間（最大）",
+       "at": 0.2,
+       "dec": 0
+      }
+     ],
+     "hold": 0.4
+    },
+    {
+     "say": "ずんだもんは40秒も無理なのだ！",
+     "face": "焦り",
+     "up": true
+    },
+    {
+     "say": "しかも、ごはんは1日10グラムくらいなのだ。",
+     "face": "通常",
+     "img": "nazo/trivia_long/names10/photos/sloth/sloth_15.jpg",
+     "fx": [
+      {
+       "type": "bars",
+       "items": [
+        [
+         "ナマケモノ",
+         10,
+         [
+          90,
+          170,
+          90
+         ]
+        ],
+        [
+         "コアラ",
+         500,
+         [
+          150,
+          150,
+          150
+         ]
+        ]
+       ],
+       "unit": "1日に食べる量（g）",
+       "at": 0.2
+      }
+     ],
+     "hold": 0.3
+    },
+    {
+     "say": "同じくらいの大きさのコアラは、1日500グラム以上食べるのだ。",
+     "face": "驚き",
+     "img": "nazo/trivia_long/names10/photos/sloth/sloth_15.jpg"
+    },
+    {
+     "say": "毛には藻が生えて、緑っぽくなることもあるのだ。",
+     "face": "通常",
+     "img": "nazo/trivia_long/names10/photos/sloth/sloth_13.jpg",
+     "fx": [
+      {
+       "type": "stamp",
+       "text": "藻",
+       "at": 0.25,
+       "y": 0.3,
+       "size": 200,
+       "x": 0.5,
+       "color": [
+        120,
+        230,
+        120
+       ]
+      }
+     ]
+    },
+    {
+     "say": "ちなみに大昔には、体長6メートルをこえる、巨大なナマケモノもいたのだ。",
+     "face": "驚き",
+     "img": "nazo/trivia_long/names10/photos/sloth/sloth_17.jpg",
+     "fx": [
+      {
+       "type": "count",
+       "to": 6,
+       "unit": "m以上",
+       "label": "メガテリウムの体長",
+       "at": 0.2,
+       "dec": 0
+      }
+     ]
+    },
+    {
+     "say": "ゆっくりでも、でかすぎるのだ！",
+     "face": "焦り",
+     "up": true
+    },
+    {
+     "say": "うんちは週に1回くらい。わざわざ木から降りて、地面でするのだ。",
+     "face": "焦り",
+     "img": "nazo/trivia_long/names10/photos/sloth/sloth_26.jpg",
+     "fx": [
+      {
+       "type": "stamp",
+       "text": "週1回",
+       "at": 0.25,
+       "y": 0.3,
+       "size": 170,
+       "x": 0.5,
+       "color": [
+        255,
+        214,
+        0
+       ]
+      }
+     ]
+    },
+    {
+     "say": "怠けてないのだ。省エネの達人なのだ！",
+     "face": "ドヤ",
+     "up": true
+    }
+   ]
+  },
+  {
+   "id": "bombardier",
+   "name": "ヘッピリムシ",
+   "theme": "tomato",
+   "mood": "comic",
+   "lines": [
+    {
+     "say": "2つめは、ヘッピリムシ。",
+     "face": "指差し",
+     "img": "nazo/trivia_long/names10/photos/bombardier/bombardier_13.jpg",
+     "chapter": true
+    },
+    {
+     "say": "漢字で書くと、屁をひる虫。つまり、おなら虫なのだ。",
+     "face": "焦り",
+     "img": "nazo/trivia_long/names10/photos/bombardier/bombardier_13.jpg",
+     "fx": [
+      {
+       "type": "stamp",
+       "text": "屁放り虫",
+       "at": 0.25,
+       "y": 0.78,
+       "size": 150,
+       "x": 0.5,
+       "color": [
+        255,
+        214,
+        0
+       ]
+      }
+     ]
+    },
+    {
+     "say": "図鑑での名前は、ミイデラゴミムシ。",
+     "face": "通常",
+     "img": "nazo/trivia_long/names10/photos/bombardier/bombardier_20.jpg"
+    },
+    {
+     "say": "こっちの名前にも、ゴミが入ってるのだ！",
+     "face": "怒り",
+     "up": true
+    },
+    {
+     "say": "つかまえようとすると、お尻からガスを噴き出すのだ。",
+     "face": "驚き",
+     "img": "nazo/trivia_long/names10/photos/bombardier/bombardier_22.jpg",
+     "fx": [
+      {
+       "type": "spray",
+       "at": 0.3
+      }
+     ]
+    },
+    {
+     "say": "そのガスは、100度以上なのだ。",
+     "face": "青ざめ",
+     "img": "nazo/trivia_long/names10/photos/bombardier/bombardier_22.jpg",
+     "fx": [
+      {
+       "type": "thermo",
+       "to": 100,
+       "at": 0.15
+      }
+     ],
+     "hold": 0.4
+    },
+    {
+     "say": "おなかの中で2つの薬を反応させて、熱いガスにして噴き出すのだ。",
+     "face": "通常",
+     "img": "nazo/trivia_long/names10/photos/bombardier/bombardier_08.jpg",
+     "fx": [
+      {
+       "type": "stamp",
+       "text": "ガスの成分の結晶",
+       "at": 0.25,
+       "y": 0.22,
+       "size": 110,
+       "x": 0.5
+      }
+     ]
+    },
+    {
+     "say": "噴き出すとき、ぷっ、と音がするから、ヘッピリムシなのだ。",
+     "face": "笑顔",
+     "img": "nazo/trivia_long/names10/photos/bombardier/bombardier_19.jpg",
+     "fx": [
+      {
+       "type": "stamp",
+       "text": "ぷっ",
+       "at": 0.25,
+       "y": 0.35,
+       "size": 240,
+       "x": 0.5,
+       "color": [
+        255,
+        214,
+        0
+       ]
+      }
+     ]
+    },
+    {
+     "say": "お尻の向きを変えて、ねらった方向に噴けるのだ。",
+     "face": "ドヤ",
+     "img": "nazo/trivia_long/names10/photos/bombardier/bombardier_21.jpg",
+     "fx": [
+      {
+       "type": "spray",
+       "at": 0.3,
+       "aim": true
+      }
+     ]
+    },
+    {
+     "say": "カエルに丸のみされても、まだ終わりじゃないのだ。",
+     "face": "驚き",
+     "img": "nazo/trivia_long/names10/photos/bombardier/bombardier_20.jpg"
+    },
+    {
+     "say": "飲み込ませる実験では、カエルの43パーセントが吐き出したのだ。",
+     "face": "通常",
+     "img": "nazo/trivia_long/names10/photos/bombardier/bombardier_20.jpg",
+     "fx": [
+      {
+       "type": "count",
+       "to": 43,
+       "unit": "%",
+       "label": "カエルが吐き出した割合",
+       "at": 0.2,
+       "dec": 0
+      }
+     ],
+     "hold": 0.3
+    },
+    {
+     "say": "長いと107分後に吐き出されて、それでも生きていたのだ。",
+     "face": "驚き",
+     "img": "nazo/trivia_long/names10/photos/bombardier/bombardier_19.jpg",
+     "fx": [
+      {
+       "type": "stamp",
+       "text": "107分後に生還",
+       "at": 0.25,
+       "y": 0.3,
+       "size": 120,
+       "x": 0.5,
+       "color": [
+        255,
+        214,
+        0
+       ]
+      }
+     ]
+    },
+    {
+     "say": "おなら、最強の武器なのだ！",
+     "face": "ドヤ",
+     "up": true
+    }
+   ]
+  },
+  {
+   "id": "antlion",
+   "name": "ウスバカゲロウ",
+   "theme": "kraft",
+   "mood": "comic",
+   "lines": [
+    {
+     "say": "3つめは、ウスバカゲロウ。",
+     "face": "指差し",
+     "img": "nazo/trivia_long/names10/photos/antlion/antlion_34.jpg",
+     "chapter": true
+    },
+    {
+     "say": "区切るところをまちがえると、うすバカ、に見えるのだ。",
+     "face": "焦り",
+     "img": "nazo/trivia_long/names10/photos/antlion/antlion_34.jpg",
+     "fx": [
+      {
+       "type": "stamp",
+       "text": "ウスバカ／ゲロウ？",
+       "at": 0.25,
+       "y": 0.78,
+       "size": 120,
+       "x": 0.5,
+       "color": [
+        255,
+        214,
+        0
+       ]
+      }
+     ]
+    },
+    {
+     "say": "本当は、うすい羽のカゲロウ、という意味なのだ。",
+     "face": "通常",
+     "img": "nazo/trivia_long/names10/photos/antlion/antlion_31.jpg",
+     "fx": [
+      {
+       "type": "stamp",
+       "text": "薄羽＋カゲロウ",
+       "at": 0.25,
+       "y": 0.25,
+       "size": 130,
+       "x": 0.5
+      }
+     ]
+    },
+    {
+     "say": "でも実は、カゲロウの仲間ですらないのだ。",
+     "face": "驚き",
+     "up": true
+    },
+    {
+     "say": "本物のカゲロウとは、まったく別のグループの虫なのだ。",
+     "face": "通常",
+     "img": "nazo/trivia_long/names10/photos/antlion/antlion_31.jpg"
+    },
+    {
+     "say": "そして、子どもの名前がもっとすごいのだ。",
+     "face": "指差し",
+     "img": "nazo/trivia_long/names10/photos/antlion/antlion_57.jpg"
+    },
+    {
+     "say": "アリジゴクなのだ。",
+     "face": "ドヤ",
+     "img": "nazo/trivia_long/names10/photos/antlion/antlion_57.jpg",
+     "fx": [
+      {
+       "type": "stamp",
+       "text": "アリ地獄",
+       "at": 0.25,
+       "y": 0.28,
+       "size": 200,
+       "x": 0.5,
+       "color": [
+        255,
+        214,
+        0
+       ]
+      }
+     ]
+    },
+    {
+     "say": "さらさらの砂に、すり鉢みたいな穴をほって、底でじっと待つのだ。",
+     "face": "通常",
+     "img": "nazo/trivia_long/names10/photos/antlion/antlion_08.jpg",
+     "fx": [
+      {
+       "type": "pit",
+       "at": 0.2
+      }
+     ]
+    },
+    {
+     "say": "落ちてきたアリに砂をかけて、底にすべり落とすのだ。",
+     "face": "驚き",
+     "img": "nazo/trivia_long/names10/photos/antlion/antlion_41.jpg",
+     "fx": [
+      {
+       "type": "pit",
+       "at": 0.0,
+       "ant": true
+      }
+     ]
+    },
+    {
+     "say": "しかもアリジゴクは、成虫になるまで、うんちをしないのだ。",
+     "face": "青ざめ",
+     "img": "nazo/trivia_long/names10/photos/antlion/antlion_48.jpg",
+     "fx": [
+      {
+       "type": "stamp",
+       "text": "うんち0回",
+       "at": 0.25,
+       "y": 0.3,
+       "size": 150,
+       "x": 0.5,
+       "color": [
+        255,
+        214,
+        0
+       ]
+      }
+     ]
+    },
+    {
+     "say": "ためたうんちは、羽化するときに、まとめて出すのだ。",
+     "face": "焦り",
+     "img": "nazo/trivia_long/names10/photos/antlion/antlion_48.jpg"
+    },
+    {
+     "say": "実験では、3か月以上なにも食べずに耐えたのだ。",
+     "face": "通常",
+     "img": "nazo/trivia_long/names10/photos/antlion/antlion_15.jpg",
+     "fx": [
+      {
+       "type": "count",
+       "to": 3,
+       "unit": "か月以上",
+       "label": "飲まず食わずで耐えた",
+       "at": 0.2,
+       "dec": 0
+      }
+     ]
+    },
+    {
+     "say": "おしっこもしない、と長いあいだ思われていたのだ。",
+     "face": "通常",
+     "img": "nazo/trivia_long/names10/photos/antlion/antlion_57.jpg"
+    },
+    {
+     "say": "でも2010年、小学4年生が、お尻から黄色い液体が出るのを見つけたのだ。",
+     "face": "驚き",
+     "img": "nazo/trivia_long/names10/photos/antlion/antlion_57.jpg",
+     "fx": [
+      {
+       "type": "stamp",
+       "text": "小学4年生が発見",
+       "at": 0.25,
+       "y": 0.25,
+       "size": 120,
+       "x": 0.5,
+       "color": [
+        255,
+        214,
+        0
+       ]
+      }
+     ]
+    },
+    {
+     "say": "研究者の論文はあったけど、自分の目で確かめたことが評価されて、賞をもらったのだ。",
+     "face": "笑顔",
+     "img": "nazo/trivia_long/names10/photos/antlion/antlion_48.jpg"
+    },
+    {
+     "say": "名前は地獄なのに、我慢強すぎるのだ！",
+     "face": "笑顔",
+     "up": true
+    }
+   ]
+  },
+  {
+   "id": "porcupinefish",
+   "name": "ハリセンボン",
+   "theme": "blue_waves",
+   "mood": "warm",
+   "lines": [
+    {
+     "say": "4つめは、ハリセンボン。",
+     "face": "指差し",
+     "img": "nazo/trivia_long/names10/photos/porcupinefish/porcupinefish_05.jpg",
+     "chapter": true
+    },
+    {
+     "say": "漢字で書くと、針が千本なのだ。",
+     "face": "通常",
+     "img": "nazo/trivia_long/names10/photos/porcupinefish/porcupinefish_05.jpg",
+     "fx": [
+      {
+       "type": "stamp",
+       "text": "針千本",
+       "at": 0.25,
+       "y": 0.78,
+       "size": 170,
+       "x": 0.5,
+       "color": [
+        255,
+        214,
+        0
+       ]
+      }
+     ]
+    },
+    {
+     "say": "うそついたら針千本のーます、の、あの針千本なのだ。",
+     "face": "笑顔",
+     "img": "nazo/trivia_long/names10/photos/porcupinefish/porcupinefish_02.jpg"
+    },
+    {
+     "say": "でも本当に千本あるのか、数えた人がいるのだ。",
+     "face": "驚き",
+     "img": "nazo/trivia_long/names10/photos/porcupinefish/porcupinefish_04.jpg"
+    },
+    {
+     "say": "約1000匹を調べたら、針の数の平均は、369本だったのだ。",
+     "face": "驚き",
+     "img": "nazo/trivia_long/names10/photos/porcupinefish/porcupinefish_04.jpg",
+     "fx": [
+      {
+       "type": "count",
+       "to": 369,
+       "unit": "本",
+       "label": "針の数（約1000匹の平均）",
+       "at": 0.2,
+       "dec": 0
+      }
+     ],
+     "hold": 0.5
+    },
+    {
+     "say": "千本もないのだ！名前にうそがあるのだ！",
+     "face": "怒り",
+     "up": true
+    },
+    {
+     "say": "この針は、うろこが変化したものなのだ。",
+     "face": "通常",
+     "img": "nazo/trivia_long/names10/photos/porcupinefish/porcupinefish_02.jpg",
+     "z": [
+      0.55,
+      0.5,
+      1.0,
+      1.3
+     ]
+    },
+    {
+     "say": "ハリセンボンの仲間は、世界に20種ほど。大きい種類だと、70センチをこえるのだ。",
+     "face": "驚き",
+     "img": "nazo/trivia_long/names10/photos/porcupinefish/porcupinefish_02.jpg"
+    },
+    {
+     "say": "ふだんは、体にぴたっと寝かせているのだ。",
+     "face": "通常",
+     "img": "nazo/trivia_long/names10/photos/porcupinefish/porcupinefish_11.jpg"
+    },
+    {
+     "say": "敵におそわれると、水を吸い込んで、体をふくらませるのだ。",
+     "face": "驚き",
+     "img": "nazo/trivia_long/names10/photos/porcupinefish/porcupinefish_11.jpg",
+     "fx": [
+      {
+       "type": "inflate",
+       "at": 0.2
+      }
+     ]
+    },
+    {
+     "say": "すると針がいっせいに立って、イガグリみたいになるのだ。",
+     "face": "驚き",
+     "img": "nazo/trivia_long/names10/photos/porcupinefish/porcupinefish_03.jpg",
+     "fx": [
+      {
+       "type": "stamp",
+       "text": "イガグリ",
+       "at": 0.25,
+       "y": 0.25,
+       "size": 170,
+       "x": 0.5,
+       "color": [
+        255,
+        214,
+        0
+       ]
+      }
+     ]
+    },
+    {
+     "say": "体を大きく見せて、敵から身を守るのだ。",
+     "face": "ドヤ",
+     "img": "nazo/trivia_long/names10/photos/porcupinefish/porcupinefish_03.jpg"
+    },
+    {
+     "say": "ふくらんだ形の剥製は、おみやげとして売られていることもあるのだ。",
+     "face": "通常",
+     "img": "nazo/trivia_long/names10/photos/porcupinefish/porcupinefish_03.jpg"
+    },
+    {
+     "say": "泳ぐときは、ひれをパタパタ羽ばたかせて、ゆっくり進むのだ。",
+     "face": "笑顔",
+     "img": "nazo/trivia_long/names10/photos/porcupinefish/porcupinefish_02.jpg"
+    },
+    {
+     "say": "フグの仲間だけど、歯の数がちがうのだ。",
+     "face": "通常",
+     "img": "nazo/trivia_long/names10/photos/porcupinefish/porcupinefish_11.jpg"
+    },
+    {
+     "say": "フグの歯は、上と下に2枚ずつで、合わせて4枚。",
+     "face": "通常",
+     "img": "nazo/trivia_long/names10/photos/porcupinefish/porcupinefish_11.jpg",
+     "fx": [
+      {
+       "type": "bars",
+       "items": [
+        [
+         "フグ",
+         4,
+         [
+          150,
+          150,
+          150
+         ]
+        ],
+        [
+         "ハリセンボン",
+         2,
+         [
+          70,
+          140,
+          220
+         ]
+        ]
+       ],
+       "unit": "歯の数（枚）",
+       "at": 0.2
+      }
+     ]
+    },
+    {
+     "say": "ハリセンボンは、上と下に1枚ずつで、合わせて2枚なのだ。",
+     "face": "ドヤ",
+     "img": "nazo/trivia_long/names10/photos/porcupinefish/porcupinefish_11.jpg"
+    },
+    {
+     "say": "フグの仲間だけど、毒はないとされているのだ。",
+     "face": "通常",
+     "img": "nazo/trivia_long/names10/photos/porcupinefish/porcupinefish_11.jpg"
+    },
+    {
+     "say": "その丈夫な歯で、貝やカニ、ウニの殻まで、かみ砕くのだ。",
+     "face": "驚き",
+     "img": "nazo/trivia_long/names10/photos/porcupinefish/porcupinefish_05.jpg",
+     "fx": [
+      {
+       "type": "stamp",
+       "text": "バリバリ",
+       "at": 0.25,
+       "y": 0.3,
+       "size": 170,
+       "x": 0.5
+      }
+     ]
+    },
+    {
+     "say": "ウニを殻ごと？あごが強すぎるのだ！",
+     "face": "焦り",
+     "up": true
+    },
+    {
+     "say": "沖縄では、アバサーと呼ばれているのだ。",
+     "face": "通常",
+     "img": "nazo/trivia_long/names10/photos/porcupinefish/porcupinefish_05.jpg"
+    },
+    {
+     "say": "アバサー汁という料理もあるのだ。",
+     "face": "笑顔",
+     "img": "nazo/trivia_long/names10/photos/porcupinefish/porcupinefish_05.jpg",
+     "fx": [
+      {
+       "type": "stamp",
+       "text": "アバサー汁",
+       "at": 0.25,
+       "y": 0.3,
+       "size": 150,
+       "x": 0.5,
+       "color": [
+        255,
+        214,
+        0
+       ]
+      }
+     ]
+    },
+    {
+     "say": "ただし、肝臓と卵巣は、食べてはいけない部位とされているのだ。",
+     "face": "青ざめ",
+     "img": "nazo/trivia_long/names10/photos/porcupinefish/porcupinefish_02.jpg",
+     "fx": [
+      {
+       "type": "stamp",
+       "text": "肝臓・卵巣はダメ",
+       "at": 0.25,
+       "y": 0.25,
+       "size": 110,
+       "x": 0.5
+      }
+     ]
+    },
+    {
+     "say": "もともとは、暖かい海の魚なのだ。",
+     "face": "通常",
+     "img": "nazo/trivia_long/names10/photos/porcupinefish/porcupinefish_02.jpg"
+    },
+    {
+     "say": "冬になると、海の流れに乗って北へ運ばれ、浜に打ち上げられることもあるのだ。",
+     "face": "泣き",
+     "img": "nazo/trivia_long/names10/photos/porcupinefish/porcupinefish_11.jpg"
+    },
+    {
+     "say": "網にたくさんかかると、いっせいにふくらんで、ほかの魚を傷つけてしまうこともあるのだ。",
+     "face": "焦り",
+     "img": "nazo/trivia_long/names10/photos/porcupinefish/porcupinefish_03.jpg"
+    },
+    {
+     "say": "キリバスでは、ハリセンボンで作ったトゲトゲのかぶとが使われていたのだ。",
+     "face": "驚き",
+     "img": "nazo/trivia_long/names10/photos/porcupinefish/porcupinefish_03.jpg",
+     "fx": [
+      {
+       "type": "stamp",
+       "text": "トゲのかぶと",
+       "at": 0.25,
+       "y": 0.25,
+       "size": 130,
+       "x": 0.5
+      }
+     ]
+    },
+    {
+     "say": "369本でも、じゅうぶん痛いのだ！",
+     "face": "笑顔",
+     "up": true
+    }
+   ]
+  },
+  {
+   "id": "frogfish",
+   "name": "カエルアンコウ",
+   "theme": "deep_sea",
+   "mood": "wonder",
+   "lines": [
+    {
+     "say": "5つめは、カエルアンコウ。",
+     "face": "指差し",
+     "img": "nazo/trivia_long/names10/photos/frogfish/frogfish_03.jpg",
+     "chapter": true
+    },
+    {
+     "say": "カエルなのか、アンコウなのか、はっきりしてほしいのだ！",
+     "face": "焦り",
+     "up": true
+    },
+    {
+     "say": "正解は、魚。アンコウの仲間なのだ。",
+     "face": "通常",
+     "img": "nazo/trivia_long/names10/photos/frogfish/frogfish_03.jpg"
+    },
+    {
+     "say": "でもこの魚、むかしは別の名前だったのだ。",
+     "face": "驚き",
+     "img": "nazo/trivia_long/names10/photos/frogfish/frogfish_26.jpg"
+    },
+    {
+     "say": "前の名前には、差別的な言葉が入っていたのだ。",
+     "face": "青ざめ",
+     "img": "nazo/trivia_long/names10/photos/frogfish/frogfish_26.jpg"
+    },
+    {
+     "say": "そこで2007年に、日本魚類学会が、名前を変えたのだ。",
+     "face": "通常",
+     "img": "nazo/trivia_long/names10/photos/frogfish/frogfish_26.jpg",
+     "fx": [
+      {
+       "type": "stamp",
+       "text": "2007年 改名",
+       "at": 0.25,
+       "y": 0.25,
+       "size": 140,
+       "x": 0.5,
+       "color": [
+        255,
+        214,
+        0
+       ]
+      }
+     ]
+    },
+    {
+     "say": "このとき、仲間もあわせて14種が、なんとかカエルアンコウに変わったのだ。",
+     "face": "驚き",
+     "img": "nazo/trivia_long/names10/photos/frogfish/frogfish_14.jpg",
+     "fx": [
+      {
+       "type": "count",
+       "to": 14,
+       "unit": "種",
+       "label": "名前が変わった種の数",
+       "at": 0.2,
+       "dec": 0
+      }
+     ]
+    },
+    {
+     "say": "ひどい名前から、ちょっと変な名前になったのだ！",
+     "face": "笑顔",
+     "up": true
+    },
+    {
+     "say": "カエルっぽいのは、このずんぐりした体と、足みたいな胸びれなのだ。",
+     "face": "通常",
+     "img": "nazo/trivia_long/names10/photos/frogfish/frogfish_14.jpg"
+    },
+    {
+     "say": "泳ぐのが苦手で、胸びれと腹びれで、海の底を歩くのだ。",
+     "face": "笑顔",
+     "img": "nazo/trivia_long/names10/photos/frogfish/frogfish_14.jpg",
+     "fx": [
+      {
+       "type": "walk",
+       "at": 0.2
+      }
+     ]
+    },
+    {
+     "say": "急ぐときは、えらから水を勢いよく出して、ジェットで進むのだ。",
+     "face": "驚き",
+     "img": "nazo/trivia_long/names10/photos/frogfish/frogfish_15.jpg",
+     "fx": [
+      {
+       "type": "stamp",
+       "text": "ジェット",
+       "at": 0.25,
+       "y": 0.3,
+       "size": 170,
+       "x": 0.5
+      }
+     ]
+    },
+    {
+     "say": "そして、頭に釣りざおを持っているのだ。",
+     "face": "指差し",
+     "img": "nazo/trivia_long/names10/photos/frogfish/frogfish_26.jpg",
+     "z": [
+      0.3,
+      0.35,
+      1.0,
+      1.5
+     ]
+    },
+    {
+     "say": "背びれのトゲが変化したもので、先にエサのような飾りがついているのだ。",
+     "face": "通常",
+     "img": "nazo/trivia_long/names10/photos/frogfish/frogfish_26.jpg",
+     "z": [
+      0.3,
+      0.35,
+      1.5,
+      1.6
+     ]
+    },
+    {
+     "say": "これを小さな生き物みたいに動かして、魚をおびき寄せるのだ。",
+     "face": "ドヤ",
+     "img": "nazo/trivia_long/names10/photos/frogfish/frogfish_26.jpg",
+     "fx": [
+      {
+       "type": "lure",
+       "at": 0.2
+      }
+     ]
+    },
+    {
+     "say": "目立つので、使わないときは短くしまっておくのだ。",
+     "face": "通常",
+     "img": "nazo/trivia_long/names10/photos/frogfish/frogfish_03.jpg"
+    },
+    {
+     "say": "獲物が近づいたら、口を大きく開けて、水ごと吸い込むのだ。",
+     "face": "驚き",
+     "img": "nazo/trivia_long/names10/photos/frogfish/frogfish_04.jpg"
+    },
+    {
+     "say": "その速さ、0.006秒。",
+     "face": "驚き",
+     "img": "nazo/trivia_long/names10/photos/frogfish/frogfish_04.jpg",
+     "fx": [
+      {
+       "type": "count",
+       "to": 0.006,
+       "unit": "秒",
+       "label": "獲物を吸い込む速さ",
+       "at": 0.2,
+       "dec": 3
+      }
+     ],
+     "hold": 0.5
+    },
+    {
+     "say": "速すぎて見えないのだ！",
+     "face": "青ざめ",
+     "up": true
+    },
+    {
+     "say": "自分と同じくらいの大きさの獲物でも、飲み込めるのだ。",
+     "face": "焦り",
+     "img": "nazo/trivia_long/names10/photos/frogfish/frogfish_16.jpg"
+    },
+    {
+     "say": "ときには、仲間を食べてしまうこともあるのだ。",
+     "face": "青ざめ",
+     "img": "nazo/trivia_long/names10/photos/frogfish/frogfish_16.jpg"
+    },
+    {
+     "say": "体の色は、何週間もかけて、まわりに合わせて変えるのだ。",
+     "face": "通常",
+     "img": "nazo/trivia_long/names10/photos/frogfish/frogfish_15.jpg"
+    },
+    {
+     "say": "黄色、オレンジ、緑、白、黒。いろんな色の個体がいるのだ。",
+     "face": "笑顔",
+     "img": "nazo/trivia_long/names10/photos/frogfish/frogfish_14.jpg"
+    },
+    {
+     "say": "サンゴや海綿にそっくりになって、じっと待ち伏せするのだ。",
+     "face": "通常",
+     "img": "nazo/trivia_long/names10/photos/frogfish/frogfish_14.jpg"
+    },
+    {
+     "say": "毛みたいに見えるのは、皮ふの細かい突起なのだ。",
+     "face": "驚き",
+     "img": "nazo/trivia_long/names10/photos/frogfish/frogfish_19.jpg"
+    },
+    {
+     "say": "敵が来ると、水を吸い込んで体をふくらませることもあるのだ。",
+     "face": "通常",
+     "img": "nazo/trivia_long/names10/photos/frogfish/frogfish_19.jpg"
+    },
+    {
+     "say": "日本の海にもいて、水族館で飼われていることもあるのだ。",
+     "face": "笑顔",
+     "img": "nazo/trivia_long/names10/photos/frogfish/frogfish_03.jpg"
+    },
+    {
+     "say": "カエルアンコウの仲間は、世界に51種、日本に15種が知られているのだ。",
+     "face": "通常",
+     "img": "nazo/trivia_long/names10/photos/frogfish/frogfish_15.jpg",
+     "fx": [
+      {
+       "type": "count",
+       "to": 51,
+       "unit": "種",
+       "label": "世界のカエルアンコウの仲間",
+       "at": 0.2,
+       "dec": 0
+      }
+     ]
+    },
+    {
+     "say": "歩いて、釣りして、色も変える。忙しすぎる魚なのだ！",
+     "face": "ドヤ",
+     "up": true
+    }
+   ]
+  },
+  {
+   "id": "aardvark",
+   "name": "ツチブタ",
+   "theme": "lemon_dots",
+   "mood": "comic",
+   "lines": [
+    {
+     "say": "6つめは、ツチブタ。",
+     "face": "指差し",
+     "img": "nazo/trivia_long/names10/photos/aardvark/aardvark_03.jpg",
+     "chapter": true
+    },
+    {
+     "say": "漢字で書くと、土のブタなのだ。",
+     "face": "通常",
+     "img": "nazo/trivia_long/names10/photos/aardvark/aardvark_03.jpg",
+     "fx": [
+      {
+       "type": "stamp",
+       "text": "土豚",
+       "at": 0.25,
+       "y": 0.78,
+       "size": 200,
+       "x": 0.5,
+       "color": [
+        255,
+        214,
+        0
+       ]
+      }
+     ]
+    },
+    {
+     "say": "英語の名前のアードバークも、土のブタ、という意味なのだ。",
+     "face": "通常",
+     "img": "nazo/trivia_long/names10/photos/aardvark/aardvark_02.jpg"
+    },
+    {
+     "say": "でも、ブタの仲間じゃないのだ。",
+     "face": "驚き",
+     "up": true
+    },
+    {
+     "say": "今生きている仲間がいない、グループでたった1種の動物なのだ。",
+     "face": "驚き",
+     "img": "nazo/trivia_long/names10/photos/aardvark/aardvark_17.jpg",
+     "fx": [
+      {
+       "type": "stamp",
+       "text": "ひとりぼっち",
+       "at": 0.25,
+       "y": 0.25,
+       "size": 140,
+       "x": 0.5
+      }
+     ]
+    },
+    {
+     "say": "遺伝子で調べると、ゾウやジュゴンと同じ、アフリカ生まれのグループだとわかったのだ。",
+     "face": "通常",
+     "img": "nazo/trivia_long/names10/photos/aardvark/aardvark_17.jpg",
+     "fx": [
+      {
+       "type": "stamp",
+       "text": "ゾウ・ジュゴン側",
+       "at": 0.25,
+       "y": 0.75,
+       "size": 120,
+       "x": 0.5,
+       "color": [
+        255,
+        214,
+        0
+       ]
+      }
+     ]
+    },
+    {
+     "say": "ブタじゃなくて、ゾウ寄りなのだ！",
+     "face": "焦り",
+     "up": true
+    },
+    {
+     "say": "体は大きくて、体重は40キロから100キロもあるのだ。",
+     "face": "通常",
+     "img": "nazo/trivia_long/names10/photos/aardvark/aardvark_03.jpg",
+     "fx": [
+      {
+       "type": "stamp",
+       "text": "40〜100kg",
+       "at": 0.25,
+       "y": 0.25,
+       "size": 170,
+       "x": 0.5,
+       "color": [
+        255,
+        214,
+        0
+       ]
+      }
+     ]
+    },
+    {
+     "say": "長い耳に、長い鼻。",
+     "face": "笑顔",
+     "img": "nazo/trivia_long/names10/photos/aardvark/aardvark_02.jpg",
+     "z": [
+      0.3,
+      0.6,
+      1.0,
+      1.4
+     ]
+    },
+    {
+     "say": "鼻の穴には毛が生えていて、穴をほるとき砂が入りにくいのだ。",
+     "face": "通常",
+     "img": "nazo/trivia_long/names10/photos/aardvark/aardvark_02.jpg",
+     "z": [
+      0.3,
+      0.6,
+      1.4,
+      1.5
+     ]
+    },
+    {
+     "say": "スプーンみたいな爪で、ものすごい力で穴をほるのだ。",
+     "face": "ドヤ",
+     "img": "nazo/trivia_long/names10/photos/aardvark/aardvark_12.jpg",
+     "fx": [
+      {
+       "type": "dig",
+       "at": 0.2
+      }
+     ]
+    },
+    {
+     "say": "ほるのが速すぎて、体が地面に沈んでいくように見えるらしいのだ。",
+     "face": "驚き",
+     "img": "nazo/trivia_long/names10/photos/aardvark/aardvark_12.jpg",
+     "fx": [
+      {
+       "type": "stamp",
+       "text": "沈んでいく",
+       "at": 0.25,
+       "y": 0.3,
+       "size": 150,
+       "x": 0.5
+      }
+     ]
+    },
+    {
+     "say": "ごはんは、アリとシロアリ。",
+     "face": "通常",
+     "img": "nazo/trivia_long/names10/photos/aardvark/aardvark_37.jpg"
+    },
+    {
+     "say": "かわいた季節はアリ、雨の季節はシロアリを、ねばねばの長い舌でなめとるのだ。",
+     "face": "笑顔",
+     "img": "nazo/trivia_long/names10/photos/aardvark/aardvark_37.jpg"
+    },
+    {
+     "say": "しかも、口には前歯も犬歯もないのだ。",
+     "face": "驚き",
+     "img": "nazo/trivia_long/names10/photos/aardvark/aardvark_31.jpg"
+    },
+    {
+     "say": "かまなくても、胃の筋肉で、エサをすりつぶせるのだ。",
+     "face": "ドヤ",
+     "img": "nazo/trivia_long/names10/photos/aardvark/aardvark_31.jpg",
+     "fx": [
+      {
+       "type": "stamp",
+       "text": "胃でかむ",
+       "at": 0.25,
+       "y": 0.3,
+       "size": 170,
+       "x": 0.5,
+       "color": [
+        255,
+        214,
+        0
+       ]
+      }
+     ]
+    },
+    {
+     "say": "胃でかむって、どういうことなのだ！",
+     "face": "焦り",
+     "up": true
+    },
+    {
+     "say": "夜に動く動物で、一晩に何キロも歩くのだ。",
+     "face": "通常",
+     "img": "nazo/trivia_long/names10/photos/aardvark/aardvark_47.jpg"
+    },
+    {
+     "say": "一晩で30キロ歩いた例もあるのだ。",
+     "face": "驚き",
+     "img": "nazo/trivia_long/names10/photos/aardvark/aardvark_47.jpg",
+     "fx": [
+      {
+       "type": "count",
+       "to": 30,
+       "unit": "km",
+       "label": "一晩で歩いた距離（例）",
+       "at": 0.2,
+       "dec": 0
+      }
+     ],
+     "hold": 0.3
+    },
+    {
+     "say": "ほった巣穴は、あとで、ほかの動物の家にもなるのだ。",
+     "face": "笑顔",
+     "img": "nazo/trivia_long/names10/photos/aardvark/aardvark_12.jpg"
+    },
+    {
+     "say": "野火のときには、動物たちの避難場所にもなるのだ。",
+     "face": "通常",
+     "img": "nazo/trivia_long/names10/photos/aardvark/aardvark_12.jpg"
+    },
+    {
+     "say": "天敵は、おもにブチハイエナ。ライオンやヒョウにおそわれることもあるのだ。",
+     "face": "青ざめ",
+     "img": "nazo/trivia_long/names10/photos/aardvark/aardvark_47.jpg"
+    },
+    {
+     "say": "お母さんのおなかにいる期間は、7か月なのだ。",
+     "face": "通常",
+     "img": "nazo/trivia_long/names10/photos/aardvark/aardvark_16.jpg"
+    },
+    {
+     "say": "寝るときは、こんなふうに丸くなるのだ。",
+     "face": "笑顔",
+     "img": "nazo/trivia_long/names10/photos/aardvark/aardvark_16.jpg"
+    },
+    {
+     "say": "赤ちゃんは、1回に1頭だけ生まれるのだ。",
+     "face": "通常",
+     "img": "nazo/trivia_long/names10/photos/aardvark/aardvark_16.jpg"
+    },
+    {
+     "say": "日本では、静岡の日本平動物園で、赤ちゃんが生まれたことがあるのだ。",
+     "face": "笑顔",
+     "img": "nazo/trivia_long/names10/photos/aardvark/aardvark_03.jpg"
+    },
+    {
+     "say": "古代エジプトの神様、セトの頭は、ツチブタだともいわれているのだ。",
+     "face": "驚き",
+     "img": "nazo/trivia_long/names10/photos/aardvark/aardvark_17.jpg"
+    },
+    {
+     "say": "名前はブタ、中身はゾウの仲間。ややこしいのだ！",
+     "face": "ドヤ",
+     "up": true
+    }
+   ]
+  },
+  {
+   "id": "bullfinch",
+   "name": "ウソ",
+   "theme": "sky_clouds",
+   "mood": "warm",
+   "lines": [
+    {
+     "say": "7つめは、ウソ。",
+     "face": "指差し",
+     "img": "nazo/trivia_long/names10/photos/bullfinch/bullfinch_41.jpg",
+     "chapter": true
+    },
+    {
+     "say": "ウソという名前の鳥が、本当にいるのだ。",
+     "face": "ドヤ",
+     "img": "nazo/trivia_long/names10/photos/bullfinch/bullfinch_41.jpg",
+     "fx": [
+      {
+       "type": "stamp",
+       "text": "本当にいる",
+       "at": 0.25,
+       "y": 0.78,
+       "size": 150,
+       "x": 0.5,
+       "color": [
+        255,
+        214,
+        0
+       ]
+      }
+     ]
+    },
+    {
+     "say": "ウソなのに本当。ややこしいのだ！",
+     "face": "焦り",
+     "up": true
+    },
+    {
+     "say": "大きさは15.5センチくらい。スズメより一回り大きいのだ。",
+     "face": "通常",
+     "img": "nazo/trivia_long/names10/photos/bullfinch/bullfinch_42.jpg",
+     "fx": [
+      {
+       "type": "count",
+       "to": 15.5,
+       "unit": "cm",
+       "label": "全長",
+       "at": 0.2,
+       "dec": 1
+      }
+     ]
+    },
+    {
+     "say": "オスは、ほっぺからのどが赤いのだ。",
+     "face": "笑顔",
+     "img": "nazo/trivia_long/names10/photos/bullfinch/bullfinch_42.jpg",
+     "z": [
+      0.62,
+      0.42,
+      1.0,
+      1.45
+     ]
+    },
+    {
+     "say": "メスは、ほっぺが赤くないのだ。",
+     "face": "通常",
+     "img": "nazo/trivia_long/names10/photos/bullfinch/bullfinch_37.jpg"
+    },
+    {
+     "say": "でもオスもメスも、黒いベレー帽をかぶったような頭なのだ。",
+     "face": "笑顔",
+     "img": "nazo/trivia_long/names10/photos/bullfinch/bullfinch_37.jpg",
+     "fx": [
+      {
+       "type": "stamp",
+       "text": "ベレー帽",
+       "at": 0.25,
+       "y": 0.25,
+       "size": 160,
+       "x": 0.5
+      }
+     ]
+    },
+    {
+     "say": "名前の由来は、うそをつくから、ではないのだ。",
+     "face": "通常",
+     "img": "nazo/trivia_long/names10/photos/bullfinch/bullfinch_40.jpg"
+    },
+    {
+     "say": "むかしの言葉で、口笛のことを、うそ、と言ったのだ。",
+     "face": "驚き",
+     "img": "nazo/trivia_long/names10/photos/bullfinch/bullfinch_40.jpg",
+     "fx": [
+      {
+       "type": "stamp",
+       "text": "うそ＝口笛",
+       "at": 0.25,
+       "y": 0.25,
+       "size": 150,
+       "x": 0.5,
+       "color": [
+        255,
+        214,
+        0
+       ]
+      }
+     ]
+    },
+    {
+     "say": "鳴き声が人の口笛にそっくりなので、ウソになったといわれているのだ。",
+     "face": "通常",
+     "img": "nazo/trivia_long/names10/photos/bullfinch/bullfinch_00.jpg"
+    },
+    {
+     "say": "ヒヨドリより低くて、やわらかい声なのだ。",
+     "face": "笑顔",
+     "img": "nazo/trivia_long/names10/photos/bullfinch/bullfinch_00.jpg",
+     "fx": [
+      {
+       "type": "notes",
+       "at": 0.1
+      }
+     ]
+    },
+    {
+     "say": "くちばしが太くて短いのは、種を食べる鳥の特徴なのだ。",
+     "face": "通常",
+     "img": "nazo/trivia_long/names10/photos/bullfinch/bullfinch_43.jpg",
+     "z": [
+      0.6,
+      0.4,
+      1.0,
+      1.4
+     ]
+    },
+    {
+     "say": "そしてウソは、神社とも関係があるのだ。",
+     "face": "指差し",
+     "img": "nazo/trivia_long/names10/photos/bullfinch/bullfinch_03.jpg"
+    },
+    {
+     "say": "天満宮の、うそ替え、という行事なのだ。",
+     "face": "通常",
+     "img": "nazo/trivia_long/names10/photos/bullfinch/bullfinch_03.jpg",
+     "fx": [
+      {
+       "type": "stamp",
+       "text": "うそ替え",
+       "at": 0.25,
+       "y": 0.25,
+       "size": 170,
+       "x": 0.5,
+       "color": [
+        255,
+        214,
+        0
+       ]
+      }
+     ]
+    },
+    {
+     "say": "木で作ったウソの人形を、替えましょ、替えましょ、と交換するのだ。",
+     "face": "笑顔",
+     "img": "nazo/trivia_long/names10/photos/bullfinch/bullfinch_04.jpg"
+    },
+    {
+     "say": "前の年の悪いことを、うそにして、今年の幸運に替える、という意味なのだ。",
+     "face": "ドヤ",
+     "img": "nazo/trivia_long/names10/photos/bullfinch/bullfinch_04.jpg"
+    },
+    {
+     "say": "福岡の太宰府天満宮では、毎年1月7日に行われているのだ。",
+     "face": "通常",
+     "img": "nazo/trivia_long/names10/photos/bullfinch/bullfinch_03.jpg"
+    },
+    {
+     "say": "東京の亀戸天神社や、大阪天満宮でも行われているのだ。",
+     "face": "通常",
+     "img": "nazo/trivia_long/names10/photos/bullfinch/bullfinch_03.jpg"
+    },
+    {
+     "say": "ところが、京都の北野天満宮には、うそ替えがないのだ。",
+     "face": "驚き",
+     "img": "nazo/trivia_long/names10/photos/bullfinch/bullfinch_04.jpg"
+    },
+    {
+     "say": "天神さまの中心なのに、なのだ。",
+     "face": "焦り",
+     "img": "nazo/trivia_long/names10/photos/bullfinch/bullfinch_04.jpg"
+    },
+    {
+     "say": "菅原道真がハチにおそわれたとき、ウソの大群が飛んできて助けた、という言い伝えがあるのだ。",
+     "face": "驚き",
+     "img": "nazo/trivia_long/names10/photos/bullfinch/bullfinch_41.jpg"
+    },
+    {
+     "say": "ウソ、ヒーローだったのだ！",
+     "face": "ドヤ",
+     "up": true
+    },
+    {
+     "say": "ただし、春先には困ったこともするのだ。",
+     "face": "焦り",
+     "img": "nazo/trivia_long/names10/photos/bullfinch/bullfinch_43.jpg"
+    },
+    {
+     "say": "ふくらみかけた花のつぼみを、食べてしまうのだ。",
+     "face": "青ざめ",
+     "img": "nazo/trivia_long/names10/photos/bullfinch/bullfinch_43.jpg",
+     "fx": [
+      {
+       "type": "stamp",
+       "text": "つぼみを食べる",
+       "at": 0.25,
+       "y": 0.25,
+       "size": 130,
+       "x": 0.5
+      }
+     ]
+    },
+    {
+     "say": "日本では、本州と北海道の山で子育てをして、冬は平地の林にも来るのだ。",
+     "face": "通常",
+     "img": "nazo/trivia_long/names10/photos/bullfinch/bullfinch_42.jpg"
+    },
+    {
+     "say": "かわいい顔して、つぼみが大好物なのだ！",
+     "face": "笑顔",
+     "up": true
+    }
+   ]
+  },
+  {
+   "id": "marabou",
+   "name": "アフリカハゲコウ",
+   "theme": "orange_rays",
+   "mood": "tense",
+   "lines": [
+    {
+     "say": "8つめは、アフリカハゲコウ。",
+     "face": "指差し",
+     "img": "nazo/trivia_long/names10/photos/marabou/marabou_22.jpg",
+     "chapter": true
+    },
+    {
+     "say": "名前に、ハゲが入っているのだ。",
+     "face": "焦り",
+     "img": "nazo/trivia_long/names10/photos/marabou/marabou_22.jpg",
+     "fx": [
+      {
+       "type": "stamp",
+       "text": "ハゲ",
+       "at": 0.25,
+       "y": 0.78,
+       "size": 220,
+       "x": 0.5,
+       "color": [
+        255,
+        214,
+        0
+       ]
+      }
+     ]
+    },
+    {
+     "say": "見てのとおり、頭と首に羽がほとんどないのだ。",
+     "face": "通常",
+     "img": "nazo/trivia_long/names10/photos/marabou/marabou_10.jpg"
+    },
+    {
+     "say": "そのまんまなのだ！",
+     "face": "怒り",
+     "up": true
+    },
+    {
+     "say": "でも、羽がないのには、わけがあると考えられているのだ。",
+     "face": "通常",
+     "img": "nazo/trivia_long/names10/photos/marabou/marabou_10.jpg"
+    },
+    {
+     "say": "アフリカハゲコウは、死んだ動物の肉をよく食べるのだ。",
+     "face": "青ざめ",
+     "img": "nazo/trivia_long/names10/photos/marabou/marabou_38.jpg"
+    },
+    {
+     "say": "大きな死がいに首を突っ込むと、羽毛があったら、血などで固まってしまうのだ。",
+     "face": "焦り",
+     "img": "nazo/trivia_long/names10/photos/marabou/marabou_38.jpg"
+    },
+    {
+     "say": "羽がないほうが、清潔に保ちやすいのだ。",
+     "face": "ドヤ",
+     "img": "nazo/trivia_long/names10/photos/marabou/marabou_38.jpg",
+     "fx": [
+      {
+       "type": "stamp",
+       "text": "清潔キープ",
+       "at": 0.25,
+       "y": 0.25,
+       "size": 150,
+       "x": 0.5,
+       "color": [
+        255,
+        214,
+        0
+       ]
+      }
+     ]
+    },
+    {
+     "say": "ハゲワシも、同じように頭に羽が少ないのだ。",
+     "face": "通常",
+     "img": "nazo/trivia_long/names10/photos/marabou/marabou_12.jpg"
+    },
+    {
+     "say": "死がいを食べるときは、ハゲワシといっしょになることが多いのだ。",
+     "face": "通常",
+     "img": "nazo/trivia_long/names10/photos/marabou/marabou_12.jpg"
+    },
+    {
+     "say": "肉を引きさくのは、かぎ形のくちばしのハゲワシのほうが上手なのだ。",
+     "face": "通常",
+     "img": "nazo/trivia_long/names10/photos/marabou/marabou_12.jpg"
+    },
+    {
+     "say": "だからハゲコウは、ハゲワシが落とした肉をさらったり、横取りしたりするのだ。",
+     "face": "驚き",
+     "img": "nazo/trivia_long/names10/photos/marabou/marabou_12.jpg",
+     "fx": [
+      {
+       "type": "stamp",
+       "text": "横取り",
+       "at": 0.25,
+       "y": 0.25,
+       "size": 180,
+       "x": 0.5,
+       "color": [
+        255,
+        214,
+        0
+       ]
+      }
+     ]
+    },
+    {
+     "say": "ちゃっかりしてるのだ！",
+     "face": "笑顔",
+     "up": true
+    },
+    {
+     "say": "体は、とても大きいのだ。",
+     "face": "通常",
+     "img": "nazo/trivia_long/names10/photos/marabou/marabou_28.jpg"
+    },
+    {
+     "say": "背の高さは約1.2メートル。翼を広げると、最大で2.87メートルにもなるのだ。",
+     "face": "驚き",
+     "img": "nazo/trivia_long/names10/photos/marabou/marabou_28.jpg",
+     "fx": [
+      {
+       "type": "bars",
+       "items": [
+        [
+         "背の高さ",
+         1.2,
+         [
+          200,
+          200,
+          200
+         ]
+        ],
+        [
+         "翼を広げた長さ（最大）",
+         2.87,
+         [
+          255,
+          180,
+          60
+         ]
+        ]
+       ],
+       "unit": "m",
+       "at": 0.2
+      }
+     ],
+     "hold": 0.4
+    },
+    {
+     "say": "くちばしだけでも、最大35センチあるのだ。",
+     "face": "驚き",
+     "img": "nazo/trivia_long/names10/photos/marabou/marabou_22.jpg",
+     "fx": [
+      {
+       "type": "count",
+       "to": 35,
+       "unit": "cm",
+       "label": "くちばしの長さ（最大）",
+       "at": 0.2,
+       "dec": 0
+      }
+     ]
+    },
+    {
+     "say": "のどには、ピンクの袋がぶら下がっているのだ。",
+     "face": "通常",
+     "img": "nazo/trivia_long/names10/photos/marabou/marabou_10.jpg",
+     "fx": [
+      {
+       "type": "stamp",
+       "text": "のど袋",
+       "at": 0.25,
+       "y": 0.25,
+       "size": 160,
+       "x": 0.5
+      }
+     ]
+    },
+    {
+     "say": "飛ぶときは、首を縮めて飛ぶのだ。",
+     "face": "通常",
+     "img": "nazo/trivia_long/names10/photos/marabou/marabou_26.jpg"
+    },
+    {
+     "say": "足が白っぽく見えるのは、自分のふんがついているからなのだ。",
+     "face": "青ざめ",
+     "img": "nazo/trivia_long/names10/photos/marabou/marabou_14.jpg",
+     "fx": [
+      {
+       "type": "stamp",
+       "text": "ふん",
+       "at": 0.25,
+       "y": 0.3,
+       "size": 200,
+       "x": 0.5
+      }
+     ]
+    },
+    {
+     "say": "熱を吸収しにくくするため、と考えられているのだ。",
+     "face": "通常",
+     "img": "nazo/trivia_long/names10/photos/marabou/marabou_14.jpg"
+    },
+    {
+     "say": "頭はハゲ、足にはふん。名前よりワイルドなのだ！",
+     "face": "焦り",
+     "up": true
+    },
+    {
+     "say": "町のゴミ捨て場にも、たくさん集まるのだ。",
+     "face": "通常",
+     "img": "nazo/trivia_long/names10/photos/marabou/marabou_02.jpg"
+    },
+    {
+     "say": "飲み込める大きさなら、靴や金属のかけらまで、食べようとするらしいのだ。",
+     "face": "驚き",
+     "img": "nazo/trivia_long/names10/photos/marabou/marabou_02.jpg",
+     "fx": [
+      {
+       "type": "stamp",
+       "text": "靴も？",
+       "at": 0.25,
+       "y": 0.25,
+       "size": 170,
+       "x": 0.5,
+       "color": [
+        255,
+        214,
+        0
+       ]
+      }
+     ]
+    },
+    {
+     "say": "ひなは、親が吐き戻したエサを食べて育つのだ。",
+     "face": "通常",
+     "img": "nazo/trivia_long/names10/photos/marabou/marabou_26.jpg"
+    },
+    {
+     "say": "子育てのころは、ひなのために、生きた獲物をつかまえるようになるのだ。",
+     "face": "通常",
+     "img": "nazo/trivia_long/names10/photos/marabou/marabou_26.jpg"
+    },
+    {
+     "say": "魚やカエルのほか、フラミンゴをつかまえることまであるのだ。",
+     "face": "驚き",
+     "img": "nazo/trivia_long/names10/photos/marabou/marabou_28.jpg",
+     "fx": [
+      {
+       "type": "stamp",
+       "text": "フラミンゴも",
+       "at": 0.25,
+       "y": 0.25,
+       "size": 150,
+       "x": 0.5,
+       "color": [
+        255,
+        214,
+        0
+       ]
+      }
+     ]
+    },
+    {
+     "say": "飼われている個体では、41年以上生きた記録もあるのだ。",
+     "face": "驚き",
+     "img": "nazo/trivia_long/names10/photos/marabou/marabou_22.jpg",
+     "fx": [
+      {
+       "type": "count",
+       "to": 41,
+       "unit": "年以上",
+       "label": "飼育下での記録",
+       "at": 0.2,
+       "dec": 0
+      }
+     ]
+    },
+    {
+     "say": "英語の名前のマラブーは、もとはアラビア語の、聖者という意味の言葉からなのだ。",
+     "face": "通常",
+     "img": "nazo/trivia_long/names10/photos/marabou/marabou_28.jpg"
+    },
+    {
+     "say": "名前はハゲ、英語では聖者。ふり幅がすごいのだ！",
+     "face": "笑顔",
+     "up": true
+    }
+   ]
+  },
+  {
+   "id": "boke",
+   "name": "ボケ",
+   "theme": "pink_grad",
+   "mood": "warm",
+   "lines": [
+    {
+     "say": "9つめは、ボケ。",
+     "face": "指差し",
+     "img": "nazo/trivia_long/names10/photos/boke/boke_09.jpg",
+     "chapter": true
+    },
+    {
+     "say": "ボケという名前の木が、本当にあるのだ。",
+     "face": "ドヤ",
+     "img": "nazo/trivia_long/names10/photos/boke/boke_09.jpg",
+     "fx": [
+      {
+       "type": "stamp",
+       "text": "ボケ",
+       "at": 0.25,
+       "y": 0.78,
+       "size": 220,
+       "x": 0.5,
+       "color": [
+        255,
+        214,
+        0
+       ]
+      }
+     ]
+    },
+    {
+     "say": "ボケなら、ずんだもんがツッコむのだ！",
+     "face": "怒り",
+     "up": true
+    },
+    {
+     "say": "春に、こんな赤い花を咲かせるのだ。",
+     "face": "笑顔",
+     "img": "nazo/trivia_long/names10/photos/boke/boke_04.jpg"
+    },
+    {
+     "say": "3月から4月ごろ、葉っぱが出るより先に咲くのだ。",
+     "face": "通常",
+     "img": "nazo/trivia_long/names10/photos/boke/boke_04.jpg"
+    },
+    {
+     "say": "色は赤だけじゃなくて、ピンクや白、紅白まじりもあるのだ。",
+     "face": "笑顔",
+     "img": "nazo/trivia_long/names10/photos/boke/boke_16.jpg"
+    },
+    {
+     "say": "名前の由来は、実なのだ。",
+     "face": "指差し",
+     "img": "nazo/trivia_long/names10/photos/boke/boke_01.jpg"
+    },
+    {
+     "say": "実が瓜に似ていて、木になる瓜で、木瓜と書くのだ。",
+     "face": "通常",
+     "img": "nazo/trivia_long/names10/photos/boke/boke_01.jpg",
+     "fx": [
+      {
+       "type": "stamp",
+       "text": "木＋瓜＝木瓜",
+       "at": 0.25,
+       "y": 0.25,
+       "size": 140,
+       "x": 0.5,
+       "color": [
+        255,
+        214,
+        0
+       ]
+      }
+     ]
+    },
+    {
+     "say": "木瓜を、もけ、と呼んでいたのが、なまってボケになった、という説があるのだ。",
+     "face": "通常",
+     "img": "nazo/trivia_long/names10/photos/boke/boke_01.jpg",
+     "fx": [
+      {
+       "type": "stamp",
+       "text": "もけ → ボケ（説）",
+       "at": 0.25,
+       "y": 0.25,
+       "size": 120,
+       "x": 0.5
+      }
+     ]
+    },
+    {
+     "say": "ぼっくわ、から変わった、という説もあるのだ。",
+     "face": "通常",
+     "img": "nazo/trivia_long/names10/photos/boke/boke_01.jpg"
+    },
+    {
+     "say": "なまって、ボケになったのだ！",
+     "face": "笑顔",
+     "up": true
+    },
+    {
+     "say": "ふるさとは中国で、平安時代に日本へ来たのだ。",
+     "face": "通常",
+     "img": "nazo/trivia_long/names10/photos/boke/boke_38.jpg"
+    },
+    {
+     "say": "小枝は、トゲになっているのだ。",
+     "face": "焦り",
+     "img": "nazo/trivia_long/names10/photos/boke/boke_16.jpg"
+    },
+    {
+     "say": "実は、いい香りがするのだ。",
+     "face": "笑顔",
+     "img": "nazo/trivia_long/names10/photos/boke/boke_01.jpg"
+    },
+    {
+     "say": "果実酒やジャムに使われるのだ。",
+     "face": "通常",
+     "img": "nazo/trivia_long/names10/photos/boke/boke_01.jpg"
+    },
+    {
+     "say": "果実酒の名前は、そのまま、ボケ酒なのだ。",
+     "face": "驚き",
+     "img": "nazo/trivia_long/names10/photos/boke/boke_01.jpg",
+     "fx": [
+      {
+       "type": "stamp",
+       "text": "ボケ酒",
+       "at": 0.25,
+       "y": 0.25,
+       "size": 180,
+       "x": 0.5,
+       "color": [
+        255,
+        214,
+        0
+       ]
+      }
+     ]
+    },
+    {
+     "say": "切ると、中には種がぎっしりなのだ。",
+     "face": "驚き",
+     "img": "nazo/trivia_long/names10/photos/boke/boke_03.jpg"
+    },
+    {
+     "say": "江戸時代には、小石川養生所に植えられて、漢方薬に使われていたのだ。",
+     "face": "通常",
+     "img": "nazo/trivia_long/names10/photos/boke/boke_38.jpg"
+    },
+    {
+     "say": "乾かした実は、もっか、という生薬になるのだ。",
+     "face": "通常",
+     "img": "nazo/trivia_long/names10/photos/boke/boke_38.jpg"
+    },
+    {
+     "say": "大正時代には、ボケの新しい品種づくりのブームが起きたのだ。",
+     "face": "通常",
+     "img": "nazo/trivia_long/names10/photos/boke/boke_16.jpg"
+    },
+    {
+     "say": "鎌倉の九品寺は、ボケの名所として知られているのだ。",
+     "face": "笑顔",
+     "img": "nazo/trivia_long/names10/photos/boke/boke_09.jpg"
+    },
+    {
+     "say": "日本の山には、野生の仲間のクサボケが生えているのだ。",
+     "face": "通常",
+     "img": "nazo/trivia_long/names10/photos/boke/boke_06.jpg"
+    },
+    {
+     "say": "全体が小さくて、草に見立てたから、クサボケなのだ。",
+     "face": "通常",
+     "img": "nazo/trivia_long/names10/photos/boke/boke_34.jpg",
+     "fx": [
+      {
+       "type": "stamp",
+       "text": "草＋ボケ",
+       "at": 0.25,
+       "y": 0.25,
+       "size": 160,
+       "x": 0.5
+      }
+     ]
+    },
+    {
+     "say": "くさいボケじゃないのだ！",
+     "face": "焦り",
+     "up": true
+    }
+   ]
+  },
+  {
+   "id": "nemertea",
+   "name": "ヒモムシ",
+   "theme": "nebula",
+   "mood": "wonder",
+   "lines": [
+    {
+     "say": "最後は、ヒモムシ。",
+     "face": "指差し",
+     "img": "nazo/trivia_long/names10/photos/nemertea/nemertea_07.jpg",
+     "chapter": true
+    },
+    {
+     "say": "名前のとおり、ほぼヒモなのだ。",
+     "face": "笑顔",
+     "img": "nazo/trivia_long/names10/photos/nemertea/nemertea_07.jpg",
+     "fx": [
+      {
+       "type": "stamp",
+       "text": "ほぼヒモ",
+       "at": 0.25,
+       "y": 0.78,
+       "size": 200,
+       "x": 0.5,
+       "color": [
+        255,
+        214,
+        0
+       ]
+      }
+     ]
+    },
+    {
+     "say": "足も触手もなくて、見た目にはこれといった特徴がないのだ。",
+     "face": "通常",
+     "img": "nazo/trivia_long/names10/photos/nemertea/nemertea_08.jpg"
+    },
+    {
+     "say": "名前のつけ方が、雑すぎるのだ！",
+     "face": "怒り",
+     "up": true
+    },
+    {
+     "say": "でも、このヒモがすごいのだ。",
+     "face": "指差し",
+     "img": "nazo/trivia_long/names10/photos/nemertea/nemertea_09.jpg"
+    },
+    {
+     "say": "ヨーロッパの海にいるブーツレースワームは、ふつう5メートルから15メートル。",
+     "face": "驚き",
+     "img": "nazo/trivia_long/names10/photos/nemertea/nemertea_09.jpg"
+    },
+    {
+     "say": "30メートルになる個体も知られているのだ。",
+     "face": "驚き",
+     "img": "nazo/trivia_long/names10/photos/nemertea/nemertea_11.jpg",
+     "fx": [
+      {
+       "type": "bars",
+       "items": [
+        [
+         "ふつう（長いと）",
+         15,
+         [
+          150,
+          150,
+          150
+         ]
+        ],
+        [
+         "知られている長さ",
+         30,
+         [
+          140,
+          110,
+          220
+         ]
+        ]
+       ],
+       "unit": "m",
+       "at": 0.2
+      }
+     ]
+    },
+    {
+     "say": "1864年には、嵐のあとに、55メートル以上のものが打ち上げられた、という記録まであるのだ。",
+     "face": "青ざめ",
+     "img": "nazo/trivia_long/names10/photos/nemertea/nemertea_14.jpg",
+     "fx": [
+      {
+       "type": "count",
+       "to": 55,
+       "unit": "m",
+       "label": "打ち上げられた記録（1864年）",
+       "at": 0.2,
+       "dec": 0
+      }
+     ],
+     "hold": 0.5
+    },
+    {
+     "say": "25メートルプール、2つ分より長いのだ！",
+     "face": "驚き",
+     "img": "nazo/trivia_long/names10/photos/nemertea/nemertea_14.jpg",
+     "fx": [
+      {
+       "type": "bars",
+       "items": [
+        [
+         "25mプール 2つ",
+         50,
+         [
+          80,
+          170,
+          230
+         ]
+        ],
+        [
+         "記録のヒモムシ",
+         55,
+         [
+          140,
+          110,
+          220
+         ]
+        ]
+       ],
+       "unit": "m",
+       "at": 0.2
+      }
+     ]
+    },
+    {
+     "say": "ただ、体がとてもよくのびるので、のびた長さだったのかもしれない、ともいわれているのだ。",
+     "face": "通常",
+     "img": "nazo/trivia_long/names10/photos/nemertea/nemertea_11.jpg"
+    },
+    {
+     "say": "のびたとしても、長すぎるのだ！",
+     "face": "焦り",
+     "up": true
+    },
+    {
+     "say": "ヒモムシは、口の先から、長い管のようなものを、ビュッと出すのだ。",
+     "face": "驚き",
+     "img": "nazo/trivia_long/names10/photos/nemertea/nemertea_08.jpg",
+     "fx": [
+      {
+       "type": "shoot",
+       "at": 0.3
+      }
+     ]
+    },
+    {
+     "say": "これを獲物に巻きつけて、つかまえるのだ。",
+     "face": "通常",
+     "img": "nazo/trivia_long/names10/photos/nemertea/nemertea_08.jpg"
+    },
+    {
+     "say": "体の3倍の長さまで、のばす種類もいるのだ。",
+     "face": "驚き",
+     "img": "nazo/trivia_long/names10/photos/nemertea/nemertea_08.jpg",
+     "fx": [
+      {
+       "type": "stamp",
+       "text": "体の3倍",
+       "at": 0.25,
+       "y": 0.25,
+       "size": 170,
+       "x": 0.5,
+       "color": [
+        255,
+        214,
+        0
+       ]
+      }
+     ]
+    },
+    {
+     "say": "先に毒の針がついている種類もいるのだ。",
+     "face": "青ざめ",
+     "img": "nazo/trivia_long/names10/photos/nemertea/nemertea_05.jpg"
+    },
+    {
+     "say": "ブーツレースワームのねばねばにも、強い毒があるのだ。",
+     "face": "青ざめ",
+     "img": "nazo/trivia_long/names10/photos/nemertea/nemertea_14.jpg"
+    },
+    {
+     "say": "カニやゴキブリが死んでしまうほどの毒なのだ。",
+     "face": "焦り",
+     "img": "nazo/trivia_long/names10/photos/nemertea/nemertea_14.jpg"
+    },
+    {
+     "say": "ヒモムシの仲間は、1000種以上が知られているのだ。",
+     "face": "通常",
+     "img": "nazo/trivia_long/names10/photos/nemertea/nemertea_07.jpg",
+     "fx": [
+      {
+       "type": "count",
+       "to": 1000,
+       "unit": "種以上",
+       "label": "知られているヒモムシ",
+       "at": 0.2,
+       "dec": 0
+      }
+     ]
+    },
+    {
+     "say": "浅い海から、水深4000メートルの深海まで、住んでいるのだ。",
+     "face": "通常",
+     "img": "nazo/trivia_long/names10/photos/nemertea/nemertea_08.jpg"
+    },
+    {
+     "say": "陸で暮らす、リクヒモムシもいるのだ。",
+     "face": "驚き",
+     "img": "nazo/trivia_long/names10/photos/nemertea/nemertea_05.jpg"
+    },
+    {
+     "say": "小笠原諸島では、外から入ってきたリクヒモムシが、島の小さな生き物を減らしたと発表されたのだ。",
+     "face": "青ざめ",
+     "img": "nazo/trivia_long/names10/photos/nemertea/nemertea_05.jpg"
+    },
+    {
+     "say": "むかしは、とても原始的な動物だと考えられていたのだ。",
+     "face": "通常",
+     "img": "nazo/trivia_long/names10/photos/nemertea/nemertea_07.jpg"
+    },
+    {
+     "say": "今では、貝やゴカイに近い仲間だと考えられているのだ。",
+     "face": "驚き",
+     "img": "nazo/trivia_long/names10/photos/nemertea/nemertea_07.jpg"
+    },
+    {
+     "say": "ただのヒモじゃなかったのだ！",
+     "face": "ドヤ",
+     "up": true
+    }
+   ]
+  },
+  {
+   "id": "ending",
+   "name": "まとめ",
+   "theme": "pink_grad",
+   "mood": "comic",
+   "ending": true,
+   "lines": [
+    {
+     "say": "名前がひどい生き物、10種類なのだ。",
+     "face": "笑顔",
+     "digest": true
+    },
+    {
+     "say": "ナマケモノ、ヘッピリムシ、ウスバカゲロウ、ハリセンボン、カエルアンコウ。",
+     "face": "通常",
+     "digest": true
+    },
+    {
+     "say": "ツチブタ、ウソ、アフリカハゲコウ、ボケ、ヒモムシ。",
+     "face": "通常",
+     "digest": true
+    },
+    {
+     "say": "名前はひどいけど、中身はすごかったのだ。",
+     "face": "ドヤ",
+     "digest": true
+    },
+    {
+     "say": "レッツ！脳とけ！",
+     "face": "笑顔",
+     "logo": true
+    }
+   ]
+  }
+ ]
+}
