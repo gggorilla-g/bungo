@@ -63,6 +63,13 @@
    "main": "trivia_names",
    "channel": "雑学",
    "posted": false
+  },
+  {
+   "date": "2026-10-30",
+   "id": "trivia_fishquiz",
+   "main": "trivia_fish_quiz",
+   "channel": "雑学",
+   "posted": false
   }
  ]
 }
