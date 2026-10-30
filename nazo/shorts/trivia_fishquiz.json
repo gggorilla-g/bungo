@@ -29,7 +29,7 @@
   "deep_sea",
   "kraft",
   "sky_clouds",
-  "mint_black",
+  "tomato",
   "nebula"
  ],
  "yomi": {
@@ -179,8 +179,8 @@
    "face": "通常",
    "sec": true,
    "wiki": [
-    "ja",
-    "ウッカリカサゴ"
+    "en",
+    "Sebastiscus tertius"
    ]
   },
   {
@@ -188,8 +188,8 @@
    "text": "カサゴにそっくり\n見間違えるほど",
    "face": "焦り",
    "wiki": [
-    "ja",
-    "ウッカリカサゴ"
+    "en",
+    "Sebastiscus tertius"
    ],
    "fx": [
     {
@@ -211,8 +211,8 @@
    "text": "見分け方は\n胸びれのすじ",
    "face": "通常",
    "wiki": [
-    "ja",
-    "ウッカリカサゴ"
+    "en",
+    "Sebastiscus tertius"
    ]
   },
   {
@@ -238,7 +238,11 @@
    "say": "1本の差はわからないのだ！",
    "text": "1本の差は\nわからない！",
    "face": "怒り",
-   "up": true
+   "up": true,
+   "wiki": [
+    "en",
+    "Sebastiscus tertius"
+   ]
   },
   {
    "say": "最後はニュウドウカジカ。",
