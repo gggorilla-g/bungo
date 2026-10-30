@@ -32,9 +32,14 @@ res = None
 while res is None:
     _, res = req.next_chunk()
 thumb = os.environ.get("THUMB", "").strip()
+thumb_err = ""
 if thumb:
-    yt.thumbnails().set(videoId=res["id"], media_body=MediaFileUpload(thumb)).execute()
-out = {"thumb": thumb, "id": res["id"], "url": "https://youtube.com/shorts/" + res["id"], "requested_publishAt": publish_at,
+    try:
+        yt.thumbnails().set(videoId=res["id"], media_body=MediaFileUpload(thumb)).execute()
+    except Exception as e:                       # サムネだけ失敗しても投稿は済んでいるので、記録して先へ進む
+        thumb_err = str(e)[:300]
+        print("::warning::サムネを設定できなかった:", thumb_err)
+out = {"thumb": thumb, "thumb_error": thumb_err, "id": res["id"], "url": "https://youtube.com/shorts/" + res["id"], "requested_publishAt": publish_at,
        "returned_status": res.get("status", {})}
 print(json.dumps(out, ensure_ascii=False, indent=1))
 open(os.path.join(os.path.dirname(kit), "api_upload_" + os.path.basename(kit).replace("_upload.txt", "") + ".txt"), "w").write(json.dumps(out, ensure_ascii=False, indent=1) + "\n")
