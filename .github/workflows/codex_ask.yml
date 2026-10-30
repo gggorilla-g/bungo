@@ -33,6 +33,8 @@ jobs:
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: |
+          [ -z "$OPENAI_API_KEY" ] && unset OPENAI_API_KEY   # 空のキーがあるとログイン情報より優先されて401になる
+          ls -la ~/.codex; [ -s ~/.codex/auth.json ] && python3 -c "import json;d=json.load(open('$HOME/.codex/auth.json'));print('auth.json keys:',list(d), 'tokens:', list((d.get('tokens') or {}).keys()))"
           D="codex_ask/${{ inputs.id }}"
           cd "$D"
           codex exec --skip-git-repo-check --sandbox workspace-write "$(cat prompt.md)" > answer.md 2> codex_log.txt || echo "codex exit $?" >> codex_log.txt
