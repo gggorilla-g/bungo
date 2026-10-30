@@ -4,6 +4,7 @@ on:
     inputs:
       name: { description: "まとめ名（例 sleep_01）", required: true }
       parts: { description: "実行ID:作品ID をカンマ区切りで（話の順）", required: true }
+      retention_days: { description: "成果物の保持日数", default: "30" }
 permissions:
   contents: write
   actions: read
@@ -52,4 +53,4 @@ jobs:
             output/*.mp4
             kaidan/manual/${{ inputs.name }}/thumb.png
             kaidan/manual/${{ inputs.name }}/upload.txt
-          retention-days: 90
+          retention-days: ${{ inputs.retention_days || 30 }}
