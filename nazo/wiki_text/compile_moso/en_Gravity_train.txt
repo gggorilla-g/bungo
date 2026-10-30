@@ -1,0 +1,1059 @@
+https://en.wikipedia.org/wiki/Gravity_train
+
+A gravity train is a theoretical means of transportation for purposes of commuting between two points on the surface of a sphere, by following a straight tunnel connecting the two points through the interior of the sphere.
+In a large body such as a planet, this train could be left to accelerate using just the force of gravity, since during the first half of the trip (from the point of departure until the middle), the downward pull towards the center of gravity would pull it towards the destination. During the second half of the trip, the acceleration would be in the opposite direction relative to the trajectory, but, ignoring the effects of friction, the momentum acquired during the first half of the trajectory would equal this deceleration, and as a result, similarly to a Galileo pendulum, the train's speed would reach zero at approximately the moment the train reached its destination.
+
+
+== Origin of the concept ==
+In the 17th century, British scientist Robert Hooke presented the idea of an object accelerating inside a planet in a letter to Isaac Newton. A gravity train project was seriously presented to the French Academy of Sciences in the 19th century. The same idea was proposed, without calculation, by Lewis Carroll in 1893 in Sylvie and Bruno Concluded. The idea was rediscovered in the 1960s when physicist Paul Cooper published a paper in the American Journal of Physics suggesting that gravity trains be considered for a future transportation project.
+
+
+== Mathematical considerations ==
+Under the assumption of a spherical planet with uniform density, and ignoring relativistic effects as well as friction, a gravity train has the following properties:
+
+The duration of a trip depends only on the density of the planet and the gravitational constant, but not on the diameter of the planet.
+The maximum speed is reached at the middle point of the trajectory.
+For gravity trains between points which are not the antipodes of each other, the following hold:
+
+The shortest time tunnel through a homogeneous Earth is a hypocycloid; in the special case of two antipodal points, the hypocycloid degenerates to a straight line.
+All straight-line gravity trains on a given planet take exactly the same amount of time to complete a journey (that is, no matter where on the surface the two endpoints of its trajectory are located).
+On the planet Earth specifically, since a gravity train's movement is the projection of a very-low-orbit satellite's movement onto a line, it has the following parameters:
+
+The travel time equals 2530.30 seconds (nearly 42.2 minutes, half the period of a low Earth orbit satellite), assuming Earth were a perfect sphere of uniform density.
+By taking into account the realistic density distribution inside the Earth, as known from the preliminary reference Earth model, the expected fall-through time is reduced from 42 to 38 minutes.
+To put some numbers in perspective, the deepest current bore hole is the Kola Superdeep Borehole with a true depth of 12,262 meters; covering the distance between London and Paris (350 km) via a hypocycloidical path would require the creation of a hole 111,408 metres deep. Not only is such a depth nine times as great, but it would also necessitate a tunnel that passes through the Earth's mantle.
+The straight line path between London and Paris would only require a maximum depth of 2.4 kilometres - well within the depths reached by deep mines. Such a tunnel would have an initial declination of 1.57 degrees.
+
+
+== Mathematical derivation ==
+Using the approximations that the Earth is perfectly spherical and of uniform density 
+  
+    
+      
+        ρ
+      
+    
+    {\displaystyle \rho }
+  
+, and the fact that within a uniform hollow sphere there is no gravity, the gravitational acceleration 
+  
+    
+      
+        a
+      
+    
+    {\displaystyle a}
+  
+ experienced by a body within the Earth is proportional to the ratio of the distance from the center 
+  
+    
+      
+        r
+      
+    
+    {\displaystyle r}
+  
+ to the Earth's radius 
+  
+    
+      
+        R
+      
+    
+    {\displaystyle R}
+  
+. This is because underground at distance 
+  
+    
+      
+        r
+      
+    
+    {\displaystyle r}
+  
+ from the center is like being on the surface of a planet of radius 
+  
+    
+      
+        r
+      
+    
+    {\displaystyle r}
+  
+, within a hollow sphere which contributes nothing.
+
+  
+    
+      
+        a
+        =
+        
+          
+            
+              G
+              M
+            
+            
+              r
+              
+                2
+              
+            
+          
+        
+        =
+        
+          
+            
+              G
+              ρ
+              V
+            
+            
+              r
+              
+                2
+              
+            
+          
+        
+        =
+        
+          
+            
+              G
+              ρ
+              
+                
+                  4
+                  3
+                
+              
+              π
+              
+              
+                r
+                
+                  3
+                
+              
+            
+            
+              r
+              
+                2
+              
+            
+          
+        
+        =
+        G
+        ρ
+        
+          
+            4
+            3
+          
+        
+        π
+        
+        r
+      
+    
+    {\displaystyle a={\frac {GM}{r^{2}}}={\frac {G\rho V}{r^{2}}}={\frac {G\rho {\frac {4}{3}}\pi \,r^{3}}{r^{2}}}=G\rho {\frac {4}{3}}\pi \,r}
+  
+
+On the surface, 
+  
+    
+      
+        r
+        =
+        R
+      
+    
+    {\displaystyle r=R}
+  
+, so the gravitational acceleration is 
+  
+    
+      
+        g
+        =
+        G
+        ρ
+        
+          
+            4
+            3
+          
+        
+        π
+        
+        R
+      
+    
+    {\displaystyle g=G\rho {\frac {4}{3}}\pi \,R}
+  
+. Hence, the gravitational acceleration at 
+  
+    
+      
+        r
+      
+    
+    {\displaystyle r}
+  
+ is
+
+  
+    
+      
+        a
+        =
+        
+          
+            r
+            R
+          
+        
+        
+        g
+      
+    
+    {\displaystyle a={\frac {r}{R}}\,g}
+  
+
+
+=== Diametric path to antipodes ===
+In the case of a straight line through the center of the Earth, the acceleration of the body is equal to that of gravity: it is falling freely straight down.  We start falling at the surface, so at time 
+  
+    
+      
+        t
+      
+    
+    {\displaystyle t}
+  
+ (treating acceleration and velocity as positive downwards):
+
+  
+    
+      
+        
+          r
+          
+            t
+          
+        
+        =
+        R
+        −
+        
+          ∫
+          
+            0
+          
+          
+            t
+          
+        
+        
+          v
+          
+            t
+          
+        
+        
+        d
+        t
+        =
+        R
+        −
+        
+          ∫
+          
+            0
+          
+          
+            t
+          
+        
+        
+          ∫
+          
+            0
+          
+          
+            t
+          
+        
+        
+          a
+          
+            t
+          
+        
+        
+        d
+        t
+        
+        d
+        t
+      
+    
+    {\displaystyle r_{t}=R-\int _{0}^{t}v_{t}\,dt=R-\int _{0}^{t}\int _{0}^{t}a_{t}\,dt\,dt}
+  
+
+Differentiating twice: 
+
+  
+    
+      
+        
+          
+            
+              
+                d
+                
+                  2
+                
+              
+              r
+            
+            
+              d
+              
+                t
+                
+                  2
+                
+              
+            
+          
+        
+        =
+        −
+        
+          a
+          
+            t
+          
+        
+        =
+        −
+        
+          
+            r
+            R
+          
+        
+        
+        g
+        =
+        −
+        
+          ω
+          
+            2
+          
+        
+        
+        r
+      
+    
+    {\displaystyle {\frac {d^{2}r}{dt^{2}}}=-a_{t}=-{\frac {r}{R}}\,g=-\omega ^{2}\,r}
+  
+
+where 
+  
+    
+      
+        ω
+        =
+        
+          
+            
+              g
+              R
+            
+          
+        
+      
+    
+    {\displaystyle \omega ={\sqrt {\frac {g}{R}}}}
+  
+.  This class of problems, where there is a restoring force proportional to the displacement away from zero, has general solutions of the form 
+  
+    
+      
+        r
+        =
+        k
+        cos
+        ⁡
+        (
+        ω
+        t
+        +
+        φ
+        )
+      
+    
+    {\displaystyle r=k\cos(\omega t+\varphi )}
+  
+, and describes simple harmonic motion such as in a spring or pendulum.
+In this case 
+  
+    
+      
+        
+          r
+          
+            t
+          
+        
+        =
+        R
+        cos
+        ⁡
+        
+          
+            
+              g
+              R
+            
+          
+        
+        
+        t
+      
+    
+    {\displaystyle r_{t}=R\cos {\sqrt {\frac {g}{R}}}\,t}
+  
+ so that 
+  
+    
+      
+        
+          r
+          
+            0
+          
+        
+        =
+        R
+      
+    
+    {\displaystyle r_{0}=R}
+  
+, we begin at the surface at time zero, and oscillate back and forth forever.
+The travel time to the antipodes is half of one cycle of this oscillator, that is the time for the argument to  
+  
+    
+      
+        cos
+        ⁡
+        
+          
+            
+              g
+              R
+            
+          
+        
+        
+        t
+      
+    
+    {\displaystyle \cos {\sqrt {\frac {g}{R}}}\,t}
+  
+ to sweep out 
+  
+    
+      
+        
+          π
+        
+      
+    
+    {\displaystyle {\pi }}
+  
+ radians.  Using simple approximations of 
+  
+    
+      
+        g
+        =
+        10
+        
+           m
+        
+        
+          /
+        
+        
+          
+            s
+          
+          
+            2
+          
+        
+        ,
+        R
+        =
+        6500
+        
+           km
+        
+      
+    
+    {\displaystyle g=10{\text{ m}}/{\text{s}}^{2},R=6500{\text{ km}}}
+  
+ that time is
+
+  
+    
+      
+        T
+        =
+        
+          
+            π
+            ω
+          
+        
+        =
+        
+          
+            π
+            
+              
+                g
+                R
+              
+            
+          
+        
+        ≈
+        
+          
+            3.1415926
+            
+              
+                10
+                6500000
+              
+            
+          
+        
+        ≈
+        2532
+        
+           s
+        
+      
+    
+    {\displaystyle T={\frac {\pi }{\omega }}={\frac {\pi }{\sqrt {\frac {g}{R}}}}\approx {\frac {3.1415926}{\sqrt {\frac {10}{6500000}}}}\approx 2532{\text{ s}}}
+  
+
+
+=== Straight path between two arbitrary points ===
+
+For the more general case of the straight line path between any two points on the surface of a sphere we calculate the acceleration of the body as it moves frictionlessly along its straight path.
+The body travels along AOB, O being the midpoint of the path, and the closest point to the center of the Earth on this path.  At distance 
+  
+    
+      
+        r
+      
+    
+    {\displaystyle r}
+  
+ along this path, the force of gravity 
+  
+    
+      
+        
+          g
+          
+            r
+          
+        
+      
+    
+    {\displaystyle g_{r}}
+  
+ (directed from point X towards the center of the Earth, along 
+  
+    
+      
+        X
+        C
+      
+    
+    {\displaystyle XC}
+  
+) depends linearly on distance 
+  
+    
+      
+        x
+      
+    
+    {\displaystyle x}
+  
+ to the center of the Earth as above.  (Expressed in terms of 
+  
+    
+      
+        r
+      
+    
+    {\displaystyle r}
+  
+, and using the shorthand 
+  
+    
+      
+        b
+        =
+        R
+        sin
+        ⁡
+        θ
+      
+    
+    {\displaystyle b=R\sin \theta }
+  
+ for length OC, 
+  
+    
+      
+        x
+        =
+        
+          
+            
+              r
+              
+                2
+              
+            
+            +
+            
+              b
+              
+                2
+              
+            
+          
+        
+      
+    
+    {\displaystyle x={\sqrt {r^{2}+b^{2}}}}
+  
+). We have:
+
+  
+    
+      
+        
+          g
+          
+            r
+          
+        
+        =
+        
+          
+            x
+            R
+          
+        
+        
+        g
+      
+    
+    {\displaystyle g_{r}={\frac {x}{R}}\,g}
+  
+
+The resulting acceleration on the body, because it is on a frictionless
+inclined surface, is 
+  
+    
+      
+        
+          g
+          
+            r
+          
+        
+        cos
+        ⁡
+        φ
+      
+    
+    {\displaystyle g_{r}\cos \varphi }
+  
+:
+
+  
+    
+      
+        
+          a
+          
+            r
+          
+        
+        =
+        
+          g
+          
+            r
+          
+        
+        cos
+        ⁡
+        φ
+      
+    
+    {\displaystyle a_{r}=g_{r}\cos \varphi }
+  
+
+But 
+  
+    
+      
+        cos
+        ⁡
+        φ
+        =
+        r
+        
+          /
+        
+        x
+      
+    
+    {\displaystyle \cos \varphi =r/x}
+  
+, so substituting both:
+
+  
+    
+      
+        
+          a
+          
+            r
+          
+        
+        =
+        (
+        
+          
+            x
+            R
+          
+        
+        
+        g
+        )
+        
+        
+          
+            r
+            x
+          
+        
+        =
+        
+          
+            r
+            R
+          
+        
+        
+        g
+      
+    
+    {\displaystyle a_{r}=({\frac {x}{R}}\,g)\,{\frac {r}{x}}={\frac {r}{R}}\,g}
+  
+
+which is exactly the same for this new 
+  
+    
+      
+        r
+      
+    
+    {\displaystyle r}
+  
+, distance along AOB away from O, as for the 
+  
+    
+      
+        r
+      
+    
+    {\displaystyle r}
+  
+ in the diametric case along ACD.  So the remaining analysis is the same, accommodating the initial condition that the maximal 
+  
+    
+      
+        r
+      
+    
+    {\displaystyle r}
+  
+ is 
+  
+    
+      
+        R
+        cos
+        ⁡
+        θ
+        =
+        A
+        O
+      
+    
+    {\displaystyle R\cos \theta =AO}
+  
+ the complete equation of motion is
+
+  
+    
+      
+        
+          r
+          
+            t
+          
+        
+        =
+        R
+        cos
+        ⁡
+        θ
+        cos
+        ⁡
+        
+          
+            
+              g
+              R
+            
+          
+        
+        
+        t
+      
+    
+    {\displaystyle r_{t}=R\cos \theta \cos {\sqrt {\frac {g}{R}}}\,t}
+  
+
+The time constant 
+  
+    
+      
+        ω
+        =
+        
+          
+            
+              g
+              R
+            
+          
+        
+      
+    
+    {\displaystyle \omega ={\sqrt {\frac {g}{R}}}}
+  
+ is the same as in the diametric case so the journey time is still 42 minutes; it's just that all the distances and speeds are scaled by the constant 
+  
+    
+      
+        cos
+        ⁡
+        θ
+      
+    
+    {\displaystyle \cos \theta }
+  
+.
+
+
+=== Dependence on radius of planet ===
+The time constant 
+  
+    
+      
+        ω
+      
+    
+    {\displaystyle \omega }
+  
+ depends only on 
+  
+    
+      
+        
+          
+            g
+            R
+          
+        
+      
+    
+    {\displaystyle {\frac {g}{R}}}
+  
+ so if we expand that we get
+
+  
+    
+      
+        
+          
+            g
+            R
+          
+        
+        =
+        
+          
+            
+              G
+              M
+              
+                /
+              
+              
+                R
+                
+                  2
+                
+              
+            
+            R
+          
+        
+        =
+        
+          
+            
+              G
+              M
+            
+            
+              R
+              
+                3
+              
+            
+          
+        
+        =
+        
+          
+            
+              G
+              ρ
+              
+              V
+            
+            
+              R
+              
+                3
+              
+            
+          
+        
+        =
+        
+          
+            
+              G
+              ρ
+              
+              
+                
+                  4
+                  3
+                
+              
+              π
+              
+              
+                R
+                
+                  3
+                
+              
+            
+            
+              R
+              
+                3
+              
+            
+          
+        
+        =
+        G
+        ρ
+        
+        
+          
+            4
+            3
+          
+        
+        π
+      
+    
+    {\displaystyle {\frac {g}{R}}={\frac {GM/R^{2}}{R}}={\frac {GM}{R^{3}}}={\frac {G\rho \,V}{R^{3}}}={\frac {G\rho \,{\frac {4}{3}}\pi \,R^{3}}{R^{3}}}=G\rho \,{\frac {4}{3}}\pi }
+  
+
+which depends only on the gravitational constant and 
+  
+    
+      
+        ρ
+      
+    
+    {\displaystyle \rho }
+  
+ the density of the planet.  The size of the planet is immaterial; the journey time is the same if the density is the same.
+
+
+== In fiction ==
+In the 2012 movie Total Recall, a gravity train called "The Fall" goes through the center of the Earth to commute between Western Europe and Australia.
+
+
+== See also ==
+Brachistochrone curve
+Funicular
+Hyperloop
+Rail energy storage
+Schuler tuning
+Colonization of the asteroid belt
+Space elevator
+
+
+== References ==
+
+Description of the concept Gravity train and mathematical solution (Alexandre Eremenko web page at Purdue University).
+
+
+== External links ==
+A simulation of this motion; includes tunnels that do not pass through the center of the Earth. Also shows a satellite with same period.
+The Gravity Express
+To Everywhere in 42 Minutes
