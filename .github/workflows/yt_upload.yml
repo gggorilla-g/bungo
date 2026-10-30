@@ -21,7 +21,14 @@ jobs:
       - uses: actions/setup-python@v5
         with: { python-version: "3.12" }
       - if: inputs.run_id == ''
-        run: git fetch -q --depth 1 origin upload-tmp && mkdir -p dl && git show "origin/upload-tmp:${{ inputs.glob }}" > "dl/$(basename '${{ inputs.glob }}')"
+        # 100MB を超える動画は <glob>.partaa, .partab ... に分けて置き、ここでつなぐ
+        run: |
+          git fetch -q --depth 1 origin upload-tmp && mkdir -p dl
+          G='${{ inputs.glob }}'; B=$(basename "$G"); D=$(dirname "$G")
+          P=$(git ls-tree --name-only origin/upload-tmp "$D/" | grep -F "/$B.part" | sort || true)
+          if [ -n "$P" ]; then for f in $P; do git show "origin/upload-tmp:$f" >> "dl/$B"; done
+          else git show "origin/upload-tmp:$G" > "dl/$B"; fi
+          ls -la dl
       - if: inputs.run_id != ''
         uses: actions/download-artifact@v4
         with: { name: "${{ inputs.artifact }}", run-id: "${{ inputs.run_id }}", github-token: "${{ secrets.GITHUB_TOKEN }}", path: dl }
