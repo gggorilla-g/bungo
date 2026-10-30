@@ -119,11 +119,13 @@
    "intro": [
     {
      "say": "次は、地球に穴を掘る話なのだ。",
-     "face": "指差し"
+     "face": "指差し",
+     "img": "assets/space/earth_apollo.jpg"
     },
     {
      "say": "人間が本当に掘れた深さは、どれくらいだと思うのだ？",
-     "face": "ドヤ"
+     "face": "ドヤ",
+     "img": "assets/space/earth_apollo.jpg"
     }
    ],
    "extra": [
@@ -213,11 +215,13 @@
    "intro": [
     {
      "say": "次は、木星に降りる話なのだ。",
-     "face": "指差し"
+     "face": "指差し",
+     "img": "assets/planets/jupiter_hi.jpg"
     },
     {
      "say": "地面のない星に降りたら、どうなるのだ？",
-     "face": "驚き"
+     "face": "驚き",
+     "img": "assets/planets/jupiter_hi.jpg"
     }
    ],
    "extra": [
@@ -249,6 +253,10 @@
      "say": "台風どころじゃないのだ！",
      "face": "焦り",
      "up": true
+    },
+    {
+     "say": "大赤斑は、1665年に、天文学者のカッシーニが見つけたとされているのだ。",
+     "face": "通常"
     },
     {
      "say": "木星は、約10時間で1回転するのだ。",
@@ -313,11 +321,13 @@
    "intro": [
     {
      "say": "次は、地球が急に止まる話なのだ。",
-     "face": "指差し"
+     "face": "指差し",
+     "img": "assets/space/earth_night.jpg"
     },
     {
      "say": "地球はふだん、どれくらいの速さで回っているのだ？",
-     "face": "驚き"
+     "face": "驚き",
+     "img": "assets/space/earth_night.jpg"
     }
    ],
    "extra": [
@@ -343,6 +353,10 @@
       ]
      },
      "img": "assets/space/earth_night.jpg"
+    },
+    {
+     "say": "ただ、数年から数十年の短い期間だと、速くなったり遅くなったりもしているのだ。",
+     "face": "驚き"
     },
     {
      "say": "ゆっくりなら、吹っ飛ばないのだ！",
@@ -391,11 +405,13 @@
    "intro": [
     {
      "say": "次は、光の速さで走る話なのだ。",
-     "face": "指差し"
+     "face": "指差し",
+     "img": "assets/space/sun.jpg"
     },
     {
      "say": "光は1秒で、どこまで行けるのだ？",
-     "face": "驚き"
+     "face": "驚き",
+     "img": "assets/space/sun.jpg"
     }
    ],
    "extra": [
@@ -440,6 +456,11 @@
      "img": "assets/space/sun.jpg"
     },
     {
+     "say": "月の光も、約1.3秒前の光なのだ。",
+     "face": "通常",
+     "img": "assets/space/moon.jpg"
+    },
+    {
      "say": "ずんだもんが見ている太陽も、ちょっと昔なのだ！",
      "face": "焦り",
      "up": true
@@ -465,11 +486,13 @@
    "intro": [
     {
      "say": "次は、タイムマシンの話なのだ。",
-     "face": "指差し"
+     "face": "指差し",
+     "img": "assets/space/earth_apollo.jpg"
     },
     {
      "say": "時間だけ1時間戻ると、何が起きるのだ？",
-     "face": "驚き"
+     "face": "驚き",
+     "img": "assets/space/earth_apollo.jpg"
     }
    ],
    "extra": [
@@ -518,6 +541,11 @@
      "img": "assets/space/iss.jpg"
     },
     {
+     "say": "ただし、過去に戻る方法は、今の物理学でも見つかっていないのだ。",
+     "face": "通常",
+     "img": "assets/space/milkyway.jpg"
+    },
+    {
      "say": "それ、浦島太郎なのだ！",
      "face": "笑顔",
      "up": true
@@ -548,7 +576,7 @@
    "theme": "deep_sea",
    "still": 30.0,
    "points": [
-    "地球に\n住めなくなった",
+    "地球に\n住めない",
     "7つの星を\n調べる"
    ],
    "intro": [

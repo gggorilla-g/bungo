@@ -58,7 +58,8 @@ def side_panel(ch, no, n_all, out):
     d.text((x0, y), "ポイント", font=T.font(52), fill=T.YEL, stroke_width=6, stroke_fill=T.BLK)
     y += 100
     for p in ch["points"]:
-        f = T.font(68 if max(len(s) for s in p.split("\n")) <= 8 else 58)
+        mx = max(len(s) for s in p.split("\n"))
+        f = T.font(min(68, int((W - x0 - 60) / max(1, mx))))     # 右の余白に収まる大きさ
         for k, s in enumerate(p.split("\n")):
             T.box(d, x0, y, s, f, T.BLK if k == 0 else T.BLK, T.WHT if k else T.YEL, 16, 8)
             y += f.size + 30
