@@ -8,7 +8,10 @@
 - 背景の配色（themes）：直前の回と2つ以上かぶらない。最初の配色は直前の2回と別。
 - 構成（format）：同じ構成を3回続けない。
 - 冒頭（1行目と2行目の演出の種類）：直前の回と同じにしない。
+- 題材（2026-10-30 ゲンタ「ネタ被りしないように」）：過去の全ショート（雑学・妄想科学）と、
+  取り上げる物の名前（カタカナ4字以上の語、wiki の記事名）がかぶらない。オジサン・ウッカリカサゴを再登場させた失敗から。
 """
+import re
 import json, os, sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -48,6 +51,17 @@ def themes(sp):
     return seen
 
 
+def subjects(sp):
+    """取り上げている物の名前：wiki の記事名と、台本に出るカタカナ4字以上の語"""
+    out = set()
+    for ln in sp["lines"]:
+        if ln.get("wiki"):
+            out.add(ln["wiki"][1])
+        out |= set(re.findall(r"[ァ-ヴー]{4,}", ln.get("say", "") + ln.get("text", "")))
+    return out - {"ずんだもん", "ズンダモン", "ショート", "クイズ", "ランキング",
+                 "メートル", "キロメートル", "コメント", "レッツゴー", "スタート", "ブレーキ", "カーテン", "センチメートル", "パーセント", "キログラム", "ウィキペディア"}   # 単位などのよくある語は除く
+
+
 def main(path):
     sp = json.load(open(path))
     sid = os.path.splitext(os.path.basename(path))[0]
@@ -75,6 +89,16 @@ def main(path):
             probs.append(f"冒頭の演出が直前の回と同じ: {opening(sp)}")
     if len(prev) == 2 and fmt(prev[0]) == fmt(prev[1]) == fmt(sp):
         probs.append(f"構成「{fmt(sp)}」が3回続く")
+    mine = subjects(sp)
+    for f in sorted(os.listdir(SHORTS)):
+        oid = f[:-5]
+        if not f.endswith(".json") or f == "queue.json" or oid == sid:
+            continue
+        o = load(oid)
+        if o and "lines" in o:
+            dup = mine & subjects(o)
+            if dup:
+                probs.append(f"題材が {oid} とかぶっている: {sorted(dup)}")
     print(f"{sid}: 構成={fmt(sp)} 配色={th} 冒頭={opening(sp)}")
     for p in prev:
         print(f"  直前: 構成={fmt(p)} 配色={themes(p)}")
