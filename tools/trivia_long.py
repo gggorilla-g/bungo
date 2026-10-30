@@ -145,11 +145,24 @@ def panel(img, th, path, mode, k, z, appear, tt):
 def wrap(text, n=24):
     if len(text) <= n:
         return [text]
-    best = None
-    for i in range(len(text) * 3 // 10, len(text) * 7 // 10 + 2):
-        if 0 < i < len(text) and text[i - 1] in "、。？！…」":
-            if best is None or abs(i - len(text) / 2) < abs(best - len(text) / 2):
-                best = i
+    import unicodedata
+    def kind(c):
+        return "h" if "ぁ" <= c <= "ゖ" else "x"
+    best, bs = None, None
+    for i in range(max(1, len(text) * 2 // 10), min(len(text) - 1, len(text) * 8 // 10 + 2)):
+        if len(text) - i > n + 2 or i > n + 2:
+            continue
+        if text[i - 1] in "、。？！…」":
+            sc = 0                                         # 句読点の後がいちばん良い
+        elif text[i - 1] in "はがをにでともへや" and kind(text[i]) == "x":
+            sc = 6                                         # 助詞のあと（次が漢字・カタカナ）
+        elif kind(text[i - 1]) == "h" and kind(text[i]) == "x":
+            sc = 10
+        else:
+            continue
+        sc += abs(i - len(text) / 2)
+        if bs is None or sc < bs:
+            best, bs = i, sc
     if best is None:
         best = (len(text) + 1) // 2
     return [text[:best], text[best:]]
@@ -237,7 +250,7 @@ def bars(img, f, u):
     img.alpha_composite(lay, (int(PX + PW / 2 - w0 / 2), int(PY + PH - lay.height - 30)))
 
 
-def thermo(img, f, u):
+def thermo(img, f, u, tt=0):
     d = ImageDraw.Draw(img)
     x, y0, y1 = PX + PW - 170, PY + 90, PY + PH - 150
     d.rounded_rectangle([x - 34, y0 - 10, x + 34, y1 + 30], 34, fill=WHT, outline=BLK, width=6)
@@ -426,7 +439,7 @@ def dance_frame(img, u, mouth, line, first_photo):
             ph = cover(src, 0.5, 0.42, 1.1, 820, 600)
             fr = Image.new("RGBA", (860, 640), BLK + (255,)); fr.paste(ph, (20, 20))
             fr = fr.resize((max(1, int(860 * p)), max(1, int(640 * p)))).rotate(-4, expand=True, resample=Image.BICUBIC)
-            img.alpha_composite(fr, (int(1380 - fr.width / 2), int(420 - fr.height / 2)))
+            img.alpha_composite(fr, (int(1380 - fr.width / 2), int(370 - fr.height / 2)))
     img.alpha_composite(im, (int(420 - im.width / 2), int(SUB_Y + 40 - im.height - hop)))
 
 
@@ -575,10 +588,10 @@ def frame(tt, data, rows, starts):
         dance_frame(img, u, mouth, ln, ln.get("_img"))
         for f in ln.get("fx", []):
             if f["type"] == "stamp" and u >= f.get("at", 0):
-                g = dict(f, x=(1380 - PX) / PW, y=(820 - PY) / PH, size=210)
+                g = dict(f, x=(1380 - PX) / PW, y=(600 - PY) / PH, size=210)
                 stamp(img, g, u - f.get("at", 0), th)
                 if u > 0.5:
-                    stamp(img, dict(g, text="息を止められる", y=(970 - PY) / PH - 0.06, size=88, color=[255, 255, 255], tilt=-3), u - 0.5, th)
+                    stamp(img, dict(g, text="息を止められる", y=(775 - PY) / PH, size=84, color=[255, 255, 255], tilt=-3), u - 0.5, th)
         subtitle(img, ln["say"])
         return img.convert("RGB")
     if ln.get("logo"):
@@ -596,7 +609,7 @@ def frame(tt, data, rows, starts):
         firsts = [(s["name"], next(l["_img"] for l in s["lines"] if l.get("_img"))) for s in secs if not s.get("ending")]
         d0 = next(r[0] for r in rows if r[2] == si)
         uu = tt - d0
-        cw, chh = 330, 250
+        cw, chh = 226, 170
         d = ImageDraw.Draw(img)
         for q, (nm, pth) in enumerate(firsts):
             p = back((uu - 0.05 - q * 0.12) / 0.2)
@@ -605,7 +618,7 @@ def frame(tt, data, rows, starts):
             tile = cover(photo(pth), 0.5, 0.45, 1.0, cw, chh)
             fr = Image.new("RGBA", (cw + 16, chh + 16), WHT + (255,)); fr.paste(tile, (8, 8))
             fr = fr.resize((max(1, int(fr.width * p)), max(1, int(fr.height * p))))
-            x = PX - 30 + (q % 5) * 255 + 128 - fr.width // 2; y = 250 + (q // 5) * 330 - fr.height // 2
+            x = PX + 10 + (q % 5) * 250 + 120 - fr.width // 2; y = 300 + (q // 5) * 290 - fr.height // 2
             img.alpha_composite(fr.rotate((q % 3 - 1) * 3, expand=True, resample=Image.BICUBIC), (x, y))
             if p > 0.9:
                 fs = 36 if len(nm) <= 6 else 30
