@@ -1,0 +1,40 @@
+name: Short upload (scheduled)
+# 作ったショートを予約公開でAPIから上げる。動画は nazo_short の実行（run_id）の成果物から取る
+on:
+  workflow_dispatch:
+    inputs:
+      id: { description: "ショートのID", required: true }
+      run_id: { description: "その動画を作った nazo_short の実行ID", required: true }
+      publish_at: { description: "公開日時（UTC、例 2026-10-30T11:00:00Z）", required: true }
+      token: { description: "チャンネルの鍵（YT_REFRESH_TOKEN=雑学 / YT_REFRESH_TOKEN_NAZO=ホー博士）", default: "YT_REFRESH_TOKEN" }
+permissions:
+  contents: write
+  actions: read
+jobs:
+  up:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - uses: actions/download-artifact@v4
+        with:
+          name: "short-${{ inputs.id }}"
+          run-id: ${{ inputs.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: dl
+      - run: pip install -q google-api-python-client google-auth
+      - env:
+          ID: ${{ inputs.id }}
+          PUBLISH_AT: ${{ inputs.publish_at }}
+          YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
+          YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
+          YT_REFRESH_TOKEN: ${{ secrets[inputs.token] }}
+        run: |
+          ls -la dl
+          V=$(ls dl/*.mp4 | head -1)
+          python tools/short_upload.py "$V" "nazo/manual/${{ inputs.id }}/short3_${{ inputs.id }}_upload.txt"
+      - run: |
+          git config user.name "bungo-bot"; git config user.email "bot@users.noreply.github.com"
+          git add nazo/manual && git commit -q -m "API upload: ${{ inputs.id }}" || exit 0
+          for i in 1 2 3; do git pull --rebase -q && git push -q && break; sleep 5; done
