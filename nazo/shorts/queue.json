@@ -70,6 +70,13 @@
    "main": "trivia_fish_quiz",
    "channel": "雑学",
    "posted": false
+  },
+  {
+   "date": "2026-10-30",
+   "id": "moso_jupiter",
+   "main": "moso_science",
+   "channel": "妄想科学",
+   "posted": false
   }
  ]
 }
