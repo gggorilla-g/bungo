@@ -1,0 +1,15 @@
+{
+ "id": "_19mpchNVI4",
+ "url": "https://youtube.com/shorts/_19mpchNVI4",
+ "requested_publishAt": "2026-10-30T11:30:00Z",
+ "returned_status": {
+  "uploadStatus": "uploaded",
+  "privacyStatus": "private",
+  "publishAt": "2026-10-30T11:30:00Z",
+  "license": "youtube",
+  "embeddable": true,
+  "publicStatsViewable": true,
+  "selfDeclaredMadeForKids": false,
+  "containsSyntheticMedia": false
+ }
+}
