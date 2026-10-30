@@ -30,7 +30,8 @@ jobs:
           IFS=',' read -ra P <<< "${{ inputs.parts }}"
           for p in "${P[@]}"; do
             run="${p%%:*}"; wid="${p##*:}"
-            gh run download "$run" -n kaidan-video -D "dl/$wid" -R "${{ github.repository }}"
+            gh run download "$run" -n "kaidan-video-$wid" -D "dl/$wid" -R "${{ github.repository }}" \
+              || gh run download "$run" -n kaidan-video -D "dl/$wid" -R "${{ github.repository }}"   # 作り直し(kaidan-video-<id>)／定時(kaidan-video)
             ls -la "dl/$wid"
             ids="$ids $wid"
           done

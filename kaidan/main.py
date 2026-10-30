@@ -53,17 +53,32 @@ def assert_terms(desc, tags):
         raise RuntimeError("概要欄に「実話ではありません」がない")
 
 
+def rerender_entry(wid):
+    """作り直し用：台本(drafts)と原作から在庫と同じ形の1件を組み立てる（stock.py push と同じ読みの差し込み）。
+    読みの関門は在庫に積んだときに通過済み。queue/published には触れない"""
+    import stock, yomi
+    c, k, work = stock.load(wid)
+    ym = {t: yomi.base_fix(stock.words_fix(t, k), c["meta"], c["ruby"]) for t in stock.sentences(k, work)}
+    return dict(work, kousei=k, yomi=ym)
+
+
 def main():
     published = load(f"{S}/published.json", [])
     failures = load(f"{S}/failures.json", [])
     queue = load(f"{S}/queue.json", [])
     today = (datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(hours=9)).date().isoformat()   # 日本時間の日付
-    if published and published[-1].get("date") == today and not os.environ.get("FORCE"):
-        # 定時の起動はGitHub側で数時間遅れることがある。手動で先に作った日は、遅れて来た定時分で2本目を作らない
-        print("今日の分はもう作ってある。何もしない"); return
-    if not queue:
-        print("在庫切れ: チャットで「怪談の在庫補充」を。今回は何もしない"); return
-    work = queue.pop(0)
+    rerender = os.environ.get("WORK_ID", "").strip()
+    if rerender:
+        # 指定した回だけ作り直す（投稿しない・在庫と公開記録は変えない）
+        work = rerender_entry(rerender)
+        print(f"作り直し: 第{work['no']}話 {work['title']}（{rerender}）")
+    else:
+        if published and published[-1].get("date") == today and not os.environ.get("FORCE"):
+            # 定時の起動はGitHub側で数時間遅れることがある。手動で先に作った日は、遅れて来た定時分で2本目を作らない
+            print("今日の分はもう作ってある。何もしない"); return
+        if not queue:
+            print("在庫切れ: チャットで「怪談の在庫補充」を。今回は何もしない"); return
+        work = queue.pop(0)
     try:
         src = load(f"{S}/texts/{work['work_id']}.json", None)
         k = work["kousei"]
@@ -133,6 +148,17 @@ def main():
         dur = subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", out],
                              capture_output=True, text=True).stdout.strip()
         open(f"{kit}/duration.txt", "w").write(dur + "\n")
+        # 確認用：全体を10秒ごと（左上に時刻）。1枚20コマ＝200秒ぶん
+        for old in os.listdir(kit):
+            if old.startswith("sheet10_"):
+                os.remove(f"{kit}/{old}")
+        subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", out, "-vf",
+                        "fps=1/10,drawtext=fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf:"
+                        "text='%{pts\\:hms}':x=12:y=12:fontsize=44:fontcolor=yellow:box=1:boxcolor=black,"
+                        "scale=480:-1,tile=4x5", f"{kit}/sheet10_%02d.jpg"])
+        if rerender:
+            print(f"完了（作り直し・投稿なし）: 第{work['no']}話 {work['title']} {dur}秒 → {out}")
+            return
         import kaidan_upload as yt_upload   # YT_REFRESH_TOKEN が空（投稿なしモード）なら None が返る
         vid = yt_upload.upload(out, "output/thumb.png", k["title_candidates"][0], desc, tags, k.get("en"))
         if vid:
@@ -143,6 +169,9 @@ def main():
         save(f"{S}/queue.json", queue)
         print(f"完了: 第{work['no']}話 {work['title']} → 手動投稿用 {kit}")
     except Exception as e:
+        print(f"::error::{type(e).__name__}: {str(e)[:300]}")   # ログが読めないとき用（check-runs の annotations に出る）
+        if rerender:
+            traceback.print_exc(); sys.exit(1)
         failures.append({"work_id": work.get("work_id"), "title": work.get("title"),
                          "date": datetime.date.today().isoformat(), "error": str(e)})
         save(f"{S}/failures.json", failures)
