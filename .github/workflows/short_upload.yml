@@ -33,7 +33,8 @@ jobs:
         run: |
           ls -la dl
           V=$(ls dl/*.mp4 | head -1)
-          python tools/short_upload.py "$V" "nazo/manual/${{ inputs.id }}/short3_${{ inputs.id }}_upload.txt"
+          K=$(ls nazo/manual/*/short*_${{ inputs.id }}_upload.txt | head -1); echo "kit: $K"
+          python tools/short_upload.py "$V" "$K"
       - run: |
           git config user.name "bungo-bot"; git config user.email "bot@users.noreply.github.com"
           git add nazo/manual && git commit -q -m "API upload: ${{ inputs.id }}" || exit 0

@@ -34,5 +34,4 @@ while res is None:
 out = {"id": res["id"], "url": "https://youtube.com/shorts/" + res["id"], "requested_publishAt": publish_at,
        "returned_status": res.get("status", {})}
 print(json.dumps(out, ensure_ascii=False, indent=1))
-os.makedirs(f"nazo/manual/{os.environ['ID']}", exist_ok=True)
-open(f"nazo/manual/{os.environ['ID']}/api_upload.txt", "w").write(json.dumps(out, ensure_ascii=False, indent=1) + "\n")
+open(os.path.join(os.path.dirname(kit), "api_upload.txt"), "w").write(json.dumps(out, ensure_ascii=False, indent=1) + "\n")
