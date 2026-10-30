@@ -7,6 +7,7 @@ on:
       upload: { description: "YouTubeに投稿する", type: boolean, default: false }
       work_id: { description: "作り直す回の作品ID（例 059429）。指定すると投稿せず、在庫・公開記録も変えない", default: "" }
       retention_days: { description: "成果物の保持日数", default: "30" }
+      commit_kit: { description: "作り直しで投稿キット（kaidan/manual/<id>）を書き戻す。公開済みの回は 0（まとめ用に動画だけ作る）", default: "1" }
 permissions:
   contents: write
 concurrency:
@@ -53,7 +54,9 @@ jobs:
         run: |
           git config user.name "bungo-bot"
           git config user.email "bot@users.noreply.github.com"
-          if [ -n "${{ inputs.work_id }}" ]; then
+          if [ -n "${{ inputs.work_id }}" ] && [ "${{ inputs.commit_kit }}" = "0" ]; then
+            echo "キットは書き戻さない"; exit 0
+          elif [ -n "${{ inputs.work_id }}" ]; then
             git add -A "kaidan/manual/${{ inputs.work_id }}"
             msg="kaidan rerender: ${{ inputs.work_id }}"
           else
