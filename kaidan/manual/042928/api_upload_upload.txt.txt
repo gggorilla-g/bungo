@@ -1,0 +1,17 @@
+{
+ "thumb": "kaidan/manual/042928/thumb.png",
+ "thumb_error": "",
+ "id": "o1s_uFWiNgk",
+ "url": "https://youtube.com/shorts/o1s_uFWiNgk",
+ "requested_publishAt": "2026-11-04T12:30:00Z",
+ "returned_status": {
+  "uploadStatus": "uploaded",
+  "privacyStatus": "private",
+  "publishAt": "2026-11-04T12:30:00Z",
+  "license": "youtube",
+  "embeddable": true,
+  "publicStatsViewable": true,
+  "selfDeclaredMadeForKids": false,
+  "containsSyntheticMedia": false
+ }
+}
