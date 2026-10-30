@@ -22,6 +22,8 @@ SUB_Y = 872                                           # テロップの帯の上
 ZH = 560                                              # 左下のずんだもんの高さ（胸から上の絵）
 GAP, SEC_GAP, UPT = 0.26, 0.45, 1.0                   # セリフの間、章の間、アップの秒数
 WORK = "build_trivia_long"
+THUMB = "nazo/manual/trivia_names10/trivia_long_names10_thumb.png"   # 最後に無音でつける（Studio の「動画から選択」用）
+THUMB_SEC = 1.5
 _fc = {}
 
 
@@ -521,7 +523,7 @@ def timeline(data):
             rows.append([t, t + len(x) / SR + hold, si, li, x, env_of(ev)])
             t += len(x) / SR + hold + GAP
         t += SEC_GAP
-    return rows, chapters, kana, t + 0.8
+    return rows, chapters, kana, t + 0.8 + THUMB_SEC
 
 
 def audio(data, rows, total, out_wav):
@@ -570,8 +572,15 @@ def audio(data, rows, total, out_wav):
         w.writeframes((mix * 32767).astype(np.int16).tobytes())
 
 
-def frame(tt, data, rows, starts):
+_thumb = {}
+
+
+def frame(tt, data, rows, starts, total=None):
     secs = data["sections"]
+    if total is not None and tt >= total - THUMB_SEC and os.path.exists(THUMB):
+        if "im" not in _thumb:
+            _thumb["im"] = Image.open(THUMB).convert("RGB").resize((W, H), Image.LANCZOS)
+        return _thumb["im"]
     i = max(0, np.searchsorted(starts, tt, side="right") - 1)
     t0, t1, si, li, x, env = rows[i]
     sc = secs[si]; ln = sc["lines"][li]
@@ -609,7 +618,7 @@ def frame(tt, data, rows, starts):
         firsts = [(s["name"], next(l["_img"] for l in s["lines"] if l.get("_img"))) for s in secs if not s.get("ending")]
         d0 = next(r[0] for r in rows if r[2] == si)
         uu = tt - d0
-        cw, chh = 226, 170
+        cw, chh = 290, 218
         d = ImageDraw.Draw(img)
         for q, (nm, pth) in enumerate(firsts):
             p = back((uu - 0.05 - q * 0.12) / 0.2)
@@ -618,10 +627,10 @@ def frame(tt, data, rows, starts):
             tile = cover(photo(pth), 0.5, 0.45, 1.0, cw, chh)
             fr = Image.new("RGBA", (cw + 16, chh + 16), WHT + (255,)); fr.paste(tile, (8, 8))
             fr = fr.resize((max(1, int(fr.width * p)), max(1, int(fr.height * p))))
-            x = PX + 10 + (q % 5) * 250 + 120 - fr.width // 2; y = 300 + (q // 5) * 290 - fr.height // 2
+            x = 330 + (q % 5) * 315 - fr.width // 2; y = 290 + (q // 5) * 330 - fr.height // 2
             img.alpha_composite(fr.rotate((q % 3 - 1) * 3, expand=True, resample=Image.BICUBIC), (x, y))
             if p > 0.9:
-                fs = 36 if len(nm) <= 6 else 30
+                fs = 38 if len(nm) <= 6 else 30
                 box(d, x + 6, y + fr.height - 30, nm, font(fs), BLK, YEL, 10, 4)
     else:
         # 写真の枠
@@ -659,7 +668,9 @@ def frame(tt, data, rows, starts):
             chapter_card(img, sc["_no"], sc["name"], u, th)
         header(img, sc["_no"], sc["name"], sc["_no"], n_all)
     # ずんだもん（左下）。ツッコミの行は最初の1秒だけ顔のアップ
-    if ln.get("up") and u < UPT:
+    if ln.get("digest"):
+        pass
+    elif ln.get("up") and u < UPT:
         up_panel(img, ln.get("face", "驚き"), mouth, blink, u, sc["theme"])
     else:
         hop = int(10 * math.sin(math.pi * u / 0.25)) if u < 0.25 else 0
@@ -671,7 +682,7 @@ def frame(tt, data, rows, starts):
 
 
 def render_part(args):
-    a, b, out, data_path, rows_pk = args
+    a, b, out, data_path, rows_pk, total = args
     import pickle
     data, rows = pickle.load(open(rows_pk, "rb"))
     starts = np.array([r[0] for r in rows])
@@ -679,7 +690,7 @@ def render_part(args):
            "-c:v", "libx264", "-preset", "veryfast", "-crf", "21", "-pix_fmt", "yuv420p", out]
     p = subprocess.Popen(cmd, stdin=subprocess.PIPE)
     for fi in range(a, b):
-        p.stdin.write(frame(fi / FPS, data, rows, starts).tobytes())
+        p.stdin.write(frame(fi / FPS, data, rows, starts, total).tobytes())
         if (fi - a) % (FPS * 60) == 0:
             print(f"  {out}: {(fi - a) / FPS / 60:.0f}分 / {(b - a) / FPS / 60:.1f}分", flush=True)
     p.stdin.close(); p.wait()
@@ -698,7 +709,7 @@ def build(script, out, t_from=None, t_to=None, jobs=2):
     pickle.dump((data, rows), open(pk, "wb"))
     f0 = int((t_from or 0) * FPS); f1 = int(min(total, t_to or total) * FPS)
     cuts = [f0 + (f1 - f0) * q // jobs for q in range(jobs + 1)]
-    parts = [(cuts[q], cuts[q + 1], f"{WORK}/part{q}.mp4", script, pk) for q in range(jobs)]
+    parts = [(cuts[q], cuts[q + 1], f"{WORK}/part{q}.mp4", script, pk, total) for q in range(jobs)]
     from multiprocessing import Pool
     with Pool(jobs) as pool:
         outs = pool.map(render_part, parts)

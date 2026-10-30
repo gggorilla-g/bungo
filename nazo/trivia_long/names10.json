@@ -312,21 +312,6 @@
      "hold": 0.4
     },
     {
-     "say": "おなかの中で2つの薬を反応させて、熱いガスにして噴き出すのだ。",
-     "face": "通常",
-     "img": "nazo/trivia_long/names10/photos/bombardier/bombardier_08.jpg",
-     "fx": [
-      {
-       "type": "stamp",
-       "text": "ガスの成分の結晶",
-       "at": 0.25,
-       "y": 0.22,
-       "size": 110,
-       "x": 0.5
-      }
-     ]
-    },
-    {
      "say": "噴き出すとき、ぷっ、と音がするから、ヘッピリムシなのだ。",
      "face": "笑顔",
      "img": "nazo/trivia_long/names10/photos/bombardier/bombardier_19.jpg",
@@ -577,11 +562,6 @@
      ]
     },
     {
-     "say": "研究者の論文はあったけど、自分の目で確かめたことが評価されて、賞をもらったのだ。",
-     "face": "笑顔",
-     "img": "nazo/trivia_long/names10/photos/antlion/antlion_48.jpg"
-    },
-    {
      "say": "名前は地獄なのに、我慢強すぎるのだ！",
      "face": "笑顔",
      "up": true
@@ -663,11 +643,6 @@
      ]
     },
     {
-     "say": "ハリセンボンの仲間は、世界に20種ほど。大きい種類だと、70センチをこえるのだ。",
-     "face": "驚き",
-     "img": "nazo/trivia_long/names10/photos/porcupinefish/porcupinefish_02.jpg"
-    },
-    {
      "say": "ふだんは、体にぴたっと寝かせているのだ。",
      "face": "通常",
      "img": "nazo/trivia_long/names10/photos/porcupinefish/porcupinefish_11.jpg"
@@ -709,16 +684,6 @@
      "img": "nazo/trivia_long/names10/photos/porcupinefish/porcupinefish_03.jpg"
     },
     {
-     "say": "ふくらんだ形の剥製は、おみやげとして売られていることもあるのだ。",
-     "face": "通常",
-     "img": "nazo/trivia_long/names10/photos/porcupinefish/porcupinefish_03.jpg"
-    },
-    {
-     "say": "泳ぐときは、ひれをパタパタ羽ばたかせて、ゆっくり進むのだ。",
-     "face": "笑顔",
-     "img": "nazo/trivia_long/names10/photos/porcupinefish/porcupinefish_02.jpg"
-    },
-    {
      "say": "フグの仲間だけど、歯の数がちがうのだ。",
      "face": "通常",
      "img": "nazo/trivia_long/names10/photos/porcupinefish/porcupinefish_11.jpg"
@@ -758,11 +723,6 @@
     {
      "say": "ハリセンボンは、上と下に1枚ずつで、合わせて2枚なのだ。",
      "face": "ドヤ",
-     "img": "nazo/trivia_long/names10/photos/porcupinefish/porcupinefish_11.jpg"
-    },
-    {
-     "say": "フグの仲間だけど、毒はないとされているのだ。",
-     "face": "通常",
      "img": "nazo/trivia_long/names10/photos/porcupinefish/porcupinefish_11.jpg"
     },
     {
@@ -824,11 +784,6 @@
        "x": 0.5
       }
      ]
-    },
-    {
-     "say": "もともとは、暖かい海の魚なのだ。",
-     "face": "通常",
-     "img": "nazo/trivia_long/names10/photos/porcupinefish/porcupinefish_02.jpg"
     },
     {
      "say": "冬になると、海の流れに乗って北へ運ばれ、浜に打ち上げられることもあるのだ。",
@@ -911,21 +866,6 @@
         214,
         0
        ]
-      }
-     ]
-    },
-    {
-     "say": "このとき、仲間もあわせて14種が、なんとかカエルアンコウに変わったのだ。",
-     "face": "驚き",
-     "img": "nazo/trivia_long/names10/photos/frogfish/frogfish_14.jpg",
-     "fx": [
-      {
-       "type": "count",
-       "to": 14,
-       "unit": "種",
-       "label": "名前が変わった種の数",
-       "at": 0.2,
-       "dec": 0
       }
      ]
     },
@@ -1035,54 +975,14 @@
      "img": "nazo/trivia_long/names10/photos/frogfish/frogfish_16.jpg"
     },
     {
-     "say": "ときには、仲間を食べてしまうこともあるのだ。",
-     "face": "青ざめ",
-     "img": "nazo/trivia_long/names10/photos/frogfish/frogfish_16.jpg"
-    },
-    {
      "say": "体の色は、何週間もかけて、まわりに合わせて変えるのだ。",
      "face": "通常",
      "img": "nazo/trivia_long/names10/photos/frogfish/frogfish_15.jpg"
     },
     {
-     "say": "黄色、オレンジ、緑、白、黒。いろんな色の個体がいるのだ。",
-     "face": "笑顔",
-     "img": "nazo/trivia_long/names10/photos/frogfish/frogfish_14.jpg"
-    },
-    {
-     "say": "サンゴや海綿にそっくりになって、じっと待ち伏せするのだ。",
-     "face": "通常",
-     "img": "nazo/trivia_long/names10/photos/frogfish/frogfish_14.jpg"
-    },
-    {
      "say": "毛みたいに見えるのは、皮ふの細かい突起なのだ。",
      "face": "驚き",
      "img": "nazo/trivia_long/names10/photos/frogfish/frogfish_19.jpg"
-    },
-    {
-     "say": "敵が来ると、水を吸い込んで体をふくらませることもあるのだ。",
-     "face": "通常",
-     "img": "nazo/trivia_long/names10/photos/frogfish/frogfish_19.jpg"
-    },
-    {
-     "say": "日本の海にもいて、水族館で飼われていることもあるのだ。",
-     "face": "笑顔",
-     "img": "nazo/trivia_long/names10/photos/frogfish/frogfish_03.jpg"
-    },
-    {
-     "say": "カエルアンコウの仲間は、世界に51種、日本に15種が知られているのだ。",
-     "face": "通常",
-     "img": "nazo/trivia_long/names10/photos/frogfish/frogfish_15.jpg",
-     "fx": [
-      {
-       "type": "count",
-       "to": 51,
-       "unit": "種",
-       "label": "世界のカエルアンコウの仲間",
-       "at": 0.2,
-       "dec": 0
-      }
-     ]
     },
     {
      "say": "歩いて、釣りして、色も変える。忙しすぎる魚なのだ！",
@@ -1174,26 +1074,6 @@
      "up": true
     },
     {
-     "say": "体は大きくて、体重は40キロから100キロもあるのだ。",
-     "face": "通常",
-     "img": "nazo/trivia_long/names10/photos/aardvark/aardvark_03.jpg",
-     "fx": [
-      {
-       "type": "stamp",
-       "text": "40〜100kg",
-       "at": 0.25,
-       "y": 0.25,
-       "size": 170,
-       "x": 0.5,
-       "color": [
-        255,
-        214,
-        0
-       ]
-      }
-     ]
-    },
-    {
      "say": "長い耳に、長い鼻。",
      "face": "笑顔",
      "img": "nazo/trivia_long/names10/photos/aardvark/aardvark_02.jpg",
@@ -1282,11 +1162,6 @@
      "up": true
     },
     {
-     "say": "夜に動く動物で、一晩に何キロも歩くのだ。",
-     "face": "通常",
-     "img": "nazo/trivia_long/names10/photos/aardvark/aardvark_47.jpg"
-    },
-    {
      "say": "一晩で30キロ歩いた例もあるのだ。",
      "face": "驚き",
      "img": "nazo/trivia_long/names10/photos/aardvark/aardvark_47.jpg",
@@ -1308,34 +1183,14 @@
      "img": "nazo/trivia_long/names10/photos/aardvark/aardvark_12.jpg"
     },
     {
-     "say": "野火のときには、動物たちの避難場所にもなるのだ。",
-     "face": "通常",
-     "img": "nazo/trivia_long/names10/photos/aardvark/aardvark_12.jpg"
-    },
-    {
      "say": "天敵は、おもにブチハイエナ。ライオンやヒョウにおそわれることもあるのだ。",
      "face": "青ざめ",
      "img": "nazo/trivia_long/names10/photos/aardvark/aardvark_47.jpg"
     },
     {
-     "say": "お母さんのおなかにいる期間は、7か月なのだ。",
-     "face": "通常",
-     "img": "nazo/trivia_long/names10/photos/aardvark/aardvark_16.jpg"
-    },
-    {
      "say": "寝るときは、こんなふうに丸くなるのだ。",
      "face": "笑顔",
      "img": "nazo/trivia_long/names10/photos/aardvark/aardvark_16.jpg"
-    },
-    {
-     "say": "赤ちゃんは、1回に1頭だけ生まれるのだ。",
-     "face": "通常",
-     "img": "nazo/trivia_long/names10/photos/aardvark/aardvark_16.jpg"
-    },
-    {
-     "say": "日本では、静岡の日本平動物園で、赤ちゃんが生まれたことがあるのだ。",
-     "face": "笑顔",
-     "img": "nazo/trivia_long/names10/photos/aardvark/aardvark_03.jpg"
     },
     {
      "say": "古代エジプトの神様、セトの頭は、ツチブタだともいわれているのだ。",
@@ -1463,28 +1318,6 @@
      "img": "nazo/trivia_long/names10/photos/bullfinch/bullfinch_00.jpg"
     },
     {
-     "say": "ヒヨドリより低くて、やわらかい声なのだ。",
-     "face": "笑顔",
-     "img": "nazo/trivia_long/names10/photos/bullfinch/bullfinch_00.jpg",
-     "fx": [
-      {
-       "type": "notes",
-       "at": 0.1
-      }
-     ]
-    },
-    {
-     "say": "くちばしが太くて短いのは、種を食べる鳥の特徴なのだ。",
-     "face": "通常",
-     "img": "nazo/trivia_long/names10/photos/bullfinch/bullfinch_43.jpg",
-     "z": [
-      0.6,
-      0.4,
-      1.0,
-      1.4
-     ]
-    },
-    {
      "say": "そしてウソは、神社とも関係があるのだ。",
      "face": "指差し",
      "img": "nazo/trivia_long/names10/photos/bullfinch/bullfinch_03.jpg"
@@ -1521,11 +1354,6 @@
     },
     {
      "say": "福岡の太宰府天満宮では、毎年1月7日に行われているのだ。",
-     "face": "通常",
-     "img": "nazo/trivia_long/names10/photos/bullfinch/bullfinch_03.jpg"
-    },
-    {
-     "say": "東京の亀戸天神社や、大阪天満宮でも行われているのだ。",
      "face": "通常",
      "img": "nazo/trivia_long/names10/photos/bullfinch/bullfinch_03.jpg"
     },
@@ -1568,11 +1396,6 @@
        "x": 0.5
       }
      ]
-    },
-    {
-     "say": "日本では、本州と北海道の山で子育てをして、冬は平地の林にも来るのだ。",
-     "face": "通常",
-     "img": "nazo/trivia_long/names10/photos/bullfinch/bullfinch_42.jpg"
     },
     {
      "say": "かわいい顔して、つぼみが大好物なのだ！",
@@ -1659,22 +1482,12 @@
      ]
     },
     {
-     "say": "ハゲワシも、同じように頭に羽が少ないのだ。",
-     "face": "通常",
-     "img": "nazo/trivia_long/names10/photos/marabou/marabou_12.jpg"
-    },
-    {
      "say": "死がいを食べるときは、ハゲワシといっしょになることが多いのだ。",
      "face": "通常",
      "img": "nazo/trivia_long/names10/photos/marabou/marabou_12.jpg"
     },
     {
-     "say": "肉を引きさくのは、かぎ形のくちばしのハゲワシのほうが上手なのだ。",
-     "face": "通常",
-     "img": "nazo/trivia_long/names10/photos/marabou/marabou_12.jpg"
-    },
-    {
-     "say": "だからハゲコウは、ハゲワシが落とした肉をさらったり、横取りしたりするのだ。",
+     "say": "ハゲコウは、ハゲワシが落とした肉をさらったり、横取りしたりするのだ。",
      "face": "驚き",
      "img": "nazo/trivia_long/names10/photos/marabou/marabou_12.jpg",
      "fx": [
@@ -1767,11 +1580,6 @@
      ]
     },
     {
-     "say": "飛ぶときは、首を縮めて飛ぶのだ。",
-     "face": "通常",
-     "img": "nazo/trivia_long/names10/photos/marabou/marabou_26.jpg"
-    },
-    {
      "say": "足が白っぽく見えるのは、自分のふんがついているからなのだ。",
      "face": "青ざめ",
      "img": "nazo/trivia_long/names10/photos/marabou/marabou_14.jpg",
@@ -1797,37 +1605,7 @@
      "up": true
     },
     {
-     "say": "町のゴミ捨て場にも、たくさん集まるのだ。",
-     "face": "通常",
-     "img": "nazo/trivia_long/names10/photos/marabou/marabou_02.jpg"
-    },
-    {
-     "say": "飲み込める大きさなら、靴や金属のかけらまで、食べようとするらしいのだ。",
-     "face": "驚き",
-     "img": "nazo/trivia_long/names10/photos/marabou/marabou_02.jpg",
-     "fx": [
-      {
-       "type": "stamp",
-       "text": "靴も？",
-       "at": 0.25,
-       "y": 0.25,
-       "size": 170,
-       "x": 0.5,
-       "color": [
-        255,
-        214,
-        0
-       ]
-      }
-     ]
-    },
-    {
      "say": "ひなは、親が吐き戻したエサを食べて育つのだ。",
-     "face": "通常",
-     "img": "nazo/trivia_long/names10/photos/marabou/marabou_26.jpg"
-    },
-    {
-     "say": "子育てのころは、ひなのために、生きた獲物をつかまえるようになるのだ。",
      "face": "通常",
      "img": "nazo/trivia_long/names10/photos/marabou/marabou_26.jpg"
     },
@@ -1986,11 +1764,6 @@
      "img": "nazo/trivia_long/names10/photos/boke/boke_38.jpg"
     },
     {
-     "say": "小枝は、トゲになっているのだ。",
-     "face": "焦り",
-     "img": "nazo/trivia_long/names10/photos/boke/boke_16.jpg"
-    },
-    {
      "say": "実は、いい香りがするのだ。",
      "face": "笑顔",
      "img": "nazo/trivia_long/names10/photos/boke/boke_01.jpg"
@@ -2021,17 +1794,7 @@
      ]
     },
     {
-     "say": "切ると、中には種がぎっしりなのだ。",
-     "face": "驚き",
-     "img": "nazo/trivia_long/names10/photos/boke/boke_03.jpg"
-    },
-    {
      "say": "江戸時代には、小石川養生所に植えられて、漢方薬に使われていたのだ。",
-     "face": "通常",
-     "img": "nazo/trivia_long/names10/photos/boke/boke_38.jpg"
-    },
-    {
-     "say": "乾かした実は、もっか、という生薬になるのだ。",
      "face": "通常",
      "img": "nazo/trivia_long/names10/photos/boke/boke_38.jpg"
     },
@@ -2231,26 +1994,6 @@
      "img": "nazo/trivia_long/names10/photos/nemertea/nemertea_08.jpg"
     },
     {
-     "say": "体の3倍の長さまで、のばす種類もいるのだ。",
-     "face": "驚き",
-     "img": "nazo/trivia_long/names10/photos/nemertea/nemertea_08.jpg",
-     "fx": [
-      {
-       "type": "stamp",
-       "text": "体の3倍",
-       "at": 0.25,
-       "y": 0.25,
-       "size": 170,
-       "x": 0.5,
-       "color": [
-        255,
-        214,
-        0
-       ]
-      }
-     ]
-    },
-    {
      "say": "先に毒の針がついている種類もいるのだ。",
      "face": "青ざめ",
      "img": "nazo/trivia_long/names10/photos/nemertea/nemertea_05.jpg"
@@ -2294,16 +2037,6 @@
      "say": "小笠原諸島では、外から入ってきたリクヒモムシが、島の小さな生き物を減らしたと発表されたのだ。",
      "face": "青ざめ",
      "img": "nazo/trivia_long/names10/photos/nemertea/nemertea_05.jpg"
-    },
-    {
-     "say": "むかしは、とても原始的な動物だと考えられていたのだ。",
-     "face": "通常",
-     "img": "nazo/trivia_long/names10/photos/nemertea/nemertea_07.jpg"
-    },
-    {
-     "say": "今では、貝やゴカイに近い仲間だと考えられているのだ。",
-     "face": "驚き",
-     "img": "nazo/trivia_long/names10/photos/nemertea/nemertea_07.jpg"
     },
     {
      "say": "ただのヒモじゃなかったのだ！",
