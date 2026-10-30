@@ -8,7 +8,7 @@
   - 結果は投稿キットと同じフォルダの api_upload_*.txt。
   - サムネ設定に失敗しても投稿は止めない（警告を残す）。
   - 説明欄はAPIで5000バイトまで（日本語は1文字3バイト）。長尺の写真クレジットは短くまとめる。
-- 鍵（GitHub Secrets）：雑学 YT_REFRESH_TOKEN、ホー博士 YT_REFRESH_TOKEN_NAZO、妄想科学 YT_REFRESH_TOKEN_MOSO（10/30登録）、百物語 YT_REFRESH_TOKEN_KAIDAN（10/31時点で未登録）。
+- 鍵（GitHub Secrets）：雑学 YT_REFRESH_TOKEN、ホー博士 YT_REFRESH_TOKEN_NAZO、妄想科学 YT_REFRESH_TOKEN_MOSO（10/30登録）、百物語 YT_REFRESH_TOKEN_KAIDAN（10/31登録）。
   - 鍵の取り方：Macの ~/Downloads/portfolio_real/moso_token/moso_token.command（ダブルクリック）。Google Cloud（bungo）のクライアント bungo-desktop で「Add secret」→コピー→実行→ブラウザでチャンネルを選んで許可→token.txt の中身を Secrets へ。シークレットは1クライアント2つまで。qEqA（10/12作成、YT_CLIENT_SECRET）は消さない。
 - ショートと長尺のつなぎ（関連動画）はAPIにないので、ClaudeがゲンタさんのChromeでStudioを操作して設定する（10/30 ゲンタさん「やっていいと思う」）。電話番号の確認があるチャンネル（ホー博士）だけ。
 - 観測：10/30の雑学の初投稿（予約公開）は公開1時間で2再生だったが、その後伸びた（10/31に1,035回）。出だしが遅いだけのことがあるので、数時間は待って判断する。
@@ -54,6 +54,7 @@
 - 10/31（予約投稿）
   - 雑学 長尺「名前がひどすぎる生き物10選」14:42 https://youtu.be/1ldjP8E4yRI（10/31 19:00公開）
   - 入口ショート ナマケモノ https://youtube.com/shorts/wzRq21IA2rQ（10/31 20:30）／ヘッピリムシ https://youtube.com/shorts/mCYxrtdiFKs（11/1 20:30）。2本とも説明欄の先頭に長尺のリンク
+- 10/31 百物語 第四〜十一話を予約（10/31〜11/7 毎晩21:30、サムネあり）。IDは台帳に
 - すべての投稿と数字は claude/video-ledger.md に記録する。
 
 ## 雑学の長尺（2026-10-30 ゲンタさん「ざつがくの長尺を作る方針にしましょう」）
