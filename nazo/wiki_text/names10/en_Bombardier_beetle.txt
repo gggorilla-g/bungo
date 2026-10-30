@@ -1,0 +1,50 @@
+https://en.wikipedia.org/wiki/Bombardier_beetle
+
+Bombardier beetles are adephagan ground beetles (Carabidae) in the Brachininae or Paussinae subfamilies—more than 500 species altogether—which are most notable for the defense mechanism that gives them their name: when disturbed, they eject a hot, noxious chemical spray from their pygidial glands with a popping sound.
+The spray is produced from a catalyzed reaction between hydroquinone and hydrogen peroxide, an aqueous solution of which is stored in the pygidial glands in the beetle's abdomen. When the solution reaches the "vestibule" (Eisner's word), catalysts facilitate the decomposition of the hydrogen peroxide and the oxidation of the hydroquinone. Heat from the reaction brings the mixture to near the boiling point of water and produces gas that drives the ejection. The damage caused can be fatal to attacking insects. Some bombardier beetles can direct the spray in a wide range of directions.
+
+
+== Habitat ==
+
+Bombardier beetles inhabit all continents except Antarctica. They typically live in woodlands or grasslands in the temperate zones but can be found in other environments if there are moist places to lay their eggs.
+
+
+== Behavior ==
+Most species of bombardier beetles are carnivorous, including the larva. The beetle typically hunts at night for other insects, but will often congregate with others of its species when not actively looking for food.
+
+
+== Anatomy ==
+There are two large glands that open at the tip of the abdomen. Each gland is composed of a thick walled vestibule which contains a mixture of catalases and peroxidases produced by the secretory cells that line the vestibule. Both glands are also made up of a thin-walled and compressible reservoir which contains an aqueous solution of hydroquinones and hydrogen peroxide.
+
+
+== Mechanism of defense ==
+
+Aqueous solutions of reactants are stored in separate reservoirs within the beetle’s body. When the beetle feels threatened, it opens a valve which allows the solutions to reach the vestibule. The catalases lining the vestibule wall facilitate the decomposition of hydrogen peroxide, as in the following theoretical reaction:
+
+2 H2O2(aq)  →  2 H2O(l) + O2(g)
+The peroxidase enzymes facilitate the oxidation of the hydroquinones into quinones (benzene-1,4-diol into 1,4-benzoquinone and analogously for methyl hydroquinone), as in the following theoretical reaction:
+
+C6H4(OH)2(aq)  →  C6H4O2(aq) + H2(g)
+The known net reaction, which further accounts for the theoretical reaction of the H2(g) and 1/2O2(g) products of the previous reactions, is:
+
+C6H4(OH)2(aq) + H2O2(aq)  →  C6H4O2(aq) + 2H2O(l)
+
+This reaction is very exothermic, and the released energy raises the temperature of the mixture to near 100 °C, vaporizing about a fifth of it. The resultant pressure buildup forces the entrance valves from the reactant storage chambers to close, thus protecting the beetle's internal organs. The boiling, foul-smelling liquid is expelled violently through an outlet valve, with a loud popping sound. The beetles' glands store enough hydroquinone and hydrogen peroxide to allow the beetle to release its chemical spray roughly 20 times. In some cases this is enough to kill a predator. The main component of the beetle spray is 1,4-benzoquinone, an irritant to the eyes and the respiratory system of vertebrates. Other toxic byproducts that are ejected include various acids, aldehydes, and phenols.
+The flow of reactants into the reaction chamber and subsequent ejection occur in a series of about 70 pulses, at a rate of about 500 pulses per second. The whole sequence of events can take only a fraction of a second. These pulsations are caused by repeated microexplosions which are the results of the continuous pressure on the reservoir and the oscillatory opening and closing of the valve that controls access to the reaction chamber. This pulsed mechanism is beneficial for the beetles' survival because the system uses pressure instead of muscles to eject the spray at a constant velocity, saving the beetle energy. Also, the reintroduction of new reactants into the vestibule where enzymes are stored, reduces the temperature of the chamber, thereby protecting the peroxidases and catalases from thermal denaturation.
+Typically the beetle turns its body so as to direct the jet towards whatever triggered the response. The gland openings of some African bombardier beetles can swivel through 270° and thrust between the insect's legs, discharging the fluid in a wide range of directions with considerable accuracy.
+
+
+== Evolution of the defense mechanism ==
+The full evolutionary history of the beetle's unique defense mechanism is unknown, but biologists have shown that the system could have evolved from defenses found in other beetles in incremental steps by natural selection. Specifically, quinone chemicals are a precursor to sclerotin, a brownish substance produced by beetles and other insects to harden their exoskeleton. Some beetles additionally store excess foul-smelling quinones, including hydroquinone, in small sacs below their skin as a natural deterrent against predators—all carabid beetles have this sort of arrangement. Some beetles additionally mix hydrogen peroxide, a common by-product of the metabolism of cells, with the hydroquinone; some of the catalases that exist in most cells make the process more efficient. The chemical reaction produces heat and pressure, and some beetles exploit the latter to push out the chemicals onto the skin; this is the case in the beetle Metrius contractus, which produces a foamy discharge when attacked. In the bombardier beetle, the muscles that prevent leakage from the reservoir additionally developed a valve permitting more controlled discharge of the poison and an elongated abdomen to permit better control over the direction of discharge.
+
+
+== References ==
+
+
+== External links ==
+
+Genus Brachinus — BugGuide.net
+Hesselberg T (6 November 2007). "Exploding beetles suggest a new pressure relief valve and fluid discharge system". Life of science.
+"Claim CB310: Bombardier beetle evolution". TalkOrigins Archive.
+Isaak, Mark (May 30, 2003). "Bombardier Beetles and the Argument of Design". TalkOrigins Archive.
+BBC (1999). "'Bull's-eye beetle' (Stenaptinus insignis)". BBC News.: 3 photos, 1 micrograph, 1 b/w illustration
