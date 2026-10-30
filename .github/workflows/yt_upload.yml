@@ -35,7 +35,7 @@ jobs:
         run: |
           find dl -type f | head
           V=$(find dl -type f -name "$(basename '${{ inputs.glob }}')" | head -1); echo "video: $V"
-          python tools/short_upload.py "$V" "${{ inputs.kit }}"
+          python tools/short_upload.py "$V" "${{ inputs.kit }}" 2> >(tee err.txt >&2) || { tail -n 4 err.txt | sed "s/^/::error::/"; exit 1; }
       - run: |
           git config user.name "bungo-bot"; git config user.email "bot@users.noreply.github.com"
           git add nazo/manual && git commit -q -m "API upload: ${{ inputs.kit }}" || exit 0
