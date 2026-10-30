@@ -18,3 +18,5 @@ output/
 output_test.mp4
 vv_assets/
 build_trivia_long/
+build_compile/
+build_compile_test.json
