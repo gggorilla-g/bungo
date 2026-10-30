@@ -1,0 +1,39 @@
+name: YouTube upload (API)
+# 作った動画を API で上げる（videos.insert と thumbnails.set のみ）。動画は別の実行の成果物から取る
+on:
+  workflow_dispatch:
+    inputs:
+      run_id: { description: "動画を作った実行のID", required: true }
+      artifact: { description: "成果物の名前（short-xxx / nazo-video）", required: true }
+      glob: { description: "成果物の中の動画ファイル（例 *.mp4、*_A.mp4）", default: "*.mp4" }
+      kit: { description: "投稿キット（【タイトル】【説明】【タグ】）のパス", required: true }
+      thumb: { description: "サムネのパス（空ならなし）", default: "" }
+      publish_at: { description: "予約公開のUTC日時（空ならすぐ公開）", default: "" }
+      token: { description: "YT_REFRESH_TOKEN（雑学）/ YT_REFRESH_TOKEN_NAZO（ホー博士）", default: "YT_REFRESH_TOKEN" }
+permissions:
+  contents: write
+  actions: read
+jobs:
+  up:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - uses: actions/download-artifact@v4
+        with: { name: "${{ inputs.artifact }}", run-id: "${{ inputs.run_id }}", github-token: "${{ secrets.GITHUB_TOKEN }}", path: dl }
+      - run: pip install -q google-api-python-client google-auth
+      - env:
+          PUBLISH_AT: ${{ inputs.publish_at }}
+          THUMB: ${{ inputs.thumb }}
+          YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
+          YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
+          YT_REFRESH_TOKEN: ${{ secrets[inputs.token] }}
+        run: |
+          find dl -type f | head
+          V=$(find dl -type f -name "${{ inputs.glob }}" | head -1); echo "video: $V"
+          python tools/short_upload.py "$V" "${{ inputs.kit }}"
+      - run: |
+          git config user.name "bungo-bot"; git config user.email "bot@users.noreply.github.com"
+          git add nazo/manual && git commit -q -m "API upload: ${{ inputs.kit }}" || exit 0
+          for i in 1 2 3; do git pull --rebase -q && git push -q && break; sleep 5; done

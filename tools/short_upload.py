@@ -16,22 +16,25 @@ def sec(name):
     return m.group(1).strip() if m else ""
 title, desc, tags = sec("タイトル"), sec("説明"), [x.strip() for x in sec("タグ").split(",") if x.strip()]
 assert title and desc, "タイトルか説明が空"
-assert "VOICEVOX:ずんだもん" in desc, "声のクレジットがない"
-publish_at = os.environ["PUBLISH_AT"]
+assert "VOICEVOX:" in desc, "声のクレジットがない"
+publish_at = os.environ.get("PUBLISH_AT", "").strip()   # 空ならすぐ公開
 
 creds = Credentials(None, refresh_token=os.environ["YT_REFRESH_TOKEN"], client_id=os.environ["YT_CLIENT_ID"],
                     client_secret=os.environ["YT_CLIENT_SECRET"], token_uri="https://oauth2.googleapis.com/token")
 yt = build("youtube", "v3", credentials=creds)
 body = {"snippet": {"title": title[:100], "description": desc, "tags": tags, "categoryId": "27",
                     "defaultLanguage": "ja", "defaultAudioLanguage": "ja"},
-        "status": {"privacyStatus": "private", "publishAt": publish_at,
-                   "selfDeclaredMadeForKids": False, "containsSyntheticMedia": False}}
+        "status": {"selfDeclaredMadeForKids": False, "containsSyntheticMedia": False}}
+body["status"].update({"privacyStatus": "private", "publishAt": publish_at} if publish_at else {"privacyStatus": "public"})
 req = yt.videos().insert(part="snippet,status", body=body,
                          media_body=MediaFileUpload(video, chunksize=8 * 1024 * 1024, resumable=True))
 res = None
 while res is None:
     _, res = req.next_chunk()
-out = {"id": res["id"], "url": "https://youtube.com/shorts/" + res["id"], "requested_publishAt": publish_at,
+thumb = os.environ.get("THUMB", "").strip()
+if thumb:
+    yt.thumbnails().set(videoId=res["id"], media_body=MediaFileUpload(thumb)).execute()
+out = {"thumb": thumb, "id": res["id"], "url": "https://youtube.com/shorts/" + res["id"], "requested_publishAt": publish_at,
        "returned_status": res.get("status", {})}
 print(json.dumps(out, ensure_ascii=False, indent=1))
-open(os.path.join(os.path.dirname(kit), "api_upload.txt"), "w").write(json.dumps(out, ensure_ascii=False, indent=1) + "\n")
+open(os.path.join(os.path.dirname(kit), "api_upload_" + os.path.basename(kit).replace("_upload.txt", "") + ".txt"), "w").write(json.dumps(out, ensure_ascii=False, indent=1) + "\n")
