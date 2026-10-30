@@ -1,0 +1,21 @@
+name: Fetch open-license photos
+on:
+  workflow_dispatch:
+    inputs:
+      out: { description: "保存先フォルダ", required: true }
+      width: { description: "幅(px)", default: "2400" }
+      spec: { description: "key=File:名前.jpg を ; 区切りで", required: true }
+permissions:
+  contents: write
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install -q -r requirements.txt && python tools/fetch_open.py "${{ inputs.out }}" "${{ inputs.width }}" "${{ inputs.spec }}"
+      - run: |
+          git config user.name "bungo-bot"; git config user.email "bot@users.noreply.github.com"
+          git add "${{ inputs.out }}" && git commit -q -m "写真を取得: ${{ inputs.out }}" || exit 0
+          for i in 1 2 3; do git pull -q --rebase && git push -q && break; sleep 5; done
