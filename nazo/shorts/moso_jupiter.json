@@ -3,73 +3,268 @@
  "label": "もしもの科学",
  "title": "もしもずんだもんが木星に降りたら？ NASAの探査機は約58分で通信が途絶えたのだ #Shorts #科学 #もしも",
  "desc": "もしもずんだもんが木星に着陸しようとしたら、を本物の観測データで考えるのだ。\n\n数値：\n・木星の直径は約14万3000kmで、地球の約11倍（NASA、Wikipedia「木星」）。\n・木星は主に水素とヘリウムでできたガスの惑星で、立てるような地面（固い表面）はない（NASA）。\n・木星の重力は地球の約2.5倍（雲の上の、1気圧の高さでの値。Wikipedia「木星」）。\n・1995年12月7日、NASAの探査機ガリレオのプローブが木星の大気に突入。約58分間データを送り、約23気圧（22.7気圧）の深さで通信が途絶えた（NASA「Galileo Jupiter Atmospheric Probe」）。\n・木星の奥深くでは、強い圧力で水素が金属のような状態（金属水素）になっていると考えられている（NASA）。\n\n※数値は代表値・概数です。ずんだもんが降りる場面はフィクションの演出です。\n\n出典：\nNASA Science「Galileo Jupiter Atmospheric Probe」https://science.nasa.gov/mission/galileo-jupiter-atmospheric-probe\nNASA Science「Jupiter」https://science.nasa.gov/jupiter/\nWikipedia「木星」https://ja.wikipedia.org/wiki/木星\n\n木星の画像：NASA, ESA（ハッブル宇宙望遠鏡）、NASA/JPL（カッシーニ）",
- "tags": ["ずんだもん", "科学", "もしも", "空想科学", "妄想科学", "木星", "宇宙", "ショート"],
- "voice": {"vvm": "0.vvm", "style": 3, "speed": 1.0, "pitch": 0.0, "intonation": 1.15},
+ "tags": [
+  "ずんだもん",
+  "科学",
+  "もしも",
+  "空想科学",
+  "妄想科学",
+  "木星",
+  "宇宙",
+  "ショート"
+ ],
+ "voice": {
+  "vvm": "0.vvm",
+  "style": 3,
+  "speed": 1.0,
+  "pitch": 0.0,
+  "intonation": 1.15
+ },
  "voice_name": "ずんだもん",
  "bgm_file": "assets/enc/bgm_trivia_mood2.mp3",
  "bgm_credit": "ムード２ / 今川彰人オーケストラ（OpenTracks（旧DOVA-SYNDROME））",
  "bgm_vol": 0.16,
- "themes": ["orange_rays", "kraft", "tomato"],
- "yomi": {"レッツ妄想！": "レッツもーそー！"},
- "lines": [
-  {"say": "木星に着陸しようとすると、ずんだもんはぺしゃんこになるのだ。",
-   "theme": "orange_rays",
-   "fx": [{"type": "fate", "mode": "squash", "label": "ぺしゃんこ", "at": 0.0, "weight": "木星", "face": "泣き"}],
-   "text": "木星に着陸すると\nぺしゃんこ"},
-  {"say": "木星の大きさは、地球の約11倍。太陽系でいちばん大きい惑星なのだ。",
-   "theme": "kraft", "face": "驚き",
-   "file": "File:Jupiter and its shrunken Great Red Spot.jpg",
-   "fx": [{"type": "stamp", "text": "地球の約11倍", "at": 0.3, "y": 0.13, "size": 130, "color": [255, 226, 0]}],
-   "text": "直径は\n地球の約11倍"},
-  {"say": "でも木星には、立てる地面がないのだ。",
-   "theme": "kraft", "face": "焦り",
-   "file": "File:PIA04866 modest.jpg",
-   "fx": [{"type": "stamp", "text": "地面がない", "at": 0.2, "y": 0.13, "size": 170, "color": [230, 40, 40]}],
-   "text": "立てる地面が\nない"},
-  {"say": "ほとんどが水素とヘリウムのガス。雲の中を、どこまでも沈んでいくのだ。",
-   "theme": "orange_rays",
-   "fx": [{"type": "fate", "mode": "faint", "label": "沈んでいく", "at": 0.0, "face": "焦り"}],
-   "text": "水素とヘリウムの雲を\nどこまでも沈む"},
-  {"say": "しかも重力は、地球の約2.5倍。",
-   "theme": "tomato",
-   "fx": [{"type": "count", "to": 2.5, "unit": "倍", "label": "木星の重力", "at": 0.15, "size": 150}],
-   "text": "重力は\n地球の約2.5倍"},
-  {"say": "体が重くて、身動きがとれないのだ！",
-   "up": true, "face": "焦り", "theme": "tomato",
-   "fx": [{"type": "stamp", "text": "体が重い", "at": 0.2, "y": 0.13, "size": 170, "color": [230, 40, 40]}],
-   "text": "体が重くて\n動けない"},
-  {"say": "1995年、NASAの探査機ガリレオのプローブが、木星に飛び込んだのだ。",
-   "theme": "kraft",
-   "wiki": ["en", "Galileo probe"],
-   "fx": [{"type": "stamp", "text": "本当にあった", "at": 0.3, "y": 0.13, "size": 130, "color": [255, 226, 0]}],
-   "text": "1995年 NASAの\n探査機が突入"},
-  {"say": "データを送れたのは、約58分間。",
-   "theme": "orange_rays",
-   "fx": [{"type": "count", "to": 58, "unit": "分", "label": "データを送れた時間", "at": 0.15, "size": 150}],
-   "text": "データを送れたのは\n約58分間"},
-  {"say": "まわりの圧力が約23気圧になって、通信が途絶えたのだ。",
-   "theme": "tomato",
-   "fx": [{"type": "fate", "mode": "squash", "label": "", "at": 0.0, "weight": "約23気圧", "face": "青ざめ"}],
-   "text": "約23気圧で\n通信が途絶えた"},
-  {"say": "しかも、そこはまだ木星のほんの入り口なのだ。",
-   "theme": "kraft", "face": "青ざめ",
-   "file": "File:PIA04866 modest.jpg",
-   "fx": [{"type": "stamp", "text": "まだ入り口", "at": 0.2, "y": 0.13, "size": 160, "color": [230, 40, 40]}],
-   "text": "そこはまだ\nほんの入り口"},
-  {"say": "もっと奥では、すごい圧力で水素が金属のようになるのだ。",
-   "theme": "orange_rays",
-   "fx": [{"type": "fate", "mode": "squash", "label": "金属水素", "at": 0.0, "weight": "もっと奥", "face": "泣き"}],
-   "text": "奥では水素が\n金属のようになる"},
-  {"say": "地面はないのに、ぺしゃんこにはなるのだ！",
-   "up": true, "face": "怒り", "theme": "tomato",
-   "fx": [{"type": "stamp", "text": "理不尽", "at": 0.2, "y": 0.13, "size": 200, "color": [230, 40, 40]}],
-   "text": "地面はないのに\nぺしゃんこ"},
-  {"say": "レッツ妄想！", "logo": true, "text": "レッツ妄想！"},
-  {"say": "でも木星は、きれいなのだ。もう一度、",
-   "loop": true, "face": "笑顔", "theme": "kraft",
-   "file": "File:Jupiter and its shrunken Great Red Spot.jpg",
-   "text": "木星はきれい\nもう一度"}
+ "themes": [
+  "orange_rays",
+  "kraft",
+  "tomato"
  ],
- "channel_name": ["ずんだもんの", "妄想", "科学"],
+ "yomi": {
+  "レッツ妄想！": "レッツもーそー！"
+ },
+ "lines": [
+  {
+   "say": "木星に着陸しようとすると、ずんだもんはぺしゃんこになるのだ。",
+   "theme": "orange_rays",
+   "fx": [
+    {
+     "type": "fate",
+     "mode": "squash",
+     "label": "ぺしゃんこ",
+     "at": 0.0,
+     "weight": "大気の圧力",
+     "face": "泣き"
+    }
+   ],
+   "text": "木星に着陸すると\nぺしゃんこ"
+  },
+  {
+   "say": "木星の大きさは、地球の約11倍。太陽系でいちばん大きい惑星なのだ。",
+   "theme": "kraft",
+   "face": "驚き",
+   "file": "File:Jupiter and its shrunken Great Red Spot.jpg",
+   "fx": [
+    {
+     "type": "stamp",
+     "text": "地球の約11倍",
+     "at": 0.3,
+     "y": 0.13,
+     "size": 130,
+     "color": [
+      255,
+      226,
+      0
+     ]
+    }
+   ],
+   "text": "直径は\n地球の約11倍"
+  },
+  {
+   "say": "でも木星には、立てる地面がないのだ。",
+   "theme": "kraft",
+   "face": "焦り",
+   "file": "File:PIA04866 modest.jpg",
+   "fx": [
+    {
+     "type": "stamp",
+     "text": "地面がない",
+     "at": 0.2,
+     "y": 0.13,
+     "size": 170,
+     "color": [
+      230,
+      40,
+      40
+     ]
+    }
+   ],
+   "text": "立てる地面が\nない"
+  },
+  {
+   "say": "ほとんどが水素とヘリウムのガス。雲の中を、どこまでも沈んでいくのだ。",
+   "theme": "orange_rays",
+   "fx": [
+    {
+     "type": "fate",
+     "mode": "faint",
+     "label": "沈んでいく",
+     "at": 0.0,
+     "face": "焦り"
+    }
+   ],
+   "text": "水素とヘリウムの雲を\nどこまでも沈む"
+  },
+  {
+   "say": "しかも重力は、地球の約2.5倍。",
+   "theme": "tomato",
+   "fx": [
+    {
+     "type": "count",
+     "to": 2.5,
+     "unit": "倍",
+     "label": "木星の重力",
+     "at": 0.15,
+     "size": 150
+    }
+   ],
+   "text": "重力は\n地球の約2.5倍"
+  },
+  {
+   "say": "体が重くて、身動きがとれないのだ！",
+   "up": true,
+   "face": "焦り",
+   "theme": "tomato",
+   "fx": [
+    {
+     "type": "stamp",
+     "text": "体が重い",
+     "at": 0.2,
+     "y": 0.13,
+     "size": 170,
+     "color": [
+      230,
+      40,
+      40
+     ]
+    }
+   ],
+   "text": "体が重くて\n動けない"
+  },
+  {
+   "say": "1995年、NASAの探査機ガリレオのプローブが、木星に飛び込んだのだ。",
+   "theme": "kraft",
+   "fx": [
+    {
+     "type": "stamp",
+     "text": "本当にあった",
+     "at": 0.3,
+     "y": 0.13,
+     "size": 130,
+     "color": [
+      255,
+      226,
+      0
+     ]
+    }
+   ],
+   "text": "1995年 NASAの\n探査機が突入",
+   "file": "File:Galileo Probe - AC81-0174.jpg"
+  },
+  {
+   "say": "データを送れたのは、約58分間。",
+   "theme": "orange_rays",
+   "fx": [
+    {
+     "type": "count",
+     "to": 58,
+     "unit": "分",
+     "label": "データを送れた時間",
+     "at": 0.15,
+     "size": 150
+    }
+   ],
+   "text": "データを送れたのは\n約58分間"
+  },
+  {
+   "say": "まわりの圧力が約23気圧になって、通信が途絶えたのだ。",
+   "theme": "tomato",
+   "fx": [
+    {
+     "type": "fate",
+     "mode": "squash",
+     "label": "",
+     "at": 0.0,
+     "weight": "約23気圧",
+     "face": "青ざめ"
+    }
+   ],
+   "text": "約23気圧で\n通信が途絶えた"
+  },
+  {
+   "say": "しかも、そこはまだ木星のほんの入り口なのだ。",
+   "theme": "kraft",
+   "face": "青ざめ",
+   "file": "File:PIA04866 modest.jpg",
+   "fx": [
+    {
+     "type": "stamp",
+     "text": "まだ入り口",
+     "at": 0.2,
+     "y": 0.13,
+     "size": 160,
+     "color": [
+      230,
+      40,
+      40
+     ]
+    }
+   ],
+   "text": "そこはまだ\nほんの入り口"
+  },
+  {
+   "say": "もっと奥では、すごい圧力で水素が金属のようになるのだ。",
+   "theme": "orange_rays",
+   "fx": [
+    {
+     "type": "fate",
+     "mode": "squash",
+     "label": "金属水素",
+     "at": 0.0,
+     "weight": "もっと奥",
+     "face": "泣き"
+    }
+   ],
+   "text": "奥では水素が\n金属のようになる"
+  },
+  {
+   "say": "地面はないのに、ぺしゃんこにはなるのだ！",
+   "up": true,
+   "face": "怒り",
+   "theme": "tomato",
+   "fx": [
+    {
+     "type": "stamp",
+     "text": "理不尽",
+     "at": 0.2,
+     "y": 0.13,
+     "size": 200,
+     "color": [
+      230,
+      40,
+      40
+     ]
+    }
+   ],
+   "text": "地面はないのに\nぺしゃんこ"
+  },
+  {
+   "say": "レッツ妄想！",
+   "logo": true,
+   "text": "レッツ妄想！"
+  },
+  {
+   "say": "でも木星は、きれいなのだ。もう一度、",
+   "loop": true,
+   "face": "笑顔",
+   "theme": "kraft",
+   "file": "File:Jupiter and its shrunken Great Red Spot.jpg",
+   "text": "木星はきれい\nもう一度"
+  }
+ ],
+ "channel_name": [
+  "ずんだもんの",
+  "妄想",
+  "科学"
+ ],
  "logo_theme": "space"
 }
