@@ -1,0 +1,17 @@
+{
+ "thumb": "nazo/manual/trivia_names10/trivia_long_names10_thumb.png",
+ "thumb_error": "<HttpError 403 when requesting https://youtube.googleapis.com/upload/youtube/v3/thumbnails/set?videoId=782AgWasLWg&alt=json&uploadType=media returned \"The authenticated user doesn't have permissions to upload and set custom video thumbnails.\". Details: \"[{'message': \"The authenticated user doesn't h",
+ "id": "782AgWasLWg",
+ "url": "https://youtube.com/shorts/782AgWasLWg",
+ "requested_publishAt": "2026-10-31T10:00:00Z",
+ "returned_status": {
+  "uploadStatus": "uploaded",
+  "privacyStatus": "private",
+  "publishAt": "2026-10-31T10:00:00Z",
+  "license": "youtube",
+  "embeddable": true,
+  "publicStatsViewable": true,
+  "selfDeclaredMadeForKids": false,
+  "containsSyntheticMedia": false
+ }
+}
