@@ -3,8 +3,8 @@ name: YouTube upload (API)
 on:
   workflow_dispatch:
     inputs:
-      run_id: { description: "動画を作った実行のID", required: true }
-      artifact: { description: "成果物の名前（short-xxx / nazo-video）", required: true }
+      run_id: { description: "動画を作った実行のID（空なら upload-tmp ブランチの glob のパスから取る）", default: "" }
+      artifact: { description: "成果物の名前（short-xxx / nazo-video）", default: "" }
       glob: { description: "成果物の中の動画ファイル（例 *.mp4、*_A.mp4）", default: "*.mp4" }
       kit: { description: "投稿キット（【タイトル】【説明】【タグ】）のパス", required: true }
       thumb: { description: "サムネのパス（空ならなし）", default: "" }
@@ -20,7 +20,10 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: { python-version: "3.12" }
-      - uses: actions/download-artifact@v4
+      - if: inputs.run_id == ''
+        run: git fetch -q --depth 1 origin upload-tmp && mkdir -p dl && git show "origin/upload-tmp:${{ inputs.glob }}" > "dl/$(basename '${{ inputs.glob }}')"
+      - if: inputs.run_id != ''
+        uses: actions/download-artifact@v4
         with: { name: "${{ inputs.artifact }}", run-id: "${{ inputs.run_id }}", github-token: "${{ secrets.GITHUB_TOKEN }}", path: dl }
       - run: pip install -q google-api-python-client google-auth
       - env:
@@ -31,7 +34,7 @@ jobs:
           YT_REFRESH_TOKEN: ${{ secrets[inputs.token] }}
         run: |
           find dl -type f | head
-          V=$(find dl -type f -name "${{ inputs.glob }}" | head -1); echo "video: $V"
+          V=$(find dl -type f -name "$(basename '${{ inputs.glob }}')" | head -1); echo "video: $V"
           python tools/short_upload.py "$V" "${{ inputs.kit }}"
       - run: |
           git config user.name "bungo-bot"; git config user.email "bot@users.noreply.github.com"
