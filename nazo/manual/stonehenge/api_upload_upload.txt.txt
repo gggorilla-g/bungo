@@ -1,0 +1,15 @@
+{
+ "thumb": "nazo/manual/stonehenge/thumb_best.png",
+ "id": "xIBNwcTngg0",
+ "url": "https://youtube.com/shorts/xIBNwcTngg0",
+ "requested_publishAt": "",
+ "returned_status": {
+  "uploadStatus": "uploaded",
+  "privacyStatus": "public",
+  "license": "youtube",
+  "embeddable": true,
+  "publicStatsViewable": true,
+  "selfDeclaredMadeForKids": false,
+  "containsSyntheticMedia": false
+ }
+}
