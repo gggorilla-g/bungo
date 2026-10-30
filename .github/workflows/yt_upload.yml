@@ -9,7 +9,7 @@ on:
       kit: { description: "投稿キット（【タイトル】【説明】【タグ】）のパス", required: true }
       thumb: { description: "サムネのパス（空ならなし）", default: "" }
       publish_at: { description: "予約公開のUTC日時（空ならすぐ公開）", default: "" }
-      token: { description: "YT_REFRESH_TOKEN（雑学）/ YT_REFRESH_TOKEN_NAZO（ホー博士）", default: "YT_REFRESH_TOKEN" }
+      token: { description: "YT_REFRESH_TOKEN（雑学）/ YT_REFRESH_TOKEN_NAZO（ホー博士）/ _MOSO（妄想科学）/ _KAIDAN（百物語）", default: "YT_REFRESH_TOKEN" }
 permissions:
   contents: write
   actions: read
@@ -45,5 +45,5 @@ jobs:
           python tools/short_upload.py "$V" "${{ inputs.kit }}" 2> >(tee err.txt >&2) || { tail -n 4 err.txt | sed "s/^/::error::/"; exit 1; }
       - run: |
           git config user.name "bungo-bot"; git config user.email "bot@users.noreply.github.com"
-          git add nazo/manual && git commit -q -m "API upload: ${{ inputs.kit }}" || exit 0
+          git add nazo/manual kaidan/manual && git commit -q -m "API upload: ${{ inputs.kit }}" || exit 0
           for i in 1 2 3; do git pull --rebase -q && git push -q && break; sleep 5; done
