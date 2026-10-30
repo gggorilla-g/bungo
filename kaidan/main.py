@@ -56,7 +56,9 @@ def assert_terms(desc, tags):
 def rerender_entry(wid):
     """作り直し用：台本(drafts)と原作から在庫と同じ形の1件を組み立てる（stock.py push と同じ読みの差し込み）。
     読みの関門は在庫に積んだときに通過済み。queue/published には触れない"""
-    import stock, yomi
+    import importlib.util, yomi
+    spec = importlib.util.spec_from_file_location("kaidan_stock", "kaidan/stock.py")   # nazo/stock.py と名前がぶつかるので場所で読む
+    stock = importlib.util.module_from_spec(spec); spec.loader.exec_module(stock)
     c, k, work = stock.load(wid)
     ym = {t: yomi.base_fix(stock.words_fix(t, k), c["meta"], c["ruby"]) for t in stock.sentences(k, work)}
     return dict(work, kousei=k, yomi=ym)
