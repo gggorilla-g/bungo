@@ -44,11 +44,13 @@
        214,
        0
       ]
-     }
+     },
+     "img": "assets/space/blackhole.jpg"
     },
     {
      "say": "体は縦にのびて、横からはぎゅっと押しつぶされるのだ。",
-     "face": "青ざめ"
+     "face": "青ざめ",
+     "img": "assets/space/blackhole.jpg"
     },
     {
      "say": "麺どころか、極細麺なのだ！",
@@ -58,12 +60,14 @@
     {
      "say": "ブラックホールは、光さえ出てこられないほど、重力が強いところなのだ。",
      "face": "通常",
-     "still": 12.0
+     "still": 12.0,
+     "img": "assets/space/blackhole.jpg"
     },
     {
      "say": "ブラックホールという呼び名は、1967年ごろ、物理学者のジョン・ホイーラーが広めたとされているのだ。",
      "face": "通常",
-     "still": 12.0
+     "still": 12.0,
+     "img": "assets/space/blackhole.jpg"
     },
     {
      "say": "そして2019年、ブラックホールの影の写真が、初めて公開されたのだ。",
@@ -75,16 +79,19 @@
        214,
        0
       ]
-     }
+     },
+     "img": "assets/space/blackhole.jpg"
     },
     {
      "say": "写っていたのは、M87という銀河の中心にある、巨大なブラックホールなのだ。",
-     "face": "通常"
+     "face": "通常",
+     "img": "assets/space/milkyway.jpg"
     },
     {
      "say": "2022年には、天の川銀河の中心のブラックホールの写真も発表されたのだ。",
      "face": "驚き",
-     "still": 12.0
+     "still": 12.0,
+     "img": "assets/space/milkyway.jpg"
     },
     {
      "say": "見えないものを撮ったのだ。すごいのだ！",
@@ -122,7 +129,8 @@
    "extra": [
     {
      "say": "人類がいちばん深く掘った穴は、ロシアのコラ半島にあるのだ。",
-     "face": "通常"
+     "face": "通常",
+     "img": "assets/space/earth_apollo.jpg"
     },
     {
      "say": "1970年に掘り始めて、1989年に、深さ12262メートルに届いたのだ。",
@@ -132,7 +140,8 @@
       "unit": "m",
       "label": "人類が掘った最深の穴"
      },
-     "hold": 0.3
+     "hold": 0.3,
+     "img": "assets/space/earth_apollo.jpg"
     },
     {
      "say": "でも地下の温度は、予想の100度をこえて、180度もあったのだ。",
@@ -144,15 +153,18 @@
        214,
        0
       ]
-     }
+     },
+     "img": "assets/space/lava.jpg"
     },
     {
      "say": "それで1992年に、掘るのをやめたのだ。",
-     "face": "泣き"
+     "face": "泣き",
+     "img": "assets/space/lava.jpg"
     },
     {
      "say": "それでも地球の中心までの、たった500分の1くらいなのだ。",
-     "face": "驚き"
+     "face": "驚き",
+     "img": "assets/space/earth_night.jpg"
     },
     {
      "say": "地球、ぶあつすぎるのだ！",
@@ -162,7 +174,8 @@
     {
      "say": "ちなみに、地球をまっすぐ通りぬける乗り物の考えは、重力列車と呼ばれているのだ。",
      "face": "通常",
-     "still": 12.0
+     "still": 12.0,
+     "img": "assets/space/earth_night.jpg"
     },
     {
      "say": "地球の密度が一様で、まさつがなければ、どこからどこへ掘っても、かかる時間は約42分で同じになるのだ。",
@@ -171,7 +184,8 @@
       "to": 42,
       "unit": "分",
       "label": "まっすぐな穴を落ちる時間（密度が一様なら）"
-     }
+     },
+     "img": "assets/space/earth_night.jpg"
     },
     {
      "say": "近くの町へ掘っても42分なのだ！",
@@ -210,7 +224,8 @@
     {
      "say": "木星の大赤斑は、巨大なうずなのだ。",
      "face": "通常",
-     "still": 3.0
+     "still": 3.0,
+     "img": "assets/planets/jupiter_hi.jpg"
     },
     {
      "say": "大きいときは、地球が2つか3つ入るほどあったのだ。",
@@ -222,11 +237,13 @@
        214,
        0
       ]
-     }
+     },
+     "img": "assets/planets/jupiter_hi.jpg"
     },
     {
      "say": "今は、横が1万8000キロ、たてが1万2000キロくらいなのだ。",
-     "face": "通常"
+     "face": "通常",
+     "img": "assets/planets/jupiter_hi.jpg"
     },
     {
      "say": "台風どころじゃないのだ！",
@@ -240,11 +257,13 @@
       "to": 10,
       "unit": "時間",
       "label": "木星の1日（約）"
-     }
+     },
+     "img": "assets/planets/jupiter_cassini.jpg"
     },
     {
      "say": "回るのが速すぎて、赤道のあたりがふくらんでいるのだ。",
-     "face": "通常"
+     "face": "通常",
+     "img": "assets/planets/jupiter_cassini.jpg"
     },
     {
      "say": "2026年4月の時点で、木星の衛星は115個も見つかっているのだ。",
@@ -253,17 +272,20 @@
       "to": 115,
       "unit": "個",
       "label": "見つかっている木星の衛星"
-     }
+     },
+     "img": "assets/planets/jupiter.jpg"
     },
     {
      "say": "探査機ガリレオは、1989年に打ち上げられたのだ。",
      "face": "通常",
-     "still": 12.0
+     "still": 12.0,
+     "img": "assets/planets/jupiter.jpg"
     },
     {
      "say": "最後は2003年に、木星の大気に飛び込んで、役目を終えたのだ。",
      "face": "泣き",
-     "still": 12.0
+     "still": 12.0,
+     "img": "assets/planets/jupiter.jpg"
     },
     {
      "say": "ガリレオ、おつかれさまなのだ！",
@@ -301,11 +323,13 @@
    "extra": [
     {
      "say": "実は地球の回る速さは、ほんの少しずつ、遅くなっているのだ。",
-     "face": "通常"
+     "face": "通常",
+     "img": "assets/space/earth_night.jpg"
     },
     {
      "say": "海の満ち引きと、海の底とのまさつで、ブレーキがかかっているのだ。",
-     "face": "通常"
+     "face": "通常",
+     "img": "assets/space/earth_apollo.jpg"
     },
     {
      "say": "1日の長さは、100年で約1.7ミリ秒ずつ長くなっているのだ。",
@@ -317,7 +341,8 @@
        214,
        0
       ]
-     }
+     },
+     "img": "assets/space/earth_night.jpg"
     },
     {
      "say": "ゆっくりなら、吹っ飛ばないのだ！",
@@ -327,7 +352,8 @@
     {
      "say": "それに地球は、太陽のまわりも回っているのだ。",
      "face": "通常",
-     "still": 12.0
+     "still": 12.0,
+     "img": "assets/space/sun.jpg"
     },
     {
      "say": "その速さは、秒速約30キロなのだ。",
@@ -336,7 +362,8 @@
       "to": 30,
       "unit": "km",
       "label": "地球が太陽のまわりを回る速さ（毎秒）"
-     }
+     },
+     "img": "assets/space/sun.jpg"
     },
     {
      "say": "止まるなら、どっちも静かに止まってほしいのだ！",
@@ -382,11 +409,13 @@
        214,
        0
       ]
-     }
+     },
+     "img": "assets/space/sun.jpg"
     },
     {
      "say": "1983年に、1メートルの長さを、光の速さで決めたからなのだ。",
-     "face": "通常"
+     "face": "通常",
+     "img": "assets/space/earth_night.jpg"
     },
     {
      "say": "光が、ものさしになったのだ！",
@@ -396,16 +425,19 @@
     {
      "say": "光の速さが無限じゃないとわかったのは、1676年なのだ。",
      "face": "通常",
-     "still": 12.0
+     "still": 12.0,
+     "img": "assets/planets/jupiter.jpg"
     },
     {
      "say": "レーマーという人が、木星の衛星イオの動きを調べて、気づいたのだ。",
      "face": "驚き",
-     "still": 12.0
+     "still": 12.0,
+     "img": "assets/planets/jupiter.jpg"
     },
     {
      "say": "つまり今見ている太陽は、約8分前の太陽なのだ。",
-     "face": "驚き"
+     "face": "驚き",
+     "img": "assets/space/sun.jpg"
     },
     {
      "say": "ずんだもんが見ている太陽も、ちょっと昔なのだ！",
@@ -443,12 +475,14 @@
    "extra": [
     {
      "say": "しかも、動いているのは地球だけじゃないのだ。",
-     "face": "通常"
+     "face": "通常",
+     "img": "assets/space/earth_apollo.jpg"
     },
     {
      "say": "太陽系そのものも、天の川銀河の中を回っているのだ。",
      "face": "驚き",
-     "still": 12.0
+     "still": 12.0,
+     "img": "assets/space/milkyway.jpg"
     },
     {
      "say": "1周するのに、2億2500万年から2億5000万年かかるのだ。",
@@ -460,7 +494,8 @@
        214,
        0
       ]
-     }
+     },
+     "img": "assets/space/milkyway.jpg"
     },
     {
      "say": "1周が長すぎるのだ！",
@@ -469,15 +504,18 @@
     },
     {
      "say": "ちなみに、未来へ進むだけなら、理論の上では方法があるのだ。",
-     "face": "通常"
+     "face": "通常",
+     "img": "assets/space/astronaut.jpg"
     },
     {
      "say": "とても速く動くと、その人の時間は、ゆっくり進むのだ。",
-     "face": "驚き"
+     "face": "驚き",
+     "img": "assets/space/astronaut.jpg"
     },
     {
      "say": "帰ってきたら、まわりだけ年をとっているのだ。",
-     "face": "驚き"
+     "face": "驚き",
+     "img": "assets/space/iss.jpg"
     },
     {
      "say": "それ、浦島太郎なのだ！",
@@ -524,12 +562,14 @@
     {
      "say": "結果を言うと、そのままで住める星は、なかったのだ。",
      "face": "泣き",
-     "still": 42.0
+     "still": 42.0,
+     "img": "assets/space/earth_apollo.jpg"
     },
     {
      "say": "それでも、まだましな星はあったのだ。",
      "face": "通常",
-     "still": 42.0
+     "still": 42.0,
+     "img": "assets/space/earth_apollo.jpg"
     },
     {
      "say": "火星は、1日が約24時間40分。地球とほとんど同じなのだ。",
@@ -542,22 +582,26 @@
        214,
        0
       ]
-     }
+     },
+     "img": "assets/planets/mars.jpg"
     },
     {
      "say": "しかも、氷もあるのだ。",
      "face": "笑顔",
-     "still": 42.0
+     "still": 42.0,
+     "img": "assets/planets/mars.jpg"
     },
     {
      "say": "水星は、北極のクレーターの影に、氷があるのだ。",
      "face": "驚き",
-     "still": 42.0
+     "still": 42.0,
+     "img": "assets/planets/mercury.jpg"
     },
     {
      "say": "金星は、上空50キロあたりなら、気圧と温度が地球に近いのだ。",
      "face": "通常",
-     "still": 42.0
+     "still": 42.0,
+     "img": "assets/planets/venus_hi.jpg"
     },
     {
      "say": "空に住むしかないのだ！",
@@ -572,12 +616,14 @@
       "to": 2100,
       "unit": "km",
       "label": "海王星の風（時速）"
-     }
+     },
+     "img": "assets/planets/neptune.jpg"
     },
     {
      "say": "やっぱり地球が、いちばんちょうどいいのだ。",
      "face": "笑顔",
-     "still": 42.0
+     "still": 42.0,
+     "img": "assets/space/earth_night.jpg"
     },
     {
      "say": "レッツ妄想！",

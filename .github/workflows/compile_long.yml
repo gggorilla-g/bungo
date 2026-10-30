@@ -1,0 +1,43 @@
+name: Compile long (shorts digest)
+# 既存ショートを CI で書き出し直し（BGMは復号して使う）、tools/compile_long.py で総集編にする。
+# 結果は compile-out-<id> ブランチに分割して置く（成果物のダウンロードが使えない環境から取りに行くため）。
+on:
+  workflow_dispatch:
+    inputs:
+      spec: { description: "nazo/compile/<id>.json", required: true }
+      shorts: { description: "書き出すショートのID（空白区切り）", required: true }
+permissions:
+  contents: write
+jobs:
+  compile:
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - name: Cache VOICEVOX assets
+        uses: actions/cache@v4
+        with: { path: vv_assets, key: vv-assets-0.16.4 }
+      - env:
+          ASSET_KEY: ${{ secrets.ASSET_KEY }}
+        run: |
+          for i in 1 2 3; do
+            timeout 300 sudo apt-get update -q && timeout 600 sudo apt-get install -y -q ffmpeg fonts-noto-cjk fonts-noto-cjk-extra && break
+            sleep 10
+          done
+          pip install -q -r requirements.txt
+          python src/setup_voicevox.py
+          if [ -n "$ASSET_KEY" ]; then for f in assets/enc/*.enc; do [ -e "$f" ] && openssl enc -d -aes-256-cbc -pbkdf2 -in "$f" -out "${f%.enc}" -pass env:ASSET_KEY; done; for t in assets/enc/*.tar; do [ -e "$t" ] && tar xf "$t" -C assets/enc; done; fi
+          mkdir -p output
+          for id in ${{ inputs.shorts }}; do
+            ID="$id" python nazo/short3.py 2> >(tee err.txt >&2) || { tail -n 6 err.txt | sed "s/^/::error::/"; exit 1; }
+          done
+          git fetch -q --depth 1 origin compile-src && git show origin/compile-src:moso_solar_teaser.mp4 > output/moso_solar_teaser.mp4 || true
+          S="${{ inputs.spec }}"; N=$(basename "$S" .json)
+          python tools/compile_long.py "$S" "output/$N.mp4" 2> >(tee err.txt >&2) || { tail -n 6 err.txt | sed "s/^/::error::/"; exit 1; }
+          mkdir -p ../out && split -b 45m -d "output/$N.mp4" "../out/$N.mp4.part" && cp output/${N}_chapters.txt output/${N}_sheet.jpg build_compile/yomi.txt ../out/
+          for id in ${{ inputs.shorts }}; do echo "$id $(ffprobe -v error -show_entries format=duration -of csv=p=0 output/short3_$id.mp4)" >> ../out/shorts.txt; done
+          cp nazo/manual/*/short3_*_upload.txt ../out/ 2>/dev/null || true
+          cd ../out && git init -q && git add . && git -c user.name=bungo-bot -c user.email=bot@users.noreply.github.com commit -q -m "compile $N" \
+            && git push -q -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" HEAD:refs/heads/compile-out-$N

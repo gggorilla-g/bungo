@@ -48,15 +48,17 @@ def side_panel(ch, no, n_all, out):
     lw = (W - ch["_vw"]) // 2
     T.box(d, 40, 60, f"No.{no}", T.font(70), T.WHT, T.RED)
     rows = ch["name_rows"]
+    szs = [min(170, int((lw - 60) / max(1, len(r)) * 0.98)) for r in rows]
+    y0 = H // 2 - (sum(szs) + 50 * (len(rows) - 1)) // 2 + 40
     for j, r in enumerate(rows):
-        sz = min(150, int((lw - 70) / max(1, len(r)) * 0.98))
-        theme.extrude_text(img, lw // 2, 330 + j * (sz + 40), r, sz, th, angle=-3 if j % 2 == 0 else 3)
+        theme.extrude_text(img, lw // 2, y0 + szs[j] // 2, r, szs[j], th, angle=-3 if j % 2 == 0 else 3)
+        y0 += szs[j] + 50
     x0 = W - lw + 30
     y = 90
     d.text((x0, y), "ポイント", font=T.font(52), fill=T.YEL, stroke_width=6, stroke_fill=T.BLK)
     y += 100
     for p in ch["points"]:
-        f = T.font(58 if max(len(s) for s in p.split("\n")) <= 9 else 50)
+        f = T.font(68 if max(len(s) for s in p.split("\n")) <= 8 else 58)
         for k, s in enumerate(p.split("\n")):
             T.box(d, x0, y, s, f, T.BLK if k == 0 else T.BLK, T.WHT if k else T.YEL, 16, 8)
             y += f.size + 30
@@ -85,8 +87,9 @@ def build(spec_path, out, t_from=None, t_to=None):
             for li, ln in enumerate(ch.get(part, [])):
                 ln = dict(ln)
                 ln["_part"] = part
-                st = ln.get("still", ch.get("still", 1.0))
-                ln["img"] = still(ch["video"], st, f"{WORK}/{ch['id']}_{st:.2f}.jpg", ch.get("crop_still"))
+                if not ln.get("img"):                         # 写真の指定がなければ、ショートの1コマ
+                    st = ln.get("still", ch.get("still", 1.0))
+                    ln["img"] = still(ch["video"], st, f"{WORK}/{ch['id']}_{st:.2f}.jpg", ch.get("crop_still"))
                 ln["_img"] = ln["img"]
                 fx = []
                 if ln.get("stamp"):
