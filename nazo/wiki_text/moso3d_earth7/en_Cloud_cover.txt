@@ -1,0 +1,38 @@
+https://en.wikipedia.org/wiki/Cloud_cover
+
+Cloud cover (also known as cloudiness, cloudage, or cloud amount) refers to the fraction of the sky obscured by clouds on average when observed from a particular location. Okta is the usual unit for measurement of the cloud cover. The cloud cover is correlated to the sunshine duration as the least cloudy locales are the sunniest ones while the cloudiest areas are the least sunny places, as clouds can block sunlight, especially at sunrise and sunset where sunlight is already limited.
+
+The global cloud cover averages around 67-68%, though it ranges from 56% to 73% depending on the minimum optical depth considered (lower when optical depth is large, and higher when it is low, such that subvisible cirrus clouds are counted). Average cloud cover is around 72% over the oceans, with low seasonal variation, and about 55% above land, with significant seasonal variation.
+
+
+== Role in the climate system ==
+Clouds play multiple critical roles in the climate system and diurnal cycle. In particular, being bright objects in the visible part of the solar spectrum, they efficiently reflect light to space and thus contribute to the cooling of the planet, as well as trapping remaining heat at night. Cloud cover thus plays an important role in the energetic balance of the atmosphere and a variation of it is a factor and consequence of and to the climate change expected by recent studies.
+
+
+== Measuring cloud cover ==
+A nuance of "cloud cover" as a measurement is its own definition – which can either mean (in the extreme) – a narrow field of view measurement from a satellite, or a wide field of view measurement from a local observer. Although idealized procedures exists for estimating a local observation by taking spatial-temporal windows of remote measurements, empirical estimates are usually lacking.
+
+
+== Variability ==
+ Cloud cover that covers 0/8 of the Sky is considered Sunny weather, Cloud cover that covers 1/8 to 2/8 of the sky is Mostly Sunny, 3/8th to 4/8th of the sky is Partly Cloudy/Sunny, 5/8th to 7/8th of the sky covered in Clouds is Mostly Cloudy, while 8/8 of the sky being covered in clouds is Overcast.
+Cloud cover values only vary by 3% from year-to-year averages, whereas the local, day-to-day variability in cloud amounts typically rises to 30% over the globe. Land is generally covered by 10-15% less cloud than the oceans, because the seas are covered with water, allowing for more evaporation.
+Lastly, there is a latitudinal variation in the cloud cover. Areas around 10-15% below the global mean can be found around 20°N and 20°S, due to an absence of equatorial effects and strong winds reducing cloud formation. On the other hand, in the storm regions of the Southern Hemisphere midlatitudes were found to have with 15–25% more cloudiness than the global mean at 60°S. On average, about 67% of the entire Earth is cloud-covered at any moment.
+On a continental scale, it can be noticed based upon a long-term satellite recording of cloudiness data that on a year-mean basis, Europe, North America, South America and Asia are dominated by cloudy skies due to the westerlies, monsoon or other effects. On the other hand, Africa, the Middle East and Australia are dominated by clear skies due to their continentality and aridity.
+On a regional scale, some exceptionally humid areas of Earth experience cloudy conditions virtually all time such as South America's Amazon rainforest while some highly arid areas experience clear-sky conditions virtually all the time such as Africa's Sahara Desert.
+
+
+== Altitude of typical cloud cover ==
+Although clouds can exist within a wide range of altitudes, typical cloud cover has a base at approximately 4,000 m (13,000 ft) and extends up to an altitude of about 5,000 m (16,000 ft). Clouds height can vary depending on latitude; with cloud cover in polar latitudes being slightly lower and in tropical regions the cloud cover may extend up to 8,000 m (26,000 ft). The type of cloud is also a factor, with low cumulus clouds sitting at 300–1,500 m (980–4,920 ft) while high cirrus clouds at 5,500–6,500 m (18,000–21,300 ft).
+
+
+== References ==
+
+McIntosh, D. H. (1972) Meteorological Glossary, Her Majesty's Stationery Office, Met. O. 842, A.P. 897, 319 p.
+
+
+== External links ==
+
+NSDL.arm.gov, Glossary of Atmospheric Terms, From the National Science Digital Library's Atmospheric Visualization Collection.
+Earthobersvatory.nasa.gov, Monthly maps of global cloud cover from NASA's Earth Observatory
+International Satellite Cloud Climatology Project (ISCCP),  NASA's data products on their satellite observations 
+NASA composite satellite image.

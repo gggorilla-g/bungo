@@ -1,0 +1,48 @@
+https://en.wikipedia.org/wiki/Cryogenian
+
+The Cryogenian (from Ancient Greek: κρύος, romanized: krýos, meaning 'cold' and γένεσις, romanized: génesis, meaning 'birth') is a geologic period that lasted from 720 to 635 million years ago. It is the second of the three periods of the Neoproterozoic era, preceded by the Tonian and followed by the Ediacaran.
+The Cryogenian was a time of drastic climate changes. After the long environmental stability/stagnation during the Boring Billion, the Sturtian glaciation began at the beginning of Cryogenian, freezing the entire planet in a state of severe icehouse climate known as a snowball Earth. After around 70 million years it ended, but was quickly followed by another global ice age, the Marinoan glaciation. There is disagreement over whether these glaciations indeed covered the entire planet, or whether a band of open sea survived near the equator (i.e. "slushball Earth"), but the extreme climates with massive expanse of ice sheets blocking off sunlight would nevertheless have significantly hindered primary production in the shallow seas and caused major mass extinctions and biosphere turnovers.
+
+
+== Ratification ==
+The Cryogenian Period was ratified in 1990 by the International Commission on Stratigraphy. In contrast to most other time periods, the beginning of the Cryogenian is not linked to a globally observable and documented event. Instead, the base of the period is defined by a fixed rock age, that was originally set at 850 million years ago, but changed in 2015 to 720 million years ago.
+This could cause ambiguity because estimates of rock age are subject to variable interpretation and laboratory error. For instance, the time scale of the Cambrian Period is not reckoned by rock younger than a given age (538.8 million years), but by the appearance of the worldwide Treptichnus pedum diagnostic trace fossil assemblages, which can be recognized in the field without extensive lab testing.
+Currently, there is no consensus on what global event is a suitable candidate to mark the start of the Cryogenian Period, but a global glaciation would be a likely candidate.
+
+
+== Climate ==
+Characteristic glacial deposits indicate that Earth suffered the most severe ice ages in its history during this period (Sturtian and Marinoan). According to Eyles and Young, "Late Proterozoic glaciogenic deposits are known from all the continents.  They provide evidence of the most widespread and long-ranging glaciation on Earth." Several glacial periods are evident, interspersed with periods of relatively warm climate, with glaciers reaching sea level in low paleolatitudes.
+Glaciers extended and contracted in a series of rhythmic pulses, possibly reaching as far as the equator.
+
+The Cryogenian is generally considered to be divisible into at least two major worldwide glaciations. The Sturtian glaciation persisted from around 717 to 660 million years ago, and the Marinoan glaciation which ended around 632.3 million years ago, at the start of the Ediacaran. The deposits of glacial tillite also occur in places that were at low latitudes during the Cryogenian, a phenomenon which led to the hypothesis of deeply frozen planetary oceans called "Snowball Earth". Between the Sturtian and Marinoan glaciations was a so-called "Cryogenian interglacial period" marked by relatively warm climate and anoxic oceans, along with marine transgression.
+
+
+== Paleogeography ==
+
+Before the start of the Cryogenian, around 750 million years ago, the cratons that made up the supercontinent Rodinia started to rift apart. The superocean Mirovia began to close while the superocean Panthalassa began to form. The cratons (possibly) later assembled into another supercontinent called Pannotia, in the Ediacaran.
+Eyles and Young state, "Most Neoproterozoic glacial deposits accumulated as glacially influenced marine strata along rifted continental margins or interiors."  Worldwide deposition of dolomite might have reduced atmospheric carbon dioxide.  The break up along the margins of Laurentia at about 750 Ma occurs at about the same time as the deposition of the Rapitan Group in North America, contemporaneously with the Sturtian in Australia.  A similar period of rifting at about 650 Ma occurred with the deposition of the Ice Brook Formation in North America, contemporaneously with the Marinoan in Australia. The Sturtian and Marinoan are local divisions within the Adelaide Rift Complex.
+
+
+== Cryogenian biota and fossils ==
+Between the Sturtian and Marinoan glaciations, global biodiversity was very low.
+Fossils of testate amoeba (or Arcellinida) first appear during the Cryogenian Period. Since 2009, some researchers have argued that during the Cryogenian Period, potentially the oldest known fossils of sponges, and therefore animals, were formed. However, it is unclear whether these fossils actually belong to sponges, though the authors do not rule out the possibility of such fossils to represent proto-sponges or complex microbial precursors to sponge-grade organisms. The issue of whether or not biology was impacted by this event has not been settled, for example Porter (2000) suggests that new groups of life evolved during this period, including red algae, green algae, stramenopiles, ciliates, dinoflagellates, and testate amoeba.
+Sometime during the early stages of the Marinoan glaciation, a macrofossil assemblage referred to as the Songluo Biota from the Nantuo Formation would appear, marking the first known appearance of large macroscopic carbonaceous fossils in Cryogenian rocks, including taxa such as Doushantuophyton, Chuaria, and Vendotaenia. The end of the period also saw the origin of heterotrophic plankton, which would feed on unicellular algae and prokaryotes, ending the bacterial dominance of the oceans. The unicellular algae (Archaeplastida) went through a big bang of diversification, and their population went up by a factor of a hundred to a thousand.
+
+
+== See also ==
+Timeline of glaciation – Chronology of the major ice ages of the Earth
+
+
+== References ==
+
+
+== Further reading ==
+"Cryogenian Period". GeoWhen Database. Archived from the original on 2 December 2005. Retrieved 5 January 2006.
+James G. Ogg (2004). "Status on Divisions of the International Geologic Time Scale". Lethaia. 37 (2): 183–199. Bibcode:2004Letha..37..183O. doi:10.1080/00241160410006492.
+Brain, C. K.; Prave, A. R.; Hoffmann, K. H.; Fallick, A. E.; Herd, D. A.; Sturrock, C.; Young, I.; Condon, D. J.; Allison, S. G. (2012). "The first animals: ca. 760-million-year-old sponge-like fossils from Namibia" (PDF). South African Journal of Science. 108: 1–8. doi:10.4102/sajs.v108i1/2.658.
+Hoffman, Paul F.; Abbot, Dorian S.; et al. (8 November 2017). "Snowball Earth climate dynamics and Cryogenian geology-geobiology". Science Advances. 3 (11) e1600983. American Association for the Advancement of Science. Bibcode:2017SciA....3E0983H. doi:10.1126/sciadv.1600983. PMC 5677351. PMID 29134193. S2CID 1465316.
+
+
+== External links ==
+Australia: The Time Traveller's Guide (2012) at IMDb
+Miracle Planet : Snowball Earth on YouTube (2010s) BBC/CBC/NHK

@@ -1,0 +1,309 @@
+https://en.wikipedia.org/wiki/Diffuse_sky_radiation
+
+Diffuse sky radiation, is solar radiation reaching the Earth's surface after having been scattered from the direct solar beam by molecules or particulates in the atmosphere. It is also called sky radiation,  the determinative process for changing the colors of the sky. It is normally measured on a horizontal surface, thus frequently termed diffuse horizontal irradiance (DHI), often in the unit of watts per square meter (W/m2). Approximately 23% of direct incident radiation of total sunlight is removed from the direct solar beam by scattering into the atmosphere; of this amount (of incident radiation)  about two-thirds ultimately reaches the earth as photon diffused skylight radiation.
+The dominant radiative scattering processes in the atmosphere are Rayleigh scattering and Mie scattering; they are elastic, meaning that a photon of light can be deviated from its path without being absorbed and without changing wavelength.
+Under an overcast sky, there is no direct sunlight, and all light results from diffused skylight radiation.
+Proceeding from analyses of the aftermath of the eruption of the Philippines volcano Mount Pinatubo (in June 1991) and other studies:  Diffused skylight, owing to its intrinsic structure and behavior, can illuminate under-canopy leaves, permitting more efficient total whole-plant photosynthesis than would otherwise be the case; this in stark contrast to the effect of totally clear skies with direct sunlight that casts shadows onto understory leaves and thereby limits plant photosynthesis to the top canopy layer, (see below).
+
+
+== Color ==
+
+Earth's atmosphere scatters short-wavelength light more efficiently than that of longer wavelengths. Because its wavelengths are shorter,  blue light is more strongly scattered than the longer-wavelength lights, red or green. Hence, the result that when looking at the sky away from the direct incident sunlight, the human perceives the sky to be blue. The color perceived is similar to that presented by a monochromatic blue (at wavelength 474–476 nm) mixed with white light, that is, an unsaturated blue light. The explanation of blue color by  Lord Rayleigh in 1871 is a famous example of applying dimensional analysis to solving problems in physics.
+Scattering and absorption are major causes of the attenuation of sunlight radiation by the atmosphere. Scattering varies as a function of the ratio of particle diameters (of particulates in the atmosphere) to the wavelength of the incident radiation. When this ratio is less than about one-tenth, Rayleigh scattering occurs. (In this case, the scattering coefficient varies inversely with the fourth power of the wavelength. At larger ratios scattering varies in a more complex fashion, as described for spherical particles by the Mie theory.) The laws of geometric optics begin to apply at higher ratios.
+Daily at any global venue experiencing sunrise or sunset, most of the solar beam of visible sunlight arrives nearly tangentially to Earth's surface. Here, the path of sunlight through the atmosphere is elongated such that much of the blue or green light is scattered away from the line of perceivable visible light. This phenomenon leaves the Sun's rays, and the clouds they illuminate, abundantly orange-to-red in colors, which one sees when looking at a sunset or sunrise.
+For the example of the Sun at zenith, in broad daylight, the sky is blue due to Rayleigh scattering, which also involves the diatomic gases N2 and O2. Near sunset and especially during twilight, absorption by ozone (O3) significantly contributes to maintaining blue color in the evening sky.
+
+
+== Under an overcast sky ==
+There is essentially no direct sunlight under an overcast sky, so all light is then diffuse sky radiation. The flux of light is not very wavelength-dependent because the cloud droplets are larger than the light's wavelength and scatter all colors approximately equally. The light passes through the translucent clouds in a manner similar to frosted glass. The intensity ranges (roughly) from 1⁄6 of direct sunlight for relatively thin clouds down to 1⁄1000 of direct sunlight under the extreme of thickest storm clouds.
+
+
+== As a part of total radiation on a horizontal surface ==
+The diffuse horizontal irradiance is part of the global horizontal irradiance and the following relation holds for instantaneous measurements
+
+  
+    
+      
+        
+          GHI
+        
+        =
+        
+          DHI
+        
+        +
+        
+          DNI
+        
+        ×
+        cos
+        ⁡
+        (
+        z
+        )
+        =
+        
+          DHI
+        
+        +
+        
+          DirHI
+        
+      
+    
+    {\displaystyle {\text{GHI}}={\text{DHI}}+{\text{DNI}}\times \cos(z)={\text{DHI}}+{\text{DirHI}}}
+  
+
+where GHI is the global horizontal irradiance, DHI is the diffuse horizontal irradiance, DNI is the direct normal irradiance, 
+  
+    
+      
+        z
+      
+    
+    {\displaystyle z}
+  
+ is the solar zenith angle, and DirHI is the direct horizontal irradiance.
+
+
+== As a part of total radiation on a southward tilted surface ==
+One of the equations for total solar radiation on a southward tilted surface is:
+
+  
+    
+      
+        
+          H
+          
+            t
+          
+        
+        =
+        
+          H
+          
+            b
+          
+        
+        
+          R
+          
+            b
+          
+        
+        +
+        
+          H
+          
+            d
+          
+        
+        
+          R
+          
+            d
+          
+        
+        +
+        (
+        
+          H
+          
+            b
+          
+        
+        +
+        
+          H
+          
+            d
+          
+        
+        )
+        
+          R
+          
+            r
+          
+        
+      
+    
+    {\displaystyle H_{t}=H_{b}R_{b}+H_{d}R_{d}+(H_{b}+H_{d})R_{r}}
+  
+
+where Hb is the beam radiation irradiance, Rb is the tilt factor for beam radiation, Hd is the diffuse radiation irradiance, Rd is the tilt factor for diffuse radiation and Rr is the tilt factor for reflected radiation.
+Rb is given by:
+
+  
+    
+      
+        
+          R
+          
+            b
+          
+        
+        =
+        
+          
+            
+              sin
+              ⁡
+              (
+              δ
+              )
+              sin
+              ⁡
+              (
+              ϕ
+              −
+              β
+              )
+              +
+              cos
+              ⁡
+              (
+              δ
+              )
+              cos
+              ⁡
+              (
+              h
+              )
+              cos
+              ⁡
+              (
+              ϕ
+              −
+              β
+              )
+            
+            
+              sin
+              ⁡
+              (
+              δ
+              )
+              sin
+              ⁡
+              (
+              ϕ
+              )
+              +
+              cos
+              ⁡
+              (
+              δ
+              )
+              cos
+              ⁡
+              (
+              h
+              )
+              cos
+              ⁡
+              (
+              ϕ
+              )
+            
+          
+        
+      
+    
+    {\displaystyle R_{b}={\frac {\sin(\delta )\sin(\phi -\beta )+\cos(\delta )\cos(h)\cos(\phi -\beta )}{\sin(\delta )\sin(\phi )+\cos(\delta )\cos(h)\cos(\phi )}}}
+  
+
+where δ is the solar declination, Φ is the latitude, β is an angle from the horizontal and h is the solar hour angle.
+Rd is given by:
+
+  
+    
+      
+        
+          R
+          
+            d
+          
+        
+        =
+        
+          
+            
+              1
+              +
+              cos
+              ⁡
+              (
+              β
+              )
+            
+            2
+          
+        
+      
+    
+    {\displaystyle R_{d}={\frac {1+\cos(\beta )}{2}}}
+  
+
+and Rr by:
+
+  
+    
+      
+        
+          R
+          
+            r
+          
+        
+        =
+        
+          
+            
+              ρ
+              (
+              1
+              −
+              cos
+              ⁡
+              (
+              β
+              )
+              )
+            
+            2
+          
+        
+      
+    
+    {\displaystyle R_{r}={\frac {\rho (1-\cos(\beta ))}{2}}}
+  
+
+where ρ is the reflectivity of the surface.
+
+
+== Agriculture and the eruption of Mt. Pinatubo ==
+
+The eruption of the Philippines volcano - Mount Pinatubo in June 1991 ejected roughly 10 km3 (2.4 cu mi) of magma and "17 million metric tons"(17 teragrams) of sulfur dioxide SO2 into the air, introducing ten times as much total SO2 as the 1991 Kuwaiti fires, mostly during the explosive Plinian/Ultra-Plinian event of June 15, 1991, creating a global stratospheric SO2 haze layer which persisted for years. This resulted in the global average temperature dropping by about 0.5 °C (0.9 °F). Since volcanic ash falls out of the atmosphere rapidly, the negative agricultural, effects of the eruption were largely immediate and localized to a relatively small area in close proximity to the eruption, caused by the resulting thick ash cover. Globally however, despite a several-month 5% drop in overall solar irradiation, and a reduction in direct sunlight by 30%, there was no negative impact on global agriculture. Surprisingly, a 3-4 year increase in global Agricultural productivity and forestry growth was observed, excepting boreal forest regions. The means of discovery was that initially, a mysterious drop in the rate at which carbon dioxide (CO2) was filling the atmosphere was observed, which is charted in what is known as the "Keeling Curve". This led numerous scientists to assume that the reduction was due to the lowering of Earth's temperature, and with that, a, slowdown in plant and soil respiration, indicating a deleterious impact on global agriculture from the volcanic haze layer. However upon investigation, the reduction in the rate at which carbon dioxide filled the atmosphere did not match up with the hypothesis that plant respiration rates had declined. Instead the advantageous anomaly was relatively firmly linked to an unprecedented increase in the growth/net primary production, of global plant life, resulting in the increase of the carbon sink effect of global photosynthesis. The mechanism by which the increase in plant growth was possible, was that the 30% reduction of direct sunlight can also be expressed as an increase or "enhancement" in the amount of diffuse sunlight.
+
+
+=== The diffused skylight effect ===
+ 
+This diffused skylight, owing to its intrinsic nature, can illuminate under-canopy leaves permitting more efficient total whole-plant photosynthesis than would otherwise be the case, and also increasing evaporative cooling, from vegetated surfaces. In stark contrast, for totally clear skies and the direct sunlight that results from it, shadows are cast onto understorey leaves, limiting plant photosynthesis to the top canopy layer. This increase in global agriculture from the volcanic haze layer also naturally results as a product of other aerosols that are not emitted by volcanoes, such, "moderately thick smoke loading" pollution, as the same mechanism, the "aerosol direct radiative effect" is behind both.
+
+
+== See also ==
+
+
+== References ==
+
+
+== Further reading ==
+Pesic, Peter (2005). Sky in a Bottle. The MIT Press. ISBN 978-0-262-16234-0.
+
+
+== External links ==
+Dr. C. V. Raman lecture: Why is the sky blue?
+Why is the sky blue?
+Blue Sky and Rayleigh Scattering
+Atmospheric Optics (.pdf), Dr. Craig Bohren Archived December 6, 2013, at the Wayback Machine
