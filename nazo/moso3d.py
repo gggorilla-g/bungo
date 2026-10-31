@@ -248,6 +248,20 @@ def fx_tally(fr, fx, t, times):
             stroke_text(d, int(xk), yb - 62, f"{fx['hours'] * k // fx['n']}時", 44, WHT, 6)
 
 
+def fx_calendar(fr, fx, t):
+    """カレンダーがめくれていく（1月〜12月）。下に一言。文字が変わるだけで明るさは変えない"""
+    d = ImageDraw.Draw(fr)
+    k = int(t / fx.get("per", 0.13)) % 12
+    x0, y0, w, h = W // 2 - 190, 330, 380, 360
+    d.rectangle([x0, y0, x0 + w, y0 + h], fill=WHT, outline=BLK, width=10)
+    d.rectangle([x0, y0, x0 + w, y0 + 90], fill=RED, outline=BLK, width=10)
+    for q in range(2):
+        d.ellipse([x0 + 90 + q * 170, y0 - 30, x0 + 130 + q * 170, y0 + 30], fill=BLK)
+    stroke_text(d, W // 2, y0 + 225, f"{k + 1}月", 150, BLK, 0)
+    if fx.get("sub"):
+        stroke_text(d, W // 2, y0 + h + 90, fx["sub"], 90, YEL, 12)
+
+
 def fx_flip(fr, fx, t):
     """2語がなめらかに入れかわる（CGの雪⇄猛暑と同じ周期。急に切り替えない）"""
     w = 0.5 - 0.5 * math.cos(2 * math.pi * t / fx["period"])          # 0=1語目 1=2語目
@@ -378,6 +392,8 @@ def build(sid):
                 ev += [("drumroll", at, 1.0), ("ding", at + max(0.5, d * 0.6), 1.2)]
             elif fx["type"] == "tally":
                 ev += [("pop_hi", k * d / fx["n"], 1.2) for k in range(fx["n"])]
+            elif fx["type"] == "calendar":
+                ev += [("paper", k * fx.get("per", 0.13), 0.7) for k in range(int(d / fx.get("per", 0.13)))]
             elif fx["type"] == "flip":
                 ev += [("whoosh_s", (k + 0.5) * fx["period"] - 0.15, 0.8) for k in range(int(d / fx["period"]) + 1)]
         if ln["cg"]["scene"] == "flight":
@@ -431,6 +447,8 @@ def build(sid):
                     fx_tally(fr, fx, t, times)
                 elif k == "flip":
                     fx_flip(fr, fx, t)
+                elif k == "calendar":
+                    fx_calendar(fr, fx, t)
             dr = ImageDraw.Draw(fr)
             if use_z:                                                # 左下でずんだもんが喋る
                 gf = int(sum(durs[:li]) * FPS) + i
@@ -445,7 +463,8 @@ def build(sid):
                 dr.rectangle([W - 40 - bw, 70, W - 40, 70 + bh], fill=WHT, outline=RED, width=6)
                 dr.text((W - 40 - bw + 20 - l_, 70 + 12 - t_), "説", font=f_setsu, fill=RED)
             e = back(t / 0.2)
-            ft = motion.font(int((100 if max(len(x) for x in tel) <= 7 else 84) * (0.85 + 0.15 * e)))
+            mx_ = max(len(x) for x in tel)                           # 長い行は画面幅に収まる大きさまで縮める
+            ft = motion.font(int(min(100 if mx_ <= 7 else 84, 960 // mx_) * (0.85 + 0.15 * e)))
             y = TEL_Y
             for j, l in enumerate(tel):
                 _, hh = motion.box_text(dr, W // 2, y, l, ft, WHT, BLK, 34, 18, anchor="ct")   # 字幕は2行とも黒地に白文字

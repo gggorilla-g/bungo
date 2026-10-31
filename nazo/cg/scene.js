@@ -21,7 +21,7 @@ const lerp = (a, b, u) => a + (b - a) * u;
 const COL = {
   grass: 0x5cb85c, grass2: 0x4aa64a, dirt: 0x8b5a2b, sand: 0xe8d38a, sea: 0x2f7fd8, sea2: 0x3a8ee6,
   trunk: 0x7a4a24, leaf: 0x2e8b3a, leaf2: 0x3fa34d, snow: 0xf2f2f2, cloud: 0xffffff, sun: 0xffd23a,
-  moon: 0xbdbdbd, moon2: 0x9a9a9a, lava: 0xe8552a,
+  moon: 0xbdbdbd, moon2: 0x9a9a9a, lava: 0xe8552a, ice: 0xdff3ff,
 };
 
 // 同じ大きさのブロックを大量に置く（InstancedMesh、色はブロックごと）
@@ -118,7 +118,8 @@ function landScene(p) {
     if (y < 0) continue;
     top[`${x},${z}`] = y;
     for (let k = Math.max(0, y - 2); k <= y; k++)
-      list.push([x, k, z, k < y ? COL.dirt : (y <= 0 ? COL.sand : ((x * 7 + z * 3) % 5 ? COL.grass : COL.grass2))]);
+      list.push([x, k, z, p.ice ? (k < y ? 0xb8d4e8 : ((x * 7 + z * 3) % 5 ? COL.ice : COL.snow))
+                         : (k < y ? COL.dirt : (y <= 0 ? COL.sand : ((x * 7 + z * 3) % 5 ? COL.grass : COL.grass2)))]);
   }
   sc.add(blocks(list));
   const sea = new THREE.Mesh(new THREE.PlaneGeometry(2000, 2000), new THREE.MeshLambertMaterial({ color: COL.sea }));
@@ -129,7 +130,7 @@ function landScene(p) {
   const snow = blocks(snowL, 1); snow.scale.y = 1; snow.visible = false; sc.add(snow);
   // 木
   const trees = [];
-  [[-6, -4], [-3, -9], [5, -6], [8, 3], [-10, 1], [-8, 6], [11, -2], [-13, -6], [3, -12], [-2, 2]].forEach(([x, z]) => {
+  (p.notrees || p.ice ? [] : [[-6, -4], [-3, -9], [5, -6], [8, 3], [-10, 1], [-8, 6], [11, -2], [-13, -6], [3, -12], [-2, 2]]).forEach(([x, z]) => {
     const y = top[`${x},${z}`]; if (y === undefined || y < 1) return;
     const t = new THREE.Group(); t.position.set(x, y + 0.5, z);
     t.add(blocks([[0, 0, 0, COL.trunk], [0, 1, 0, COL.trunk], [0, 2, 0, COL.trunk]]));
@@ -156,6 +157,7 @@ function landScene(p) {
     sc.add(m); bits.push(m);
   }
   const CX = 4, ch = blockChar(); const cy = (top[`${CX},6`] ?? 2) + 1.4; ch.position.set(CX, cy, 6); ch.rotation.y = 0.35; sc.add(ch);
+  const ups = props(sc, p, top);                        // 小道具（家と釘・ひも・車・マッチ・山・空気の柱・ボール）
   // 太陽・光・星（見た目は試作1版のまま。昼夜の切り替えだけゆっくり・なめらかにする）
   // 点滅・急な明暗の切り替えは禁止。明暗の大きな変化は1秒に3回未満（nazo/RULES.md）
   const sun = new THREE.Mesh(new THREE.BoxGeometry(9, 9, 9), new THREE.MeshBasicMaterial({ color: COL.sun }));
@@ -165,15 +167,17 @@ function landScene(p) {
   const st = stars(1400, 500, p.night ? 3 : 2.2); sc.add(st);
   const skyDay = new THREE.Color(0x6ec0ff), skyDusk = new THREE.Color(0xff7a3a), skyNight = new THREE.Color(0x03040c);
   const hot = new THREE.Color(0xff9a3a), snowSky = new THREE.Color(0xc8d8e8);
-  const [cp, ct] = LAND_CAMS[p.cam || "hook"];
-  const [cp2, ct2] = LAND_CAMS[p.cam_to || p.cam || "hook"];
+  const camOf = c => (Array.isArray(c) ? c : LAND_CAMS[c || "hook"]);   // 名前か [[位置],[見る点]]
+  const [cp, ct] = camOf(p.cam);
+  const [cp2, ct2] = camOf(p.cam_to || p.cam);
   return (t, d) => {
     const u = d ? t / d : 0, tt = t + (p.t0 || 0);
     const ph = (p.sun ? (tt / p.sun) * Math.PI * 2 : 0) + (p.ph0 ?? 0.9);
-    const sx = Math.cos(ph) * 160, sy = Math.sin(ph) * 120;
-    sun.position.set(sx, sy, -90); sun.rotation.set(tt, tt * 0.7, 0);
-    dl.position.set(sx, Math.max(sy, -10), -90);
-    const el = Math.sin(ph);
+    let sx = Math.cos(ph) * 160, sy = Math.sin(ph) * 120, sz = -90;
+    if (p.polar) { sx = Math.cos(ph) * 150; sz = Math.sin(ph) * 150; sy = 7; }   // 北極：太陽が地平線すれすれをぐるりと回る
+    sun.position.set(sx, sy, sz); sun.rotation.set(tt, tt * 0.7, 0);
+    dl.position.set(sx, Math.max(sy, -10), sz);
+    const el = p.polar ? 0.12 : Math.sin(ph);
     const day = p.night ? 0 : sstep((el + 0.3) / 0.9);          // 昼⇄夜を広い幅でなめらかに（明るさの上限・下限は前のまま）
     const dusk = p.night ? 0 : Math.max(0, 1 - Math.abs(el) * 2.2) ** 2;
     const sky = skyNight.clone().lerp(skyDay, day).lerp(skyDusk, dusk * 0.55);
@@ -212,6 +216,8 @@ function landScene(p) {
       ch.position.set(CX + b * 22, cy + b * 10 - b * b * 2, 6 - b * 4);
       ch.rotation.set(b * 6, 0.35 + b * 4, -0.35 - b * 9);
     }
+    act(ch, p, t, tt, cy, CX);                             // キャラの動き（すべる・跳ぶ・息切れ・震える）
+    ups.forEach(f => f(t, d, u));
     const e = sstep(u);
     C.position.set(lerp(cp[0], cp2[0], e), lerp(cp[1], cp2[1], e), lerp(cp[2], cp2[2], e));
     if (p.shake) C.position.x += Math.sin(t * 40) * 0.25;
@@ -341,6 +347,11 @@ function axisScene(p) {
   g.add(new THREE.Mesh(new THREE.BoxGeometry(1.6, 60, 1.6), new THREE.MeshBasicMaterial({ color: 0xff3b30 })));
   return (t, d) => {
     const a = p.amp ?? 1;
+    if (p.untilt !== undefined) {                         // 傾き23.4度 → p.untilt の時刻から0度へ（揺らさない）
+      g.rotation.set(0, 0, 0.41 * (1 - sstep((t / d - p.untilt) / 0.06)));
+      e.rotation.y = t * 3; const c = ease(Math.min(1, t / d / p.untilt));
+      C.position.set(0, 6, lerp(150, 78, c)); C.lookAt(0, 0, 0); C.rotateZ(t / d * 0.25); return;
+    }
     g.rotation.z = 0.41 + a * (0.6 * Math.sin(t * 3.4) + 0.3 * Math.sin(t * 8.1));
     g.rotation.x = a * 0.4 * Math.sin(t * 4.7 + 1);
     e.rotation.y = t * 4;
@@ -427,7 +438,238 @@ function tideScene(p) {
   };
 }
 
-const SCENES = { tide: tideScene, land: landScene, flight: flightScene, rewind: rewindScene, spin: spinScene, axis: axisScene, space: spaceScene };
+// ---------- 島の小道具（p のキーで出す） ----------
+//   house:1  ブロックの家と釘。nails:1 で釘が1本ずつ抜け、板が少しずれる（壊れる表現はしない）
+//   rope:1   杭に結んだひも。untie:1 でほどけて落ちる
+//   car:"spin"（車輪が空回りして進めない）/ "slide"（ブレーキが効かず滑り続ける）/ "drive"（ふつうに走る）
+//   match:1  マッチを箱でこする。火はつかない
+//   mountain:1 富士山の形の山（遠景）  air:1 空気の柱（air_half:1 で半分の高さに）  ball:1 ボールの放物線（half_g:1 で2本目が2倍遠く）
+function props(sc, p, top) {
+  const ups = [], Y = (x, z) => (top[`${x},${z}`] ?? 1) + 0.5;
+  const box = (w, h, d, col, basic) => new THREE.Mesh(new THREE.BoxGeometry(w, h, d),
+    basic ? new THREE.MeshBasicMaterial({ color: col }) : new THREE.MeshLambertMaterial({ color: col }));
+  if (p.house) {
+    const g = new THREE.Group(), y0 = Y(-5, 0); g.position.set(-5, y0, 0); sc.add(g);
+    const planks = [], nails = [];
+    for (let k = 0; k < 5; k++) {                         // 正面の板（横に5枚）
+      const pl = box(7, 0.9, 0.5, k % 2 ? 0xb07a45 : 0xa06a38); pl.position.set(0, 0.5 + k, 3); g.add(pl); planks.push(pl);
+      [-3, 3].forEach(x => { const n = box(0.35, 0.35, 1.2, 0x9a9a9a); n.position.set(x, 0.5 + k, 3.35); g.add(n); nails.push(n); });
+    }
+    const back = box(7, 5, 6, 0x8a5a30); back.position.set(0, 2.5, 0); g.add(back);
+    const post1 = box(0.8, 5.2, 0.8, 0x6a4020); post1.position.set(-3, 2.6, 3); g.add(post1);
+    const post2 = post1.clone(); post2.position.x = 3; g.add(post2);
+    const roof = box(8.5, 1, 7.5, 0xb03a2e); roof.position.set(0, 5.5, 0.2); g.add(roof);
+    ups.push((t, d) => {
+      if (!p.nails) return;
+      nails.forEach((n, i) => {                          // 1本ずつ、すーっと抜ける
+        const q = Math.max(0, Math.min(1, (t - 0.15 - i * 0.07) / 0.45));
+        n.position.z = 3.35 + q * 2.8; n.rotation.x = q * 0.6;
+      });
+      planks.forEach((pl, k) => {                         // 釘が抜けた板が、少しずつ滑ってずれる
+        const q = Math.max(0, t - 0.6 - k * 0.12);
+        pl.position.x = Math.min(2.2, q * q * 3) * (k % 2 ? 1 : -1); pl.rotation.z = Math.min(0.25, q * 0.3) * (k % 2 ? -1 : 1);
+      });
+    });
+  }
+  if (p.rope) {
+    const g = new THREE.Group(), y0 = Y(-1, 2); g.position.set(-1, y0, 2); sc.add(g);
+    const post = box(0.9, 4, 0.9, 0x6a4020); post.position.y = 2; g.add(post);
+    const segs = [];
+    for (let i = 0; i < 26; i++) { const b = box(0.45, 0.45, 0.45, 0xff7a3a); g.add(b); segs.push(b); }
+    ups.push((t, d) => {
+      const q = p.untie ? sstep((t - 0.3) / 0.9) : 0;
+      segs.forEach((b, i) => {
+        const a = i / 26 * Math.PI * 4.2;                 // 結び目：杭に2回巻いたひも
+        const kx = Math.cos(a) * 0.9, kz = Math.sin(a) * 0.9, ky = 2.6 + i * 0.03;
+        const fx = 0.9 + i * 0.32, fy = Math.max(0.3, 2.6 - q * 3 - i * 0.02), fz = 0;   // ほどけて垂れる
+        b.position.set(lerp(kx, fx, q), lerp(ky, fy, q), lerp(kz, fz, q) + Math.sin(t * 6 + i) * 0.05 * q);
+      });
+    });
+  }
+  if (p.car) {
+    const g = new THREE.Group(); sc.add(g);
+    const body = box(4.5, 1.4, 2.4, 0xd83a30); body.position.y = 1.2; g.add(body);
+    const cab = box(2.4, 1.1, 2.2, 0xf2f2f2); cab.position.set(-0.3, 2.4, 0); g.add(cab);
+    const lamp = box(0.2, 0.4, 0.6, 0x552222, true); lamp.position.set(-2.3, 1.4, 0); g.add(lamp);
+    const wheels = [];
+    [[-1.5, 1.25], [1.5, 1.25], [-1.5, -1.25], [1.5, -1.25]].forEach(([x, z]) => {
+      const w = new THREE.Group(); w.position.set(x, 0.55, z); g.add(w); wheels.push(w);
+      const tire = box(1.1, 1.1, 0.5, 0x222222); w.add(tire);
+      const hub = box(0.5, 0.5, 0.55, 0xcccccc); w.add(hub);
+    });
+    const x0 = p.car === "slide" ? -9 : 2, z0 = 8, y0 = Y(2, 8) - 0.4;
+    g.position.set(x0, y0, z0);
+    ups.push((t, d) => {
+      if (p.car === "spin") { wheels.forEach(w => (w.rotation.z = -t * 18)); g.position.x = x0 + Math.sin(t * 40) * 0.05; }
+      else if (p.car === "slide") {                        // ブレーキを踏んでも止まらない（車輪は止まっている）
+        g.position.x = x0 + t * 7; lamp.material.color.setHex(t > 0.3 ? 0xff2a2a : 0x552222); g.rotation.y = Math.sin(t * 2) * 0.12;
+      } else { wheels.forEach(w => (w.rotation.z = -t * 8)); g.position.x = x0 + t * 3; }
+    });
+  }
+  if (p.match) {
+    const g = new THREE.Group(), y0 = Y(1, 9); g.position.set(1, y0 + 1.6, 9); sc.add(g);
+    const mbox = box(3.2, 1.6, 2, 0x2f6fb0); g.add(mbox);
+    const strip = box(3.25, 0.5, 0.2, 0x5a3a2a); strip.position.set(0, 0, 1.05); g.add(strip);
+    const stick = new THREE.Group(); g.add(stick);
+    const wood = box(3.6, 0.3, 0.3, 0xe8c890); wood.position.x = 1.8; stick.add(wood);
+    const head = box(0.6, 0.55, 0.55, 0xc8202a); stick.add(head);
+    ups.push((t) => { stick.position.set(Math.sin(t * 11) * 1.2, 0, 1.4); stick.rotation.z = 0.1 + Math.sin(t * 11) * 0.05; });
+  }
+  if (p.mountain) {
+    const ml = [];
+    for (let y = 0; y < 26; y++) {
+      const r = 24 * Math.pow(1 - y / 26, 1.5) + 2.5;     // 富士山のように裾が広がる形
+      for (let a = 0; a < 360; a += 360 / Math.max(8, r * 3)) {
+        const x = Math.round(Math.cos(a * Math.PI / 180) * r), z = Math.round(Math.sin(a * Math.PI / 180) * r);
+        ml.push([x * 1.6, y * 1.6, z * 1.6, y > 19 ? COL.snow : (y > 15 ? 0x8a94b8 : 0x5a6a9a)]);
+      }
+    }
+    const m = blocks(ml, 1.7); m.position.set(-30, -2, -150); sc.add(m);
+  }
+  if (p.air) {                                            // 空気の柱：上に積んだ空気のブロック
+    const g = new THREE.Group(); g.position.set(4, Y(4, 6), 6); sc.add(g);
+    const cells = [];
+    for (let k = 0; k < 14; k++) { const b = box(2.6, 0.9, 2.6, k % 2 ? 0xbfe6ff : 0x9fd2f5); b.position.y = 4.5 + k; g.add(b); cells.push(b); }
+    ups.push((t) => {
+      const q = p.air_half ? sstep((t - 0.4) / 0.8) : 0;
+      cells.forEach((b, k) => { b.visible = k < 14 - 7 * q + 0.01; b.position.y = 4.5 + k; });
+      g.rotation.y = t * 0.3;
+    });
+  }
+  if (p.ball) {
+    const mk = col => { const b = box(1.6, 1.6, 1.6, col); sc.add(b); return b; };
+    const b1 = mk(0xf2f2f2), b2 = p.half_g ? mk(0xffd23a) : null;
+    const dots = [b1, b2].filter(Boolean).map(b => Array.from({ length: 24 }, () => {   // 通った跡の点
+      const m = box(0.5, 0.5, 0.5, b.material.color.getHex()); sc.add(m); m.visible = false; return m; }));
+    const pos = (k, tt, T1, v) => {                       // 同じ速さ・角度で投げる。重力が半分なら2倍の高さ・2倍の距離
+      const g = 2 * v / T1 / k, s = Math.min(tt, T1 * k);
+      return [-15 + v * 0.9 * s, 3 + v * s - 0.5 * g * s * s, 4];
+    };
+    ups.push((t, d) => {
+      const T1 = d * 0.42, v = 9;
+      [b1, b2].forEach((b, j) => {
+        if (!b) return;
+        b.position.set(...pos(j + 1, t, T1, v));
+        dots[j].forEach((m, i) => { const ti = i * T1 * (j + 1) / 24; m.visible = ti < t; m.position.set(...pos(j + 1, ti, T1, v)); });
+      });
+    });
+  }
+  return ups;
+}
+
+// ---------- ブロックのキャラの動き（p.act） ----------
+//   slip（足がすべって尻もち、立てずにくるくる）/ jump（p.jump_h の高さまで跳ぶ。半分の重力ではゆっくり高く）
+//   pant（ぜーぜー：速く上下し、口から白い息のブロック）/ shiver（ぶるぶる震える）
+function act(ch, p, t, tt, cy, CX) {
+  if (!p.act) return;
+  const B = ch.userData.body;
+  if (p.act === "slip") {
+    const q = Math.min(1, t / 0.5);
+    ch.position.set(CX + Math.sin(t * 5) * 1.5, cy - 0.9 * sstep((t - 0.3) / 0.3) + Math.abs(Math.sin(t * 9)) * 0.2, 6);
+    ch.rotation.set(-0.9 * sstep((t - 0.3) / 0.3), t * 3, Math.sin(t * 12) * 0.25 * q);
+  } else if (p.act === "jump") {
+    const per = p.jump_p || 1.2, k = (t % per) / per, H = p.jump_h || 3;
+    ch.position.set(CX, cy + 4 * H * k * (1 - k), 6); ch.rotation.set(0, 0.35 + k * 0.4, 0);
+    ch.userData.ears.forEach((e, i) => { e.rotation.z = (i ? -1 : 1) * (0.5 - k) * 0.8; });
+  } else if (p.act === "pant") {
+    t = tt;                                               // ループのつなぎ用に時刻（t0 込み）で動かす
+    ch.position.set(CX, cy + Math.abs(Math.sin(t * 14)) * 0.3, 6); ch.rotation.set(0.15 + 0.1 * Math.sin(t * 14), 0.35, 0);
+    if (!ch.userData.puffs) {
+      ch.userData.puffs = [0, 1, 2, 3].map(() => { const m = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.5, 0.5), new THREE.MeshBasicMaterial({ color: 0xffffff })); ch.parent.add(m); return m; });
+    }
+    ch.userData.puffs.forEach((m, i) => {
+      const q = (((t * 1.6 + i / 4) % 1) + 1) % 1;
+      m.position.set(CX + 0.9 + q * 2.4, cy + 2.4 + q * 1.4, 7.4 + q); m.scale.setScalar(0.4 + q * 0.7); m.visible = q < 0.85;
+    });
+  } else if (p.act === "shiver") {
+    ch.position.set(CX + Math.sin(t * 60) * 0.12, cy, 6); ch.rotation.set(0, 0.35, Math.sin(t * 50) * 0.05);
+  }
+}
+
+// ---------- 場面：太陽のまわりを回る地球（傾きの棒つき） ----------
+//   p.tilt（度。23.4 か 0）、p.per（1周の秒数）、p.untilt_at（この割合の時刻から傾きが0へ）
+function orbitScene(p) {
+  const sc = CUR = new THREE.Scene(); sc.background = new THREE.Color(0x02030a);
+  sc.add(stars(1800, 800, 2.4)); sc.add(new THREE.AmbientLight(0xffffff, 0.22));
+  const sun = planet(6, (x, y, z) => (noise3(x * 2, y * 2, z * 2) > 0.3 ? 0xffb020 : COL.sun), 1, new THREE.MeshBasicMaterial()); sc.add(sun);
+  const pl = new THREE.PointLight(0xffffff, 3.2, 0, 0); sc.add(pl);
+  const g = new THREE.Group(); sc.add(g);
+  const tiltG = new THREE.Group(); g.add(tiltG);
+  const e = planet(4, earthColor); tiltG.add(e);
+  tiltG.add(new THREE.Mesh(new THREE.BoxGeometry(0.5, 15, 0.5), new THREE.MeshBasicMaterial({ color: 0xff3b30 })));
+  const eq = [];                                           // 赤道の線（黄色）
+  for (let i = 0; i < 32; i++) { const a = i / 32 * Math.PI * 2; eq.push([Math.cos(a) * 4.6, 0, Math.sin(a) * 4.6, 0xffe14a]); }
+  tiltG.add(blocks(eq, 0.4));
+  const OR = 17, path = [];
+  for (let i = 0; i < 60; i++) if (i % 2) { const a = i / 60 * Math.PI * 2; path.push([Math.cos(a) * OR, 0, Math.sin(a) * OR, 0x555a66]); }
+  sc.add(blocks(path, 0.8));
+  return (t, d) => {
+    const u = t / d, per = p.per || 3.2, a = t / per * Math.PI * 2 + (p.a0 || 0);
+    g.position.set(Math.cos(a) * OR, 0, Math.sin(a) * OR);
+    let tilt = (p.tilt ?? 23.4) * Math.PI / 180;
+    if (p.untilt_at !== undefined) tilt *= 1 - sstep((u - p.untilt_at) / 0.12);
+    tiltG.rotation.set(0, 0, tilt);                       // 傾きの向きは公転しても変わらない
+    e.rotation.y = t * 5; sun.rotation.y = t * 0.3;
+    C.position.set(lerp(5, -5, u), 40, lerp(44, 40, u)); C.lookAt(0, -2, 0);
+  };
+}
+
+// ---------- 場面：重力の矢印（地球へ向かう矢印が、0.00 で半分の長さに） ----------
+function gravityScene(p) {
+  const sc = CUR = new THREE.Scene(); sc.background = new THREE.Color(0x02030a);
+  sc.add(stars(1800, 600, 2.4)); sc.add(new THREE.AmbientLight(0xffffff, 0.4));
+  const dl = new THREE.DirectionalLight(0xffffff, 1.3); dl.position.set(-100, 40, 80); sc.add(dl);
+  const e = planet(14, earthColor); sc.add(e);
+  const arrows = [];
+  for (let i = 0; i < 12; i++) {
+    const a = i / 12 * Math.PI * 2, g = new THREE.Group(); g.rotation.z = a; sc.add(g);
+    const shaft = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshBasicMaterial({ color: 0x5ad1ff })); g.add(shaft);
+    const tip = new THREE.Mesh(new THREE.BoxGeometry(2.2, 2.2, 1), new THREE.MeshBasicMaterial({ color: 0x5ad1ff })); tip.rotation.z = Math.PI / 4; g.add(tip);
+    arrows.push({ g, shaft, tip });
+  }
+  const KB = p.burst ?? 0.9;
+  return (t, d) => {
+    const u = t / d, L = 12 * (1 - 0.5 * sstep((u - KB) / 0.06));   // 矢印の長さ＝重力の強さ
+    arrows.forEach(({ shaft, tip }, i) => {
+      const r0 = 17, flow = ((t * 1.5 + i * 0.13) % 1) * 0.6;
+      shaft.scale.set(1, L, 1); shaft.position.set(0, r0 + L / 2 + 1.5 - flow, 0); tip.position.set(0, r0 + 0.6 - flow, 0);
+    });
+    e.rotation.y = t * 0.8;
+    const c = ease(Math.min(1, u / KB));
+    C.position.set(Math.sin(u * 2) * 8, 4, lerp(140, 82, c)); C.lookAt(0, 0, 0); C.rotateZ(u * 0.3);
+  };
+}
+
+// ---------- 場面：表面のでこぼこ（摩擦のもと）。0.00 でつるつるになる ----------
+function surfaceScene(p) {
+  const sc = CUR = new THREE.Scene(); sc.background = new THREE.Color(0x1a1f2a);
+  sc.add(new THREE.AmbientLight(0xffffff, 0.55));
+  const dl = new THREE.DirectionalLight(0xffffff, 1.0); dl.position.set(30, 60, 40); sc.add(dl);
+  const N = 22, list = [], hs = [];
+  for (let x = -N; x <= N; x++) for (let z = -N; z <= N; z++) {
+    const h = Math.max(0, Math.round(1.6 * noise3(x * 0.6, 0.3, z * 0.6) + rnd() * 1.4));
+    hs.push(h); list.push([x, 0, z, (x + z) % 2 ? 0xa06a38 : 0x8a5a30]);
+  }
+  const floor = blocks(list); sc.add(floor);
+  const top = new THREE.Group(); sc.add(top);              // 上にのった木の箱（でこぼこが引っかかる）
+  const crate = new THREE.Mesh(new THREE.BoxGeometry(10, 6, 10), new THREE.MeshLambertMaterial({ color: 0xc8904a })); top.add(crate);
+  const o = new THREE.Object3D(), KB = p.burst ?? 0.9;
+  return (t, d) => {
+    const u = t / d, flat = sstep((u - KB) / 0.08);
+    let i = 0;
+    for (let x = -N; x <= N; x++) for (let z = -N; z <= N; z++, i++) {
+      const h = 1 + hs[i] * (1 - flat);
+      o.position.set(x, h / 2, z); o.scale.set(1, h, 1); o.updateMatrix(); floor.setMatrixAt(i, o.matrix);
+    }
+    floor.instanceMatrix.needsUpdate = true;
+    const hmax = 1 + 3 * (1 - flat);
+    top.position.set(Math.sin(t * 9) * 0.3 * (1 - flat) + flat * (u - KB) * 60, hmax + 3, 0);   // つるつるになると滑っていく
+    const c = ease(Math.min(1, u / KB));
+    C.position.set(lerp(40, 14, c), lerp(36, 9, c), lerp(46, 22, c)); C.lookAt(0, 2, 0);
+  };
+}
+
+const SCENES = { orbit: orbitScene, gravity: gravityScene, surface: surfaceScene, tide: tideScene, land: landScene, flight: flightScene, rewind: rewindScene, spin: spinScene, axis: axisScene, space: spaceScene };
 
 window.setup = (j) => {
   job = j; seed = 12345;
