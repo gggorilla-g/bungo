@@ -1,0 +1,17 @@
+{
+ "thumb": "nazo/manual/nazca/thumb.png",
+ "thumb_error": "",
+ "id": "kQ6im2Ctqtk",
+ "url": "https://youtube.com/shorts/kQ6im2Ctqtk",
+ "requested_publishAt": "2026-11-05T10:00:00Z",
+ "returned_status": {
+  "uploadStatus": "uploaded",
+  "privacyStatus": "private",
+  "publishAt": "2026-11-05T10:00:00Z",
+  "license": "youtube",
+  "embeddable": true,
+  "publicStatsViewable": true,
+  "selfDeclaredMadeForKids": false,
+  "containsSyntheticMedia": false
+ }
+}
