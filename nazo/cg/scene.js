@@ -422,7 +422,8 @@ function tideScene(p) {
       const q = (m.userData.k + t * 0.9) % 1; m.visible = !p.drag && gone < 0.5;
       m.position.set(m.userData.x * (1 - q) * 0.6, R0 + 7 + q * (MP.y - R0 - 13), 2);
     });
-    C.position.set(lerp(-6, 6, u), 10, lerp(96, 88, u)); C.lookAt(0, 10, 0);
+    // 地球は字幕より上・少し右に（左下のずんだもんと下の字幕にかからない位置）
+    C.position.set(lerp(-9, -3, u), -6, lerp(122, 116, u)); C.lookAt(lerp(-8, -3, u), -6, 0);
   };
 }
 

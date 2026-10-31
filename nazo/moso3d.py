@@ -486,10 +486,12 @@ def build(sid):
                     "-frames:v", "1", f"{kit}/{sid}_head10.jpg"])
     subprocess.run(["ffmpeg", "-v", "error", "-y", "-sseof", "-0.05", "-i", out, "-frames:v", "1", "-vf", "scale=540:-1", f"{kit}/{sid}_last.jpg"])
     subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", out, "-frames:v", "1", "-vf", "scale=540:-1", f"{kit}/{sid}_first.jpg"])
+    desc = (f"{sp.get('desc', '')}\n\n音声: VOICEVOX:{sp.get('voice_name', '')}\n" + ("立ち絵: 坂本アヒル\n" if use_z else "")
+            + f"BGM: {bgm_credit}\n効果音: オリジナル\n3DCG: オリジナル（three.js で作成）")
+    if len(desc.encode()) > 5000 or "VOICEVOX:ずんだもん" not in desc:
+        sys.exit(f"説明欄が5000バイトを超えた、またはクレジットがない（{len(desc.encode())}バイト）")
     open(f"{kit}/{sid}_upload.txt", "w", encoding="utf-8").write(
-        f"【タイトル】\n{sp['title']}\n\n【説明】\n{sp.get('desc', '')}\n\n音声: VOICEVOX:{sp.get('voice_name', '')}\n"
-        + ("立ち絵: 坂本アヒル\n" if use_z else "") + f"BGM: {bgm_credit}\n効果音: オリジナル\n3DCG: オリジナル（three.js で作成）\n"
-        f"\n【タグ】\n{','.join(sp.get('tags', []))}\n")
+        f"【タイトル】\n{sp['title']}\n\n【説明】\n{desc}\n\n【タグ】\n{','.join(sp.get('tags', []))}\n")
     y, ev, mx = flash_check(out)
     open(f"{kit}/{sid}_luma.txt", "w", encoding="utf-8").write(
         f"明暗の大きな変化（平均輝度の差20以上）: {len(ev)}回 / どの1秒でも最大 {mx}回（基準：3回未満）\n"
