@@ -21,3 +21,5 @@ build_trivia_long/
 build_compile/
 build_compile_test.json
 build_compile/
+nazo/cg/node_modules/
+build_cg/
