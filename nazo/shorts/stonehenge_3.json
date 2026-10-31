@@ -1,0 +1,166 @@
+{
+ "main": "stonehenge",
+ "angle": "墓地型",
+ "title": "63人分の火葬の骨 ストーンヘンジ #Shorts #世界の謎 #古代史",
+ "cta_head": "何のため？ 本編で検証",
+ "lines": [
+  {
+   "say": "この遺跡からは、火葬された人の骨が見つかっておる。",
+   "text": "この遺跡から\n火葬された骨",
+   "file": "File:Stonehenge closeup.jpg",
+   "zoom": [
+    0.5,
+    0.55,
+    1.0,
+    1.3
+   ],
+   "host": "mid",
+   "fast": true,
+   "emph": true
+  },
+  {
+   "say": "2013年の発掘では、骨のかけらが5万点以上。",
+   "text": "2013年の発掘\n骨のかけら5万点以上",
+   "file": "File:Stonehenge - geograph.org.uk - 1626543.jpg",
+   "zoom": [
+    0.5,
+    0.5,
+    1.2,
+    1.5
+   ],
+   "host": "mid",
+   "fast": true
+  },
+  {
+   "say": "63人分の骨じゃった。",
+   "text": "63人分",
+   "file": "File:Stonehenge 2016.jpg",
+   "zoom": [
+    0.5,
+    0.5,
+    1.3,
+    1.6
+   ],
+   "host": "small",
+   "emph": true
+  },
+  {
+   "say": "男女はほぼ同じ数で、子どももおった。",
+   "text": "男女ほぼ同じ数\n子どもも",
+   "file": "File:Stonehenge on 27.01.08.jpg",
+   "zoom": [
+    0.5,
+    0.5,
+    1.1,
+    1.4
+   ],
+   "host": "small"
+  },
+  {
+   "say": "骨は、輪のまわりの穴に納められておった。",
+   "text": "骨は\nまわりの穴に",
+   "file": "File:Stonehenge plan - with numbers in red.png",
+   "zoom": [
+    0.5,
+    0.45,
+    1.2,
+    1.5
+   ],
+   "host": "small"
+  },
+  {
+   "say": "オーブリーホールと呼ばれる穴じゃ。",
+   "text": "オーブリーホール\nと呼ばれる穴",
+   "file": "File:Stonehenge phase one.jpg",
+   "zoom": [
+    0.5,
+    0.5,
+    1.1,
+    1.4
+   ],
+   "host": "small"
+  },
+  {
+   "say": "ここはブリテン島で最初の火葬墓地とされる。",
+   "text": "ブリテン島で\n最初の火葬墓地",
+   "file": "File:Stonehenge Total.jpg",
+   "zoom": [
+    0.5,
+    0.5,
+    1.1,
+    1.5
+   ],
+   "host": "small",
+   "emph": true,
+   "point": true
+  },
+  {
+   "say": "では、天文台という話はどうなる。",
+   "text": "では\n天文台説は？",
+   "file": "File:Stonehenge (sun).jpg",
+   "zoom": [
+    0.5,
+    0.5,
+    1.2,
+    1.5
+   ],
+   "host": "small",
+   "point": true
+  },
+  {
+   "say": "今では、天文学の主張のほとんどは、おおげさだとされる。",
+   "text": "天文学の主張の多くは\nおおげさとされる",
+   "file": "File:Stonehenge Sunset (3) - geograph.org.uk - 1626236.jpg",
+   "zoom": [
+    0.5,
+    0.5,
+    1.1,
+    1.4
+   ],
+   "host": "small"
+  },
+  {
+   "say": "空を見る場所か、死者の場所か。",
+   "text": "空を見る場所？\n死者の場所？",
+   "file": "File:Stonehenge cloudy sunset.jpg",
+   "zoom": [
+    0.5,
+    0.5,
+    1.2,
+    1.0
+   ],
+   "host": "big",
+   "dim": 0.55,
+   "emph": true
+  },
+  {
+   "say": "関連動画の本編で、説を順に見ていくぞい。",
+   "text": "何のため？\n本編で検証",
+   "main_thumb": true,
+   "host": "big"
+  },
+  {
+   "say": "手がかりは、まだ土の下にある。",
+   "text": "手がかりは\nまだ土の下に",
+   "file": "File:Stonehenge closeup.jpg",
+   "zoom": [
+    0.5,
+    0.55,
+    1.3,
+    1.0
+   ],
+   "host": "mid",
+   "loop": true
+  }
+ ],
+ "yomi_words": {
+  "オーブリーホール": "オーブリーホール",
+  "ブリテン": "ブリテン"
+ },
+ "yomi_ok": [
+  "2013年の発掘では、骨のかけらが5万点以上。",
+  "63人分の骨じゃった。",
+  "空を見る場所か、死者の場所か。",
+  "手がかりは、まだ土の下にある。"
+ ]
+}

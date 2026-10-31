@@ -1,0 +1,176 @@
+{
+ "main": "stonehenge",
+ "angle": "天文型",
+ "title": "夏至の日の出にそろう巨石 ストーンヘンジ #Shorts #世界の謎 #古代史",
+ "cta_head": "空か地形か 本編で検証",
+ "lines": [
+  {
+   "say": "夏至の朝、太陽はこの石の付近から昇る。",
+   "text": "夏至の朝\n太陽はこの石の方から",
+   "file": "File:Stonehenge Heel Stone - panoramio (2).jpg",
+   "zoom": [
+    0.5,
+    0.55,
+    1.0,
+    1.3
+   ],
+   "host": "mid",
+   "fast": true,
+   "emph": true
+  },
+  {
+   "say": "ヒールストーンと呼ばれる石じゃ。",
+   "text": "ヒールストーン\nと呼ばれる石",
+   "file": "File:Stonehenge (sun).jpg",
+   "zoom": [
+    0.5,
+    0.5,
+    1.2,
+    1.5
+   ],
+   "host": "mid",
+   "fast": true
+  },
+  {
+   "say": "最初の光は、巨石の輪の中央に届く。",
+   "text": "最初の光は\n輪の中央へ",
+   "file": "File:Stonehenge Sunset (1) - geograph.org.uk - 1626228.jpg",
+   "zoom": [
+    0.5,
+    0.5,
+    1.2,
+    1.6
+   ],
+   "host": "small",
+   "emph": true
+  },
+  {
+   "say": "遺跡は、夏至の日の出と冬至の日没の方角にそろっておる。",
+   "text": "夏至の日の出と\n冬至の日没にそろう",
+   "file": "File:Stonehenge plan - with numbers in red.png",
+   "zoom": [
+    0.5,
+    0.45,
+    1.2,
+    1.5
+   ],
+   "host": "small",
+   "emph": true
+  },
+  {
+   "say": "17世紀には、暦の役割を持つという説が出た。",
+   "text": "17世紀には\n暦という説",
+   "file": "File:Stonehenge - Wiltonia sive Comitatus Wiltoniensis; Anglice Wilshire (Atlas van Loon).jpg",
+   "zoom": [
+    0.5,
+    0.5,
+    1.1,
+    1.4
+   ],
+   "host": "small"
+  },
+  {
+   "say": "では、古代の天文台だったのか。",
+   "text": "古代の\n天文台だった？",
+   "file": "File:Stonehenge and sky.jpg",
+   "zoom": [
+    0.5,
+    0.45,
+    1.2,
+    1.5
+   ],
+   "host": "small",
+   "point": true
+  },
+  {
+   "say": "ところが、丘にはもとから溝があった。",
+   "text": "ところが丘には\nもとから溝があった",
+   "file": "File:Stonehenge from the air - Philip Henry Sharpe (Royal Engineers) - 1906.jpg",
+   "zoom": [
+    0.5,
+    0.5,
+    1.1,
+    1.5
+   ],
+   "host": "small",
+   "emph": true
+  },
+  {
+   "say": "氷河期の終わりに、水が流れて作った溝じゃ。",
+   "text": "氷河期の終わりに\n水が作った溝",
+   "file": "File:Stonehenge and Aerodrome 1928.jpg",
+   "zoom": [
+    0.5,
+    0.5,
+    1.1,
+    1.4
+   ],
+   "host": "small"
+  },
+  {
+   "say": "その溝が、偶然にも同じ方角を指しておった。",
+   "text": "その溝も偶然\n同じ方角を指す",
+   "file": "File:Stonehenge Sunset (2) - geograph.org.uk - 1626231.jpg",
+   "zoom": [
+    0.5,
+    0.5,
+    1.1,
+    1.5
+   ],
+   "host": "small",
+   "emph": true,
+   "point": true
+  },
+  {
+   "say": "人が空を読んだのか、地形に合わせたのか。",
+   "text": "空を読んだ？\n地形に合わせた？",
+   "file": "File:Stonehenge Sunset (4) - geograph.org.uk - 1626243.jpg",
+   "zoom": [
+    0.5,
+    0.5,
+    1.2,
+    1.5
+   ],
+   "host": "small"
+  },
+  {
+   "say": "答えは、まだ出ておらん。",
+   "text": "答えは\nまだ出ていない",
+   "file": "File:Stonehenge cloudy sunset.jpg",
+   "zoom": [
+    0.5,
+    0.5,
+    1.2,
+    1.0
+   ],
+   "host": "big",
+   "dim": 0.55,
+   "emph": true
+  },
+  {
+   "say": "関連動画の本編で、説を順に見ていくぞい。",
+   "text": "空か地形か\n本編で検証",
+   "main_thumb": true,
+   "host": "big"
+  },
+  {
+   "say": "手がかりはこの石の向きにある。",
+   "text": "手がかりは\nこの石の向き",
+   "file": "File:Stonehenge Heel Stone - panoramio (2).jpg",
+   "zoom": [
+    0.5,
+    0.55,
+    1.3,
+    1.0
+   ],
+   "host": "mid",
+   "loop": true
+  }
+ ],
+ "yomi_words": {
+  "ヒールストーン": "ヒールストーン"
+ },
+ "yomi_ok": [
+  "人が空を読んだのか、地形に合わせたのか。"
+ ]
+}
