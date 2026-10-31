@@ -27,10 +27,13 @@ KIT = {
 }
 
 
-def credits(folder):
-    """元のショートの upload.txt から、音声・立ち絵・BGM・効果音・画像の行を集める（重複は1つに）"""
+def credits(folder, ids):
+    """元のショートの upload.txt から、音声・立ち絵・BGM・効果音・画像の行を集める（重複は1つに）。総集編に入れたショートだけ"""
     keep = {}
     for p in sorted(glob.glob(os.path.join(folder, "short3_*_upload.txt"))):
+        sid = os.path.basename(p)[len("short3_"):-len("_upload.txt")]
+        if sid not in ids:
+            continue
         txt = open(p, encoding="utf-8").read()
         body = txt.split("【説明】", 1)[-1].split("【タグ】")[0]
         for ln in body.splitlines():
@@ -50,12 +53,16 @@ def short_img(s):
         return s[:80]
     who, lic, fn = m.groups()
     fn = fn.rsplit(".", 1)[0]
-    return f"{who[:30]}({lic.replace('CC BY-SA ', 'BY-SA').replace('CC BY ', 'BY').replace('Public domain', 'PD')}): {fn[:18]}{'…' if len(fn) > 18 else ''}"
+    return f"{who[:40]}({lic.replace('CC BY-SA ', 'BY-SA').replace('CC BY ', 'BY').replace('Public domain', 'PD')}): {fn[:60]}{"…" if len(fn) > 60 else ""}"
 
 
 def main(cid, chap, folder):
     k = KIT[cid]
-    c = credits(folder)
+    spec = json.load(open(f"nazo/compile/{cid}.json", encoding="utf-8"))
+    ids = [ch["id"] for ch in spec["chapters"]] + ["zz_solar_teaser"]
+    c = credits(folder, ids)
+    if c.get("音声"):                                      # 「A、B」のように並んだ行は1人ずつに分けてまとめる
+        c["音声"] = list(dict.fromkeys(x.strip() for v in c["音声"] for x in re.split("[、/]", v)))
     lines = [k["lead"], "", open(chap, encoding="utf-8").read().strip(), "", "■ 出典"] + ["・" + s for s in k["src"]] + [k["note"], "", "■ クレジット"]
     lines += [f"音声: {' / '.join(c.get('音声', ['VOICEVOX:ずんだもん']))}", "立ち絵: 坂本アヒル"]
     lines += [f"BGM: {b}" for b in c.get("BGM", [])] + ["効果音: オリジナル"] + k["extra_credit"]

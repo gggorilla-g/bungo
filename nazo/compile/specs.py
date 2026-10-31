@@ -30,7 +30,8 @@ BGM = {"bgm_file": "assets/enc/bgm_trivia_mood2.mp3", "bgm_vol": 0.14}
 # ── 妄想科学
 MOSO = {
     "meta": dict({"id": "moso_compile_1", "title": "ずんだもんが宇宙と地球で7回ひどい目にあう妄想科学まとめ【総集編】",
-                  "voice": VOICE, "yomi_words": {"日本": "にほん", "M87": "エムはちじゅうなな", "1.7ミリ秒": "いってんななミリびょう"}}, **BGM),
+                  "voice": VOICE, "yomi_words": {"日本": "にほん", "M87": "エムハチジュウナナ", "1.7ミリ秒": "いってんななミリびょう",
+                                 "大赤斑": "だいせきはん", "光は1秒": "ひかりは1秒", "金星": "きんせい"}}, **BGM),
     "chapters": [
         {"id": "moso_bh", "video": "output/short3_moso_bh.mp4", "chapter": "ブラックホールに落ちたら", "short_name": "ブラックホール",
          "name_rows": ["ブラック", "ホール"], "theme": "nebula", "still": 6.0,
@@ -160,7 +161,9 @@ MOSO = {
 # ── 雑学（名前がひどすぎる系）
 TRIVIA = {
     "meta": dict({"id": "trivia_compile_1", "title": "名前がひどすぎる生き物と地名まとめ【ずんだもんの脳がとける雑学 総集編】",
-                  "voice": VOICE, "yomi_words": {"日本": "にほん", "半家": "はげ", "大歩危": "おおぼけ", "小歩危": "こぼけ", "母恋": "ぼこい"}}, **BGM),
+                  "voice": VOICE, "yomi_words": {"日本海": "にほんかい", "日本": "にほん", "半家": "はげ", "大歩危": "おおぼけ", "小歩危": "こぼけ", "母恋": "ぼこい",
+                                 "大ボケと小ボケ": "おおぼけとこぼけ", "屁臭、へくさ、": "ヘクサ、", "南風": "なんぷう", "鶏屎藤": "けいしとう",
+                                 "破家貝": "ばかがい"}}, **BGM),
     "chapters": [
         {"id": "trivia_stations", "video": "output/short3_trivia_stations.mp4", "chapter": "名前が自由すぎる駅", "short_name": "駅名",
          "name_rows": ["名前が自由", "すぎる駅"], "theme": "rail", "still": 3.0,
