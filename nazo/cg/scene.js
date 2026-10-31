@@ -801,7 +801,42 @@ function seaice(p) {
   };
 }
 
-const SCENES = { city: cityScene, icefly: icefly, seaice: seaice, orbit: orbitScene, gravity: gravityScene, surface: surfaceScene, tide: tideScene, land: landScene, flight: flightScene, rewind: rewindScene, spin: spinScene, axis: axisScene, space: spaceScene };
+// ---------- 場面：上から見た南極。白い氷の大陸 → 東は岩の陸地、西は島の連なり（p.melt の時刻から p.melt_len かけて色と高さを移す） ----------
+function antarctica(p) {
+  const sc = CUR = new THREE.Scene(); sc.background = new THREE.Color(0x02030a);
+  sc.add(stars(1600, 700, 2.2)); sc.add(new THREE.AmbientLight(0xffffff, 0.6));
+  const dl = new THREE.DirectionalLight(0xffffff, 0.8); dl.position.set(-60, 120, 40); sc.add(dl);
+  const sea = new THREE.Mesh(new THREE.BoxGeometry(400, 1, 400), new THREE.MeshLambertMaterial({ color: 0x1f5fae })); sea.position.y = -0.5; sc.add(sea);
+  const nz = (x, z) => Math.sin(x * 0.071 + 1.3) * Math.sin(z * 0.053 + 0.7) + 0.5 * Math.sin(x * 0.137 + z * 0.091) + 0.3 * Math.sin(x * 0.29 - z * 0.23 + 2.1) + 0.2 * Math.sin(z * 0.41 + x * 0.05);
+  const S = 2, cells = [];
+  for (let x = -80; x <= 80; x += S) for (let z = -70; z <= 70; z += S) {
+    const ex = x - 14, ez = z + 4, re = Math.sqrt(ex * ex * 0.8 + ez * ez), ae = Math.atan2(ez, ex);
+    const east = re < 46 + 6 * Math.sin(ae * 3 + 0.5) + 4 * nz(x, z);                   // 東南極：大きな陸地が残る
+    const wx = x + 34, wz = z - 8, rw = Math.sqrt(wx * wx + wz * wz * 1.3);
+    const pen = Math.abs((z - 8) - (x + 48) * -0.9) < 5 + 2 * nz(z, x) && x < -40 && x > -78;   // 南極半島
+    const west = !east && (rw < 26 + 4 * nz(z, x) || pen);                                   // 西南極：氷の下は大部分が海
+    if (!east && !west) continue;
+    const dome = east ? 9 - re / 7 : 5 - rw / 8;
+    const island = west && nz(x * 1.7, z * 1.7) > 0.3;                                      // 溶けたあとに残る島
+    const rockH = east ? 1 + Math.max(0, Math.round(1.5 + 1.5 * nz(x * 1.3, z * 1.3))) : (island ? 1 : 0);
+    const rockC = (east ? (nz(x * 2.1, z * 2.1) > 0.2 ? 0x8a7458 : 0x7c7c7c) : 0x8a7458);
+    cells.push({ x, z, ice: Math.max(1.5, dome), rockH, rockC, gone: west && !island });
+  }
+  const im = new THREE.InstancedMesh(new THREE.BoxGeometry(S, 1, S), new THREE.MeshLambertMaterial(), cells.length); sc.add(im);
+  const o = new THREE.Object3D(), c = new THREE.Color(), white = new THREE.Color(0xf2f7fc);
+  return (t, d) => {
+    const u = t / d, m = sstep((u - (p.melt ?? 0.1)) / (p.melt_len ?? 0.5));
+    cells.forEach((q, i) => {
+      const h = lerp(q.ice, q.gone ? -1.5 : q.rockH, m);
+      o.position.set(q.x, h / 2 - 0.5, q.z); o.scale.set(1, Math.max(0.05, Math.abs(h) + 1), 1); o.updateMatrix(); im.setMatrixAt(i, o.matrix);
+      im.setColorAt(i, c.copy(white).lerp(new THREE.Color(q.gone ? 0x1f5fae : q.rockC), m));
+    });
+    im.instanceMatrix.needsUpdate = true; im.instanceColor.needsUpdate = true;
+    C.position.set(Math.sin(u * 0.8) * 12, 250, 120); C.lookAt(-8, 0, -4); C.rotateZ(u * 0.12);
+  };
+}
+
+const SCENES = { antarctica: antarctica, city: cityScene, icefly: icefly, seaice: seaice, orbit: orbitScene, gravity: gravityScene, surface: surfaceScene, tide: tideScene, land: landScene, flight: flightScene, rewind: rewindScene, spin: spinScene, axis: axisScene, space: spaceScene };
 
 window.setup = (j) => {
   job = j; seed = 12345;
