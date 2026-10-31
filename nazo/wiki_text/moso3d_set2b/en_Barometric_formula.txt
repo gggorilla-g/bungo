@@ -1,0 +1,862 @@
+https://en.wikipedia.org/wiki/Barometric_formula
+
+The barometric formula is a formula used to model how the air pressure (or air density) changes with altitude.
+
+
+== Model equations ==
+
+The U.S. Standard Atmosphere gives two equations for computing pressure as a function of height, valid from sea level to 86 km altitude. The first equation is applicable to the atmospheric layers in which the temperature is assumed to vary with altitude at a non-zero temperature gradient of 
+  
+    
+      
+        
+          L
+          
+            M
+            ,
+            b
+          
+        
+      
+    
+    {\displaystyle L_{M,b}}
+  
+:
+
+  
+    
+      
+        P
+        =
+        
+          P
+          
+            b
+          
+        
+        ⋅
+        
+          
+            [
+            
+              
+                
+                  T
+                  
+                    M
+                    ,
+                    b
+                  
+                
+                
+                  
+                    T
+                    
+                      M
+                      ,
+                      b
+                    
+                  
+                  +
+                  
+                    L
+                    
+                      M
+                      ,
+                      b
+                    
+                  
+                  ⋅
+                  (
+                  H
+                  −
+                  
+                    H
+                    
+                      b
+                    
+                  
+                  )
+                
+              
+            
+            ]
+          
+          
+            
+              
+                
+                  g
+                  
+                    0
+                  
+                  ′
+                
+                ⋅
+                
+                  M
+                  
+                    0
+                  
+                
+              
+              
+                
+                  R
+                  
+                    ∗
+                  
+                
+                ⋅
+                
+                  L
+                  
+                    M
+                    ,
+                    b
+                  
+                
+              
+            
+          
+        
+        .
+      
+    
+    {\displaystyle P=P_{b}\cdot \left[{\frac {T_{M,b}}{T_{M,b}+L_{M,b}\cdot (H-H_{b})}}\right]^{\frac {g_{0}'\cdot M_{0}}{R^{*}\cdot L_{M,b}}}.}
+  
+
+The second equation is applicable to the atmospheric layers in which the temperature is assumed not to vary with altitude (zero temperature gradient):
+
+  
+    
+      
+        P
+        =
+        
+          P
+          
+            b
+          
+        
+        ⋅
+        exp
+        ⁡
+        
+          [
+          
+            
+              
+                −
+                
+                  g
+                  
+                    0
+                  
+                  ′
+                
+                ⋅
+                
+                  M
+                  
+                    0
+                  
+                
+                (
+                H
+                −
+                
+                  H
+                  
+                    b
+                  
+                
+                )
+              
+              
+                
+                  R
+                  
+                    ∗
+                  
+                
+                ⋅
+                
+                  T
+                  
+                    M
+                    ,
+                    b
+                  
+                
+              
+            
+          
+          ]
+        
+        .
+      
+    
+    {\displaystyle P=P_{b}\cdot \exp \left[{\frac {-g_{0}'\cdot M_{0}(H-H_{b})}{R^{*}\cdot T_{M,b}}}\right].}
+  
+
+In both equations:
+
+  
+    
+      
+        
+          P
+          
+            b
+          
+        
+      
+    
+    {\displaystyle P_{b}}
+  
+ = reference pressure;
+
+  
+    
+      
+        
+          T
+          
+            M
+            ,
+            b
+          
+        
+      
+    
+    {\displaystyle T_{M,b}}
+  
+ = reference temperature (K);
+
+  
+    
+      
+        
+          L
+          
+            M
+            ,
+            b
+          
+        
+      
+    
+    {\displaystyle L_{M,b}}
+  
+ = temperature gradient (K/m), e.g. -6.5 K/km at sea level (this is the lapse rate with the opposite sign convention);
+
+  
+    
+      
+        H
+      
+    
+    {\displaystyle H}
+  
+ = geopotential height at which pressure is calculated (m);
+
+  
+    
+      
+        
+          H
+          
+            b
+          
+        
+      
+    
+    {\displaystyle H_{b}}
+  
+ = geopotential height of reference level b (meters, e.g., Hb = 11000 m);
+
+  
+    
+      
+        
+          R
+          
+            ∗
+          
+        
+      
+    
+    {\displaystyle R^{*}}
+  
+ = universal gas constant, taken to be 8.31432×103 J/(kmol·K), although the actual constant's value in those units rounds to 8.31446;
+
+  
+    
+      
+        
+          M
+          
+            0
+          
+        
+      
+    
+    {\displaystyle M_{0}}
+  
+ = mean molar mass of air at sea level = 28.9644 kg/kmol as of 1976;
+
+  
+    
+      
+        
+          g
+          
+            0
+          
+          ′
+        
+      
+    
+    {\displaystyle g_{0}'}
+  
+ = the gravitational acceleration in units of geopotential height = 9.80665 m/s2.
+Or converted to imperial units:
+
+  
+    
+      
+        
+          P
+          
+            b
+          
+        
+      
+    
+    {\displaystyle P_{b}}
+  
+ = reference pressure;
+
+  
+    
+      
+        
+          T
+          
+            M
+            ,
+            b
+          
+        
+      
+    
+    {\displaystyle T_{M,b}}
+  
+ = reference temperature (K);
+
+  
+    
+      
+        
+          L
+          
+            M
+            ,
+            b
+          
+        
+      
+    
+    {\displaystyle L_{M,b}}
+  
+ = temperature gradient (K/ft);
+
+  
+    
+      
+        H
+      
+    
+    {\displaystyle H}
+  
+ = height at which pressure is calculated (ft);
+
+  
+    
+      
+        
+          H
+          
+            b
+          
+        
+      
+    
+    {\displaystyle H_{b}}
+  
+ = height of reference level b (feet, e.g., Hb = 36089 ft);
+
+  
+    
+      
+        
+          R
+          
+            ∗
+          
+        
+      
+    
+    {\displaystyle R^{*}}
+  
+ = universal gas constant, using feet, kelvins, and (SI) moles, taken to be roughly 8.9494596×104 lbm·ft2/(lbm-mol·K·s2) by correctly converting the (incorrectly) taken constant from metric to imperial;
+
+  
+    
+      
+        
+          g
+          
+            0
+          
+          ′
+        
+      
+    
+    {\displaystyle g_{0}'}
+  
+ = gravitational acceleration = 32.17405 ft/s2;
+
+  
+    
+      
+        M
+      
+    
+    {\displaystyle M}
+  
+ = mean molar mass of Earth's air = 28.9644 lb/lb‑mol (both lbs are pound-mass, not pound-force).
+The value of subscript b ranges from 0 to 6 in accordance with each of seven successive layers of the atmosphere shown in the table below. In these equations, g0, M and R* are each single-valued constants, while P, L, T, and H are multivalued constants in accordance with the table below. The values used for M, g0, and R* are in accordance with the U.S. Standard Atmosphere, 1976, and the value for R* in particular does not agree with standard values for this constant. The reference value for Pb for b = 0 is the defined sea-level value, P0 = 101325 Pa, or 29.92126 inHg. Values of Pb of b = 1 through b = 6 are obtained from the application of the appropriate member of the pair equations 1 and 2 for the case when H = Hb+1.
+
+Density can be calculated from pressure and temperature using
+
+  
+    
+      
+        ρ
+        =
+        
+          
+            
+              P
+              ⋅
+              
+                M
+                
+                  0
+                
+              
+            
+            
+              
+                R
+                
+                  ∗
+                
+              
+              ⋅
+              
+                T
+                
+                  M
+                
+              
+            
+          
+        
+        =
+        
+          
+            
+              P
+              ⋅
+              M
+            
+            
+              
+                R
+                
+                  ∗
+                
+              
+              ⋅
+              T
+            
+          
+        
+        ,
+      
+    
+    {\displaystyle \rho ={\frac {P\cdot M_{0}}{R^{*}\cdot T_{M}}}={\frac {P\cdot M}{R^{*}\cdot T}},}
+  
+
+where
+
+  
+    
+      
+        
+          M
+          
+            0
+          
+        
+      
+    
+    {\displaystyle M_{0}}
+  
+ is the molecular weight at sea level;
+
+  
+    
+      
+        M
+      
+    
+    {\displaystyle M}
+  
+ is the mean molecular weight at the altitude of interest;
+
+  
+    
+      
+        T
+      
+    
+    {\displaystyle T}
+  
+ is the temperature at the altitude of interest;
+
+  
+    
+      
+        
+          T
+          
+            M
+          
+        
+        =
+        T
+        ⋅
+        
+          M
+          
+            0
+          
+        
+        
+          /
+        
+        M
+      
+    
+    {\displaystyle T_{M}=T\cdot M_{0}/M}
+  
+ is the molecular-scale temperature.
+The atmosphere is assumed to be fully mixed up to about 80 km, so 
+  
+    
+      
+        M
+        =
+        
+          M
+          
+            0
+          
+        
+      
+    
+    {\displaystyle M=M_{0}}
+  
+ within the region of validity of the equations presented here.
+Alternatively, density equations can be derived in the same form as those for pressure, using reference densities instead of reference pressures.
+This model, with its simple linearly segmented temperature profile, does not closely agree with the physically observed atmosphere at altitudes below 20 km. From 51 km to 81 km it is closer to observed conditions.
+
+
+== Derivation ==
+The barometric formula can be derived using the ideal gas law:
+
+  
+    
+      
+        P
+        =
+        
+          
+            ρ
+            M
+          
+        
+        
+          
+            R
+            
+              ∗
+            
+          
+        
+        T
+      
+    
+    {\displaystyle P={\frac {\rho }{M}}{R^{*}}T}
+  
+
+Assuming that all pressure is hydrostatic:
+
+  
+    
+      
+        d
+        P
+        =
+        −
+        ρ
+        g
+        
+        d
+        z
+      
+    
+    {\displaystyle dP=-\rho g\,dz}
+  
+
+and dividing this equation by 
+  
+    
+      
+        P
+      
+    
+    {\displaystyle P}
+  
+ we get:
+
+  
+    
+      
+        
+          
+            
+              d
+              P
+            
+            P
+          
+        
+        =
+        −
+        
+          
+            
+              M
+              g
+              
+              d
+              z
+            
+            
+              
+                R
+                
+                  ∗
+                
+              
+              T
+            
+          
+        
+      
+    
+    {\displaystyle {\frac {dP}{P}}=-{\frac {Mg\,dz}{R^{*}T}}}
+  
+
+Integrating this expression from the surface to the altitude z we get:
+
+  
+    
+      
+        P
+        =
+        
+          P
+          
+            0
+          
+        
+        
+          e
+          
+            −
+            
+              ∫
+              
+                0
+              
+              
+                z
+              
+            
+            
+              M
+              g
+              d
+              z
+              
+                /
+              
+              
+                R
+                
+                  ∗
+                
+              
+              T
+            
+          
+        
+      
+    
+    {\displaystyle P=P_{0}e^{-\int _{0}^{z}{Mgdz/R^{*}T}}}
+  
+
+Assuming linear temperature change 
+  
+    
+      
+        T
+        =
+        
+          T
+          
+            0
+          
+        
+        −
+        L
+        z
+      
+    
+    {\displaystyle T=T_{0}-Lz}
+  
+ and constant molar mass and gravitational acceleration, we get the first barometric formula:
+
+  
+    
+      
+        P
+        =
+        
+          P
+          
+            0
+          
+        
+        ⋅
+        
+          
+            [
+            
+              
+                T
+                
+                  T
+                  
+                    0
+                  
+                
+              
+            
+            ]
+          
+          
+            
+              
+                
+                  
+                    M
+                    g
+                  
+                  
+                    
+                      R
+                      
+                        ∗
+                      
+                    
+                    L
+                  
+                
+              
+            
+          
+        
+      
+    
+    {\displaystyle P=P_{0}\cdot \left[{\frac {T}{T_{0}}}\right]^{\textstyle {\frac {Mg}{R^{*}L}}}}
+  
+
+Instead, assuming constant temperature, integrating gives the second barometric formula:
+
+  
+    
+      
+        P
+        =
+        
+          P
+          
+            0
+          
+        
+        
+          e
+          
+            −
+            M
+            g
+            z
+            
+              /
+            
+            
+              R
+              
+                ∗
+              
+            
+            T
+          
+        
+      
+    
+    {\displaystyle P=P_{0}e^{-Mgz/R^{*}T}}
+  
+
+In this formulation, R* is the gas constant, and the term R*T/Mg gives the scale height (approximately equal to 8.4 km for the troposphere).
+The derivation shown above uses a method that relies on classical mechanics. There are several alternative derivations, the most notable are the ones based on thermodynamic forces and statistical mechanics. 
+(For exact results, it should be remembered that atmospheres containing water do not behave as an ideal gas. See real gas or perfect gas or gas for further understanding.)
+
+
+== Barosphere ==
+The barosphere is the region of a planetary atmosphere where the barometric law applies. It ranges from the ground to the thermopause, also known as the baropause. Above this altitude is the exosphere, where the atmospheric velocity distribution is non-Maxwellian due to high velocity atoms and molecules being able to escape the atmosphere.
+
+
+== See also ==
+Hypsometric equation
+NRLMSISE-00
+
+
+== References ==
