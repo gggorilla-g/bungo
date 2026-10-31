@@ -236,6 +236,15 @@ def fx_tally(fr, fx, t, times):
         else:
             d.rectangle([x, 560 - sz // 2, x + sz, 560 + sz // 2], outline=WHT, width=6)
     stroke_text(d, W // 2, 780, f"{fx.get('label', '')} {n}回", 170, YEL, 16)
+    if fx.get("hours"):                                      # 0〜24時のバー。6時間ごとに朝が来る
+        x0b, x1b, yb = 140, W - 140, 400
+        d.rectangle([x0b, yb - 14, x1b, yb + 14], fill=(30, 40, 60), outline=WHT, width=4)
+        pos = min(1.0, t / (times[-1] + (times[1] - times[0]))) if len(times) > 1 else 0
+        d.rectangle([x0b, yb - 14, x0b + int((x1b - x0b) * pos), yb + 14], fill=YEL)
+        for k in range(fx["n"] + 1):
+            xk = x0b + (x1b - x0b) * k / fx["n"]
+            d.line([(xk, yb - 30), (xk, yb + 30)], fill=WHT, width=5)
+            stroke_text(d, int(xk), yb - 62, f"{fx['hours'] * k // fx['n']}時", 44, WHT, 6)
 
 
 def fx_flip(fr, fx, t):
@@ -275,8 +284,8 @@ def flash_check(mp4, th=20.0):
 # ---------------- 組み立て ----------------
 def cg_param(ln, d):
     p = dict(ln["cg"].get("p", {}))
-    if p.get("sun") == "quarter":
-        p["sun"] = d / 4
+    if p.get("sun") == "line":                               # 文の長さでちょうど1回、ゆっくり空を渡る
+        p["sun"] = d
     if p.get("t0") == "-d":
         p["t0"] = -d
     return p
@@ -367,7 +376,7 @@ def build(sid):
             elif fx["type"] == "count":
                 ev += [("drumroll", at, 1.0), ("ding", at + max(0.5, d * 0.6), 1.2)]
             elif fx["type"] == "tally":
-                ev += [("pop_hi", x, 1.2) for x in sunrise_times(params[li], d)]
+                ev += [("pop_hi", k * d / fx["n"], 1.2) for k in range(fx["n"])]
             elif fx["type"] == "flip":
                 ev += [("whoosh_s", (k + 0.5) * fx["period"] - 0.15, 0.8) for k in range(int(d / fx["period"]) + 1)]
         if ln["cg"]["scene"] == "flight":
@@ -395,7 +404,7 @@ def build(sid):
                               stdin=subprocess.PIPE)
         lv = mouth_levels(f"{B}/l{li}.wav", n) if use_z else None
         tel = ln["text"].split("\n")
-        times = sunrise_times(params[li], d) if any(f["type"] == "tally" for f in ln.get("fx", [])) else []
+        times = [k * d / f["n"] for f in ln.get("fx", []) if f["type"] == "tally" for k in range(f["n"])]   # 0〜24時のバーの6時間ごと
         burst_t = d * params[li].get("burst", 0.92) if ln["cg"]["scene"] == "flight" else 0
         for i in range(n):
             t = i / FPS
