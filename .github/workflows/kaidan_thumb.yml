@@ -1,0 +1,23 @@
+name: KAIDAN thumbnail only
+# 百物語のサムネだけを作り直して kaidan/manual/<id>/thumb.png に書き戻す（投稿はしない）
+on:
+  workflow_dispatch:
+    inputs:
+      ids: { description: "作品ID（空白区切りで複数）", required: true }
+permissions:
+  contents: write
+jobs:
+  thumb:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: |
+          sudo apt-get update -q && sudo apt-get install -y -q fonts-noto-cjk fonts-noto-cjk-extra
+          pip install -q requests pillow numpy
+      - run: for i in ${{ inputs.ids }}; do python kaidan/thumb_only.py "$i" || echo "::error::$i"; done
+      - run: |
+          git config user.name "bungo-bot"; git config user.email "bot@users.noreply.github.com"
+          git add kaidan/manual && git commit -q -m "KAIDAN: サムネ作り直し ${{ inputs.ids }}" || exit 0
+          for i in 1 2 3; do git pull --rebase -q && git push -q && break; sleep 5; done

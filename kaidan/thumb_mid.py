@@ -63,7 +63,34 @@ def _rich_text(im, xy, text, font, spacing):
     return y
 
 
-def build(title, no_kanji, author, img_path, out, copy="", focus=(0.6, 0.4)):
+def _focus_xy(src, w, h, focus):
+    """_cover で切り抜いたとき、focus の点が切り抜きの中のどこに来るか"""
+    s = max(w / src.width, h / src.height) * 1.08
+    rw, rh = int(src.width * s) + 1, int(src.height * s) + 1
+    x = int(min(max(rw * focus[0] - w / 2, 0), rw - w))
+    y = int(min(max(rh * focus[1] - h / 2, 0), rh - h))
+    return rw * focus[0] - x, rh * focus[1] - y
+
+
+def _scary(im, cx, cy):
+    """怖い版（11/1 ゲンタさん「もっと怖くしてもいい」）：色を抜いて冷たく、絵の中心だけを青白く残し、
+    まわりは闇に沈める。うっすらずれた二重像と粒子で不気味さを足す。血・傷の表現は使わない"""
+    import numpy as np
+    a = np.asarray(im).astype(float) / 255
+    g = a.mean(axis=2, keepdims=True)
+    a = (0.25 * a + 0.75 * g) * np.array([0.80, 0.97, 1.06])          # 色を抜いて青緑に寄せる
+    ghost = np.roll(np.roll(a, 22, axis=1), -6, axis=0)                 # うっすらずれた二重像
+    a = np.clip(a * 0.86 + ghost * 0.22, 0, 1)
+    yy, xx = np.mgrid[0:H, 0:W]
+    d = np.sqrt(((xx - cx) / 230) ** 2 + ((yy - cy) / 270) ** 2)
+    a = a * np.clip(1.3 - d, 0.06, 1.0)[..., None] ** 1.3               # 中心だけ残して闇へ
+    face = np.clip(1.0 - d, 0, 1)[..., None]
+    a = np.clip(a + face * 0.10 * np.array([0.85, 1.0, 1.0]), 0, 1)     # 中心を青白く
+    a = np.clip(a + np.random.default_rng(7).normal(0, 0.04, a.shape[:2])[..., None], 0, 1)
+    return Image.fromarray((a * 255).astype("uint8"))
+
+
+def build(title, no_kanji, author, img_path, out, copy="", focus=(0.6, 0.4), style="scary"):
     im = Image.new("RGB", (W, H), (10, 10, 12))
     if img_path:
         src = Image.open(img_path).convert("RGB")
@@ -77,6 +104,9 @@ def build(title, no_kanji, author, img_path, out, copy="", focus=(0.6, 0.4)):
         for i in range(260):                                # 左端をなだらかに暗がりへ溶かす（線は引かない）
             md.line([(i, 0), (i, H)], fill=int(255 * (i / 260) ** 1.4))
         im.paste(fg, (W - fw, 0), m)
+        if style == "scary":
+            fx, fy = _focus_xy(src, fw, H, focus)
+            im = _scary(im, W - fw + fx, fy)
     # 下と左を少し沈めて、文字と再生時間の表示を読みやすく
     shade = Image.new("L", (W, H), 0)
     sd = ImageDraw.Draw(shade)

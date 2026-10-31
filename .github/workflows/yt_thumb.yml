@@ -1,0 +1,21 @@
+name: YouTube thumbnail set (API)
+# 投稿済み・予約済みの動画のサムネだけを差し替える（thumbnails.set のみ）
+on:
+  workflow_dispatch:
+    inputs:
+      pairs: { description: "動画ID=サムネのパス を空白区切り", required: true }
+      token: { description: "YT_REFRESH_TOKEN_KAIDAN など", default: "YT_REFRESH_TOKEN_KAIDAN" }
+jobs:
+  set:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install -q google-api-python-client google-auth
+      - env:
+          PAIRS: ${{ inputs.pairs }}
+          YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
+          YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
+          YT_REFRESH_TOKEN: ${{ secrets[inputs.token] }}
+        run: python tools/thumb_set.py
