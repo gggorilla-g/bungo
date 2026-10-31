@@ -93,5 +93,7 @@
 - 冒頭の一言と台本は、書き出す前に決め切る（書き出してから台本を変えない）。
 - 冒頭10秒の細かいコマ割り、明るさの表は、新しい場面を作ったときだけ見る（数値の確認は check と build が自動で止めるので、通っていれば読まない）。
 - 雑学で3DCGを使うのは、2Dで作れないカットだけ。
+- アングルは回ごとに変える。どの場面でも `p.view`／`p.view_to`（[[位置],[見る点]]）でカメラを上書きできる。`python nazo/moso3d.py check <id> [直前の回のid]`（または台本の `meta.prev`）は、直前の回と同じ場面・同じカメラのカットがあると止める。
+- 11/7〜13 の7本で足した場面は seafloor（海の断面）の1つ。ほかは既存の場面に p を足した（land: noair / air_off / sun_off / noclouds / thick / cloud_off / rain / ring / sun_scale / freeze / frozen、space・orbit: sun_off、orbit: r / r_to / ghost、spin: ring="band"、全場面: earth="dry"/"snow"）。
 
   - 読み上げ文をかなで書くとき、助詞「は、」のあとの語がつながって別の語に化けることがある（「かいめんは、やく」→「はやく」）。check は「は、」の数だけワと読まれているかも見る。数字の前の「約」は漢字で渡す。

@@ -3,7 +3,8 @@
 #   絵は nazo/cg/（three.js を Chromium で1コマずつ描く）。文字・ずんだもん・音はこのファイルで重ねる。
 #   台本: nazo/shorts/<ID>.json（例 moso_moon_test.json）
 #   使い方:
-#     python nazo/moso3d.py check <ID>   … 読みの関門（src/yomi_gate.py）。合格すると nazo/state/moso3d_yomi_<ID>.json に記録
+#     python nazo/moso3d.py check <ID> [直前の回のID]   … 読みの関門（src/yomi_gate.py）。合格すると nazo/state/moso3d_yomi_<ID>.json に記録
+#        直前の回（引数か台本の meta.prev）と同じ場面を同じカメラで使うカットがあっても止める
 #     python nazo/moso3d.py build <ID>   … 動画を作る。関門の記録と台本の読みが一致しないと止める
 #   環境変数: CG_SCALE（CGを描く大きさの倍率。1.0=1080x1920、0.5=540x960 を拡大）、ALLOW_CHIP_BGM（BGMが無い手元の試し用）
 #   行のキー:
@@ -54,6 +55,24 @@ def gate_key(pairs):
     return hashlib.sha1(json.dumps(pairs, ensure_ascii=False).encode()).hexdigest()
 
 
+def cam_key(ln):
+    """カットの絵の決め手：場面と、カメラ（p.view があればそれ、なければ p.cam。cam_to が無ければ cam と同じ）"""
+    p = ln["cg"].get("p", {})
+    a = p.get("view") or p.get("cam") or "default"
+    b = p.get("view_to") or (p.get("cam_to") if not p.get("view") else None) or a
+    return (ln["cg"]["scene"], json.dumps(a), json.dumps(b))
+
+
+def same_cam(sp, prev):
+    """直前の回（nazo/shorts/<prev>.json）と同じ場面・同じカメラのカットを挙げる"""
+    pf = f"nazo/shorts/{prev}.json"
+    if not os.path.exists(pf):
+        return [f"直前の回の台本がない: {pf}"]
+    used = {cam_key(ln) for ln in json.load(open(pf, encoding="utf-8"))["lines"]}
+    return [f"直前の回 {prev} と同じ場面・同じカメラ: {k[0]} {k[1]}→{k[2]}｜{ln['say']}"
+            for ln in sp["lines"] for k in [cam_key(ln)] if k in used]
+
+
 def check(sid):
     """読みの関門。漢字の語を1語ずつ読みと並べて出し、問題があれば止める"""
     import pyopenjtalk, yomi_gate
@@ -75,6 +94,9 @@ def check(sid):
     for say, yt in pairs:                                 # 助詞「は、」がハと読まれていないか（読点を詰めると「はやく」等に化ける。2つのエンジンが同じ間違いをするので別に見る）
         if say.count("は、") > yomi.kana(yt).count("ワ"):
             issues.append(f"助詞の「は」がワと読まれていない: {yomi.kana(yt)}｜{say}")
+    prev = (sys.argv[3] if len(sys.argv) > 3 else None) or sp.get("meta", {}).get("prev")
+    if prev:                                              # 直前の回と同じ場面を同じカメラで使っていないか（アングルは回ごとに変える）
+        issues += same_cam(sp, prev)
     kit = f"nazo/manual/{sp['main']}"; os.makedirs(kit, exist_ok=True)
     open(f"{kit}/{sid}_yomi.txt", "w", encoding="utf-8").write("\n".join(rep) + "\n\n関門: " + ("合格" if not issues else "\n".join(issues)) + "\n")
     print("\n".join(rep))

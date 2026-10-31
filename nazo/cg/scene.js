@@ -9,7 +9,11 @@
 //   rewind … 地球が逆回り。途中で若い地球（溶岩の色）に変わる
 //   spin   … 地球がどんどん速く回る（流れる星の線つき）。p.ring で月の通り道（月はいない）を出す
 //   axis   … 地軸（赤い棒）がふらつく
-//   space  … 太陽と地球。月の通り道だけあって月はいない
+//   space  … 太陽と地球。月の通り道だけあって月はいない。p.sun_off（0〜1 の時刻）で太陽が消える
+//   seafloor … 海の断面（大陸棚・深海平原・海嶺・海溝・海山）。海面が下がって干上がる（11/7〜の回で追加）
+// どの場面でも使える p:
+//   view / view_to … カメラを [[位置],[見る点]] で上書きする（場面のカメラを回ごとに変えるため。文の長さでなめらかに移る）
+//   earth … ブロックの地球の色。"dry"（海が干上がった茶色）/ "snow"（全球凍結の白）
 import * as THREE from "./node_modules/three/build/three.module.js";
 
 let R, S, C, CUR, job, upd = () => {};
@@ -50,9 +54,12 @@ const planet = (r, fn, size = 1, mat) => blocks(shell(r, fn), size, mat);
 function noise3(x, y, z) {   // 決まった模様のでこぼこ（毎回同じ形）
   return Math.sin(x * 3.1 + Math.sin(y * 2.3)) * 0.5 + Math.sin(y * 2.7 + z * 1.9) * 0.3 + Math.sin(z * 3.7 - x * 1.3) * 0.4;
 }
+let EMODE = "";
 const earthColor = (x, y, z) => {
   if (Math.abs(y) > 0.86) return COL.snow;
   const n = noise3(x, y, z);
+  if (EMODE === "snow") return n > 0.35 ? COL.snow : (n > -0.4 ? COL.ice : 0xc4dcee);
+  if (EMODE === "dry") return n > 0.35 ? (n > 0.75 ? COL.dirt : COL.grass) : (n > 0.25 ? COL.sand : (n < -0.4 ? 0x5e4a3a : 0x7a6450));
   return n > 0.35 ? (n > 0.75 ? COL.dirt : COL.grass) : (n > 0.25 ? COL.sand : (n < -0.4 ? COL.sea : COL.sea2));
 };
 const moonColor = (x, y, z) => (noise3(x * 2, y * 2, z * 2) > 0.4 ? COL.moon2 : COL.moon);
@@ -122,7 +129,8 @@ function landScene(p) {
                          : (k < y ? COL.dirt : (y <= 0 ? COL.sand : ((x * 7 + z * 3) % 5 ? COL.grass : COL.grass2)))]);
   }
   sc.add(blocks(list));
-  const sea = new THREE.Mesh(new THREE.PlaneGeometry(2000, 2000), new THREE.MeshLambertMaterial({ color: COL.sea }));
+  const seaC = new THREE.Color(p.dry ? 0x9a7a58 : COL.sea), iceC = new THREE.Color(0xdfeef8);   // p.dry：海が干上がった地面 / p.freeze：海が凍る
+  const sea = new THREE.Mesh(new THREE.PlaneGeometry(2000, 2000), new THREE.MeshLambertMaterial({ color: seaC.clone() }));
   sea.rotation.x = -Math.PI / 2; sea.position.y = (p.sea_y ?? 0) - 0.5; sc.add(sea);   // p.sea_y：海面を上げる（島の低い所が沈む）
   // 雪の層（季節が入れかわる場面用）
   const snowL = [];
@@ -142,13 +150,30 @@ function landScene(p) {
   });
   // 雲
   const clouds = new THREE.Group();
-  for (let i = 0; i < 12; i++) {
+  for (let i = 0; i < (p.thick ? 46 : 12); i++) {                     // p.thick：空の大半をおおう雲
     const cl = [], w = 3 + Math.floor(rnd() * 5);
     for (let a = 0; a < w; a++) for (let b = 0; b < 2; b++) if (rnd() > 0.2) cl.push([a * 1.5, 0, b * 1.5, COL.cloud]);
     const m = blocks(cl, 1.5, new THREE.MeshLambertMaterial({ emissive: 0x555555 }));
     m.position.set(-60 + rnd() * 120, 16 + rnd() * 10, -50 + rnd() * 60); clouds.add(m);
   }
-  sc.add(clouds);
+  sc.add(clouds); clouds.visible = !p.noclouds && !p.noair;
+  // 雨（p.rain）：細い青いブロックが落ちる。位置は時刻だけで決める
+  const rain = [];
+  const rock = p.rain === "rock";                       // p.rain="rock"：空から小石が斜めに落ちる（空気がない回）
+  if (p.rain) for (let i = 0; i < (rock ? 40 : 260); i++) {
+    const m = new THREE.Mesh(rock ? new THREE.BoxGeometry(0.7, 0.7, 0.7) : new THREE.BoxGeometry(0.12, 1.1, 0.12),
+      rock ? new THREE.MeshLambertMaterial({ color: 0x8a8a8a }) : new THREE.MeshBasicMaterial({ color: 0x9fd2ff }));
+    m.userData = { x: -30 + rnd() * 50, z: -24 + rnd() * 40, k: rnd() }; sc.add(m); rain.push(m);
+  }
+  // 地球の輪（p.ring）：空にかかる帯。南の空を東から西へ（ブロックの帯を数列）
+  if (p.ring) {
+    const rl = [];
+    for (let a = -1.3; a <= 1.3; a += 0.006) for (let w = 0; w < 6; w++) {   // 南の空の高さ約30度まで上がる弓
+      if (w === 4) continue;                                     // 帯のすき間
+      rl.push([Math.sin(a) * 400, -60 + Math.cos(a) * (220 + w * 7), -150 - Math.cos(a) * (110 + w * 3.5), w < 4 ? 0xeee6d6 : 0xcfc6b4]);
+    }
+    const ring = blocks(rl, 5, new THREE.MeshBasicMaterial()); sc.add(ring);
+  }
   // 風で飛ぶブロック
   const bits = [];
   if (p.wind) for (let i = 0; i < 90; i++) {
@@ -161,7 +186,7 @@ function landScene(p) {
   // 太陽・光・星（見た目は試作1版のまま。昼夜の切り替えだけゆっくり・なめらかにする）
   // 点滅・急な明暗の切り替えは禁止。明暗の大きな変化は1秒に3回未満（nazo/RULES.md）
   const sun = new THREE.Mesh(new THREE.BoxGeometry(9, 9, 9), new THREE.MeshBasicMaterial({ color: COL.sun }));
-  sc.add(sun);
+  sun.scale.setScalar(p.sun_scale || 1); sc.add(sun);                  // p.sun_scale：太陽が大きく見える
   const amb = new THREE.AmbientLight(0xffffff, 0.55); sc.add(amb);
   const dl = new THREE.DirectionalLight(0xffffff, 1.1); sc.add(dl);
   const st = stars(1400, 500, p.night ? 3 : 2.2); sc.add(st);
@@ -180,15 +205,26 @@ function landScene(p) {
     const el = p.polar ? 0.12 : Math.sin(ph);
     const day = p.night ? 0 : sstep((el + 0.3) / 0.9);          // 昼⇄夜を広い幅でなめらかに（明るさの上限・下限は前のまま）
     const dusk = p.night ? 0 : Math.max(0, 1 - Math.abs(el) * 2.2) ** 2;
-    const sky = skyNight.clone().lerp(skyDay, day).lerp(skyDusk, dusk * 0.55);
+    const vac = p.noair ? 1 : (p.air_off !== undefined ? sstep((u - p.air_off) / 0.12) : 0);   // 空気がない：昼でも空は黒い
+    const off = p.sun_off !== undefined ? sstep((u - p.sun_off) / 0.15) : 0;               // 太陽が消える（ゆっくり暗くなる）
+    const sky = skyNight.clone().lerp(skyDay, day * (1 - vac) * (1 - off)).lerp(skyDusk, dusk * 0.55 * (1 - vac) * (1 - off));
     if (p.seasons) {                       // 雪⇄猛暑：なめらかに行き来する（1往復 p.season_p 秒）
       const w = 0.5 - 0.5 * Math.cos(2 * Math.PI * tt / (p.season_p || 2.6));   // 0=雪 1=猛暑
       sky.lerp(snowSky, 0.5 * (1 - w)).lerp(hot, 0.55 * w);
       snow.visible = w < 0.98; snow.position.y = -1.05 * w;   // 雪が地面に沈むように溶ける
+    } else if (p.freeze !== undefined || p.frozen) {   // 雪が積もり、海が凍る（p.freeze の時刻から。p.frozen は初めから）
+      const w = p.frozen ? 1 : sstep((u - p.freeze) / 0.15);
+      sky.lerp(snowSky, 0.6 * w); snow.visible = w > 0.01; snow.position.y = -1.05 * (1 - w);
+      sea.material.color.copy(seaC).lerp(iceC, w);
     } else snow.visible = false;
     sc.background = sky;
-    dl.intensity = p.night ? 0 : 0.1 + 1.1 * day; amb.intensity = p.night ? 0.13 : 0.22 + 0.45 * day;
-    st.visible = day < 0.55; sun.visible = !p.night;
+    dl.intensity = p.night ? 0 : (0.1 + 1.1 * Math.max(day, vac)) * (1 - off); amb.intensity = p.night ? 0.13 : (0.22 + 0.45 * day * (1 - vac)) * (1 - off * 0.6);
+    st.visible = day * (1 - vac) * (1 - off) < 0.55; sun.visible = !p.night && off < 0.99; sun.scale.setScalar((p.sun_scale || 1) * (1 - off));
+    if (p.cloud_off !== undefined) {                     // 雲が消える（その場で縮んで消える）
+      const k = Math.max(0.001, 1 - sstep((u - p.cloud_off) / 0.12)); clouds.children.forEach(m => m.scale.setScalar(k)); clouds.visible = k > 0.01;
+    }
+    rain.forEach(m => { const q = m.userData, k = (q.k + tt * (rock ? 0.9 : 1.6)) % 1; m.position.set(q.x + (rock ? 20 - k * 20 : -k * 3), 24 - k * 24, q.z); if (rock) m.rotation.set(tt * 5, tt * 3, 0); });
+    if (p.air_off !== undefined) clouds.visible = vac < 0.5;
     clouds.children.forEach(m => {                       // 位置は時刻だけで決める（最後と冒頭の絵をそろえるため）
       if (m.userData.x0 === undefined) m.userData.x0 = m.position.x;
       m.position.x = (((m.userData.x0 + 60 + tt * (p.wind ? 48 : 2.4)) % 120) + 120) % 120 - 60;
@@ -320,7 +356,11 @@ function spinScene(p) {
     m.userData = { a: rnd() * Math.PI * 2, y: -18 + rnd() * 36, r: 23 + rnd() * 6 }; sc.add(m); streak.push(m);
   }
   let ring = null;
-  if (p.ring) {
+  if (p.ring === "band") {                            // 土星のような輪（赤道の上。p.ring_at の時刻から広がる）
+    const rl = [];
+    for (let i = 0; i < 360; i++) for (let w = 0; w < 4; w++) { const a = i / 360 * Math.PI * 2, r = 25 + w * 2.2; rl.push([Math.cos(a) * r, 0, Math.sin(a) * r, w === 2 ? 0xbfb6a4 : 0xeee6d6]); }
+    ring = blocks(rl, 1.3, new THREE.MeshBasicMaterial()); ring.rotation.set(0.3, 0, 0.41); sc.add(ring);
+  } else if (p.ring) {
     const rl = [];
     for (let i = 0; i < 64; i++) if (i % 2) { const a = i / 64 * Math.PI * 2; rl.push([Math.cos(a) * 34, 0, Math.sin(a) * 34, 0x8a8a8a]); }
     ring = blocks(rl, 1.2); ring.rotation.x = 0.3; sc.add(ring);
@@ -332,7 +372,8 @@ function spinScene(p) {
       const q = m.userData; m.visible = !p.slow; const a = q.a + t * w * 0.35;
       m.position.set(Math.cos(a) * q.r, q.y, Math.sin(a) * q.r); m.rotation.y = -a;
     });
-    if (ring) ring.rotation.y = t * 0.3;
+    if (ring && p.ring === "band") { const k = p.ring_at !== undefined ? sstep((u - p.ring_at) / 0.1) : 1; ring.scale.setScalar(Math.max(0.001, k)); ring.visible = k > 0.01; }
+    else if (ring) ring.rotation.y = t * 0.3;
     C.position.set(lerp(-10, 10, u), 10, lerp(80, 70, u)); C.lookAt(0, 0, 0);
   };
 }
@@ -370,8 +411,13 @@ function spaceScene(p) {
   const rl = [];
   for (let i = 0; i < 48; i++) if (i % 2) { const a = i / 48 * Math.PI * 2; rl.push([Math.cos(a) * 24, 0, Math.sin(a) * 24, 0x8a8a8a]); }
   const r = blocks(rl, 1); r.position.copy(e.position); r.rotation.x = 0.3; sc.add(r);
+  r.visible = !p.noring;                                   // p.noring：月の通り道を出さない
   return (t, d) => {
     const u = t / d;
+    if (p.sun_off !== undefined) {                          // 太陽が消える（縮んで消え、光もなめらかに落ちる）
+      const k = 1 - sstep((u - p.sun_off) / 0.08); sun.scale.setScalar(Math.max(0.001, k)); sun.visible = k > 0.01;
+      pl.intensity = 3 * (1 - sstep((u - p.sun_off - (p.lag || 0)) / 0.1));   // p.lag：光が地球に届くまでの遅れ（割合）
+    }
     e.rotation.y = t * 3; sun.rotation.y = t * 0.4; r.rotation.y = t * 0.6;
     C.position.set(lerp(18, 28, u), lerp(-2, 4, u), lerp(120, 108, u)); C.lookAt(0, 4, 0);
   };
@@ -603,12 +649,26 @@ function orbitScene(p) {
   const eq = [];                                           // 赤道の線（黄色）
   for (let i = 0; i < 32; i++) { const a = i / 32 * Math.PI * 2; eq.push([Math.cos(a) * 4.6, 0, Math.sin(a) * 4.6, 0xffe14a]); }
   tiltG.add(blocks(eq, 0.4));
-  const OR = 17, path = [];
-  for (let i = 0; i < 60; i++) if (i % 2) { const a = i / 60 * Math.PI * 2; path.push([Math.cos(a) * OR, 0, Math.sin(a) * OR, 0x555a66]); }
-  sc.add(blocks(path, 0.8));
+  // p.r（公転の半径。1=今の地球、0.72=今の金星の位置）、p.r_to と p.r_at（その時刻から半径が移る）、p.ghost（今の軌道を点線で残す）
+  // p.sun_off（太陽が消える時刻の割合）、p.lag（その何秒あとに光と重力が地球に届く。届いたら暗くなり、まっすぐ飛んでいく）
+  const OR0 = 17, mkPath = (R, col) => { const q = []; for (let i = 0; i < 60; i++) if (i % 2) { const a = i / 60 * Math.PI * 2; q.push([Math.cos(a) * R, 0, Math.sin(a) * R, col]); } return blocks(q, 0.8); };
+  const r1 = p.r ?? 1, r2 = p.r_to ?? r1;
+  sc.add(mkPath(OR0 * r1, 0x555a66)); if (r2 !== r1) sc.add(mkPath(OR0 * r2, 0x8a6a40));
+  if (p.ghost) sc.add(mkPath(OR0 * p.ghost, 0x8a6a40));
   return (t, d) => {
-    const u = t / d, per = p.per || 3.2, a = t / per * Math.PI * 2 + (p.a0 || 0);
+    const u = t / d, per = p.per || 3.2;
+    const k = r2 !== r1 ? sstep((u - (p.r_at ?? 0.5)) / 0.15) : 0, OR = OR0 * lerp(r1, r2, k);
+    const a = t / per * Math.PI * 2 + (p.a0 || 0);
     g.position.set(Math.cos(a) * OR, 0, Math.sin(a) * OR);
+    if (p.sun_off !== undefined) {
+      const ts = p.sun_off * d, tl = ts + (p.lag || 0);
+      const ks = 1 - sstep((t - ts) / 0.25); sun.scale.setScalar(Math.max(0.001, ks)); sun.visible = ks > 0.01;
+      pl.intensity = 3.2 * (1 - sstep((t - tl) / 0.3));
+      if (t > tl) {                                        // 重力が届いたら、その時の向きのまま接線方向へまっすぐ
+        const al = tl / per * Math.PI * 2 + (p.a0 || 0), v = OR * Math.PI * 2 / per, s = t - tl;
+        g.position.set(Math.cos(al) * OR - Math.sin(al) * v * s, 0, Math.sin(al) * OR + Math.cos(al) * v * s);
+      }
+    }
     let tilt = (p.tilt ?? 23.4) * Math.PI / 180;
     if (p.untilt_at !== undefined) tilt *= 1 - sstep((u - p.untilt_at) / 0.12);
     tiltG.rotation.set(0, 0, tilt);                       // 傾きの向きは公転しても変わらない
@@ -836,7 +896,73 @@ function antarctica(p) {
   };
 }
 
-const SCENES = { antarctica: antarctica, city: cityScene, icefly: icefly, seaice: seaice, orbit: orbitScene, gravity: gravityScene, surface: surfaceScene, tide: tideScene, land: landScene, flight: flightScene, rewind: rewindScene, spin: spinScene, axis: axisScene, space: spaceScene };
+// ---------- 場面：海の断面（11/7〜の回で追加）。たて1km＝2ブロック（たては横より大きく描く） ----------
+//   左から 大陸 → 大陸棚 → 深海平原（約4.5km）と海山（マウナケア：海底から約10.2km、海面上4.2km）→ 海嶺 → 海溝（約10.9km）→ 島
+//   p.w0 / p.w1（海面の高さ km。0=今。-12 で干上がる）、p.w_at / p.w_len（下がり始める時刻の割合と長さ）
+//   p.everest（海溝の底に 8.85km の目盛りの柱）、p.char（[x, z] にずんだもんを立てる）、p.cam / p.cam_to（SEA_CAMS の名前か [[位置],[見る点]]）
+const SEA_CAMS = {                                          // 断面（手前 z=31 の面）を前から見るカメラが基本
+  hook: [[30, 40, 110], [10, -12, -10]],
+  wide: [[0, 70, 150], [0, -10, -10]],
+  trench: [[46, -6, 75], [46, -10, 0]],
+  mk: [[-16, 2, 40], [-16, 0, -10]],
+  ridge: [[14, 0, 70], [14, -6, 0]],
+  low: [[-24, -7, 22], [-16, 5, -10]],
+  shelf: [[-46, 2, 62], [-46, -4, 0]],
+  top: [[4, 150, 30], [0, -10, 0]],
+};
+function seafloor(p) {
+  const sc = CUR = new THREE.Scene(); sc.background = new THREE.Color(0x7cc4f2);
+  sc.add(new THREE.AmbientLight(0xffffff, 0.6));
+  const dl = new THREE.DirectionalLight(0xffffff, 0.9); dl.position.set(-40, 90, 70); sc.add(dl);
+  const V = 2, S = 2, BOT = -50, cells = [];
+  const nz = (x, z) => 0.5 * Math.sin(x * 0.31 + z * 0.17) + 0.3 * Math.sin(z * 0.43 - x * 0.11);
+  const depth = (x, z) => {                               // km（マイナスが海面より下）
+    if (x < -52) return 0.4 + 0.2 * nz(x, z);
+    if (x < -44) return -0.15;
+    if (x < -30) return lerp(-0.15, -4.4, sstep((x + 44) / 14));
+    let h = -4.5 + 0.15 * nz(x, z);
+    const r = Math.sqrt((x + 16) ** 2 + (z + 10) ** 2);   // マウナケア（海山の島）
+    if (r < 13) h = Math.max(h, -6 + 10.2 * Math.pow(1 - r / 13, 1.25));
+    if (x > 2 && x < 28) h = Math.max(h, -4.5 + 2.1 * Math.exp(-(((x - 14) / 5.5) ** 2)) - (Math.abs(x - 14) < 1.2 ? 0.6 : 0));   // 海嶺（まん中に溝）
+    if (x >= 30) h = -5.5;
+    if (x > 38 && x < 54) h = Math.min(h, -10.9 + 6.2 * ((x - 46) / 4.2) ** 2);   // 海溝
+    if (x >= 52) h = Math.max(h, lerp(-5.5, 0.6, sstep((x - 52) / 8)));
+    return h;
+  };
+  for (let x = -70; x <= 70; x += S) for (let z = -50; z <= 30; z += S) {
+    const h = depth(x, z) * V;
+    const col = h > 0.3 ? ((x + z) % 4 ? COL.grass : COL.grass2) : (h > -1 ? COL.sand : (h < -16 ? 0x4e3e32 : (x > 2 && x < 28 && h > -7 ? 0x5a4a42 : ((x * 3 + z) % 5 ? 0x7a6450 : 0x6e5a48))));
+    cells.push([x, h, z, col]);
+  }
+  const im = new THREE.InstancedMesh(new THREE.BoxGeometry(S, 1, S), new THREE.MeshLambertMaterial(), cells.length);
+  const o = new THREE.Object3D(), c = new THREE.Color();
+  cells.forEach((q, i) => { o.position.set(q[0], (q[1] + BOT) / 2, q[2]); o.scale.set(1, q[1] - BOT, 1); o.updateMatrix(); im.setMatrixAt(i, o.matrix); im.setColorAt(i, c.setHex(q[3])); });
+  im.instanceMatrix.needsUpdate = true; im.instanceColor.needsUpdate = true; sc.add(im);
+  const bed = new THREE.Mesh(new THREE.PlaneGeometry(3000, 3000), new THREE.MeshLambertMaterial({ color: 0x3a2e26 }));   // 断面の下（空が見えないように）
+  bed.rotation.x = -Math.PI / 2; bed.position.y = BOT; sc.add(bed);
+  const water = new THREE.Mesh(new THREE.BoxGeometry(142, 1, 82), new THREE.MeshLambertMaterial({ color: 0x2f7fd8, transparent: true, opacity: 0.55 }));
+  water.position.set(0, 0, -10); sc.add(water);
+  if (p.everest) {                                        // エベレスト 8849m を海溝の底から立てる（1kmごとに赤白）
+    const g = new THREE.Group(); g.position.set(46, -10.9 * V, 0); sc.add(g);
+    for (let k = 0; k < 18; k++) { const m = new THREE.Mesh(new THREE.BoxGeometry(1.4, 1, 1.4), new THREE.MeshBasicMaterial({ color: Math.floor(k / 2) % 2 ? 0xffffff : 0xff3b30 })); m.position.y = k * 0.983 + 0.5; g.add(m); }
+    const top = new THREE.Mesh(new THREE.BoxGeometry(3, 0.8, 3), new THREE.MeshBasicMaterial({ color: 0xffd23a })); top.position.y = 8.85 * V; g.add(top);
+  }
+  const ch = blockChar(); ch.visible = !!p.char; sc.add(ch);
+  const [chx, chz] = p.char || [0, 10], chy = depth(chx, chz) * V + 0.5 + 1.4;
+  const camOf = cc => (Array.isArray(cc) ? cc : SEA_CAMS[cc || "hook"]);
+  const [cp, ct] = camOf(p.cam), [cp2, ct2] = camOf(p.cam_to || p.cam);
+  return (t, d) => {
+    const u = t / d, e = sstep(u);
+    const w = lerp(p.w0 ?? 0, p.w1 ?? (p.w0 ?? 0), sstep((u - (p.w_at ?? 0)) / (p.w_len ?? 0.85)));
+    const top = w * V, hgt = Math.max(0.01, top - BOT);
+    water.visible = w > -11.9; water.scale.y = hgt; water.position.y = BOT + hgt / 2;
+    if (p.char) { ch.position.set(chx, chy + Math.abs(Math.sin(t * 7)) * 0.4, chz); ch.rotation.set(0, 0.4 + Math.sin(t * 2.2) * 0.9, 0); }
+    C.position.set(lerp(cp[0], cp2[0], e), lerp(cp[1], cp2[1], e), lerp(cp[2], cp2[2], e));
+    C.lookAt(lerp(ct[0], ct2[0], e), lerp(ct[1], ct2[1], e), lerp(ct[2], ct2[2], e));
+  };
+}
+
+const SCENES = { seafloor: seafloor, antarctica: antarctica, city: cityScene, icefly: icefly, seaice: seaice, orbit: orbitScene, gravity: gravityScene, surface: surfaceScene, tide: tideScene, land: landScene, flight: flightScene, rewind: rewindScene, spin: spinScene, axis: axisScene, space: spaceScene };
 
 window.setup = (j) => {
   job = j; seed = 12345;
@@ -846,9 +972,16 @@ window.setup = (j) => {
   }
   R.setPixelRatio(1); R.setSize(j.w, j.h);
   C = new THREE.PerspectiveCamera(j.fov || 55, j.w / j.h, 0.1, 5000);
+  EMODE = (j.p || {}).earth || "";
   upd = SCENES[j.scene](j.p || {});
   S = CUR;
   return true;
 };
-window.frame = (t) => { upd(t, job.d); R.render(S, C); return true; };
+function viewOver(t) {                                   // p.view / p.view_to：どの場面でもカメラを上書き
+  const p = job.p || {}; if (!p.view) return;
+  const [a, la] = p.view, [b, lb] = p.view_to || p.view, e = sstep(job.d ? t / job.d : 0);
+  C.position.set(lerp(a[0], b[0], e), lerp(a[1], b[1], e), lerp(a[2], b[2], e));
+  C.up.set(0, 1, 0); C.lookAt(lerp(la[0], lb[0], e), lerp(la[1], lb[1], e), lerp(la[2], lb[2], e));
+}
+window.frame = (t) => { upd(t, job.d); viewOver(t); R.render(S, C); return true; };
 window.ready = true;
