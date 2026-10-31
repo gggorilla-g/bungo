@@ -123,7 +123,7 @@ function landScene(p) {
   }
   sc.add(blocks(list));
   const sea = new THREE.Mesh(new THREE.PlaneGeometry(2000, 2000), new THREE.MeshLambertMaterial({ color: COL.sea }));
-  sea.rotation.x = -Math.PI / 2; sea.position.y = -0.5; sc.add(sea);
+  sea.rotation.x = -Math.PI / 2; sea.position.y = (p.sea_y ?? 0) - 0.5; sc.add(sea);   // p.sea_y：海面を上げる（島の低い所が沈む）
   // 雪の層（季節が入れかわる場面用）
   const snowL = [];
   Object.entries(top).forEach(([k, y]) => { const [x, z] = k.split(",").map(Number); if (y > 0) snowL.push([x, y + 0.55, z, COL.snow]); });
@@ -672,7 +672,136 @@ function surfaceScene(p) {
   };
 }
 
-const SCENES = { orbit: orbitScene, gravity: gravityScene, surface: surfaceScene, tide: tideScene, land: landScene, flight: flightScene, rewind: rewindScene, spin: spinScene, axis: axisScene, space: spaceScene };
+// ---------- 場面：海辺のブロックの街（海面が上がる）。1ブロック＝ビル1階分（約3.5m）、海面70m＝20ブロック ----------
+//   p.l0 / p.l1（文のはじめ・終わりの海面。ブロック数）、p.cam（位置名か [[位置],[見る点]]）、p.cam_to
+//   p.tower（634mの塔。展望台は350mと450m）、p.roof（ずんだもんがビルの屋上で手を振る）、p.ruler（10mごとの目盛りの棒）
+function cityScene(p) {
+  const sc = CUR = new THREE.Scene(); sc.background = new THREE.Color(0x7cc4f2);
+  sc.add(new THREE.AmbientLight(0xffffff, 0.6));
+  const dl = new THREE.DirectionalLight(0xffffff, 0.9); dl.position.set(-60, 120, 80); sc.add(dl);
+  const ground = [], blds = [];
+  const H = (x, z) => Math.max(0, Math.round(Math.max(0, -z - 20) * 0.55 + Math.max(0, -x - 20) * 0.4));   // 海辺の低地（下町）から、奥・左の台地へ高くなる
+  for (let x = -60; x <= 60; x += 2) for (let z = -70; z <= 20; z += 2) {
+    const h = H(x, z); if (z > 8 && h < 1) continue;
+    ground.push([x, h - 0.5, z, h > 12 ? 0x6a8a4a : 0x8a9a7a]);
+  }
+  sc.add(blocks(ground, 2));
+  const cols = [0xd8d8d8, 0xb8c0c8, 0xe8e0d0, 0xa8b0b8, 0xc8b8a8, 0x9aa4b0];
+  const o = new THREE.Object3D(), list = [];
+  for (let x = -56; x <= 56; x += 6) for (let z = -64; z <= 4; z += 6) {
+    if (rnd() < 0.25) continue;
+    const g = H(x, z), hh = 2 + Math.floor(rnd() * rnd() * 34);
+    list.push([x, g, z, hh, cols[Math.floor(rnd() * cols.length)]]);
+  }
+  const bm = new THREE.InstancedMesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshLambertMaterial(), list.length);
+  const c = new THREE.Color();
+  list.forEach((b, i) => { o.position.set(b[0], b[1] + b[3] / 2, b[2]); o.scale.set(4, b[3], 4); o.updateMatrix(); bm.setMatrixAt(i, o.matrix); bm.setColorAt(i, c.setHex(b[4])); });
+  sc.add(bm);
+  // 窓の段（1階ごとの線）：手前のビル1棟だけ
+  const fb = new THREE.Group(); fb.position.set(4, H(4, 2), 2); sc.add(fb);
+  for (let k = 0; k < 30; k++) { const f = new THREE.Mesh(new THREE.BoxGeometry(5, 0.92, 5), new THREE.MeshLambertMaterial({ color: k % 2 ? 0xe0e4ea : 0xc4ccd6 })); f.position.y = k + 0.5; fb.add(f); }
+  const roofY = H(4, 2) + 30;
+  let tower = null;
+  if (p.tower) {                                          // 634mの塔（約181ブロック）。展望台は350m・450m
+    tower = new THREE.Group(); tower.position.set(-20, H(-20, -20), -20); sc.add(tower);
+    for (let k = 0; k < 181; k++) { const w = 4 - k / 181 * 3; const m = new THREE.Mesh(new THREE.BoxGeometry(w, 1, w), new THREE.MeshLambertMaterial({ color: k % 2 ? 0xe8eef4 : 0xd0dae4 })); m.position.y = k + 0.5; tower.add(m); }
+    [100, 128.6].forEach(y => { const d = new THREE.Mesh(new THREE.BoxGeometry(7, 3, 7), new THREE.MeshLambertMaterial({ color: 0x8aa0b8 })); d.position.y = y; tower.add(d); });
+  }
+  if (p.ruler) {
+    const r = new THREE.Group(); r.position.set(12, 0, 8); sc.add(r);
+    for (let k = 0; k < 24; k++) { const m = new THREE.Mesh(new THREE.BoxGeometry(0.8, 1, 0.8), new THREE.MeshBasicMaterial({ color: k % 6 < 3 ? 0xff3b30 : 0xffffff })); m.position.y = k + 0.5; r.add(m); }
+    const mark = new THREE.Mesh(new THREE.BoxGeometry(4, 0.6, 0.6), new THREE.MeshBasicMaterial({ color: 0xffd23a })); mark.position.y = 20; r.add(mark);
+  }
+  const ch = blockChar(); sc.add(ch); ch.visible = !!p.roof; ch.position.set(4, roofY + 1.4, 2);
+  const water = new THREE.Mesh(new THREE.BoxGeometry(600, 1, 600), new THREE.MeshLambertMaterial({ color: 0x2f7fd8, transparent: true, opacity: 0.86 }));
+  sc.add(water);
+  const waves = [];
+  for (let i = 0; i < 40; i++) { const m = new THREE.Mesh(new THREE.BoxGeometry(2.5, 0.3, 0.8), new THREE.MeshBasicMaterial({ color: 0xcfe8ff })); m.userData = { x: -60 + rnd() * 120, z: -60 + rnd() * 80, s: rnd() * 6 }; sc.add(m); waves.push(m); }
+  const camOf = cc => (Array.isArray(cc) ? cc : CITY_CAMS[cc || "hook"]);
+  const [cp, ct] = camOf(p.cam), [cp2, ct2] = camOf(p.cam_to || p.cam);
+  return (t, d) => {
+    const u = t / d, e = sstep(u);
+    const lv = lerp(p.l0 ?? 20, p.l1 ?? (p.l0 ?? 20), sstep(u / 0.85));
+    water.position.y = lv - 0.5;
+    waves.forEach(m => { const q = m.userData; m.position.set(q.x + Math.sin(t * 1.5 + q.s) * 1.5, lv + 0.1, q.z); });
+    if (p.roof) {                                          // 屋上で手を振る（跳ねる）
+      ch.position.y = roofY + 1.4 + Math.abs(Math.sin(t * 7)) * 0.6; ch.rotation.set(0, 0.5 + Math.sin(t * 3) * 0.3, Math.sin(t * 9) * 0.15);
+    }
+    C.position.set(lerp(cp[0], cp2[0], e), lerp(cp[1], cp2[1], e), lerp(cp[2], cp2[2], e));
+    C.lookAt(lerp(ct[0], ct2[0], e), lerp(ct[1], ct2[1], e), lerp(ct[2], ct2[2], e));
+  };
+}
+const CITY_CAMS = {
+  hook: [[38, 34, 70], [0, 10, -20]],      // 冒頭と最後：海から街を見る
+  low: [[10, 22, 40], [0, 18, -10]],
+  floor: [[16, 18, 26], [4, 16, 2]],      // 手前のビル（窓の段）に寄る
+  roof: [[14, 36, 22], [4, 30, 2]],
+  tower: [[30, 30, 70], [-20, 60, -20]],
+  high: [[0, 120, 120], [0, 0, -20]],
+};
+
+// ---------- 場面：氷床の上を飛ぶ。p.melt（0〜1 の時刻）から氷が沈んで岩と海があらわれる ----------
+function icefly(p) {
+  const sc = CUR = new THREE.Scene(); sc.background = new THREE.Color(0xbfdcf2); sc.fog = p.high ? null : new THREE.Fog(0xbfdcf2, 60, 260);
+  sc.add(new THREE.AmbientLight(0xffffff, 0.55));
+  const dl = new THREE.DirectionalLight(0xffffff, 0.9); dl.position.set(80, 50, 40); sc.add(dl);
+  const N = 40, S = 3, cells = [];
+  for (let x = -N; x <= N; x++) for (let z = -N * 2; z <= N; z++) {
+    const rock = Math.round(14 * noise3(x * 0.13, 0.4, z * 0.13) - 3);   // 岩盤（低い所は海の下。高い所は峰として氷から出る）
+    const ice = Math.max(0, Math.round(9 + 2 * noise3(x * 0.07, 1.1, z * 0.07) - Math.max(rock, 0)));
+    cells.push([x * S, rock, ice, z * S]);
+  }
+  const rk = new THREE.InstancedMesh(new THREE.BoxGeometry(S, 1, S), new THREE.MeshLambertMaterial(), cells.length);
+  const ic = new THREE.InstancedMesh(new THREE.BoxGeometry(S, 1, S), new THREE.MeshLambertMaterial({ emissive: 0x6a7a8a }), cells.length);
+  const o = new THREE.Object3D(), c = new THREE.Color();
+  cells.forEach((q, i) => {
+    o.position.set(q[0], q[1] - 3, q[3]); o.scale.set(1, 6, 1); o.updateMatrix(); rk.setMatrixAt(i, o.matrix);
+    rk.setColorAt(i, c.setHex(q[1] > 2 ? 0x6a5040 : 0x8a6a4a));
+    ic.setColorAt(i, c.setHex(q[2] < 4 ? 0xb8d8f0 : ((i * 7) % 5 ? 0xf4f9ff : 0xdcecf8)));
+  });
+  rk.instanceMatrix.needsUpdate = true; rk.instanceColor.needsUpdate = true; ic.instanceColor.needsUpdate = true;
+  sc.add(rk); sc.add(ic);
+  const sea = new THREE.Mesh(new THREE.BoxGeometry(1200, 1, 1200), new THREE.MeshLambertMaterial({ color: 0x2a6fc0 })); sc.add(sea);
+  const KB = p.melt ?? 2;
+  return (t, d) => {
+    const u = t / d, m = sstep((u - KB) / Math.max(0.02, (p.melt_len ?? 0.08)));
+    cells.forEach((q, i) => {
+      const h = q[2] * (1 - m);
+      o.position.set(q[0], q[1] + h / 2, q[3]); o.scale.set(1, Math.max(0.001, h), 1); o.updateMatrix(); ic.setMatrixAt(i, o.matrix);
+    });
+    ic.instanceMatrix.needsUpdate = true;
+    sea.position.y = lerp(-4, 1.5, m) - 0.5;
+    sc.background.setHex(0xbfdcf2).lerp(new THREE.Color(0x8cc4ee), m); if (sc.fog) sc.fog.color.copy(sc.background);
+    if (p.high) { C.position.set(lerp(0, 16, u), 260, lerp(170, 150, u)); C.lookAt(0, 0, -50); return; }
+    const z = lerp(110, -130, Math.pow(Math.min(u / Math.max(KB, 0.5), 1), 1.2));
+    C.position.set(Math.sin(u * 3) * 10, 44 + Math.sin(u * 5) * 2, z); C.lookAt(0, 0, z - 55); C.rotateZ(Math.sin(u * 4) * 0.08);
+  };
+}
+
+// ---------- 場面：海に浮かぶ氷が溶ける。目盛りの海面はほぼ変わらない ----------
+function seaice(p) {
+  const sc = CUR = new THREE.Scene(); sc.background = new THREE.Color(0x9cc8ec);
+  sc.add(new THREE.AmbientLight(0xffffff, 0.6));
+  const dl = new THREE.DirectionalLight(0xffffff, 0.8); dl.position.set(40, 60, 50); sc.add(dl);
+  const sea = new THREE.Mesh(new THREE.BoxGeometry(400, 1, 400), new THREE.MeshLambertMaterial({ color: 0x2a6fc0, transparent: true, opacity: 0.85 })); sea.position.y = -0.5; sc.add(sea);
+  const ice = [];
+  for (let i = 0; i < 26; i++) {
+    const s = 5 + rnd() * 7, m = new THREE.Mesh(new THREE.BoxGeometry(s, s * 0.9, s * 0.8), new THREE.MeshLambertMaterial({ color: i % 3 ? 0xf2f8ff : 0xd4e8f8, emissive: 0x405060 }));
+    m.userData = { x: -30 + rnd() * 60, z: -40 + rnd() * 50, s }; sc.add(m); ice.push(m);
+  }
+  const pole = new THREE.Group(); pole.position.set(6, 0, 14); sc.add(pole);
+  for (let k = -6; k < 10; k++) { const b = new THREE.Mesh(new THREE.BoxGeometry(0.8, 1, 0.8), new THREE.MeshBasicMaterial({ color: (k + 6) % 4 < 2 ? 0xff3b30 : 0xffffff })); b.position.y = k + 0.5; pole.add(b); }
+  return (t, d) => {
+    const u = t / d, m = sstep(u / 0.9);
+    ice.forEach((b, i) => {
+      const q = b.userData, k = Math.max(0.02, 1 - m * (0.8 + (i % 4) * 0.07));
+      b.scale.setScalar(k); b.position.set(q.x + Math.sin(t + i) * 0.4, q.s * 0.9 * k * 0.5 - q.s * 0.9 * k * 0.4, q.z);   // 9割は水の下
+    });
+    C.position.set(lerp(-4, 4, u), 11, 34); C.lookAt(0, 2, -6);
+  };
+}
+
+const SCENES = { city: cityScene, icefly: icefly, seaice: seaice, orbit: orbitScene, gravity: gravityScene, surface: surfaceScene, tide: tideScene, land: landScene, flight: flightScene, rewind: rewindScene, spin: spinScene, axis: axisScene, space: spaceScene };
 
 window.setup = (j) => {
   job = j; seed = 12345;

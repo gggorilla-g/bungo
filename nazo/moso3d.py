@@ -72,6 +72,9 @@ def check(sid):
                 if re.search(r"[一-龥々]", f["string"]):
                     rep.append(f"    [読み上げ文] {f['string']} → {f['pron']}")
     issues = yomi_gate.check(pairs, words, yomi.kana)
+    for say, yt in pairs:                                 # 助詞「は、」がハと読まれていないか（読点を詰めると「はやく」等に化ける。2つのエンジンが同じ間違いをするので別に見る）
+        if say.count("は、") > yomi.kana(yt).count("ワ"):
+            issues.append(f"助詞の「は」がワと読まれていない: {yomi.kana(yt)}｜{say}")
     kit = f"nazo/manual/{sp['main']}"; os.makedirs(kit, exist_ok=True)
     open(f"{kit}/{sid}_yomi.txt", "w", encoding="utf-8").write("\n".join(rep) + "\n\n関門: " + ("合格" if not issues else "\n".join(issues)) + "\n")
     print("\n".join(rep))
