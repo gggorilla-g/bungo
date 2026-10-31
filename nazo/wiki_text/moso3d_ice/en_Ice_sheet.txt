@@ -1,0 +1,105 @@
+https://en.wikipedia.org/wiki/Ice_sheet
+
+In glaciology, an ice sheet, also known as a continental glacier, is a mass of glacial ice that covers surrounding terrain and is greater than 50,000 km2 (19,000 sq mi).
+Ice sheets are the largest glacial bodies on Earth, distinguished from smaller ice caps, ice fields, and glaciers. Ice sheets can have multiple ice domes, the topographic highs from which ice flows outwards, and are typically drained by ice streams and outlet glaciers around their periphery. The two extant ice sheets on Earth are the Antarctic ice sheet and the Greenland ice sheet.
+Although the surface is cold, the base of an ice sheet is generally warmer by means of geothermal heat. In places, melting occurs and the melt-water lubricates the ice sheet so that it flows more rapidly. This process produces fast-flowing channels within the ice sheet called ice streams. Ice sheets are continually in motion as the ice gradually flows outward from the highest points of the ice sheet towards its margins. The slope of the ice sheet is low around the plateau but increases steeply at its margins.
+The growth of ice sheets is a signature of glacial periods, which occur during ice ages. There have been many different ice sheets over Earth's history. At the maximum of the Last Glacial Period, the historic Laurentide and Cordilleran ice sheets merged with the Greenland Ice Sheet to cover much of North America. In the same period, the Weichselian Ice Sheet covered Northern Europe and the Patagonian Ice Sheet covered southern South America. The retreat and disappearance of these ice sheets marked the beginning of the current Holocene interglacial period, and the ongoing retreat and future fate of the Greenland and Antarctic ice sheets plays a major role in climate change and sea level rise.
+
+
+== Overview ==
+
+An ice sheet is a body of ice which covers a land area of continental size - meaning that it exceeds 50,000 km2. The currently existing two ice sheets in Greenland and Antarctica have a much greater area than this minimum definition, measuring at 1.7 million km2 and 14 million km2, respectively. Both ice sheets are also very thick, as they consist of a continuous ice layer with an average thickness of 2 km (1 mi). This ice layer forms because most of the snow which falls onto the ice sheet never melts, and is instead compressed by the mass of newer snow layers.
+This process of ice sheet growth is still occurring nowadays, as can be clearly seen in an example that occurred in World War II. A Lockheed P-38 Lightning fighter plane crashed in Greenland in 1942. It was only recovered 50 years later. By then, it had been buried under 81 m (268 feet) of ice which had formed over that time period.
+
+
+== Dynamics ==
+
+
+=== Glacial flows ===
+
+Even stable ice sheets are continually in motion as the ice gradually flows outward from the central plateau, which is the tallest point of the ice sheet, and towards the margins. The ice sheet slope is low around the plateau but increases steeply at the margins. This difference in slope occurs due to an imbalance between high ice accumulation in the central plateau and lower accumulation, as well as higher ablation, at the margins. This imbalance increases the shear stress on a glacier until it begins to flow. The flow velocity and deformation will increase as the equilibrium line between these two processes is approached. This motion is driven by gravity but is controlled by temperature and the strength of individual glacier bases. A number of processes alter these two factors, resulting in cyclic surges of activity interspersed with longer periods of inactivity, on time scales ranging from hourly (i.e. tidal flows) to the centennial (Milankovich cycles).
+On an unrelated hour-to-hour basis, surges of ice motion can be modulated by tidal activity. The influence of a 1 m tidal oscillation can be felt as much as 100 km from the sea. During larger spring tides, an ice stream will remain almost stationary for hours at a time, before a surge of around a foot in under an hour, just after the peak high tide; a stationary period then takes hold until another surge towards the middle or end of the falling tide. At neap tides, this interaction is less pronounced, and surges instead occur approximately every 12 hours.
+Increasing global air temperatures due to climate change take around 10,000 years to directly propagate through the ice before they influence bed temperatures, but may have an effect through increased surface melting, producing more supraglacial lakes. These lakes may feed warm water to glacial bases and facilitate glacial motion. Lakes of a diameter greater than ~300 m are capable of creating a fluid-filled crevasse to the glacier/bed interface. When these crevasses form, the entirety of the lake's (relatively warm) contents can reach the base of the glacier in as little as 2–18 hours – lubricating the bed and causing the glacier to surge. Water that reaches the bed of a glacier may freeze there, increasing the thickness of the glacier by pushing it up from below.
+
+
+=== Boundary conditions ===
+
+As the margins end at the marine boundary, excess ice is discharged through ice streams or outlet glaciers. Then, it either falls directly into the sea or is accumulated atop the floating ice shelves. Those ice shelves then calve icebergs at their periphery if they experience excess of ice. Ice shelves would also experience accelerated calving due to basal melting. In Antarctica, this is driven by heat fed to the shelf by the circumpolar deep water current, which is 3 °C above the ice's melting point.
+The presence of ice shelves has a stabilizing influence on the glacier behind them, while an absence of an ice shelf becomes destabilizing. For instance, when Larsen B ice shelf in the Antarctic Peninsula had collapsed over three weeks in February 2002, the four glaciers behind it - Crane Glacier, Green Glacier, Hektoria Glacier and Jorum Glacier - all started to flow at a much faster rate, while the two glaciers (Flask and Leppard) stabilized by the remnants of the ice shelf did not accelerate.
+The collapse of the Larsen B shelf was preceded by thinning of just 1 metre per year, while some other Antarctic ice shelves have displayed thinning of tens of metres per year. Further, increased ocean temperatures of 1 °C may lead to up to 10 metres per year of basal melting. Ice shelves are always stable under mean annual temperatures of −9 °C, but never stable above −5 °C; this places regional warming of 1.5 °C, as preceded the collapse of Larsen B, in context.
+
+
+=== Marine ice sheet instability ===
+
+In the 1970s, Johannes Weertman proposed that because seawater is denser than ice, then any ice sheets grounded below sea level inherently become less stable as they melt due to Archimedes' principle. Effectively, these marine ice sheets must have enough mass to exceed the mass of the seawater displaced by the ice, which requires excess thickness. As the ice sheet melts and becomes thinner, the weight of the overlying ice decreases. At a certain point, sea water could force itself into the gaps which form at the base of the ice sheet, and marine ice sheet instability (MISI) would occur.
+Even if the ice sheet is grounded below the sea level, MISI cannot occur as long as there is a stable ice shelf in front of it. The boundary between the ice sheet and the ice shelf, known as the grounding line, is particularly stable if it is constrained in an embayment. In that case, the ice sheet may not be thinning at all, as the amount of ice flowing over the grounding line would be likely to match the annual accumulation of ice from snow upstream. Otherwise, ocean warming at the base of an ice shelf tends to thin it through basal melting. As the ice shelf becomes thinner, it exerts less of a buttressing effect on the ice sheet, the so-called back stress increases and the grounding line is pushed backwards. The ice sheet is likely to start losing more ice from the new location of the grounding line and so become lighter and less capable of displacing seawater. This eventually pushes the grounding line back even further, creating a self-reinforcing mechanism.
+
+
+==== Vulnerable locations ====
+
+Because the entire West Antarctic Ice Sheet is grounded below the sea level, it would be vulnerable to geologically rapid ice loss in this scenario. In particular, the Thwaites and Pine Island glaciers are most likely to be prone to MISI, and both glaciers have been rapidly thinning and accelerating in recent decades. As a result, sea level rise from the ice sheet could be accelerated by tens of centimeters within the 21st century alone.
+The majority of the East Antarctic Ice Sheet would not be affected. Totten Glacier is the largest glacier there which is known to be subject to MISI - yet, its potential contribution to sea level rise is comparable to that of the entire West Antarctic Ice Sheet. Totten Glacier has been losing mass nearly monotonically in recent decades, suggesting rapid retreat is possible in the near future, although the dynamic behavior of Totten Ice Shelf is known to vary on seasonal to interannual timescales. The Wilkes Basin is the only major submarine basin in Antarctica that is not thought to be sensitive to warming. Ultimately, even geologically rapid sea level rise would still most likely require several millennia for the entirety of these ice masses (WAIS and the subglacial basins) to be lost.
+
+
+==== Marine ice cliff instability ====
+
+A related process known as Marine Ice Cliff Instability (MICI) posits that ice cliffs which exceed ~90 m (295+1⁄2 ft) in above-ground height and are ~800 m (2,624+1⁄2 ft) in basal (underground) height are likely to collapse under their own weight once the peripheral ice stabilizing them is gone. Their collapse then exposes the ice masses following them to the same instability, potentially resulting in a self-sustaining cycle of cliff collapse and rapid ice sheet retreat - i.e. sea level rise of a meter or more by 2100 from Antarctica alone. This theory had been highly influential - in a 2020 survey of 106 experts, the paper which had advanced this theory was considered more important than even the year 2014 IPCC Fifth Assessment Report. Sea level rise projections which involve MICI are much larger than the others, particularly under high warming rate.
+At the same time, this theory has also been highly controversial. It was originally proposed in order to describe how the large sea level rise during the Pliocene and the Last Interglacial could have occurred - yet more recent research found that these sea level rise episodes can be explained without any ice cliff instability taking place. Research in Pine Island Bay in West Antarctica (the location of Thwaites and Pine Island Glacier) had found seabed gouging by ice from the Younger Dryas period which appears consistent with MICI. However, it indicates "relatively rapid" yet still prolonged ice sheet retreat, with a movement of >200 km (120 mi) inland taking place over an estimated 1100 years (from ~12,300 years Before Present to ~11,200 B.P.)
+
+In recent years, 2002-2004 fast retreat of Crane Glacier immediately after the collapse of the Larsen B ice shelf (before it reached a shallow fjord and stabilized) could have involved MICI, but there weren't enough observations to confirm or refute this theory. The retreat of Greenland ice sheet's three largest glaciers - Jakobshavn, Helheim, and Kangerdlugssuaq Glacier - did not resemble predictions from ice cliff collapse at least up until the end of 2013, but an event observed at Helheim Glacier in August 2014 may fit the definition. Further, modelling done after the initial hypothesis indicates that ice-cliff instability would require implausibly fast ice shelf collapse (i.e. within an hour for ~90 m (295+1⁄2 ft)-tall cliffs), unless the ice had already been substantially damaged beforehand. Further, ice cliff breakdown would produce a large number of debris in the coastal waters - known as ice mélange - and multiple studies indicate their build-up would slow or even outright stop the instability soon after it started.
+Some scientists  - including the originators of the hypothesis, Robert DeConto and David Pollard - have suggested that the best way to resolve the question would be to precisely determine sea level rise during the Last Interglacial. MICI can be effectively ruled out if SLR at the time was lower than 4 m (13 ft), while it is very likely if the SLR was greater than 6 m (19+1⁄2 ft). As of 2023, the most recent analysis indicates that the Last Interglacial SLR is unlikely to have been higher than 2.7 m (9 ft), as higher values in other research, such as 5.7 m (18+1⁄2 ft), appear inconsistent with the new paleoclimate data from The Bahamas and the known history of the Greenland Ice Sheet.
+
+
+== Earth's current two ice sheets ==
+Complete melting of global ice sheets and glaciers could take thousands of years, but would produce 66 m (216 ft) of sea level rise. (Melting of sea ice and ice shelves does not affect sea level.)
+
+
+=== Antarctic ice sheet ===
+
+
+==== East Antarctic Ice Sheet ====
+
+
+==== West Antarctic Ice Sheet ====
+
+
+=== Greenland ice sheet ===
+
+
+== Role in carbon cycle ==
+
+Historically, ice sheets were viewed as inert components of the carbon cycle and were largely disregarded in global models. In 2010s, research had demonstrated the existence of uniquely adapted microbial communities, high rates of biogeochemical and physical weathering in ice sheets, and storage and cycling of organic carbon in excess of 100 billion tonnes.
+There is a massive contrast in carbon storage between the two ice sheets. While only about 0.5-27 billion tonnes of pure carbon are present underneath the Greenland ice sheet, 6000-21,000 billion tonnes of pure carbon are thought to be located underneath Antarctica. This carbon can act as a climate change feedback if it is gradually released through meltwater, thus increasing overall carbon dioxide emissions.
+For comparison, 1400–1650 billion tonnes are contained within the Arctic permafrost. Also for comparison, the annual human caused carbon dioxide emissions amount to around 40 billion tonnes of CO2.
+In Greenland, there is one known area, at Russell Glacier, where meltwater carbon is released into the atmosphere as methane, which has a much larger global warming potential than carbon dioxide. However, it also harbours large numbers of methanotrophic bacteria, which limit those emissions.
+
+
+== In geologic timescales ==
+
+Normally, the transitions between glacial and interglacial states are governed by Milankovitch cycles, which are patterns in insolation (the amount of sunlight reaching the Earth). These patterns are caused by the variations in shape of the Earth's orbit and its angle relative to the Sun, caused by the gravitational pull of other planets as they go through their own orbits.
+For instance, during at least the last 100,000 years, portions of the ice sheet covering much of North America, the Laurentide Ice Sheet broke apart sending large flotillas of icebergs into the North Atlantic. When these icebergs melted they dropped the boulders and other continental rocks they carried, leaving layers known as ice rafted debris. These so-called Heinrich events, named after their discoverer Hartmut Heinrich, appear to have a 7,000–10,000-year periodicity, and occur during cold periods within the last interglacial.
+Internal ice sheet "binge-purge" cycles may be responsible for the observed effects, where the ice builds to unstable levels, then a portion of the ice sheet collapses. External factors might also play a role in forcing ice sheets. Dansgaard–Oeschger events are abrupt warmings of the northern hemisphere occurring over the space of perhaps 40 years. While these D–O events occur directly after each Heinrich event, they also occur more frequently – around every 1500 years; from this evidence, paleoclimatologists surmise that the same forcings may drive both Heinrich and D–O events.
+Hemispheric asynchrony in ice sheet behavior has been observed by linking short-term spikes of methane in Greenland ice cores and Antarctic ice cores. During Dansgaard–Oeschger events, the northern hemisphere warmed considerably, dramatically increasing the release of methane from wetlands, that were otherwise tundra during glacial times. This methane quickly distributes evenly across the globe, becoming incorporated in Antarctic and Greenland ice. With this tie, paleoclimatologists have been able to say that the ice sheets on Greenland only began to warm after the Antarctic ice sheet had been warming for several thousand years. Why this pattern occurs is still open for debate.
+
+
+=== Antarctic ice sheet during geologic timescales ===
+
+
+=== Greenland ice sheet during geologic timescales ===
+
+
+== See also ==
+Cryosphere – Earth's surface where water is frozen
+Ice planet – Planet with an icy surface
+Quaternary glaciation – Series of alternating glacial and interglacial periods
+Snowball Earth – Worldwide glaciation episodes during the Proterozoic eon
+Wisconsin glaciation – Glaciation in North America during the Last Glacial Period
+Ice-sheet model – Simulation of ice sheet change
+
+
+== References ==
+
+
+== External links ==
+United Nations Environment Programme: Global Outlook for Ice and Snow
+Marine Ice Sheet Instability "For Dummies"
