@@ -218,7 +218,7 @@ function landScene(p) {
       sea.material.color.copy(seaC).lerp(iceC, w);
     } else snow.visible = false;
     sc.background = sky;
-    dl.intensity = p.night ? 0 : (0.1 + 1.1 * Math.max(day, vac)) * (1 - off); amb.intensity = p.night ? 0.13 : (0.22 + 0.45 * day * (1 - vac)) * (1 - off * 0.6);
+    dl.intensity = p.night ? 0 : (0.1 + 1.1 * Math.max(day, vac)) * (1 - off); amb.intensity = p.night ? 0.24 : (0.22 + 0.45 * day * (1 - vac)) * (1 - off * 0.6);
     st.visible = day * (1 - vac) * (1 - off) < 0.55; sun.visible = !p.night && off < 0.99; sun.scale.setScalar((p.sun_scale || 1) * (1 - off));
     if (p.cloud_off !== undefined) {                     // 雲が消える（その場で縮んで消える）
       const k = Math.max(0.001, 1 - sstep((u - p.cloud_off) / 0.12)); clouds.children.forEach(m => m.scale.setScalar(k)); clouds.visible = k > 0.01;
