@@ -613,7 +613,7 @@ function orbitScene(p) {
     if (p.untilt_at !== undefined) tilt *= 1 - sstep((u - p.untilt_at) / 0.12);
     tiltG.rotation.set(0, 0, tilt);                       // 傾きの向きは公転しても変わらない
     e.rotation.y = t * 5; sun.rotation.y = t * 0.3;
-    C.position.set(lerp(5, -5, u), 40, lerp(44, 40, u)); C.lookAt(0, -2, 0);
+    C.position.set(lerp(4, -4, u), 50, lerp(62, 58, u)); C.lookAt(0, -6, 0);   // 公転の円が縦画面に収まる距離
   };
 }
 
