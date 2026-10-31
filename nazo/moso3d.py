@@ -148,9 +148,8 @@ def fx_timer(fr, fx, t, burst_t):
     """計器盤風の秒読み：3.00 → 0.00（1/100秒きざみ）。目盛りの弧と針、0.00で赤く点滅"""
     d = ImageDraw.Draw(fr, "RGBA")
     v = max(0.0, fx["from"] - max(0.0, t - fx["at"]))
-    boot = t < fx["at"]                                      # 読み上げ「月を消すまで」の間：計器が起動して数字がばらつく
-    if boot:                                                 # 0.00 から 3.00 まで駆け上がって構える
-        v = fx["from"] * ease(t / max(0.1, fx["at"] - 0.2))
+    boot = t < fx["at"]                                      # 「3」の声より前（3.00 で止めておく）
+    # 読み上げ「月を消すまで」の間は 3.00 のまま構え、「3」の声から単調に減る
     cx, cy = W // 2, 470                                     # 月が画面の中央に見えるよう、盤は上に寄せる
     pop = back(t / 0.25)
     R = int(270 * pop)
@@ -210,10 +209,13 @@ def fx_count(fr, fx, t, dur):
     if u < 0:
         return
     d = ImageDraw.Draw(fr)
-    v = fx["from"] + (fx["to"] - fx["from"]) * ease(u / max(0.5, dur * 0.6))
+    T = max(0.5, dur * 0.45)                                 # 文の半ばで目標の数に着き、そのあとは止める
+    done = u >= T
+    v = fx["to"] if done else fx["from"] + (fx["to"] - fx["from"]) * min(ease(u / T), 0.999)
     stroke_text(d, W // 2, 470, fx.get("label", ""), 110, WHT, 12)
-    pop = 1.0 + (0.25 * math.exp(-(u - dur * 0.6) * 10) if u > dur * 0.6 else 0)
-    stroke_text(d, W // 2, 660, f"{int(round(v))}{fx.get('unit', '')}", int(220 * pop), YEL, 16)
+    pop = 1.0 + (0.25 * math.exp(-(u - T) * 10) if done else 0)
+    num = f"{int(v)}{fx.get('unit', '')}"
+    stroke_text(d, W // 2, 660, (fx.get("prefix", "") + num) if done else num, int(220 * pop), YEL, 16)
     stroke_text(d, W // 2, 820, f"いまは{fx['from']}{fx.get('unit', '')}", 60, WHT, 8)
 
 
@@ -437,7 +439,7 @@ def build(sid):
     else:
         sys.exit(f"BGM {bgm_file} がない（復号前）。CIで作る")
     fc = (f"[1:a]aresample=48000[v];[2:a]aresample=48000,volume={sp.get('bgm_vol', 0.15)}[m];"
-          "[v][m]amix=inputs=2:normalize=0:duration=first,loudnorm=I=-14:TP=-1.5:LRA=11[a]")
+          "[v][m]amix=inputs=2:normalize=0:duration=first,loudnorm=I=-14:TP=-1.5:LRA=11,aresample=48000,alimiter=limit=0.79:level=disabled[a]")   # 既存と同じ -1.5dB 以下に（loudnorm だけでは 0dB に触れた）
     subprocess.run(["ffmpeg", "-y", "-v", "error", "-i", f"{B}/all.mp4", "-i", f"{B}/all_a.wav", "-i", f"{B}/bgm.wav",
                     "-filter_complex", fc, "-map", "0:v", "-map", "[a]", "-c:v", "copy", "-c:a", "aac", "-b:a", "192k", out], check=True)
     # ---- 確認用のコマ割りと投稿キット（投稿はしない）
