@@ -447,8 +447,7 @@ def build(sid):
             ft = motion.font(int((100 if max(len(x) for x in tel) <= 7 else 84) * (0.85 + 0.15 * e)))
             y = TEL_Y
             for j, l in enumerate(tel):
-                fg_, bg_ = (BLK, YEL) if j == len(tel) - 1 else (WHT, BLK)
-                _, hh = motion.box_text(dr, W // 2, y, l, ft, fg_, bg_, 34, 18, anchor="ct")
+                _, hh = motion.box_text(dr, W // 2, y, l, ft, WHT, BLK, 34, 18, anchor="ct")   # 字幕は2行とも黒地に白文字
                 y += hh + 14
             dr.text((30, H - 50), f"VOICEVOX:{sp.get('voice_name', '')}", font=f_cr, fill=(200, 200, 200))
             pr.stdin.write(fr.tobytes())

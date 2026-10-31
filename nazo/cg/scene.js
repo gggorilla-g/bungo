@@ -366,7 +366,67 @@ function spaceScene(p) {
   };
 }
 
-const SCENES = { land: landScene, flight: flightScene, rewind: rewindScene, spin: spinScene, axis: axisScene, space: spaceScene };
+
+// ---------- 場面：潮のふくらみ（月の引力が海を引っぱり、自転にブレーキがかかる） ----------
+// 出典：Wikipedia「Tidal acceleration」— 海は月の側と反対側にふくらむ。自転でふくらみが月より前へ引きずられ、
+//       そのずれが地球の自転を遅くする。
+//   p.drag   … ふくらみを回転の向きに少しずらし、地球の回転をだんだん遅くする（ブレーキ）
+//   p.vanish … 月が消え、ふくらみが引いて、回転が速くなっていく（ブレーキなし）
+function tideScene(p) {
+  const sc = CUR = new THREE.Scene(); sc.background = new THREE.Color(0x02030a);
+  sc.add(stars(1800, 600, 2.4)); sc.add(new THREE.AmbientLight(0xffffff, 0.45));
+  const dl = new THREE.DirectionalLight(0xffffff, 1.2); dl.position.set(-60, 40, 100); sc.add(dl);
+  const R0 = 13;
+  const eg = new THREE.Group(); sc.add(eg);           // 地球は z 軸（こちら向き）のまわりに回る
+  const earth = planet(R0, earthColor); eg.add(earth);
+  const moon = planet(5, moonColor); const MP = new THREE.Vector3(0, 38, 0); moon.position.copy(MP); sc.add(moon);
+  // 海のふくらみ：球の表面の向きごとに、外へ伸びる水のブロック
+  const dirs = shell(R0, () => 0).map(b => new THREE.Vector3(b[0], b[1], b[2]).normalize());
+  const water = new THREE.InstancedMesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshLambertMaterial({ color: 0x3a8ee6 }), dirs.length);
+  sc.add(water);
+  const o = new THREE.Object3D();
+  // 回転の向きを示す赤い矢印ブロックの輪（地球と一緒に回る）
+  const ring = new THREE.Group(); sc.add(ring);
+  for (let i = 0; i < 6; i++) {                        // 矢印＝長い棒＋先の大きなブロック（反時計回り）
+    const a = i / 6 * Math.PI * 2, r = R0 + 8;
+    const g = new THREE.Group(); g.rotation.z = a; ring.add(g);
+    const mat = new THREE.MeshBasicMaterial({ color: 0xff4a3a });
+    for (let k = 0; k < 4; k++) { const b = new THREE.Mesh(new THREE.BoxGeometry(1.1, 1.1, 1.1), mat); const q = k * 0.11; b.position.set(Math.cos(q) * r, Math.sin(q) * r, 0); g.add(b); }
+    const tip = new THREE.Mesh(new THREE.BoxGeometry(2.2, 2.2, 1.2), mat); tip.position.set(Math.cos(0.48) * r, Math.sin(0.48) * r, 0); tip.rotation.z = 0.48 + 0.78; g.add(tip);
+  }
+  // 引力の流れ（地球から月へ向かう小さなブロック）
+  const pull = [];
+  for (let i = 0; i < 18; i++) {
+    const m = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.9, 0.9), new THREE.MeshBasicMaterial({ color: 0xffe14a }));
+    m.userData = { x: (i % 3 - 1) * 5, k: i / 18 }; sc.add(m); pull.push(m);
+  }
+  let ang = 0;
+  return (t, d) => {
+    const u = t / d;
+    let spd = 1.4, bulge = Math.min(1, t / 0.6), lag = 0, gone = 0;
+    if (p.drag) { spd = lerp(2.6, 0.5, sstep(u)); bulge = 1; lag = 0.42 * sstep(u / 0.4); }
+    if (p.vanish) { gone = sstep((u - 0.1) / 0.35); spd = lerp(0.5, 4.5, sstep((u - 0.2) / 0.8)); bulge = 1 - gone; lag = 0.42 * (1 - gone); }
+    ang = spd * t + (p.drag ? -1.2 * t * t / d : 0);
+    eg.rotation.z = ang; ring.rotation.z = ang * 0.999;
+    
+    moon.visible = gone < 0.98; moon.scale.setScalar(Math.max(0.01, 1 - gone)); moon.rotation.y = t * 0.6;
+    const axis = new THREE.Vector3(-Math.sin(lag), Math.cos(lag), 0);   // ふくらみの向き（回転の向きへ lag だけずれる）
+    dirs.forEach((v, i) => {
+      const c = v.dot(axis), h = bulge * 6.5 * Math.max(0, c * c - 0.35) / 0.65;   // ふくらみの所だけ水を盛る（ほかは陸と海が見える）
+      o.position.copy(v).multiplyScalar(R0 + h / 2 - 0.5);
+      o.lookAt(o.position.clone().multiplyScalar(2)); o.scale.set(h > 0.15 ? 1 : 0.001, h > 0.15 ? 1 : 0.001, Math.max(h, 0.001) + 0.6);
+      o.updateMatrix(); water.setMatrixAt(i, o.matrix);
+    });
+    water.instanceMatrix.needsUpdate = true;
+    pull.forEach(m => {
+      const q = (m.userData.k + t * 0.9) % 1; m.visible = !p.drag && gone < 0.5;
+      m.position.set(m.userData.x * (1 - q) * 0.6, R0 + 7 + q * (MP.y - R0 - 13), 2);
+    });
+    C.position.set(lerp(-6, 6, u), 10, lerp(96, 88, u)); C.lookAt(0, 10, 0);
+  };
+}
+
+const SCENES = { tide: tideScene, land: landScene, flight: flightScene, rewind: rewindScene, spin: spinScene, axis: axisScene, space: spaceScene };
 
 window.setup = (j) => {
   job = j; seed = 12345;
