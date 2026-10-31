@@ -1,0 +1,6 @@
+moso_bh 30.600000
+moso_hole 30.000000
+moso_jupiter 44.600000
+moso_stop 34.300000
+moso_light 31.900000
+moso_time 30.100000
