@@ -1,0 +1,1259 @@
+https://en.wikipedia.org/wiki/Scale_height
+
+In physics, a scale height, usually denoted by the capital letter H, is a distance (vertical or radial) over which a physical quantity decreases by a factor of e (the base of natural logarithms, approximately 2.718).
+
+
+== Scale height used in a simple atmospheric pressure model ==
+For planetary atmospheres, scale height is the increase in altitude for which the atmospheric pressure decreases by a factor of e. The scale height remains constant for a particular temperature. It can be calculated by
+
+  
+    
+      
+        H
+        =
+        
+          
+            
+              
+                k
+                
+                  B
+                
+              
+              T
+            
+            
+              m
+              g
+            
+          
+        
+        ,
+      
+    
+    {\displaystyle H={\frac {k_{\text{B}}T}{mg}},}
+  
+
+or equivalently,
+
+  
+    
+      
+        H
+        =
+        
+          
+            
+              R
+              T
+            
+            
+              M
+              g
+            
+          
+        
+        ,
+      
+    
+    {\displaystyle H={\frac {RT}{Mg}},}
+  
+
+where
+
+kB = Boltzmann constant = 1.381×10−23 J⋅K−1‍
+R = molar gas constant = 8.31446 J⋅K−1⋅mol−1
+T = mean atmospheric temperature in kelvins = 250 K for Earth
+m = mean mass of a molecule
+M = mean molar mass of atmospheric particles = 0.029 kg/mol for Earth
+g = acceleration due to gravity at the current location
+The pressure (force per unit area) at a given altitude is a result of the weight of the overlying atmosphere. If at a height of z the atmosphere has density ρ and pressure P, then moving upwards an infinitesimally small height dz will decrease the pressure by amount dP, equal to the weight of a layer of atmosphere of thickness dz.
+Thus:
+
+  
+    
+      
+        
+          
+            
+              d
+              P
+            
+            
+              d
+              z
+            
+          
+        
+        =
+        −
+        g
+        ρ
+        ,
+      
+    
+    {\displaystyle {\frac {dP}{dz}}=-g\rho ,}
+  
+
+where g is the acceleration due to gravity. For small dz it is possible to assume g to be constant; the minus sign indicates that as the height increases the pressure decreases. Therefore, using the equation of state for an ideal gas of mean molecular mass M at temperature T, the density can be expressed as
+
+  
+    
+      
+        ρ
+        =
+        
+          
+            
+              M
+              P
+            
+            
+              R
+              T
+            
+          
+        
+        .
+      
+    
+    {\displaystyle \rho ={\frac {MP}{RT}}.}
+  
+
+Combining these equations gives
+
+  
+    
+      
+        
+          
+            
+              d
+              P
+            
+            P
+          
+        
+        =
+        
+          
+            
+              −
+              d
+              z
+            
+            
+              
+                
+                  k
+                  
+                    B
+                  
+                
+                T
+              
+              
+                /
+              
+              
+                m
+                g
+              
+            
+          
+        
+        ,
+      
+    
+    {\displaystyle {\frac {dP}{P}}={\frac {-dz}{{k_{\text{B}}T}/{mg}}},}
+  
+
+which can then be incorporated with the equation for H given above to give
+
+  
+    
+      
+        
+          
+            
+              d
+              P
+            
+            P
+          
+        
+        =
+        −
+        
+          
+            
+              d
+              z
+            
+            H
+          
+        
+        ,
+      
+    
+    {\displaystyle {\frac {dP}{P}}=-{\frac {dz}{H}},}
+  
+
+which will not change unless the temperature does. Integrating the above and assuming P0 is the pressure at height z = 0 (pressure at sea level), the pressure at height z can be written as
+
+  
+    
+      
+        P
+        =
+        
+          P
+          
+            0
+          
+        
+        exp
+        ⁡
+        
+          (
+          
+            −
+            
+              
+                z
+                H
+              
+            
+          
+          )
+        
+        .
+      
+    
+    {\displaystyle P=P_{0}\exp \left(-{\frac {z}{H}}\right).}
+  
+
+This translates as the pressure decreasing exponentially with height.
+In Earth's atmosphere, the pressure at sea level P0 averages about 1.01×105 Pa, the mean molecular mass of dry air is 28.964 Da, and hence m = 28.964 Da × 1.660×10−27 kg/Da = 4.808×10−26 kg. As a function of temperature, the scale height of Earth's atmosphere is therefore H/T = kB/mg = 1.381×10−23 J⋅K−1 / (4.808×10−26 kg × 9.81 m⋅s−2) = 29.28 m/K. This yields the following scale heights for representative air temperatures:
+
+T = 290 K, H = 8500 m,
+T = 273 K, H = 8000 m,
+T = 260 K, H = 7610 m,
+T = 210 K, H = 6000 m.
+These figures should be compared with the temperature and density of Earth's atmosphere plotted at NRLMSISE-00, which shows the air density dropping from 1200 g/m3 at sea level to 0.125 g/m3 at 70 km, a factor of 9600, indicating an average scale height of 70 / ln(9600) = 7.64 km, consistent with the indicated average air temperature over that range of close to 260 K.
+Note:
+
+Density is related to pressure by the ideal gas laws. Therefore, density will also decrease exponentially with height from a sea-level value of ρ0 roughly equal to 1.2 kg⋅m−3.
+At an altitude over 100 km, the atmosphere is no longer well-mixed, and each chemical species has its own scale height.
+Here temperature and gravitational acceleration were assumed to be constant, but both may vary over large distances.
+
+
+== Planetary examples ==
+Approximate atmospheric scale heights for selected Solar System bodies:
+
+
+== Scale height for a thin disk ==
+
+For a disk of gas around a condensed central object, such as, for example, a protostar, one can derive a disk scale height which is somewhat analogous to the planetary scale height. We start with a disc of gas that has a mass small relative to the central object. We assume that the disc is in hydrostatic equilibrium with the z component of gravity from the star, where the gravity component is pointing to the midplane of the disk:
+
+  
+    
+      
+        
+          
+            
+              d
+              P
+            
+            
+              d
+              z
+            
+          
+        
+        =
+        −
+        
+          
+            
+              G
+              
+                M
+                
+                  ∗
+                
+              
+              ρ
+              z
+            
+            
+              (
+              
+                r
+                
+                  2
+                
+              
+              +
+              
+                z
+                
+                  2
+                
+              
+              
+                )
+                
+                  3
+                  
+                    /
+                  
+                  2
+                
+              
+            
+          
+        
+        ,
+      
+    
+    {\displaystyle {\frac {dP}{dz}}=-{\frac {GM_{*}\rho z}{(r^{2}+z^{2})^{3/2}}},}
+  
+
+where
+
+G = Newtonian constant of gravitation ≈ 6.674×10−11 m3⋅kg−1⋅s−2‍
+r = the radial cylindrical coordinate for the distance from the center of the star or centrally condensed object
+z = the height/altitude cylindrical coordinate for the distance from the disk midplane (or center of the star)
+M* = the mass of the star/centrally condensed object
+P = the pressure of the gas in the disk
+
+  
+    
+      
+        ρ
+      
+    
+    {\displaystyle \rho }
+  
+ = the gas mass density in the disk
+In the thin disk approximation, 
+  
+    
+      
+        z
+        ≪
+        r
+      
+    
+    {\displaystyle z\ll r}
+  
+, and the hydrostatic equilibrium, the equation is
+
+  
+    
+      
+        
+          
+            
+              d
+              P
+            
+            
+              d
+              z
+            
+          
+        
+        ≈
+        −
+        
+          
+            
+              G
+              
+                M
+                
+                  ∗
+                
+              
+              ρ
+              z
+            
+            
+              r
+              
+                3
+              
+            
+          
+        
+        .
+      
+    
+    {\displaystyle {\frac {dP}{dz}}\approx -{\frac {GM_{*}\rho z}{r^{3}}}.}
+  
+
+To determine the gas pressure, one can use the ideal gas law:
+
+  
+    
+      
+        P
+        =
+        
+          
+            
+              ρ
+              
+                k
+                
+                  B
+                
+              
+              T
+            
+            
+              
+                m
+                ¯
+              
+            
+          
+        
+      
+    
+    {\displaystyle P={\frac {\rho k_{\text{B}}T}{\bar {m}}}}
+  
+
+with
+
+T = the gas temperature in the disk, where the temperature is a function of r, but independent of z
+
+  
+    
+      
+        
+          
+            
+              m
+              ¯
+            
+          
+        
+      
+    
+    {\displaystyle {\bar {m}}}
+  
+ = the mean molecular mass of the gas
+Using the ideal gas law and the hydrostatic equilibrium equation, gives
+
+  
+    
+      
+        
+          
+            
+              d
+              ρ
+            
+            
+              d
+              z
+            
+          
+        
+        ≈
+        −
+        
+          
+            
+              G
+              
+                M
+                
+                  ∗
+                
+              
+              
+                
+                  
+                    m
+                    ¯
+                  
+                
+              
+              ρ
+              z
+            
+            
+              
+                k
+                
+                  B
+                
+              
+              T
+              
+                r
+                
+                  3
+                
+              
+            
+          
+        
+        ,
+      
+    
+    {\displaystyle {\frac {d\rho }{dz}}\approx -{\frac {GM_{*}{\bar {m}}\rho z}{k_{\text{B}}Tr^{3}}},}
+  
+
+which has the solution
+
+  
+    
+      
+        ρ
+        =
+        
+          ρ
+          
+            0
+          
+        
+        exp
+        ⁡
+        
+          (
+          
+            −
+            
+              
+                (
+                
+                  
+                    z
+                    
+                      h
+                      
+                        D
+                      
+                    
+                  
+                
+                )
+              
+              
+                2
+              
+            
+          
+          )
+        
+        ,
+      
+    
+    {\displaystyle \rho =\rho _{0}\exp \left(-\left({\frac {z}{h_{\text{D}}}}\right)^{2}\right),}
+  
+
+where 
+  
+    
+      
+        
+          ρ
+          
+            0
+          
+        
+      
+    
+    {\displaystyle \rho _{0}}
+  
+ is the gas mass density at the midplane of the disk at a distance r from the center of the star, and 
+  
+    
+      
+        
+          h
+          
+            D
+          
+        
+      
+    
+    {\displaystyle h_{\text{D}}}
+  
+ is the disk scale height with
+
+  
+    
+      
+        
+          h
+          
+            D
+          
+        
+        =
+        
+          
+            
+              
+                2
+                
+                  k
+                  
+                    B
+                  
+                
+                T
+                
+                  r
+                  
+                    3
+                  
+                
+              
+              
+                G
+                
+                  M
+                  
+                    ∗
+                  
+                
+                
+                  
+                    
+                      m
+                      ¯
+                    
+                  
+                
+              
+            
+          
+        
+        ≈
+        0.0306
+        
+          
+            
+              
+                (
+                T
+                
+                  /
+                
+                100
+                 
+                
+                  K
+                
+                )
+                (
+                r
+                
+                  /
+                
+                1
+                 
+                
+                  au
+                
+                
+                  )
+                  
+                    3
+                  
+                
+              
+              
+                (
+                
+                  M
+                  
+                    ∗
+                  
+                
+                
+                  /
+                
+                
+                  M
+                  
+                    ⊙
+                  
+                
+                )
+                (
+                
+                  
+                    
+                      m
+                      ¯
+                    
+                  
+                
+                
+                  /
+                
+                2
+                 
+                
+                  Da
+                
+                )
+              
+            
+          
+        
+         
+        
+          au
+        
+        ,
+      
+    
+    {\displaystyle h_{\text{D}}={\sqrt {\frac {2k_{\text{B}}Tr^{3}}{GM_{*}{\bar {m}}}}}\approx 0.0306{\sqrt {\frac {(T/100~{\text{K}})(r/1~{\text{au}})^{3}}{(M_{*}/M_{\odot })({\bar {m}}/2~{\text{Da}})}}}~{\text{au}},}
+  
+
+with 
+  
+    
+      
+        
+          M
+          
+            ⊙
+          
+        
+      
+    
+    {\displaystyle M_{\odot }}
+  
+ the solar mass, 
+  
+    
+      
+        
+          au
+        
+      
+    
+    {\displaystyle {\text{au}}}
+  
+ the astronomical unit, and 
+  
+    
+      
+        
+          Da
+        
+      
+    
+    {\displaystyle {\text{Da}}}
+  
+ the dalton.
+As an illustrative approximation, if we ignore the radial variation in the temperature 
+  
+    
+      
+        T
+      
+    
+    {\displaystyle T}
+  
+, we see that 
+  
+    
+      
+        
+          h
+          
+            D
+          
+        
+        ∝
+        
+          r
+          
+            3
+            
+              /
+            
+            2
+          
+        
+      
+    
+    {\displaystyle h_{\text{D}}\propto r^{3/2}}
+  
+ and that the disk increases in altitude as one moves radially away from the central object.
+Due to the assumption that the gas temperature T in the disk is independent of z, 
+  
+    
+      
+        
+          h
+          
+            D
+          
+        
+      
+    
+    {\displaystyle h_{\text{D}}}
+  
+ is sometimes known as the isothermal disk scale height.
+
+
+== Disk scale height in a magnetic field ==
+A magnetic field in a thin gas disk around a central object can change the scale height of the disk. For example, if a non-perfectly conducting disk is rotating through a poloidal magnetic field (i.e., the initial magnetic field is perpendicular to the plane of the disk), then a toroidal (i.e., parallel to the disk plane) magnetic field will be produced within the disk, which will pinch and compress the disk. In this case, the gas density of the disk is
+
+  
+    
+      
+        ρ
+        (
+        r
+        ,
+        z
+        )
+        =
+        
+          ρ
+          
+            0
+          
+        
+        (
+        r
+        )
+        exp
+        ⁡
+        
+          (
+          
+            −
+            
+              
+                (
+                
+                  
+                    z
+                    
+                      h
+                      
+                        D
+                      
+                    
+                  
+                
+                )
+              
+              
+                2
+              
+            
+          
+          )
+        
+        −
+        
+          ρ
+          
+            cut
+          
+        
+        (
+        r
+        )
+        
+          [
+          
+            1
+            −
+            exp
+            ⁡
+            
+              (
+              
+                −
+                
+                  
+                    (
+                    
+                      
+                        z
+                        
+                          h
+                          
+                            D
+                          
+                        
+                      
+                    
+                    )
+                  
+                  
+                    2
+                  
+                
+              
+              )
+            
+          
+          ]
+        
+        ,
+      
+    
+    {\displaystyle \rho (r,z)=\rho _{0}(r)\exp \left(-\left({\frac {z}{h_{\text{D}}}}\right)^{2}\right)-\rho _{\text{cut}}(r)\left[1-\exp \left(-\left({\frac {z}{h_{\text{D}}}}\right)^{2}\right)\right],}
+  
+
+where the cut-off density 
+  
+    
+      
+        
+          ρ
+          
+            cut
+          
+        
+      
+    
+    {\displaystyle \rho _{\text{cut}}}
+  
+ has the form
+
+  
+    
+      
+        
+          ρ
+          
+            cut
+          
+        
+        (
+        r
+        )
+        =
+        (
+        
+          μ
+          
+            0
+          
+        
+        
+          σ
+          
+            D
+          
+        
+        r
+        
+          )
+          
+            2
+          
+        
+        
+          
+            
+              B
+              
+                z
+              
+              
+                2
+              
+            
+            
+              μ
+              
+                0
+              
+            
+          
+        
+        
+          
+            (
+            
+              
+                
+                  
+                    Ω
+                    
+                      ∗
+                    
+                  
+                  
+                    Ω
+                    
+                      K
+                    
+                  
+                
+              
+              −
+              1
+            
+            )
+          
+          
+            2
+          
+        
+        ,
+      
+    
+    {\displaystyle \rho _{\text{cut}}(r)=(\mu _{0}\sigma _{\text{D}}r)^{2}{\frac {B_{z}^{2}}{\mu _{0}}}\left({\frac {\Omega _{*}}{\Omega _{\text{K}}}}-1\right)^{2},}
+  
+
+where
+
+  
+    
+      
+        
+          μ
+          
+            0
+          
+        
+      
+    
+    {\displaystyle \mu _{0}}
+  
+ is the permeability of free space
+
+  
+    
+      
+        
+          σ
+          
+            D
+          
+        
+      
+    
+    {\displaystyle \sigma _{\text{D}}}
+  
+ is the electrical conductivity of the disk
+
+  
+    
+      
+        
+          B
+          
+            z
+          
+        
+      
+    
+    {\displaystyle B_{z}}
+  
+ is the magnetic flux density of the poloidal field in the 
+  
+    
+      
+        z
+      
+    
+    {\displaystyle z}
+  
+ direction
+
+  
+    
+      
+        
+          Ω
+          
+            ∗
+          
+        
+      
+    
+    {\displaystyle \Omega _{*}}
+  
+ is the rotational angular velocity of the central object (if the poloidal magnetic field is independent of the central object, then 
+  
+    
+      
+        
+          Ω
+          
+            ∗
+          
+        
+      
+    
+    {\displaystyle \Omega _{*}}
+  
+ can be set to zero)
+
+  
+    
+      
+        
+          Ω
+          
+            K
+          
+        
+      
+    
+    {\displaystyle \Omega _{\text{K}}}
+  
+ is the keplerian angular velocity of the disk at a distance 
+  
+    
+      
+        r
+      
+    
+    {\displaystyle r}
+  
+ from the central object.
+These formulae give the maximum height of the magnetized disk as
+
+  
+    
+      
+        
+          H
+          
+            B
+          
+        
+        =
+        
+          h
+          
+            D
+          
+        
+        
+          
+            ln
+            ⁡
+            
+              (
+              
+                1
+                +
+                
+                  ρ
+                  
+                    0
+                  
+                
+                
+                  /
+                
+                
+                  ρ
+                  
+                    cut
+                  
+                
+              
+              )
+            
+          
+        
+        ,
+      
+    
+    {\displaystyle H_{\text{B}}=h_{\text{D}}{\sqrt {\ln \left(1+\rho _{0}/\rho _{\text{cut}}\right)}},}
+  
+
+while the e-folding magnetic scale height is
+
+  
+    
+      
+        
+          h
+          
+            B
+          
+        
+        =
+        
+          h
+          
+            D
+          
+        
+        
+          
+            ln
+            ⁡
+            
+              (
+              
+                1
+                +
+                
+                  
+                    
+                      1
+                      −
+                      1
+                      
+                        /
+                      
+                      e
+                    
+                    
+                      1
+                      
+                        /
+                      
+                      e
+                      +
+                      
+                        ρ
+                        
+                          cut
+                        
+                      
+                      
+                        /
+                      
+                      
+                        ρ
+                        
+                          0
+                        
+                      
+                    
+                  
+                
+              
+              )
+            
+          
+        
+        .
+      
+    
+    {\displaystyle h_{\text{B}}=h_{\text{D}}{\sqrt {\ln \left(1+{\frac {1-1/e}{1/e+\rho _{\text{cut}}/\rho _{0}}}\right)}}.}
+  
+
+
+== See also ==
+Time constant
+
+
+== References ==

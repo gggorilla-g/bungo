@@ -1,0 +1,96 @@
+https://en.wikipedia.org/wiki/Equinox
+
+A solar equinox is a moment in time when the Sun appears directly above the equator, rather than to its north or south. On the day of the equinox, the Sun rises almost exactly in the east and sets almost exactly in the west. This occurs twice each year, around 20 March and 23 September.
+An equinox is defined as the time when the plane of Earth's equator passes through the geometric center of the Sun's disk. This is also the moment when Earth's rotation axis is perpendicular to the Sun-Earth line, tilting neither toward nor away from the Sun. Because the Moon and (to a lesser extent) the planets cause Earth's orbit to vary slightly from a perfect ellipse, the equinox is officially defined by the Sun's more regular ecliptic longitude rather than by its declination. The instants of the equinoxes are currently defined to be when the apparent geocentric longitude of the Sun is 0° and 180°.
+The word is derived from the Latin aequinoctium, from aequa (equal) and nox (night). On the day of an equinox, daytime and nighttime are of approximately equal duration all over the planet. Contrary to popular belief, they are not exactly equal, due to the angular size of the Sun, atmospheric refraction, and the changing duration of the length of day that occurs at most latitudes around the equinoxes. 
+Long before conceiving this equality, equatorial cultures noted the day when the Sun rises due east and sets due west, and indeed this happens on the day closest to the astronomically defined event. As a consequence, according to a constructed and aligned sundial, the daytime duration is 12 hours.
+In the Northern Hemisphere, the March equinox is called the vernal or spring equinox while the September equinox is called the autumnal or fall equinox. In the Southern Hemisphere, the reverse is true. During the year, equinoxes alternate with solstices. Leap years and other factors cause the dates of both events to vary slightly.
+Hemisphere-neutral names are northward equinox for the March equinox, indicating that at that moment the solar declination is crossing the celestial equator in a northward direction, and southward equinox for the September equinox, indicating that at that moment the solar declination is crossing the celestial equator in a southward direction.
+For low and mid-latitudes, daytime is increasing most near the vernal equinox, and decreasing most near the autumnal equinox.
+
+
+== Description ==
+
+Observing the sunrise, people discovered it occurs between two extreme locations at the horizon and noted the midpoint between the two. Later, it was discovered this happens on a day when the duration of the day and the night are practically equal, giving its word, "equinox" coming from Latin aequus, meaning "equal",  and nox, meaning "night".
+In the northern hemisphere, the vernal equinox (March) marks the beginning of spring in most cultures and is considered the start of the New Year in the Assyrian calendar, Hindu, and the Persian or Iranian calendars, while the autumnal equinox (September) marks the beginning of autumn. Ancient Greek calendars too had the beginning of the year either at the autumnal or vernal equinox and some at solstices. The Antikythera mechanism predicts the equinoxes and solstices.
+The equinoxes are the only times when the solar terminator (the "edge" between night and day) is perpendicular to the equator. As a result, the northern and southern hemispheres are equally illuminated.
+For the same reason, this is also the time when the Sun rises for an observer at one of Earth's rotational poles and sets at the other. For a brief period lasting approximately four days, both North and South Poles are in daylight. For example, in 2021 sunrise on the North Pole is 18 March 07:09 UTC, and sunset on the South Pole is 22 March 13:08 UTC. Also in 2021, sunrise on the South Pole is 20 September 16:08 UTC, and sunset on the North Pole is 24 September 22:30 UTC.
+The equinoxes are the only times when the subsolar point is on the equator, making the Sun exactly overhead at a point on the equatorial line. Its subsolar point crosses the equator moving northward at the March equinox and southward at the September equinox.
+
+
+== Date determination ==
+When Julius Caesar established the Julian calendar in 45 BC, he set 25 March as the date of the spring equinox; this was already the starting day of the year in the Persian and Indian calendars. Because the Julian year is longer than the tropical year by about 11.3 minutes on average (or 1 day in 128 years), the calendar drifted with respect to the two equinoxes, so that in 300 AD the spring equinox occurred on about 21 March, and by the 1580s AD it had drifted backwards to 11 March.
+
+This drift induced Pope Gregory XIII to establish the modern Gregorian calendar. It was to conform with the edicts of the Council of Nicaea in 325 AD concerning the date of Easter, which means he wanted to move the vernal equinox to the date on which it fell at that time (21 March is the day allocated to it in the Easter table of the Julian calendar), and to maintain it at around that date in the future, which he achieved by reducing the number of leap years from 100 to 97 every 400 years. However, there remained a small residual variation in the date and time of the vernal equinox of about ±27 hours from its mean position, all because the distribution of 24 hour centurial leap-days causes large jumps.
+
+
+=== Modern dates ===
+The dates of the equinoxes change during the leap-year cycle, due to the Gregorian calendar year not commensurating with the period of the Earth's revolution about the Sun. It is only after a complete Gregorian leap-year cycle of 400 years that the seasons commence at approximately the same time. In the 21st century the earliest March equinox will be 19 March 2096, while the latest was 21 March 2003. The earliest September equinox will be 21 September 2096 while the latest was 23 September 2003 in universal time.
+
+
+=== Unequal intervals between equinoxes ===
+Because the movement of the Earth on its orbit obeys Kepler's laws of planetary motion, the interval from March equinox to September equinox is about 186 days, while the interval from September equinox to March equinox is about 179 days, which makes the  polar day at the North Pole about 7 days longer than that at the South Pole.
+
+
+== Names ==
+The Sun, in its apparent motion along the ecliptic crosses the celestial equator at these points, one from south to north, the other from north to south. The crossing from south to north is known as the March equinox, also known as the first point of Aries and the ascending node of the ecliptic on the celestial equator. The crossing from north to south is the September equinox or descending node.
+
+Vernal equinox and autumnal equinox: these classical names are direct derivatives of Latin (ver = spring, and autumnus = autumn). These are the universal and most used terms for the equinoxes, but are potentially confusing because in the southern hemisphere the vernal equinox does not occur in spring, and the autumnal equinox does not occur in autumn. The equivalent common language English terms spring equinox and autumn (or fall) equinox are even more ambiguous. It has become common for people to refer to the September equinox in the southern hemisphere as the Vernal equinox.
+March equinox and September equinox: names referring to the months of the year in which they occur, with no ambiguity as to which hemisphere is the context. They are still not universal, however, as not all cultures use a solar-based calendar where the equinoxes occur every year in the same month (as they do not in the Islamic calendar and Hebrew calendar, for example).  Although the terms have become common in the 21st century, they were sometimes used at least as long ago as the mid-20th century.
+Northward equinox and southward equinox: names referring to the apparent direction of motion of the Sun. The northward equinox occurs in March when the Sun crosses the equator from south to north, and the southward equinox occurs in September when the Sun crosses the equator from north to south. These terms can be used unambiguously for other planets. They are rarely seen, although were first proposed over 100 years ago.
+First point of Aries and first point of Libra: names referring to the astrological signs the Sun is entering. However, the precession of the equinoxes has shifted these points out of the constellations they were named for and into the constellations Pisces and Virgo respectively.
+
+
+== Length of equinoctial day and night ==
+On the date of the equinox, the center of the Sun spends a roughly equal amount of time above and below the horizon at every location on the Earth, so night and day are about the same length. Sunrise and sunset can be defined in several ways, but a widespread definition is the time that the top limb of the Sun is level with the horizon. With this definition, the day is longer than the night at the equinoxes:
+From the Earth, the Sun appears as a disc rather than a point of light, so when the centre of the Sun is below the horizon, its upper edge may be visible. Sunrise, which begins daytime, occurs when the top of the Sun's disk appears above the eastern horizon. At that instant, the disk's centre is still below the horizon.
+The Earth's atmosphere refracts sunlight. As a result, an observer sees daylight before the top of the Sun's disk appears above the horizon.
+In sunrise/sunset tables, the atmospheric refraction is assumed to be 34 arcminutes, and the assumed semidiameter (apparent radius) of the Sun is 16 arcminutes. (The apparent radius varies depending on time of year, barely larger at perihelion in January than aphelion in July, but the difference is small.) Their combination means that when the upper limb of the Sun is on the visible horizon, its centre is 50 arcminutes below the geometric horizon, which is the intersection with the celestial sphere of a horizontal plane through the eye of the observer.
+
+These effects make the day about 14 minutes longer than the night at the equator and longer still towards the poles, but the real equality of day and night happens in places far enough from the equator to have a seasonal difference in day length of at least 7 minutes, occurring a few days towards the winter side of each equinox. One result of this is that, at latitudes below ±2.0 degrees, all the days of the year are longer than the nights.The times of sunset and sunrise vary with the observer's location (longitude and latitude), so the dates when day and night are equal also depend upon the observer's location.
+A third correction for the visual observation of a sunrise (or sunset) is the angle between the apparent horizon as seen by an observer and the geometric (or sensible) horizon. This is known as the dip of the horizon and varies from 3 arcminutes for a viewer standing on the sea shore to 160 arcminutes for a mountaineer on Everest. The effect of a larger dip on taller objects (reaching over 2½° of arc on Everest) accounts for the phenomenon of snow on a mountain peak turning gold in the sunlight long before the lower slopes are illuminated.
+The date on which the length of day and night are the same length is known as an equilux; the neologism, believed to have been coined in the 1980s, achieved more widespread recognition in the 21st century. At the most precise measurements, a true equilux is rare, because the lengths of day and night change more than any other time of the year around the equinoxes. In the mid-latitudes, daylight increases or decreases by about three minutes per day at the equinoxes, and thus adjacent days and nights only reach within one minute of each other. The date of the closest approximation of the equilux varies slightly by latitude; in the mid-latitudes, it occurs a few days before the spring equinox and after the fall equinox in each respective hemisphere.
+
+
+== Related phenomena ==
+
+
+=== Auroras ===
+Mirror-image conjugate auroras have been observed during the equinoxes.
+
+
+=== Effects on satellites ===
+One effect of equinoctial periods is the temporary disruption of communications satellites.
+For all geostationary satellites, there are a few days around the equinox when the Sun goes directly behind the satellite relative to Earth (i.e. within the beam-width of the ground-station antenna) for a short period each day. The Sun's immense power and radiation spectrum overload the Earth station's reception circuits with noise and temporarily disrupt or degrade the circuit. The duration of those effects varies but can range from a few minutes to an hour. (For a given frequency band, a larger antenna has a narrower beam-width and hence experiences shorter duration "Sun outage" windows.)
+Satellites in geostationary orbit also experience difficulties maintaining power during the equinox because they have to travel through Earth's shadow and rely only on battery power. Usually, a satellite travels either north or south of the Earth's shadow because Earth's axis is not directly perpendicular to a line from the Earth to the Sun at other times. During the equinox, since geostationary satellites are situated above the Equator, they are in Earth's shadow for the longest duration all year.
+
+
+== Equinoxes on other planets ==
+
+Equinoxes are defined on any planet with a tilted rotational axis. An example is Saturn, where the equinox places its ring system edge-on facing the Sun. When seen from above, which is a view seen during an equinox for the first time from the Cassini space probe in 2009, they receive little sunshine, due to receiving more planetshine than light from the Sun. This phenomenon occurs once every 14.7 years on average, and can last a few weeks before and after the exact equinox. Saturn's most recent equinox was on 6 May 2025.
+Mars's most recent equinoxes were on 29 November 2025 (northern autumn), and on 12 November 2024 (northern spring).
+
+
+== Cultural aspects ==
+
+The equinoxes are sometimes regarded as the start of spring and autumn. A number of traditional harvest festivals  are celebrated on the date of the equinoxes.
+People in a large part of the former Persian Empire, in Iran, Afghanistan, Tajikistan and most of the Central Asia, celebrate the Persian new year, Nowruz, which is spring equinox in northern hemisphere.  This day marks the new year in Solar Hijri calendar. 
+Religious architecture is often determined by the equinox; the Angkor Wat Equinox during which the sun rises in a perfect alignment over Angkor Wat in Cambodia is one such example.
+Catholic churches, since the recommendations of Charles Borromeo, have often chosen the equinox as their reference point for the orientation of churches.
+
+
+== See also ==
+
+
+== Footnotes ==
+
+
+== References ==
+
+
+== External links ==
+
+"Day and Night World Map (night and day map on equinox)".
+"Equinoctial Points". The Nuttall Encyclopædia.
+Gray, Meghan; Merrifield, Michael. Haran, Brady (ed.). "Solstice and Equinox". Sixty Symbols. University of Nottingham.
+Seasons web portal of the IMCCE for computing the beginning of the astronomical seasons on the Earth and Mars between ―4700 and 2098.

@@ -1,0 +1,5798 @@
+https://en.wikipedia.org/wiki/Projectile_motion
+
+In physics, projectile motion describes the motion of an object that is launched into the air and moves under the influence of gravity alone, with air resistance neglected. In this idealized model, the object follows a parabolic path determined by its initial velocity and the constant acceleration due to gravity. The motion can be decomposed into horizontal and vertical components: the horizontal motion occurs at a constant velocity, while the vertical motion experiences uniform acceleration.
+This framework, which lies at the heart of classical mechanics, is fundamental to a wide range of applications—from engineering and ballistics to sports science and natural phenomena.
+Galileo Galilei showed that the trajectory of a given projectile is parabolic, but the path may also be straight in the special case when the object is thrown directly upward or downward. The study of such motions is called ballistics, and such a trajectory is described as ballistic. The force of mathematical significance that is actively exerted on the object is gravity, which acts downward, thus imparting to the object a downward acceleration towards Earth's center of mass. Due to the object's inertia, no external force is needed to maintain the horizontal velocity component of the object's motion.
+Taking other forces into account, such as aerodynamic drag or internal propulsion (such as in a rocket), requires additional analysis. A ballistic missile is a missile only guided during the relatively brief initial powered phase of flight, and whose remaining course is governed by the laws of classical mechanics.
+Ballistics (from Ancient Greek  βάλλειν bállein 'to throw') is the science of dynamics that deals with the flight, behavior and effects of projectiles, especially bullets, unguided bombs, rockets, or the like; the science or art of designing and accelerating projectiles so as to achieve a desired performance.
+
+The elementary equations of ballistics neglect nearly every factor except for initial velocity, the launch angle and a gravitational acceleration assumed constant. Practical solutions of a ballistics problem often require considerations of air resistance, cross winds, target motion, acceleration due to gravity varying with height, and in such problems as launching a rocket from one point on the Earth to another, the horizon's distance vs curvature R of the Earth (its local speed of rotation 
+  
+    
+      
+        v
+        (
+        l
+        a
+        t
+        )
+        =
+        ω
+        R
+        (
+        l
+        a
+        t
+        )
+      
+    
+    {\textstyle v(lat)=\omega R(lat)}
+  
+). Detailed mathematical solutions of practical problems typically do not have closed-form solutions, and therefore require numerical methods to address.
+
+
+== Trajectory in vacuum ==
+In projectile motion, the horizontal motion and the vertical motion are independent of each other; that is, neither motion affects the other. This is the principle of compound motion established by Galileo in 1638, and used by him to prove the parabolic form of projectile motion.
+
+A ballistic trajectory is a parabola with homogeneous acceleration, such as in a space ship with constant acceleration in absence of other forces. On Earth the acceleration changes magnitude with altitude as 
+  
+    
+      
+        g
+        (
+        y
+        )
+        =
+        
+          g
+          
+            0
+          
+        
+        
+          /
+        
+        (
+        1
+        +
+        y
+        
+          /
+        
+        R
+        
+          )
+          
+            2
+          
+        
+      
+    
+    {\textstyle g(y)=g_{0}/(1+y/R)^{2}}
+  
+ and direction (faraway targets) with latitude/longitude along the trajectory. This causes an elliptic trajectory, which is very close to a parabola on a small scale. However, if an object was thrown and the Earth was suddenly replaced with a black hole of equal mass, it would become obvious that the ballistic trajectory is part of an elliptic orbit around that "black hole", and not a parabola that extends to infinity. At higher speeds the trajectory can also be circular (cosmonautics at LEO?, geostationary satellites at 5
+  
+    
+      
+        
+          
+            5
+            6
+          
+        
+      
+    
+    {\textstyle {\frac {5}{6}}}
+  
+ R), parabolic or hyperbolic (unless distorted by other objects like the Moon or the Sun).
+In this article a homogeneous gravitational acceleration 
+  
+    
+      
+        (
+        g
+        =
+        
+          g
+          
+            0
+          
+        
+        )
+      
+    
+    {\textstyle (g=g_{0})}
+  
+ is assumed.
+
+
+=== Acceleration ===
+Since there is acceleration only in the vertical direction, the velocity in the horizontal direction is constant, being equal to 
+  
+    
+      
+        
+          
+            v
+          
+          
+            0
+          
+        
+        cos
+        ⁡
+        θ
+      
+    
+    {\displaystyle \mathbf {v} _{0}\cos \theta }
+  
+. The vertical motion of the projectile is the motion of a particle during its free fall. Here the acceleration is constant, being equal to g. The components of the acceleration are: 
+
+  
+    
+      
+        
+          a
+          
+            x
+          
+        
+        =
+        0
+      
+    
+    {\displaystyle a_{x}=0}
+  
+,
+
+  
+    
+      
+        
+          a
+          
+            y
+          
+        
+        =
+        −
+        g
+      
+    
+    {\displaystyle a_{y}=-g}
+  
+.*
+*The y acceleration can also be referred to as the force of the earth 
+  
+    
+      
+        (
+        −
+        
+          F
+          
+            g
+          
+        
+        
+          /
+        
+        m
+        )
+      
+    
+    {\textstyle (-F_{g}/m)}
+  
+ on the object(s) of interest.
+
+
+=== Velocity ===
+Let the projectile be launched with an initial velocity 
+  
+    
+      
+        
+          v
+        
+        (
+        0
+        )
+        ≡
+        
+          
+            v
+          
+          
+            0
+          
+        
+      
+    
+    {\displaystyle \mathbf {v} (0)\equiv \mathbf {v} _{0}}
+  
+, which can be expressed as the sum of horizontal and vertical components as follows:
+
+  
+    
+      
+        
+          
+            v
+          
+          
+            0
+          
+        
+        =
+        
+          v
+          
+            0
+            x
+          
+        
+        
+          
+            
+              x
+              ^
+            
+          
+        
+        +
+        
+          v
+          
+            0
+            y
+          
+        
+        
+          
+            
+              y
+              ^
+            
+          
+        
+      
+    
+    {\displaystyle \mathbf {v} _{0}=v_{0x}\mathbf {\hat {x}} +v_{0y}\mathbf {\hat {y}} }
+  
+.
+The components 
+  
+    
+      
+        
+          v
+          
+            0
+            x
+          
+        
+      
+    
+    {\displaystyle v_{0x}}
+  
+ and 
+  
+    
+      
+        
+          v
+          
+            0
+            y
+          
+        
+      
+    
+    {\displaystyle v_{0y}}
+  
+ can be found if the initial launch angle θ is known:
+
+  
+    
+      
+        
+          v
+          
+            0
+            x
+          
+        
+        =
+        
+          v
+          
+            0
+          
+        
+        cos
+        ⁡
+        (
+        θ
+        )
+      
+    
+    {\displaystyle v_{0x}=v_{0}\cos(\theta )}
+  
+,
+
+  
+    
+      
+        
+          v
+          
+            0
+            y
+          
+        
+        =
+        
+          v
+          
+            0
+          
+        
+        sin
+        ⁡
+        (
+        θ
+        )
+      
+    
+    {\displaystyle v_{0y}=v_{0}\sin(\theta )}
+  
+
+The horizontal component of the velocity of the object remains unchanged throughout the motion. The vertical component of the velocity changes linearly, because the acceleration due to gravity is constant. The accelerations in the x and y directions can be integrated to solve for the components of velocity at any time t, as follows:
+
+  
+    
+      
+        
+          v
+          
+            x
+          
+        
+        =
+        
+          v
+          
+            0
+          
+        
+        cos
+        ⁡
+        (
+        θ
+        )
+      
+    
+    {\displaystyle v_{x}=v_{0}\cos(\theta )}
+  
+,
+
+  
+    
+      
+        
+          v
+          
+            y
+          
+        
+        =
+        
+          v
+          
+            0
+          
+        
+        sin
+        ⁡
+        (
+        θ
+        )
+        −
+        g
+        t
+      
+    
+    {\displaystyle v_{y}=v_{0}\sin(\theta )-gt}
+  
+.
+The magnitude of the velocity (under the Pythagorean theorem, also known as the triangle law):
+
+  
+    
+      
+        v
+        =
+        
+          
+            
+              v
+              
+                x
+              
+              
+                2
+              
+            
+            +
+            
+              v
+              
+                y
+              
+              
+                2
+              
+            
+          
+        
+      
+    
+    {\displaystyle v={\sqrt {v_{x}^{2}+v_{y}^{2}}}}
+  
+.
+
+
+=== Displacement ===
+
+At any time 
+  
+    
+      
+        t
+      
+    
+    {\displaystyle t}
+  
+, the projectile's horizontal and vertical displacement are:
+
+  
+    
+      
+        x
+        (
+        t
+        )
+        =
+        
+          v
+          
+            0
+          
+        
+        t
+        cos
+        ⁡
+        (
+        θ
+        )
+      
+    
+    {\displaystyle x(t)=v_{0}t\cos(\theta )}
+  
+,
+
+  
+    
+      
+        y
+        (
+        t
+        )
+        =
+        
+          v
+          
+            0
+          
+        
+        t
+        sin
+        ⁡
+        (
+        θ
+        )
+        −
+        
+          
+            1
+            2
+          
+        
+        g
+        
+          t
+          
+            2
+          
+        
+      
+    
+    {\displaystyle y(t)=v_{0}t\sin(\theta )-{\frac {1}{2}}gt^{2}}
+  
+.
+The magnitude of the displacement is:
+
+  
+    
+      
+        Δ
+        r
+        =
+        
+          
+            
+              x
+              
+                2
+              
+            
+            +
+            
+              y
+              
+                2
+              
+            
+          
+        
+      
+    
+    {\displaystyle \Delta r={\sqrt {x^{2}+y^{2}}}}
+  
+.
+Consider the equations,
+
+  
+    
+      
+        x
+        (
+        t
+        )
+        =
+        
+          v
+          
+            0
+          
+        
+        t
+        cos
+        ⁡
+        (
+        θ
+        )
+      
+    
+    {\displaystyle x(t)=v_{0}t\cos(\theta )}
+  
+ and 
+  
+    
+      
+        y
+        (
+        t
+        )
+        =
+        
+          v
+          
+            0
+          
+        
+        t
+        sin
+        ⁡
+        (
+        θ
+        )
+        −
+        
+          
+            1
+            2
+          
+        
+        g
+        
+          t
+          
+            2
+          
+        
+      
+    
+    {\displaystyle y(t)=v_{0}t\sin(\theta )-{\frac {1}{2}}gt^{2}}
+  
+.
+If t is eliminated between these two equations the following equation is obtained:
+
+  
+    
+      
+        y
+        =
+        tan
+        ⁡
+        (
+        θ
+        )
+        ⋅
+        x
+        −
+        
+          
+            g
+            
+              2
+              
+                v
+                
+                  0
+                
+                
+                  2
+                
+              
+              
+                cos
+                
+                  2
+                
+              
+              ⁡
+              θ
+            
+          
+        
+        ⋅
+        
+          x
+          
+            2
+          
+        
+        =
+        tan
+        ⁡
+        θ
+        ⋅
+        x
+        
+          (
+          
+            1
+            −
+            
+              
+                x
+                R
+              
+            
+          
+          )
+        
+        .
+      
+    
+    {\displaystyle y=\tan(\theta )\cdot x-{\frac {g}{2v_{0}^{2}\cos ^{2}\theta }}\cdot x^{2}=\tan \theta \cdot x\left(1-{\frac {x}{R}}\right).}
+  
+
+Here R is the range of a projectile.
+Since g, θ, and v0 are constants, the above equation is of the form 
+
+  
+    
+      
+        y
+        =
+        a
+        x
+        +
+        b
+        
+          x
+          
+            2
+          
+        
+      
+    
+    {\displaystyle y=ax+bx^{2}}
+  
+,
+in which a and b are constants. This is the equation of a parabola, so the path is parabolic. The axis of the parabola is vertical.
+If the projectile's position (x,y) and launch angle (θ or α) are known, the initial velocity can be found solving for v0 in the afore-mentioned parabolic equation:
+
+  
+    
+      
+        
+          v
+          
+            0
+          
+        
+        =
+        
+          
+            
+              
+                
+                  x
+                  
+                    2
+                  
+                
+                g
+              
+              
+                x
+                sin
+                ⁡
+                2
+                θ
+                −
+                2
+                y
+                
+                  cos
+                  
+                    2
+                  
+                
+                ⁡
+                θ
+              
+            
+          
+        
+      
+    
+    {\displaystyle v_{0}={\sqrt {{x^{2}g} \over {x\sin 2\theta -2y\cos ^{2}\theta }}}}
+  
+.
+
+
+=== Displacement in polar coordinates ===
+The parabolic trajectory of a projectile can also be expressed in polar coordinates instead of Cartesian coordinates. In this case, the position has the general formula
+
+  
+    
+      
+        r
+        (
+        ϕ
+        )
+        =
+        
+          
+            
+              2
+              
+                v
+                
+                  0
+                
+                
+                  2
+                
+              
+              
+                cos
+                
+                  2
+                
+              
+              ⁡
+              θ
+            
+            
+              
+                |
+              
+              g
+              
+                |
+              
+            
+          
+        
+        
+          (
+          
+            tan
+            ⁡
+            θ
+            sec
+            ⁡
+            ϕ
+            −
+            tan
+            ⁡
+            ϕ
+            sec
+            ⁡
+            ϕ
+          
+          )
+        
+      
+    
+    {\displaystyle r(\phi )={\frac {2v_{0}^{2}\cos ^{2}\theta }{|g|}}\left(\tan \theta \sec \phi -\tan \phi \sec \phi \right)}
+  
+.
+In this equation, the origin is the midpoint of the horizontal range of the projectile, and if the ground is flat, the parabolic arc is plotted in the range 
+  
+    
+      
+        0
+        ≤
+        ϕ
+        ≤
+        π
+      
+    
+    {\displaystyle 0\leq \phi \leq \pi }
+  
+. This expression can be obtained by transforming the Cartesian equation as stated above by 
+  
+    
+      
+        y
+        =
+        r
+        sin
+        ⁡
+        ϕ
+      
+    
+    {\displaystyle y=r\sin \phi }
+  
+ and 
+  
+    
+      
+        x
+        =
+        r
+        cos
+        ⁡
+        ϕ
+      
+    
+    {\displaystyle x=r\cos \phi }
+  
+.
+
+
+=== Time of flight or total time of the whole journey ===
+The total time t for which the projectile remains in the air is called the time-of-flight. The y-component of the trajectory is
+
+  
+    
+      
+        y
+        =
+        
+          y
+          
+            0
+          
+        
+        +
+        
+          v
+          
+            0
+            y
+          
+        
+        t
+        −
+        
+          
+            1
+            2
+          
+        
+        g
+        
+          t
+          
+            2
+          
+        
+      
+    
+    {\displaystyle y=y_{0}+v_{0y}t-{\frac {1}{2}}gt^{2}}
+  
+
+After the flight, the projectile returns to the horizontal axis (x-axis), so 
+  
+    
+      
+        y
+        =
+        0
+      
+    
+    {\displaystyle y=0}
+  
+.
+
+  
+    
+      
+        
+          y
+          
+            0
+          
+        
+        +
+        
+          v
+          
+            0
+            y
+          
+        
+        t
+        −
+        
+          
+            1
+            2
+          
+        
+        g
+        
+          t
+          
+            2
+          
+        
+        =
+        0
+      
+    
+    {\displaystyle y_{0}+v_{0y}t-{\frac {1}{2}}gt^{2}=0}
+  
+
+Solving this using the quadratic formula yields
+
+  
+    
+      
+        t
+        =
+        
+          
+            
+              
+                v
+                
+                  0
+                  y
+                
+              
+              ±
+              
+                
+                  
+                    v
+                    
+                      0
+                      y
+                    
+                    
+                      2
+                    
+                  
+                  +
+                  2
+                  g
+                  
+                    y
+                    
+                      0
+                    
+                  
+                
+              
+            
+            g
+          
+        
+      
+    
+    {\displaystyle t={\frac {v_{0y}\pm {\sqrt {v_{0y}^{2}+2gy_{0}}}}{g}}}
+  
+
+Note, we want the positive square root in this instance. Assuming the projectile starts from 0 (
+  
+    
+      
+        
+          y
+          
+            0
+          
+        
+        =
+        0
+      
+    
+    {\displaystyle y_{0}=0}
+  
+) and using 
+  
+    
+      
+        
+          v
+          
+            0
+            y
+          
+        
+        =
+        
+          v
+          
+            0
+          
+        
+        sin
+        ⁡
+        (
+        θ
+        )
+      
+    
+    {\displaystyle v_{0y}=v_{0}\sin(\theta )}
+  
+, this gives:
+
+  
+    
+      
+        t
+        =
+        
+          
+            
+              2
+              
+                v
+                
+                  0
+                
+              
+              sin
+              ⁡
+              (
+              θ
+              )
+            
+            g
+          
+        
+      
+    
+    {\displaystyle t={\frac {2v_{0}\sin(\theta )}{g}}}
+  
+
+Note that we have neglected air resistance on the projectile.
+If the starting point is at height y0 with respect to the point of impact, the time of flight is:
+
+  
+    
+      
+        t
+        =
+        
+          
+            d
+            
+              v
+              cos
+              ⁡
+              θ
+            
+          
+        
+        =
+        
+          
+            
+              v
+              sin
+              ⁡
+              θ
+              +
+              
+                
+                  (
+                  v
+                  sin
+                  ⁡
+                  θ
+                  
+                    )
+                    
+                      2
+                    
+                  
+                  +
+                  2
+                  g
+                  
+                    y
+                    
+                      0
+                    
+                  
+                
+              
+            
+            g
+          
+        
+      
+    
+    {\displaystyle t={\frac {d}{v\cos \theta }}={\frac {v\sin \theta +{\sqrt {(v\sin \theta )^{2}+2gy_{0}}}}{g}}}
+  
+
+As above, this expression can be reduced (y0 is 0) to
+
+  
+    
+      
+        t
+        =
+        
+          
+            
+              v
+              sin
+              ⁡
+              
+                θ
+              
+              +
+              
+                
+                  (
+                  v
+                  sin
+                  ⁡
+                  
+                    θ
+                  
+                  
+                    )
+                    
+                      2
+                    
+                  
+                
+              
+            
+            g
+          
+        
+        =
+        
+          
+            
+              2
+              v
+              sin
+              ⁡
+              
+                θ
+              
+            
+            g
+          
+        
+        ,
+      
+    
+    {\displaystyle t={\frac {v\sin {\theta }+{\sqrt {(v\sin {\theta })^{2}}}}{g}}={\frac {2v\sin {\theta }}{g}},}
+  
+ = 
+  
+    
+      
+        
+          
+            
+              2
+              v
+              sin
+              ⁡
+              
+                (
+                
+                  45
+                  
+                    ∘
+                  
+                
+                )
+              
+            
+            
+              
+                |
+              
+              g
+              
+                |
+              
+            
+          
+        
+        =
+        
+          
+            
+              
+                
+                  2
+                
+              
+              v
+            
+            
+              
+                |
+              
+              g
+              
+                |
+              
+            
+          
+        
+      
+    
+    {\displaystyle {\frac {2v\sin {(45^{\circ })}}{|g|}}={\frac {{\sqrt {2}}v}{|g|}}}
+  
+
+if θ equals 45°.
+
+If 
+  
+    
+      
+        
+          v
+          
+            y
+            0
+          
+        
+        =
+        0
+      
+    
+    {\displaystyle v_{y0}=0}
+  
+ e. g. for an object dropped from (vertical) rest at a height 
+  
+    
+      
+        
+          y
+          
+            0
+          
+        
+      
+    
+    {\displaystyle y_{0}}
+  
+ and free-falling under gravity, the time of flight becomes,
+  
+    
+      
+        t
+        =
+        
+          
+            
+              
+                2
+                
+                  y
+                  
+                    0
+                  
+                
+              
+              g
+            
+          
+        
+      
+    
+    {\displaystyle t={\sqrt {\frac {2y_{0}}{g}}}}
+  
+This result is independent of any initial horizontal velocity, as illustrated in the animation above.
+
+
+=== Time of flight to the target's position ===
+As shown above in the Displacement section, the horizontal and vertical velocity of a projectile are independent of each other.
+Because of this, we can find the time to reach a target using the displacement formula for the horizontal velocity:
+
+  
+    
+      
+        x
+        =
+        
+          v
+          
+            0
+          
+        
+        t
+        cos
+        ⁡
+        (
+        θ
+        )
+      
+    
+    {\displaystyle x=v_{0}t\cos(\theta )}
+  
+
+  
+    
+      
+        
+          
+            x
+            t
+          
+        
+        =
+        
+          v
+          
+            0
+          
+        
+        cos
+        ⁡
+        (
+        θ
+        )
+      
+    
+    {\displaystyle {\frac {x}{t}}=v_{0}\cos(\theta )}
+  
+
+  
+    
+      
+        t
+        =
+        
+          
+            x
+            
+              
+                v
+                
+                  0
+                
+              
+              cos
+              ⁡
+              (
+              θ
+              )
+            
+          
+        
+      
+    
+    {\displaystyle t={\frac {x}{v_{0}\cos(\theta )}}}
+  
+
+This equation will give the total time t the projectile must travel for to reach the target's horizontal displacement, neglecting air resistance.
+
+
+=== Maximum height of projectile ===
+
+The greatest height that the object will reach is known as the peak of the object's motion.
+The increase in height will last until 
+  
+    
+      
+        
+          v
+          
+            y
+          
+        
+        =
+        0
+      
+    
+    {\displaystyle v_{y}=0}
+  
+, that is,
+
+  
+    
+      
+        0
+        =
+        
+          v
+          
+            0
+          
+        
+        sin
+        ⁡
+        (
+        θ
+        )
+        −
+        g
+        
+          t
+          
+            h
+          
+        
+      
+    
+    {\displaystyle 0=v_{0}\sin(\theta )-gt_{h}}
+  
+.
+Time to reach the maximum height(h):
+
+  
+    
+      
+        
+          t
+          
+            h
+          
+        
+        =
+        
+          
+            
+              
+                v
+                
+                  0
+                
+              
+              sin
+              ⁡
+              (
+              θ
+              )
+            
+            
+              
+                |
+              
+              g
+              
+                |
+              
+            
+          
+        
+      
+    
+    {\textstyle t_{h}={\frac {v_{0}\sin(\theta )}{|g|}}}
+  
+.
+This matches the formula found above (the time of flight) as the maximum height (in a parabola) sits in the middle of its roots. This means the projectile reaches h in the middle of the journey, therefore, in half of the time.
+For the vertical displacement of the maximum height of the projectile:
+
+  
+    
+      
+        h
+        =
+        
+          v
+          
+            0
+          
+        
+        
+          t
+          
+            h
+          
+        
+        sin
+        ⁡
+        (
+        θ
+        )
+        −
+        
+          
+            1
+            2
+          
+        
+        g
+        
+          t
+          
+            h
+          
+          
+            2
+          
+        
+      
+    
+    {\displaystyle h=v_{0}t_{h}\sin(\theta )-{\frac {1}{2}}gt_{h}^{2}}
+  
+
+  
+    
+      
+        h
+        =
+        
+          
+            
+              
+                v
+                
+                  0
+                
+                
+                  2
+                
+              
+              
+                sin
+                
+                  2
+                
+              
+              ⁡
+              (
+              θ
+              )
+            
+            
+              2
+              
+                |
+              
+              g
+              
+                |
+              
+            
+          
+        
+      
+    
+    {\displaystyle h={\frac {v_{0}^{2}\sin ^{2}(\theta )}{2|g|}}}
+  
+
+The maximum reachable height is obtained for θ=90°:
+
+  
+    
+      
+        
+          h
+          
+            
+              m
+              a
+              x
+            
+          
+        
+        =
+        
+          
+            
+              v
+              
+                0
+              
+              
+                2
+              
+            
+            
+              2
+              
+                |
+              
+              g
+              
+                |
+              
+            
+          
+        
+      
+    
+    {\displaystyle h_{\mathrm {max} }={\frac {v_{0}^{2}}{2|g|}}}
+  
+
+If the projectile's position (x,y) and launch angle (θ) are known, the maximum height can be found by solving for h in the following equation:
+
+  
+    
+      
+        h
+        =
+        
+          
+            
+              (
+              x
+              tan
+              ⁡
+              θ
+              
+                )
+                
+                  2
+                
+              
+            
+            
+              4
+              (
+              x
+              tan
+              ⁡
+              θ
+              −
+              y
+              )
+            
+          
+        
+        .
+      
+    
+    {\displaystyle h={\frac {(x\tan \theta )^{2}}{4(x\tan \theta -y)}}.}
+  
+
+Angle of elevation (φ) at the maximum height is given by:
+
+  
+    
+      
+        ϕ
+        =
+        arctan
+        ⁡
+        
+          
+            
+              tan
+              ⁡
+              θ
+            
+            2
+          
+        
+      
+    
+    {\displaystyle \phi =\arctan {\tan \theta  \over 2}}
+  
+
+
+=== Relation between horizontal range and maximum height ===
+The relation between the range d on the horizontal plane and the maximum height h reached at 
+  
+    
+      
+        
+          
+            
+              t
+              
+                d
+              
+            
+            2
+          
+        
+      
+    
+    {\displaystyle {\frac {t_{d}}{2}}}
+  
+ is:
+
+  
+    
+      
+        h
+        =
+        
+          
+            
+              d
+              tan
+              ⁡
+              θ
+            
+            4
+          
+        
+      
+    
+    {\displaystyle h={\frac {d\tan \theta }{4}}}
+  
+
+
+=== Maximum distance of projectile ===
+
+The range and the maximum height of the projectile do not depend upon its mass. Hence range and maximum height are equal for all bodies that are thrown with the same velocity and direction. The horizontal range d of the projectile is the horizontal distance it has traveled when it returns to its initial height (
+  
+    
+      
+        y
+        =
+        0
+      
+    
+    {\textstyle y=0}
+  
+).
+
+  
+    
+      
+        0
+        =
+        
+          v
+          
+            0
+          
+        
+        
+          t
+          
+            d
+          
+        
+        sin
+        ⁡
+        (
+        θ
+        )
+        −
+        
+          
+            1
+            2
+          
+        
+        g
+        
+          t
+          
+            d
+          
+          
+            2
+          
+        
+      
+    
+    {\displaystyle 0=v_{0}t_{d}\sin(\theta )-{\frac {1}{2}}gt_{d}^{2}}
+  
+.
+Time to reach ground:
+
+  
+    
+      
+        
+          t
+          
+            d
+          
+        
+        =
+        
+          
+            
+              2
+              
+                v
+                
+                  0
+                
+              
+              sin
+              ⁡
+              (
+              θ
+              )
+            
+            
+              
+                |
+              
+              g
+              
+                |
+              
+            
+          
+        
+      
+    
+    {\displaystyle t_{d}={\frac {2v_{0}\sin(\theta )}{|g|}}}
+  
+.
+From the horizontal displacement the maximum distance of the projectile:
+
+  
+    
+      
+        d
+        =
+        
+          v
+          
+            0
+          
+        
+        
+          t
+          
+            d
+          
+        
+        cos
+        ⁡
+        (
+        θ
+        )
+      
+    
+    {\displaystyle d=v_{0}t_{d}\cos(\theta )}
+  
+,
+so
+
+  
+    
+      
+        d
+        =
+        
+          
+            
+              v
+              
+                0
+              
+              
+                2
+              
+            
+            
+              
+                |
+              
+              g
+              
+                |
+              
+            
+          
+        
+        sin
+        ⁡
+        (
+        2
+        θ
+        )
+        .
+      
+    
+    {\displaystyle d={\frac {v_{0}^{2}}{|g|}}\sin(2\theta ).}
+  
+
+Note that d has its maximum value when
+
+  
+    
+      
+        sin
+        ⁡
+        (
+        2
+        θ
+        )
+        =
+        1
+        ,
+      
+    
+    {\displaystyle \sin(2\theta )=1,}
+  
+
+which necessarily corresponds to 
+  
+    
+      
+        2
+        θ
+        =
+        
+          90
+          
+            ∘
+          
+        
+      
+    
+    {\textstyle 2\theta =90^{\circ }}
+  
+, or 
+  
+    
+      
+        θ
+        =
+        
+          45
+          
+            ∘
+          
+        
+      
+    
+    {\textstyle \theta =45^{\circ }}
+  
+.
+The total horizontal distance (d) traveled.
+
+  
+    
+      
+        d
+        =
+        
+          
+            
+              v
+              cos
+              ⁡
+              θ
+            
+            
+              
+                |
+              
+              g
+              
+                |
+              
+            
+          
+        
+        
+          (
+          
+            v
+            sin
+            ⁡
+            θ
+            +
+            
+              
+                (
+                v
+                sin
+                ⁡
+                θ
+                
+                  )
+                  
+                    2
+                  
+                
+                +
+                2
+                g
+                
+                  y
+                  
+                    0
+                  
+                
+              
+            
+          
+          )
+        
+      
+    
+    {\displaystyle d={\frac {v\cos \theta }{|g|}}\left(v\sin \theta +{\sqrt {(v\sin \theta )^{2}+2gy_{0}}}\right)}
+  
+
+When the surface is flat (initial height of the object is zero), the distance traveled:
+
+  
+    
+      
+        d
+        =
+        
+          
+            
+              
+                v
+                
+                  2
+                
+              
+              sin
+              ⁡
+              (
+              2
+              θ
+              )
+            
+            
+              
+                |
+              
+              g
+              
+                |
+              
+            
+          
+        
+      
+    
+    {\displaystyle d={\frac {v^{2}\sin(2\theta )}{|g|}}}
+  
+
+Thus the maximum distance is obtained if θ is 45 degrees. This distance is:
+
+  
+    
+      
+        
+          d
+          
+            
+              m
+              a
+              x
+            
+          
+        
+        =
+        
+          
+            
+              v
+              
+                2
+              
+            
+            
+              
+                |
+              
+              g
+              
+                |
+              
+            
+          
+        
+      
+    
+    {\displaystyle d_{\mathrm {max} }={\frac {v^{2}}{|g|}}}
+  
+
+
+=== Application of the work energy theorem ===
+According to the work-energy theorem the vertical component of velocity is:
+
+  
+    
+      
+        
+          v
+          
+            y
+          
+          
+            2
+          
+        
+        =
+        (
+        
+          v
+          
+            0
+          
+        
+        sin
+        ⁡
+        θ
+        
+          )
+          
+            2
+          
+        
+        −
+        2
+        g
+        y
+      
+    
+    {\displaystyle v_{y}^{2}=(v_{0}\sin \theta )^{2}-2gy}
+  
+.
+These formulae ignore aerodynamic drag and also assume that the landing area is at uniform height 0.
+
+
+=== Angle of reach ===
+The "angle of reach" is the angle (θ) at which a projectile must be launched in order to go a distance d, given the initial velocity v.
+
+  
+    
+      
+        sin
+        ⁡
+        (
+        2
+        θ
+        )
+        =
+        
+          
+            
+              g
+              d
+            
+            
+              v
+              
+                2
+              
+            
+          
+        
+      
+    
+    {\displaystyle \sin(2\theta )={\frac {gd}{v^{2}}}}
+  
+
+There are two solutions:
+
+  
+    
+      
+        θ
+        =
+        
+          
+            1
+            2
+          
+        
+        arcsin
+        ⁡
+        
+          (
+          
+            
+              
+                g
+                d
+              
+              
+                v
+                
+                  2
+                
+              
+            
+          
+          )
+        
+      
+    
+    {\displaystyle \theta ={\frac {1}{2}}\arcsin \left({\frac {gd}{v^{2}}}\right)}
+  
+ (shallow trajectory)
+and because 
+  
+    
+      
+        sin
+        ⁡
+        (
+        2
+        θ
+        )
+        =
+        cos
+        ⁡
+        (
+        2
+        θ
+        −
+        
+          90
+          
+            ∘
+          
+        
+        )
+      
+    
+    {\displaystyle \sin(2\theta )=\cos(2\theta -90^{\circ })}
+  
+,
+
+  
+    
+      
+        θ
+        =
+        
+          45
+          
+            ∘
+          
+        
+        +
+        
+          
+            1
+            2
+          
+        
+        arccos
+        ⁡
+        
+          (
+          
+            
+              
+                g
+                d
+              
+              
+                v
+                
+                  2
+                
+              
+            
+          
+          )
+        
+      
+    
+    {\displaystyle \theta =45^{\circ }+{\frac {1}{2}}\arccos \left({\frac {gd}{v^{2}}}\right)}
+  
+ (steep trajectory)
+
+
+=== Angle θ required to hit coordinate (x, y) ===
+
+To hit a target at range x and altitude y when fired from (0,0) and with initial speed v, the required angle(s) of launch θ are:
+
+  
+    
+      
+        θ
+        =
+        arctan
+        ⁡
+        
+          
+            (
+            
+              
+                
+                  
+                    v
+                    
+                      2
+                    
+                  
+                  ±
+                  
+                    
+                      
+                        v
+                        
+                          4
+                        
+                      
+                      −
+                      g
+                      (
+                      g
+                      
+                        x
+                        
+                          2
+                        
+                      
+                      +
+                      2
+                      y
+                      
+                        v
+                        
+                          2
+                        
+                      
+                      )
+                    
+                  
+                
+                
+                  g
+                  x
+                
+              
+            
+            )
+          
+        
+      
+    
+    {\displaystyle \theta =\arctan {\left({\frac {v^{2}\pm {\sqrt {v^{4}-g(gx^{2}+2yv^{2})}}}{gx}}\right)}}
+  
+
+The two roots of the equation correspond to the two possible launch angles, so long as they aren't imaginary, in which case the initial speed is not great enough to reach the point (x,y) selected. This formula allows one to find the angle of launch needed without the restriction of 
+  
+    
+      
+        y
+        =
+        0
+      
+    
+    {\textstyle y=0}
+  
+.
+One can also ask what launch angle allows the lowest possible launch velocity. This occurs when the two solutions above are equal, implying that the quantity under the square root sign is zero. This, tan θ = v2/gx, requires solving a quadratic equation for 
+  
+    
+      
+        
+          v
+          
+            2
+          
+        
+      
+    
+    {\displaystyle v^{2}}
+  
+, and we find
+
+  
+    
+      
+        
+          v
+          
+            2
+          
+        
+        
+          /
+        
+        g
+        =
+        (
+        2
+        g
+        y
+        ±
+        g
+        
+          
+            4
+            
+              y
+              
+                2
+              
+            
+            +
+            4
+            (
+            1
+            x
+            
+              )
+              
+                2
+              
+            
+          
+        
+        )
+        
+          /
+        
+        2
+        g
+        =
+        y
+        ±
+        
+          
+            
+              y
+              
+                2
+              
+            
+            +
+            
+              x
+              
+                2
+              
+            
+          
+        
+        .
+      
+    
+    {\displaystyle v^{2}/g=(2gy\pm g{\sqrt {4y^{2}+4(1x)^{2}}})/2g=y\pm {\sqrt {y^{2}+x^{2}}}.}
+  
+
+This gives
+
+  
+    
+      
+        θ
+        =
+        arctan
+        ⁡
+        
+          (
+          
+            y
+            
+              /
+            
+            x
+            +
+            
+              
+                
+                  y
+                  
+                    2
+                  
+                
+                
+                  /
+                
+                
+                  x
+                  
+                    2
+                  
+                
+                +
+                1
+              
+            
+          
+          )
+        
+        .
+      
+    
+    {\displaystyle \theta =\arctan \left(y/x+{\sqrt {y^{2}/x^{2}+1}}\right).}
+  
+
+If we denote the angle whose tangent is y/x by α, then
+
+  
+    
+      
+        tan
+        ⁡
+        θ
+        =
+        
+          
+            
+              sin
+              ⁡
+              α
+              +
+              1
+            
+            
+              cos
+              ⁡
+              α
+            
+          
+        
+        ,
+      
+    
+    {\displaystyle \tan \theta ={\frac {\sin \alpha +1}{\cos \alpha }},}
+  
+ its reciprocal:
+
+  
+    
+      
+        tan
+        ⁡
+        (
+        π
+        
+          /
+        
+        2
+        −
+        θ
+        )
+        =
+        
+          
+            
+              cos
+              ⁡
+              α
+            
+            
+              sin
+              ⁡
+              α
+              +
+              1
+            
+          
+        
+        ,
+      
+    
+    {\displaystyle \tan(\pi /2-\theta )={\frac {\cos \alpha }{\sin \alpha +1}},}
+  
+
+  
+    
+      
+        
+          cos
+          
+            2
+          
+        
+        ⁡
+        (
+        π
+        
+          /
+        
+        2
+        −
+        θ
+        )
+        =
+        
+          
+            1
+            2
+          
+        
+        (
+        sin
+        ⁡
+        α
+        +
+        1
+        )
+      
+    
+    {\displaystyle \cos ^{2}(\pi /2-\theta )={\frac {1}{2}}(\sin \alpha +1)}
+  
+
+  
+    
+      
+        2
+        
+          cos
+          
+            2
+          
+        
+        ⁡
+        (
+        π
+        
+          /
+        
+        2
+        −
+        θ
+        )
+        −
+        1
+        =
+        cos
+        ⁡
+        (
+        π
+        
+          /
+        
+        2
+        −
+        α
+        )
+      
+    
+    {\displaystyle 2\cos ^{2}(\pi /2-\theta )-1=\cos(\pi /2-\alpha )}
+  
+
+This implies
+
+  
+    
+      
+        θ
+        =
+        π
+        
+          /
+        
+        2
+        −
+        
+          
+            1
+            2
+          
+        
+        (
+        π
+        
+          /
+        
+        2
+        −
+        α
+        )
+        .
+      
+    
+    {\displaystyle \theta =\pi /2-{\frac {1}{2}}(\pi /2-\alpha ).}
+  
+
+In other words, the launch should be at the angle 
+  
+    
+      
+        (
+        π
+        
+          /
+        
+        2
+        +
+        α
+        )
+        
+          /
+        
+        2
+      
+    
+    {\textstyle (\pi /2+\alpha )/2}
+  
+ halfway between the target and zenith (vector opposite to gravity).
+
+
+=== Total Path Length of the Trajectory ===
+The length of the parabolic arc traced by a projectile, L, given that the height of launch and landing is the same (there is no air resistance), is given by the formula:
+
+  
+    
+      
+        L
+        =
+        
+          
+            
+              v
+              
+                0
+              
+              
+                2
+              
+            
+            
+              2
+              g
+            
+          
+        
+        
+          (
+          
+            2
+            sin
+            ⁡
+            θ
+            +
+            
+              cos
+              
+                2
+              
+            
+            ⁡
+            θ
+            ⋅
+            ln
+            ⁡
+            
+              
+                
+                  1
+                  +
+                  sin
+                  ⁡
+                  θ
+                
+                
+                  1
+                  −
+                  sin
+                  ⁡
+                  θ
+                
+              
+            
+          
+          )
+        
+        =
+        
+          
+            
+              v
+              
+                0
+              
+              
+                2
+              
+            
+            g
+          
+        
+        
+          (
+          
+            sin
+            ⁡
+            θ
+            +
+            
+              cos
+              
+                2
+              
+            
+            ⁡
+            θ
+            ⋅
+            
+              tanh
+              
+                −
+                1
+              
+            
+            ⁡
+            (
+            sin
+            ⁡
+            θ
+            )
+          
+          )
+        
+      
+    
+    {\displaystyle L={\frac {v_{0}^{2}}{2g}}\left(2\sin \theta +\cos ^{2}\theta \cdot \ln {\frac {1+\sin \theta }{1-\sin \theta }}\right)={\frac {v_{0}^{2}}{g}}\left(\sin \theta +\cos ^{2}\theta \cdot \tanh ^{-1}(\sin \theta )\right)}
+  
+
+where 
+  
+    
+      
+        
+          v
+          
+            0
+          
+        
+      
+    
+    {\displaystyle v_{0}}
+  
+ is the initial velocity, 
+  
+    
+      
+        θ
+      
+    
+    {\displaystyle \theta }
+  
+ is the launch angle and 
+  
+    
+      
+        g
+      
+    
+    {\displaystyle g}
+  
+ is the acceleration due to gravity as a positive value. The expression can be obtained by evaluating the arc length integral for the height-distance parabola between the bounds initial and final displacement (i.e. between 0 and the horizontal range of the projectile) such that:
+
+  
+    
+      
+        L
+        =
+        
+          ∫
+          
+            0
+          
+          
+            
+              r
+              a
+              n
+              g
+              e
+            
+          
+        
+        
+          
+            1
+            +
+            
+              
+                (
+                
+                  
+                    
+                      
+                        d
+                      
+                      y
+                    
+                    
+                      
+                        d
+                      
+                      x
+                    
+                  
+                
+                )
+              
+              
+                2
+              
+            
+          
+        
+        
+        
+          d
+        
+        x
+        =
+        
+          ∫
+          
+            0
+          
+          
+            
+              v
+              
+                0
+              
+              
+                2
+              
+            
+            sin
+            ⁡
+            (
+            2
+            θ
+            )
+            
+              /
+            
+            g
+          
+        
+        
+          
+            1
+            +
+            
+              
+                (
+                
+                  tan
+                  ⁡
+                  θ
+                  −
+                  
+                    
+                      g
+                      
+                        
+                          v
+                          
+                            0
+                          
+                          
+                            2
+                          
+                        
+                        
+                          cos
+                          
+                            2
+                          
+                        
+                        ⁡
+                        θ
+                      
+                    
+                  
+                  x
+                
+                )
+              
+              
+                2
+              
+            
+          
+        
+        
+        
+          d
+        
+        x
+        .
+      
+    
+    {\displaystyle L=\int _{0}^{\mathrm {range} }{\sqrt {1+\left({\frac {\mathrm {d} y}{\mathrm {d} x}}\right)^{2}}}\,\mathrm {d} x=\int _{0}^{v_{0}^{2}\sin(2\theta )/g}{\sqrt {1+\left(\tan \theta -{g \over {v_{0}^{2}\cos ^{2}\theta }}x\right)^{2}}}\,\mathrm {d} x.}
+  
+
+If the time-of-flight is t,
+
+  
+    
+      
+        L
+        =
+        
+          ∫
+          
+            0
+          
+          
+            t
+          
+        
+        
+          
+            
+              v
+              
+                x
+              
+              
+                2
+              
+            
+            +
+            
+              v
+              
+                y
+              
+              
+                2
+              
+            
+          
+        
+        
+        
+          d
+        
+        t
+        =
+        
+          ∫
+          
+            0
+          
+          
+            2
+            
+              v
+              
+                0
+              
+            
+            sin
+            ⁡
+            θ
+            
+              /
+            
+            g
+          
+        
+        
+          
+            (
+            g
+            t
+            
+              )
+              
+                2
+              
+            
+            −
+            2
+            g
+            
+              v
+              
+                0
+              
+            
+            sin
+            ⁡
+            θ
+            t
+            +
+            
+              v
+              
+                0
+              
+              
+                2
+              
+            
+          
+        
+        
+        
+          d
+        
+        t
+        .
+      
+    
+    {\displaystyle L=\int _{0}^{t}{\sqrt {v_{x}^{2}+v_{y}^{2}}}\,\mathrm {d} t=\int _{0}^{2v_{0}\sin \theta /g}{\sqrt {(gt)^{2}-2gv_{0}\sin \theta t+v_{0}^{2}}}\,\mathrm {d} t.}
+  
+
+
+== Trajectory in air ==
+
+Air resistance creates a force that (for symmetric projectiles) is always directed against the direction of motion in the surrounding medium and has a magnitude that depends on the absolute speed: 
+  
+    
+      
+        
+          
+            F
+            
+              a
+              i
+              r
+            
+          
+        
+        =
+        −
+        f
+        (
+        v
+        )
+        ⋅
+        
+          
+            
+              v
+              ^
+            
+          
+        
+      
+    
+    {\displaystyle \mathbf {F_{air}} =-f(v)\cdot \mathbf {\hat {v}} }
+  
+. The speed-dependence of the friction force is linear (
+  
+    
+      
+        f
+        (
+        v
+        )
+        ∝
+        v
+      
+    
+    {\displaystyle f(v)\propto v}
+  
+) at very low speeds (Stokes drag) and quadratic (
+  
+    
+      
+        f
+        (
+        v
+        )
+        ∝
+        
+          v
+          
+            2
+          
+        
+      
+    
+    {\displaystyle f(v)\propto v^{2}}
+  
+) at large speeds (Newton drag). The transition between these behaviours is determined by the Reynolds number, which depends on object speed and size, density 
+  
+    
+      
+        ρ
+      
+    
+    {\textstyle \rho }
+  
+ and dynamic viscosity 
+  
+    
+      
+        η
+      
+    
+    {\textstyle \eta }
+  
+ of the medium. For Reynolds numbers below about 1 the dependence is linear, above 1000 (turbulent flow) it becomes quadratic. In air, which has a kinematic viscosity 
+  
+    
+      
+        η
+        
+          /
+        
+        ρ
+      
+    
+    {\displaystyle \eta /\rho }
+  
+ around 0.15 cm2/s, this means that the drag force becomes quadratic in v when the product of object speed and diameter is more than about 0.015 m2/s, which is typically the case for projectiles.
+
+Stokes drag: 
+  
+    
+      
+        
+          
+            F
+            
+              a
+              i
+              r
+            
+          
+        
+        =
+        −
+        
+          k
+          
+            
+              S
+              t
+              o
+              k
+              e
+              s
+            
+          
+        
+        ⋅
+        
+          v
+        
+        
+      
+    
+    {\displaystyle \mathbf {F_{air}} =-k_{\mathrm {Stokes} }\cdot \mathbf {v} \qquad }
+  
+ (for 
+  
+    
+      
+        R
+        e
+        ≲
+        1
+      
+    
+    {\textstyle Re\lesssim 1}
+  
+)
+Newton drag: 
+  
+    
+      
+        
+          
+            F
+            
+              a
+              i
+              r
+            
+          
+        
+        =
+        −
+        k
+        
+        
+          |
+        
+        
+          v
+        
+        
+          |
+        
+        ⋅
+        
+          v
+        
+        
+      
+    
+    {\displaystyle \mathbf {F_{air}} =-k\,|\mathbf {v} |\cdot \mathbf {v} \qquad }
+  
+ (for 
+  
+    
+      
+        R
+        e
+        ≳
+        1000
+      
+    
+    {\textstyle Re\gtrsim 1000}
+  
+)
+
+The free body diagram on the right is for a projectile that experiences air resistance and the effects of gravity. Here, air resistance is assumed to be in the direction opposite of the projectile's velocity: 
+  
+    
+      
+        
+          
+            F
+            
+              
+                a
+                i
+                r
+              
+            
+          
+        
+        =
+        −
+        f
+        (
+        v
+        )
+        ⋅
+        
+          
+            
+              v
+              ^
+            
+          
+        
+      
+    
+    {\displaystyle \mathbf {F_{\mathrm {air} }} =-f(v)\cdot \mathbf {\hat {v}} }
+  
+
+
+=== Trajectory of a projectile with Stokes drag ===
+Stokes drag, where 
+  
+    
+      
+        
+          
+            F
+            
+              a
+              i
+              r
+            
+          
+        
+        ∝
+        
+          v
+        
+      
+    
+    {\displaystyle \mathbf {F_{air}} \propto \mathbf {v} }
+  
+, only applies at very low speed in air, and is thus not the typical case for projectiles. However, the linear dependence of 
+  
+    
+      
+        
+          F
+          
+            
+              a
+              i
+              r
+            
+          
+        
+      
+    
+    {\displaystyle F_{\mathrm {air} }}
+  
+ on 
+  
+    
+      
+        v
+      
+    
+    {\displaystyle v}
+  
+ causes a very simple differential equation of motion
+
+  
+    
+      
+        
+          
+            
+              d
+            
+            
+              
+                d
+              
+              t
+            
+          
+        
+        
+          
+            (
+            
+              
+                
+                  
+                    v
+                    
+                      x
+                    
+                  
+                
+              
+              
+                
+                  
+                    v
+                    
+                      y
+                    
+                  
+                
+              
+            
+            )
+          
+        
+        =
+        
+          
+            (
+            
+              
+                
+                  −
+                  μ
+                  
+                  
+                    v
+                    
+                      x
+                    
+                  
+                
+              
+              
+                
+                  −
+                  g
+                  −
+                  μ
+                  
+                  
+                    v
+                    
+                      y
+                    
+                  
+                
+              
+            
+            )
+          
+        
+      
+    
+    {\displaystyle {\frac {\mathrm {d} }{\mathrm {d} t}}{\begin{pmatrix}v_{x}\\v_{y}\end{pmatrix}}={\begin{pmatrix}-\mu \,v_{x}\\-g-\mu \,v_{y}\end{pmatrix}}}
+  
+
+in which the 2 cartesian components become completely independent, and it is thus easier to solve. Here, 
+  
+    
+      
+        
+          v
+          
+            0
+          
+        
+      
+    
+    {\displaystyle v_{0}}
+  
+,
+  
+    
+      
+        
+          v
+          
+            x
+          
+        
+      
+    
+    {\displaystyle v_{x}}
+  
+ and 
+  
+    
+      
+        
+          v
+          
+            y
+          
+        
+      
+    
+    {\displaystyle v_{y}}
+  
+ will be used to denote the initial velocity, the velocity along the direction of x and the velocity along the direction of y, respectively. The mass of the projectile will be denoted by m, and 
+  
+    
+      
+        μ
+        :=
+        k
+        
+          /
+        
+        m
+      
+    
+    {\displaystyle \mu :=k/m}
+  
+. For the derivation only the case where 
+  
+    
+      
+        
+          0
+          
+            o
+          
+        
+        ≤
+        θ
+        ≤
+        
+          180
+          
+            o
+          
+        
+      
+    
+    {\textstyle 0^{o}\leq \theta \leq 180^{o}}
+  
+ is considered. Again, the projectile is fired from the origin (0,0).
+
+  
+    
+      
+        x
+        (
+        t
+        )
+        =
+        
+          
+            
+              v
+              
+                x
+                0
+              
+            
+            μ
+          
+        
+        
+          (
+          
+            1
+            −
+            
+              e
+              
+                −
+                μ
+                t
+              
+            
+          
+          )
+        
+      
+    
+    {\displaystyle x(t)={\frac {v_{x0}}{\mu }}\left(1-e^{-\mu t}\right)}
+  
+ (1b)
+
+  
+    
+      
+        y
+        (
+        t
+        )
+        =
+        −
+        
+          
+            g
+            μ
+          
+        
+        t
+        +
+        
+          
+            1
+            μ
+          
+        
+        
+          (
+          
+            
+              v
+              
+                y
+                0
+              
+            
+            +
+            
+              
+                g
+                μ
+              
+            
+          
+          )
+        
+        (
+        1
+        −
+        
+          e
+          
+            −
+            μ
+            t
+          
+        
+        )
+      
+    
+    {\displaystyle y(t)=-{\frac {g}{\mu }}t+{\frac {1}{\mu }}\left(v_{y0}+{\frac {g}{\mu }}\right)(1-e^{-\mu t})}
+  
+ (3b)
+
+  
+    
+      
+        t
+        =
+        
+          
+            1
+            μ
+          
+        
+        
+          (
+          
+            1
+            +
+            
+              
+                μ
+                g
+              
+            
+            
+              v
+              
+                y
+                0
+              
+            
+            +
+            W
+            
+              
+                (
+              
+            
+            −
+            (
+            1
+            +
+            
+              
+                μ
+                g
+              
+            
+            
+              v
+              
+                y
+                0
+              
+            
+            )
+            
+              e
+              
+                −
+                (
+                1
+                +
+                
+                  
+                    μ
+                    g
+                  
+                
+                
+                  v
+                  
+                    y
+                    0
+                  
+                
+                )
+              
+            
+            
+              
+                )
+              
+            
+          
+          )
+        
+      
+    
+    {\displaystyle t={\frac {1}{\mu }}\left(1+{\frac {\mu }{g}}v_{y0}+W{\bigl (}-(1+{\frac {\mu }{g}}v_{y0})e^{-(1+{\frac {\mu }{g}}v_{y0})}{\bigr )}\right)}
+  
+.
+
+
+=== Trajectory of a projectile with Newton drag ===
+
+The most typical case of air resistance, in case of Reynolds numbers above about 1000, is Newton drag with a drag force proportional to the speed squared, 
+  
+    
+      
+        
+          F
+          
+            
+              a
+              i
+              r
+            
+          
+        
+        =
+        −
+        k
+        
+          v
+          
+            2
+          
+        
+      
+    
+    {\displaystyle F_{\mathrm {air} }=-kv^{2}}
+  
+. In air, which has a kinematic viscosity around  0.15 cm2/s, this means that the product of object speed and diameter must be more than about 0.015 m2/s.
+Unfortunately, the equations of motion can not be easily solved analytically for this case. Therefore, a numerical solution will be examined.
+The following assumptions are made:
+
+Constant gravitational acceleration 
+  
+    
+      
+        g
+      
+    
+    {\textstyle g}
+  
+
+Air resistance is given by the following drag formula,
+
+  
+    
+      
+        
+          
+            F
+            
+              D
+            
+          
+        
+        =
+        −
+        
+          
+            
+              1
+              2
+            
+          
+        
+        c
+        ρ
+        A
+        
+        v
+        
+        
+          v
+        
+      
+    
+    {\displaystyle \mathbf {F_{D}} =-{\tfrac {1}{2}}c\rho A\,v\,\mathbf {v} }
+  
+
+Where:
+FD is the drag force,
+c is the drag coefficient,
+ρ is the air density,
+A is the cross sectional area of the projectile. Again 
+  
+    
+      
+        μ
+        =
+        k
+        
+          /
+        
+        m
+        :=
+      
+    
+    {\displaystyle \mu =k/m:=}
+  
+ 
+  
+    
+      
+        c
+        ρ
+        A
+        
+          /
+        
+        (
+        2
+        m
+        )
+      
+    
+    {\displaystyle c\rho A/(2m)}
+  
+ 
+  
+    
+      
+        =
+        c
+        ρ
+        
+          /
+        
+        (
+        2
+        
+          ρ
+          
+            p
+          
+        
+        l
+        )
+      
+    
+    {\displaystyle =c\rho /(2\rho _{p}l)}
+  
+. Compare this with theory/practice of the ballistic coefficient.
+
+
+==== Special cases ====
+Even though the general case of a projectile with Newton drag cannot be solved analytically, some special cases can. Here we denote the terminal velocity in free-fall as 
+  
+    
+      
+        
+          v
+          
+            ∞
+          
+        
+        =
+        
+          
+            g
+            
+              /
+            
+            μ
+          
+        
+      
+    
+    {\textstyle v_{\infty }={\sqrt {g/\mu }}}
+  
+ and the characteristic settling time constant 
+  
+    
+      
+        
+          t
+          
+            f
+          
+        
+        ≡
+        1
+        
+          /
+        
+        (
+        
+          v
+          
+            ∞
+          
+        
+        μ
+        )
+        =
+        1
+        
+          /
+        
+        
+          
+            g
+            μ
+          
+        
+      
+    
+    {\textstyle t_{f}\equiv 1/(v_{\infty }\mu )=1/{\sqrt {g\mu }}}
+  
+. (Dimension of 
+  
+    
+      
+        g
+      
+    
+    {\displaystyle g}
+  
+ [m/s2], 
+  
+    
+      
+        μ
+      
+    
+    {\displaystyle \mu }
+  
+ [1/m])
+
+Near-horizontal motion: In case the motion is almost horizontal, 
+  
+    
+      
+        
+          |
+        
+        
+          v
+          
+            x
+          
+        
+        
+          |
+        
+        ≫
+        
+          |
+        
+        
+          v
+          
+            y
+          
+        
+        
+          |
+        
+      
+    
+    {\displaystyle |v_{x}|\gg |v_{y}|}
+  
+, such as a flying bullet. The vertical velocity component has very little influence on the horizontal motion. In this case:
+
+  
+    
+      
+        
+          
+            
+              
+                v
+                ˙
+              
+            
+          
+          
+            x
+          
+        
+        (
+        t
+        )
+        =
+        −
+        μ
+        
+        
+          v
+          
+            x
+          
+          
+            2
+          
+        
+        (
+        t
+        )
+      
+    
+    {\displaystyle {\dot {v}}_{x}(t)=-\mu \,v_{x}^{2}(t)}
+  
+
+  
+    
+      
+        
+          v
+          
+            x
+          
+        
+        (
+        t
+        )
+        =
+        
+          
+            1
+            
+              1
+              
+                /
+              
+              
+                v
+                
+                  x
+                  ,
+                  0
+                
+              
+              +
+              μ
+              
+              t
+            
+          
+        
+      
+    
+    {\displaystyle v_{x}(t)={\frac {1}{1/v_{x,0}+\mu \,t}}}
+  
+
+  
+    
+      
+        x
+        (
+        t
+        )
+        =
+        
+          
+            1
+            μ
+          
+        
+        ln
+        ⁡
+        (
+        1
+        +
+        μ
+        
+        
+          v
+          
+            x
+            ,
+            0
+          
+        
+        ⋅
+        t
+        )
+      
+    
+    {\displaystyle x(t)={\frac {1}{\mu }}\ln(1+\mu \,v_{x,0}\cdot t)}
+  
+
+The same pattern applies for motion with friction along a line in any direction, when gravity is negligible (relatively small 
+  
+    
+      
+        g
+      
+    
+    {\displaystyle g}
+  
+). It also applies when vertical motion is prevented, such as for a moving car with its engine off.
+Vertical motion upward:
+
+  
+    
+      
+        
+          
+            
+              
+                v
+                ˙
+              
+            
+          
+          
+            y
+          
+        
+        (
+        t
+        )
+        =
+        −
+        g
+        −
+        μ
+        
+        
+          v
+          
+            y
+          
+          
+            2
+          
+        
+        (
+        t
+        )
+      
+    
+    {\displaystyle {\dot {v}}_{y}(t)=-g-\mu \,v_{y}^{2}(t)}
+  
+
+  
+    
+      
+        
+          v
+          
+            y
+          
+        
+        (
+        t
+        )
+        =
+        
+          v
+          
+            ∞
+          
+        
+        tan
+        ⁡
+        
+          
+            
+              
+                t
+                
+                  
+                    p
+                    e
+                    a
+                    k
+                  
+                
+              
+              −
+              t
+            
+            
+              t
+              
+                f
+              
+            
+          
+        
+      
+    
+    {\displaystyle v_{y}(t)=v_{\infty }\tan {\frac {t_{\mathrm {peak} }-t}{t_{f}}}}
+  
+
+  
+    
+      
+        y
+        (
+        t
+        )
+        =
+        
+          y
+          
+            
+              p
+              e
+              a
+              k
+            
+          
+        
+        +
+        
+          
+            1
+            μ
+          
+        
+        ln
+        ⁡
+        
+          
+            (
+          
+        
+        cos
+        ⁡
+        
+          
+            
+              
+                t
+                
+                  
+                    p
+                    e
+                    a
+                    k
+                  
+                
+              
+              −
+              t
+            
+            
+              t
+              
+                f
+              
+            
+          
+        
+        
+          
+            )
+          
+        
+      
+    
+    {\displaystyle y(t)=y_{\mathrm {peak} }+{\frac {1}{\mu }}\ln {\bigl (}\cos {\frac {t_{\mathrm {peak} }-t}{t_{f}}}{\bigr )}}
+  
+
+Here
+
+  
+    
+      
+        
+          v
+          
+            ∞
+          
+        
+        ≡
+        
+          
+            
+              g
+              μ
+            
+          
+        
+      
+    
+    {\displaystyle v_{\infty }\equiv {\sqrt {\frac {g}{\mu }}}}
+  
+ and 
+  
+    
+      
+        
+          t
+          
+            f
+          
+        
+        =
+        
+          
+            1
+            
+              μ
+              g
+            
+          
+        
+        ,
+      
+    
+    {\displaystyle t_{f}={\frac {1}{\sqrt {\mu g}}},}
+  
+
+  
+    
+      
+        
+          t
+          
+            
+              p
+              e
+              a
+              k
+            
+          
+        
+        ≡
+        
+          t
+          
+            f
+          
+        
+        arctan
+        ⁡
+        
+          
+            
+              v
+              
+                y
+                ,
+                0
+              
+            
+            
+              v
+              
+                ∞
+              
+            
+          
+        
+        =
+        
+          
+            1
+            
+              μ
+              g
+            
+          
+        
+        arctan
+        ⁡
+        
+          
+            (
+            
+              
+                
+                  
+                    μ
+                    g
+                  
+                
+              
+              
+                v
+                
+                  y
+                  ,
+                  0
+                
+              
+            
+            )
+          
+        
+        ,
+      
+    
+    {\displaystyle t_{\mathrm {peak} }\equiv t_{f}\arctan {\frac {v_{y,0}}{v_{\infty }}}={\frac {1}{\sqrt {\mu g}}}\arctan {\left({\sqrt {\frac {\mu }{g}}}v_{y,0}\right)},}
+  
+
+and
+
+  
+    
+      
+        
+          y
+          
+            
+              p
+              e
+              a
+              k
+            
+          
+        
+        ≡
+        −
+        
+          
+            1
+            μ
+          
+        
+        ln
+        ⁡
+        
+          cos
+          ⁡
+          
+            
+              
+                t
+                
+                  
+                    p
+                    e
+                    a
+                    k
+                  
+                
+              
+              
+                t
+                
+                  f
+                
+              
+            
+          
+        
+        =
+        
+          
+            1
+            
+              2
+              μ
+            
+          
+        
+        ln
+        ⁡
+        
+          
+            
+              (
+            
+          
+          1
+          +
+          
+            
+              μ
+              g
+            
+          
+          
+            v
+            
+              y
+              ,
+              0
+            
+            
+              2
+            
+          
+          
+            
+              )
+            
+          
+        
+      
+    
+    {\displaystyle y_{\mathrm {peak} }\equiv -{\frac {1}{\mu }}\ln {\cos {\frac {t_{\mathrm {peak} }}{t_{f}}}}={\frac {1}{2\mu }}\ln {{\bigl (}1+{\frac {\mu }{g}}v_{y,0}^{2}{\bigr )}}}
+  
+
+where 
+  
+    
+      
+        
+          v
+          
+            y
+            ,
+            0
+          
+        
+      
+    
+    {\displaystyle v_{y,0}}
+  
+ is the initial upward velocity at 
+  
+    
+      
+        t
+        =
+        0
+      
+    
+    {\displaystyle t=0}
+  
+ and the initial position is 
+  
+    
+      
+        y
+        (
+        0
+        )
+        =
+        0
+      
+    
+    {\displaystyle y(0)=0}
+  
+.
+A projectile cannot rise longer than 
+  
+    
+      
+        
+          t
+          
+            
+              r
+              i
+              s
+              e
+            
+          
+        
+        =
+        
+          
+            π
+            2
+          
+        
+        
+          t
+          
+            f
+          
+        
+      
+    
+    {\displaystyle t_{\mathrm {rise} }={\frac {\pi }{2}}t_{f}}
+  
+  in the vertical direction, when it reaches the peak (0 m, ypeak) at 0 m/s.
+Vertical motion downward:
+
+  
+    
+      
+        
+          
+            
+              
+                v
+                ˙
+              
+            
+          
+          
+            y
+          
+        
+        (
+        t
+        )
+        =
+        −
+        g
+        +
+        μ
+        
+        
+          v
+          
+            y
+          
+          
+            2
+          
+        
+        (
+        t
+        )
+      
+    
+    {\displaystyle {\dot {v}}_{y}(t)=-g+\mu \,v_{y}^{2}(t)}
+  
+
+  
+    
+      
+        
+          v
+          
+            y
+          
+        
+        (
+        t
+        )
+        =
+        −
+        
+          v
+          
+            ∞
+          
+        
+        tanh
+        ⁡
+        
+          
+            
+              t
+              −
+              
+                t
+                
+                  
+                    p
+                    e
+                    a
+                    k
+                  
+                
+              
+            
+            
+              t
+              
+                f
+              
+            
+          
+        
+      
+    
+    {\displaystyle v_{y}(t)=-v_{\infty }\tanh {\frac {t-t_{\mathrm {peak} }}{t_{f}}}}
+  
+
+  
+    
+      
+        y
+        (
+        t
+        )
+        =
+        
+          y
+          
+            
+              p
+              e
+              a
+              k
+            
+          
+        
+        −
+        
+          
+            1
+            μ
+          
+        
+        ln
+        ⁡
+        (
+        cosh
+        ⁡
+        
+          
+            (
+          
+        
+        
+          
+            
+              t
+              −
+              
+                t
+                
+                  
+                    p
+                    e
+                    a
+                    k
+                  
+                
+              
+            
+            
+              t
+              
+                f
+              
+            
+          
+        
+        
+          
+            )
+          
+        
+        )
+      
+    
+    {\displaystyle y(t)=y_{\mathrm {peak} }-{\frac {1}{\mu }}\ln(\cosh {\biggl (}{\frac {t-t_{\mathrm {peak} }}{t_{f}}}{\biggr )})}
+  
+ With hyperbolic functions
+After a time 
+  
+    
+      
+        
+          t
+          
+            f
+          
+        
+      
+    
+    {\displaystyle t_{f}}
+  
+ at y=0, the projectile reaches almost terminal velocity 
+  
+    
+      
+        −
+        
+          v
+          
+            ∞
+          
+        
+      
+    
+    {\displaystyle -v_{\infty }}
+  
+.
+
+
+==== Numerical solution ====
+A projectile motion with drag can be computed generically by numerical integration of the ordinary differential equation, for instance by applying a reduction to a first-order system. The equation to be solved is
+
+  
+    
+      
+        
+          
+            
+              d
+            
+            
+              
+                d
+              
+              t
+            
+          
+        
+        
+          
+            (
+            
+              
+                
+                  x
+                
+              
+              
+                
+                  y
+                
+              
+              
+                
+                  
+                    v
+                    
+                      x
+                    
+                  
+                
+              
+              
+                
+                  
+                    v
+                    
+                      y
+                    
+                  
+                
+              
+            
+            )
+          
+        
+        =
+        
+          
+            (
+            
+              
+                
+                  
+                    v
+                    
+                      x
+                    
+                  
+                
+              
+              
+                
+                  
+                    v
+                    
+                      y
+                    
+                  
+                
+              
+              
+                
+                  −
+                  μ
+                  
+                  
+                    v
+                    
+                      x
+                    
+                  
+                  
+                    
+                      
+                        v
+                        
+                          x
+                        
+                        
+                          2
+                        
+                      
+                      +
+                      
+                        v
+                        
+                          y
+                        
+                        
+                          2
+                        
+                      
+                    
+                  
+                
+              
+              
+                
+                  −
+                  g
+                  −
+                  μ
+                  
+                  
+                    v
+                    
+                      y
+                    
+                  
+                  
+                    
+                      
+                        v
+                        
+                          x
+                        
+                        
+                          2
+                        
+                      
+                      +
+                      
+                        v
+                        
+                          y
+                        
+                        
+                          2
+                        
+                      
+                    
+                  
+                
+              
+            
+            )
+          
+        
+      
+    
+    {\displaystyle {\frac {\mathrm {d} }{\mathrm {d} t}}{\begin{pmatrix}x\\y\\v_{x}\\v_{y}\end{pmatrix}}={\begin{pmatrix}v_{x}\\v_{y}\\-\mu \,v_{x}{\sqrt {v_{x}^{2}+v_{y}^{2}}}\\-g-\mu \,v_{y}{\sqrt {v_{x}^{2}+v_{y}^{2}}}\end{pmatrix}}}
+  
+.
+This approach also allows to add the effects of speed-dependent drag coefficient, altitude-dependent air density (in product 
+  
+    
+      
+        c
+        (
+        v
+        )
+        ρ
+        (
+        y
+        )
+      
+    
+    {\displaystyle c(v)\rho (y)}
+  
+) and position-dependent gravity field 
+  
+    
+      
+        g
+        (
+        y
+        )
+        =
+        
+          g
+          
+            0
+          
+        
+        
+          /
+        
+        (
+        1
+        +
+        y
+        
+          /
+        
+        R
+        
+          )
+          
+            2
+          
+        
+      
+    
+    {\textstyle g(y)=g_{0}/(1+y/R)^{2}}
+  
+ (when 
+  
+    
+      
+        y
+        ≪
+        R
+        :
+        g
+        ≲
+        
+          g
+          
+            0
+          
+        
+        
+          /
+        
+        (
+        1
+        +
+        2
+        y
+        
+          /
+        
+        R
+        )
+        ≈
+        
+          g
+          
+            0
+          
+        
+        (
+        1
+        −
+        2
+        y
+        
+          /
+        
+        R
+        )
+      
+    
+    {\textstyle y\ll R:g\lesssim g_{0}/(1+2y/R)\approx g_{0}(1-2y/R)}
+  
+, is linear decrease).
+
+
+== Lofted trajectory ==
+
+A special case of a ballistic trajectory for a rocket is a lofted trajectory, a trajectory with an apogee greater than the minimum-energy trajectory to the same range. In other words, the rocket travels higher and by doing so it uses more energy to get to the same landing point. This may be done for various reasons such as increasing distance to the horizon to give greater viewing/communication range or for changing the angle with which a missile will impact on landing. Lofted trajectories are sometimes used in both missile rocketry and in spaceflight.
+
+
+== Projectile motion on a planetary scale ==
+
+When a projectile travels a range that is significant compared to the Earth's radius, the curvature of the Earth and the non-uniform Earth's gravity have to be considered. This is, for example, the case with spacecraft and intercontinental missiles. The trajectory then generalizes (without air resistance) from a parabola to a Kepler-ellipse with one focus at the center of the Earth (shown in fig. 3). The projectile motion then follows Kepler's laws of planetary motion.
+The trajectory's parameters have to be adapted from the values of a uniform gravity field stated above. The Earth radius is taken as R, and g as the standard surface gravity. Let 
+  
+    
+      
+        
+          
+            
+              v
+              ~
+            
+          
+        
+        :=
+        v
+        
+          /
+        
+        
+          
+            R
+            g
+          
+        
+      
+    
+    {\displaystyle {\tilde {v}}:=v/{\sqrt {Rg}}}
+  
+ be the launch velocity relative to the first cosmic velocity (the velocity required for a circular orbit).
+Total range d between launch and impact:
+
+  
+    
+      
+        d
+        =
+        
+          
+            
+              
+                v
+                
+                  2
+                
+              
+              sin
+              ⁡
+              (
+              2
+              θ
+              )
+            
+            g
+          
+        
+        
+          
+            /
+          
+        
+        
+          
+            1
+            −
+            
+              (
+              
+                2
+                −
+                
+                  
+                    
+                      
+                        v
+                        ~
+                      
+                    
+                  
+                  
+                    2
+                  
+                
+              
+              )
+            
+            
+              
+                
+                  
+                    v
+                    ~
+                  
+                
+              
+              
+                2
+              
+            
+            
+              cos
+              
+                2
+              
+            
+            ⁡
+            θ
+          
+        
+      
+    
+    {\displaystyle d={\frac {v^{2}\sin(2\theta )}{g}}{\Big /}{\sqrt {1-\left(2-{\tilde {v}}^{2}\right){\tilde {v}}^{2}\cos ^{2}\theta }}}
+  
+     (where launch angle  
+  
+    
+      
+        θ
+        =
+        
+          
+            
+              1
+              2
+            
+          
+        
+        arccos
+        ⁡
+        
+          (
+          
+            
+              
+                
+                  
+                    v
+                    ~
+                  
+                
+              
+              
+                2
+              
+            
+            
+              /
+            
+            (
+            2
+            −
+            
+              
+                
+                  
+                    v
+                    ~
+                  
+                
+              
+              
+                2
+              
+            
+            )
+          
+          )
+        
+      
+    
+    {\displaystyle \theta ={\tfrac {1}{2}}\arccos \left({\tilde {v}}^{2}/(2-{\tilde {v}}^{2})\right)}
+  
+)
+Maximum range of a projectile for optimum launch angle θ=45o:
+
+  
+    
+      
+        
+          d
+          
+            
+              m
+              a
+              x
+            
+          
+        
+        =
+        
+          
+            
+              v
+              
+                2
+              
+            
+            g
+          
+        
+        
+          
+            /
+          
+        
+        
+          (
+          
+            1
+            −
+            
+              
+                
+                  1
+                  2
+                
+              
+            
+            
+              
+                
+                  
+                    v
+                    ~
+                  
+                
+              
+              
+                2
+              
+            
+          
+          )
+        
+      
+    
+    {\displaystyle d_{\mathrm {max} }={\frac {v^{2}}{g}}{\big /}\left(1-{\tfrac {1}{2}}{\tilde {v}}^{2}\right)}
+  
+       with 
+  
+    
+      
+        v
+        <
+        
+          
+            R
+            g
+          
+        
+      
+    
+    {\displaystyle v<{\sqrt {Rg}}}
+  
+, the first cosmic velocity
+Maximum height of a projectile above the planetary surface:
+
+  
+    
+      
+        h
+        =
+        
+          
+            
+              
+                v
+                
+                  2
+                
+              
+              
+                sin
+                
+                  2
+                
+              
+              ⁡
+              θ
+            
+            g
+          
+        
+        
+          
+            /
+          
+        
+        
+          (
+          
+            1
+            −
+            
+              
+                
+                  
+                    v
+                    ~
+                  
+                
+              
+              
+                2
+              
+            
+            +
+            
+              
+                1
+                −
+                
+                  (
+                  
+                    2
+                    −
+                    
+                      
+                        
+                          
+                            v
+                            ~
+                          
+                        
+                      
+                      
+                        2
+                      
+                    
+                  
+                  )
+                
+                
+                  
+                    
+                      
+                        v
+                        ~
+                      
+                    
+                  
+                  
+                    2
+                  
+                
+                
+                  cos
+                  
+                    2
+                  
+                
+                ⁡
+                θ
+              
+            
+          
+          )
+        
+      
+    
+    {\displaystyle h={\frac {v^{2}\sin ^{2}\theta }{g}}{\Big /}\left(1-{\tilde {v}}^{2}+{\sqrt {1-\left(2-{\tilde {v}}^{2}\right){\tilde {v}}^{2}\cos ^{2}\theta }}\right)}
+  
+
+Maximum height of a projectile for vertical launch (
+  
+    
+      
+        θ
+        =
+        
+          90
+          
+            ∘
+          
+        
+      
+    
+    {\displaystyle \theta =90^{\circ }}
+  
+):
+
+  
+    
+      
+        
+          h
+          
+            
+              m
+              a
+              x
+            
+          
+        
+        =
+        
+          
+            
+              v
+              
+                2
+              
+            
+            
+              2
+              g
+            
+          
+        
+        
+          
+            /
+          
+        
+        
+          (
+          
+            1
+            −
+            
+              
+                
+                  1
+                  2
+                
+              
+            
+            
+              
+                
+                  
+                    v
+                    ~
+                  
+                
+              
+              
+                2
+              
+            
+          
+          )
+        
+      
+    
+    {\displaystyle h_{\mathrm {max} }={\frac {v^{2}}{2g}}{\big /}\left(1-{\tfrac {1}{2}}{\tilde {v}}^{2}\right)}
+  
+       with 
+  
+    
+      
+        v
+        <
+        
+          
+            2
+            R
+            g
+          
+        
+      
+    
+    {\displaystyle v<{\sqrt {2Rg}}}
+  
+, the second cosmic velocity or escape velocity,
+Time of flight:
+
+  
+    
+      
+        t
+        =
+        
+          
+            
+              2
+              v
+              sin
+              ⁡
+              θ
+            
+            g
+          
+        
+        ⋅
+        
+          
+            1
+            
+              2
+              −
+              
+                
+                  
+                    
+                      v
+                      ~
+                    
+                  
+                
+                
+                  2
+                
+              
+            
+          
+        
+        
+          (
+          
+            1
+            +
+            
+              
+                1
+                
+                  
+                    
+                      2
+                      −
+                      
+                        
+                          
+                            
+                              v
+                              ~
+                            
+                          
+                        
+                        
+                          2
+                        
+                      
+                    
+                  
+                  
+                  
+                    
+                      
+                        v
+                        ~
+                      
+                    
+                  
+                  sin
+                  ⁡
+                  θ
+                
+              
+            
+            arcsin
+            ⁡
+            
+              
+                
+                  
+                    
+                      2
+                      −
+                      
+                        
+                          
+                            
+                              v
+                              ~
+                            
+                          
+                        
+                        
+                          2
+                        
+                      
+                    
+                  
+                  
+                  
+                    
+                      
+                        v
+                        ~
+                      
+                    
+                  
+                  sin
+                  ⁡
+                  θ
+                
+                
+                  1
+                  −
+                  
+                    (
+                    
+                      2
+                      −
+                      
+                        
+                          
+                            
+                              v
+                              ~
+                            
+                          
+                        
+                        
+                          2
+                        
+                      
+                    
+                    )
+                  
+                  
+                    
+                      
+                        
+                          v
+                          ~
+                        
+                      
+                    
+                    
+                      2
+                    
+                  
+                  
+                    cos
+                    
+                      2
+                    
+                  
+                  ⁡
+                  θ
+                
+              
+            
+          
+          )
+        
+      
+    
+    {\displaystyle t={\frac {2v\sin \theta }{g}}\cdot {\frac {1}{2-{\tilde {v}}^{2}}}\left(1+{\frac {1}{{\sqrt {2-{\tilde {v}}^{2}}}\,{\tilde {v}}\sin \theta }}\arcsin {\frac {{\sqrt {2-{\tilde {v}}^{2}}}\,{\tilde {v}}\sin \theta }{\sqrt {1-\left(2-{\tilde {v}}^{2}\right){\tilde {v}}^{2}\cos ^{2}\theta }}}\right)}
+  
+
+
+== See also ==
+Equations of motion
+Phugoid
+
+
+== Notes ==
+
+
+== References ==

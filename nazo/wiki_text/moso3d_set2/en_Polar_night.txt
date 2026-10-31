@@ -1,0 +1,137 @@
+https://en.wikipedia.org/wiki/Polar_night
+
+Polar night is a phenomenon that occurs in the northernmost and southernmost regions of Earth when the Sun remains below the horizon for more than 24 hours. This only occurs inside the polar circles. The opposite phenomenon, polar day or midnight sun, occurs when the Sun remains above the horizon for more than 24 hours. 
+There are multiple ways to define twilight, the gradual transition to and from darkness when the Sun is below the horizon. "Civil" twilight occurs when the Sun is between 0 and 6 degrees below the horizon. Nearby planets like Venus and bright stars like Sirius are visible during this period. "Nautical" twilight continues until the Sun is 12 degrees below the horizon. During nautical twilight,  the horizon is visible enough for navigation. "Astronomical" twilight continues until the Sun has sunk 18 degrees below the horizon. Beyond 18 degrees, refracted sunlight is no longer visible. True night is defined as the period when the sun is 18 or more degrees below either horizon.
+Since the atmosphere refracts sunlight, polar day is longer than polar night, and the area that experiences polar night is slightly smaller than the area that experiences polar day. The polar circles are located at latitudes between these two areas, at approximately 66.5°. While it is day in the Arctic Circle, it is night in the Antarctic Circle, and vice versa.
+
+
+== Description ==
+
+The length of polar night varies by latitude from 24 hours just inside the polar circles to 179 days at the poles. As there are various kinds of twilight, there also exist various kinds of polar twilight that progress towards true polar night. Each kind of polar night is defined as when it is darker than the corresponding kind of twilight. The descriptions below are based on relatively clear skies, so the sky will be darker in the presence of dense clouds.
+
+
+== Types of polar night ==
+
+
+=== Polar twilight ===
+As mentioned, a location experiencing polar night does not mean that the location will be in full darkness; in most cases, due to sunlight being refracted over the horizon, a location experiencing polar night will actually be in one of the various phases of polar twilight. As in locations experiencing daylight, the middle of the day will typically be the brightest time in locations experiencing polar twilight.
+For example, a typical day during civil polar twilight in Vadsø, Norway will begin with night, astronomical twilight, nautical twilight, and civil twilight in that order (with each successive phase including more light than the last). Following civil twilight, the day will progress through the other phases in the opposite order (nautical twilight, then astronomical twilight, then night to end the day). 
+
+
+==== Civil polar twilight ====
+Civil polar twilight occurs at latitudes roughly between 67° 24' and 72° 34' North or South, where the Sun will be below the horizon all day on the winter solstice, but by more than true altitude of 50' and less than 6° at solar noon. There is then no true daylight at the solar culmination, only civil twilight. During civil polar twilight, there is still enough light for most normal outdoor activities at midday because of light scattering by the upper atmosphere and refraction. However, during dense cloud cover, places like the coast of Finnmark (about 70°) in Norway will experience a "day" that is darker than usual. Street lamps may therefore remain on even at midday, and a person looking at a window from within a brightly lit room might still be able to see their reflection, as the level of outdoor illuminance will be below that of many illuminated indoor spaces. 
+Sufferers of seasonal affective disorder tend to seek out therapy with artificial light, as the psychological benefits of daylight require relatively high levels of ambient light (up to 10,000 lux) which are not present in any stage of twilight; thus, the midday twilights experienced anywhere inside the polar circles are still "polar nights" for this purpose.
+
+
+==== Nautical polar twilight ====
+Nautical polar twilight occurs at latitudes roughly between 72° 34' and 78° 34' North or South, which is exactly 6° to 12° inside the polar circles. There is then no civil twilight at the solar culmination, only nautical twilight. During nautical polar twilight, the human eye may distinguish general outlines of ground objects at midday but cannot participate in detailed outdoor operations.
+Nowhere on mainland Europe is this definition met. The Norwegian town of Longyearbyen, Svalbard, experiences nautical polar twilight from about 11 November until 30 January. Dikson, in Russia, experiences nautical polar twilight from about 6 December to 6 January. On the Canadian territory of Pond Inlet, Nunavut, nautical polar twilight lasts from about 16 December until 26 December.
+
+
+==== Astronomical polar twilight ====
+Astronomical polar twilight occurs at latitudes roughly between 78° 34' and 84° 34' North or South, which is exactly 12° to 18° inside the polar circles. There is then no nautical twilight at the solar culmination, only astronomical twilight. During astronomical polar twilight, the sky is dark enough at midday to permit astronomical observation of point sources of light such as stars, except in regions with more intense skyglow due to light pollution, moonlight, auroras, and other sources of light. There is a location at the horizon with more light than others around midday due to refraction. Some critical observations, such as of faint diffuse items such as nebulae and galaxies, may require observations beyond the limit of astronomical twilight.
+The Norwegian town of Ny-Ålesund, Svalbard, experiences this roughly from December 12 to 30. Its antipode (78°55′S 168°4′W) experiences this roughly from June 12 to July 1. The Canadian research base of Eureka, Nunavut, experiences this roughly from December 2 to January 8. Its antipode (79°59′S 94°4′E) experiences this roughly from June 1 to July 11. The Russian territory of Franz Josef Land experiences this roughly from November 27 to January 15. Its antipode (81°S 125°W) experiences this roughly from May 25 to July 17. Alert, Nunavut, the northernmost settlement in the world, experiences this roughly from November 19 to January 22. Its antipode (82°30′S 117°38′E) experiences this roughly from May 19 to July 25. Oodaaq, a gravel bank at the northern tip of Greenland and a disputed northernmost point of land, experiences this roughly from November 15 to January 27. Its antipode (83°40′S 150°7′E) experiences this roughly from May 13 to July 31.
+
+
+=== True polar night ===
+A true polar night is a period of continuous night where no astronomical twilight occurs at the solar culmination. During a true polar night, stars of the sixth magnitude, which are the dimmest stars visible to the naked eye, will be visible throughout the entire 24-hour day. At solar noon, the sun will be between exactly 18° and approximately 23° 26' below the horizon. These conditions last for about 11 weeks at the poles themselves.
+True polar night is limited to latitudes above roughly 84° 34' North or South, which is exactly 18° within the polar circles, or approximately five and a half degrees from the poles. The only permanent settlement on Earth at these latitudes is the Amundsen–Scott scientific research station in Antarctica, whose winter personnel are completely isolated from mid-February to late October. The South Pole experiences this roughly from May 11 to August 1, while the North Pole experiences this roughly from November 12 to January 28.
+
+
+== Dates with no daylight ==
+Northern Hemisphere:
+
+68° North: about December 9 to January 2 (notable locations: Kiruna, Lofoten Islands, Narvik)
+69° North: about December 1 to January 10 (notable locations: Tromsø, Murmansk, Norilsk, Severomorsk, Sisimiut)
+70° North: about November 26 to January 16 (notable locations: Honningsvag, Vadso, Hammerfest, Kirkenes, Pevek)
+71° North: about November 21 to January 21 (notable locations: Utqiagvik)
+72° North: about November 16 to January 25
+73° North: about November 13 to January 28
+74° North: about November 9 to February 1 (notable locations: Resolute)
+75° North: about November 6 to February 4
+76° North: about November 2 to February 7 (notable locations: Grise Fiord)
+77° North: about October 30 to February 11 (notable locations: Qaanaaq)
+78° North: about October 27 to February 14 (notable locations: Longyearbyen)
+79° North: about October 24 to February 16 (notable locations: Ny-Ålesund)
+80° North: about October 21 to February 19
+81° North: about October 19 to February 22
+82° North: about October 16 to February 25 (notable locations: Alert, Nunavut
+83° North: about October 13 to February 27
+84° North: about October 11 to March 2
+85° North: about October 8 to March 5
+86° North: about October 5 to March 7
+87° North: about October 3 to March 10
+88° North: about September 30 to March 12
+89° North: about September 28 to March 15
+90° North: about September 25 to March 17
+Southern Hemisphere:
+
+68° South: about June 7 to July 3
+69° South: about May 30 to July 11
+70° South: about May 24 to July 18
+71° South: about May 19 to July 23
+72° South: about May 14 to July 27
+73° South: about May 12 to August 2
+74° South: about May 7 to August 4
+75° South: about May 4 to August 8
+76° South: about April 30 to August 11
+77° South: about April 28 to August 15
+78° South: about April 24 to August 18 (notable locations: McMurdo Station; Vostok Station)
+79° South: about April 22 to August 22
+80° South: about April 25 to August 19 (notable locations: Kunlun Station)
+81° South: about April 17 to August 24
+82° South: about April 12 to August 29
+83° South: about April 10 to September 1
+84° South: about April 7 to September 4
+85° South: about April 4 to September 7
+86° South: about April 2 to September 9
+87° South: about March 30 to September 12
+88° South: about March 28 to September 14
+89° South: about March 25 to September 17
+90° South: about March 24 to September 20 (notable locations: Amundsen–Scott South Pole Station)
+
+
+== Polar Sun cycle ==
+
+If an observer located on either the North Pole or the South Pole were to define a "day" as the time from the maximal elevation of the Sun above the horizon during one period of daylight, until the maximal elevation of the Sun above the horizon of the next period of daylight, then a "polar day" as experienced by such an observer would be one Earth-year long.
+
+
+== Duration and hemispheric asymmetry ==
+From the polar circle poleward, the polar night lasts from one day to about half a year at the pole proper. The duration of polar night, however, is not symmetric about the equator in the two hemispheres due to the fact that the orbit of the Earth is an ellipse and the movement of the Earth obeys Kepler's laws of planetary motion and, as a consequence, the polar night is about 179 days at north pole and 186 days at south pole. The polar night at north pole begins at the September equinox and ends at the March equinox; the polar night at south pole begins at the March equinox and ends at September equinox.
+
+
+== Effects on sleep and mental health ==
+
+Numerous analyses have been conducted to examine the effects of polar night on humans. In Tromsø, Norway, a city located at 69 degrees north, there is a 2 month long polar night, lasting from mid-November to mid-January. An analysis was conducted based on 2015-16 data from a health survey that involved residents of the region over age 40, with the goal being to analyze the seasonal variation of sleeping patterns in Tromsø. The study found that there was a higher prevalence of insomnia among men in the fall and winter months, but not among women. However, overall, sleep duration varied little to none throughout the year despite the extreme changes in daylight; it is worthwhile to note that a factor in this result may be the significant amount of artificial light in Tromsø.
+A similar study was conducted among men who overwintered at Belgrano II, an Argentine research station in Antarctica. The station is located at 77 degrees south, resulting in a polar night 4 months in length. The study was conducted across 5 different winter campaigns in the 2010s, bringing in a total of 82 participants. The study found that participants generally slept for longer periods of time in the summer months than the winter months. Additionally, greater amounts of social jetlag were observed in the winter months.
+A third study aimed to examine the mental health of 88 Korean crew members at two different research stations in Antarctica, King Sejong Station and Jang Bogo Station. No crew members had been diagnosed with a mental illness prior to the study. While in Antarctica, 7 of the 88 crew members were diagnosed with a mental illness during early winter. The mental illnesses included insomnia disorder (3 diagnosed), depressive disorder (1 diagnosed), adjustment disorder (2 diagnosed), and alcohol use disorder (1 diagnosed).
+Overall, both Antarctic studies showed a lower amount of sleep beginning at the start of winter, while the study from the Korean bases also showed an onset of mental health problems at that time. While the study from Tromsø did not show a similar drop in sleep duration as the Antarctic studies (perhaps due to the high amounts of artificial light), it did show an increased amount of insomnia in men during winter; therefore, the polar night was shown to have sleep and/or mental health effects in all three studies.
+
+
+== Around the Solar System ==
+Any planet with a significant axial tilt whose day (rotation period) is significantly shorter than its year (orbital period) has a polar night (a place and time where night lasts more than one rotation period). Due to their significant axial tilts, Earth, Mars, Saturn, and Neptune all experience true polar night in their polar regions twice a year while Uranus and Pluto experience it across nearly their entire surfaces due to their particularly extreme tilt. Aside from Luna due to its low orbital inclination relative to the Sun, the major satellites of these planets also experience true polar night.
+On some objects, this can cause temperatures to plummet so much their atmosphere partially freezes onto said pole in an ice cap before subliminating in spring. On Mars this causes a substantial portion of the atmosphere to freeze even being detected in changes in the planet's gravity field. This has also been observed on Triton and Pluto.
+The Martian lander Phoenix was subject to this phenomenon as the Martian winter encroached causing the spacecraft to lose power from ever shortening daylengths and ultimately become buried in the seasonal CO2 Martian ice cap over the polar night.
+
+
+== See also ==
+Midnight sun
+Winter-over syndrome
+
+
+== References ==
+
+
+== Further reading ==
+Greene, David (2003). Light and Dark (eBook ed.). Institute of Physics Publishing. ISBN 0-7503-0874-5.
+Mason, W. A. (May 1933). "Twilight". United States Naval Institute Proceedings. Vol. 59, no. 363. ISSN 0041-798X.
+Ottewell, Guy (14 June 2019). "The undark nights of summer". EarthSky. Retrieved 21 April 2024.
+Kher, Aparna; Bikos, Konstantin (n.d.). "Twilight, Dawn, and Dusk". Time and Date. Retrieved 21 April 2024.
+Shubinski, Raymond (9 November 2023). "Discover the three kinds of twilight". Astronomy Magazine. Retrieved 20 April 2024.
+Hansen, V.; Lund, E.; Smith-Sivertsen, T. (March 1998). "Self-reported mental distress under the shifting daylight in the high north". Psychological Medicine. 28 (2): 447–452. doi:10.1017/S0033291797006326. PMID 9572101. S2CID 10556073.
+
+
+== External links ==
+
+The polar night and polar darkness
+Many years' of webcam pictures from Tromsø, Norway.  These clearly show the progression into and away from winter at a latitude within the Arctic Circle.

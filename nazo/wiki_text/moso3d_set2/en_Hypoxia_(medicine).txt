@@ -1,0 +1,332 @@
+https://en.wikipedia.org/wiki/Hypoxia_(medicine)
+
+Hypoxia is a condition in which the body or a region of the body is deprived of an adequate oxygen supply at the tissue level. Hypoxia may be classified as either generalized, affecting the whole body, or local, affecting a region of the body. Although hypoxia is often a pathological condition, variations in arterial oxygen concentrations can be part of the normal physiology, for example, during strenuous physical exercise.
+Hypoxia differs from hypoxemia and anoxemia, in that hypoxia refers to a state in which oxygen present in a tissue or the whole body is insufficient, whereas hypoxemia and anoxemia refer specifically to states that have low or no oxygen in the blood. Hypoxia in which there is complete absence of oxygen supply is referred to as anoxia.
+Hypoxia can be due to external causes, when the breathing gas is hypoxic, or internal causes, such as reduced effectiveness of gas transfer in the lungs, reduced capacity of the blood to carry oxygen, compromised general or local perfusion, or inability of the affected tissues to extract oxygen from, or metabolically process, an adequate supply of oxygen from an adequately oxygenated blood supply.
+Generalized hypoxia occurs in healthy people when they ascend to high altitude, where it causes altitude sickness leading to potentially fatal complications: high-altitude pulmonary edema (HAPE) and high-altitude cerebral edema (HACE).  Hypoxia also occurs in healthy individuals when breathing inappropriate mixtures of gases with a low oxygen content, e.g., while diving underwater, especially when using malfunctioning closed-circuit rebreather systems that control the amount of oxygen in the supplied air. Mild, non-damaging intermittent hypoxia is used intentionally during altitude training to develop an athletic performance adaptation at both the systemic and cellular level.
+Hypoxia is a common complication of preterm birth in newborn infants. Because the lungs develop late in pregnancy, premature infants frequently possess underdeveloped lungs. To improve blood oxygenation, infants at risk of hypoxia may be placed inside incubators that provide warmth, humidity, and supplemental oxygen. More serious cases are treated with continuous positive airway pressure (CPAP).
+
+
+== Classification ==
+
+Hypoxia exists when there is a reduced amount of oxygen in the tissues of the body. Hypoxemia refers to a reduction in arterial oxygenation below the normal range, regardless of whether gas exchange is impaired in the lung, arterial oxygen content (CaO2 – which represents the amount of oxygen delivered to the tissues) is adequate, or tissue hypoxia exists. The classification categories are not always mutually exclusive, and hypoxia can be a consequence of a wide variety of causes.
+
+
+=== By cause ===
+Hypoxic hypoxia, also referred to as generalised hypoxia, may be caused by:
+Hypoventilation, which is insufficient ventilation of the lungs due to any cause (fatigue, excessive work of breathing, barbiturate poisoning, pneumothorax, sleep apnea, etc.).
+Low-inspired oxygen partial pressure, which may be caused by breathing normal air at low ambient pressures due to altitude, by breathing hypoxic breathing gas at an unsuitable depth, by breathing inadequately re-oxygenated recycled breathing gas from a rebreather, life-support system, or anesthetic machine.
+Hypoxia of ascent (latent hypoxia) in freediving and rebreather diving.
+Airway obstruction, choking, drowning.
+Chronic obstructive pulmonary disease (COPD)
+Neuromuscular diseases or interstitial lung disease
+Malformed vascular system such as an anomalous coronary artery.
+Hypoxemic hypoxia is a lack of oxygen caused by low oxygen tension in the arterial blood, due to the inability of the lungs to sufficiently oxygenate the blood. Causes include hypoventilation, impaired alveolar diffusion, and pulmonary shunting. This definition overlaps considerably with that of hypoxic hypoxia.
+Pulmonary hypoxia is hypoxia from hypoxemia due to abnormal pulmonary function, and occurs when the lungs receive adequately oxygenated gas which does not oxygenate the blood sufficiently. It may be caused by:
+Ventilation–perfusion mismatch (V/Q mismatch), which can be either low or high. A reduced V/Q ratio can be caused by impaired ventilation, which may be a consequence of conditions such as bronchitis, obstructive airway disease, mucus plugs, or pulmonary edema, which limit or obstruct the ventilation. In this situation there is not enough oxygen in the alveolar gas to fully oxygenate the blood volume passing through, and PaO2 will be low. Conversely, an increased V/Q ratio tends to be a consequence of impaired perfusion, in which circumstances the blood supply is insufficient to carry the available oxygen, PaO2 will be normal, but tissues will be insufficiently perfused to meet the oxygen demand. A V/Q mismatch can also occur when the surface area available for gas exchange in the lungs is decreased.
+Pulmonary shunt, in which blood passes from the right to the left side of the heart without being oxygenated. This may be due to anatomical shunts, in which the blood bypasses the alveoli, via intracardiac shunts, pulmonary arteriovenous malformations, fistulas, and hepatopulmonary syndrome, or physiological shunting, in which blood passes through non-ventilated alveoli.
+Impaired diffusion, a reduced capacity for gas molecules to move between the air in the alveoli and the blood, which occurs when alveolar–capillary membranes thicken. This can happen in interstitial lung diseases such as pulmonary fibrosis, sarcoidosis, hypersensitivity pneumonitis, and connective tissue disorders.
+Circulatory hypoxia, also known as ischemic hypoxia or stagnant hypoxia, is caused by abnormally low blood flow to the lungs, which can occur during shock, cardiac arrest, severe congestive heart failure, or abdominal compartment syndrome, where the main dysfunction is in the cardiovascular system, causing a major reduction in perfusion. Arterial gas is adequately oxygenated in the lungs, and the tissues are able to accept the oxygen available, but the flow rate to the tissues is insufficient. Venous oxygenation is particularly low.
+Anemic hypoxia or hypemic hypoxia is the lack of capacity of the blood to carry the normal level of oxygen. It can be caused by anemia or:
+Carbon monoxide poisoning, in which carbon monoxide combines with the hemoglobin, to form carboxyhemoglobin (HbCO) preventing it from transporting oxygen.
+Methemoglobinemia, a change in the hemoglobin molecule from a ferrous ion (Fe2+) to a ferric ion (Fe3+), which has a lesser capacity to bind free oxygen molecules, and a greater affinity for bound oxygen. This causes a left shift in the O2–Hb curve. It can be congenital or caused by medications, food additives or toxins, including chloroquine, benzene, nitrites, benzocaine.
+Histotoxic hypoxia (Dysoxia) or Cellular hypoxia occurs when the cells of the affected tissues are unable to use oxygen provided by normally oxygenated hemoglobin. Examples include cyanide poisoning which inhibits cytochrome c oxidase, an enzyme required for cellular respiration in mitochondria. Methanol poisoning has a similar effect, as the metabolism of methanol produces formic acid which inhibits mitochondrial cytochrome oxidase.
+Intermittent hypoxic training induces mild generalized hypoxia for short periods as a training method to improve sporting performance. This is not considered a medical condition. Acute cerebral hypoxia leading to blackout can occur during freediving. This is a consequence of prolonged voluntary apnea underwater, and generally occurs in trained athletes in good health and good physical condition.
+
+
+=== By extent ===
+Hypoxia may affect the whole body, or just some parts.
+
+
+==== Generalized hypoxia ====
+The term generalized hypoxia may refer to hypoxia affecting the whole body, or may be used as a synonym for hypoxic hypoxia, which occurs when there is insufficient oxygen in the breathing gas to oxygenate the blood to a level that will adequately support normal metabolic processes, and which will inherently affect all perfused tissues.
+The symptoms of generalized hypoxia depend on its severity and acceleration of onset. In the case of altitude sickness, where hypoxia develops gradually, the symptoms include fatigue, numbness / tingling of extremities, nausea, and cerebral hypoxia. These symptoms are often difficult to identify, but early detection of symptoms can be critical.
+In severe hypoxia, or hypoxia of very rapid onset, ataxia, confusion, disorientation, hallucinations, behavioral change, severe headaches, reduced level of consciousness, papilloedema, breathlessness, pallor, tachycardia, and pulmonary hypertension eventually leading to the late signs cyanosis, slow heart rate, cor pulmonale, and low blood pressure followed by heart failure eventually leading to shock and death.
+Because hemoglobin is a darker red when it is not bound to oxygen (deoxyhemoglobin), as opposed to the rich red color that it has when bound to oxygen (oxyhemoglobin), when seen through the skin it has an increased tendency to reflect blue light back to the eye. In cases where the oxygen is displaced by another molecule, such as carbon monoxide, the skin may appear 'cherry red' instead of cyanotic. Hypoxia can cause premature birth, and injure the liver, among other deleterious effects.
+
+
+==== Localized hypoxia ====
+
+Hypoxia that is localized to a region of the body, such as an organ or a limb, is usually the consequence of ischemia, the reduced perfusion to that organ or limb, and may not necessarily be associated with general hypoxemia. A locally reduced perfusion is generally caused by an increased resistance to flow through the blood vessels of the affected area.
+Ischemia is a restriction in blood supply to any tissue, muscle group, or organ, causing a shortage of oxygen.  Ischemia is generally caused by problems with blood vessels, with resultant damage to or dysfunction of tissue i.e. hypoxia and microvascular dysfunction. It also means local hypoxia in a given part of a body sometimes resulting from vascular occlusion such as vasoconstriction, thrombosis, or embolism. Ischemia comprises not only insufficiency of oxygen, but also reduced availability of nutrients and inadequate removal of metabolic wastes. Ischemia can be a partial (poor perfusion) or total blockage.
+Compartment syndrome is a condition in which increased pressure within one of the body's anatomical compartments results in insufficient blood supply to tissue within that space. There are two main types: acute and chronic. Compartments of the leg or arm are most commonly involved.
+If tissue is not being perfused properly, it may feel cold and appear pale; if severe, hypoxia can result in cyanosis, a blue discoloration of the skin. If hypoxia is very severe, a tissue may eventually become gangrenous.
+
+
+==== By affected tissues and organs ====
+Any living tissue can be affected by hypoxia, but some are particularly sensitive, or have more noticeable or notable consequences.
+
+
+===== Cerebral hypoxia =====
+
+Cerebral hypoxia is hypoxia specifically involving the brain. In the brain, hypoxia increases cerebral blood flow through multiple vasodilatory mechanisms, including adenosine signaling, activation of ATP-sensitive potassium (KATP) channels, nitric oxide, arachidonic acid metabolites, and hydrogen sulfide-dependent pathways, which together help maintain oxygen delivery to neural tissue during periods of reduced oxygen availability. The four categories of cerebral hypoxia in order of increasing severity are: diffuse cerebral hypoxia (DCH), focal cerebral ischemia, cerebral infarction, and global cerebral ischemia. Prolonged hypoxia induces neuronal cell death via apoptosis, resulting in a hypoxic brain injury.
+Oxygen deprivation can be hypoxic (reduced general oxygen availability) or ischemic (oxygen deprivation due to a disruption in blood flow) in origin. Brain injury as a result of oxygen deprivation is generally termed hypoxic injury. Hypoxic ischemic encephalopathy (HIE) is a condition that occurs when the entire brain is deprived of an adequate oxygen supply, but the deprivation is not total. While HIE is associated in most cases with oxygen deprivation in the neonate due to birth asphyxia, it can occur in all age groups, and is often a complication of cardiac arrest.
+
+
+===== Corneal hypoxia =====
+Although corneal hypoxia can arise from any of several causes, it is primarily attributable to the prolonged use of contact lenses.  The corneas are not perfused and get their oxygen from the atmosphere by diffusion. Impermeable contact lenses form a barrier to this diffusion, and therefore can cause damage to the corneas. Symptoms may include irritation, excessive tearing and blurred vision. The sequelae of corneal hypoxia include punctate keratitis, corneal neovascularization and epithelial microcysts.
+
+
+===== Intrauterine hypoxia =====
+
+Intrauterine hypoxia, also known as fetal hypoxia, occurs when the fetus is deprived of an adequate supply of oxygen.  It may be due to a variety of reasons such as prolapse or occlusion of the umbilical cord, placental infarction, maternal diabetes (prepregnancy or gestational diabetes) and maternal smoking. Intrauterine growth restriction may cause or be the result of hypoxia.  Intrauterine hypoxia can cause cellular damage that occurs within the central nervous system (the brain and spinal cord). This results in an increased mortality rate, including an increased risk of sudden infant death syndrome (SIDS). Oxygen deprivation in the fetus and neonate have been implicated as either a primary or as a contributing risk factor in numerous neurological and neuropsychiatric disorders such as epilepsy, attention deficit hyperactivity disorder, eating disorders and cerebral palsy.
+
+
+===== Tumor hypoxia =====
+
+Tumor hypoxia is the situation where tumor cells have been deprived of oxygen. As a tumor grows, it rapidly outgrows its blood supply, leaving portions of the tumor with regions where the oxygen concentration is significantly lower than in healthy tissues. Hypoxic microenvironements in solid tumors are a result of available oxygen being consumed within 70 to 150 μm of tumour vasculature by rapidly proliferating tumor cells thus limiting the amount of oxygen available to diffuse further into the tumor tissue. The severity of hypoxia is related to tumor types and varies between different types. Research has shown that the level of oxygenation in hypoxic tumor tissues is poorer than normal tissues and it is reported somewhere between 1%–2% O2. In order to support continuous growth and proliferation in challenging hypoxic environments, cancer cells are found to alter their metabolism.  Furthermore, hypoxia is known to change cell behavior and is associated with extracellular matrix remodeling and increased migratory and metastatic behavior. Tumour hypoxia is usually associated with highly malignant tumours, which frequently do not respond well to treatment.
+
+
+===== Vestibular system =====
+In acute exposure to hypoxic hypoxia on the vestibular system and the visuo-vestibular interactions, the gain of the vestibulo-ocular reflex (VOR) decreases under mild hypoxia at altitude. Postural control is also disturbed by hypoxia at altitude, postural sway is increased, and there is a correlation between hypoxic stress and adaptive tracking performance.
+
+
+== Signs and symptoms ==
+Arterial oxygen tension can be measured by blood gas analysis of an arterial blood sample, and less reliably by pulse oximetry, which is not a complete measure of circulatory oxygen sufficiency. If there is insufficient blood flow or insufficient hemoglobin in the blood (anemia), tissues can be hypoxic even when there is high arterial oxygen saturation.
+
+Cyanosis
+Headache
+Decreased reaction time, disorientation, and uncoordinated movement.
+Impaired judgment, confusion, memory loss and cognitive problems.
+Euphoria or dissociation
+Visual impairment A moderate level of hypoxia can cause a generalized partial loss of color vision affecting both red-green and blue-yellow discrimination at an altitude of 12,000 feet (3,700 m).
+Lightheaded or dizzy sensation, vertigo
+Fatigue, drowsiness, or tiredness
+Shortness of breath
+Palpitations may occur in the initial phases. Later, the heart rate may reduce to a significant degree. In severe cases, abnormal heart rhythms may develop.
+Nausea and vomiting
+Initially raised blood pressure followed by lowered blood pressure as the condition progresses.
+Severe hypoxia can cause loss of consciousness, seizures or convulsions, coma and eventually death. Breathing rate may slow down and become shallow and the pupils may not respond to light.
+Tingling in fingers and toes
+Numbness
+
+
+=== Complications ===
+Local tissue death and gangrene is a relatively common complication of ischaemic hypoxia. (diabetes, etc.)
+Brain damage – cortical blindness is a known but uncommon complication of acute hypoxic damage to the cerebral cortex.
+Obstructive sleep apnea syndrome is a risk factor for cerebrovascular disease and cognitive dysfunction.
+
+
+== Causes ==
+Oxygen passively diffuses in the lung alveoli according to a concentration gradient, also referred to as a partial pressure gradient. Inhaled air rapidly reaches saturation with water vapour, which slightly reduces the partial pressures of the other components. Oxygen diffuses from the inhaled air to arterial blood, where its partial pressure is around 100 mmHg (13.3 kPa). In the blood, oxygen is bound to hemoglobin, a protein in red blood cells. The binding capacity of hemoglobin is influenced by the partial pressure of oxygen in the environment, as described by the oxygen–hemoglobin dissociation curve. A smaller amount of oxygen is transported in solution in the blood.
+In systemic tissues, oxygen again diffuses down a concentration gradient into cells and their mitochondria, where it is used to produce energy in conjunction with the breakdown of glucose, fats, and some amino acids. Hypoxia can result from a failure at any stage in the delivery of oxygen to cells. This can include low partial pressures of oxygen in the breathing gas, problems with diffusion of oxygen in the lungs through the interface between air and blood, insufficient available hemoglobin, problems with blood flow to the end user tissue, problems with the breathing cycle regarding rate and volume, and physiological and mechanical dead space.
+Experimentally, oxygen diffusion becomes rate limiting when arterial oxygen partial pressure falls to 60 mmHg (5.3 kPa) or below.
+Almost all the oxygen in the blood is bound to hemoglobin, so interfering with this carrier molecule limits oxygen delivery to the perfused tissues. Hemoglobin increases the oxygen-carrying capacity of blood by about 40-fold, with the ability of hemoglobin to carry oxygen influenced by the partial pressure of oxygen in the local environment, a relationship described in the oxygen–hemoglobin dissociation curve. When the ability of hemoglobin to carry oxygen is degraded, a hypoxic state can result.
+
+
+=== Ischemia ===
+
+Ischemia, meaning insufficient blood flow to a tissue, can also result in hypoxia in the affected tissues. This is called 'ischemic hypoxia'. Ischemia can be caused by an embolism, a heart attack that decreases overall blood flow, trauma to a tissue that results in damage reducing perfusion, and a variety of other causes. A consequence of insufficient blood flow causing local hypoxia is gangrene that occurs in diabetes.
+Diseases such as peripheral vascular disease can also result in local hypoxia. Symptoms are worse when a limb is used, increasing the oxygen demand in the active muscles. Pain may also be felt as a result of increased hydrogen ions leading to a decrease in blood pH (acidosis) created as a result of anaerobic metabolism.
+G-LOC, or g-force induced loss of consciousness, is a special case of ischemic hypoxia which occurs when the body is subjected to high enough acceleration sustained for long enough to lower cerebral blood pressure and circulation to the point where loss of consciousness occurs due to cerebral hypoxia. The human body is most sensitive to longitudinal acceleration towards the head, as this causes the largest hydrostatic pressure deficit in the head.
+
+
+=== Hypoxemic hypoxia ===
+
+This refers specifically to hypoxic states where the arterial content of oxygen is insufficient. This can be caused by alterations in respiratory drive, such as in respiratory alkalosis, physiological or pathological shunting of blood, diseases interfering in lung function resulting in a ventilation-perfusion mismatch, such as a pulmonary embolus, or alterations in the partial pressure of oxygen in the environment or lung alveoli, such as may occur at altitude or when diving.
+Common disorders that can cause respiratory dysfunction include trauma to the head and spinal cord, nontraumatic acute myelopathies, demyelinating disorders, stroke, Guillain–Barré syndrome, and myasthenia gravis. These dysfunctions may necessitate mechanical ventilation. Some chronic neuromuscular disorders, such as motor neuron disease and muscular dystrophy, may require ventilatory support in advanced stages.
+
+
+==== Carbon monoxide poisoning ====
+
+Carbon monoxide competes with oxygen for binding sites on hemoglobin molecules. As carbon monoxide binds with hemoglobin hundreds of times tighter than oxygen, it can prevent the carriage of oxygen.
+Carbon monoxide poisoning can occur acutely, as with smoke intoxication, or over a period of time, as with cigarette smoking. Due to physiological processes, carbon monoxide is maintained at a resting level of 4–6 ppm. This is increased in urban areas (7–13 ppm) and in smokers (20–40 ppm).  A carbon monoxide level of 40 ppm is equivalent to a reduction in hemoglobin levels of 10 g/L.
+Carbon monoxide has another harmful effect: it changes how hemoglobin binds to oxygen, preventing the normal release of oxygen to body tissues and shifting the oxygen dissociation curve to the left, making the binding tighter.  In so doing, the hemoglobin is less likely to release its oxygen at the peripheral tissues. Certain abnormal hemoglobin variants also have higher than normal affinity for oxygen, and so are also poor at delivering oxygen to the periphery.
+
+
+==== Altitude ====
+
+Atmospheric pressure reduces with altitude and proportionally, so does the oxygen content of the air. The reduction in the partial pressure of inspired oxygen at higher altitudes lowers the oxygen saturation of the blood, ultimately leading to hypoxia. The clinical features of altitude sickness include: sleep problems, dizziness, headache and oedema.
+
+
+==== Hypoxic breathing gases ====
+
+The breathing gas may contain an insufficient partial pressure of oxygen. Such situations may lead to unconsciousness without symptoms since carbon dioxide levels remain normal and the human body senses pure hypoxia poorly. Hypoxic breathing gases can be defined as mixtures with a lower oxygen fraction than air, though gases containing sufficient oxygen to reliably maintain consciousness at normal sea level atmospheric pressure may be described as normoxic even when the oxygen fraction is slightly below normoxic. Hypoxic breathing gas mixtures in this context are those which will not reliably maintain consciousness at sea level pressure.
+One of the most widespread circumstances of exposure to hypoxic breathing gas is ascent to altitudes where the ambient pressure drops sufficiently to reduce the partial pressure of oxygen to hypoxic levels.Gases with as little as 2% oxygen by volume in a helium diluent are used for deep diving operations. The ambient pressure at 190 msw is sufficient to provide a partial pressure of about 0.4 bar, which is suitable for saturation diving. As the divers are decompressed, the breathing gas must be oxygenated to maintain a breathable atmosphere.
+It is also possible for the breathing gas for diving to have a dynamically controlled oxygen partial pressure, known as a set point, which is maintained in the breathing gas circuit of a diving rebreather by addition of oxygen and diluent gas to maintain the desired oxygen partial pressure at a safe level between hypoxic and hyperoxic at the ambient pressure due to the current depth. A malfunction of the control system may lead to the gas mixture becoming hypoxic at the current depth.
+A special case of hypoxic breathing gas is encountered in deep freediving where the partial pressure of the oxygen in the lung gas is depleted during the dive, but remains sufficient at depth, and when it drops during ascent, it becomes too hypoxic to maintain consciousness, and the diver loses consciousness before reaching the surface.
+Hypoxic gases may also occur in industrial, mining, and firefighting environments. Some of these may also be toxic or narcotic, others are just asphyxiant. Some are recognisable by smell, others are odourless.
+Inert gas asphyxiation may be deliberate with use of a suicide bag. Accidental death has occurred in cases where concentrations of nitrogen in controlled atmospheres, or methane in mines, has not been detected or appreciated.
+
+
+==== Other ====
+Hemoglobin function can also be impaired when the iron atom in its heme group is oxidized from the ferrous (Fe²⁺) to the ferric (Fe³⁺) state. This inactive form, known as methemoglobin, cannot bind oxygen effectively. Elevated levels of methemoglobin can occur following exposure to oxidizing substances such as sodium nitrite, nitrates, or certain medications
+
+
+=== Anemia ===
+
+Hemoglobin plays a substantial role in carrying oxygen throughout the body, and when it is deficient, anemia can result, causing 'anaemic hypoxia' if tissue oxygenation is decreased. Iron deficiency is the most common cause of anemia. As iron is used in the synthesis of hemoglobin, less hemoglobin will be synthesised when there is less iron, due to insufficient intake, or poor absorption.
+Anemia is typically a chronic process that is compensated over time by increased levels of red blood cells via upregulated erythropoetin. A chronic hypoxic state can result from a poorly compensated anaemia.
+
+
+=== Histotoxic hypoxia ===
+
+Histotoxic hypoxia (also called histoxic hypoxia) is the inability of cells to take up or use oxygen from the bloodstream, despite physiologically normal delivery of oxygen to such cells and tissues. Histotoxic hypoxia results from tissue poisoning, such as that caused by cyanide (which acts by inhibiting cytochrome oxidase) and certain other poisons like hydrogen sulfide (byproduct of sewage and used in leather tanning).
+
+
+== Mechanism ==
+Tissue hypoxia from low oxygen delivery may be due to low haemoglobin concentration (anaemic hypoxia), low cardiac output (stagnant hypoxia) or low haemoglobin saturation (hypoxic hypoxia). The consequence of oxygen deprivation in tissues is a switch to anaerobic metabolism at the cellular level. As such, reduced systemic blood flow may result in increased serum lactate. Serum lactate levels have been correlated with illness severity and mortality in critically ill adults and in ventilated neonates with respiratory distress.
+
+
+=== Physiological responses ===
+All vertebrates must maintain oxygen homeostasis to survive, and have evolved physiological systems to ensure adequate oxygenation of all tissues. In air breathing vertebrates this is based on lungs to acquire the oxygen, hemoglobin in red corpuscles to transport it, a vasculature to distribute, and a heart to deliver. Short term variations in the levels of oxygenation are sensed by chemoreceptor cells which respond by activating existing proteins, and over longer terms by regulation of gene transcription. Hypoxia is also involved in the pathogenesis of some common and severe pathologies.
+The most common causes of death in an aging population include myocardial infarction, stroke and cancer. These diseases share a common feature that limitation of oxygen availability contributes to the development of the pathology. Cells and organisms are also able to respond adaptively to hypoxic conditions, in ways that help them to cope with these adverse conditions. Several systems can sense oxygen concentration and may respond with adaptations to acute and long-term hypoxia.
+The systems activated by hypoxia usually help cells to survive and overcome the hypoxic conditions. Erythropoietin, which is produced in larger quantities by the kidneys under hypoxic conditions, is an essential hormone that stimulates production of red blood cells, which are the primary transporter of blood oxygen, and glycolytic enzymes are involved in anaerobic ATP formation.
+Hypoxia-inducible factors (HIFs) are transcription factors that respond to decreases in available oxygen in the cellular environment, or hypoxia. The HIF signaling cascade mediates the effects of hypoxia on the cell. Hypoxia often keeps cells from differentiating. However, hypoxia promotes the formation of blood vessels, and is important for the formation of a vascular system in embryos and tumors. The hypoxia in wounds also promotes the migration of keratinocytes and the restoration of the epithelium. It is therefore not surprising that HIF-1 modulation was identified as a promising treatment paradigm in wound healing.
+Exposure of a tissue to repeated short periods of hypoxia, between periods of normal oxygen levels, influences the tissue's later response to prolonged ischaemic exposure. This is known as ischemic preconditioning, and it is known to occur in many tissues.
+
+
+=== Acute ===
+
+If oxygen delivery to cells is insufficient for the demand (hypoxia), electrons will be shifted to pyruvic acid in the process of lactic acid fermentation.  This temporary measure (anaerobic metabolism) allows small amounts of energy to be released.  Lactic acid buildup (in tissues and blood) is a sign of inadequate mitochondrial oxygenation, which may be due to hypoxemia, poor blood flow (e.g., shock) or a combination of both. If severe or prolonged, it could lead to cell death.
+In humans, hypoxia is detected by the peripheral chemoreceptors in the carotid body and aortic body, with the carotid body chemoreceptors being the major mediators of reflex responses to hypoxia. This response does not control ventilation rate at normal PO2, but below normal the activity of neurons innervating these receptors increases dramatically, so much as to override the signals from central chemoreceptors in the hypothalamus, increasing PO2 despite a falling PCO2
+In most tissues of the body, the response to hypoxia is vasodilation. By widening the blood vessels, the tissue allows greater perfusion.
+By contrast, in the lungs, the response to hypoxia is vasoconstriction. This is known as hypoxic pulmonary vasoconstriction, or "HPV", and has the effect of redirecting blood away from poorly ventilated regions, which helps match perfusion to ventilation, giving a more even oxygenation of blood from different parts of the lungs. In conditions of hypoxic breathing gas, such as at high altitude, HPV is generalized over the entire lung, but with sustained exposure to generalized hypoxia, HPV is suppressed.
+Hypoxic ventilatory response (HVR) is the increase in ventilation induced by hypoxia that allows the body to take in and transport lower concentrations of oxygen at higher rates.  It is initially elevated in lowlanders who travel to high altitude, but reduces significantly over time as people acclimatize.
+
+
+=== Chronic ===
+
+When the pulmonary capillary pressure remains elevated chronically (for at least 2 weeks), the lungs become even more resistant to pulmonary edema because the lymph vessels expand greatly, increasing their capability of carrying fluid away from the interstitial spaces perhaps as much as 10-fold. Therefore, in patients with chronic mitral stenosis, pulmonary capillary pressures of 40 to 45 mm Hg have been measured without the development of lethal pulmonary edema.
+There are several potential physiologic mechanisms for hypoxemia, but in patients with chronic obstructive pulmonary disease (COPD), ventilation/perfusion (V/Q) mismatching is most common, with or without alveolar hypoventilation, as indicated by arterial carbon dioxide concentration. Hypoxemia caused by V/Q mismatching in COPD is relatively easy to correct, and relatively small flow rates of supplemental oxygen (less than 3 L/min for the majority of patients) are required for long term oxygen therapy (LTOT). Hypoxemia normally stimulates ventilation and produces dyspnea, but these and the other signs and symptoms of hypoxia are sufficiently variable in COPD to limit their value in patient assessment. Chronic alveolar hypoxia is the main factor leading to development of cor pulmonale — right ventricular hypertrophy with or without overt right ventricular failure — in patients with COPD. Pulmonary hypertension adversely affects survival in COPD, proportional to resting mean pulmonary artery pressure elevation. Although the severity of airflow obstruction as measured by forced expiratory volume tests FEV1 correlates best with overall prognosis in COPD, chronic hypoxemia increases mortality and morbidity for any severity of disease. Large-scale studies of long term oxygen therapy in patients with COPD show a dose–response relationship between daily hours of supplemental oxygen use and survival. Continuous, 24-hours-per-day oxygen use in appropriately selected patients may produce a significant survival benefit.
+
+
+=== Pathological responses ===
+
+
+==== Cerebral ischemia ====
+The brain has relatively high energy requirements, using about 20% of the oxygen under resting conditions, but low reserves, which make it specially vulnerable to hypoxia. In normal conditions, an increased demand for oxygen is easily compensated by an increased cerebral blood flow. but under conditions when there is insufficient oxygen available, increased blood flow may not be sufficient to compensate, and hypoxia can result in brain injury. A longer duration of cerebral hypoxia will generally result in larger areas of the brain being affected. The brainstem, hippocampus and cerebral cortex seem to be the most vulnerable regions. Injury becomes irreversible if oxygenation is not soon restored. Most cell death is by necrosis but delayed apoptosis also occurs. In addition, presynaptic neurons release large amounts of glutamate which further increases Ca2+ influx and causes catastrophic collapse in postsynaptic cells. Although it is the only way to save the tissue, reperfusion also produces reactive oxygen species and inflammatory cell infiltration, which induces further cell death. If the hypoxia is not too severe, cells can suppress some of their functions, such as protein synthesis and spontaneous electrical activity, in a process called penumbra, which is reversible if the oxygen supply is resumed soon enough.
+
+
+==== Myocardial ischemia ====
+Parts of the heart are exposed to ischemic hypoxia in the event of occlusion of a coronary artery. Short periods of ischaemia are reversible if reperfused within about 20 minutes, without development of necrosis, but the phenomenon known as stunning is generally evident. If hypoxia continues beyond this period, necrosis propagates through the myocardial tissue. Energy metabolism in the affected area shifts from mitochondrial respiration to anaerobic glycolysis almost immediately, with concurrent reduction of effectiveness of contractions, which soon cease. Anaerobic products accumulate in the muscle cells, which develop acidosis and osmotic load leading to cellular edema. Intracellular Ca2+ increases and eventually leads to cell necrosis. Arterial flow must be restored to return to aerobic metabolism and prevent necrosis of the affected muscle cells, but this also causes further damage by reperfusion injury. Myocadial stunning has been described as "prolonged postischaemic dysfunction of viable tissue salvaged by reperfusion", which manifests as temporary contractile failure in oxygenated muscle tissue. This may be caused by a release of reactive oxygen species during the early stages of reperfusion.
+
+
+==== Tumor angiogenesis ====
+As tumors grow, regions of relative hypoxia develop as the oxygen supply is unevenly utilized by the tumor cells. The formation of new blood vessels is necessary for continued tumor growth, and is also an important factor in metastasis, as the route by which cancerous cells are transported to other sites.
+Under hypoxic conditions, tumor cells activate a coordinated molecular response largely mediated by hypoxia-inducible factors (HIFs), particularly HIF-1α. Stabilization of HIF-1α leads to the transcription of numerous pro-angiogenic genes, including vascular endothelial growth factor (VEGF), platelet-derived growth factor (PDGF), and angiopoietins, which promote endothelial cell proliferation, migration, and the formation of new capillaries around the hypoxic tumor core.
+The resulting tumor vasculature is often abnormal in structure and function — characterized by irregular vessel diameters, increased permeability, and poor perfusion — which further perpetuates local hypoxia and genomic instability. This feedback loop enhances the tumor's adaptive potential and resistance to therapies such as radiotherapy and chemotherapy, both of which rely on adequate oxygenation to maximize cytotoxic effects.
+In addition to promoting angiogenesis, HIF signaling also supports metabolic reprogramming toward anaerobic glycolysis, enhances the expression of matrix metalloproteinases (MMPs) that degrade extracellular matrix components, and increases the expression of adhesion molecules that facilitate tumor invasion and metastatic dissemination.
+Together, these mechanisms make hypoxia-induced angiogenesis a central hallmark of malignant progression and a major therapeutic target in oncology. Agents that block VEGF signaling (such as bevacizumab) or inhibit HIF-1α activity are currently used or under investigation to counteract tumor angiogenesis and improve treatment outcomes.
+
+
+== Diagnosis ==
+
+
+=== Physical examination and history ===
+Hypoxia can present as acute or chronic.
+Acute presentation may include dyspnea (shortness of breath) and tachypnea (rapid, often shallow, breathing). Severity of symptom presentation is commonly an indication of severity of hypoxia. Tachycardia (rapid pulse) may develop to compensate for low arterial oxygen tension. Stridor may be heard in upper airway obstruction, and cyanosis may indicate severe hypoxia. Neurological symptoms and organ function deterioration occur when the oxygen delivery is severely compromised. In moderate hypoxia, restlessness, headache and confusion may occur, with coma and eventual death possible in severe cases.
+In chronic presentation, dyspnea following exertion is most commonly mentioned. Symptoms of the underlying condition that caused the hypoxia may be apparent, and can help with differential diagnosis. A productive cough and fever may be present with lung infection, and leg edema may suggest heart failure.
+Lung auscultation can provide useful information.
+
+
+=== Tests ===
+An arterial blood gas test (ABG) may be done, which usually includes measurements of oxygen content, hemoglobin, oxygen saturation (how much of the hemoglobin is carrying oxygen), arterial partial pressure of oxygen (PaO2), partial pressure of carbon dioxide (PaCO2), blood pH level, and bicarbonate (HCO3)
+
+An arterial oxygen tension (PaO2) less than 80 mmHg is considered abnormal, but must be considered in context of the clinical situation.
+In addition to diagnosis of hypoxemia, the ABG may provide additional information, such as PCO2, which can help identify the etiology. The arterial partial pressure of carbon dioxide is an indirect measure of exchange of carbon dioxide with the air in the lungs, and is related to minute ventilation. PCO2 is raised in hypoventilation.
+The normal range of PaO2:FiO2 ratio is 300 to 500 mmHg, if this ratio is lower than 300 it may indicate a deficit in gas exchange, which is particularly relevant for identifying acute respiratory distress syndrome (ARDS). A ratio of less than 200 indicates severe hypoxemia.
+The alveolar–arterial gradient (A-aO2, or A–a gradient), is the difference between the alveolar (A) concentration of oxygen and the arterial (a) concentration of oxygen. It is a useful parameter for narrowing the differential diagnosis of hypoxemia. The A–a gradient helps to assess the integrity of the alveolar capillary unit. For example, at high altitude, the arterial oxygen PaO2 is low, but only because the alveolar oxygen PAO2 is also low. However, in states of ventilation perfusion mismatch, such as pulmonary embolism or right-to-left shunt, oxygen is not effectively transferred from the alveoli to the blood which results in an elevated A-a gradient. PaO2 can be obtained from the arterial blood gas analysis and PAO2 is calculated using the alveolar gas equation.
+An abnormally low hematocrit (volume percentage of red blood cells) may indicate anemia.
+X-rays or CT scans of the chest and airways can reveal abnormalities that may affect ventilation or perfusion.
+A ventilation/perfusion scan, also called a V/Q lung scan, is a type of medical imaging using scintigraphy and medical isotopes to evaluate the circulation of air and blood within a patient's lungs, in order to determine the ventilation/perfusion ratio. The ventilation part of the test looks at the ability of air to reach all parts of the lungs, while the perfusion part evaluates how well blood circulates within the lungs.
+Pulmonary function testing may include:
+
+Tests that measure oxygen levels during the night
+The six-minute walk test, which measures how far a person can walk on a flat surface in six minutes to test exercise capacity by measuring oxygen levels in response to exercise.
+Diagnostic measurements that may be relevant include: Lung volumes, including lung capacity, airway resistance, respiratory muscle strength, diffusing capacity
+Other pulmonary function tests which may be relevant include: Spirometry, body plethysmography, forced oscillation technique for calculating the volume, pressure, and air flow in the lungs, bronchodilator responsiveness, carbon monoxide diffusion test (DLCO), oxygen titration studies, cardiopulmonary stress test, bronchoscopy, and thoracentesis
+
+
+=== Differential diagnosis ===
+Treatment will depend on severity and may also depend on the cause, as some cases are due to external causes and removing them and treating acute symptoms may be sufficient, but where the symptoms are due to underlying pathology, treatment of the obvious symptoms may only provide temporary or partial relief, so differential diagnosis can be important in selecting definitive treatment.
+
+Hypoxemic hypoxia: Low oxygen tension in the arterial blood (PaO2) is generally an indication of inability of the lungs to oxygenate the blood properly. Internal causes include hypoventilation, impaired alveolar diffusion, and pulmonary shunting. External causes include hypoxic environment, which could be caused by low ambient pressure or unsuitable breathing gas. Both acute and chronic hypoxia and hypercapnia caused by respiratory dysfunction can produce neurological symptoms such as encephalopathy, seizures, headache, papilledema, and asterixis. Obstructive sleep apnea syndrome may cause morning headaches
+Circulatory hypoxia is caused by insufficient perfusion of the affected tissues by blood which is adequately oxygenated. This may be generalised, due to cardiac failure or hypovolemia, or localised, due to infarction or localised injury.
+Anemic hypoxia is caused by a deficit in oxygen-carrying capacity, usually due to low hemoglobin levels, leading to generalised inadequate oxygen delivery.
+Histotoxic hypoxia (Dysoxia) is a consequence of cells being unable to utilize oxygen effectively. A classic example is cyanide poisoning, which inhibits the enzyme cytochrome C oxidase in the mitochondria, blocking the use of oxygen to make ATP.
+Critical illness polyneuropathy or myopathy should be considered in the intensive care unit when patients have difficulty coming off the ventilator.
+
+
+== Prevention ==
+Prevention can be as simple as risk management of occupational exposure to hypoxic environments, and commonly involves the use of environmental monitoring and personal protective equipment. Prevention of hypoxia as a predictable consequence of medical conditions requires prevention of those conditions. Screening of demographics known to be at risk for specific disorders may be useful.
+
+
+=== Prevention of altitude-induced hypoxia ===
+To counter the effects of high-altitude diseases, the body must return arterial PaO2 toward normal. Acclimatization, the means by which the body adapts to higher altitudes, only partially restores PO2 to standard levels. Hyperventilation, the body's most common response to high-altitude conditions, increases alveolar PO2 by raising the depth and rate of breathing. However, while PO2 does improve with hyperventilation, it does not return to normal. Studies of miners and astronomers working at 3000 meters and above show improved alveolar PO2 with full acclimatization, yet the PO2 level remains equal to or even below the threshold for continuous oxygen therapy for patients with chronic obstructive pulmonary disease (COPD). In addition, there are complications involved with acclimatization. Polycythemia, in which the body increases the number of red blood cells in circulation, thickens the blood, raising the risk of blood clots.
+In high-altitude situations, only oxygen enrichment or compartment pressurisation can counteract the effects of hypoxia. Pressurisation is practicable in vehicles and for emergencies in ground installations. By increasing the concentration of oxygen at ambient pressure, the effects of lower barometric pressure are countered and the level of arterial PO2 is restored toward normal capacity. A small amount of supplemental oxygen reduces the equivalent altitude in climate-controlled rooms. At 4000 m, raising the oxygen concentration level by 5% via an oxygen concentrator and an existing ventilation system provides an altitude equivalent of 3000 m, which is much more tolerable for the increasing number of lowlanders who work in high altitude. In a study of astronomers working in Chile at 5050 m, oxygen concentrators increased the level of oxygen concentration by almost 30 percent (that is, from 21 percent to 27 percent). This resulted in increased worker productivity, less fatigue, and improved sleep.
+Oxygen concentrators can be used for high-altitude oxygen enrichment in climate-controlled environments. They require minimal maintenance, operate using a local air supply, and consume relatively little electricity. By extracting oxygen directly from ambient air, concentrators remove the logistical and financial burden of transporting compressed oxygen cylinders to remote or mountainous regions. Because offices and residential buildings at high altitudes often already maintain controlled temperature and humidity, these systems can be readily integrated into existing climate-control infrastructure.
+
+
+== Treatment and management ==
+Treatment and management depend on circumstances. For most high altitude situations the risk is known, and prevention is appropriate. At low altitudes hypoxia is more likely to be associated with a medical problem or an unexpected contingency, and treatment is more likely to be provided to suit the specific case. It is necessary to identify persons who need oxygen therapy, as supplemental oxygen is required to treat most causes of hypoxia, but different oxygen concentrations may be appropriate.
+
+
+=== Treatment of acute and chronic cases ===
+Treatment will depend on the cause of hypoxia. If it is determined that there is an external cause, and it can be removed, then treatment may be limited to support and returning the system to normal oxygenation. In other cases a longer course of treatment may be necessary, and this may require supplemental oxygen over a fairly long term or indefinitely.
+There are three main aspects of oxygenation treatment: maintaining patent airways, providing sufficient oxygen content of the inspired air, and improving the diffusion in the lungs. In some cases treatment may extend to improving oxygen capacity of the blood, which may include volumetric and circulatory intervention and support, hyperbaric oxygen therapy and treatment of intoxication.
+Invasive ventilation may be necessary or an elective option in surgery. This generally involves a positive pressure ventilator connected to an endotracheal tube, and allows precise delivery of ventilation, accurate monitoring of FiO2, and positive end-expiratory pressure, and can be combined with anaesthetic gas delivery. In some cases a tracheotomy may be necessary. Decreasing metabolic rate by reducing body temperature lowers oxygen demand and consumption, and can minimise the effects of tissue hypoxia, especially in the brain, and therapeutic hypothermia based on this principle may be useful.
+Where the problem is due to respiratory failure. it is desirable to treat the underlying cause. In cases of pulmonary edema, diuretics can be used to reduce the oedems. Steroids may be effective in some cases of interstitial lung disease, and in extreme cases, extracorporeal membrane oxygenation (ECMO) can be used.
+Hyperbaric oxygen has been found useful for treating some forms of localized hypoxia, including poorly perfused trauma injuries such as  Crush injury, compartment syndrome, and other acute traumatic ischemias. It is the definitive treatment for severe decompression sickness, which is largely a condition involving localized hypoxia initially caused by inert gas embolism and inflammatory reactions to extravascular bubble growth. It is also effective in carbon monoxide poisoning and diabetic foot.
+A prescription renewal for home oxygen following hospitalization requires an assessment of the patient for ongoing hypoxemia.
+
+
+== Outcomes ==
+Prognosis in cases of hypoxia depends strongly on the underlying cause, the severity and duration of oxygen deprivation, the effectiveness and timeliness of treatment, and any pre-existing medical conditions that impair oxygen delivery or utilization, such as anemia, COPD, or cardiovascular disease. Mild, short-term hypoxia is often reversible with prompt oxygen therapy and correction of the underlying cause, whereas prolonged or severe hypoxia can result in irreversible cellular injury, hypoxic brain injury, or multi-organ failure.
+Hypoxia that leads to impaired judgment, delayed reactions, or loss of consciousness can indirectly contribute to fatal outcomes in situations where the immediate cause of death is secondary. This has been documented in underwater diving accidents, where hypoxia can cause confusion or unconsciousness before drowning occurs; in high-altitude mountaineering, where it contributes to exposure, hypothermia, and falls; and in aviation, where pilots of unpressurized aircraft or performers in aerobatic maneuvers may lose control of the aircraft following hypoxic incapacitation.
+In occupational and environmental contexts, chronic or intermittent hypoxia—such as in miners, high-altitude workers, or individuals with sleep apnea—can have cumulative effects on cognitive performance, cardiovascular function, and metabolic regulation. Long-term exposure may increase the risk of pulmonary hypertension, polycythemia, and cardiac remodeling, though individual susceptibility varies.
+
+
+== Epidemiology ==
+Hypoxia is a common disorder but there are many possible causes. Prevalence is variable. Some of the causes are very common, like pneumonia or chronic obstructive pulmonary disease; some are quite rare like hypoxia due to cyanide poisoning. Others, like reduced oxygen tension at high altitude, may be regionally distributed or associated with a specific demographic.
+Generalized hypoxia is an occupational hazard in several high-risk professions where oxygen availability is reduced or disrupted. These include firefighting, where smoke inhalation and exposure to carbon monoxide can impair oxygen transport; professional diving, where improper gas mixtures or equipment failure may lead to hypoxic hypoxia; mining and underground rescue, where oxygen depletion can result from combustion, gas displacement, or poor ventilation; and aviation, particularly when flying at high altitudes in unpressurized aircraft, where ambient oxygen pressure falls below levels needed for adequate blood oxygenation.
+Potentially life-threatening hypoxemia is common in critically ill patients.
+Localized hypoxia can occur when blood flow to a specific region of the body is restricted, leading to insufficient oxygen delivery to the affected tissues. This may arise as a complication of diabetes mellitus, where peripheral artery disease and microvascular damage impair circulation to the extremities; as a consequence of decompression sickness, in which gas emboli obstruct capillaries; or following traumatic injury that compromises local blood supply.
+Hypoxia related to underdeveloped lung function is also a frequent complication of premature birth. In preterm infants, incomplete maturation of the alveoli and insufficient production of surfactant can lead to respiratory distress syndrome, resulting in systemic oxygen deprivation. In the United States, intrauterine hypoxia and birth asphyxia together were ranked as the tenth leading cause of infant mortality in recent national statistics.
+
+
+=== Silent hypoxia ===
+
+Silent hypoxia (also known as happy hypoxia) is generalised  hypoxia that does not coincide with shortness of breath. This presentation is known to be a complication of COVID-19, and is also known in atypical pneumonia, altitude sickness, and rebreather malfunction accidents.
+
+
+== History ==
+The 2019 Nobel Prize in Physiology or Medicine was awarded to William G. Kaelin Jr., Sir Peter J. Ratcliffe, and Gregg L. Semenza in recognition of their discovery of cellular mechanisms to sense and adapt to different oxygen concentrations, establishing a basis for how oxygen levels affect physiological function.
+The use of the term hypoxia appears to be relatively recent, with the first recorded use in scientific publication from 1945. Previous to this the term anoxia was extensively used for all levels of oxygen deprivation. Investigation into the effects of lack of oxygen date from the mid 19th century.
+
+
+=== Etymology ===
+Hypoxia is formed from the Greek roots υπo (hypo), meaning under, below, and less than, and oξυ (oxy), meaning acute or acid, which is the root for oxygen.
+
+
+== See also ==
+Asphyxia – Severely deficient supply of oxygen
+Cerebral hypoxia – Oxygen shortage of the brain
+Erotic asphyxiation – Intentional restriction of oxygen to the brain for sexual arousal
+Fink effect, also known as diffusion hypoxia – Effect of anesthesia
+G-LOC – Loss of consciousness due to sustained high acceleration
+Histotoxic hypoxia – Medical condition in which cells cannot use oxygen
+Hyperoxia – Exposure of tissues to abnormally high concentrations of oxygen
+Hypoventilation training – Physical training method
+Hypoxemia – Abnormally low level of oxygen in the blood
+Hypoxia in fish – Response of fish to environmental hypoxia
+Hypoxia-inducible factor – Protein that responds to low oxygen
+Hypoxic hypoxia – Medical condition of oxygen deprivationPages displaying short descriptions of redirect targets, a result of insufficient oxygen available to the lungs
+Hypoxic ventilatory response – Biological reaction to increased altitude
+Hypoxicator – Device for providing breathing air with reduced oxygen content a device intended for hypoxia acclimatisation in a controlled manner
+Intermittent hypoxic training – Technique for improving human performance by adaptation to reduced oxygenPages displaying short descriptions of redirect targets
+Intrauterine hypoxia – Medical condition when the fetus is deprived of sufficient oxygen
+Latent hypoxia – Lung gas and blood oxygen concentration sufficient to support consciousness only at depth
+Pseudohypoxia – Medical sign, increased cytosolic ratio of free NADH to NAD+ in cells
+Rhinomanometry – Method used in evaluation of respiratory function of the nasal cavity
+Sleep apnea – Disorder involving pauses in breathing during sleep
+Solid stress – one of the physical hallmarks of cancer
+Time of useful consciousness – Duration of effective performance in a hypoxic environment
+Tumor hypoxia – Situation where tumor cells have been deprived of oxygen
+Vasculogenic mimicry
+
+
+== Notes ==
+
+
+== References ==

@@ -1,0 +1,63 @@
+https://en.wikipedia.org/wiki/Midnight_sun
+
+Midnight sun, also known as polar day, is a natural phenomenon that occurs in the summer months in places north of the Arctic Circle or south of the Antarctic Circle, when the Sun remains visible at the local midnight. This occurs at latitudes ranging from approximately 65°44' to exactly 90° north or south, and does not stop exactly at the Arctic Circle or the Antarctic Circle, due to refraction.
+The opposite phenomenon, polar night, occurs in winter, when the Sun stays below the horizon throughout the day.
+
+
+== Geography ==
+
+Because there are no permanent human settlements south of the Antarctic Circle, apart from research stations, the countries and territories whose populations experience midnight sun are limited to those crossed by the Arctic Circle.
+Big Diomede Island, Russia experiences midnight sun from June 18 to 24.
+The largest city in the world north of the Arctic Circle, Murmansk, Russia (population 270,000), experiences midnight sun from 22 May to 22 July (62 days).
+A quarter of Finland's territory lies north of the Arctic Circle, and at the country's northernmost point the Sun does not set at all for 72 days during summer.
+In Svalbard, Norway, the northernmost inhabited region of Europe, there is no sunset from approximately 19 April to 23 August. In mainland Norway, cities above the Arctic Circle such as Tromsø experience midnight sun from late May to mid-July, and the phenomenon draws summer visitors seeking outdoor activities under the never-setting sun. The extreme sites are the poles, where the Sun can be continuously visible for half the year. The North Pole has midnight sun for about 6 months, from approximately 18 March to 24 September. South Pole, Antarctica has midnight sun and experiences this from approximately 20 September to 23 March (about 6 months).
+
+
+=== Polar circle proximity ===
+Due to atmospheric refraction, and also because the Sun is a disc rather than a point in the sky, midnight sun may be experienced at latitudes slightly south of the Arctic Circle or north of the Antarctic Circle, though not exceeding one degree (depending on local conditions). For example, Iceland is known for its midnight sun, even though most of it (Grímsey is the exception) is slightly south of the Arctic Circle. For the same reasons, the period of sunlight at the poles is slightly longer than six months. Even the northern extremities of the UK (and places at similar latitudes, such as Saint Petersburg) experience twilight throughout the night in the northern sky at around the summer solstice.
+Locations within about 9 degrees of the poles, such as the military base and weather station at Alert, Nunavut, experience times where it does not get entirely dark at night yet the Sun does not rise either, combining both the effects of midnight sun and polar night, reaching civil twilight during the "day" and astronomical twilight at "night".
+
+
+=== White nights ===
+
+Locations where the Sun remains less than 6 (or 7) degrees below the horizon – between about 60° 34’ (or 59° 34’) latitude and the polar circle – experience midnight twilight instead of midnight sun, so that daytime activities, such as reading, are still possible without artificial light on a clear night. This happens in both Northern Hemisphere summer solstice and Southern Hemisphere summer solstice. The lowest latitude to experience midnight sun without a golden hour is about 72°34′ North or South.
+
+White Nights have become a common symbol of Saint Petersburg, Russia, where they occur from about 11 June to 1 July, and the last 10 days of June are celebrated with cultural events known as the White Nights Festival. The phenomenon carries similar significance for Fairbanks, Alaska, where an annual Midnight Sun Game baseball competition has been contested since 1906 in the twilight surrounding midnight on June 21.
+The northernmost tip of Antarctica also experiences white nights near the Southern Hemisphere summer solstice.
+
+
+== Explanation ==
+
+Since the axial tilt of Earth is considerable (23 degrees, 26 minutes, 21.41196 seconds), at high latitudes the Sun does not set in summer; rather, it remains continuously visible for one day during the summer solstice at the polar circle, for several weeks only 100 km (62 mi) closer to the pole, and for six months at the pole. At extreme latitudes, midnight sun is usually referred to as polar day.
+At the poles themselves, the Sun rises and sets only once each year on the equinoxes. During the six months that the Sun is above the horizon, it spends the days appearing to continuously move in circles around the observer, gradually spiraling higher and reaching its highest circuit of the sky at the summer solstice, before beginning to sink lower, setting just after the autumnal equinox.
+
+
+== Time zones and daylight saving time ==
+
+The term "midnight sun" refers to the consecutive 24-hour periods of sunlight experienced north of the Arctic Circle and south of the Antarctic Circle. Other phenomena are sometimes referred to as "midnight sun", but they are caused by time zones and the observance of daylight saving time. For instance, in Fairbanks, Alaska, which is south of the Arctic Circle, the Sun sets at 12:47 a.m. at the summer solstice. This is because Fairbanks is 51 minutes (1 hour and 51 minutes at Daylight Saving Time) ahead of its idealized time zone (as most of the state is in one time zone) and Alaska observes daylight saving time. (Fairbanks is at about 147.72 degrees west, corresponding to UTC−9 hours 51 minutes, and is on UTC−9 in winter.) This means that solar culmination occurs at about 12:51 p.m. instead of at 12 noon. Also in Fairbanks, Alaska, solar midnight occurs at 01:51 a.m. local time.
+If a precise moment for the genuine "midnight sun" is required, the observer's longitude, the local civil time, and the equation of time must be taken into account. The moment of the Sun's closest approach to the horizon coincides with its passing due north at the observer's position, which occurs only approximately at midnight in general. Each degree of longitude east of the Greenwich meridian makes the vital moment exactly 4 minutes earlier than midnight as shown on the clock, while each hour that the local civil time is ahead of coordinated universal time (UTC, also known as GMT) makes the moment an hour later. These two effects must be added. Furthermore, the equation of time (which depends on the date) must be added: a positive value on a given date means that the Sun is running slightly ahead of its average position, so the value must be subtracted.
+As an example, at the North Cape, Norway at midnight on June 21/22, the longitude of 25.9 degrees east makes the moment 103.2 minutes earlier by clock time; but the local time, 2 hours ahead of GMT in the summer, makes it 120 minutes later by clock time. The equation of time at that date is -2.0 minutes. Therefore, the Sun's lowest elevation occurs 120 - 103.2 + 2.0 minutes after midnight: at 00.19 Central European Summer time. On other nearby dates the only thing different is the equation of time, so this remains a reasonable estimate for a considerable period. The Sun's altitude remains within half a degree of the minimum of about 5 degrees for about 45 minutes either side of this time.
+When it rotates on its own axis, it sometimes moves closer to the Sun. During this period of Earth's rotation from May to July, Earth tilts at an angle of 23.5 degrees above its own axis in its orbit. This causes the part of Norway located in the Arctic region at the North Pole of Earth to move very close to the Sun and during this time the length of the day increases. It can be said that it almost never subsides. Night falls in Norway's Hammerfest at this particular time of year.
+
+
+== Duration ==
+
+The number of days per year with potential midnight sun increases the closer one goes toward either pole. Although approximately defined by the polar circles, in practice, midnight sun can be seen as much as 90 km (56 mi) outside the polar circle, as described below, and the exact latitudes of the furthest reaches of midnight sun depend on topography and vary slightly from year to year.
+Even though at the Arctic Circle the center of the Sun is, per definition and without refraction by the atmosphere, only visible during one summer night, some part of midnight sun is visible at the Arctic Circle from approximately 12 June until 1 July. This period extends as one travels north: At Cape Nordkinn, Norway, the northernmost point of Continental Europe, midnight sun lasts approximately from 14 May to 29 July. On the Svalbard archipelago further north, it lasts from 20 April to 22 August.
+
+
+=== Southern and Northern poles ===
+Also, the periods of polar day and polar night are unequal in both polar regions because the Earth is at perihelion in early January and at aphelion in early July.  As a result, the polar day is longer than the polar night in the Northern Hemisphere (at Utqiagvik, Alaska, for example, polar day lasts 84 days, while polar night lasts only 68 days), while in the Southern Hemisphere, the situation is the reverse—the polar night is longer than the polar day. At the North Pole proper, the polar day is 186 days while the polar night is 179 days, and at the South Pole proper, the polar day is 179 days while the polar night is 186 days.
+Observers at heights appreciably above sea level can experience extended periods of midnight sun as a result of the "dip" of the horizon viewed from altitude.
+
+
+== References ==
+
+
+== Further reading ==
+Lutgens F.K., Tarbuck E.J. (2007) The Atmosphere, Tenth Edition, page 39, PEARSON, Prentice Hall, NJ.
+
+
+== External links ==
+
+What is the secret behind midnight sun in Norway

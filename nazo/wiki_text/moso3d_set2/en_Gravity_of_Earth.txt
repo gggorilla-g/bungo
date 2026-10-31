@@ -1,0 +1,1149 @@
+https://en.wikipedia.org/wiki/Gravity_of_Earth
+
+The gravity of Earth, denoted by g, is the net acceleration that is imparted to objects due to the combined effect of gravitation (from mass distribution within Earth) and the centrifugal force (from the Earth's rotation).
+It is a vector quantity, whose direction coincides with a plumb bob and strength or magnitude is given by the norm 
+  
+    
+      
+        g
+        =
+        ‖
+        
+          
+            
+              g
+            
+          
+        
+        ‖
+      
+    
+    {\displaystyle g=\|{\mathit {\mathbf {g} }}\|}
+  
+.
+In SI units, this acceleration is expressed in metres per second squared (in symbols, m/s2 or m·s−2) or equivalently in newtons per kilogram (N/kg or N·kg−1). Near Earth's surface, the acceleration due to gravity, accurate to 2 significant figures, is 9.8 m/s2 (32 ft/s2). This means that, ignoring the effects of air resistance, the vertical component of velocity of an object falling freely will increase in the downwards direction by about 9.8 metres per second (32 ft/s) every second.
+The precise strength of Earth's gravity varies with location. The conventional value for standard gravity is 9.80665 m⋅s−2‍ by definition, originally adopted by the CGPM in 1901. This quantity is denoted variously as gn, ge, g0, or simply g (which is also used for the variable local value).
+The weight of an object on Earth's surface is the downwards force on that object, given by Newton's second law of motion, or F = m a (force = mass × acceleration). Gravitational acceleration contributes to the total gravity acceleration, but other factors, such as the rotation of Earth, also contribute, and, therefore, affect the weight of the object. Gravity does not normally include the gravitational pull of the Moon and Sun, which are accounted for in terms of tidal effects.
+
+
+== Magnitude ==
+A non-rotating perfect sphere of uniform mass density, or whose density varies solely with distance from the centre (spherical symmetry), would produce a gravitational field of uniform magnitude at all points on its surface. The Earth is rotating and is also not spherically symmetric; rather, it is slightly flatter at the poles while bulging at the Equator: an oblate spheroid. There are consequently slight deviations in the magnitude of gravity across its surface.
+Gravity on the Earth's surface varies by around 0.7%, from 9.7639 m/s2 on the Nevado Huascarán mountain in Peru to 9.8337 m/s2 at the surface of the Arctic Ocean. In large cities, it ranges from 9.7806 m/s2  in Kuala Lumpur, Mexico City, and Singapore to 9.825 m/s2 in Oslo and Helsinki.
+
+
+=== Conventional value ===
+In 1901, the third General Conference on Weights and Measures defined a standard gravitational acceleration for the surface of the Earth: gn = 9.80665 m/s2. It was based on measurements at the Pavillon de Breteuil near Paris in 1888, with a theoretical correction applied in order to convert to a latitude of 45° at sea level. This definition is thus not a value of any particular place or carefully worked out average, but an agreement for a value to use if a better actual local value is not known or not important. It is also used to define the units kilogram force and pound force.
+
+
+=== Latitude ===
+The surface of the Earth is rotating, so it is not an inertial frame of reference. At latitudes nearer the Equator, the outward centrifugal force produced by Earth's rotation is larger than at polar latitudes. This counteracts the Earth's gravity to a small degree – up to a maximum of 0.3% at the Equator – and reduces the apparent downward acceleration of falling objects.
+The second major reason for the difference in gravity at different latitudes is that the Earth's equatorial bulge (itself also caused by centrifugal force from rotation) causes objects at the Equator to be further from the planet's center than objects at the poles. The force due to gravitational attraction between two masses (a piece of the Earth and the object being weighed) varies inversely with the square of the distance between them. The distribution of mass is also different below someone on the equator and below someone at a pole. The net result is that an object at the Equator experiences a weaker gravitational pull than an object on one of the poles.
+In combination, the equatorial bulge and the effects of the surface centrifugal force due to rotation mean that sea-level gravity increases from about 9.780 m/s2 at the Equator to about 9.832 m/s2 at the poles, so an object will weigh approximately 0.5% more at the poles than at the Equator.
+
+
+=== Altitude ===
+
+Gravity decreases with altitude as one rises above the Earth's surface because greater altitude means greater distance from the Earth's centre. All other things being equal, an increase in altitude from sea level to 9,000 metres (30,000 ft) causes a weight decrease of about 0.29%.
+For heights 
+  
+    
+      
+        h
+        >
+        0
+      
+    
+    {\displaystyle h>0}
+  
+ above the Earth's surface, gravitational acceleration can be computed by an inverse-square formula:
+
+  
+    
+      
+        
+          g
+          
+            h
+          
+        
+        =
+        
+          g
+          
+            0
+          
+        
+        
+          
+            (
+            
+              
+                
+                  R
+                  
+                    
+                      e
+                    
+                  
+                
+                
+                  
+                    R
+                    
+                      
+                        e
+                      
+                    
+                  
+                  +
+                  h
+                
+              
+            
+            )
+          
+          
+            2
+          
+        
+      
+    
+    {\displaystyle g_{h}=g_{0}\left({\frac {R_{\mathrm {e} }}{R_{\mathrm {e} }+h}}\right)^{2}}
+  
+
+where
+
+gh is the gravitational acceleration at height h above sea level.
+Re is the Earth's mean radius.
+g0/ is the standard gravitational acceleration. The formula treats the Earth as a perfect sphere with a radially symmetric distribution of mass.
+It is a common misconception that astronauts in orbit are weightless because they have flown high enough to escape the Earth's gravity. In fact, at an altitude of 400 kilometres (250 mi), equivalent to a typical orbit of the ISS, gravity is still nearly 90% as strong as at the Earth's surface. Weightlessness actually occurs because orbiting objects are in free-fall.
+
+
+=== Depth ===
+
+An approximate value for gravity at a distance r from the center of the Earth can be obtained by assuming that the Earth's density is spherically symmetric. The force of gravity at a radius r depends only on the mass inside the sphere of that radius.  All the contributions from outside cancel out as a consequence of the inverse-square law of gravitation. Another consequence is that the gravity is the same as if all the mass were concentrated at the center. Thus, the gravitational acceleration at this radius is
+
+  
+    
+      
+        g
+        (
+        r
+        )
+        =
+        −
+        
+          
+            
+              G
+              M
+            
+            
+              r
+              
+                2
+              
+            
+          
+        
+        .
+      
+    
+    {\displaystyle g(r)=-{\frac {GM}{r^{2}}}.}
+  
+
+where G is the gravitational constant and M is the total mass enclosed within radius r. This result is known as the Shell theorem; it took Isaac Newton 20 years to prove this result, delaying his work on gravity.
+If the Earth had a constant density ρ, the mass would be M(r) = (4/3)πρr3 and the dependence of gravity on depth would be
+
+  
+    
+      
+        g
+        (
+        r
+        )
+        =
+        
+          
+            
+              4
+              π
+            
+            3
+          
+        
+        G
+        ρ
+        r
+        .
+      
+    
+    {\displaystyle g(r)={\frac {4\pi }{3}}G\rho r.}
+  
+
+The gravity g′ at depth d is given by g′ = g(1 − d/R) where g is acceleration due to gravity on the surface of the Earth, d is depth and R is the radius of the Earth.
+If the density decreased linearly with increasing radius from a density ρ0 at the center to ρ1 at the surface, then ρ(r) = ρ0 − (ρ0 − ρ1) r / R, and the dependence would be
+
+  
+    
+      
+        g
+        (
+        r
+        )
+        =
+        
+          
+            
+              4
+              π
+            
+            3
+          
+        
+        G
+        
+          ρ
+          
+            0
+          
+        
+        r
+        −
+        π
+        G
+        
+          (
+          
+            
+              ρ
+              
+                0
+              
+            
+            −
+            
+              ρ
+              
+                1
+              
+            
+          
+          )
+        
+        
+          
+            
+              r
+              
+                2
+              
+            
+            R
+          
+        
+        .
+      
+    
+    {\displaystyle g(r)={\frac {4\pi }{3}}G\rho _{0}r-\pi G\left(\rho _{0}-\rho _{1}\right){\frac {r^{2}}{R}}.}
+  
+
+The actual depth dependence of density and gravity, inferred from seismic travel times (see Adams–Williamson equation), is shown in the graphs below.
+
+
+=== Local topography and geology ===
+
+Local differences in topography (such as the presence of mountains), geology (such as the density of rocks in the vicinity), and deeper tectonic structure cause local and regional differences in the Earth's gravitational field, known as gravity anomalies. Some of these anomalies can be very extensive, resulting in bulges in sea level, and throwing pendulum clocks out of synchronisation.
+The study of these anomalies forms the basis of gravitational geophysics. The fluctuations are measured with highly sensitive gravimeters, the effect of topography and other known factors is subtracted, and from the resulting data conclusions are drawn. Such techniques are now used by prospectors to find oil and mineral deposits. Denser rocks (often containing mineral ores) cause higher than normal local gravitational fields on the Earth's surface. Less dense sedimentary rocks cause the opposite.
+
+
+== Atmosphere ==
+The magnitude of gravity on Earth is a key factor in creating and sustaining Earth's atmosphere which in turn is essential for maintaining water in the oceans. The force of gravity works opposite to the kinetic energy of gas molecules energized by the Sun. On the one hand, Earth's gravity is small enough to allow light gases like hydrogen to escape, unlike large planets like Jupiter. On the other hand, Earth gravity is strong enough to retain larger molecules. Moreover, this balance is dynamic, creating weather as the Earth receives different amounts of heat during daily and yearly cycles.
+
+
+== Direction ==
+
+Gravity acceleration is a vector quantity, with direction in addition to magnitude. In a spherically symmetric Earth, gravity would point directly towards the sphere's centre. As the Earth's figure is slightly flatter, there are consequently significant deviations in the direction of gravity: essentially the difference between geodetic latitude and geocentric latitude. Smaller deviations, called vertical deflection, are caused by local mass anomalies, such as mountains.
+
+
+== Comparative values worldwide ==
+Tools exist for calculating the strength of gravity at various cities around the world. The effect of latitude can be clearly seen with gravity in high-latitude cities: Anchorage (9.826 m/s2), Helsinki (9.825 m/s2), being about 0.5% greater than that in cities near the equator: Kuala Lumpur (9.776 m/s2).  The effect of altitude can be seen in Mexico City (9.776 m/s2; altitude 2,240 metres (7,350 ft)), and by comparing Denver (9.798 m/s2; 1,616 metres (5,302 ft)) with Washington, D.C. (9.801 m/s2; 30 metres (98 ft)), both of which are near 39° N. Measured values can be obtained from Physical and Mathematical Tables by T.M. Yarwood and F. Castle, Macmillan, revised edition 1970.
+
+
+== Mathematical models ==
+
+If the terrain is at sea level, we can estimate, for the Geodetic Reference System 1980, 
+  
+    
+      
+        g
+        {
+        ϕ
+        }
+      
+    
+    {\displaystyle g\{\phi \}}
+  
+, the acceleration at latitude 
+  
+    
+      
+        ϕ
+      
+    
+    {\displaystyle \phi }
+  
+:
+
+  
+    
+      
+        
+          
+            
+              
+                g
+                {
+                ϕ
+                }
+              
+              
+                
+                =
+                9.780327
+                
+                
+                
+                  m
+                
+                
+                  ⋅
+                
+                
+                  
+                    s
+                  
+                  
+                    −
+                    2
+                  
+                
+                
+                
+                
+                  (
+                  
+                    1
+                    +
+                    0.0053024
+                    
+                    
+                      sin
+                      
+                        2
+                      
+                    
+                    ⁡
+                    ϕ
+                    −
+                    0.0000058
+                    
+                    
+                      sin
+                      
+                        2
+                      
+                    
+                    ⁡
+                    2
+                    ϕ
+                  
+                  )
+                
+                ,
+              
+            
+            
+              
+              
+                
+                =
+                9.780327
+                
+                
+                
+                  m
+                
+                
+                  ⋅
+                
+                
+                  
+                    s
+                  
+                  
+                    −
+                    2
+                  
+                
+                
+                
+                
+                  (
+                  
+                    1
+                    +
+                    0.0052792
+                    
+                    
+                      sin
+                      
+                        2
+                      
+                    
+                    ⁡
+                    ϕ
+                    +
+                    0.0000232
+                    
+                    
+                      sin
+                      
+                        4
+                      
+                    
+                    ⁡
+                    ϕ
+                  
+                  )
+                
+                ,
+              
+            
+            
+              
+              
+                
+                =
+                9.780327
+                
+                
+                
+                  m
+                
+                
+                  ⋅
+                
+                
+                  
+                    s
+                  
+                  
+                    −
+                    2
+                  
+                
+                
+                
+                
+                  (
+                  
+                    1.0053024
+                    −
+                    0.0053256
+                    
+                    
+                      cos
+                      
+                        2
+                      
+                    
+                    ⁡
+                    ϕ
+                    +
+                    0.0000232
+                    
+                    
+                      cos
+                      
+                        4
+                      
+                    
+                    ⁡
+                    ϕ
+                  
+                  )
+                
+                ,
+              
+            
+            
+              
+              
+                
+                =
+                9.780327
+                
+                
+                
+                  m
+                
+                
+                  ⋅
+                
+                
+                  
+                    s
+                  
+                  
+                    −
+                    2
+                  
+                
+                
+                
+                
+                  (
+                  
+                    1.0026454
+                    −
+                    0.0026512
+                    
+                    cos
+                    ⁡
+                    2
+                    ϕ
+                    +
+                    0.0000058
+                    
+                    
+                      cos
+                      
+                        2
+                      
+                    
+                    ⁡
+                    2
+                    ϕ
+                  
+                  )
+                
+              
+            
+          
+        
+      
+    
+    {\displaystyle {\begin{aligned}g\{\phi \}&=9.780327\,\,\mathrm {m} {\cdot }\mathrm {s} ^{-2}\,\,\left(1+0.0053024\,\sin ^{2}\phi -0.0000058\,\sin ^{2}2\phi \right),\\&=9.780327\,\,\mathrm {m} {\cdot }\mathrm {s} ^{-2}\,\,\left(1+0.0052792\,\sin ^{2}\phi +0.0000232\,\sin ^{4}\phi \right),\\&=9.780327\,\,\mathrm {m} {\cdot }\mathrm {s} ^{-2}\,\,\left(1.0053024-0.0053256\,\cos ^{2}\phi +0.0000232\,\cos ^{4}\phi \right),\\&=9.780327\,\,\mathrm {m} {\cdot }\mathrm {s} ^{-2}\,\,\left(1.0026454-0.0026512\,\cos 2\phi +0.0000058\,\cos ^{2}2\phi \right)\end{aligned}}}
+  
+
+This is the International Gravity Formula 1967, the 1967 Geodetic Reference System Formula, Helmert's equation or Clairaut's formula.
+An alternative formula for g as a function of latitude is the WGS (World Geodetic System) 84 Ellipsoidal Gravity Formula:
+
+  
+    
+      
+        g
+        {
+        ϕ
+        }
+        =
+        
+          
+            G
+          
+          
+            e
+          
+        
+        
+          [
+          
+            
+              
+                1
+                +
+                k
+                
+                  sin
+                  
+                    2
+                  
+                
+                ⁡
+                ϕ
+              
+              
+                1
+                −
+                
+                  e
+                  
+                    2
+                  
+                
+                
+                  sin
+                  
+                    2
+                  
+                
+                ⁡
+                ϕ
+              
+            
+          
+          ]
+        
+        ,
+      
+    
+    {\displaystyle g\{\phi \}=\mathbb {G} _{\text{e}}\left[{\frac {1+k\sin ^{2}\phi }{\sqrt {1-e^{2}\sin ^{2}\phi }}}\right],}
+  
+
+where
+
+  
+    
+      
+        
+          e
+          
+            2
+          
+        
+        =
+        1
+        −
+        (
+        b
+        
+          /
+        
+        a
+        
+          )
+          
+            2
+          
+        
+      
+    
+    {\displaystyle e^{2}=1-(b/a)^{2}}
+  
+ is the spheroid's eccentricity, squared;
+
+  
+    
+      
+        
+          
+            G
+          
+          
+            e
+          
+        
+        ,
+        
+        
+          
+            G
+          
+          
+            p
+          
+        
+        
+      
+    
+    {\displaystyle \mathbb {G} _{\text{e}},\,\mathbb {G} _{\text{p}}\,}
+  
+ is the defined gravity at the equator and poles, respectively;
+
+  
+    
+      
+        k
+        =
+        
+          
+            
+              b
+              
+              
+                
+                  G
+                
+                
+                  p
+                
+              
+              −
+              a
+              
+              
+                
+                  G
+                
+                
+                  e
+                
+              
+            
+            
+              a
+              
+              
+                
+                  G
+                
+                
+                  e
+                
+              
+            
+          
+        
+      
+    
+    {\displaystyle k={\frac {b\,\mathbb {G} _{\text{p}}-a\,\mathbb {G} _{\text{e}}}{a\,\mathbb {G} _{\text{e}}}}}
+  
+ (formula constant);
+
+  
+    
+      
+        a
+        ,
+        
+        b
+      
+    
+    {\displaystyle a,\,b}
+  
+ are the equatorial and polar semi-axes, respectively;
+then, where 
+  
+    
+      
+        
+          
+            G
+          
+          
+            p
+          
+        
+        =
+        9.8321849378
+        
+        
+        
+          
+            m
+            
+              ⋅
+            
+            s
+          
+          
+            −
+            2
+          
+        
+      
+    
+    {\displaystyle \mathbb {G} _{\text{p}}=9.8321849378\,\,\mathrm {m{\cdot }s} ^{-2}}
+  
+,
+
+  
+    
+      
+        g
+        {
+        ϕ
+        }
+        =
+        9.7803253359
+        
+        
+        
+          
+            m
+            
+              ⋅
+            
+            s
+          
+          
+            −
+            2
+          
+        
+        
+          [
+          
+            
+              
+                1
+                +
+                0.001931852652
+                
+                
+                  sin
+                  
+                    2
+                  
+                
+                ⁡
+                ϕ
+              
+              
+                1
+                −
+                0.0066943799901
+                
+                
+                  sin
+                  
+                    2
+                  
+                
+                ⁡
+                ϕ
+              
+            
+          
+          ]
+        
+      
+    
+    {\displaystyle g\{\phi \}=9.7803253359\,\,\mathrm {m{\cdot }s} ^{-2}\left[{\frac {1+0.001931852652\,\sin ^{2}\phi }{\sqrt {1-0.0066943799901\,\sin ^{2}\phi }}}\right]}
+  
+
+where the semi-axes of the earth are:
+
+  
+    
+      
+        a
+        =
+        6378137.0
+        
+        
+        
+          m
+        
+      
+    
+    {\displaystyle a=6378137.0\,\,\mathrm {m} }
+  
+
+  
+    
+      
+        b
+        =
+        6356752.314245
+        
+        
+        
+          m
+        
+      
+    
+    {\displaystyle b=6356752.314245\,\,\mathrm {m} }
+  
+
+The difference between the WGS-84 formula and Helmert's equation is less than 0.68 μm·s−2.
+Further reductions are applied to obtain gravity anomalies (see Gravity anomaly § Computation).
+
+
+== Estimating g from the law of universal gravitation ==
+From the law of universal gravitation, the force on a body acted upon by Earth's gravitational force is given by
+
+  
+    
+      
+        F
+        =
+        G
+        
+          
+            
+              
+                m
+                
+                  1
+                
+              
+              
+                m
+                
+                  2
+                
+              
+            
+            
+              r
+              
+                2
+              
+            
+          
+        
+        =
+        
+          (
+          
+            G
+            
+              
+                
+                  M
+                  
+                    ⊕
+                  
+                
+                
+                  r
+                  
+                    2
+                  
+                
+              
+            
+          
+          )
+        
+        m
+      
+    
+    {\displaystyle F=G{\frac {m_{1}m_{2}}{r^{2}}}=\left(G{\frac {M_{\oplus }}{r^{2}}}\right)m}
+  
+
+where r is the distance between the centre of the Earth and the body (see below), and here we take 
+  
+    
+      
+        
+          M
+          
+            ⊕
+          
+        
+      
+    
+    {\displaystyle M_{\oplus }}
+  
+ to be the mass of the Earth and m to be the mass of the body.
+Additionally, Newton's second law, F = ma, where m is mass and a is acceleration, here tells us that
+
+  
+    
+      
+        F
+        =
+        m
+        g
+      
+    
+    {\displaystyle F=mg}
+  
+
+Comparing the two formulas it is seen that:
+
+  
+    
+      
+        g
+        =
+        G
+        
+          
+            
+              M
+              
+                ⊕
+              
+            
+            
+              r
+              
+                2
+              
+            
+          
+        
+      
+    
+    {\displaystyle g=G{\frac {M_{\oplus }}{r^{2}}}}
+  
+
+So, to find the acceleration due to gravity at sea level, substitute the values of the gravitational constant, G, the Earth's mass (in kilograms), m1, and the Earth's radius (in metres), r, to obtain the value of g:
+
+  
+    
+      
+        g
+        =
+        G
+        
+          
+            
+              M
+              
+                ⊕
+              
+            
+            
+              r
+              
+                2
+              
+            
+          
+        
+        =
+        6.67
+        ×
+        
+          10
+          
+            −
+            11
+          
+        
+         
+        
+          
+            
+              m
+            
+            
+              3
+            
+          
+          
+            ⋅
+          
+          
+            
+              k
+              g
+            
+            
+              −
+              1
+            
+          
+          
+            ⋅
+          
+          
+            
+              s
+            
+            
+              −
+              2
+            
+          
+        
+        ×
+        
+          
+            
+              5.98
+              ×
+              
+                10
+                
+                  24
+                
+              
+               
+              
+                k
+                g
+              
+            
+            
+              (
+              6.38
+              ×
+              
+                10
+                
+                  6
+                
+              
+               
+              
+                m
+              
+              
+                )
+                
+                  2
+                
+              
+            
+          
+        
+        ≈
+        9.8
+         
+        
+          
+            m
+          
+          
+            ⋅
+          
+          
+            
+              s
+            
+            
+              −
+              2
+            
+          
+        
+      
+    
+    {\displaystyle g=G{\frac {M_{\oplus }}{r^{2}}}=6.67\times 10^{-11}\ \mathrm {{m}^{3}{\cdot }{kg}^{-1}{\cdot }{s}^{-2}} \times {\frac {5.98\times 10^{24}\ \mathrm {kg} }{(6.38\times 10^{6}\ \mathrm {m} )^{2}}}\approx 9.8\ \mathrm {{m}{\cdot }{s}^{-2}} }
+  
+
+This formula works because the gravity of a uniform spherical body, as measured on or above its surface, is the same as if all its mass were concentrated at a point at its centre. This is what allows us to use the Earth's radius for r.
+The value obtained agrees approximately with the measured value of g. The difference may be attributed to several factors, mentioned above under "Variation in magnitude":
+
+The Earth is not homogeneous
+The Earth is not a perfect sphere, and an average value must be used for its radius
+This calculated value of g only includes true gravity. It does not include the reduction of constraint force that we perceive as a reduction of gravity due to the rotation of Earth, and some of gravity being counteracted by centrifugal force.
+There are significant uncertainties in the values of r and m1 as used in this calculation, and the value of G is also rather difficult to measure precisely.
+If G, g and r are known then a reverse calculation will give an estimate of the mass of the Earth. This method was used by Henry Cavendish.
+
+
+== Measurement ==
+
+The measurement of Earth's gravity is called gravimetry.
+
+
+=== Satellite measurements ===
+
+
+== See also ==
+
+
+== References ==
+
+
+== External links ==
+Altitude gravity calculator
+GRACE – Gravity Recovery and Climate Experiment Archived 2009-12-01 at the Wayback Machine
+GGMplus high resolution data (2013)
+Geoid 2011 model Potsdam Gravity Potato

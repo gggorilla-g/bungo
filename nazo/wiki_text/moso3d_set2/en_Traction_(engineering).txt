@@ -1,0 +1,45 @@
+https://en.wikipedia.org/wiki/Traction_(mechanics)
+
+Traction, traction force or tractive force is a force used to generate motion between a body and a tangential surface, through the use of either dry friction or shear force.
+It has important applications in vehicles, as in tractive effort. 
+Traction can also refer to the maximum tractive force between a body and a surface, as limited by available friction; when this is the case, traction is often expressed as the ratio of the maximum tractive force to the normal force and is termed the coefficient of traction (similar to coefficient of friction). It is the force which makes an object move over the surface by overcoming all the resisting forces like friction, normal loads (load acting on the tiers in negative Z axis), air resistance, rolling resistance, etc.
+
+
+== Definitions ==
+Traction can be defined as:
+
+a physical process in which a tangential force is transmitted across an interface between two bodies through dry friction or an intervening fluid film resulting in motion, stoppage or the transmission of power.
+In vehicle dynamics, tractive force is closely related to the terms tractive effort and drawbar pull, though all three terms have different definitions.
+
+
+== Coefficient of traction ==
+
+The coefficient of traction is defined as the usable force for traction divided by the weight on the running gear (wheels, tracks etc.) i.e.:
+     usable traction = coefficient of traction × normal force.
+
+
+=== Factors affecting coefficient of traction ===
+Traction between two surfaces depends on several factors:
+
+Material composition of each surface.
+Macroscopic and microscopic shape (texture; macrotexture and microtexture)
+Normal force pressing contact surfaces together.
+Contaminants at the material boundary including lubricants and adhesives.
+Relative motion of tractive surfaces - a sliding object (one in kinetic friction) has less traction than a non-sliding object (one in static friction).
+Direction of traction relative to some coordinate system - e.g., the available traction of a tire often differs between cornering, accelerating, and braking.
+For low-friction surfaces, such as off-road or ice, traction can be increased by using traction devices that partially penetrate the surface; these devices use the shear strength of the underlying surface rather than relying solely on dry friction (e.g., aggressive off-road tread or snow chains)....
+
+
+=== Traction coefficient in engineering design ===
+
+In the design of wheeled or tracked vehicles, high traction between wheel and ground is more desirable than low traction, as it allows for higher acceleration (including cornering and braking) without wheel slippage. One notable exception is in the motorsport technique of drifting, in which rear-wheel traction is purposely lost during high speed cornering.
+Other designs dramatically increase surface area to provide more traction than wheels can, for example in continuous track and half-track vehicles. A tank or similar tracked vehicle uses tracks to reduce the pressure on the areas of contact. A 70-ton M1A2 would sink to the point of high centering if it used round tires. The tracks spread the 70 tons over a much larger area of contact than tires would and allow the tank to travel over much softer land.
+In some applications, there is a complicated set of trade-offs in choosing materials.  For example, soft rubbers often provide better traction but also wear faster and have higher losses when flexed—thus reducing efficiency. Choices in material selection may have a dramatic effect. For example: tires used for track racing cars may have a life of 200 km, while those used on heavy trucks may have a life approaching 100,000 km.  The truck tires have less traction and also thicker rubber.
+Traction also varies with contaminants.  A layer of water in the contact patch can cause a substantial loss of traction.  This is one reason for grooves and siping of automotive tires.
+The traction of trucks, agricultural tractors, wheeled military vehicles, etc. when driving on soft and/or slippery ground has been found to improve significantly by use of Tire Pressure Control Systems (TPCS). A TPCS makes it possible to reduce and later restore the tire pressure during continuous vehicle operation. Increasing traction by use of a TPCS also reduces tire wear and ride vibration.
+
+
+== See also ==
+
+
+== References ==

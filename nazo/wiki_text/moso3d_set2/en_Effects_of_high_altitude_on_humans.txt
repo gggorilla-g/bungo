@@ -1,0 +1,90 @@
+https://en.wikipedia.org/wiki/Effects_of_high_altitude_on_humans
+
+The effects of high altitude on humans are mostly the consequences of reduced partial pressure of oxygen in the atmosphere. The medical problems that are direct consequence of high altitude are caused by the low inspired partial pressure of oxygen, which is caused by the reduced atmospheric pressure, and the constant gas fraction of oxygen in atmospheric air over the range in which humans can survive. The other major effect of altitude is due to lower ambient temperature.
+The oxygen saturation of hemoglobin determines the content of oxygen in blood. After the human body reaches around 2,100 metres (6,900 ft) above sea level, the saturation of oxyhemoglobin begins to decrease rapidly. However, the human body has both short-term and long-term adaptations to altitude that allow it to partially compensate for the lack of oxygen. There is a limit to the level of adaptation; mountaineers refer to the altitudes above 8,000 metres (26,000 ft) as the death zone, where it is generally believed that no human body can acclimatize. At extreme altitudes, the ambient pressure can drop below the vapor pressure of water at body temperature–at such altitudes even pure oxygen at ambient pressure cannot support human life, and a pressure suit is necessary. A rapid depressurisation to the low pressures of high altitudes can trigger altitude decompression sickness.
+The physiological responses to high altitude include hyperventilation, polycythemia, increased capillary density in muscle and hypoxic pulmonary vasoconstriction–increased intracellular oxidative enzymes. There are a range of responses to hypoxia at the cellular level, shown by discovery of hypoxia-inducible factors (HIFs), which determine the general responses of the body to oxygen deprivation. Physiological functions at high altitude are not normal and evidence also shows impairment of neuropsychological function, which has been implicated in mountaineering and aviation accidents. Methods of mitigating the effects of the high altitude environment include oxygen enrichment of breathing air and/or an increase of pressure in an enclosed environment. Other effects of high altitude include frostbite, hypothermia, sunburn, and dehydration.
+Tibetans, Andeans, and Amharas are three groups which are relatively well adapted to high altitude, but display noticeably different phenotypes.
+
+
+== Pressure effects as a function of altitude ==
+
+The human body can perform best at sea level, where the atmospheric pressure is 101,325 Pa or 1013.25 millibars (or 1 atm, by definition). The concentration of oxygen (O2) in sea-level air is 20.9%, so the partial pressure of O2 (pO2) is 21.136 kilopascals (158.53 mmHg). In healthy individuals, this saturates hemoglobin, the oxygen-binding red pigment in red blood cells.
+Atmospheric pressure decreases following the Barometric formula with altitude while the O2 fraction remains constant to about 100 km (62 mi), so pO2 decreases with altitude as well. It is about half of its sea-level value at 5,000 m (16,000 ft), the altitude of the Everest Base Camp, and only a third at 8,848 m (29,029 ft), the summit of Mount Everest. When pO2 drops, the body responds with altitude acclimatization.
+The International Society for Mountain Medicine recognizes three altitude regions which reflect the lowered amount of oxygen in the atmosphere:
+
+High altitude = 1,500–3,500 metres (4,900–11,500 ft)
+Very high altitude = 3,500–5,500 metres (11,500–18,000 ft)
+Extreme altitude = above 5,500 metres (18,000 ft)
+Travel to each of these altitude regions can lead to medical problems, from the mild symptoms of acute mountain sickness to the potentially fatal high-altitude pulmonary edema (HAPE) and high-altitude cerebral edema (HACE). The higher the altitude, the greater the risk. Expedition doctors commonly stock a supply of dexamethasone, to treat these conditions on site. Research also indicates elevated risk of permanent brain damage in people climbing to above 5,500 m (18,045 ft).
+People who develop acute mountain sickness can sometimes be identified before the onset of symptoms by changes in fluid balance hormones regulating salt and water metabolism. People who are predisposed to develop high-altitude pulmonary edema may present a reduction in urine production before respiratory symptoms become apparent.
+
+Humans have survived for two years at 5,950 m (19,520 ft, 475 millibars of atmospheric pressure), which is the highest recorded permanently tolerable altitude; the highest permanent settlement known, La Rinconada, is at 5,100 m (16,700 ft).
+At altitudes above 7,500 m (24,600 ft, 383 millibars of atmospheric pressure), sleeping becomes very difficult, digesting food is near-impossible, and the risk of HAPE or HACE increases greatly.
+
+
+=== Death zone ===
+
+The death zone in mountaineering (originally the lethal zone) was first conceived in 1953 by Edouard Wyss-Dunant, a Swiss physician and alpinist. It refers to altitudes above a certain point where the amount of oxygen is insufficient to sustain human life for an extended time span. This point is generally tagged as 8,000 m (26,000 ft, less than 356 millibars of atmospheric pressure). All 14 summits in the death zone above 8000 m, called eight-thousanders, are located in the Himalaya and Karakoram mountain ranges.
+Many deaths in high-altitude mountaineering have been caused by the effects of the death zone, either directly by loss of vital functions or indirectly through wrong decisions made under stress or physical weakening leading to accidents. In the death zone, the human body cannot acclimatize. An extended stay in the death zone without supplementary oxygen will result in deterioration of bodily functions, loss of consciousness, and, ultimately, death.
+
+At an altitude of 19,000 m (63,000 ft), the atmospheric pressure is sufficiently low that water boils at the normal temperature of the human body. This altitude is known as the Armstrong limit. Exposure to pressure below this limit results in a rapid loss of consciousness, followed by a series of changes to cardiovascular and neurological functions, and eventually death, unless pressure is restored within 60–90 seconds.
+Even below the Armstrong limit, an abrupt decrease in atmospheric pressure can cause venous gas bubbles and decompression sickness. A sudden change from sea-level pressure to pressures as low as those at 5,500 m (18,000 ft) can cause altitude-induced decompression sickness.
+
+
+== Acclimatization ==
+The human body can adapt to high altitude through both immediate and long-term acclimatization. At high altitude, in the short term, the lack of oxygen is sensed by the carotid bodies, which causes an increase in the breathing depth and rate (hyperpnea). However, hyperpnea also causes the adverse effect of respiratory alkalosis, inhibiting the respiratory center from enhancing the respiratory rate as much as would be required. Inability to increase the breathing rate can be caused by inadequate carotid body response or pulmonary or renal disease.
+In addition, at high altitude, the heart beats faster; the stroke volume is slightly decreased; and non-essential bodily functions are suppressed, resulting in a decline in food digestion efficiency (as the body suppresses the digestive system in favor of increasing its cardiopulmonary reserves).
+Full acclimatization requires days or even weeks. Gradually, the body compensates for the respiratory alkalosis by renal excretion of bicarbonate, allowing adequate respiration to provide oxygen without risking alkalosis. It takes about four days at any given altitude and can be enhanced by drugs such as acetazolamide. Eventually, the body undergoes physiological changes such as lower lactate production (because reduced glucose breakdown decreases the amount of lactate formed), decreased plasma volume, increased hematocrit (polycythemia), increased RBC mass, a higher concentration of capillaries in skeletal muscle tissue, increased myoglobin, increased mitochondria, increased aerobic enzyme concentration, increase in 2,3-BPG, hypoxic pulmonary vasoconstriction, and right ventricular hypertrophy. Pulmonary artery pressure increases in an effort to oxygenate more blood.
+Full hematological adaptation to high altitude is achieved when the increase of red blood cells reaches a plateau and stops. The length of full hematological adaptation can be approximated by multiplying the altitude in kilometres by 11.4 days. For example, to adapt to 4,000 metres (13,000 ft) of altitude would require 45.6 days. The upper altitude limit of this linear relationship has not been fully established.
+Even when acclimatized, prolonged exposure to high altitude can interfere with pregnancy and cause intrauterine growth restriction or pre-eclampsia. High altitude causes decreased blood flow to the placenta, even in acclimatized women, which interferes with fetal growth. Consequently, children born at high-altitudes are found to be born shorter on average  than children born at sea level.
+
+
+== Adaptation ==
+
+It is estimated that 81.6 million people live at elevations above 2,500 metres (8,200 ft). 
+Genetic changes have been detected in high-altitude population groups in Tibet in Asia, the Andes of the Americas, and the Amhara of Ethiopia. This adaptation means irreversible, long-term physiological responses to high-altitude environments, associated with heritable behavioural and genetic changes. The indigenous inhabitants of these regions thrive well in the highest parts of the world. These humans have undergone extensive physiological and genetic changes, particularly in the regulatory systems of oxygen respiration and blood circulation, when compared to the general lowland population.
+Compared with acclimatized newcomers, native Amhara, Andean and Himalayan populations have better oxygenation at birth, enlarged lung volumes throughout life, and a higher capacity for exercise. Tibetans demonstrate a sustained increase in cerebral blood flow, elevated resting ventilation, lower hemoglobin concentration (at elevations below 4000 metres), and less susceptibility to chronic mountain sickness (CMS). Andeans possess a similar suite of adaptations but exhibit elevated hemoglobin concentration and a normal resting ventilation. These adaptations may reflect the longer history of high altitude habitation in these regions.
+A lower mortality rate from cardiovascular disease is observed for residents at higher altitudes. Similarly, a dose–response relationship exists between increasing elevation and decreasing obesity prevalence in the United States. This is not explained by migration alone.  On the other hand, people living at higher elevations also have a higher rate of suicide in the United States. The correlation between elevation and suicide risk was present even when the researchers control for known suicide risk factors, including age, gender, race, and income. Research has also indicated that oxygen levels are unlikely to be a factor, considering that there is no indication of increased mood disturbances at high altitude in those with sleep apnea or in heavy smokers at high altitude. The cause for the increased suicide risk is as yet unknown.
+
+
+== Mitigation ==
+
+Mitigation may be by supplementary oxygen, pressurisation of the habitat or environmental protection suit, or a combination of both. In all cases the critical effect is the raising of oxygen partial pressure in the breathing gas.
+Room air at altitude can be enriched with oxygen without introducing an unacceptable fire hazard. At an altitude of 8000 m the equivalent altitude in terms of oxygen partial pressure can be reduced to below 4000 m without increasing the fire hazard beyond that of normal sea level atmospheric air. In practice this can be done using oxygen concentrators.
+
+
+== Other hazards ==
+
+The ambient air temperature is predictably affected by altitude, and this also has physiological effects on people exposed to high altitudes. The temperature effects and their mitigation are not inherently different from temperature effects from other causes, but the effects of temperature and pressure are cumulative.
+The temperature of the atmosphere decreases by a lapse rate, mostly caused by convection and the adiabatic expansion of air with decreasing pressure. At the peak of Mount Everest, the average summer temperature is −19 °C (−2 °F) and the average winter temperature is −36 °C (−33 °F). At such low temperatures, frostbite and hypothermia become risks to humans. Frostbite is a skin injury that occurs when exposed to extreme low temperatures, causing the freezing of the skin or other tissues, commonly affecting the fingers, toes, nose, ears, cheeks and chin areas. Hypothermia is defined as a body core temperature below 35.0 °C (95.0 °F) in humans. Symptoms range from shivering and  mental confusion, to hallucinations and cardiac arrest.
+In addition to cold injuries, breathing cold air can cause dehydration, because the air is warmed to body temperature and humidified from body moisture.
+There is also a higher risk of sunburn due to the reduced blocking of ultraviolet by the thinner atmosphere. The amount of UVA increases approximately 9% with every increase of altitude by 1,000 metres (3,300 ft). Symptoms of sunburn include red or reddish skin that is hot to the touch or painful, general fatigue, and mild dizziness. Other symptoms include blistering, peeling skin, swelling, itching, and nausea.
+
+
+== Athletic performance ==
+For athletes, high altitude produces two contradictory effects on performance. For explosive events (sprints up to 400 metres, long jump, triple jump) the reduction in atmospheric pressure means there is less resistance from the atmosphere and the athlete's performance will generally be better at high altitude. For endurance events (races of 800 metres or more), the predominant effect is the reduction in oxygen, which generally reduces the athlete's performance at high altitude. One way to gauge this reduction is by monitoring VO2max, a measurement of the maximum capacity of an individual to utilize O2 during strenuous exercise. For an unacclimated individual, VO2max begins to decrease significantly at moderate elevation, starting at 1,500 metres and dropping 8 to 11 percent for every additional 1000 metres.
+
+
+=== Explosive events ===
+Sports organizations acknowledge the effects of altitude on performance: for example, the governing body for the sport of athletics, World Athletics, has ruled that performances achieved at an altitude greater than 1,000 metres will be approved for world record purposes, but carry the notation of "A" to denote they were set at altitude.
+The 1968 Summer Olympics were held at altitude in Mexico City. The world records in most short sprint and jump records were broken there. Other records were also set at altitude in anticipation of those Olympics. Bob Beamon's record in the long jump held for almost 23 years and has only been beaten once without altitude or wind assistance. Many of the other records set at Mexico City were later surpassed by marks set at altitude.
+An elite athletics meeting was held annually in Sestriere, Italy, from 1988 to 1996, and again in 2004. The advantage of its high altitude in sprinting and jumping events held out hope of world records, with sponsor Ferrari offering a car as a bonus. One record was set, in the men's pole vault by Sergey Bubka in 1994; the men's and women's records in long jump were also beaten, but wind assisted.
+
+
+=== Endurance events ===
+
+Athletes can also take advantage of altitude acclimatization to increase their performance. The same changes that help the body cope with high altitude increase performance back at sea level. However, this may not always be the case. Any positive acclimatization effects may be negated by a de-training effect as the athletes are usually not able to exercise with as much intensity at high altitudes compared to sea level.
+This conundrum led to the development of the altitude training modality known as "Live-High, Train-Low", whereby the athlete spends many hours a day resting and sleeping at one (high) altitude, but performs a significant portion of their training, possibly all of it, at another (lower) altitude. A series of studies conducted in Utah in the late 1990s showed significant performance gains in athletes who followed such a protocol for several weeks. Another study from 2006 has shown performance gains from merely performing some exercising sessions at high altitude, yet living at sea level.
+The performance-enhancing effect of altitude training could be due to increased red blood cell count, more efficient training, or changes in muscle physiology.
+In 2007, FIFA issued a short-lived moratorium on international football matches held at more than 2,500 metres above sea level, effectively barring select stadiums in Bolivia, Colombia, and Ecuador from hosting World Cup qualifiers, including their capital cities. In their ruling, FIFA's executive committee specifically cited what they believed to be an unfair advantage possessed by home teams acclimated to the elevation. The ban was reversed in 2008.
+
+
+== See also ==
+
+
+== References ==
+
+
+== External links ==
+Nosek, Thomas M. "Section 4/4ch7/s4ch7_32". Essentials of Human Physiology. Archived from the original on 24 March 2016.
+IPPA, High Altitude Pathology Institute.
