@@ -93,6 +93,7 @@
 - 冒頭の一言と台本は、書き出す前に決め切る（書き出してから台本を変えない）。
 - 冒頭10秒の細かいコマ割り、明るさの表は、新しい場面を作ったときだけ見る（数値の確認は check と build が自動で止めるので、通っていれば読まない）。
 - 雑学で3DCGを使うのは、2Dで作れないカットだけ。
+- 長尺（10/31 ゲンタさん「クレジット浪費は避けたい」）：書き下ろしの長尺は作らない。3DCGショートが12本たまったら（11/13ごろ）、既存の総集編ツール（tools/compile_long.py）をそのまま使って総集編を1本作る。横長の描き直しなど新しい仕組みは作らない。
 - アングルは回ごとに変える。どの場面でも `p.view`／`p.view_to`（[[位置],[見る点]]）でカメラを上書きできる。`python nazo/moso3d.py check <id> [直前の回のid]`（または台本の `meta.prev`）は、直前の回と同じ場面・同じカメラのカットがあると止める。
 - 11/7〜13 の7本で足した場面は seafloor（海の断面）の1つ。ほかは既存の場面に p を足した（land: noair / air_off / sun_off / noclouds / thick / cloud_off / rain / ring / sun_scale / freeze / frozen、space・orbit: sun_off、orbit: r / r_to / ghost、spin: ring="band"、全場面: earth="dry"/"snow"）。
 
