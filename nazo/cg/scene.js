@@ -157,33 +157,46 @@ function landScene(p) {
   }
   const CX = 4, ch = blockChar(); const cy = (top[`${CX},6`] ?? 2) + 1.4; ch.position.set(CX, cy, 6); ch.rotation.y = 0.35; sc.add(ch);
   // 太陽・光・星
-  const sun = new THREE.Mesh(new THREE.BoxGeometry(9, 9, 9), new THREE.MeshBasicMaterial({ color: COL.sun }));
+  // 速さは「太陽が空に弧を描いて駆け抜ける動き」と「影の回転」で見せる。明るさの差は小さく、空の色はなめらかにつなぐ
+  // （点滅・急な明暗の切り替えは禁止。明暗の大きな変化は1秒に3回未満。nazo/RULES.md）
+  const sun = new THREE.Mesh(new THREE.BoxGeometry(7, 7, 7), new THREE.MeshBasicMaterial({ color: COL.sun }));
   sc.add(sun);
   const amb = new THREE.AmbientLight(0xffffff, 0.55); sc.add(amb);
-  const dl = new THREE.DirectionalLight(0xffffff, 1.1); sc.add(dl);
-  const st = stars(1400, 500, p.night ? 3 : 2.2); sc.add(st);
-  const skyDay = new THREE.Color(0x6ec0ff), skyDusk = new THREE.Color(0xff7a3a), skyNight = new THREE.Color(0x03040c);
-  const hot = new THREE.Color(0xff9a3a);
+  const dl = new THREE.DirectionalLight(0xffffff, 1.0); sc.add(dl); sc.add(dl.target);
+  R.shadowMap.enabled = true; R.shadowMap.type = THREE.PCFShadowMap;
+  dl.castShadow = true; dl.shadow.mapSize.set(1024, 1024);
+  Object.assign(dl.shadow.camera, { left: -28, right: 28, top: 28, bottom: -28, near: 1, far: 200 });
+  sc.traverse(o => { if (o.isMesh && o !== sea) { o.castShadow = true; o.receiveShadow = true; } });
+  sea.receiveShadow = true;
+  const st = stars(1400, 500, 2.2); sc.add(st);
+  const NIGHT = new THREE.Color(0x1d2b5e), DAWN = new THREE.Color(0xf2a36e), DAY = new THREE.Color(0x7cc0ee);
+  const SNOWSKY = new THREE.Color(0xb9cbe0), HOT = new THREE.Color(0xf4a35c);
   const [cp, ct] = LAND_CAMS[p.cam || "hook"];
   const [cp2, ct2] = LAND_CAMS[p.cam_to || p.cam || "hook"];
   return (t, d) => {
     const u = d ? t / d : 0, tt = t + (p.t0 || 0);
-    const ph = (p.sun ? (tt / p.sun) * Math.PI * 2 : 0) + (p.ph0 ?? 0.9);
-    const sx = Math.cos(ph) * 160, sy = Math.sin(ph) * 120;
-    sun.position.set(sx, sy, -90); sun.rotation.set(tt, tt * 0.7, 0);
-    dl.position.set(sx, Math.max(sy, -10), -90);
-    const el = Math.sin(ph);
-    let day = p.night ? 0 : Math.min(Math.max(el * 2.4 + 0.2, 0), 1);
-    const dusk = p.night ? 0 : Math.max(0, 1 - Math.abs(el) * 3.5);
-    let season = 0;
-    if (p.seasons) season = Math.floor(tt / 0.42) % 2 ? 1 : -1;   // 1=猛暑 -1=雪
-    const sky = skyNight.clone().lerp(skyDay, day).lerp(skyDusk, dusk * 0.55);
-    if (season === 1) sky.lerp(hot, 0.55);
-    if (season === -1) sky.lerp(new THREE.Color(0xc8d8e8), 0.5);
+    let ph;
+    if (p.arc) {                          // 太陽が空の弧だけを何度も渡る（明るさは昼のまま。朝が何回も来るのを動きで見せる）
+      const q = ((tt / p.sun) % 1 + 1) % 1; ph = Math.PI * (0.06 + 0.88 * q);
+    } else ph = (p.sun ? (tt / p.sun) * Math.PI * 2 : 0) + (p.ph0 ?? 0.9);
+    // カメラから見える空に弧を描く（縦長の画面に入る大きさ）
+    const sx = -Math.cos(ph) * 48, sy = Math.sin(ph) * 62 - 4;
+    sun.position.set(sx, sy, -95); sun.rotation.set(tt, tt * 0.7, 0);
+    const el = p.arc ? 0.8 : Math.sin(ph);
+    dl.position.set(-Math.cos(ph) * 60, Math.max(8, Math.sin(ph) * 60), -30);   // 影は太陽の向きで回る
+    let sky, light;
+    if (p.night) { sky = NIGHT.clone(); light = 0; }
+    else if (el >= 0) { light = sstep(el / 0.55); sky = DAWN.clone().lerp(DAY, light); }
+    else { light = 0; sky = DAWN.clone().lerp(NIGHT, sstep(-el / 0.45)); }
+    if (p.seasons) {                      // 雪⇄猛暑：なめらかに行き来する（1往復 p.season_p 秒）
+      const w = 0.5 - 0.5 * Math.cos(2 * Math.PI * tt / (p.season_p || 1.6));   // 0=雪 1=猛暑
+      sky = SNOWSKY.clone().lerp(HOT, w); light = 1;
+      snow.visible = w < 0.98; snow.position.y = -1.05 * w;   // 雪が地面に沈むように溶ける
+    } else snow.visible = false;
     sc.background = sky;
-    snow.visible = season === -1;
-    dl.intensity = p.night ? 0 : 0.1 + 1.1 * day; amb.intensity = p.night ? 0.13 : 0.22 + 0.45 * day;
-    st.visible = day < 0.55; sun.visible = !p.night;
+    const dark = p.night ? 1 : (el < 0 ? sstep(-el / 0.45) : 0);
+    dl.intensity = 0.3 + 0.6 * light; amb.intensity = 0.62 - 0.12 * dark + 0.08 * light;
+    st.visible = dark > 0.3; st.material.size = 1.5 + 1.5 * dark; sun.visible = !p.night && sy > -6;
     clouds.children.forEach(m => {                       // 位置は時刻だけで決める（最後と冒頭の絵をそろえるため）
       if (m.userData.x0 === undefined) m.userData.x0 = m.position.x;
       m.position.x = (((m.userData.x0 + 60 + tt * (p.wind ? 48 : 2.4)) % 120) + 120) % 120 - 60;
@@ -276,7 +289,7 @@ function flightScene(p) {
         o.rotation.set(b * 9 + i, b * 7, 0); o.updateMatrix(); moon.setMatrixAt(i, o.matrix);
       }
       moon.instanceMatrix.needsUpdate = true;
-      flash.material.opacity = Math.max(0, 1 - b * 2.5); flash.scale.setScalar(1 + b * 14);
+      flash.material.opacity = Math.max(0, 0.6 - b * 1.5); flash.scale.setScalar(1 + b * 14);
       C.position.x += Math.sin(t * 60) * 1.5 * (1 - b);       // 砕けた瞬間に揺れる
     }
   };

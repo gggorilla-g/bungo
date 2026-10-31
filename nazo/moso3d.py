@@ -167,8 +167,7 @@ def fx_timer(fr, fx, t, burst_t):
     d.line([(cx, cy + 110), (cx + (R - 55) * math.cos(a), cy + 110 - (R - 55) * math.sin(a))], fill=WHT + (255,), width=10)
     d.ellipse([cx - 18, cy + 92, cx + 18, cy + 128], fill=WHT + (255,))
     motion.box_text(d, cx, cy - 225, fx.get("label", ""), motion.font(54), BLK, CYAN, 24, 10, anchor="ct")
-    blink = v <= 0 and int((t - burst_t) * 8) % 2 == 0
-    col = WHT if blink else (RED if v < 1.0 else WHT)
+    col = RED if 0 < v < 1.0 else WHT                        # 0.00 は白で止める（点滅させない）
     mono(d, cx, cy + 20, f"{v:.2f}", 210, col, 12)
     d.text((cx + 280, cy + 95), "SEC", font=motion.font(40), fill=CYAN, anchor="mm")
     sec = 0 if boot else (int(math.ceil(v)) if v > 0 else 0)   # 小さな数字の窓（声の 3・2・1 と同じ）
@@ -240,10 +239,37 @@ def fx_tally(fr, fx, t, times):
 
 
 def fx_flip(fr, fx, t):
-    k = int(t / fx["period"]) % 2
-    u = (t % fx["period"])
-    s = 1.5 - 0.5 * back(u / 0.12)
-    stroke_text(ImageDraw.Draw(fr), W // 2, 620, fx["texts"][k], int(240 * s), (130, 200, 255) if k == 0 else (255, 120, 40), 18)
+    """2語がなめらかに入れかわる（CGの雪⇄猛暑と同じ周期。急に切り替えない）"""
+    w = 0.5 - 0.5 * math.cos(2 * math.pi * t / fx["period"])          # 0=1語目 1=2語目
+    for k, a in ((0, 1 - w), (1, w)):
+        if a < 0.02:
+            continue
+        lay = Image.new("RGBA", (W, 400), (0, 0, 0, 0))
+        stroke_text(ImageDraw.Draw(lay), W // 2, 200, fx["texts"][k], int(240 * (0.9 + 0.1 * a)), (130, 200, 255) if k == 0 else (255, 120, 40), 18)
+        lay.putalpha(lay.getchannel("A").point(lambda x: int(x * a)))
+        fr.paste(lay, (0, 620 - 200), lay)
+
+
+# ---------------- 明るさの点検（点滅・急な明暗の切り替えを数える） ----------------
+def flash_check(mp4, th=20.0):
+    """各コマの平均輝度（0〜255）を出し、th 以上の明暗の変化（向きが変わるまでの上がり・下がり）を数える。
+    「明暗の大きな変化は1秒に3回未満」（RULES.md）を、どの1秒の窓でも変化が3回未満かで判定する"""
+    r = subprocess.run(["ffmpeg", "-v", "error", "-i", mp4, "-vf", "signalstats,metadata=print:key=lavfi.signalstats.YAVG:file=-",
+                        "-f", "null", "-"], capture_output=True, text=True).stdout
+    y = [float(l.split("=")[1]) for l in r.splitlines() if "YAVG=" in l]
+    ev, dirn, piv, ext, ie = [], 0, y[0], y[0], 0       # 山と谷をたどり、th 以上の上がり・下がりを1回と数える
+    for i, v in enumerate(y):
+        if dirn == 0:
+            if abs(v - piv) >= th:
+                dirn, ext, ie = (1 if v > piv else -1), v, i
+        elif (v - ext) * dirn > 0:
+            ext, ie = v, i
+        elif (ext - v) * dirn >= th:
+            ev.append(ie / FPS); dirn, ext, ie = -dirn, v, i
+    if dirn:
+        ev.append(ie / FPS)
+    mx = max([sum(1 for e in ev if a <= e < a + 1.0) for a in [x / FPS for x in range(len(y))]] or [0])
+    return y, ev, mx
 
 
 # ---------------- 組み立て ----------------
@@ -259,6 +285,8 @@ def cg_param(ln, d):
 def sunrise_times(p, d):
     """land 場面の太陽が地平線を上へ越える時刻（ph = t/sun*2π + ph0 が 2πの倍数）"""
     sun, ph0 = p["sun"], p.get("ph0", 0.9)
+    if p.get("arc"):                                         # 弧だけを渡る太陽：各周の頭が朝
+        return [k * sun for k in range(int(d / sun) + 1) if k * sun < d]
     out, k = [], math.ceil(ph0 / (2 * math.pi))
     while True:
         tt = (2 * math.pi * k - ph0) / (2 * math.pi) * sun
@@ -341,7 +369,7 @@ def build(sid):
             elif fx["type"] == "tally":
                 ev += [("pop_hi", x, 1.2) for x in sunrise_times(params[li], d)]
             elif fx["type"] == "flip":
-                ev += [("pop_lo", k * fx["period"], 0.9) for k in range(int(d / fx["period"]) + 1)]
+                ev += [("whoosh_s", (k + 0.5) * fx["period"] - 0.15, 0.8) for k in range(int(d / fx["period"]) + 1)]
         if ln["cg"]["scene"] == "flight":
             ev += [("whoosh_l", 0.2, 1.0), ("whoosh_l", 1.4, 1.0), ("zip_long", 2.6, 0.9)]
         if ln["cg"].get("p", {}).get("wind"):
@@ -379,8 +407,6 @@ def build(sid):
                 z = 1 + 0.07 * (1 - t / 0.15)
                 cw2, ch2 = int(W / z), int(H / z)
                 fr = fr.crop(((W - cw2) // 2, (H - ch2) // 2, (W - cw2) // 2 + cw2, (H - ch2) // 2 + ch2)).resize((W, H), Image.BILINEAR)
-            if i < 2 and li and not ln.get("loop"):                  # 2コマだけ白く光る
-                fr = Image.blend(fr, Image.new("RGB", fr.size, WHT), 0.35)
             for fx in ln.get("fx", []):
                 k = fx["type"]
                 if k == "big":
@@ -455,6 +481,12 @@ def build(sid):
         f"【タイトル】\n{sp['title']}\n\n【説明】\n{sp.get('desc', '')}\n\n音声: VOICEVOX:{sp.get('voice_name', '')}\n"
         + ("立ち絵: 坂本アヒル\n" if use_z else "") + f"BGM: {bgm_credit}\n効果音: オリジナル\n3DCG: オリジナル（three.js で作成）\n"
         f"\n【タグ】\n{','.join(sp.get('tags', []))}\n")
+    y, ev, mx = flash_check(out)
+    open(f"{kit}/{sid}_luma.txt", "w", encoding="utf-8").write(
+        f"明暗の大きな変化（平均輝度の差20以上）: {len(ev)}回 / どの1秒でも最大 {mx}回（基準：3回未満）\n"
+        f"変化の時刻: {', '.join(f'{e:.2f}' for e in ev)}\n\n秒\t平均輝度（0〜255、0.1秒ごと）\n"
+        + "".join(f"{i / FPS:.1f}\t{y[i]:.0f}\n" for i in range(0, len(y), 3)))
+    print(f"明暗の変化 {len(ev)}回、1秒あたり最大 {mx}回")
     tm = (f"長さ {total:.1f}秒 / CG {sum(int(round(x * FPS)) for x in durs)}コマ {cw}x{chh} {t_cg:.0f}秒 / "
           f"合成 {t_comp:.0f}秒 / 全体 {time.time() - T0:.0f}秒")
     open(f"{kit}/{sid}_time.txt", "w", encoding="utf-8").write(tm + "\n")
