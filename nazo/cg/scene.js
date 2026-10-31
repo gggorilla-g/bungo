@@ -352,16 +352,16 @@ function spaceScene(p) {
   const sc = CUR = new THREE.Scene(); sc.background = new THREE.Color(0x02030a);
   sc.add(stars(1800, 800, 2.4)); sc.add(new THREE.AmbientLight(0xffffff, 0.25));
   const sun = planet(14, (x, y, z) => (noise3(x * 2, y * 2, z * 2) > 0.3 ? 0xffb020 : COL.sun), 1, new THREE.MeshBasicMaterial());
-  sun.position.set(-40, 40, -60); sc.add(sun);
+  sun.position.set(-6, 52, -40); sc.add(sun);
   const pl = new THREE.PointLight(0xffffff, 3, 0, 0); pl.position.copy(sun.position); sc.add(pl);
-  const e = planet(10, earthColor); e.position.set(10, -20, 10); sc.add(e);
+  const e = planet(10, earthColor); e.position.set(2, -14, 10); sc.add(e);
   const rl = [];
   for (let i = 0; i < 48; i++) if (i % 2) { const a = i / 48 * Math.PI * 2; rl.push([Math.cos(a) * 24, 0, Math.sin(a) * 24, 0x8a8a8a]); }
   const r = blocks(rl, 1); r.position.copy(e.position); r.rotation.x = 0.3; sc.add(r);
   return (t, d) => {
     const u = t / d;
     e.rotation.y = t * 3; sun.rotation.y = t * 0.4; r.rotation.y = t * 0.6;
-    C.position.set(lerp(30, 44, u), lerp(-4, 4, u), lerp(105, 92, u)); C.lookAt(-5, 5, 0);
+    C.position.set(lerp(18, 28, u), lerp(-2, 4, u), lerp(120, 108, u)); C.lookAt(0, 4, 0);
   };
 }
 
