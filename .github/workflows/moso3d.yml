@@ -1,0 +1,44 @@
+name: Moso 3D short (test render)
+# 妄想科学ショートの3DCG版を書き出す（投稿はしない）。nazo/moso3d.py build <id>
+# 結果は moso3d-out-<id> ブランチに分割して置く（成果物のダウンロードが使えない環境から取りに行くため）。
+on:
+  workflow_dispatch:
+    inputs:
+      id: { description: "nazo/shorts/<id>.json", required: true }
+      cg_scale: { description: "CGを描く大きさ（1.0=1080x1920、0.5=540x960を拡大）", default: "1.0" }
+permissions:
+  contents: write
+concurrency:
+  group: moso3d
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - uses: actions/setup-node@v4
+        with: { node-version: "22" }
+      - name: Cache VOICEVOX assets
+        uses: actions/cache@v4
+        with: { path: vv_assets, key: vv-assets-0.16.4 }
+      - env:
+          ASSET_KEY: ${{ secrets.ASSET_KEY }}
+        run: |
+          for i in 1 2 3; do
+            timeout 300 sudo apt-get update -q && timeout 600 sudo apt-get install -y -q ffmpeg fonts-noto-cjk fonts-noto-cjk-extra && break
+            sleep 10
+          done
+          pip install -q -r requirements.txt
+          python src/setup_voicevox.py
+          (cd nazo/cg && npm install -q && npm install -q --no-save playwright@1.56.1 && npx playwright install --with-deps chromium) 2> >(tee err.txt >&2) || { tail -n 6 err.txt | sed "s/^/::error::/"; exit 1; }
+          if [ -n "$ASSET_KEY" ]; then for f in assets/enc/*.enc; do [ -e "$f" ] && openssl enc -d -aes-256-cbc -pbkdf2 -in "$f" -out "${f%.enc}" -pass env:ASSET_KEY; done; for t in assets/enc/*.tar; do [ -e "$t" ] && tar xf "$t" -C assets/enc; done; fi
+          echo "cpu: $(nproc)" > cpu.txt
+          CG_SCALE="${{ inputs.cg_scale }}" python nazo/moso3d.py build "${{ inputs.id }}" 2> >(tee err.txt >&2) || { tail -n 6 err.txt | sed "s/^/::error::/"; exit 1; }
+          N="${{ inputs.id }}"
+          echo "::notice::$(cat nazo/manual/moso_science/${N}_time.txt) $(cat cpu.txt)"
+          mkdir -p ../out && split -b 45m -d "output/$N.mp4" "../out/$N.mp4.part" && cp nazo/manual/moso_science/${N}_* cpu.txt ../out/
+          cd ../out && git init -q && git add . && git -c user.name=bungo-bot -c user.email=bot@users.noreply.github.com commit -q -m "moso3d $N" \
+            && git push -q -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" HEAD:refs/heads/moso3d-out-$N

@@ -1,15 +1,8 @@
 {
-  "name": "cg",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "name": "moso-cg",
+  "private": true,
+  "description": "妄想科学ショートの3DCG（nazo/cg/scene.js を Chromium で描く）",
   "dependencies": {
-    "three": "^0.160.0"
+    "three": "0.160.0"
   }
 }
