@@ -217,7 +217,7 @@ function landScene(p) {
       ch.rotation.set(b * 6, 0.35 + b * 4, -0.35 - b * 9);
     }
     act(ch, p, t, tt, cy, CX);                             // キャラの動き（すべる・跳ぶ・息切れ・震える）
-    ups.forEach(f => f(t, d, u));
+    ups.forEach(f => f(tt, d, u));                         // 小道具は t0 込みの時刻で動かす（続きの場面を作れる）
     const e = sstep(u);
     C.position.set(lerp(cp[0], cp2[0], e), lerp(cp[1], cp2[1], e), lerp(cp[2], cp2[2], e));
     if (p.shake) C.position.x += Math.sin(t * 40) * 0.25;
@@ -543,10 +543,10 @@ function props(sc, p, top) {
       const m = box(0.5, 0.5, 0.5, b.material.color.getHex()); sc.add(m); m.visible = false; return m; }));
     const pos = (k, tt, T1, v) => {                       // 同じ速さ・角度で投げる。重力が半分なら2倍の高さ・2倍の距離
       const g = 2 * v / T1 / k, s = Math.min(tt, T1 * k);
-      return [-15 + v * 0.9 * s, 3 + v * s - 0.5 * g * s * s, 4];
+      return [-8 + v * 0.6 * s, 5 + v * s - 0.5 * g * s * s, 10];
     };
     ups.push((t, d) => {
-      const T1 = d * 0.42, v = 9;
+      const T1 = d * 0.4, v = 14;
       [b1, b2].forEach((b, j) => {
         if (!b) return;
         b.position.set(...pos(j + 1, t, T1, v));
@@ -581,6 +581,9 @@ function act(ch, p, t, tt, cy, CX) {
       const q = (((t * 1.6 + i / 4) % 1) + 1) % 1;
       m.position.set(CX + 0.9 + q * 2.4, cy + 2.4 + q * 1.4, 7.4 + q); m.scale.setScalar(0.4 + q * 0.7); m.visible = q < 0.85;
     });
+  } else if (p.act === "glide") {                        // 一度すべり出すと止まらない（摩擦がない）
+    const b = Math.max(0, t - 0.2);
+    ch.position.set(CX + b * 7, cy - 0.7, 6 + b * 2.2); ch.rotation.set(-0.9, 0.35 + b * 5, 0);
   } else if (p.act === "shiver") {
     ch.position.set(CX + Math.sin(t * 60) * 0.12, cy, 6); ch.rotation.set(0, 0.35, Math.sin(t * 50) * 0.05);
   }
