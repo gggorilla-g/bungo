@@ -1,0 +1,34 @@
+【動画】https://github.com/gggorilla-g/bungo/actions/runs/41043936668
+
+【タイトル】
+もしもずんだもんが木星に降りたら？ NASAの探査機は約58分で通信が途絶えたのだ #Shorts #科学 #もしも
+
+【説明】
+もしもずんだもんが木星に着陸しようとしたら、を本物の観測データで考えるのだ。
+
+数値：
+・木星の直径は約14万3000kmで、地球の約11倍（NASA、Wikipedia「木星」）。
+・木星は主に水素とヘリウムでできたガスの惑星で、立てるような地面（固い表面）はない（NASA）。
+・木星の重力は地球の約2.5倍（雲の上の、1気圧の高さでの値。Wikipedia「木星」）。
+・1995年12月7日、NASAの探査機ガリレオのプローブが木星の大気に突入。約58分間データを送り、約23気圧（22.7気圧）の深さで通信が途絶えた（NASA「Galileo Jupiter Atmospheric Probe」）。
+・木星の奥深くでは、強い圧力で水素が金属のような状態（金属水素）になっていると考えられている（NASA）。
+
+※数値は代表値・概数です。ずんだもんが降りる場面はフィクションの演出です。
+
+出典：
+NASA Science「Galileo Jupiter Atmospheric Probe」https://science.nasa.gov/mission/galileo-jupiter-atmospheric-probe
+NASA Science「Jupiter」https://science.nasa.gov/jupiter/
+Wikipedia「木星」https://ja.wikipedia.org/wiki/木星
+
+木星の画像：NASA, ESA（ハッブル宇宙望遠鏡）、NASA/JPL（カッシーニ）
+
+音声: VOICEVOX:ずんだもん
+立ち絵: 坂本アヒル
+BGM: ムード２ / 今川彰人オーケストラ（OpenTracks（旧DOVA-SYNDROME））
+効果音: オリジナル
+画像: NASA, ESA, and A. Simon (Goddard Space Flight Center) / Public domain / Wikimedia Commons（File:Jupiter and its shrunken Great Red Spot.jpg）
+画像: NASA/JPL/Space Science Institute / Public domain / Wikimedia Commons（File:PIA04866 modest.jpg）
+画像: NASA/Ames Research Center/Ken Hodges / Public domain / Wikimedia Commons（File:Galileo Probe - AC81-0174.jpg）
+
+【タグ】
+ずんだもん,科学,もしも,空想科学,妄想科学,木星,宇宙,ショート

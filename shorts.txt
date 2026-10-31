@@ -1,0 +1,6 @@
+trivia_stations 42.000000
+trivia_names 42.700000
+trivia_plants 53.100000
+trivia_fish_2 51.700000
+trivia_lakes_3 37.900000
+trivia_fishquiz 40.600000
