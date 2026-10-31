@@ -21,6 +21,7 @@ YEL, BLK, WHT, RED = (255, 226, 0), (0, 0, 0), (255, 255, 255), (220, 40, 40)
 CYAN = (60, 230, 255)
 TEL_Y = 1290
 SPEED, GAP = 1.1, 0.06
+SE_GAIN = 0.7          # 効果音の音量（既存の妄想科学ショートの0.7倍＝約-3dB。声とBGMはそのまま）
 B = "build_cg"
 ZDIR = "assets/enc/parts"
 ZH = 400
@@ -387,7 +388,7 @@ def build(sid):
             ev += [("zip_long", ln["cg"]["p"].get("blow_at", 0.3), 1.0), ("boing", ln["cg"]["p"].get("blow_at", 0.3), 0.8)]
         if ln["cg"]["scene"] == "spin" and not ln["cg"].get("p", {}).get("slow"):
             ev += [("whoosh_s", x, 0.8) for x in (0.2, 0.6, 0.9, 1.15, 1.35)]
-        se.mix(wavs[li], [e for e in ev if e[1] < d])
+        se.mix(wavs[li], [(n_, at_, k_ * SE_GAIN) for n_, at_, k_ in ev if at_ < d])
     open(f"{B}/a.txt", "w").write("\n".join(f"file '{os.path.basename(a)}'" for a in wavs))
     subprocess.run(["ffmpeg", "-y", "-v", "error", "-f", "concat", "-safe", "0", "-i", "a.txt", "all_a.wav"], check=True, cwd=B)
     total = render._wav_len(f"{B}/all_a.wav")
