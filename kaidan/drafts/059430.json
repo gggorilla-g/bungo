@@ -244,7 +244,7 @@
     "file": "File:Eitaibashi tukudajima LCCN2009631878.jpg"
    },
    {
-    "say": "川岸に、身分の高そうな、若い女が立っていました。",
+    "say": "川岸に、若い女が立っていました。",
     "text": "川岸に\n若い女が立っていた",
     "file": "File:Getsumei rinka bijin majiru.jpg",
     "focus": [
@@ -278,7 +278,6 @@
   ],
   "yomi_words": {
    "川岸": "カワギシ",
-   "身分": "ミブン",
    "川の方": "カワノホウ",
    "水の中": "ミズノナカ"
   },

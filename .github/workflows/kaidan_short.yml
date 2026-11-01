@@ -1,0 +1,50 @@
+name: KAIDAN short
+# 怪談の入口ショート（kaidan/short.py）。台本は kaidan/drafts/<id>.json の "short" 欄。
+# 読みの関門（python kaidan/short.py check <id>）はチャット側で通して kaidan/manual/<id>/short_yomi.json を置いてから起動する。
+# 投稿はしない。動画は成果物と、ブランチ kaidan-short-out-<id>（45MBごとに分割）に置く。
+on:
+  workflow_dispatch:
+    inputs:
+      id: { description: "作品ID（例 059430）", required: true }
+permissions:
+  contents: write
+concurrency:
+  group: kaidan-short
+  cancel-in-progress: false
+jobs:
+  short:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - name: Cache VOICEVOX assets
+        uses: actions/cache@v4
+        with: { path: vv_assets, key: vv-assets-0.16.4 }
+      - name: Build
+        run: |
+          case "${{ inputs.id }}" in *[!0-9]*|"") echo "::error::作品IDは数字"; exit 1;; esac
+          for i in 1 2 3; do
+            timeout 300 sudo apt-get update -q && timeout 600 sudo apt-get install -y -q ffmpeg fonts-noto-cjk fonts-noto-cjk-extra && break
+            sleep 10
+          done
+          pip install -q -r requirements.txt
+          python src/setup_voicevox.py
+          python kaidan/short.py render "${{ inputs.id }}" 2> >(tee err.txt >&2) || { tail -n 6 err.txt | sed "s/^/::error::/"; exit 1; }
+          echo "::notice::$(cat kaidan/manual/${{ inputs.id }}/short_duration.txt) 秒"
+      - name: Commit kit
+        run: |
+          git config user.name "bungo-bot"; git config user.email "bot@users.noreply.github.com"
+          git add kaidan/manual/${{ inputs.id }} && git commit -q -m "KAIDAN: ショート ${{ inputs.id }}" || exit 0
+          for i in 1 2 3 4 5; do git pull --rebase -q && git push -q && break; sleep 7; done
+      - name: Put video on branch
+        run: |
+          N="${{ inputs.id }}"
+          mkdir -p ../out && split -b 45m -d "output/kaidan_short_$N.mp4" "../out/kaidan_short_$N.mp4.part"
+          cp kaidan/manual/$N/short_* ../out/
+          cd ../out && git init -q && git add . && git -c user.name=bungo-bot -c user.email=bot@users.noreply.github.com commit -q -m "kaidan short $N" \
+            && git push -q -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" HEAD:refs/heads/kaidan-short-out-$N
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: { name: "kaidan-short-${{ inputs.id }}", path: output/kaidan_short_*.mp4, retention-days: 14 }

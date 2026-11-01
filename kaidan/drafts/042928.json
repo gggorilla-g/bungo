@@ -243,7 +243,7 @@
     "file": "File:Geisha Walking through the Snow at Night (IA mma geisha walking through the snow at night 55862).jpg"
    },
    {
-    "say": "赤坂の紀国坂は、夜になると、誰も登りたがらない坂でした。",
+    "say": "赤坂の紀国坂。夜になると、誰も登りたがらない坂でした。",
     "text": "赤坂・紀国坂\n夜は誰も登らない坂",
     "file": "File:Kinokuni Hill and Distant View of Akasaka Tameike LACMA M.2007.152.17.jpg"
    },
@@ -257,13 +257,9 @@
     ]
    },
    {
-    "say": "お女中、そんなに泣きなさるな。商人は、やさしく声をかけました。",
+    "say": "お女中、そんなに泣きなさるな。商人は、声をかけました。",
     "text": "「お女中\nそんなに泣きなさるな」",
     "file": "File:Tsuki no kage shinobi-au yoru (Secretly Meeting at Night by the Light of the Moon) (BM 1948,0410,0.103).jpg"
-   },
-   {
-    "say": "けれど娘は、袖で顔を隠したまま、泣き続けています。",
-    "text": "娘は袖で顔を隠したまま\n泣き続けている"
    },
    {
     "say": "商人が、その肩に、そっと手を置くと。",

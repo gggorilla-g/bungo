@@ -25,3 +25,10 @@
 - kaidan/thumb_mid.py の既定は style="scary"：色を抜いて青緑に寄せ、絵の中心（thumb_focus）だけを青白く残して周りを闇に沈める。うっすらずれた二重像と粒子。血・傷の表現は使わない。
 - 作り直しは kaidan_thumb.yml（ids に作品IDを空白区切り）、差し替えは yt_thumb.yml（動画ID=サムネのパス、thumbnails.set のみ）。
 - 11/1 第一話〜第十一話の全サムネを怖い版に差し替え済み。
+
+## 入口ショート（11/1）
+- kaidan/short.py＋kaidan_short.yml。台本は drafts/<id>.json の "short" 欄（lines の1行目が0秒の一文。最後の「続きは、関連動画で。」は自動）。
+- 0秒：ぞっとする一文を大きく、声と同時に。題名・チャンネル名から始めない。伏せ字・ひねった言い回しなし。
+- 本文：いちばん怖い場面を本編の文章を縮めて。結末は言わない。字幕は全カット。画はゆっくり寄るだけ、替わり目は0.4秒のクロスフェード（点滅なし）。
+- 読み：python kaidan/short.py check <id> で関門を通し、short_yomi.json（読みの確認記録）を置いてから CI。記録と台本がずれたら CI は読まない。
+- 投稿キット：kaidan/manual/<id>/short_upload.txt（説明の先頭に本編URL）。tools/short_upload.py にそのまま渡せる。
