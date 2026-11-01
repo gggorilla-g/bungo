@@ -236,5 +236,58 @@
  "thumb_focus": [
   0.3,
   0.5
- ]
+ ],
+ "short": {
+  "title": "【怪談】眠っている五人の体には、どれも、頭がなかった #Shorts #怪談 #百物語",
+  "main_video": "-I_LOkdYeYs",
+  "lines": [
+   {
+    "say": "眠っている五人の体には、どれも、頭がなかった。",
+    "text": "眠っている五人の体には\nどれも\n頭がなかった",
+    "file": "File:SekienRokurokubi.jpg"
+   },
+   {
+    "say": "旅の僧は、甲斐の山奥で、木こりの小屋に泊めてもらいました。",
+    "text": "旅の僧は\n山奥の小屋に泊まった",
+    "file": "File:Katsushika Taito II - The Monkey Bridge - 1921.413 - Cleveland Museum of Art.tif"
+   },
+   {
+    "say": "夜ふけ、水を飲もうと、そっと襖を開けると。",
+    "text": "夜ふけ\nそっと襖を開けると"
+   },
+   {
+    "say": "行灯の明かりの中に、横になって眠る、五人の体が見えました。",
+    "text": "行灯の明かりに\n眠る五人の体",
+    "file": "File:SekienRokurokubi.jpg",
+    "focus": [
+     0.5,
+     0.6
+    ]
+   },
+   {
+    "say": "その体には、どれも、頭がありませんでした。",
+    "text": "どの体にも\n頭がなかった",
+    "hush": true
+   },
+   {
+    "say": "森の中では、五つの首が、宙を飛びまわりながら、話をしています。",
+    "text": "森の中で\n五つの首が飛びまわっていた",
+    "file": "File:Suushi Nukekubi.jpg"
+   },
+   {
+    "say": "今夜来た、あの旅の僧。みんなで食べたら、さぞ腹がふくれるだろう。",
+    "text": "「今夜来たあの僧\nみんなで食べたら」",
+    "file": "File:Sorori wandering soul.jpg"
+   }
+  ],
+  "yomi_words": {
+   "五人": "ゴニン",
+   "頭": "アタマ",
+   "明かりの中": "アカリノナカ",
+   "森の中": "モリノナカ"
+  },
+  "yomi_ok": [
+   "行灯の明かりの中に、横になって眠る、五人の体が見えました。"
+  ]
+ }
 }

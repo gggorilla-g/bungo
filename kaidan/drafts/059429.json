@@ -229,5 +229,54 @@
     }
    ]
   }
- ]
+ ],
+ "short": {
+  "title": "【怪談】お茶の中に、知らない男の顔が映っていた #Shorts #怪談 #百物語",
+  "main_video": "Chm3lsl5dBA",
+  "lines": [
+   {
+    "say": "お茶の中に、知らない男の顔が映っていた。",
+    "text": "お茶の中に\n知らない男の顔が\n映っていた",
+    "file": "File:Köln Museum für Ostasiatische Kunst 03012015 Tea bowl Edo 1.jpg"
+   },
+   {
+    "say": "元日の朝、茶店で、若い侍がお茶をくみました。",
+    "text": "元日の朝\n茶店でお茶をくむと",
+    "file": "File:Hakusan Keiseiga Kubo (Daisen)-江戸高名会亭尽 白山傾城ヶ窪-Tea house in Hakusen district MET DP123296.jpg"
+   },
+   {
+    "say": "お茶の中に、顔が映っていました。自分のものではない、顔が。",
+    "text": "お茶の中に\n自分ではない顔",
+    "file": "File:Köln Museum für Ostasiatische Kunst 03012015 Tea bowl Edo 1.jpg"
+   },
+   {
+    "say": "その目と唇は、動いていました。生きている人の顔なのです。",
+    "text": "目と唇が動いた\n生きている顔だった"
+   },
+   {
+    "say": "侍は、その顔ごと、お茶を一息に飲み干しました。",
+    "text": "侍は顔ごと\nお茶を飲み干した"
+   },
+   {
+    "say": "その日の夕方遅く、屋敷に、見知らぬ男が音もなく入ってきました。",
+    "text": "その夕方\n見知らぬ男が音もなく",
+    "file": "File:NDL-DC 1309668 Tsukioka Yoshitoshi 貞信公夜宮中に怪を懼しむの図 crd.jpg"
+   },
+   {
+    "say": "目の前にいたのは、昼間、茶碗の中で飲み込んだ、あの顔だったのです。",
+    "text": "目の前にいたのは\n飲み込んだ、あの顔",
+    "hush": true
+   }
+  ],
+  "yomi_words": {
+   "いる人": "イルヒト",
+   "お茶の中": "オチャノナカ",
+   "茶碗の中": "チャワンノナカ",
+   "夕方": "ユウガタ",
+   "その日": "ソノヒ",
+   "昼間": "ヒルマ",
+   "自分": "ジブン"
+  },
+  "yomi_ok": []
+ }
 }

@@ -218,5 +218,52 @@
  "thumb_focus": [
   0.5,
   0.35
- ]
+ ],
+ "short": {
+  "title": "【怪談】体じゅうにお経を書いた男は、耳にだけ、書き忘れていた #Shorts #怪談 #百物語",
+  "main_video": "be_KTj5z22I",
+  "lines": [
+   {
+    "say": "体じゅうにお経を書いた男は、耳にだけ、書き忘れていた。",
+    "text": "体じゅうにお経を書いた男は\n耳にだけ\n書き忘れていた",
+    "file": "File:Tsukioka Yoshitoshi (188?) Tsuki hyaku shi - Semimaru-.jpg"
+   },
+   {
+    "say": "琵琶の名人、芳一は、夜ごと、平家の墓のあいだで、琵琶を弾いていました。",
+    "text": "琵琶の名人・芳一は\n夜ごと平家の墓で弾いていた",
+    "file": "File:The ghost of Taira Tomomori.jpg"
+   },
+   {
+    "say": "住職は、芳一の体じゅうに、お経を書きつけました。",
+    "text": "住職は芳一の体じゅうに\nお経を書いた",
+    "file": "File:Blind Musician Beating his Biwa Carrier LACMA M.2006.136.14.jpg"
+   },
+   {
+    "say": "今夜、迎えが来ても、決して返事をしてはならない。",
+    "text": "迎えが来ても\n決して返事をするな"
+   },
+   {
+    "say": "日が暮れると、重い足音が近づいてきました。",
+    "text": "日が暮れると\n重い足音が近づいた",
+    "file": "File:Yoshitoshi - 100 Aspects of the Moon - 28.jpg"
+   },
+   {
+    "say": "芳一。低い声が呼びます。芳一は息をこらし、動きません。",
+    "text": "「芳一」\n息をこらして動かない"
+   },
+   {
+    "say": "ここに琵琶がある。だが、琵琶法師は、耳がふたつあるばかりだ。",
+    "text": "「琵琶法師は\n耳がふたつあるばかりだ」",
+    "file": "File:The ghost of Taira Tomomori.jpg",
+    "hush": true
+   }
+  ],
+  "yomi_words": {
+   "体じゅう": "カラダジュウ",
+   "名人": "メイジン",
+   "平家": "ヘイケ",
+   "日が暮れる": "ヒがクレル"
+  },
+  "yomi_ok": []
+ }
 }
