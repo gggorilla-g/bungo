@@ -33,7 +33,7 @@ function serve() {
     fs.mkdirSync(j.out, { recursive: true });
     const n = Math.round(j.d * j.fps), t1 = Date.now();
     for (let i = 0; i < n; i++) {
-      const b64 = await pg.evaluate(t => { window.frame(t); return document.querySelector("canvas").toDataURL("image/jpeg", 0.92).slice(23); }, i / j.fps);
+      const b64 = await pg.evaluate(t => { window.frame(t); return document.querySelector("canvas").toDataURL("image/jpeg", 0.97).slice(23); }, i / j.fps);
       fs.writeFileSync(path.join(j.out, String(i).padStart(5, "0") + ".jpg"), Buffer.from(b64, "base64"));
     }
     total += n;

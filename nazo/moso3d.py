@@ -528,7 +528,9 @@ def build(sid):
     fc = (f"[1:a]aresample=48000[v];[2:a]aresample=48000,volume={sp.get('bgm_vol', 0.15) * BGM_GAIN:.4f}[m];"
           "[v][m]amix=inputs=2:normalize=0:duration=first,loudnorm=I=-14:TP=-1.5:LRA=11,aresample=48000,alimiter=limit=0.79:level=disabled[a]")   # 既存と同じ -1.5dB 以下に（loudnorm だけでは 0dB に触れた）
     subprocess.run(["ffmpeg", "-y", "-v", "error", "-i", f"{B}/all.mp4", "-i", f"{B}/all_a.wav", "-i", f"{B}/bgm.wav",
-                    "-filter_complex", fc, "-map", "0:v", "-map", "[a]", "-c:v", "copy", "-c:a", "aac", "-b:a", "192k", out], check=True)
+                    "-filter_complex", fc + ";[0:v]scale=1440:2560:flags=lanczos[vo]", "-map", "[vo]", "-map", "[a]",
+                    "-c:v", "libx264", "-preset", "slow", "-crf", "17", "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "192k", out], check=True)
+    # ↑ 11/1 ゲンタさん「画質悪い気がする」：1440x2560 に上げて書き出す（YouTube は1080pより上の解像度だと、より高画質の圧縮で配信するとされる＝説）
     # ---- 確認用のコマ割りと投稿キット（投稿はしない）
     kit = f"nazo/manual/{sp['main']}"; os.makedirs(kit, exist_ok=True)
     nt = int(math.ceil(total / 2))
