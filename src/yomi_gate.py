@@ -90,6 +90,14 @@ def check(pairs, words, vv_kana):
     戻り値: 問題のリスト（空なら合格）"""
     ok_words = set(words) | set(verified())
     issues = []
+    # 4) 1文字の読み指定が熟語の中にもかかっていないか（11/2：岸→キシ が「川岸」にかかり カワキシ と読まれた）
+    for w in words:
+        if len(w) == 1 and re.match(r"[一-龥々]", w):
+            for orig, _ in pairs:
+                for m in re.finditer(re.escape(w), orig):
+                    a, b = orig[m.start() - 1:m.start()], orig[m.end():m.end() + 1]
+                    if re.match(r"[一-龥々]", a or " ") or re.match(r"[一-龥々]", b or " "):
+                        issues.append(f"1文字の読み指定「{w}」が熟語「{a}{w}{b}」にもかかる。熟語ごと読みを指定する｜{orig[:40]}")
     for orig, tts in pairs:
         # 1) 固有名：読みが明示されていないもの（読み上げ用テキストに漢字のまま残っているもの）
         for w, r, kind in proper_nouns(tts):
