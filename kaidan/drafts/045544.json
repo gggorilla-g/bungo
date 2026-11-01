@@ -230,5 +230,61 @@
  "yomi_ok": [
   "国府津、小田原、そして湯河原。",
   "国府津に着いて、母に頼まれていた梅干しを買い、東京行きの汽車を待ちました。"
- ]
+ ],
+ "short": {
+  "title": "【怪談】さっき別れた友だちが死んだと、知らない娘がささやいた #Shorts #怪談 #百物語",
+  "main_video": "AYzwVntMhgs",
+  "lines": [
+   {
+    "say": "さっき別れた友だちが死んだと、知らない娘がささやいた。",
+    "text": "さっき別れた友だちが死んだと\n知らない娘がささやいた",
+    "file": "File:Getsumei rinka bijin majiru.jpg",
+    "focus": [
+     0.5,
+     0.3
+    ]
+   },
+   {
+    "say": "温泉宿に友だちの継子を残し、ひとりで帰る途中のことです。",
+    "text": "温泉宿に友だちの継子を残し\nひとりで帰る途中",
+    "file": "File:Zusou Jinsha-tetsudo.jpg"
+   },
+   {
+    "say": "停車場で改札がはじまったとき、どこからか声がしました。",
+    "text": "停車場の改札で\nどこからか声がした",
+    "file": "File:凱旋新橋ステーション御着之図-Illustration of the Arrival of the Emperor at Shinbashi Station Following a Victory (Gaisen Shinbashi stēshon gochaku no zu) MET DP147664.jpg"
+   },
+   {
+    "say": "継子さんは、死にました。",
+    "text": "「継子さんは\n死にました」"
+   },
+   {
+    "say": "振り返っても、知った顔はありません。",
+    "text": "振り返っても\n知った顔はない"
+   },
+   {
+    "say": "今度は、耳のすぐそばで。",
+    "text": "今度は\n耳のすぐそばで"
+   },
+   {
+    "say": "継子さんは、死にましたよ。",
+    "text": "「継子さんは\n死にましたよ」",
+    "hush": true
+   },
+   {
+    "say": "左に並んでいた娘が、じっとこちらの顔を見ていました。",
+    "text": "左に並んでいた娘が\nじっと顔を見ていた",
+    "file": "File:Getsumei rinka bijin majiru.jpg",
+    "focus": [
+     0.5,
+     0.25
+    ]
+   }
+  ],
+  "yomi_words": {
+   "温泉宿": "オンセンヤド",
+   "停車場": "テイシャジョウ"
+  },
+  "yomi_ok": []
+ }
 }

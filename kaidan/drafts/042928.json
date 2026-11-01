@@ -232,5 +232,64 @@
     }
    ]
   }
- ]
+ ],
+ "short": {
+  "title": "【怪談】振り向いた娘の顔には、目も鼻も口もなかった #Shorts #怪談 #百物語",
+  "main_video": "o1s_uFWiNgk",
+  "lines": [
+   {
+    "say": "振り向いた娘の顔には、目も、鼻も、口もなかった。",
+    "text": "振り向いた娘の顔には\n目も鼻も口も\nなかった",
+    "file": "File:Geisha Walking through the Snow at Night (IA mma geisha walking through the snow at night 55862).jpg"
+   },
+   {
+    "say": "赤坂の紀国坂は、夜になると、誰も登りたがらない坂でした。",
+    "text": "赤坂・紀国坂\n夜は誰も登らない坂",
+    "file": "File:Kinokuni Hill and Distant View of Akasaka Tameike LACMA M.2007.152.17.jpg"
+   },
+   {
+    "say": "ある晩、お堀のふちで、若い娘がひとり、泣いていました。",
+    "text": "お堀のふちで\n若い娘が泣いていた",
+    "file": "File:Geisha Walking through the Snow at Night (IA mma geisha walking through the snow at night 55862).jpg",
+    "focus": [
+     0.5,
+     0.35
+    ]
+   },
+   {
+    "say": "お女中、そんなに泣きなさるな。商人は、やさしく声をかけました。",
+    "text": "「お女中\nそんなに泣きなさるな」",
+    "file": "File:Tsuki no kage shinobi-au yoru (Secretly Meeting at Night by the Light of the Moon) (BM 1948,0410,0.103).jpg"
+   },
+   {
+    "say": "けれど娘は、袖で顔を隠したまま、泣き続けています。",
+    "text": "娘は袖で顔を隠したまま\n泣き続けている"
+   },
+   {
+    "say": "商人が、その肩に、そっと手を置くと。",
+    "text": "その肩に\nそっと手を置くと"
+   },
+   {
+    "say": "娘は、くるりと振り向き、手で、自分の顔をつるりとなでたのです。",
+    "text": "娘は振り向き\n顔をつるりとなでた",
+    "file": "File:Nopperabo by Ryunosuke Akutagawa.jpg",
+    "focus": [
+     0.5,
+     0.3
+    ]
+   },
+   {
+    "say": "そこには、目も、鼻も、口も、ありませんでした。",
+    "text": "目も、鼻も、口も\nなかった",
+    "hush": true
+   }
+  ],
+  "yomi_words": {
+   "口": "クチ",
+   "商人": "ショウニン",
+   "手": "テ",
+   "自分": "ジブン"
+  },
+  "yomi_ok": []
+ }
 }

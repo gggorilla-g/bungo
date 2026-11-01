@@ -270,5 +270,57 @@
  "thumb_focus": [
   0.4,
   0.45
- ]
+ ],
+ "short": {
+  "title": "【怪談】壁に映ったのは、娘の影ではなかった #Shorts #怪談 #百物語",
+  "main_video": "9dWZv9TNJk4",
+  "lines": [
+   {
+    "say": "壁に映ったのは、娘の影ではなかった。",
+    "text": "壁に映ったのは\n娘の影ではなかった",
+    "file": "File:A Widower Witnesses His Wife's Ghost Nursing Their Child LACMA M.84.31.170.jpg"
+   },
+   {
+    "say": "十三夜の前の晩、娘は、子どもたちに影を踏まれました。",
+    "text": "十三夜の前の晩\n子どもたちに影を踏まれた",
+    "file": "File:100 views edo 90.jpg"
+   },
+   {
+    "say": "影を踏まれると、寿命が縮む。そんな言い伝えがあったのです。",
+    "text": "影を踏まれると\n寿命が縮む",
+    "file": "File:Fan - Yoshitoshi - 100 Aspects of the Moon - 5 (cropped).jpg"
+   },
+   {
+    "say": "娘はやせ細り、生きている幽霊のようになりました。",
+    "text": "娘はやせ細り\n生きている幽霊のように",
+    "file": "File:Yoshitoshi - 100 Aspects of the Moon - 5.jpg"
+   },
+   {
+    "say": "行者は、一本の蝋燭を渡して言いました。百日目の夜、この火で娘を照らしなさい。",
+    "text": "百日目の夜\nこの火で娘を照らせ",
+    "file": "File:A Widower Witnesses His Wife's Ghost Nursing Their Child LACMA M.84.31.170.jpg",
+    "focus": [
+     0.5,
+     0.35
+    ]
+   },
+   {
+    "say": "そして、百日目の夜。両親は、眠っている娘に、蝋燭をかざしました。",
+    "text": "百日目の夜\n眠る娘に蝋燭をかざす"
+   },
+   {
+    "say": "壁に映ったのは、骸骨の影でした。",
+    "text": "壁に映ったのは\n骸骨の影だった",
+    "file": "File:The Hell Courtesan Jigokudayū sees herself as a Skeleton in the Mirror of Hell, from the series Yoshitoshi ryakuga (Sketches by Yoshitoshi) - Vanderbilt Fine Arts Gallery - 1992.087.tif",
+    "hush": true
+   }
+  ],
+  "yomi_words": {
+   "前の晩": "マエノバン",
+   "百日目": "ヒャクニチメ"
+  },
+  "yomi_ok": [
+   "十三夜の前の晩、娘は、子どもたちに影を踏まれました。"
+  ]
+ }
 }

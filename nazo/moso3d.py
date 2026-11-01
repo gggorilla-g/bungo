@@ -182,7 +182,8 @@ def fx_timer(fr, fx, t, burst_t):
     R = int(300 * pop)                                       # 11/2 弧を少し大きく（数字を小さくした分）
     if R < 5:
         return
-    d.rounded_rectangle([cx - 420, cy - 240, cx + 420, cy + 300], 40, fill=(0, 10, 20, 150), outline=CYAN + (255,), width=6)
+    # 11/2 ゲンタさん「角丸の四角枠も必要なさそう」：枠は描かない。目盛りが背景に溶けないよう、弧の内側だけうっすら暗くする（線は引かない）
+    d.ellipse([cx - R - 30, cy + 110 - R - 30, cx + R + 30, cy + 110 + R + 30], fill=(0, 10, 20, 90))
     for k in range(0, 61):                                   # 目盛り（弧）
         a = math.radians(200 - k * (220 / 60))
         r0 = R - (36 if k % 10 == 0 else 20)
