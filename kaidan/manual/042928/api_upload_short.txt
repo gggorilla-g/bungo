@@ -1,0 +1,17 @@
+{
+ "thumb": "",
+ "thumb_error": "",
+ "id": "KE9mYalCnYw",
+ "url": "https://youtube.com/shorts/KE9mYalCnYw",
+ "requested_publishAt": "2026-11-04T12:30:00Z",
+ "returned_status": {
+  "uploadStatus": "uploaded",
+  "privacyStatus": "private",
+  "publishAt": "2026-11-04T12:30:00Z",
+  "license": "youtube",
+  "embeddable": true,
+  "publicStatsViewable": true,
+  "selfDeclaredMadeForKids": false,
+  "containsSyntheticMedia": false
+ }
+}
