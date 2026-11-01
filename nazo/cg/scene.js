@@ -1002,5 +1002,11 @@ function viewOver(t) {                                   // p.view / p.view_to�
   C.position.set(lerp(a[0], b[0], e), lerp(a[1], b[1], e), lerp(a[2], b[2], e));
   C.up.set(0, 1, 0); C.lookAt(lerp(la[0], lb[0], e), lerp(la[1], lb[1], e), lerp(la[2], lb[2], e));
 }
-window.frame = (t) => { upd(t, job.d); viewOver(t); R.render(S, C); return true; };
+const _dir = new THREE.Vector3();
+function pushCam(t) {                                    // p.push：0秒から一定の速さで前へ寄る（距離の割合/秒）。p.push_end：最後の時刻で寄りゼロ（ループの終わりを冒頭の絵に合わせる）
+  const p = job.p || {}; if (!p.push) return;
+  C.getWorldDirection(_dir);
+  C.position.addScaledVector(_dir, p.push * C.position.length() * (p.push_end ? t - (job.d || 0) : t));
+}
+window.frame = (t) => { upd(t, job.d); viewOver(t); pushCam(t); R.render(S, C); return true; };
 window.ready = true;

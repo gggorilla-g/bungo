@@ -161,7 +161,7 @@ def fx_big(fr, fx, t):
     u = t - fx.get("at", 0.2)
     if u < 0:
         return
-    s = 1.7 - 0.7 * back(u / 0.22)
+    s = 1.0 if fx.get("pop0") else 1.7 - 0.7 * back(u / 0.22)
     size = int(fx.get("size", 230) * s)
     lay = Image.new("RGBA", (W, 600), (0, 0, 0, 0))
     stroke_text(ImageDraw.Draw(lay), W // 2, 300, fx["text"], size, tuple(fx.get("color", YEL)), 18)
@@ -360,6 +360,9 @@ def build(sid):
     for say, yt in pairs:
         render._YOMI[say] = yt
     lines = sp["lines"]
+    for fx in lines[0].get("fx", []):                        # 冒頭1秒を強く：0フレーム目から大きい文字と効果音（遅らせない・ポップインしない）
+        if fx["type"] == "big":
+            fx["at"] = 0.0; fx["pop0"] = 1
     # ---- 声
     wavs, durs = [], []
     for li, ln in enumerate(lines):
@@ -394,6 +397,10 @@ def build(sid):
     jobs, params = [], []
     for li, ln in enumerate(lines):
         p = cg_param(ln, durs[li]); params.append(p)
+        if li == 0:                                          # 0フレーム目からカメラが動く（前へゆっくり寄る）
+            p.setdefault("push", 0.035)
+        elif ln.get("loop") and params[0].get("push"):       # ループの最後：同じ速さで寄り、冒頭と同じ絵で終わる
+            p.setdefault("push", params[0]["push"]); p["push_end"] = 1
         out = f"{B}/cg{li}"
         shutil.rmtree(out, ignore_errors=True)
         jobs.append({"scene": ln["cg"]["scene"], "p": p, "d": durs[li], "fps": FPS, "w": cw, "h": chh, "out": out})
@@ -487,7 +494,7 @@ def build(sid):
                 bw, bh = r_ - l_ + 40, b_ - t_ + 24
                 dr.rectangle([W - 40 - bw, 70, W - 40, 70 + bh], fill=WHT, outline=RED, width=6)
                 dr.text((W - 40 - bw + 20 - l_, 70 + 12 - t_), "説", font=f_setsu, fill=RED)
-            e = back(t / 0.2)
+            e = 1.0 if li == 0 else back(t / 0.2)                # 冒頭の字幕は0フレーム目から全部の大きさで出す
             mx_ = max(len(x) for x in tel)                           # 長い行は画面幅に収まる大きさまで縮める
             ft = motion.font(int(min(100 if mx_ <= 7 else 84, 960 // mx_) * (0.85 + 0.15 * e)))
             y = TEL_Y
