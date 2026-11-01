@@ -74,28 +74,47 @@ function stars(n, r, size = 2.2) {
   return new THREE.Points(g, new THREE.PointsMaterial({ color: 0xffffff, size, sizeAttenuation: false }));
 }
 
-// ブロックのキャラ（緑の髪・白い服・頭の横に豆のブロック。色と形は自前）
+// ブロックのキャラ（黄緑の髪・枝豆のさやの耳・白いブラウス＋緑のサスペンダースカート。色と形は自前の単色ブロック）
 function blockChar() {
   const g = new THREE.Group(), body = new THREE.Group(); g.add(body);
-  const add = (w, h, d, x, y, z, col) => {
+  const add = (w, h, d, x, y, z, col, par = body) => {
     const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), new THREE.MeshLambertMaterial({ color: col }));
-    m.position.set(x, y, z); body.add(m); return m;
+    m.position.set(x, y, z); par.add(m); return m;
   };
-  add(1.0, 1.1, 0.6, 0, 0.55, 0, 0xf4f4f4);
-  add(1.04, 0.16, 0.64, 0, 0.75, 0, 0x6fbf3a);
-  add(0.3, 0.6, 0.3, -0.25, -0.3, 0, 0xf4f4f4); add(0.3, 0.6, 0.3, 0.25, -0.3, 0, 0xf4f4f4);
-  add(0.28, 0.8, 0.28, -0.68, 0.6, 0, 0xf4f4f4); add(0.28, 0.8, 0.28, 0.68, 0.6, 0, 0xf4f4f4);   // 腕
-  add(1.3, 1.2, 1.2, 0, 1.75, 0, 0xffe2c8);
-  add(1.4, 0.45, 1.3, 0, 2.45, -0.05, 0x7ccc3c);
-  add(1.4, 1.1, 0.3, 0, 1.95, -0.62, 0x7ccc3c);
-  add(0.22, 0.32, 0.05, -0.3, 1.8, 0.61, 0x222222); add(0.22, 0.32, 0.05, 0.3, 1.8, 0.61, 0x222222);
+  const HAIR = 0xa6d94a, HAIR2 = 0x8cc63a, SKIN = 0xffe2c8, WHITE = 0xf6f6f6, PINK = 0xf59ab8, GRN = 0x4f9e2c, POD = 0x5aa830, BEAN = 0xb4e46a;
+  add(0.3, 0.5, 0.3, -0.25, -0.35, 0, WHITE); add(0.3, 0.5, 0.3, 0.25, -0.35, 0, WHITE);          // 脚
+  add(0.34, 0.16, 0.42, -0.25, -0.62, 0.04, GRN); add(0.34, 0.16, 0.42, 0.25, -0.62, 0.04, GRN);   // くつ
+  add(1.2, 0.5, 0.78, 0, 0.15, 0, GRN);                          // スカート
+  add(1.0, 0.7, 0.6, 0, 0.75, 0, WHITE);                         // ブラウス
+  add(0.14, 0.7, 0.64, -0.26, 0.75, 0, GRN); add(0.14, 0.7, 0.64, 0.26, 0.75, 0, GRN);            // サスペンダー
+  add(0.7, 0.12, 0.66, 0, 1.12, 0, PINK);                        // 襟
+  [-1, 1].forEach(sx => {                                        // 腕（白いそで・ピンクのそで口・手）
+    add(0.28, 0.62, 0.28, sx * 0.66, 0.78, 0, WHITE);
+    add(0.32, 0.12, 0.32, sx * 0.66, 0.42, 0, PINK);
+    add(0.22, 0.18, 0.22, sx * 0.66, 0.27, 0, SKIN);
+  });
+  add(1.3, 1.2, 1.2, 0, 1.75, 0, SKIN);                          // 顔
+  add(1.42, 0.45, 1.32, 0, 2.45, -0.04, HAIR);                   // 髪（上）
+  add(1.42, 1.15, 0.32, 0, 1.92, -0.62, HAIR);                   // 髪（後ろ）
+  add(1.34, 0.22, 0.14, 0, 2.2, 0.62, HAIR);                     // 前髪
+  add(0.3, 0.2, 0.14, -0.3, 2.04, 0.63, HAIR2); add(0.24, 0.16, 0.14, 0.32, 2.06, 0.63, HAIR2);
+  add(0.16, 0.85, 0.36, -0.7, 1.72, 0.4, HAIR); add(0.16, 0.85, 0.36, 0.7, 1.72, 0.4, HAIR);     // 横の髪
+  [-1, 1].forEach(sx => {                                        // 目（琥珀色＋光）
+    add(0.24, 0.34, 0.05, sx * 0.3, 1.8, 0.61, 0xe0a020);
+    add(0.12, 0.16, 0.06, sx * 0.3, 1.74, 0.62, 0x8a5410);
+    add(0.08, 0.08, 0.07, sx * 0.3 - 0.05, 1.9, 0.625, 0xffffff);
+  });
   add(0.35, 0.12, 0.05, -0.45, 1.5, 0.61, 0xff9aa6); add(0.35, 0.12, 0.05, 0.45, 1.5, 0.61, 0xff9aa6);
-  const ears = [-1, 1].map(sx => {
+  add(0.18, 0.06, 0.05, 0, 1.44, 0.61, 0xc8505a);                // 口
+  const ears = [-1, 1].map(sx => {                               // 枝豆のさや（緑のさや＋豆のふくらみ）
     const e = new THREE.Group();
-    [[0, 0], [0.25, 0.45], [0.5, 0.9]].forEach(([dx, dy]) => {
-      const m = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.42, 0.42), new THREE.MeshLambertMaterial({ color: 0x8fd14f }));
-      m.position.set(sx * (0.75 + dx), dy, 0); e.add(m);
+    [[0, 0], [0.28, 0.42], [0.56, 0.84]].forEach(([dx, dy], k) => {
+      const pod = add(0.4, 0.46, 0.34, sx * (0.78 + dx), dy, 0, POD, e);
+      pod.rotation.z = -sx * 0.55;
+      const bean = add(0.3, 0.3, 0.2, sx * (0.78 + dx), dy, 0.14, BEAN, e);
+      bean.rotation.z = -sx * 0.55;
     });
+    add(0.16, 0.22, 0.16, sx * 1.48, 1.18, 0, POD, e);           // さやの先
     e.position.y = 2.0; body.add(e); return e;
   });
   g.userData = { body, ears };

@@ -436,7 +436,7 @@ def build(sid):
     # ---- 絵の合成（CGのコマ＋文字＋ずんだもん）
     t2 = time.time()
     f_ch, f_cr, f_setsu = motion.font(40), motion.font(26, "Bold"), motion.font(64)
-    use_z = os.path.isdir(ZDIR)
+    use_z = os.path.isdir(ZDIR) and (sp.get("tachie") or os.environ.get("MOSO3D_TACHIE") == "1")   # 3DCG版は既定で立ち絵なし（声と字幕は残す）
     vids = []
     for li, ln in enumerate(lines):
         d = durs[li]; n = int(round(d * FPS))
