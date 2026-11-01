@@ -23,6 +23,7 @@ CYAN = (60, 230, 255)
 TEL_Y = 1290
 SPEED, GAP = 1.1, 0.06
 SE_GAIN = 0.7          # 効果音の音量（既存の妄想科学ショートの0.7倍＝約-3dB。声とBGMはそのまま）
+BGM_GAIN = 0.8         # BGMの音量（11/1 ゲンタさん「今の80%くらいに」。台本の bgm_vol（既定0.15）に掛ける）
 B = "build_cg"
 ZDIR = "assets/enc/parts"
 ZH = 400
@@ -524,7 +525,7 @@ def build(sid):
         bgm_credit = "オリジナル（手元の試し）"
     else:
         sys.exit(f"BGM {bgm_file} がない（復号前）。CIで作る")
-    fc = (f"[1:a]aresample=48000[v];[2:a]aresample=48000,volume={sp.get('bgm_vol', 0.15)}[m];"
+    fc = (f"[1:a]aresample=48000[v];[2:a]aresample=48000,volume={sp.get('bgm_vol', 0.15) * BGM_GAIN:.4f}[m];"
           "[v][m]amix=inputs=2:normalize=0:duration=first,loudnorm=I=-14:TP=-1.5:LRA=11,aresample=48000,alimiter=limit=0.79:level=disabled[a]")   # 既存と同じ -1.5dB 以下に（loudnorm だけでは 0dB に触れた）
     subprocess.run(["ffmpeg", "-y", "-v", "error", "-i", f"{B}/all.mp4", "-i", f"{B}/all_a.wav", "-i", f"{B}/bgm.wav",
                     "-filter_complex", fc, "-map", "0:v", "-map", "[a]", "-c:v", "copy", "-c:a", "aac", "-b:a", "192k", out], check=True)
