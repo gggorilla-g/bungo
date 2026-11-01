@@ -179,7 +179,7 @@ def fx_timer(fr, fx, t, burst_t):
     # 読み上げ「月を消すまで」の間は 3.00 のまま構え、「3」の声から単調に減る
     cx, cy = W // 2, 470                                     # 月が画面の中央に見えるよう、盤は上に寄せる
     pop = back(t / 0.25)
-    R = int(270 * pop)
+    R = int(300 * pop)                                       # 11/2 弧を少し大きく（数字を小さくした分）
     if R < 5:
         return
     d.rounded_rectangle([cx - 420, cy - 240, cx + 420, cy + 300], 40, fill=(0, 10, 20, 150), outline=CYAN + (255,), width=6)
@@ -195,8 +195,9 @@ def fx_timer(fr, fx, t, burst_t):
     d.ellipse([cx - 18, cy + 92, cx + 18, cy + 128], fill=WHT + (255,))
     motion.box_text(d, cx, cy - 225, fx.get("label", ""), motion.font(54), BLK, CYAN, 24, 10, anchor="ct")
     col = RED if 0 < v < 1.0 else WHT                        # 0.00 は白で止める（点滅させない）
-    mono(d, cx, cy + 20, f"{v:.2f}", 210, col, 12)
-    d.text((cx + 280, cy + 95), "SEC", font=motion.font(40), fill=CYAN, anchor="mm")
+    # 11/2 ゲンタさん「メーターをもっと見せたいので数字はもっと小さくていい」：数字を210→120に縮め、弧と針を見せる
+    mono(d, cx, cy + 30, f"{v:.2f}", 120, col, 8)
+    d.text((cx + 175, cy + 55), "SEC", font=motion.font(32), fill=CYAN, anchor="mm")
     sec = 0 if boot else (int(math.ceil(v)) if v > 0 else 0)   # 小さな数字の窓（声の 3・2・1 と同じ）
     for q in range(3):
         on = sec == 3 - q
