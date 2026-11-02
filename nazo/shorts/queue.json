@@ -77,6 +77,55 @@
    "main": "moso_science",
    "channel": "妄想科学",
    "posted": false
+  },
+  {
+   "date": "2026-11-03",
+   "id": "trivia_namekujiuo",
+   "main": "trivia_daily",
+   "channel": "雑学",
+   "posted": false
+  },
+  {
+   "date": "2026-11-04",
+   "id": "trivia_sukashi",
+   "main": "trivia_daily",
+   "channel": "雑学",
+   "posted": false
+  },
+  {
+   "date": "2026-11-05",
+   "id": "trivia_gorilla",
+   "main": "trivia_daily",
+   "channel": "雑学",
+   "posted": false
+  },
+  {
+   "date": "2026-11-06",
+   "id": "trivia_lamprey",
+   "main": "trivia_daily",
+   "channel": "雑学",
+   "posted": false
+  },
+  {
+   "date": "2026-11-07",
+   "id": "trivia_falsecleaner",
+   "main": "trivia_daily",
+   "channel": "雑学",
+   "posted": false
+  },
+  {
+   "date": "2026-11-08",
+   "id": "trivia_bakamatsutake",
+   "main": "trivia_daily",
+   "channel": "雑学",
+   "posted": false
+  },
+  {
+   "date": "2026-11-09",
+   "id": "trivia_yodarekake",
+   "main": "trivia_daily",
+   "channel": "雑学",
+   "posted": false
   }
  ]
 }
