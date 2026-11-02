@@ -413,8 +413,9 @@ def room(t, gm=False, talk=0.0, tap=False):
         d.polygon([(x0, y0), (x0 + 80, y0), (x0 + 70, y0 + 80), (x0 + 10, y0 + 80)], fill=(235, 230, 220), outline=(80, 70, 60))
         d.rectangle([x0 + 10, y0 + 30, x0 + 70, y0 + 46], fill=(200, 60, 50))
     d.rectangle([0, 0, W, 40], fill=(64, 58, 64))                         # 天井ぎわの影
-    d.rounded_rectangle([1180, 640, 1880, 760], 20, fill=(150, 150, 170))  # 敷きっぱなしの布団
-    d.rounded_rectangle([1200, 610, 1420, 680], 26, fill=(235, 235, 240))  # まくら
+    if not tap:
+        d.rounded_rectangle([1180, 640, 1880, 760], 20, fill=(150, 150, 170))  # 敷きっぱなしの布団
+        d.rounded_rectangle([1200, 610, 1420, 680], 26, fill=(235, 235, 240))  # まくら
     for i, (x0, y0, c) in enumerate(((520, 850, (90, 110, 160)), (700, 920, (160, 80, 80)), (300, 960, (80, 140, 90)), (1500, 880, (200, 190, 120)))):
         d.polygon([(x0, y0), (x0 + 150, y0 - 20), (x0 + 190, y0 + 40), (x0 + 30, y0 + 60)], fill=c)   # 脱ぎっぱなしの服
     for i in range(4):                                                    # 床の紙くず
@@ -679,12 +680,12 @@ def results_era(img, u, rank=None):
             p = ease((u - i * 0.1) / 0.4)
             if p <= 0:
                 continue
-            x = 740 + (i % 4) * 290; y = 220 + (i // 4) * 300
-            w_, h_ = int(250 * p), int(150 * p)
+            x = 640 + (i % 4) * 215; y = 190 + (i // 4) * 250
+            w_, h_ = int(190 * p), int(120 * p)
             d.rounded_rectangle([x - w_ / 2, y - h_ / 2, x + w_ / 2, y + h_ / 2], 18, fill=(10, 14, 40, 230), outline=WHT, width=4)
             if p >= 1:
-                d.text((x, y), n, font=font(36), fill=WHT, anchor="mm")
-                d.line([(x - 90, y - 55), (x + 90, y + 55)], fill=RED, width=14); d.line([(x + 90, y - 55), (x - 90, y + 55)], fill=RED, width=14)
+                d.line([(x - 50, y - 40), (x + 50, y + 40)], fill=RED, width=12); d.line([(x + 50, y - 40), (x - 50, y + 40)], fill=RED, width=12)
+                d.text((x, y + 95), n, font=font(28), fill=WHT, anchor="mm", stroke_width=4, stroke_fill=BLK)
         return
     rk = META["ranking"]
     d.rounded_rectangle([700, 90, 1860, 860], 26, fill=(10, 14, 40, 230), outline=YEL, width=5)
