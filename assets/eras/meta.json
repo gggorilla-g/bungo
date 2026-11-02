@@ -7,11 +7,11 @@
   "page": "https://commons.wikimedia.org/wiki/File:Edmontosaurus_annectens,_by_Charles_R._Knight.jpg"
  },
  "edo": {
-  "title": "File:Fifty three stations of tokaidoh published by arita-ya.jpg",
+  "title": "File:Hiroshige01 nihonbashi.jpg",
   "license": "Public domain",
   "artist": "<bdi><a href=\"https://en.wikipedia.org/wiki/en:Hiroshige\" class=\"extiw\" title=\"w:en:Hiroshige\"><span title=\"Japanese ukiyo-e artist (1797–1858)\">Utagawa Hiroshige</span></a></bdi>",
-  "credit": "<a rel=\"nofollow\" class=\"external free\" href=\"https://art.honolulumuseum.org/objects/4954/nihonbashi-from-the-series-fifty-three-stations-of-the-toka?ctx=31be84c8-466f-42bf-94c8-0a694c5a9e6f&amp;idx=0\">https://art.honolulumuseum.org/objects/4954/nihonbashi-from-the-series-fifty-three-stations-of-the-toka?ctx=31be84c8-466f-42bf-94c8-0a694c5a9e6f&amp;idx=0</a>",
-  "page": "https://commons.wikimedia.org/wiki/File:Fifty_three_stations_of_tokaidoh_published_by_arita-ya.jpg"
+  "credit": "The fifty-stree stages of Tokaido (one of 53 prints, +2 for start and terminus)",
+  "page": "https://commons.wikimedia.org/wiki/File:Hiroshige01_nihonbashi.jpg"
  },
  "edo_night": {
   "title": "File:Night Snow at Kambara (Kambara Yoru no Yuki), Station 15, from the Fifty-Three Stations of the Tokaido (Tokaido Gojusantsugi no Uchi) (Hoeido), by Utagawa (Andō) Hiroshige, 1832-1834, Hood Museum - PR.972.63.16.tif",
@@ -19,5 +19,61 @@
   "artist": "Utagawa Hiroshige",
   "credit": "Hood Museum of Art, Dartmouth College",
   "page": "https://commons.wikimedia.org/wiki/File:Night_Snow_at_Kambara_(Kambara_Yoru_no_Yuki),_Station_15,_from_the_Fifty-Three_Stations_of_the_Tokaido_(Tokaido_Gojusantsugi_no_Uchi)_(Hoeido),_by_Utagawa_(And%C5%8D)_Hiroshige,_1832-1834,_Hood_Museum_-_PR.972.63.16.tif"
+ },
+ "edo2": {
+  "title": "File:Hiroshige-53-Stations-Hoeido-11-Hakone-MFA-02.jpg",
+  "license": "Public domain",
+  "artist": "<bdi><a href=\"https://en.wikipedia.org/wiki/en:Hiroshige\" class=\"extiw\" title=\"w:en:Hiroshige\"><span title=\"Japanese ukiyo-e artist (1797–1858)\">Utagawa Hiroshige</span></a></bdi>",
+  "credit": "Database of the Museum of Fine Arts, Boston",
+  "page": "https://commons.wikimedia.org/wiki/File:Hiroshige-53-Stations-Hoeido-11-Hakone-MFA-02.jpg"
+ },
+ "carbon": {
+  "title": "File:The World Before There was Life by Knight.jpg",
+  "license": "Public domain",
+  "artist": "Charles R. Knight",
+  "credit": "<a rel=\"nofollow\" class=\"external free\" href=\"https://mm.fieldmuseum.org/178c0165-f9d5-442d-9400-d936b8d95755\">https://mm.fieldmuseum.org/178c0165-f9d5-442d-9400-d936b8d95755</a>",
+  "page": "https://commons.wikimedia.org/wiki/File:The_World_Before_There_was_Life_by_Knight.jpg"
+ },
+ "carbon2": {
+  "title": "File:Meyers b15 s0272b.jpg",
+  "license": "Public domain",
+  "artist": "Bibliographisches Institut",
+  "credit": "Meyers Konversationslexikon. <a rel=\"nofollow\" class=\"external free\" href=\"http://susi.e-technik.uni-ulm.de:8080/Meyers2/index/index.html\">http://susi.e-technik.uni-ulm.de:8080/Meyers2/index/index.html</a>",
+  "page": "https://commons.wikimedia.org/wiki/File:Meyers_b15_s0272b.jpg"
+ },
+ "iceage": {
+  "title": "File:Font-de-Gaume.jpg",
+  "license": "Public domain",
+  "artist": "<bdi><a href=\"https://en.wikipedia.org/wiki/en:Charles_R._Knight\" class=\"extiw\" title=\"w:en:Charles R. Knight\"><span title=\"American artist (1874-1953)\">Charles Robert Knight</span></a></bdi>",
+  "credit": "<a rel=\"nofollow\" class=\"external free\" href=\"http://birdbookerreport.blogspot.com/2012/01/new-title_30.html\">http://birdbookerreport.blogspot.com/2012/01/new-title_30.html</a>",
+  "page": "https://commons.wikimedia.org/wiki/File:Font-de-Gaume.jpg"
+ },
+ "jomon": {
+  "title": "File:Isehara Hachimandai Stone Age Dwelling Site No.1.jpg",
+  "license": "Public domain",
+  "artist": "石野瑛",
+  "credit": "史前学雑誌 6(1) 図版第1<a rel=\"nofollow\" class=\"external autonumber\" href=\"https://dl.ndl.go.jp/pid/11206903/1/4\">[1]</a>; （ただしこの写真はそれ<a rel=\"nofollow\" class=\"external text\" href=\"https://dl.ndl.go.jp/pid/1233390/1/7\">以前に公刊</a>されている）",
+  "page": "https://commons.wikimedia.org/wiki/File:Isehara_Hachimandai_Stone_Age_Dwelling_Site_No.1.jpg"
+ },
+ "jomon2": {
+  "title": "File:Grubenhäuser Rosstal und Sussex.jpg",
+  "license": "Public domain",
+  "artist": "<a href=\"https://de.wikipedia.org/wiki/User:Veleius\" class=\"extiw\" title=\"de:User:Veleius\">Veleius</a> at <a class=\"external text\" data-mw-original-href=\"http://de.wikipedia.org\" href=\"https://de.wikipedia.org\">de.wikipedia</a>/eigene Arbeit/own work",
+  "credit": "Heimatblätter Rosstal, Heft 27, 1993 I",
+  "page": "https://commons.wikimedia.org/wiki/File:Grubenh%C3%A4user_Rosstal_und_Sussex.jpg"
+ },
+ "cambrian": {
+  "title": "File:Olymipic Coast Rocks (23786748618).jpg",
+  "license": "Public domain",
+  "artist": "<a rel=\"nofollow\" class=\"external text\" href=\"https://www.flickr.com/people/44124469278@N01\">National Marine Sanctuaries</a>",
+  "credit": "<a rel=\"nofollow\" class=\"external text\" href=\"https://www.flickr.com/photos/onms/23786748618/\">Olymipic Coast Rocks</a>",
+  "page": "https://commons.wikimedia.org/wiki/File:Olymipic_Coast_Rocks_(23786748618).jpg"
+ },
+ "cretaceous2": {
+  "title": "File:Late Cretaceous Dinosaurs by Knight.jpg",
+  "license": "Public domain",
+  "artist": "Charles R. Knight",
+  "credit": "<a rel=\"nofollow\" class=\"external free\" href=\"https://mm.fieldmuseum.org/1bcd2464-1816-4f14-b709-75cd0098888d\">https://mm.fieldmuseum.org/1bcd2464-1816-4f14-b709-75cd0098888d</a>",
+  "page": "https://commons.wikimedia.org/wiki/File:Late_Cretaceous_Dinosaurs_by_Knight.jpg"
  }
 }
