@@ -23,7 +23,9 @@ def cnt(to, unit, label, at=0.3):
 
 def L(say, text, face="通常", wiki=None, i=0, fx=None, **kw):
     d = {"say": say, "text": text, "face": face}
-    if wiki:
+    if wiki in FILES:                    # 記事の写真が合わない題材は、写真を直接指定（11/3 コマ割りで確認：ヤツメウナギ＝マンホール、ヨダレカケ・ニセクロスジギンポ＝写真なし）
+        d["file"] = FILES[wiki][i % len(FILES[wiki])]
+    elif wiki:
         d["wiki"] = ["ja", wiki]; d["wiki_i"] = i
     if fx:
         d["fx"] = fx
@@ -31,6 +33,11 @@ def L(say, text, face="通常", wiki=None, i=0, fx=None, **kw):
     return d
 
 
+FILES = {
+    "ヤツメウナギ": ["File:American brook lamprey.jpg", "File:Geotria australis.jpg", "File:Boca de lamprea.1 - Aquarium Finisterrae.JPG"],
+    "ヨダレカケ": ["File:Andamia tetradactylus AQUAS.jpg", "File:Andamia tetradactylus (30152094963).jpg", "File:四指唇盤鳚 (30751043866).jpg"],
+    "ニセクロスジギンポ": ["File:Aspidontus taeniatus 644469034.jpg", "File:Aspidontus taeniatus 174544308.jpg", "File:Aspidontus taeniatus (8490892679).jpg"],
+}
 S = {}
 
 S["namekujiuo"] = dict(label="名前がウソすぎる生き物", format="story", themes=["lemon_dots", "deep_sea", "newspaper"],

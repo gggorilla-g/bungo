@@ -34,11 +34,7 @@
    "say": "ヤツメウナギの目は、8つじゃないのだ。",
    "text": "ヤツメウナギの目は\n8つじゃない",
    "face": "ドヤ",
-   "wiki": [
-    "ja",
-    "ヤツメウナギ"
-   ],
-   "wiki_i": 0,
+   "file": "File:American brook lamprey.jpg",
    "fx": [
     {
      "type": "stamp",
@@ -60,21 +56,13 @@
    "say": "目のうしろに、穴が7つ並んでいるのだ。",
    "text": "目のうしろに\n穴が7つ",
    "face": "指差し",
-   "wiki": [
-    "ja",
-    "ヤツメウナギ"
-   ],
-   "wiki_i": 1
+   "file": "File:Geotria australis.jpg"
   },
   {
    "say": "目とあわせて8つに見えるから、ヤツメなのだ。",
    "text": "目とあわせて\n8つに見える",
    "face": "驚き",
-   "wiki": [
-    "ja",
-    "ヤツメウナギ"
-   ],
-   "wiki_i": 1,
+   "file": "File:Geotria australis.jpg",
    "fx": [
     {
      "type": "count",
@@ -89,31 +77,19 @@
    "say": "でも本当の目は1つだけ。残りの7つは、えらの穴なのだ。",
    "text": "本当の目は1つ\n残り7つはえら穴",
    "face": "焦り",
-   "wiki": [
-    "ja",
-    "ヤツメウナギ"
-   ],
-   "wiki_i": 0
+   "file": "File:American brook lamprey.jpg"
   },
   {
    "say": "しかも、あごがないのだ。",
    "text": "しかも\nあごがない",
    "face": "青ざめ",
-   "wiki": [
-    "ja",
-    "ヤツメウナギ"
-   ],
-   "wiki_i": 2
+   "file": "File:Boca de lamprea.1 - Aquarium Finisterrae.JPG"
   },
   {
    "say": "口は丸い吸盤になっているのだ。",
    "text": "口は\n丸い吸盤",
    "face": "驚き",
-   "wiki": [
-    "ja",
-    "ヤツメウナギ"
-   ],
-   "wiki_i": 2,
+   "file": "File:Boca de lamprea.1 - Aquarium Finisterrae.JPG",
    "fx": [
     {
      "type": "stamp",
@@ -133,11 +109,7 @@
    "say": "胸びれも腹びれもないのだ。",
    "text": "胸びれも\n腹びれもない",
    "face": "驚き",
-   "wiki": [
-    "ja",
-    "ヤツメウナギ"
-   ],
-   "wiki_i": 1
+   "file": "File:Geotria australis.jpg"
   },
   {
    "say": "ウナギとは、まったく別の仲間なのだ。",
@@ -175,11 +147,7 @@
    "say": "ちなみにこの魚…",
    "text": "ちなみに\nこの魚…",
    "face": "ドヤ",
-   "wiki": [
-    "ja",
-    "ヤツメウナギ"
-   ],
-   "wiki_i": 0,
+   "file": "File:American brook lamprey.jpg",
    "loop": true
   }
  ],

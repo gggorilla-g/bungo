@@ -36,11 +36,7 @@
    "say": "ニセクロスジギンポは、掃除屋のふりをしてヒレをかじるのだ。",
    "text": "ニセクロスジギンポ\n掃除屋のふり",
    "face": "ドヤ",
-   "wiki": [
-    "ja",
-    "ニセクロスジギンポ"
-   ],
-   "wiki_i": 0,
+   "file": "File:Aspidontus taeniatus 644469034.jpg",
    "fx": [
     {
      "type": "stamp",
@@ -120,21 +116,13 @@
    "say": "そこへ、そっくりな魚がやってくるのだ。",
    "text": "そこへ\nそっくりな魚",
    "face": "焦り",
-   "wiki": [
-    "ja",
-    "ニセクロスジギンポ"
-   ],
-   "wiki_i": 0
+   "file": "File:Aspidontus taeniatus 644469034.jpg"
   },
   {
    "say": "近づいて、ヒレをガブリ。",
    "text": "近づいて\nヒレをガブリ",
    "face": "驚き",
-   "wiki": [
-    "ja",
-    "ニセクロスジギンポ"
-   ],
-   "wiki_i": 1,
+   "file": "File:Aspidontus taeniatus 174544308.jpg",
    "fx": [
     {
      "type": "stamp",
@@ -154,21 +142,13 @@
    "say": "それがニセクロスジギンポなのだ。",
    "text": "それが\nニセクロスジギンポ",
    "face": "青ざめ",
-   "wiki": [
-    "ja",
-    "ニセクロスジギンポ"
-   ],
-   "wiki_i": 0
+   "file": "File:Aspidontus taeniatus 644469034.jpg"
   },
   {
    "say": "見た目をまねて近づく、攻撃擬態というのだ。",
    "text": "見た目をまねる\n攻撃擬態",
    "face": "通常",
-   "wiki": [
-    "ja",
-    "ニセクロスジギンポ"
-   ],
-   "wiki_i": 1
+   "file": "File:Aspidontus taeniatus 174544308.jpg"
   },
   {
    "say": "名前のニセは、本気のニセだったのだ！",
@@ -186,11 +166,7 @@
    "say": "ちなみにこの魚…",
    "text": "ちなみに\nこの魚…",
    "face": "ドヤ",
-   "wiki": [
-    "ja",
-    "ニセクロスジギンポ"
-   ],
-   "wiki_i": 0,
+   "file": "File:Aspidontus taeniatus 644469034.jpg",
    "loop": true
   }
  ],

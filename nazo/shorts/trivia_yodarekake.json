@@ -35,11 +35,7 @@
    "say": "ヨダレカケは、水の中が苦手な魚なのだ。",
    "text": "ヨダレカケは\n水が苦手な魚",
    "face": "ドヤ",
-   "wiki": [
-    "ja",
-    "ヨダレカケ"
-   ],
-   "wiki_i": 0,
+   "file": "File:Andamia tetradactylus AQUAS.jpg",
    "fx": [
     {
      "type": "stamp",
@@ -61,11 +57,7 @@
    "say": "名前の由来は、あごの下の線なのだ。",
    "text": "名前の由来は\nあごの下の線",
    "face": "指差し",
-   "wiki": [
-    "ja",
-    "ヨダレカケ"
-   ],
-   "wiki_i": 0,
+   "file": "File:Andamia tetradactylus AQUAS.jpg",
    "fx": [
     {
      "type": "stamp",
@@ -85,11 +77,7 @@
    "say": "赤ちゃんのよだれかけに見えるからヨダレカケ。",
    "text": "赤ちゃんの\nよだれかけに見える",
    "face": "笑顔",
-   "wiki": [
-    "ja",
-    "ヨダレカケ"
-   ],
-   "wiki_i": 1,
+   "file": "File:Andamia tetradactylus (30152094963).jpg",
    "fx": [
     {
      "type": "stamp",
@@ -109,31 +97,19 @@
    "say": "では、どこに住んでいるのか。",
    "text": "どこに\n住んでる？",
    "face": "焦り",
-   "wiki": [
-    "ja",
-    "ヨダレカケ"
-   ],
-   "wiki_i": 1
+   "file": "File:Andamia tetradactylus (30152094963).jpg"
   },
   {
    "say": "波しぶきがかかる、海辺の岩の上なのだ。",
    "text": "波しぶきがかかる\n岩の上",
    "face": "驚き",
-   "wiki": [
-    "ja",
-    "ヨダレカケ"
-   ],
-   "wiki_i": 2
+   "file": "File:四指唇盤鳚 (30751043866).jpg"
   },
   {
    "say": "水の中には、入らないのだ。",
    "text": "水の中には\n入らない",
    "face": "驚き",
-   "wiki": [
-    "ja",
-    "ヨダレカケ"
-   ],
-   "wiki_i": 0,
+   "file": "File:Andamia tetradactylus AQUAS.jpg",
    "fx": [
     {
      "type": "stamp",
@@ -153,31 +129,19 @@
    "say": "でも、乾くと生きられないのだ。",
    "text": "でも乾くと\n生きられない",
    "face": "青ざめ",
-   "wiki": [
-    "ja",
-    "ヨダレカケ"
-   ],
-   "wiki_i": 2
+   "file": "File:四指唇盤鳚 (30751043866).jpg"
   },
   {
    "say": "皮膚で息をするから、ときどき体を回して濡らすのだ。",
    "text": "皮膚で呼吸\n体を回して濡らす",
    "face": "驚き",
-   "wiki": [
-    "ja",
-    "ヨダレカケ"
-   ],
-   "wiki_i": 1
+   "file": "File:Andamia tetradactylus (30152094963).jpg"
   },
   {
    "say": "大きな波が来ると、すばやく逃げるのだ。",
    "text": "大きな波からは\nすばやく逃げる",
    "face": "焦り",
-   "wiki": [
-    "ja",
-    "ヨダレカケ"
-   ],
-   "wiki_i": 0
+   "file": "File:Andamia tetradactylus AQUAS.jpg"
   },
   {
    "say": "水はこわいけど、乾くのもこわい魚なのだ。",
@@ -195,11 +159,7 @@
    "say": "ちなみにこの魚…",
    "text": "ちなみに\nこの魚…",
    "face": "ドヤ",
-   "wiki": [
-    "ja",
-    "ヨダレカケ"
-   ],
-   "wiki_i": 0,
+   "file": "File:Andamia tetradactylus AQUAS.jpg",
    "loop": true
   }
  ],
