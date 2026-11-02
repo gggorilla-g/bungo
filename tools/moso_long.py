@@ -16,6 +16,7 @@ WHT, BLK, YEL, RED = (255, 255, 255), (0, 0, 0), (255, 214, 0), (226, 36, 44)
 ZCOL, GCOL = (60, 190, 90), (120, 70, 190)          # 話し手の色（ずんだもん緑、GM紫）
 GAP, GM_PRE, SCENE_GAP = 0.2, 0.1, 0.6             # セリフの間（会話はテンポよく。2026-10-27 ゲンタ「もう少しテンポ良く」）
 _fc = {}
+META = {}                                            # 台本の meta（時代版の背景・ランキングなどを台本側で決める）
 
 
 def font(s, bold=False):
@@ -290,8 +291,9 @@ def ground(img, kind):
 def arrive(img, kind, u, face, dmg):
     """章の頭：ずんだもんが宇宙からぴゅーんと飛んできて、その星に降り立つ"""
     d = ImageDraw.Draw(img, "RGBA")
-    rocky = kind in ROCKY
-    gy = GROUND_Y if rocky else 890
+    era = kind in META.get("eras", {})
+    rocky = kind in ROCKY or era
+    gy = 890 if era or not rocky else GROUND_Y
     T = 1.3
     if u < T:                                            # 右上の宇宙から、弧をえがいて降りてくる
         k = ease(u / T)
@@ -307,7 +309,7 @@ def arrive(img, kind, u, face, dmg):
         z = outline(damaged(zunda("驚き", int(160 + 380 * k), 0, 0), dmg)).rotate(-(1 - k) * 540, expand=True, resample=Image.BICUBIC)
         img.alpha_composite(z, (int(x - z.width / 2), int(y - z.height / 2)))
         if u < 1.0:
-            d.text((x + 120, y - 160), "ぴゅーん", font=font(64), fill=YEL, anchor="mm", stroke_width=7, stroke_fill=BLK)
+            d.text((x + 120, y - 160), "タイムワープ" if era else "ぴゅーん", font=font(64), fill=YEL, anchor="mm", stroke_width=7, stroke_fill=BLK)
         return
     v = u - T                                            # 着地：少しつぶれて戻る＋砂ぼこり（ガスの星は雲のもや）
     sq = 1 - 0.18 * math.exp(-v * 9) * math.cos(v * 18) if v < 0.6 else 1
@@ -315,7 +317,7 @@ def arrive(img, kind, u, face, dmg):
     z = z.resize((int(z.width * (2 - sq)), int(z.height * sq)))
     img.alpha_composite(z, (int(330 - z.width / 2), int(gy - z.height)))
     if v < 0.9:
-        col = PLANET[kind][0] if kind in PLANET else (200, 200, 200)
+        col = PLANET[kind][0] if kind in PLANET else tuple(META.get("eras", {}).get(kind, {}).get("col", (200, 200, 200)))
         for q in range(10):
             a = math.pi * (q / 9)
             rr = 60 + 260 * ease(v / 0.9)
@@ -323,12 +325,147 @@ def arrive(img, kind, u, face, dmg):
             r = 34 * (1 - v / 0.9) + 6
             d.ellipse([px - r, py - r, px + r, py + r], fill=col + (int(200 * (1 - v / 0.9)),))
     if 0.05 < v < 1.0:
-        d.text((330, gy - 600), "着地" if rocky else "着地…？", font=font(70), fill=WHT, anchor="mm", stroke_width=8, stroke_fill=BLK)
+        d.text((330, gy - 600), "到着" if era else "着地" if rocky else "着地…？", font=font(70), fill=WHT, anchor="mm", stroke_width=8, stroke_fill=BLK)
+
+
+_era = {}
+
+
+def era_image(name, t, t0=0.0):
+    """時代の背景（PDの絵）。画面いっぱいに合わせ、ゆっくり寄る。字幕が読めるように少し暗くする"""
+    p = f"assets/eras/{name}.jpg"
+    if not os.path.exists(p):
+        return None
+    if name not in _era:
+        im = Image.open(p).convert("RGB")
+        crop = META.get("eras_crop", {}).get(name)          # 額縁や余白を切る（割合 x0,y0,x1,y1）
+        if crop:
+            im = im.crop((int(im.width * crop[0]), int(im.height * crop[1]), int(im.width * crop[2]), int(im.height * crop[3])))
+        sc = max(W * 1.08 / im.width, H * 1.08 / im.height)
+        im = im.resize((int(im.width * sc), int(im.height * sc)), Image.LANCZOS)
+        im = Image.blend(im, Image.new("RGB", im.size, (0, 0, 0)), 0.22)
+        _era[name] = im
+    im = _era[name]
+    k = (math.sin(t * 0.05) + 1) / 2                        # ゆっくり横に流す（速い動きはしない）
+    x = int((im.width - W) * k); y = int((im.height - H) * 0.5)
+    return im.crop((x, y, x + W, y + H)).convert("RGBA")
+
+
+def draw_era(kind, t, night=False):
+    e = META.get("eras", {}).get(kind, {})
+    name = e.get("night") if night and e.get("night") else e.get("img")
+    img = era_image(name, t) if name else None
+    if img is not None:
+        if night and not e.get("night"):
+            img = Image.blend(img, Image.new("RGBA", (W, H), (5, 5, 20, 255)), 0.6)
+        return img
+    img = Image.new("RGBA", (W, H), (0, 0, 0, 255))
+    d = ImageDraw.Draw(img)
+    if kind == "cambrian":                                  # 草も木もない岩の陸と、右に海
+        for y in range(0, 560, 4):
+            c = int(150 + 70 * y / 560)
+            d.rectangle([0, y, W, y + 4], fill=(c - 30, c - 10, c + 20))
+        d.rectangle([0, 560, W, H], fill=(120, 110, 100))
+        rng = np.random.default_rng(5)
+        for _ in range(60):
+            x, y, r = rng.uniform(0, W), rng.uniform(600, H), rng.uniform(20, 90)
+            g_ = int(rng.uniform(90, 150)); d.ellipse([x - r * 1.6, y - r * 0.6, x + r * 1.6, y + r * 0.6], fill=(g_, g_ - 8, g_ - 16))
+        d.polygon([(1150, 560), (W, 560), (W, 900)], fill=(50, 90, 140))
+        for q in range(6):
+            yy = 600 + q * 45 + math.sin(t * 0.8 + q) * 6
+            d.line([(1250 + q * 90, yy), (W, yy + 40)], fill=(170, 200, 230), width=3)
+        d.ellipse([1500, 90, 1640, 230], fill=(255, 245, 200))
+        return img
+    if kind == "pangea":                                    # 乾いた赤い大地と、かすんだ熱い空
+        for y in range(0, 600, 4):
+            k_ = y / 600
+            d.rectangle([0, y, W, y + 4], fill=(int(250 - 40 * k_), int(170 - 60 * k_), int(90 - 40 * k_)))
+        d.ellipse([1380, 40, 1700, 360], fill=(255, 240, 180))
+        d.rectangle([0, 600, W, H], fill=(190, 95, 50))
+        rng = np.random.default_rng(7)
+        for _ in range(70):                                 # ひび割れ
+            x, y = rng.uniform(0, W), rng.uniform(640, H)
+            pts = [(x, y)]
+            for _ in range(4):
+                x += rng.uniform(-60, 60); y += rng.uniform(-20, 20); pts.append((x, y))
+            d.line(pts, fill=(120, 55, 30), width=3)
+        for q in range(8):                                  # かげろう（ゆっくり）
+            yy = 560 + q * 14
+            d.line([(x_, yy + math.sin(x_ / 60 + t * 1.2 + q) * 4) for x_ in range(0, W + 40, 40)], fill=(255, 200, 150), width=2)
+        return img
+    return None
+
+
+def room(t, gm=False, talk=0.0, tap=False):
+    """ずんだもんの部屋（六畳間）。夜。カップ麺の空き容器が積んである"""
+    img = Image.new("RGBA", (W, H), (58, 52, 60, 255))
+    d = ImageDraw.Draw(img)
+    d.rectangle([0, 0, W, 700], fill=(78, 72, 76))                        # 壁
+    d.rectangle([0, 700, W, H], fill=(120, 96, 70))                       # 床（畳っぽい色）
+    for x in range(0, W, 240):
+        d.line([(x, 700), (x - 120, H)], fill=(100, 80, 58), width=3)
+    d.rectangle([620, 120, 1060, 460], fill=(20, 26, 50), outline=(40, 34, 38), width=14)   # 窓（夜）
+    d.line([(840, 120), (840, 460)], fill=(40, 34, 38), width=10)
+    for i in range(5):                                                    # 窓の外の明かり
+        d.rectangle([660 + i * 70, 380 - (i % 3) * 40, 690 + i * 70, 460], fill=(40, 46, 70))
+    for i in range(7):                                                    # カップ麺の容器
+        x0 = 880 + (i % 4) * 90 + (i // 4) * 45; y0 = 760 - (i // 4) * 80
+        d.polygon([(x0, y0), (x0 + 80, y0), (x0 + 70, y0 + 80), (x0 + 10, y0 + 80)], fill=(235, 230, 220), outline=(80, 70, 60))
+        d.rectangle([x0 + 10, y0 + 30, x0 + 70, y0 + 46], fill=(200, 60, 50))
+    d.rectangle([0, 0, W, 40], fill=(64, 58, 64))                         # 天井ぎわの影
+    d.rounded_rectangle([1180, 640, 1880, 760], 20, fill=(150, 150, 170))  # 敷きっぱなしの布団
+    d.rounded_rectangle([1200, 610, 1420, 680], 26, fill=(235, 235, 240))  # まくら
+    for i, (x0, y0, c) in enumerate(((520, 850, (90, 110, 160)), (700, 920, (160, 80, 80)), (300, 960, (80, 140, 90)), (1500, 880, (200, 190, 120)))):
+        d.polygon([(x0, y0), (x0 + 150, y0 - 20), (x0 + 190, y0 + 40), (x0 + 30, y0 + 60)], fill=c)   # 脱ぎっぱなしの服
+    for i in range(4):                                                    # 床の紙くず
+        x0 = 1000 + i * 130; y0 = 980 - (i % 2) * 40
+        d.ellipse([x0, y0, x0 + 46, y0 + 40], fill=(230, 228, 220), outline=(150, 150, 140))
+    d.rectangle([140, 160, 420, 360], fill=(225, 220, 205), outline=(60, 55, 55), width=4)  # 壁のカレンダー
+    d.rectangle([140, 160, 420, 200], fill=(200, 60, 50))
+    d.text((280, 270), "家賃", font=font(60), fill=(200, 60, 50), anchor="mm")
+    if tap:                                                               # 流し台と蛇口、水
+        d.rectangle([1260, 560, 1700, 720], fill=(170, 175, 185), outline=(90, 90, 100), width=6)
+        d.rectangle([1440, 430, 1470, 520], fill=(200, 200, 210))
+        d.rectangle([1440, 430, 1560, 460], fill=(200, 200, 210))
+        for q in range(6):
+            yy = 470 + ((q * 30 + t * 240) % 110)
+            d.line([(1545, yy), (1545, yy + 20)], fill=(150, 200, 255), width=10)
+    if gm:
+        img.alpha_composite(gm_figure(W, H, 1500, 760, 1.05, 1.0, talk))
+    return img
+
+
+def era_map(img, u):
+    """オープニング：物件（時代）を時間の矢印の上に並べる"""
+    names = META.get("eramap", [])
+    if not names:
+        return
+    d = ImageDraw.Draw(img)
+    d.rounded_rectangle([560, 70, 1880, 470], 24, fill=(10, 14, 40, 225), outline=YEL, width=5)
+    d.text((1220, 120), "内見する物件", font=font(48), fill=YEL, anchor="mm")
+    d.line([(620, 300), (1830, 300)], fill=WHT, width=8)
+    d.polygon([(1830, 285), (1860, 300), (1830, 315)], fill=WHT)
+    for i, n in enumerate(names):
+        p = ease((u - i * 0.15) / 0.4)
+        if p <= 0:
+            continue
+        x = 670 + i * 185
+        r = int(18 * p)
+        d.ellipse([x - r, 300 - r, x + r, 300 + r], fill=YEL, outline=BLK, width=3)
+        d.text((x, 360 if i % 2 == 0 else 240), n, font=font(32), fill=WHT, anchor="mm", stroke_width=4, stroke_fill=BLK)
+    d.text((620, 430), "過去", font=font(28, True), fill=(200, 200, 210), anchor="lm")
+    d.text((1830, 430), "未来", font=font(28, True), fill=(200, 200, 210), anchor="rm")
 
 
 def background(kind, t):
     img = Image.new("RGBA", (W, H), (8, 10, 30, 255))
     d = ImageDraw.Draw(img)
+    if kind in META.get("eras", {}):
+        e = draw_era(kind, t)
+        if e is not None:
+            return e
+    if kind == "room":
+        return room(t)
     if kind == "gmroom":
         img.paste((22, 12, 40, 255), (0, 0, W, H))
         for yy in range(0, H, 34):                       # 網点
@@ -419,7 +556,7 @@ def chapter_title(img, name, u):
     d = ImageDraw.Draw(lay)
     x = W // 2
     d.text((x, 470), name, font=font(170), fill=WHT + (int(255 * a),), anchor="mm", stroke_width=12, stroke_fill=BLK + (int(255 * a),))
-    d.text((x, 590), "調査開始", font=font(48), fill=YEL + (int(255 * a),), anchor="mm", stroke_width=6, stroke_fill=BLK + (int(255 * a),))
+    d.text((x, 590), META.get("chapter_sub", "調査開始"), font=font(48), fill=YEL + (int(255 * a),), anchor="mm", stroke_width=6, stroke_fill=BLK + (int(255 * a),))
     img.alpha_composite(lay)
 
 
@@ -430,7 +567,7 @@ def stamp_judge(img, reason, u):
     lay = Image.new("RGBA", (900, 420), (0, 0, 0, 0))
     d = ImageDraw.Draw(lay)
     d.rounded_rectangle([20, 20, 880, 400], 30, outline=RED, width=18)
-    d.text((450, 160), "移住：×", font=font(150), fill=RED, anchor="mm")
+    d.text((450, 160), META.get("stamp", "移住：×"), font=font(150), fill=RED, anchor="mm")
     d.text((450, 310), reason, font=font(56), fill=RED, anchor="mm")
     lay = lay.rotate(-8, expand=True, resample=Image.BICUBIC)
     lay = lay.resize((max(1, int(lay.width * s)), max(1, int(lay.height * s))))
@@ -463,7 +600,8 @@ def count(img, to, unit, label, u):
     d = ImageDraw.Draw(lay)
     d.rounded_rectangle([0, 0, 759, 329], 24, fill=(10, 14, 40, 225), outline=(120, 170, 255), width=4)
     d.text((380, 70), label, font=font(44, True), fill=WHT, anchor="mm")
-    d.text((380, 200), f"{int(round(v)):,}{unit}", font=font(130), fill=YEL, anchor="mm", stroke_width=8, stroke_fill=BLK)
+    txt = f"{v:.1f}" if isinstance(to, float) and to != int(to) else f"{int(round(v)):,}"
+    d.text((380, 200), f"{txt}{unit}", font=font(130), fill=YEL, anchor="mm", stroke_width=8, stroke_fill=BLK)
     img.alpha_composite(lay, (1040, 300))
 
 
@@ -504,6 +642,8 @@ def banner(img, text, u):
 
 def results(img, u, rank=None):
     d = ImageDraw.Draw(img)
+    if META.get("results"):
+        return results_era(img, u, rank)
     names = ["水星", "金星", "火星", "木星", "土星", "天王星", "海王星"]
     keys = ["mercury", "venus", "mars", "jupiter", "saturn", "uranus", "neptune"]
     if rank is None:
@@ -523,6 +663,34 @@ def results(img, u, rank=None):
     d.text((1280, 225), "（どれも、そのままでは住めません）", font=font(28, True), fill=(200, 200, 210), anchor="mm")
     rows = [(3, "金星", "上空50kmは気圧・温度が地球に近い"), (2, "水星", "北極のクレーターの影に氷"), (1, "火星", "1日が約24時間40分・氷がある")]
     for i, (n, nm, why) in enumerate(rows):
+        if rank == 0 or n < rank:
+            continue
+        y = 330 + (3 - n) * 170
+        d.text((760, y), f"第{n}位", font=font(60), fill=YEL if n == 1 else WHT, anchor="lm")
+        d.text((1000, y - 18), nm, font=font(64), fill=WHT, anchor="lm")
+        d.text((1000, y + 46), why, font=font(34, True), fill=(210, 210, 220), anchor="lm")
+
+
+def results_era(img, u, rank=None):
+    d = ImageDraw.Draw(img)
+    names = META["results"]
+    if rank is None:
+        for i, n in enumerate(names):
+            p = ease((u - i * 0.1) / 0.4)
+            if p <= 0:
+                continue
+            x = 740 + (i % 4) * 290; y = 220 + (i // 4) * 300
+            w_, h_ = int(250 * p), int(150 * p)
+            d.rounded_rectangle([x - w_ / 2, y - h_ / 2, x + w_ / 2, y + h_ / 2], 18, fill=(10, 14, 40, 230), outline=WHT, width=4)
+            if p >= 1:
+                d.text((x, y), n, font=font(36), fill=WHT, anchor="mm")
+                d.line([(x - 90, y - 55), (x + 90, y + 55)], fill=RED, width=14); d.line([(x + 90, y - 55), (x - 90, y + 55)], fill=RED, width=14)
+        return
+    rk = META["ranking"]
+    d.rounded_rectangle([700, 90, 1860, 860], 26, fill=(10, 14, 40, 230), outline=YEL, width=5)
+    d.text((1280, 160), rk["title"], font=font(56), fill=YEL, anchor="mm")
+    d.text((1280, 225), rk.get("note", ""), font=font(28, True), fill=(200, 200, 210), anchor="mm")
+    for n, nm, why in rk["rows"]:
         if rank == 0 or n < rank:
             continue
         y = 330 + (3 - n) * 170
@@ -558,6 +726,8 @@ READ_FIX = {"金星": "きんせい", "楽して": "らくして", "極付近": 
 
 
 def synth(vv, text, out):
+    for k_, v_ in META.get("yomi_words", {}).items():   # 台本で指定した読み（時代版〜）
+        text = text.replace(k_, v_)
     from voicevox_core.blocking import Onnxruntime, OpenJtalk, Synthesizer, VoiceModelFile
     A = "vv_assets"
     key = vv["vvm"]
@@ -622,6 +792,7 @@ def bgm(total, marks=None):
 def build(script, out, t_from=None, t_to=None):
     data = json.load(open(script))
     meta, scenes = data["meta"], data["scenes"]
+    META.clear(); META.update(meta)
     work = "build_long"; os.makedirs(work, exist_ok=True)
     # 1) 声を作って、タイムラインを決める
     tl = []          # (開始秒, 終了秒, 場面, 行, wavのnumpy, 包絡)
@@ -644,10 +815,10 @@ def build(script, out, t_from=None, t_to=None):
         sc["_t0"] = t
         for ln in sc["lines"]:
             vv = dict(meta["voices"][ln["who"]])
-            if sc["id"] == "cold":
+            if sc["id"] == "cold" and sc["bg"] == "jupiter_fall":
                 vv["echo"] = True                           # 深い穴の中のような反響
             import hashlib                                   # セリフと声で名前を決める（行を足しても取り違えない）
-            p = f"{work}/v_" + hashlib.md5((ln["who"] + meta["yomi"].get(ln["say"], ln["say"]) + json.dumps(vv, sort_keys=True) + json.dumps(READ_FIX, ensure_ascii=False)).encode()).hexdigest()[:12] + ".wav"
+            p = f"{work}/v_" + hashlib.md5((ln["who"] + meta["yomi"].get(ln["say"], ln["say"]) + json.dumps(vv, sort_keys=True) + json.dumps(READ_FIX, ensure_ascii=False) + json.dumps(META.get("yomi_words", {}), ensure_ascii=False)).encode()).hexdigest()[:12] + ".wav"
             if not os.path.exists(p):
                 synth(vv, meta["yomi"].get(ln["say"], ln["say"]), p)
             x = load_wav(p)
@@ -678,7 +849,7 @@ def build(script, out, t_from=None, t_to=None):
     for sc in scenes:
         if sc.get("card") and "_t0" in sc:
             se_ev += [("shimmer", sc["_t0"], 0.7)]
-        if sc["bg"] in PLANET and sc["id"] != "earth2" and "_t0" in sc and not sc["lines"][0]["fx"].get("fall"):
+        if (sc["bg"] in PLANET or sc["bg"] in meta.get("eras", {})) and sc["id"] not in ("earth2", "cold") and "_t0" in sc and not sc["lines"][0]["fx"].get("fall"):
             se_ev += [("whoosh_l", sc["_t0"] + 0.3, 0.35), ("pop_lo", sc["_t0"] + 1.3, 0.5)]   # ぴゅーんの音は耳ざわりなので、やわらかい風切りと着地の小さな音に
     for name, at, kk in se_ev:
         s = se.sound(name)
@@ -701,7 +872,7 @@ def build(script, out, t_from=None, t_to=None):
         ox = load_wav(tmpw); mix[a0:a0 + len(ox)] += ox * 0.8
     mix += b[:len(mix)]
     for sc in scenes:                                       # 冒頭の深淵：低いうなりがだんだん大きくなる
-        if sc["id"] == "cold" and "_t0" in sc:
+        if sc["id"] == "cold" and sc["bg"] == "jupiter_fall" and "_t0" in sc:
             a0, a1 = int(sc["_t0"] * SR), int((sc["_t1"] + 0.8) * SR)
             tt_ = np.arange(a1 - a0) / SR
             k_ = tt_ / tt_[-1]
@@ -777,11 +948,17 @@ def frame(tt, tl, scenes):
     lv = env[fi] if speaking and fi < len(env) else 0
     mouth = 0 if lv < 0.02 else 1 if lv < 0.07 else 2
     blink = 1 if (int(tt * FPS) % 90) < 3 else 0
-    if sc["id"] == "cold":
+    if sc["id"] == "cold" and sc["bg"] == "jupiter_fall":
         k_ab = min(1, max(0, (tt - sc["_t0"]) / max(1, sc["_t1"] - sc["_t0"])))
         img = abyss(tt, k_ab)
     else:
         img = background("jupiter_fall" if fx.get("fall") else "space" if fx.get("jump") else sc["bg"], tt)   # ジャンプ比較は惑星の写真を外す
+        if fx.get("night") and sc["bg"] in META.get("eras", {}):
+            img = draw_era(sc["bg"], tt, night=True) or img
+        if sc["bg"] == "room":                              # 部屋：マスターは最初に話したときから居る
+            gm_on = any(r[2] is sc and r[3]["who"] == "g" and r[0] <= tt for r in tl)
+            tap_on = any(r[2] is sc and r[3]["fx"].get("tap") and r[0] <= tt for r in tl)
+            img = room(tt, gm_on, lv * 6 if ln["who"] == "g" else 0, tap_on)
     d = ImageDraw.Draw(img)
     zface = ln["face"] if ln["who"] == "z" else "通常"
     # 直前のずんだもんの表情を保つ（GMが話している間）
@@ -792,7 +969,7 @@ def frame(tt, tl, scenes):
     dmg = sum(1 for r in tl if r[3]["fx"].get("judge") and r[1] < tt)        # これまでに受けた判定の数
     if sc["bg"] == "earth" or sc["id"] in ("ending",):
         dmg = min(dmg, 7)
-    landing = sc["bg"] in PLANET and sc["id"] != "earth2" and ln is sc["lines"][0] and not fx.get("fall")
+    landing = (sc["bg"] in PLANET or sc["bg"] in META.get("eras", {})) and sc["id"] not in ("earth2", "cold") and ln is sc["lines"][0] and not fx.get("fall")
     hide_z = bool(landing or fx.get("fate") or fx.get("empty") or fx.get("fall") or fx.get("blown") or fx.get("jump") or fx.get("ringfall"))
     on_ground = sc["bg"] in ROCKY and not (fx.get("fall") or fx.get("jump") or fx.get("map"))
     if on_ground:
@@ -803,6 +980,8 @@ def frame(tt, tl, scenes):
         img.alpha_composite(gm_figure(W, H, 1450, 760, 1.15, 1.0, talk))
     if fx.get("map"):
         solar_map(img, u)
+    if fx.get("eramap"):
+        era_map(img, tt - min(r[0] for r in tl if r[2] is sc and r[3]["fx"].get("eramap")))
     if fx.get("ring"):
         for q in range(140):                              # 環の粒が回る
             a = q * 0.37 + tt * 0.4
@@ -889,7 +1068,7 @@ def frame(tt, tl, scenes):
             bob = math.sin(tt * 2.4) * 4
             img.alpha_composite(z, (int(330 - z.width / 2 + lean), int((GROUND_Y if on_ground else 890) - z.height + bob)))
     # GM（惑星の場面では右上の通信窓）
-    if ln["who"] == "g" and sc["bg"] != "gmroom":
+    if ln["who"] == "g" and sc["bg"] not in ("gmroom", "room"):
         wx, wy, ww, wh = 1500, 60, 380, 260
         win = Image.new("RGBA", (ww, wh), (14, 8, 28, 235))
         win.alpha_composite(gm_figure(ww, wh, ww // 2, int(wh * 1.12), 0.42, 1.0, lv * 6))
