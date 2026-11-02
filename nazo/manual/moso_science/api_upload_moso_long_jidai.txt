@@ -1,0 +1,17 @@
+{
+ "thumb": "nazo/manual/moso_science/moso_long_jidai_thumb.png",
+ "thumb_error": "<HttpError 403 when requesting https://youtube.googleapis.com/upload/youtube/v3/thumbnails/set?videoId=zFmJmBpUmIA&alt=json&uploadType=media returned \"The authenticated user doesn't have permissions to upload and set custom video thumbnails.\". Details: \"[{'message': \"The authenticated user doesn't h",
+ "id": "zFmJmBpUmIA",
+ "url": "https://youtube.com/shorts/zFmJmBpUmIA",
+ "requested_publishAt": "2026-11-05T10:00:00Z",
+ "returned_status": {
+  "uploadStatus": "uploaded",
+  "privacyStatus": "private",
+  "publishAt": "2026-11-05T10:00:00Z",
+  "license": "youtube",
+  "embeddable": true,
+  "publicStatsViewable": true,
+  "selfDeclaredMadeForKids": false,
+  "containsSyntheticMedia": false
+ }
+}
