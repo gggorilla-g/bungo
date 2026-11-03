@@ -184,7 +184,14 @@ def build(sid):
     # ---- BGM と仕上げ
     out = f"output/{sid}.mp4"
     bgm_file = sp.get("bgm_file", "assets/enc/bgm_trivia_mood2.mp3")
-    if os.path.exists(bgm_file):
+    chip_kind = sp.get("bgm_chip")                           # 11/3 ゲンタさん「まちがいさがしのbgmは8bitのほうがいい」：自作の8ビット風（nazo/chip.py）
+    if chip_kind:
+        import chip
+        y = chip.bgm(total + 0.5, chip_kind)
+        with wave.open(f"{B}/bgm.wav", "wb") as o:
+            o.setnchannels(1); o.setsampwidth(2); o.setframerate(chip.SR); o.writeframes((y * 32767).astype(np.int16).tobytes())
+        bgm_credit = "オリジナル（8ビット風）"
+    elif os.path.exists(bgm_file):
         subprocess.run(["ffmpeg", "-y", "-v", "error", "-stream_loop", "-1", "-i", bgm_file, "-t", f"{total:.2f}", "-ar", "24000", "-ac", "1", f"{B}/bgm.wav"], check=True)
         bgm_credit = sp.get("bgm_credit", "ムード２ / 今川彰人オーケストラ（OpenTracks（旧DOVA-SYNDROME））")
     elif os.environ.get("ALLOW_CHIP_BGM"):
