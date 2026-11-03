@@ -280,6 +280,114 @@ function landScene(p) {
   };
 }
 
+
+// ---------- 場面：箱庭（動く間違い探し用。2026-11-03〜） ----------
+// p.diff：違いの名前の配列（B側だけに入れる）。p.cam_a0 / p.cam_a1：カメラの回り始め・終わりの角度。p.hold：この秒からカメラを止める（答え合わせ用）
+// 違いの名前：tree_gone（木が1本ない）/ roof_blue（屋根が青）/ mill_reverse（風車が逆回り）/ hat（ずんだもんが帽子）/ fish（池の魚が跳ぶ）
+//            mailbox_blue（ポストが青）/ flower（花が1つ多い）/ bird（鳥が飛んでいる）/ smoke（煙突から煙）/ door_open（ドアが開いている）
+//            cloud_pink（雲が1つピンク）/ boat（舟が浮いている）/ fence_gap（柵が1本ない）/ sun_big（太陽が大きい）
+const ANCH = {};
+function hakoniwa(p) {
+  const sc = CUR = new THREE.Scene();
+  const D = new Set(p.diff || []);
+  sc.background = new THREE.Color(0x7cc8ff);
+  sc.add(new THREE.AmbientLight(0xffffff, 0.62));
+  const dl = new THREE.DirectionalLight(0xffffff, 1.0); dl.position.set(30, 50, 25); sc.add(dl);
+  const N = 8, L = [];
+  for (let x = -N; x <= N; x++) for (let z = -N; z <= N; z++) {        // 正方形の島（土の層＋芝）
+    const pond = (x - 4) ** 2 + (z - 3) ** 2 <= 3.2;
+    for (let k = -2; k <= 0; k++) {
+      if (pond && k === 0) continue;
+      L.push([x, k, z, k < 0 ? (k === -2 ? 0x6b4422 : COL.dirt) : ((x * 7 + z * 3) % 5 ? COL.grass : COL.grass2)]);
+    }
+    if (pond) L.push([x, -0.6, z, 0x3a9ee8]);
+  }
+  sc.add(blocks(L));
+  const sea = new THREE.Mesh(new THREE.PlaneGeometry(600, 600), new THREE.MeshLambertMaterial({ color: COL.sea }));
+  sea.rotation.x = -Math.PI / 2; sea.position.y = -2.6; sea.material.color.set(0x5aa8ee); sc.add(sea);
+  const B = (list, sz = 1, pos = [0, 0, 0]) => { const m = blocks(list, sz); m.position.set(...pos); sc.add(m); return m; };
+  // 家
+  const H = [];
+  for (let x = -6; x <= -2; x++) for (let z = -6; z <= -3; z++) for (let y = 1; y <= 3; y++)
+    if (x === -6 || x === -2 || z === -6 || z === -3) H.push([x, y, z, 0xf4efe4]);
+  B(H);
+  const roofC = D.has("roof_blue") ? 0x3a6fd8 : 0xd8463a, R2 = [];
+  for (let x = -7; x <= -1; x++) for (let z = -7; z <= -2; z++) R2.push([x, 4, z, roofC]);
+  for (let x = -6; x <= -2; x++) for (let z = -6; z <= -3; z++) R2.push([x, 5, z, roofC]);
+  for (let x = -5; x <= -3; x++) for (let z = -5; z <= -4; z++) R2.push([x, 6, z, roofC]);
+  B(R2); ANCH.roof_blue = [-4, 6, -4.5];
+  B([[-3, 6, -6, 0x8a8a8a], [-3, 7, -6, 0x8a8a8a]]);                  // 煙突
+  const smoke = []; if (D.has("smoke")) for (let i = 0; i < 5; i++) { const m = B([[0, 0, 0, 0xdddddd]], 0.8); smoke.push(m); }
+  ANCH.smoke = [-3, 9, -6];
+  const door = B([[0, 0, 0, 0x7a4a24], [0, 1, 0, 0x7a4a24]], 1, [-4, 1, -2.95]); door.scale.z = 0.2; ANCH.door_open = [-4, 1.5, -2.5];
+  B([[-5, 2, -2.9, 0x9fd8ff], [-3, 2, -2.9, 0x9fd8ff]]);              // 窓
+  // 木（3本。tree_gone は右端の1本がない）
+  const trees = [];
+  [[2, -6], [6, -2], [-6, 4]].forEach(([x, z], i) => {
+    if (D.has("tree_gone") && i === 1) return;
+    const lf = [[0, 1, 0, COL.trunk], [0, 2, 0, COL.trunk]];
+    for (let a = -1; a <= 1; a++) for (let b = -1; b <= 1; b++) for (let c = 0; c <= 1; c++) lf.push([a, 3 + c, b, (a + b + c) % 2 ? COL.leaf : COL.leaf2]);
+    lf.push([0, 5, 0, COL.leaf]);
+    trees.push(B(lf, 1, [x, 0, z]));
+  });
+  ANCH.tree_gone = [6, 3.5, -2];
+  // 風車
+  B([[0, 1, 0, 0xe8e0d0], [0, 2, 0, 0xe8e0d0], [0, 3, 0, 0xe8e0d0], [0, 4, 0, 0xe8e0d0], [0, 5, 0, 0xe8e0d0], [0, 6, 0, 0xe8e0d0]], 1, [6, 0, -6]);
+  const blades = new THREE.Group(); blades.position.set(6, 6.5, -5.3); sc.add(blades);
+  for (let k = 0; k < 4; k++) {
+    const bl = blocks([[0, 1, 0, 0xc8503a], [0, 2, 0, 0xf4efe4], [0, 3, 0, 0xc8503a]], 0.7);
+    const g = new THREE.Group(); g.add(bl); g.rotation.z = k * Math.PI / 2; blades.add(g);
+  }
+  ANCH.mill_reverse = [6, 6.5, -5.3];
+  // ポスト
+  B([[0, 1, 0, 0x7a4a24], [0, 2, 0, D.has("mailbox_blue") ? 0x2f5fd0 : 0xd83a3a]], 0.8, [1, 0, 7]); ANCH.mailbox_blue = [0.8, 1.8, 5.6];
+  // 花（flower は1つ多い）
+  const fl = [[-2, 6], [-1, 7], [0, 5]]; if (D.has("flower")) fl.push([2, 4]);
+  fl.forEach(([x, z], i) => B([[x, 1, z, 0x3fa34d], [x, 1.7, z, [0xff6aa0, 0xffd23a, 0xffffff, 0xb070ff][i]]], 0.6));
+  ANCH.flower = [1.2, 1, 2.4];
+  // 柵（fence_gap は1本ない）
+  for (let x = -8; x <= 8; x += 2) { if (D.has("fence_gap") && x === 4) continue; B([[x, 1, 8, 0xe0c890]], 1); }
+  ANCH.fence_gap = [4, 1, 8];
+  // 池の魚（fish：ときどき跳ぶ）
+  const fish = D.has("fish") ? B([[0, 0, 0, 0xff8a3a], [0.6, 0, 0, 0xff8a3a]], 0.6, [4, -1, 3]) : null; ANCH.fish = [4, 0.8, 3];
+  // 舟（boat：沖に浮いている）
+  if (D.has("boat")) B([[0, 0, 0, 0x8b5a2b], [1, 0, 0, 0x8b5a2b], [2, 0, 0, 0x8b5a2b], [1, 1, 0, 0xf4efe4], [1, 2, 0, 0xf4efe4]], 1, [10, -2.2, 6]);
+  ANCH.boat = [11, -1, 6];
+  // 雲
+  const clouds = [];
+  [[-12, 11, -16], [7, 12, -18], [-2, 14, -24]].forEach((c, i) => {
+    const col = D.has("cloud_pink") && i === 1 ? 0xffa8cc : 0xffffff, cl = [];
+    for (let a = 0; a < 4; a++) for (let b = 0; b < 2; b++) cl.push([a * 1.4, b * 0.8, 0, col]);
+    const m = blocks(cl, 1.4, new THREE.MeshBasicMaterial()); m.position.set(...c); sc.add(m); clouds.push(m);
+  });
+  ANCH.cloud_pink = [9, 12.5, -18];
+  const sun = new THREE.Mesh(new THREE.BoxGeometry(5, 5, 5), new THREE.MeshBasicMaterial({ color: COL.sun }));
+  sun.position.set(-16, 16, -34); sun.scale.setScalar(D.has("sun_big") ? 1.7 : 1); sc.add(sun); ANCH.sun_big = [-16, 16, -34];
+  // 鳥（bird：島の上を回る）
+  const bird = D.has("bird") ? blocks([[0, 0, 0, 0x333333], [-0.7, 0.2, 0, 0x333333], [0.7, 0.2, 0, 0x333333]], 0.6) : null;
+  if (bird) sc.add(bird);
+  ANCH.bird = [0, 12, 0];
+  // ずんだもん
+  const ch = blockChar(); ch.scale.setScalar(1.5); ch.position.set(0, 1.5, 1); ch.rotation.y = 0.5; sc.add(ch);
+  if (D.has("hat")) { const hc = 0xd83a3a, hl = []; for (let x = -1; x <= 1; x++) for (let z = -1; z <= 1; z++) hl.push([x, 0, z, hc]); hl.push([0, 0, 2, hc], [0, 1, 0, hc], [1, 1, 0, hc], [-1, 1, 0, hc], [0, 1, 1, hc], [0, 1, -1, hc]); const hat = blocks(hl, 0.5); hat.position.set(0, 2.75, 0); ch.userData.body.add(hat); }
+  ANCH.hat = [0, 5.9, 1];
+  return (t, d) => {
+    const hold = p.hold ?? 1e9, tc = Math.min(t, hold);
+    const a = lerp(p.cam_a0 ?? -0.35, p.cam_a1 ?? 0.35, sstep(tc / Math.max(0.01, Math.min(hold, d || hold))));
+    const r = p.cam_r ?? 21, hgt = p.cam_h ?? 12;
+    C.position.set(Math.sin(a) * r, hgt, Math.cos(a) * r); C.lookAt(0, 2.2, 0);
+    blades.rotation.z = (D.has("mill_reverse") ? -1 : 1) * t * 1.6;
+    ch.position.y = 1.5 + Math.abs(Math.sin(t * 3)) * 0.25;
+    ch.userData.ears.forEach((e, i) => { e.rotation.z = (i ? -1 : 1) * 0.15 * Math.sin(t * 6); });
+    trees.forEach((tr, i) => { tr.rotation.z = 0.03 * Math.sin(t * 1.5 + i); });
+    clouds.forEach((m, i) => { m.position.x += 0; m.position.y = [11, 12, 14][i] + 0.3 * Math.sin(t * 0.8 + i); });
+    if (fish) { const k = (t % 2.4) / 2.4, j = k < 0.35 ? Math.sin(k / 0.35 * Math.PI) : 0; fish.position.y = -1 + j * 2.6; fish.rotation.z = (0.5 - k / 0.35) * 1.2 * (k < 0.35); }
+    if (bird) { const b = t * 0.9; bird.position.set(Math.cos(b) * 7, 9 + Math.sin(t * 3) * 0.4, Math.sin(b) * 7); bird.rotation.y = -b; bird.children.forEach(m => {}); ANCH.bird = [bird.position.x, bird.position.y, bird.position.z]; }
+    smoke.forEach((m, i) => { const k = ((t * 0.5 + i / 5) % 1); m.position.set(-3 + k * 1.5, 8 + k * 4, -6); m.scale.setScalar(0.6 + k); });
+    if (D.has("door_open")) door.rotation.y = 1.2;
+  };
+}
+
 // ---------- 場面：地上 → 雲 → 宇宙 → 月へ。月が砕けて消える ----------
 function flightScene(p) {
   const sc = CUR = new THREE.Scene();
@@ -981,7 +1089,7 @@ function seafloor(p) {
   };
 }
 
-const SCENES = { seafloor: seafloor, antarctica: antarctica, city: cityScene, icefly: icefly, seaice: seaice, orbit: orbitScene, gravity: gravityScene, surface: surfaceScene, tide: tideScene, land: landScene, flight: flightScene, rewind: rewindScene, spin: spinScene, axis: axisScene, space: spaceScene };
+const SCENES = { hakoniwa: hakoniwa, seafloor: seafloor, antarctica: antarctica, city: cityScene, icefly: icefly, seaice: seaice, orbit: orbitScene, gravity: gravityScene, surface: surfaceScene, tide: tideScene, land: landScene, flight: flightScene, rewind: rewindScene, spin: spinScene, axis: axisScene, space: spaceScene };
 
 window.setup = (j) => {
   job = j; seed = 12345;
@@ -1009,4 +1117,9 @@ function pushCam(t) {                                    // p.push：0秒から�
   C.position.addScaledVector(_dir, p.push * C.position.length() * (p.push_end ? t - (job.d || 0) : t));
 }
 window.frame = (t) => { upd(t, job.d); viewOver(t); pushCam(t); R.render(S, C); return true; };
+window.probe = (t, names) => {                          // 違いの場所を画面の座標（0〜1）で返す（答え合わせの丸の位置）
+  upd(t, job.d); viewOver(t); C.updateMatrixWorld();
+  const v = new THREE.Vector3();
+  return names.map(n => { const a = ANCH[n]; if (!a) return null; v.set(...a).project(C); return [(v.x + 1) / 2, (1 - v.y) / 2]; });
+};
 window.ready = true;

@@ -36,6 +36,7 @@ function serve() {
       const b64 = await pg.evaluate(t => { window.frame(t); return document.querySelector("canvas").toDataURL("image/jpeg", 0.97).slice(23); }, i / j.fps);
       fs.writeFileSync(path.join(j.out, String(i).padStart(5, "0") + ".jpg"), Buffer.from(b64, "base64"));
     }
+    if (j.probe) fs.writeFileSync(path.join(j.out, "probe.json"), JSON.stringify(await pg.evaluate(q => window.probe(q.t, q.names), j.probe)));
     total += n;
     console.log(`cg ${j.scene} ${n}コマ ${((Date.now() - t1) / 1000).toFixed(1)}秒 (${((Date.now() - t1) / n).toFixed(0)}ms/コマ) → ${j.out}`);
     await pg.close();
