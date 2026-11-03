@@ -141,7 +141,7 @@ def build(sid):
     nf = int(round(total * FPS))
     for fi in range(nf):
         t = fi / FPS
-        fr = Image.new("RGB", (W, H), (18, 22, 40))
+        fr = Image.new("RGB", (W, H), (255, 214, 64))
         ia = min(fi, len(os.listdir(f"{B}/A")) - 1)
         A = Image.open(f"{B}/A/{ia:05d}.jpg"); Bm = Image.open(f"{B}/B/{ia:05d}.jpg")
         fr.paste(A, (0, TOPY)); fr.paste(Bm, (0, TOPY + PH + GAPY))

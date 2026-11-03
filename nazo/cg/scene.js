@@ -290,9 +290,9 @@ const ANCH = {};
 function hakoniwa(p) {
   const sc = CUR = new THREE.Scene();
   const D = new Set(p.diff || []);
-  sc.background = new THREE.Color(0x7cc8ff);
-  sc.add(new THREE.AmbientLight(0xffffff, 0.62));
-  const dl = new THREE.DirectionalLight(0xffffff, 1.0); dl.position.set(30, 50, 25); sc.add(dl);
+  sc.background = new THREE.Color(0xa8e0ff);
+  sc.add(new THREE.AmbientLight(0xffffff, 0.95));
+  const dl = new THREE.DirectionalLight(0xffffff, 1.15); dl.position.set(30, 50, 25); sc.add(dl);
   const N = 8, L = [];
   for (let x = -N; x <= N; x++) for (let z = -N; z <= N; z++) {        // 正方形の島（土の層＋芝）
     const pond = (x - 4) ** 2 + (z - 3) ** 2 <= 3.2;
@@ -304,7 +304,7 @@ function hakoniwa(p) {
   }
   sc.add(blocks(L));
   const sea = new THREE.Mesh(new THREE.PlaneGeometry(600, 600), new THREE.MeshLambertMaterial({ color: COL.sea }));
-  sea.rotation.x = -Math.PI / 2; sea.position.y = -2.6; sea.material.color.set(0x5aa8ee); sc.add(sea);
+  sea.material = new THREE.MeshBasicMaterial({ color: 0x6cc4f4 }); sea.rotation.x = -Math.PI / 2; sea.position.y = -2.6; sc.add(sea);   // 11/3「なんか暗い」：海は光の当たり方で暗くならない色に
   const B = (list, sz = 1, pos = [0, 0, 0]) => { const m = blocks(list, sz); m.position.set(...pos); sc.add(m); return m; };
   // 家
   const H = [];
