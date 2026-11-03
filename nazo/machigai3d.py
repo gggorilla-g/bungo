@@ -189,7 +189,7 @@ def build(sid):
             tx, ty = W // 2, TOPY + PH + GAPY // 2
             motion.box_text(d, tx, ty - 46, sp.get("to_desc", "答えはタイトルをタップ→説明欄"), motion.font(58), YEL, BLK, 26, 14, anchor="ct")
         # 答えの丸（出した丸は残す）。上下の両方に
-        for i in range(n):
+        for i in range(len(t_d)):
             if t >= t_d[i]:
                 u = min(1, (t - t_d[i]) / 0.25)
                 x, y = pos[i][0] * PW, pos[i][1] * PH
