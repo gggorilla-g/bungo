@@ -20,11 +20,20 @@ B = "build_mach3d"
 SE_GAIN, BGM_GAIN = 0.7, 0.8
 
 
+def reveal(sp):
+    # 11/3 ゲンタさん「答えは概要欄…映像の中で答え合わせはせずに」：reveal=false なら答え合わせをせず、答えは説明欄に書く（実験B）
+    return sp.get("reveal", True)
+
+
 def lines_of(sp):
     n = len(sp["diffs"])
     L = [("intro", sp.get("intro", f"違いは{n}つ。{sp['search']}秒で探すのだ！")),
-         ("left3", sp.get("left3", "あと3秒なのだ！")),
-         ("ans", sp.get("ans", "答え合わせなのだ。"))]
+         ("left3", sp.get("left3", "あと3秒なのだ！"))]
+    if not reveal(sp):
+        # 11/3 ゲンタさん「時間内に見つけられたら天才なのだ、とかにしましょう。ずんだもんだから許される」
+        L.append(("end", sp.get("end", "時間内に見つけられたら、天才なのだ。")))
+        return L
+    L += [("ans", sp.get("ans", "答え合わせなのだ。"))]
     L += [(f"d{i}", d[1]) for i, d in enumerate(sp["diffs"])]
     L.append(("end", sp.get("end", f"{n}つ全部、見つけられたのだ？")))
     return L
@@ -85,11 +94,18 @@ def build(sid):
     t_intro = max(1.8, dur["intro"] + 0.2)                     # 冒頭：0秒から箱庭が2つ動いている。声とテロップで出題
     t_search0 = t_intro                                        # 探す時間（タイマーが動く）
     t_ans0 = t_search0 + S
-    per = [max(1.2, dur[f"d{i}"] + 0.2) for i in range(n)]
-    t_d = [t_ans0 + dur["ans"] + 0.25 + sum(per[:i]) for i in range(n)]
-    t_end0 = t_d[-1] + per[-1]
-    total = t_end0 + dur["end"] + 0.6
-    events = [("intro", 0.05), ("left3", t_ans0 - 3.0), ("ans", t_ans0 + 0.1)] + [(f"d{i}", t_d[i]) for i in range(n)] + [("end", t_end0)]
+    RV = reveal(sp)
+    if RV:
+        per = [max(1.2, dur[f"d{i}"] + 0.2) for i in range(n)]
+        t_d = [t_ans0 + dur["ans"] + 0.25 + sum(per[:i]) for i in range(n)]
+        t_end0 = t_d[-1] + per[-1]
+        total = t_end0 + dur["end"] + 0.6
+        events = [("intro", 0.05), ("left3", t_ans0 - 3.0), ("ans", t_ans0 + 0.1)] + [(f"d{i}", t_d[i]) for i in range(n)] + [("end", t_end0)]
+    else:
+        t_d = []
+        t_end0 = t_ans0 + 0.15
+        total = t_end0 + max(dur["end"] + 0.5, 2.4)             # 「答えはタイトルをタップ→説明欄」を読める長さ。そのまま冒頭に戻る
+        events = [("intro", 0.05), ("left3", t_ans0 - 3.0), ("end", t_end0)]
     print("長さ", round(total, 1), "秒")
     # ---- CG（A と B を同じカメラで描く。答え合わせの間はカメラを止める）
     names = [d[0] for d in sp["diffs"]]
@@ -168,6 +184,10 @@ def build(sid):
         if k == "end":
             txt = tel["end"]
         motion.box_text(d, W // 2, 178, txt, f_tel if len(txt) <= 14 else motion.font(int(66 * 14 / len(txt))), WHT if not k.startswith("d") else YEL, BLK, 30, 14, anchor="ct")
+        if not RV and t >= t_end0:
+            # 答えの場所の案内。上下のパネルの境目に置く（ショートでは説明欄はタイトルをタップして開く）
+            tx, ty = W // 2, TOPY + PH + GAPY // 2
+            motion.box_text(d, tx, ty - 46, sp.get("to_desc", "答えはタイトルをタップ→説明欄"), motion.font(58), YEL, BLK, 26, 14, anchor="ct")
         # 答えの丸（出した丸は残す）。上下の両方に
         for i in range(n):
             if t >= t_d[i]:
@@ -213,7 +233,10 @@ def build(sid):
     nt = int(math.ceil(total / 2))
     subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", out, "-vf", f"fps=1/2,scale=216:-1,tile={min(nt, 9)}x{math.ceil(nt / 9)}", "-frames:v", "1", f"{kit}/{sid}_sheet2s.jpg"])
     subprocess.run(["ffmpeg", "-v", "error", "-y", "-ss", f"{t_end0:.2f}", "-i", out, "-frames:v", "1", "-vf", "scale=540:-1", f"{kit}/{sid}_answers.jpg"])
-    desc = (f"{sp.get('desc', '')}\n\n音声: VOICEVOX:ずんだもん\nBGM: {bgm_credit}\n効果音: オリジナル\n3DCG: オリジナル（three.js で作成）")
+    ans_txt = ""
+    if not RV:
+        ans_txt = "\n\n■ 答え（下の絵Bで違うところ）\n" + "\n".join(f"{i + 1}. {d[2]}" for i, d in enumerate(sp["diffs"]))
+    desc = (f"{sp.get('desc', '')}{ans_txt}\n\n音声: VOICEVOX:ずんだもん\nBGM: {bgm_credit}\n効果音: オリジナル\n3DCG: オリジナル（three.js で作成）")
     open(f"{kit}/{sid}_upload.txt", "w", encoding="utf-8").write(f"【タイトル】\n{sp['title']}\n\n【説明】\n{desc}\n\n【タグ】\n{','.join(sp.get('tags', []))}\n")
     tm = f"長さ {total:.1f}秒 / CG {t_cg:.0f}秒 / 合成 {t_comp:.0f}秒 / 全体 {time.time() - T0:.0f}秒"
     open(f"{kit}/{sid}_time.txt", "w", encoding="utf-8").write(tm + "\n")
