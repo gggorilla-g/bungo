@@ -12,7 +12,9 @@ from PIL import Image, ImageDraw
 import render, yomi, se, motion
 
 W, H, FPS = 1080, 1920, 30
-PW, PH, TOPY, GAPY = 1080, 790, 300, 16          # パネルの大きさ、上のパネルの位置、パネルの間
+PW, PH, TOPY, GAPY = 1080, 640, 290, 16          # パネルの大きさ、上のパネルの位置、パネルの間
+# 11/3 ゲンタさん「下の部分が詰まって見にくい」：YouTube の画面では下の約2割（チャンネル名・登録ボタン・タイトル）と
+# 右端（高評価・コメント・共有のボタン）に重なる。絵と答えの丸は y≦1600、x≦0.86 に収める（下の帯は空けておく）
 YEL, BLK, WHT, RED, CYAN = (255, 226, 0), (0, 0, 0), (255, 255, 255), (230, 40, 40), (60, 230, 255)
 B = "build_mach3d"
 SE_GAIN, BGM_GAIN = 0.7, 0.8
@@ -102,7 +104,7 @@ def build(sid):
     t_cg = time.time() - t1
     pos = json.load(open(f"{B}/B/probe.json"))
     for nm, q in zip(names, pos):
-        if q is None or not (0.03 < q[0] < 0.97 and 0.03 < q[1] < 0.97):
+        if q is None or not (0.05 < q[0] < 0.86 and 0.06 < q[1] < 0.94):   # 右端のボタンに丸がかからないように
             sys.exit(f"違い {nm} の場所が画面の外（{q}）。カメラの角度を変える")
     # ---- 音（声＋効果音）
     sr = 24000
@@ -177,7 +179,7 @@ def build(sid):
                     d.text((x + r * 0.75, oy + y - r * 0.75), str(i + 1), font=motion.font(54), fill=WHT, anchor="mm", stroke_width=8, stroke_fill=RED)
         d.text((W - 22, 36 + TOPY - 30), "A", font=motion.font(44), fill=WHT, anchor="ra", stroke_width=6, stroke_fill=BLK)
         d.text((W - 22, TOPY + PH + GAPY + 10), "B", font=motion.font(44), fill=WHT, anchor="ra", stroke_width=6, stroke_fill=BLK)
-        d.text((24, H - 30), "VOICEVOX:ずんだもん", font=f_cr, fill=(200, 200, 200), anchor="lm")
+        d.text((24, TOPY + 2 * PH + GAPY + 26), "VOICEVOX:ずんだもん", font=f_cr, fill=(90, 70, 20), anchor="lm")
         pr.stdin.write(fr.tobytes())
     pr.stdin.close(); pr.wait()
     t_comp = time.time() - t2
