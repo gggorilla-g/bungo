@@ -1089,7 +1089,112 @@ function seafloor(p) {
   };
 }
 
-const SCENES = { hakoniwa: hakoniwa, seafloor: seafloor, antarctica: antarctica, city: cityScene, icefly: icefly, seaice: seaice, orbit: orbitScene, gravity: gravityScene, surface: surfaceScene, tide: tideScene, land: landScene, flight: flightScene, rewind: rewindScene, spin: spinScene, axis: axisScene, space: spaceScene };
+// ---------- 動く間違い探し 2つめの箱庭：駅のまち（11/4 ゲンタさん「ちがう箱庭も作りたい。いろんな動く間違い探し」） ----------
+// 違いの名前：train_car（まん中の車両が赤）/ train_reverse（電車が逆向きに走る）/ signal_red（信号が赤）/ tree_gone（木が1本ない）
+//            balloon（風船が浮いている）/ cat（屋根にネコ）/ roof_green（駅の屋根が緑）/ car_red（車が赤）/ flag_gone（旗がない）/ bench_gone（ベンチがない）
+function hakoniwaEki(p) {
+  const sc = CUR = new THREE.Scene();
+  const D = new Set(p.diff || []);
+  sc.background = new THREE.Color(0xa8e0ff);
+  sc.add(new THREE.AmbientLight(0xffffff, 0.95));
+  const dl = new THREE.DirectionalLight(0xffffff, 1.15); dl.position.set(30, 50, 25); sc.add(dl);
+  const N = 8, L = [];
+  for (let x = -N; x <= N; x++) for (let z = -N; z <= N; z++) for (let k = -2; k <= 0; k++)
+    L.push([x, k, z, k < 0 ? (k === -2 ? 0x6b4422 : COL.dirt) : (z >= 7 ? 0x8a8a8a : ((x * 7 + z * 3) % 5 ? COL.grass : COL.grass2))]);
+  sc.add(blocks(L));
+  const sea = new THREE.Mesh(new THREE.PlaneGeometry(600, 600), new THREE.MeshBasicMaterial({ color: 0x6cc4f4 }));
+  sea.rotation.x = -Math.PI / 2; sea.position.y = -2.6; sc.add(sea);
+  const B = (list, sz = 1, pos = [0, 0, 0]) => { const m = blocks(list, sz); m.position.set(...pos); sc.add(m); return m; };
+  // 線路（長方形の輪）
+  const X0 = -6, X1 = 6, Z0 = -2, Z1 = 5, rail = [];
+  for (let x = X0; x <= X1; x++) { rail.push([x, 0.55, Z0, 0x6a5a4a], [x, 0.55, Z1, 0x6a5a4a]); }
+  for (let z = Z0 + 1; z < Z1; z++) { rail.push([X0, 0.55, z, 0x6a5a4a], [X1, 0.55, z, 0x6a5a4a]); }
+  const rl = B(rail); rl.scale.y = 1; rl.children.forEach(m => { m.scale.y = 0.15; });
+  const PER = 2 * ((X1 - X0) + (Z1 - Z0));
+  const pt = s => {
+    s = ((s % PER) + PER) % PER;
+    const w = X1 - X0, h = Z1 - Z0;
+    if (s < w) return [X0 + s, Z0, 0];
+    if ((s -= w) < h) return [X1, Z0 + s, -Math.PI / 2];
+    if ((s -= h) < w) return [X1 - s, Z1, Math.PI];
+    s -= w; return [X0, Z1 - s, Math.PI / 2];
+  };
+  // 電車（3両）
+  const cars = [0x2f9e5a, D.has("train_car") ? 0xd83a3a : 0xf2c230, 0x2f9e5a].map((c, i) => {
+    const g = new THREE.Group();
+    const bl = [];
+    for (let u = -1; u <= 1; u++) bl.push([u, 0, 0, c], [u, 0.8, 0, 0x9fd8ff], [u, 1.5, 0, c]);
+    const b = blocks(bl, 0.85); b.children.forEach(m => { m.scale.z = 1.0; });
+    g.add(b); sc.add(g); return g;
+  });
+  // 駅（ホーム・建物・屋根・時計・旗）
+  const st = [];
+  for (let x = -4; x <= 4; x++) st.push([x, 1, -3, 0xc8c0b0]);
+  for (let x = -4; x <= 4; x++) for (let z = -7; z <= -4; z++) for (let y = 1; y <= 3; y++)
+    if (x === -4 || x === 4 || z === -7 || z === -4) st.push([x, y, z, (y === 2 && z === -4 && x % 2 === 0 && x) ? 0x9fd8ff : 0xf4efe4]);
+  B(st);
+  const rc = D.has("roof_green") ? 0x3aa65a : 0x3a6fd8, rf = [];
+  for (let x = -5; x <= 5; x++) for (let z = -8; z <= -3; z++) rf.push([x, 4, z, rc]);
+  for (let x = -3; x <= 3; x++) for (let z = -7; z <= -4; z++) rf.push([x, 5, z, rc]);
+  B(rf); ANCH.roof_green = [0, 5, -5.5];
+  B([[0, 3, -3.5, 0xffffff]], 0.9);                                         // 時計の文字盤
+  const hand = new THREE.Group(); hand.position.set(0, 3, -3.0); sc.add(hand);
+  const hm = blocks([[0, 0.25, 0, 0x222222]], 0.12); hm.scale.y = 4; hand.add(hm);
+  const flag = new THREE.Group(); flag.position.set(3, 6, -5.5); sc.add(flag);
+  if (!D.has("flag_gone")) { flag.add(blocks([[0, 0, 0, 0x888888], [0, 1, 0, 0x888888], [0, 2, 0, 0x888888]], 0.5)); }
+  const cloth = D.has("flag_gone") ? null : blocks([[0.5, 1, 0, 0xd83a3a], [1, 1, 0, 0xd83a3a], [0.5, 0.6, 0, 0xd83a3a], [1, 0.6, 0, 0xd83a3a]], 0.5);
+  if (cloth) flag.add(cloth);
+  ANCH.flag_gone = [3.4, 7, -5.5];
+  if (!D.has("bench_gone")) B([[0, 0, 0, 0x8b5a2b], [1, 0, 0, 0x8b5a2b], [0, 0.6, -0.4, 0x8b5a2b], [1, 0.6, -0.4, 0x8b5a2b]], 0.6, [-3, 1.8, -3]);
+  ANCH.bench_gone = [-2.7, 2, -3];
+  // ネコ（cat：屋根の上）
+  const cat = D.has("cat") ? B([[0, 0, 0, 0xf0a040], [0.6, 0, 0, 0xf0a040], [0.9, 0.5, 0, 0xf0a040], [-0.4, 0.4, 0, 0xf0a040]], 0.6, [-2.5, 6, -4.5]) : null;
+  ANCH.cat = [-2.3, 6.3, -4.5];
+  // 木（2本。tree_gone は右の1本がない）
+  [[-7, -7], [7, -6]].forEach(([x, z], i) => {
+    if (D.has("tree_gone") && i === 1) return;
+    const lf = [[0, 1, 0, COL.trunk], [0, 2, 0, COL.trunk]];
+    for (let a = -1; a <= 1; a++) for (let b = -1; b <= 1; b++) for (let c = 0; c <= 1; c++) lf.push([a, 3 + c, b, (a + b + c) % 2 ? COL.leaf : COL.leaf2]);
+    lf.push([0, 5, 0, COL.leaf]); B(lf, 1, [x, 0, z]);
+  });
+  ANCH.tree_gone = [7, 3.5, -6];
+  // 信号（signal_red）
+  B([[0, 1, 0, 0x555555], [0, 2, 0, 0x555555], [0, 3, 0, 0x333333]], 0.8, [7.3, 0, 2]);
+  B([[0, 0, 0, D.has("signal_red") ? 0xff3a3a : 0x3ad86a]], 0.5, [7.3, 2.45, 2.45]);
+  ANCH.signal_red = [7.3, 2.6, 2.5];
+  // 道と車（car_red）
+  const car = B([[0, 0, 0, D.has("car_red") ? 0xd83a3a : 0x3a6fd8], [1, 0, 0, D.has("car_red") ? 0xd83a3a : 0x3a6fd8], [0.5, 0.8, 0, 0x9fd8ff]], 0.8, [0, 1, 7.5]);
+  // 風船（balloon）
+  const bal = D.has("balloon") ? B([[0, 0, 0, 0xff4a7a], [0, -0.9, 0, 0xeeeeee]], 0.7, [-5, 8, -1]) : null;
+  ANCH.balloon = [-5, 8, -1];
+  // 雲と太陽
+  const clouds = [];
+  [[-12, 11, -16], [7, 12, -18], [-2, 14, -24]].forEach(c => {
+    const cl = []; for (let a = 0; a < 4; a++) for (let b = 0; b < 2; b++) cl.push([a * 1.4, b * 0.8, 0, 0xffffff]);
+    const m = blocks(cl, 1.4, new THREE.MeshBasicMaterial()); m.position.set(...c); sc.add(m); clouds.push(m);
+  });
+  const sun = new THREE.Mesh(new THREE.BoxGeometry(5, 5, 5), new THREE.MeshBasicMaterial({ color: COL.sun })); sun.position.set(-16, 16, -34); sc.add(sun);
+  // ずんだもん（線路の輪の中で手をふる）
+  const ch = blockChar(); ch.scale.setScalar(1.4); ch.position.set(2.6, 1.5, 2); ch.rotation.y = -0.2; sc.add(ch);
+  return (t, d) => {
+    const hold = p.hold ?? 1e9, tc = Math.min(t, hold);
+    const a = lerp(p.cam_a0 ?? -0.35, p.cam_a1 ?? 0.35, sstep(tc / Math.max(0.01, Math.min(hold, d || hold))));
+    const r = p.cam_r ?? 21, hgt = p.cam_h ?? 12;
+    C.position.set(Math.sin(a) * r, hgt, Math.cos(a) * r); C.lookAt(0, 2.2, 0);
+    const dir = D.has("train_reverse") ? -1 : 1, s0 = t * 3.2 * dir;
+    cars.forEach((g, i) => { const [x, z, h] = pt(s0 - dir * i * 2.7); g.position.set(x, 0.95, z); g.rotation.y = -h; if (i === 1) ANCH.train_car = [x, 2.2, z]; if (i === 0) ANCH.train_reverse = [x, 2.2, z]; });
+    hand.rotation.z = -t * 0.8;
+    if (cloth) cloth.rotation.y = 0.25 * Math.sin(t * 4);
+    car.position.x = -1 + 6 * Math.sin(t * 0.6); ANCH.car_red = [car.position.x + 0.4, 1.6, 7.5];
+    if (bal) { bal.position.y = 8 + 0.4 * Math.sin(t * 1.3); ANCH.balloon = [-5, bal.position.y, -1]; }
+    if (cat) cat.rotation.y = 0.3 * Math.sin(t * 1.1);
+    ch.position.y = 1.5 + Math.abs(Math.sin(t * 3)) * 0.2;
+    ch.userData.ears.forEach((e, i) => { e.rotation.z = (i ? -1 : 1) * 0.15 * Math.sin(t * 6); });
+    clouds.forEach((m, i) => { m.position.y = [11, 12, 14][i] + 0.3 * Math.sin(t * 0.8 + i); });
+  };
+}
+
+const SCENES = { hakoniwa: hakoniwa, hakoniwa_eki: hakoniwaEki, seafloor: seafloor, antarctica: antarctica, city: cityScene, icefly: icefly, seaice: seaice, orbit: orbitScene, gravity: gravityScene, surface: surfaceScene, tide: tideScene, land: landScene, flight: flightScene, rewind: rewindScene, spin: spinScene, axis: axisScene, space: spaceScene };
 
 window.setup = (j) => {
   job = j; seed = 12345;

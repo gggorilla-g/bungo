@@ -111,8 +111,8 @@ def build(sid):
     names = [d[0] for d in sp["diffs"]]
     a0, a1 = sp.get("cam", [-0.45, 0.45])
     base = {"cam_a0": a0, "cam_a1": a1, "hold": t_ans0, "cam_r": sp.get("cam_r", 21), "cam_h": sp.get("cam_h", 11)}
-    jobs = [{"scene": "hakoniwa", "p": dict(base), "d": total, "fps": FPS, "w": PW, "h": PH, "out": f"{B}/A"},
-            {"scene": "hakoniwa", "p": dict(base, diff=names), "d": total, "fps": FPS, "w": PW, "h": PH, "out": f"{B}/B",
+    jobs = [{"scene": sp.get("scene", "hakoniwa"), "p": dict(base), "d": total, "fps": FPS, "w": PW, "h": PH, "out": f"{B}/A"},
+            {"scene": sp.get("scene", "hakoniwa"), "p": dict(base, diff=names), "d": total, "fps": FPS, "w": PW, "h": PH, "out": f"{B}/B",
              "probe": {"t": t_ans0 + 0.01, "names": names}}]
     json.dump(jobs, open(f"{B}/jobs.json", "w"))
     t1 = time.time()
