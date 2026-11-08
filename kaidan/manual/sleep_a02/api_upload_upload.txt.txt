@@ -1,0 +1,17 @@
+{
+ "thumb": "kaidan/manual/sleep_a02/thumb.png",
+ "thumb_error": "",
+ "id": "gnVT6Zf8hjY",
+ "url": "https://youtube.com/shorts/gnVT6Zf8hjY",
+ "requested_publishAt": "2026-11-10T12:30:00Z",
+ "returned_status": {
+  "uploadStatus": "uploaded",
+  "privacyStatus": "private",
+  "publishAt": "2026-11-10T12:30:00Z",
+  "license": "youtube",
+  "embeddable": true,
+  "publicStatsViewable": true,
+  "selfDeclaredMadeForKids": false,
+  "containsSyntheticMedia": false
+ }
+}
