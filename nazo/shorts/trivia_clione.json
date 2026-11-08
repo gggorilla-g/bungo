@@ -1,0 +1,169 @@
+{
+ "voice": {
+  "vvm": "0.vvm",
+  "style": 3,
+  "speed": 1.0,
+  "pitch": 0.0,
+  "intonation": 1.15
+ },
+ "voice_name": "ずんだもん",
+ "bgm_file": "assets/enc/bgm_trivia_mood2.mp3",
+ "bgm_credit": "ムード２ / 今川彰人オーケストラ（OpenTracks（旧DOVA-SYNDROME））",
+ "bgm_vol": 0.16,
+ "main": "trivia_daily",
+ "label": "名前がウソすぎる生き物",
+ "format": "story",
+ "themes": [
+  "pink_grad",
+  "newspaper",
+  "forest"
+ ],
+ "title": "クリオネは、貝の仲間なのだ。天使の正体 #Shorts #雑学 #海の生き物",
+ "tags": [
+  "ずんだもん",
+  "雑学",
+  "海の生き物",
+  "クリオネ",
+  "ハダカカメガイ",
+  "流氷の天使",
+  "脳がとける雑学",
+  "ショート"
+ ],
+ "desc": "流氷の天使は、貝の仲間なのだ。\n\n・クリオネの和名はハダカカメガイ。殻をもたない巻貝の仲間（腹足綱 裸殻翼足類）で、体長は1〜3cmほど。幼生のときは殻をもつが、育つと失う。頭から6本の触手（バッカルコーン）を出して、ミジンウキマイマイという巻貝を食べる（Wikipedia「ハダカカメガイ」）https://ja.wikipedia.org/wiki/ハダカカメガイ",
+ "lines": [
+  {
+   "say": "クリオネは、貝の仲間なのだ。",
+   "text": "クリオネは\n貝の仲間",
+   "face": "ドヤ",
+   "file": "File:Campagne IBTS 2010 - Mollusque ange de mer (Clione limacina) (Ifremer 00569-68118).jpg",
+   "fx": [
+    {
+     "type": "stamp",
+     "text": "貝",
+     "at": 0.0,
+     "y": 0.35,
+     "size": 280,
+     "color": [
+      230,
+      40,
+      40
+     ]
+    }
+   ],
+   "hook": true
+  },
+  {
+   "say": "本当の名前は、ハダカカメガイ。",
+   "text": "本当の名前は\nハダカカメガイ",
+   "face": "指差し",
+   "file": "File:Clione limacina5.jpg",
+   "fx": [
+    {
+     "type": "stamp",
+     "text": "ハダカ",
+     "at": 0.4,
+     "y": 0.3,
+     "size": 230,
+     "color": [
+      255,
+      226,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "say": "殻をもたない、巻貝の仲間なのだ。",
+   "text": "殻をもたない\n巻貝の仲間",
+   "face": "驚き",
+   "file": "File:Sea angel.jpg"
+  },
+  {
+   "say": "赤ちゃんのときは、殻があるのだ。",
+   "text": "赤ちゃんのときは\n殻がある",
+   "face": "驚き",
+   "file": "File:Clione limacina5.jpg"
+  },
+  {
+   "say": "大きさは、1センチから3センチくらい。",
+   "text": "大きさは\n1〜3cm",
+   "face": "通常",
+   "file": "File:Campagne IBTS 2010 - Mollusque ange de mer (Clione limacina) (Ifremer 00569-68118).jpg",
+   "fx": [
+    {
+     "type": "count",
+     "to": 3,
+     "unit": "cm",
+     "label": "体長（くらい）",
+     "at": 0.3
+    }
+   ]
+  },
+  {
+   "say": "ごはんのときは、頭から触手が6本出るのだ。",
+   "text": "ごはんのときは\n頭から触手が6本",
+   "face": "青ざめ",
+   "file": "File:Sea angel.jpg",
+   "fx": [
+    {
+     "type": "stamp",
+     "text": "6本",
+     "at": 0.4,
+     "y": 0.3,
+     "size": 230,
+     "color": [
+      230,
+      40,
+      40
+     ]
+    }
+   ]
+  },
+  {
+   "say": "食べるのは、ミジンウキマイマイという巻貝。",
+   "text": "食べるのは\nミジンウキマイマイ",
+   "face": "焦り",
+   "file": "File:Clione limacina5.jpg"
+  },
+  {
+   "say": "天使が、貝を食べる貝だったのだ！",
+   "text": "天使が\n貝を食べる貝",
+   "face": "驚き",
+   "up": true
+  },
+  {
+   "say": "レッツ脳とけ！",
+   "text": "レッツ\n脳とけ！",
+   "face": "笑顔",
+   "logo": true
+  },
+  {
+   "say": "ちなみにこの天使…",
+   "text": "ちなみに\nこの天使…",
+   "face": "ドヤ",
+   "file": "File:Campagne IBTS 2010 - Mollusque ange de mer (Clione limacina) (Ifremer 00569-68118).jpg",
+   "loop": true
+  }
+ ],
+ "yomi": {
+  "レッツ脳とけ！": "レッツのーとけ！"
+ },
+ "yomi_ok": [
+  "体",
+  "中",
+  "頭",
+  "動物",
+  "仲間",
+  "生き物",
+  "上",
+  "下",
+  "天然記念物",
+  "名前",
+  "子",
+  "触手",
+  "銅"
+ ],
+ "meta": {
+  "exp": "雑学 冒頭0秒の絵 B（1行目から題材の写真）"
+ }
+}

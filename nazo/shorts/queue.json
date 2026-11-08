@@ -126,6 +126,27 @@
    "main": "trivia_daily",
    "channel": "雑学",
    "posted": false
+  },
+  {
+   "date": "2026-11-11",
+   "id": "trivia_kabutogani",
+   "main": "trivia_daily",
+   "posted": false,
+   "channel": "雑学"
+  },
+  {
+   "date": "2026-11-12",
+   "id": "trivia_clione",
+   "main": "trivia_daily",
+   "posted": false,
+   "channel": "雑学"
+  },
+  {
+   "date": "2026-11-13",
+   "id": "trivia_tatsu",
+   "main": "trivia_daily",
+   "posted": false,
+   "channel": "雑学"
   }
  ]
 }

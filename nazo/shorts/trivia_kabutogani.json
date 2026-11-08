@@ -1,0 +1,180 @@
+{
+ "voice": {
+  "vvm": "0.vvm",
+  "style": 3,
+  "speed": 1.0,
+  "pitch": 0.0,
+  "intonation": 1.15
+ },
+ "voice_name": "ずんだもん",
+ "bgm_file": "assets/enc/bgm_trivia_mood2.mp3",
+ "bgm_credit": "ムード２ / 今川彰人オーケストラ（OpenTracks（旧DOVA-SYNDROME））",
+ "bgm_vol": 0.16,
+ "main": "trivia_daily",
+ "label": "名前がウソすぎる生き物",
+ "format": "vs",
+ "themes": [
+  "orange_rays",
+  "deep_sea",
+  "checker"
+ ],
+ "title": "カブトガニは、カニじゃなくてクモの仲間なのだ。名前がウソすぎる生き物 #Shorts #雑学 #海の生き物",
+ "tags": [
+  "ずんだもん",
+  "雑学",
+  "海の生き物",
+  "名前がひどい",
+  "カブトガニ",
+  "生きている化石",
+  "天然記念物",
+  "脳がとける雑学",
+  "ショート"
+ ],
+ "desc": "名前はカニなのに、カニじゃないのだ。\n\n・カブトガニは節足動物だが、カニではなくクモの仲間。約2億年前に今の形になり、ほとんど変わらずに生き残ってきた。日本やアジアのカブトガニは最大で70cmほど（サカナト「カブトガニの生態や秘密に迫る」笠岡市立カブトガニ博物館の取材）https://sakanato.jp/7892/\n・およそ2億年前から形がほとんど変わらず「生きている化石」と呼ばれる。恐竜よりずっと前から生きていた。笠岡市神島水道の「カブトガニ繁殖地」は1971年に国の天然記念物に指定（岡山県「岡山県の文化財」）https://www.pref.okayama.jp/uploaded/attachment/260903.pdf\n・血液が青いのは、酸素を運ぶヘモシアニンという銅をふくむたんぱく質による（Chem-Station「カブトガニの血液が人類を救う」）https://www.chem-station.com/blog/2016/04/Tachypleustridentatus.html",
+ "lines": [
+  {
+   "say": "カブトガニは、カニじゃなくてクモの仲間なのだ。",
+   "text": "カブトガニは\nカニじゃなくクモの仲間",
+   "face": "ドヤ",
+   "file": "File:Limule(dD).jpg",
+   "fx": [
+    {
+     "type": "stamp",
+     "text": "クモ",
+     "at": 0.0,
+     "y": 0.35,
+     "size": 260,
+     "color": [
+      230,
+      40,
+      40
+     ]
+    }
+   ],
+   "hook": true
+  },
+  {
+   "say": "姿は、約2億年前からほとんど変わっていないのだ。",
+   "text": "姿は約2億年前から\nほぼそのまま",
+   "face": "驚き",
+   "file": "File:Tachypleus tridentatus (YPM IZ 002430.CR) 001.jpeg",
+   "fx": [
+    {
+     "type": "count",
+     "to": 2,
+     "unit": "億年",
+     "label": "姿がほぼ同じ",
+     "at": 0.3
+    }
+   ]
+  },
+  {
+   "say": "恐竜より前から、海にいたのだ。",
+   "text": "恐竜より前から\n海にいた",
+   "face": "驚き",
+   "file": "File:Tachypleus tridentatus (YPM IZ 002430.CR) 001.jpeg"
+  },
+  {
+   "say": "しかも、血が青いのだ。",
+   "text": "しかも\n血が青い",
+   "face": "青ざめ",
+   "file": "File:Limule(dD)Ventral.jpg",
+   "fx": [
+    {
+     "type": "stamp",
+     "text": "青",
+     "at": 0.3,
+     "y": 0.35,
+     "size": 260,
+     "color": [
+      60,
+      140,
+      255
+     ]
+    }
+   ]
+  },
+  {
+   "say": "血の中の銅が、酸素を運んでいるからなのだ。",
+   "text": "血の中の銅が\n酸素を運ぶ",
+   "face": "指差し",
+   "file": "File:Limule(dD)Ventral.jpg"
+  },
+  {
+   "say": "日本のカブトガニは、大きいと70センチくらい。",
+   "text": "日本のカブトガニは\n最大70cmくらい",
+   "face": "通常",
+   "file": "File:Limule(dD).jpg",
+   "fx": [
+    {
+     "type": "count",
+     "to": 70,
+     "unit": "cm",
+     "label": "最大（くらい）",
+     "at": 0.3
+    }
+   ]
+  },
+  {
+   "say": "カニって名前なのに、カニじゃないのだ！",
+   "text": "カニって名前なのに\nカニじゃない",
+   "face": "怒り",
+   "up": true
+  },
+  {
+   "say": "岡山県笠岡市の繁殖地は、国の天然記念物なのだ。",
+   "text": "笠岡市の繁殖地は\n国の天然記念物",
+   "face": "ドヤ",
+   "file": "File:Tachypleus tridentatus (YPM IZ 002430.CR) 001.jpeg",
+   "fx": [
+    {
+     "type": "stamp",
+     "text": "天然記念物",
+     "at": 0.4,
+     "y": 0.35,
+     "size": 190,
+     "color": [
+      255,
+      226,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "say": "レッツ脳とけ！",
+   "text": "レッツ\n脳とけ！",
+   "face": "笑顔",
+   "logo": true
+  },
+  {
+   "say": "ちなみにこの生き物…",
+   "text": "ちなみに\nこの生き物…",
+   "face": "ドヤ",
+   "file": "File:Limule(dD).jpg",
+   "loop": true
+  }
+ ],
+ "yomi": {
+  "レッツ脳とけ！": "レッツのーとけ！",
+  "日本のカブトガニは、大きいと70センチくらい。": "にほんのカブトガニは、おおきいとななじゅっセンチくらい。"
+ },
+ "yomi_ok": [
+  "体",
+  "中",
+  "頭",
+  "動物",
+  "仲間",
+  "生き物",
+  "上",
+  "下",
+  "天然記念物",
+  "名前",
+  "子",
+  "触手",
+  "銅"
+ ],
+ "meta": {
+  "exp": "雑学 冒頭0秒の絵 B（1行目から題材の写真）"
+ }
+}

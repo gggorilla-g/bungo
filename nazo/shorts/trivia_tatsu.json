@@ -1,0 +1,160 @@
+{
+ "voice": {
+  "vvm": "0.vvm",
+  "style": 3,
+  "speed": 1.0,
+  "pitch": 0.0,
+  "intonation": 1.15
+ },
+ "voice_name": "ずんだもん",
+ "bgm_file": "assets/enc/bgm_trivia_mood2.mp3",
+ "bgm_credit": "ムード２ / 今川彰人オーケストラ（OpenTracks（旧DOVA-SYNDROME））",
+ "bgm_vol": 0.16,
+ "main": "trivia_daily",
+ "label": "名前がウソすぎる生き物",
+ "format": "story",
+ "themes": [
+  "space",
+  "lemon_dots",
+  "checker"
+ ],
+ "title": "タツノオトシゴは、お父さんが赤ちゃんを産むのだ #Shorts #雑学 #海の生き物",
+ "tags": [
+  "ずんだもん",
+  "雑学",
+  "海の生き物",
+  "タツノオトシゴ",
+  "魚",
+  "育児嚢",
+  "脳がとける雑学",
+  "ショート"
+ ],
+ "desc": "竜の子どもみたいな名前の、魚なのだ。\n\n・タツノオトシゴはヨウジウオ科の魚（Wikipedia「タツノオトシゴ」）。\n・オスのお腹には育児嚢という袋があり、メスはその中に卵を産む。オスは受精した卵を育児嚢で育て、かえった子を水中に産み出す（東京都建設局 資料）https://www.kensetsu.metro.tokyo.lg.jp/content/000066182.pdf",
+ "lines": [
+  {
+   "say": "タツノオトシゴは、お父さんが赤ちゃんを産むのだ。",
+   "text": "タツノオトシゴは\nお父さんが産む",
+   "face": "ドヤ",
+   "file": "File:Boston Aquarium, Central Wharf, Boston (493608) (11062160045).jpg",
+   "fx": [
+    {
+     "type": "stamp",
+     "text": "パパ",
+     "at": 0.0,
+     "y": 0.35,
+     "size": 260,
+     "color": [
+      230,
+      40,
+      40
+     ]
+    }
+   ],
+   "hook": true
+  },
+  {
+   "say": "竜の子どもみたいな名前だけど、魚なのだ。",
+   "text": "竜の子みたいな名前\nでも魚",
+   "face": "指差し",
+   "file": "File:Cavalo Marinho2.jpg"
+  },
+  {
+   "say": "お父さんのお腹には、袋があるのだ。",
+   "text": "お父さんのお腹に\n袋がある",
+   "face": "驚き",
+   "file": "File:Ecomare - zeepaardje (zeepaardje-sw).jpg"
+  },
+  {
+   "say": "お母さんは、その袋の中に卵を産むのだ。",
+   "text": "お母さんは\n袋の中に卵を産む",
+   "face": "通常",
+   "file": "File:Ecomare - zeepaardje (zeepaardje-sw).jpg"
+  },
+  {
+   "say": "お父さんは、袋の中で卵を育てるのだ。",
+   "text": "お父さんが\n袋の中で育てる",
+   "face": "驚き",
+   "file": "File:Cavalo Marinho2.jpg"
+  },
+  {
+   "say": "かえった赤ちゃんを、水の中に産み出すのだ。",
+   "text": "かえった赤ちゃんを\n水の中に産み出す",
+   "face": "驚き",
+   "file": "File:Boston Aquarium, Central Wharf, Boston (493608) (11062160045).jpg",
+   "fx": [
+    {
+     "type": "stamp",
+     "text": "出産",
+     "at": 0.4,
+     "y": 0.3,
+     "size": 230,
+     "color": [
+      255,
+      226,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "say": "産むのは、お父さんなのだ！",
+   "text": "産むのは\nお父さん",
+   "face": "焦り",
+   "up": true
+  },
+  {
+   "say": "この袋は、育児嚢というのだ。",
+   "text": "この袋は\n育児嚢",
+   "face": "ドヤ",
+   "file": "File:Ecomare - zeepaardje (zeepaardje-sw).jpg",
+   "fx": [
+    {
+     "type": "stamp",
+     "text": "育児嚢",
+     "at": 0.4,
+     "y": 0.35,
+     "size": 210,
+     "color": [
+      255,
+      226,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "say": "レッツ脳とけ！",
+   "text": "レッツ\n脳とけ！",
+   "face": "笑顔",
+   "logo": true
+  },
+  {
+   "say": "ちなみにこの魚…",
+   "text": "ちなみに\nこの魚…",
+   "face": "ドヤ",
+   "file": "File:Boston Aquarium, Central Wharf, Boston (493608) (11062160045).jpg",
+   "loop": true
+  }
+ ],
+ "yomi": {
+  "レッツ脳とけ！": "レッツのーとけ！"
+ },
+ "yomi_ok": [
+  "体",
+  "中",
+  "頭",
+  "動物",
+  "仲間",
+  "生き物",
+  "上",
+  "下",
+  "天然記念物",
+  "名前",
+  "子",
+  "触手",
+  "銅"
+ ],
+ "meta": {
+  "exp": "雑学 冒頭0秒の絵 B（1行目から題材の写真）"
+ }
+}
