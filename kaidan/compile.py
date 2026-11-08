@@ -71,6 +71,23 @@ def thumb(paths, n, minutes, out):
     im.save(out)
 
 
+def short_cred(cred):
+    """説明欄は5000字まで（11/9 sleep_a01 が8341字で invalidDescription）。パブリックドメイン・CC0 の絵は1行にまとめ、
+    表示が必要なライセンス（CC BY など）の絵だけ1枚ずつ残す。原作・語り・BGM はそのまま"""
+    out, pd = [], 0
+    for c in cred:
+        if c.startswith("画像:"):
+            one = " ".join(c.split())
+            if "Public domain" in one or "CC0" in one:
+                pd += 1; continue
+            out.append(one)
+        else:
+            out.append(c)
+    if pd:
+        out.append(f"画像: ウィキメディア・コモンズのパブリックドメイン・CC0 の絵 {pd}点（作者とファイル名は各話の本編の説明欄に記載）")
+    return out
+
+
 def main(name, ids):
     os.makedirs("build_compile", exist_ok=True)
     kit = f"kaidan/manual/{name}"
@@ -118,7 +135,7 @@ def main(name, ids):
         "途中のしめの挨拶は省き、最後の話だけ残しています。", "",
         *chapters, "",
         "※この動画は、権利の切れた古典の怪談を、いまの言葉で語り直した朗読です。実話ではありません。", "",
-        "#怪談 #睡眠用 #作業用 #朗読", "", "──", *cred])
+        "#怪談 #睡眠用 #作業用 #朗読", "", "──", *short_cred(cred)])
     open(f"{kit}/upload.txt", "w", encoding="utf-8").write(
         f"【タイトル】\n{ttl}\n\n【説明】\n{desc}\n\n【タグ】\n{','.join(tg)}\n")
     subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", out, "-vf", f"fps=1/{max(60, int(t / 40))},scale=480:-1,tile=8x5",
