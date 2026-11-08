@@ -246,12 +246,16 @@ function landScene(p) {
     if (p.air_off !== undefined) clouds.visible = vac < 0.5;
     clouds.children.forEach(m => {                       // 位置は時刻だけで決める（最後と冒頭の絵をそろえるため）
       if (m.userData.x0 === undefined) m.userData.x0 = m.position.x;
-      m.position.x = (((m.userData.x0 + 60 + tt * (p.wind ? 48 : 2.4)) % 120) + 120) % 120 - 60;
+      m.position.x = (((m.userData.x0 + 60 + tt * (p.wind && p.wind_off === undefined ? 48 : 2.4)) % 120) + 120) % 120 - 60;
     });
-    const sway = p.wind ? 0.3 + 0.1 * Math.sin(tt * 13) : 0.02 * Math.sin(tt * 2);
-    trees.forEach((tr, i) => { tr.rotation.z = -sway + 0.04 * Math.sin(tt * 11 + i); });
+    const wf = p.wind ? (p.wind_off !== undefined ? 1 - sstep((u - p.wind_off) / 0.12) : 1) : 0;   // 11/9 p.wind_off：風がやむ
+    const sway = wf * (0.3 + 0.1 * Math.sin(tt * 13)) + (1 - wf) * 0.02 * Math.sin(tt * 2);
+    trees.forEach((tr, i) => { tr.rotation.z = -sway + 0.04 * Math.sin(tt * 11 + i) * wf; });
+    if (p.trees_off !== undefined) {                     // 11/9 p.trees_off：森が消える（木がその場で縮んで消える）
+      const k = Math.max(0.001, 1 - sstep((u - p.trees_off) / 0.12)); trees.forEach(tr => { tr.scale.setScalar(k); tr.visible = k > 0.01; });
+    }
     bits.forEach(b => {
-      const q = b.userData; b.position.set(((q.x + t * q.v) % 80) - 40, q.y + Math.sin(t * 6 + q.s), q.z);
+      const q = b.userData; b.position.set(((q.x + t * q.v) % 80) - 40, q.y + Math.sin(t * 6 + q.s), q.z); b.visible = wf > 0.3;
       b.rotation.set(t * 7 + q.s, t * 5, 0);
     });
     // キャラ
@@ -262,7 +266,7 @@ function landScene(p) {
       ch.rotation.y = 0.35 + tt * 9; ch.rotation.z = 0.25 * Math.sin(tt * 6);
       ch.position.y = cy + 0.6 + Math.abs(Math.sin(tt * 6)) * 1.2;
     }
-    if (p.wind) {
+    if (p.wind && wf > 0.5) {
       ch.rotation.z = -0.35 + 0.08 * Math.sin(t * 15);
       ch.userData.ears.forEach(e => { e.rotation.z = -0.9; });
     }
@@ -495,6 +499,10 @@ function spinScene(p) {
   return (t, d) => {
     const u = t / d, w = p.slow ? 0.8 : 1.5 + 14 * u;      // 回る速さ（slow：今の地球のゆっくり）
     e.rotation.y = p.slow ? t * 0.8 : t * 1.5 + 7 * u * u * d;
+    if (p.rev) {                                        // 11/9 逆回り：p.rev=1 で初めから逆、p.rev_at の時刻から止まって逆へ
+      if (p.rev_at === undefined) e.rotation.y = -t * 0.8;
+      else { let a = 0; const n = 200; for (let i = 0; i < n; i++) { const tu = (i + 0.5) / n * t; a += 0.8 * (1 - 2 * sstep(((tu / d) - p.rev_at) / 0.12)) * t / n; } e.rotation.y = a; }
+    }
     streak.forEach(m => {
       const q = m.userData; m.visible = !p.slow; const a = q.a + t * w * 0.35;
       m.position.set(Math.cos(a) * q.r, q.y, Math.sin(a) * q.r); m.rotation.y = -a;
