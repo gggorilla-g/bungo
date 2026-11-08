@@ -48,9 +48,10 @@ def thumb(paths, n, minutes, out):
     f = lambda s, w="Black": ImageFont.truetype(f"/usr/share/fonts/opentype/noto/NotoSerifCJK-{w}.ttc", s, index=0)
     d = ImageDraw.Draw(im)
     x = 560
-    d.rectangle([x, 70, x + 200, 128], fill=(150, 18, 18))
-    d.text((x + 100, 99), "睡眠用", font=f(44, "Bold"), fill=(255, 255, 255), anchor="mm")
-    d.text((x + 230, 99), "今晩の百物語", font=f(40, "Bold"), fill=(196, 190, 182), anchor="lm")
+    # 11/9 ゲンタさん「怪談は、睡眠用、作業用というのがわかるようにしましょう」
+    d.rectangle([x, 70, x + 360, 128], fill=(150, 18, 18))
+    d.text((x + 180, 99), "睡眠用・作業用", font=f(44, "Bold"), fill=(255, 255, 255), anchor="mm")
+    d.text((x + 384, 99), "今晩の百物語", font=f(36, "Bold"), fill=(196, 190, 182), anchor="lm")
     sh = Image.new("L", (W, H), 0)
     ImageDraw.Draw(sh).text((x - 6, 150), "怪談朗読", font=f(170), fill=255)
     im.paste((0, 0, 0), (0, 0), sh.filter(ImageFilter.GaussianBlur(12)))
@@ -85,7 +86,7 @@ def main(name, ids):
         subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", mp4, "-t", f"{cut:.2f}", "-c:v", "libx264", "-preset", "veryfast",
                         "-crf", "21", "-pix_fmt", "yuv420p", "-r", "24", "-c:a", "aac", "-b:a", "160k", "-ar", "48000", "-ac", "2", seg],
                        check=True)
-        short = re.sub(r"^【怪談朗読】", "", title).split("｜")[0]
+        short = re.sub(r"^【(怪談朗読|名作怪談)】", "", title).split("｜")[0]
         m = re.search(r"「(.+?)」", short)          # 古い題名の形（〜「耳なし芳一」【…】）から作品名だけ取る
         if m:
             short = f"{m.group(1)}（{re.search(r'原作: (.+?)『', ' '.join(cr)).group(1)}）"
@@ -110,13 +111,14 @@ def main(name, ids):
             seen.add(c); cred.append(c)
     tg = list(dict.fromkeys(["睡眠用", "怪談朗読", "作業用", "怪談", "朗読", "百物語"] + [x for x in tags if x]))[:30]
     names = "・".join(titles[:3]) + (" ほか" if len(titles) > 3 else "")
-    ttl = f"【睡眠用】怪談朗読 {len(ids)}話まとめ 約{minutes}分｜{names}｜今晩の百物語"
+    ttl = f"【睡眠用・作業用】怪談朗読 {len(ids)}話 約{minutes}分｜{names}｜今晩の百物語"
     desc = "\n".join([
-        f"今晩の百物語の怪談朗読を、{len(ids)}話つないだ長尺版です。寝る前や作業のおともにどうぞ。",
+        f"睡眠用・作業用の怪談朗読です。今晩の百物語の{len(ids)}話を、驚かせる音なしで続けて流します。",
+        "画面を見なくても聞けるように、語りだけで話が分かる作りにしています。",
         "途中のしめの挨拶は省き、最後の話だけ残しています。", "",
         *chapters, "",
         "※この動画は、権利の切れた古典の怪談を、いまの言葉で語り直した朗読です。実話ではありません。", "",
-        "#怪談 #睡眠用 #朗読", "", "──", *cred])
+        "#怪談 #睡眠用 #作業用 #朗読", "", "──", *cred])
     open(f"{kit}/upload.txt", "w", encoding="utf-8").write(
         f"【タイトル】\n{ttl}\n\n【説明】\n{desc}\n\n【タグ】\n{','.join(tg)}\n")
     subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", out, "-vf", f"fps=1/{max(60, int(t / 40))},scale=480:-1,tile=8x5",
