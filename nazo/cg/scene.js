@@ -1202,7 +1202,120 @@ function hakoniwaEki(p) {
   };
 }
 
-const SCENES = { hakoniwa: hakoniwa, hakoniwa_eki: hakoniwaEki, seafloor: seafloor, antarctica: antarctica, city: cityScene, icefly: icefly, seaice: seaice, orbit: orbitScene, gravity: gravityScene, surface: surfaceScene, tide: tideScene, land: landScene, flight: flightScene, rewind: rewindScene, spin: spinScene, axis: axisScene, space: spaceScene };
+// ---------- 動く間違い探し：世界観のある動くステージ「海の中」（11/10 ゲンタさん「回転する箱庭だけではなくて、もっと世界観のある動くステージ」）
+// カメラは正面でほぼ固定（ゆっくり左右に揺れるだけ）。ステージの上で、いろいろなものが動き続ける。
+// 違い：fish_color（群れの1匹が青）/ bigfish_reverse（大きな魚が逆向き）/ jelly_extra（クラゲが1匹多い）/ octo_purple（タコが紫）
+//      chest_open（宝箱が開きっぱなし）/ crab_gone（カニがいない）/ coral_blue（サンゴが1つ青）/ weed_gone（海藻が1本ない）
+//      sub_red（潜水艦が赤）/ ship_flag（沈没船に旗）/ star_gone（ヒトデがいない）
+function stageSea(p) {
+  const sc = CUR = new THREE.Scene();
+  const D = new Set(p.diff || []);
+  sc.background = new THREE.Color(0x1f6fb8);
+  sc.fog = new THREE.Fog(0x1f6fb8, 30, 70);
+  sc.add(new THREE.AmbientLight(0xffffff, 0.9));
+  const dl = new THREE.DirectionalLight(0xffffff, 1.0); dl.position.set(5, 40, 20); sc.add(dl);
+  const B = (list, sz = 1, pos = [0, 0, 0]) => { const m = blocks(list, sz); m.position.set(...pos); sc.add(m); return m; };
+  const G = () => { const g = new THREE.Group(); sc.add(g); return g; };
+  // 海底（砂）と奥の岩
+  const L = [];
+  for (let x = -18; x <= 18; x++) for (let z = -10; z <= 5; z++) {
+    const h = (Math.sin(x * 0.7) + Math.cos(z * 0.9 + x * 0.3)) > 1.2 ? 1 : 0;
+    L.push([x, 0, z, (x + z) % 3 ? 0xe8d38a : 0xdcc57a]);
+    if (h) L.push([x, 1, z, 0xd6be72]);
+  }
+  for (let x = -18; x <= 18; x++) for (let y = 1; y <= 4 + Math.round(2 * Math.sin(x * 0.5)); y++) L.push([x, y, -10, (x + y) % 2 ? 0x5a6f80 : 0x4d6070]);
+  B(L);
+  // ヒトデ（岩の上）
+  if (!D.has("star_gone")) B([[0, 0, 0, 0xff8a3a], [0.5, 0, 0, 0xff8a3a], [-0.5, 0, 0, 0xff8a3a], [0, 0.5, 0, 0xff8a3a], [0, -0.5, 0, 0xff8a3a]], 0.5, [-12, 5.5, -9.4]);
+  ANCH.star_gone = [-12, 5.5, -9.4];
+  // 沈没船
+  const sh = [];
+  for (let x = -3; x <= 3; x++) for (let y = 0; y <= 1; y++) sh.push([x, y, 0, 0x7a4a24]);
+  for (let x = -2; x <= 2; x++) sh.push([x, -1, 0, 0x6a3e1e]);
+  for (let y = 2; y <= 6; y++) sh.push([0, y, 0, 0x5a3418]);
+  const ship = B(sh, 1, [-9, 2, -5]); ship.rotation.z = 0.18;
+  if (D.has("ship_flag")) B([[0, 0, 0, 0xffffff], [1, 0, 0, 0x222222], [0, -0.8, 0, 0x222222], [1, -0.8, 0, 0xffffff]], 0.8, [-8.2, 8.6, -5]);
+  ANCH.ship_flag = [-8.2, 8.3, -5];
+  // サンゴ
+  [[7, -3, 0xff5a8a], [11, -1, 0xff9a3a], [-13, 1, 0xff5a8a]].forEach(([x, z, c], i) => {
+    const col = (D.has("coral_blue") && i === 2) ? 0x3a8aff : c, cl = [];
+    for (let y = 1; y <= 3; y++) cl.push([0, y, 0, col]);
+    cl.push([-1, 3, 0, col], [1, 2, 0, col], [-1, 4, 0, col], [1, 3, 0, col], [1, 4, 0, col]);
+    B(cl, 1, [x, 0, z]);
+  });
+  ANCH.coral_blue = [-13, 3, 1];
+  // 海藻（ゆらゆら）
+  const weeds = [];
+  [[-5, 1], [-3.5, 2], [13, 2], [3, -6]].forEach(([x, z], i) => {
+    if (D.has("weed_gone") && i === 1) return;
+    const g = G(); g.position.set(x, 1, z); const w = [];
+    for (let y = 0; y < 6; y++) w.push([0, y * 0.8, 0, y % 2 ? 0x2e9b4a : 0x3fb85a]);
+    g.add(blocks(w, 0.7)); weeds.push(g);
+  });
+  ANCH.weed_gone = [-3.5, 3, 2];
+  // 宝箱
+  B([[0, 0, 0, 0x8b5a2b], [1, 0, 0, 0x8b5a2b]], 1, [-1, 1, 2]);
+  const lid = G(); lid.position.set(-1.5, 1.5, 1.5);
+  lid.add(blocks([[0.5, 0.25, 0.5, 0x6a3e1e], [1.5, 0.25, 0.5, 0x6a3e1e]], 1));
+  B([[0, 0, 0, 0xffd23a], [0.6, 0.1, 0, 0xffd23a]], 0.5, [-0.8, 1.5, 2]);
+  ANCH.chest_open = [-0.5, 2.2, 2];
+  // タコ
+  const octo = G(); octo.position.set(3.5, 1.2, 1.5);
+  const oc = D.has("octo_purple") ? 0x9a4adc : 0xe8452a;
+  octo.add(blocks([[0, 1.2, 0, oc], [0, 2.1, 0, oc], [-0.9, 1.2, 0, oc], [0.9, 1.2, 0, oc], [-0.9, 2.1, 0, oc], [0.9, 2.1, 0, oc], [0, 3, 0, oc]], 0.9));
+  octo.add(blocks([[-0.35, 1.7, 0.5, 0x111111], [0.35, 1.7, 0.5, 0x111111]], 0.3));
+  const arms = [];
+  for (let k = 0; k < 4; k++) { const a = new THREE.Group(); a.position.set(-0.9 + k * 0.6, 0.6, 0); a.add(blocks([[0, -0.3, 0, oc], [0, -0.8, 0, oc]], 0.45)); octo.add(a); arms.push(a); }
+  ANCH.octo_purple = [3.5, 3.2, 1.5];
+  // カニ（横歩き）
+  const crab = D.has("crab_gone") ? null : B([[0, 0, 0, 0xd8382a], [0.7, 0, 0, 0xd8382a], [-0.5, 0.4, 0, 0xd8382a], [1.2, 0.4, 0, 0xd8382a]], 0.6, [9, 1.4, 3]);
+  ANCH.crab_gone = [9.3, 1.6, 3];
+  // 魚の群れ（左から右へ）
+  const school = [];
+  for (let k = 0; k < 6; k++) {
+    const c = (D.has("fish_color") && k === 3) ? 0x3a7aff : 0xff9a2a;
+    const f = B([[0, 0, 0, c], [0.6, 0, 0, c], [-0.6, 0, 0, 0xffd27a]], 0.6); f.userData = { dx: (k % 3) * 1.4, dy: Math.floor(k / 3) * 1.1 - 0.5 + (k % 2) * 0.3 };
+    school.push(f);
+  }
+  // 大きな魚（右から左へ）
+  const big = B([[0, 0, 0, 0xffe04a], [1, 0, 0, 0xffe04a], [-1, 0, 0, 0xffe04a], [0, 1, 0, 0xffe04a], [-2, 0.5, 0, 0xf2c230], [-2, -0.5, 0, 0xf2c230], [1.3, 0.3, 0.5, 0x222222]], 0.9);
+  // クラゲ
+  const jellies = [[2, 8, -3], [-4, 9.5, -4]].concat(D.has("jelly_extra") ? [[10, 9, -4]] : []).map(([x, y, z], i) => {
+    const g = G(); g.position.set(x, y, z); g.userData = { y0: y, ph: i * 1.7 };
+    g.add(blocks([[0, 0, 0, 0xffc8f0], [1, 0, 0, 0xffc8f0], [-1, 0, 0, 0xffc8f0], [0, 0.8, 0, 0xffc8f0], [-0.7, -1, 0, 0xffe4f7], [0, -1.3, 0, 0xffe4f7], [0.7, -1, 0, 0xffe4f7]], 0.8));
+    return g;
+  });
+  ANCH.jelly_extra = [10, 9, -4];
+  // 潜水艦（奥を左から右へ）
+  const subc = D.has("sub_red") ? 0xe8452a : 0x9aa6b4;
+  const sub = B([[0, 0, 0, subc], [1, 0, 0, subc], [2, 0, 0, subc], [-1, 0, 0, subc], [0.5, 1, 0, subc], [0.5, 1.8, 0, 0x888888], [1, 0, 0.6, 0x9fd8ff], [-2, 0, 0, 0x555555]], 1.1);
+  // 泡（船から）
+  const bubbles = [];
+  for (let k = 0; k < 8; k++) { const b = B([[0, 0, 0, 0xdff3ff]], 0.35); b.userData = { ph: k / 8 }; bubbles.push(b); }
+  // ずんだもん（ダイバー。上下にふわふわ）
+  const ch = blockChar(); ch.scale.setScalar(1.3); ch.position.set(6.5, 3, 3); ch.rotation.y = -0.4; sc.add(ch);
+  return (t, d) => {
+    const sw = p.sway ?? 1;
+    C.position.set(Math.sin(t * 0.25) * 1.5 * sw + (p.cam_x || 0), 6.5, 19); C.lookAt(p.cam_x || 0, 6, -1);
+    weeds.forEach((g, i) => { g.rotation.z = 0.18 * Math.sin(t * 1.6 + i); });
+    const op = D.has("chest_open") ? 1 : Math.max(0, Math.sin(t * 1.3)); lid.rotation.x = -1.1 * op;
+    arms.forEach((a, i) => { a.rotation.z = 0.5 * Math.sin(t * 4 + i * 1.2); });
+    octo.position.y = 1.2 + 0.3 * Math.abs(Math.sin(t * 2));
+    if (crab) { crab.position.x = 9 + 2.2 * Math.sin(t * 0.9); ANCH.crab_gone = [crab.position.x + 0.3, 1.6, 3]; }
+    const sx = ((t * 3.2) % 40) - 20;
+    school.forEach((f, k) => { f.position.set(sx - f.userData.dx, 8.6 + f.userData.dy + 0.25 * Math.sin(t * 5 + k), 0); if (k === 3) ANCH.fish_color = [f.position.x, f.position.y, 0]; });
+    const bd = D.has("bigfish_reverse") ? -1 : 1, bx = 20 - (((t * 2.4) % 40));
+    big.position.set(bd * bx, 11.5 + 0.4 * Math.sin(t * 1.5), -3); big.rotation.y = bd > 0 ? Math.PI : 0;
+    ANCH.bigfish_reverse = [big.position.x, big.position.y, -3];
+    jellies.forEach(g => { g.position.y = g.userData.y0 + 0.8 * Math.sin(t * 1.4 + g.userData.ph); g.scale.y = 1 + 0.12 * Math.sin(t * 2.8 + g.userData.ph); });
+    sub.position.set(((t * 1.6) % 50) - 25, 13, -8); ANCH.sub_red = [sub.position.x, 13, -8];
+    bubbles.forEach(b => { const u = (t * 0.35 + b.userData.ph) % 1; b.position.set(-8 + 0.4 * Math.sin(u * 12), 3 + u * 11, -5); });
+    ch.position.y = 3.5 + 0.6 * Math.sin(t * 1.7);
+    ch.userData.ears.forEach((e, i) => { e.rotation.z = (i ? -1 : 1) * 0.2 * Math.sin(t * 6); });
+  };
+}
+
+const SCENES = { hakoniwa: hakoniwa, hakoniwa_eki: hakoniwaEki, stage_sea: stageSea, seafloor: seafloor, antarctica: antarctica, city: cityScene, icefly: icefly, seaice: seaice, orbit: orbitScene, gravity: gravityScene, surface: surfaceScene, tide: tideScene, land: landScene, flight: flightScene, rewind: rewindScene, spin: spinScene, axis: axisScene, space: spaceScene };
 
 window.setup = (j) => {
   job = j; seed = 12345;

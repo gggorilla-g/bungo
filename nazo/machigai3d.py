@@ -25,8 +25,20 @@ def reveal(sp):
     return sp.get("reveal", True)
 
 
+def hype(sp):
+    # 11/10 ゲンタさん「間違い探しはもっとハイテンションにして」：速い声・途中の煽り・時間切れの「そこまでー！」・速いBGM・効果音・字幕が跳ねる
+    return sp.get("hype", False)
+
+
 def lines_of(sp):
     n = len(sp["diffs"])
+    if hype(sp):
+        L = [("intro", sp.get("intro", f"違いは{n}つ！{sp['search']}秒で見つけるのだー！")),
+             ("mid", sp.get("mid", "まだまだあるのだ！急ぐのだ！")),
+             ("left3", sp.get("left3", "あと3秒！")),
+             ("stop", sp.get("stop", "そこまでー！")),
+             ("end", sp.get("end", "全部見つけられたら、天才なのだー！"))]
+        return L
     L = [("intro", sp.get("intro", f"違いは{n}つ。{sp['search']}秒で探すのだ！")),
          ("left3", sp.get("left3", "あと3秒なのだ！"))]
     if not reveal(sp):
@@ -83,7 +95,7 @@ def build(sid):
         sys.exit(f"読みの関門を通っていない（python nazo/machigai3d.py check {sid}）")
     shutil.rmtree(B, ignore_errors=True); os.makedirs(B); os.makedirs("output", exist_ok=True)
     render.B = B; render.TIGHT = True
-    render.set_voice(**sp.get("voice", {"vvm": "0.vvm", "style": 3, "speed": 1.1, "intonation": 1.15}))
+    render.set_voice(**sp.get("voice", {"vvm": "0.vvm", "style": 3, "speed": 1.27, "intonation": 1.6, "pitch": 0.04} if hype(sp) else {"vvm": "0.vvm", "style": 3, "speed": 1.1, "intonation": 1.15}))
     for s, t in pairs:
         render._YOMI[s] = t
     # ---- 声と時間割
@@ -91,7 +103,7 @@ def build(sid):
     for k, t in lines_of(sp):
         dur[k] = tts(t, f"{B}/{k}.wav")
     n, S = len(sp["diffs"]), sp["search"]
-    t_intro = max(1.8, dur["intro"] + 0.2)                     # 冒頭：0秒から箱庭が2つ動いている。声とテロップで出題
+    t_intro = max(1.8, dur["intro"] + 0.2) if not hype(sp) else max(1.4, dur["intro"] + 0.05)                     # 冒頭：0秒から箱庭が2つ動いている。声とテロップで出題
     t_search0 = t_intro                                        # 探す時間（タイマーが動く）
     t_ans0 = t_search0 + S
     RV = reveal(sp)
@@ -101,6 +113,11 @@ def build(sid):
         t_end0 = t_d[-1] + per[-1]
         total = t_end0 + dur["end"] + 0.6
         events = [("intro", 0.05), ("left3", t_ans0 - 3.0), ("ans", t_ans0 + 0.1)] + [(f"d{i}", t_d[i]) for i in range(n)] + [("end", t_end0)]
+    elif hype(sp):
+        t_d = []
+        t_end0 = t_ans0 + 0.05 + dur["stop"] + 0.1
+        total = t_end0 + max(dur["end"] + 0.4, 2.2)
+        events = [("intro", 0.05), ("mid", t_search0 + S * 0.5), ("left3", t_ans0 - 3.4), ("stop", t_ans0 + 0.05), ("end", t_end0)]
     else:
         t_d = []
         t_end0 = t_ans0 + 0.15
@@ -120,7 +137,7 @@ def build(sid):
     t_cg = time.time() - t1
     pos = json.load(open(f"{B}/B/probe.json"))
     for nm, q in zip(names, pos):
-        if q is None or not (0.05 < q[0] < 0.86 and 0.06 < q[1] < 0.94):   # 右端のボタンに丸がかからないように
+        if RV and (q is None or not (0.05 < q[0] < 0.86 and 0.06 < q[1] < 0.94)):   # 右端のボタンに丸がかからないように（答えの丸を出す回だけ）
             sys.exit(f"違い {nm} の場所が画面の外（{q}）。カメラの角度を変える")
     # ---- 音（声＋効果音）
     sr = 24000
@@ -133,6 +150,9 @@ def build(sid):
         i = int(at * sr); mix[i:i + len(a)] += a[:len(mix) - i]
     sev = [("pop_big", 0.0), ("chime_b", t_ans0)] + [("ding", t) for t in t_d]
     sev += [("tick", t_ans0 - k) for k in (3, 2, 1)]
+    if hype(sp):
+        sev = [("zip_long", 0.0), ("pop_big", 0.05), ("boing", t_search0 + S * 0.5), ("drumroll", t_ans0 - 3.0),
+               ("crash", t_ans0), ("kira", t_end0)] + [("tick", t_ans0 - k) for k in (5, 4, 3, 2, 1)]
     for nm, at in sev:
         s = se.sound(nm).astype(np.float32) * SE_GAIN
         i = int(at * sr); mix[i:i + len(s)] += s[:len(mix) - i]
@@ -173,18 +193,35 @@ def build(sid):
             col = RED if v < 3 else WHT
             # 11/9 ゲンタさん「中央のタイマーが邪魔すぎます」：絵の上には置かず、いちばん上の見出しの右に置く
             tx, ty = W - 36 - 120, 74
-            d.rounded_rectangle([tx - 120, ty - 48, tx + 120, ty + 48], 18, fill=(0, 0, 0, 230), outline=CYAN, width=4)
-            d.text((tx, ty), f"{v:05.2f}", font=motion.font(60), fill=col, anchor="mm")
+            sc_ = 1.0
+            if hype(sp) and v < 3:
+                sc_ = 1 + 0.18 * max(0.0, 1 - (math.ceil(v) - v) / 0.25)       # 1秒ごとにドクン（点滅ではなく大きさ）
+                for oy in (TOPY, TOPY + PH + GAPY):
+                    d.rectangle([0, oy, W - 1, oy + PH - 1], outline=RED, width=int(6 + 8 * (sc_ - 1) / 0.18))
+            hw, hh = int(120 * sc_), int(48 * sc_)
+            d.rounded_rectangle([tx - hw, ty - hh, tx + hw, ty + hh], 18, fill=(0, 0, 0, 230), outline=(RED if v < 3 else CYAN), width=4)
+            d.text((tx, ty), f"{v:05.2f}", font=motion.font(int(60 * sc_)), fill=col, anchor="mm")
             p = v / S
             d.rectangle([24, 262, 24 + int((W - 48) * p), 276], fill=(RED if v < 3 else CYAN))
         # 字幕（黒地に白文字。答えは黄色）
         k = cur_tel(t)
         txt = tel_d.get(k, tel.get(k, ""))
-        if k == "intro" or t < t_ans0:
-            txt = tel["intro"] if t < t_ans0 - 3 else tel["left3"]
-        if k == "end":
-            txt = tel["end"]
-        motion.box_text(d, W // 2, 178, txt, f_tel if len(txt) <= 14 else motion.font(int(66 * 14 / len(txt))), WHT if not k.startswith("d") else YEL, BLK, 30, 14, anchor="ct")
+        if hype(sp):
+            if t < t_ans0:
+                txt = tel["intro"] if k == "intro" else (tel["mid"] if k == "mid" else tel["left3"])
+            else:
+                txt = tel["stop"] if k == "stop" else tel["end"]
+            et = max([at for kk, at in events if at <= t] or [0])
+            pop = 1 + 0.28 * max(0.0, 1 - (t - et) / 0.18)                 # 字幕が出た瞬間に跳ねる
+            base = 66 if len(txt) <= 14 else int(66 * 14 / len(txt))
+            col = RED if (k in ("left3", "stop")) else WHT
+            motion.box_text(d, W // 2, 178, txt, motion.font(int(base * pop)), col if col != WHT else WHT, BLK, 30, 14, anchor="ct")
+        else:
+            if k == "intro" or t < t_ans0:
+                txt = tel["intro"] if t < t_ans0 - 3 else tel["left3"]
+            if k == "end":
+                txt = tel["end"]
+            motion.box_text(d, W // 2, 178, txt, f_tel if len(txt) <= 14 else motion.font(int(66 * 14 / len(txt))), WHT if not k.startswith("d") else YEL, BLK, 30, 14, anchor="ct")
         if not RV and t >= t_end0:
             # 答えの場所の案内。字幕のすぐ下（絵のまん中には置かない）。ショートでは説明欄はタイトルをタップして開く
             motion.box_text(d, W // 2, 262, sp.get("to_desc", "答えはタイトルをタップ→説明欄"), motion.font(48), YEL, BLK, 22, 10, anchor="ct")
@@ -209,7 +246,7 @@ def build(sid):
     chip_kind = sp.get("bgm_chip")                           # 11/3 ゲンタさん「まちがいさがしのbgmは8bitのほうがいい」：自作の8ビット風（nazo/chip.py）
     if chip_kind:
         import chip
-        y = chip.bgm(total + 0.5, chip_kind)
+        y = chip.bgm(total + 0.5, "hyper" if hype(sp) else chip_kind)
         with wave.open(f"{B}/bgm.wav", "wb") as o:
             o.setnchannels(1); o.setsampwidth(2); o.setframerate(chip.SR); o.writeframes((y * 32767).astype(np.int16).tobytes())
         bgm_credit = "オリジナル（8ビット風）"
