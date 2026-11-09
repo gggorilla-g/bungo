@@ -49,6 +49,8 @@
  ],
  "bgm_chip": "bounce",
  "yomi_ok": [
-  "時間"
- ]
+  "時間",
+  "半分"
+ ],
+ "hype": true
 }

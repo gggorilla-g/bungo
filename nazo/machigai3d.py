@@ -34,7 +34,7 @@ def lines_of(sp):
     n = len(sp["diffs"])
     if hype(sp):
         L = [("intro", sp.get("intro", f"違いは{n}つ！{sp['search']}秒で見つけるのだー！")),
-             ("mid", sp.get("mid", "まだまだあるのだ！急ぐのだ！")),
+             ("mid", sp.get("mid", "あと半分なのだ！急ぐのだ！")),   # 11/10 ゲンタさん「まだまだあるのだ は意味がわからない」
              ("left3", sp.get("left3", "あと3秒！")),
              ("stop", sp.get("stop", "そこまでー！")),
              ("end", sp.get("end", "全部見つけられたら、天才なのだー！"))]
@@ -223,8 +223,11 @@ def build(sid):
                 txt = tel["end"]
             motion.box_text(d, W // 2, 178, txt, f_tel if len(txt) <= 14 else motion.font(int(66 * 14 / len(txt))), WHT if not k.startswith("d") else YEL, BLK, 30, 14, anchor="ct")
         if not RV and t >= t_end0:
-            # 答えの場所の案内。字幕のすぐ下（絵のまん中には置かない）。ショートでは説明欄はタイトルをタップして開く
-            motion.box_text(d, W // 2, 262, sp.get("to_desc", "答えはタイトルをタップ→説明欄"), motion.font(48), YEL, BLK, 22, 10, anchor="ct")
+            # 答えの場所の案内。11/10 ゲンタさん「タイトル欄をタップは真ん中に出していいです。白縁取り文字で」：上下の絵の境目に、白い縁取りの文字で
+            et = t_end0
+            pop = 1 + 0.25 * max(0.0, 1 - (t - et) / 0.2)
+            d.text((W // 2, TOPY + PH + GAPY // 2), sp.get("to_desc", "答えはタイトルをタップ→説明欄"), font=motion.font(int(64 * pop)),
+                   fill=RED, anchor="mm", stroke_width=10, stroke_fill=WHT)
         # 答えの丸（出した丸は残す）。上下の両方に
         for i in range(len(t_d)):
             if t >= t_d[i]:
