@@ -166,14 +166,15 @@ def build(sid):
         d = ImageDraw.Draw(fr, "RGBA")
         d.rectangle([0, TOPY + PH, W, TOPY + PH + GAPY], fill=YEL)
         # 上の見出し：動く間違い探し／違いは n つ
-        d.text((W // 2, 74), sp.get("head", "動く間違い探し"), font=f_title, fill=YEL, anchor="mm", stroke_width=10, stroke_fill=BLK)
+        d.text((36, 74), sp.get("head", "動く間違い探し"), font=f_title, fill=YEL, anchor="lm", stroke_width=10, stroke_fill=BLK)
         # タイマー（探す時間だけ。数字が減る。残り3秒で赤）
         if t_search0 <= t < t_ans0:
             v = t_ans0 - t
             col = RED if v < 3 else WHT
-            tx, ty = W // 2, TOPY + PH + GAPY // 2                  # 上下のパネルの境目のまん中に置く（どちらの絵もじゃましない）
-            d.rounded_rectangle([tx - 125, ty - 52, tx + 125, ty + 52], 18, fill=(0, 0, 0, 220), outline=CYAN, width=4)
-            d.text((tx, ty), f"{v:05.2f}", font=motion.font(64), fill=col, anchor="mm")
+            # 11/9 ゲンタさん「中央のタイマーが邪魔すぎます」：絵の上には置かず、いちばん上の見出しの右に置く
+            tx, ty = W - 36 - 120, 74
+            d.rounded_rectangle([tx - 120, ty - 48, tx + 120, ty + 48], 18, fill=(0, 0, 0, 230), outline=CYAN, width=4)
+            d.text((tx, ty), f"{v:05.2f}", font=motion.font(60), fill=col, anchor="mm")
             p = v / S
             d.rectangle([24, 262, 24 + int((W - 48) * p), 276], fill=(RED if v < 3 else CYAN))
         # 字幕（黒地に白文字。答えは黄色）
@@ -185,9 +186,8 @@ def build(sid):
             txt = tel["end"]
         motion.box_text(d, W // 2, 178, txt, f_tel if len(txt) <= 14 else motion.font(int(66 * 14 / len(txt))), WHT if not k.startswith("d") else YEL, BLK, 30, 14, anchor="ct")
         if not RV and t >= t_end0:
-            # 答えの場所の案内。上下のパネルの境目に置く（ショートでは説明欄はタイトルをタップして開く）
-            tx, ty = W // 2, TOPY + PH + GAPY // 2
-            motion.box_text(d, tx, ty - 46, sp.get("to_desc", "答えはタイトルをタップ→説明欄"), motion.font(58), YEL, BLK, 26, 14, anchor="ct")
+            # 答えの場所の案内。字幕のすぐ下（絵のまん中には置かない）。ショートでは説明欄はタイトルをタップして開く
+            motion.box_text(d, W // 2, 262, sp.get("to_desc", "答えはタイトルをタップ→説明欄"), motion.font(48), YEL, BLK, 22, 10, anchor="ct")
         # 答えの丸（出した丸は残す）。上下の両方に
         for i in range(len(t_d)):
             if t >= t_d[i]:
