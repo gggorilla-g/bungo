@@ -57,7 +57,8 @@ def lines_of(sp):
                 ("mid", sp.get("mid", "あと半分！")),
                 ("left3", sp.get("left3", "あと3秒！")),
                 ("stop", sp.get("stop", "そこまで！")),
-                ("end", sp.get("end", "見つけられたら、天才なのだ！" if zc == 1 else "数えられたら、天才なのだ！"))]
+                # 11/10 ゲンタさん「見つけたらいいね！にしましょう。探せは」
+                ("end", sp.get("end", "見つけたら、いいね！" if zc == 1 else "数えられたら、天才なのだ！"))]
     if ah(sp):
         return [("intro", sp.get("intro", f"違いは{n}つ。{sp['search']}秒なのだ！")),
                 ("mid", sp.get("mid", "あと半分！")),
