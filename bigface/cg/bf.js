@@ -34,6 +34,14 @@ const ei = x => { x = Math.min(Math.max(x, 0), 1); return x * x * x; };
 const lerp = (a, b, u) => a + (b - a) * u;
 const seg = (t, a, b) => (t - a) / (b - a);
 
+// 看板：木の板に文字（世界の中の文字だけ使う。11/10 ゲンタさん「パン屋とかの文字は使っていい看板とかに」）
+function signTex(txt, w, h, bg = "#A9805E", fg = "#F3E8D4", size = 0.62) {
+  const cv = document.createElement("canvas"); cv.width = w; cv.height = h; const g = cv.getContext("2d");
+  g.fillStyle = bg; g.fillRect(0, 0, w, h);
+  g.strokeStyle = "rgba(60,40,20,0.18)"; g.lineWidth = 3; for (let i = 1; i < 4; i++) { g.beginPath(); g.moveTo(0, h * i / 4); g.lineTo(w, h * i / 4 + 4); g.stroke(); }
+  g.fillStyle = fg; g.font = `${Math.round(h * size)}px ZenMaru`; g.textAlign = "center"; g.textBaseline = "middle"; g.fillText(txt, w / 2, h * 0.54);
+  const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4; return t;
+}
 // ---- ビッグフェイス（顔＝全高の約68%）
 function bigFace(parent) {
   const root = new THREE.Group(); parent.add(root);
@@ -52,10 +60,14 @@ function bigFace(parent) {
   const surf = (x, y) => Math.sqrt(Math.max(0.02, 1 - (x / 1.12) ** 2 - y * y));
   const eyes = [-1, 1].map(s => mesh(new THREE.SphereGeometry(0.062, 14, 10), dark, face, [0, 0, 0], { scale: [1, 1.15, 0.45], cast: false }));
   const mouth = mesh(new THREE.CapsuleGeometry(0.016, 0.15, 3, 8), dark, face, [0, 0, 0], { rot: [0, 0, Math.PI / 2], cast: false });
-  const st = { look: [0, 0], blink: 0, mouth: 0, sq: 0 };
+  const smile = mesh(new THREE.TorusGeometry(0.085, 0.016, 6, 16, Math.PI * 0.8), dark, face, [0, 0, 0], { rot: [0, 0, Math.PI * 1.1], cast: false }); smile.visible = false;
+  const st = { look: [0, 0], blink: 0, mouth: 0, sq: 0, happy: 0 };
   function setFace() {
     eyes.forEach((e, i) => { const x = (i ? 1 : -1) * 0.30 + st.look[0] * 0.10, y = 0.06 + st.look[1] * 0.07; e.position.set(x, y, surf(x, y) - 0.005); e.lookAt(x * 3, y * 3, 3); e.scale.y = 1.15 * (1 - 0.88 * st.blink); });
     const my = -0.26 + st.look[1] * 0.02; mouth.position.set(st.look[0] * 0.04, my, surf(0, my) - 0.004); mouth.scale.y = 1 - 0.35 * st.mouth;
+    // うれしい：目が少し細くなり、口が小さく笑う（変化は小さく）
+    smile.visible = st.happy > 0.5; mouth.visible = !smile.visible; smile.position.set(st.look[0] * 0.04, my + 0.035, surf(0, my) - 0.004); smile.rotation.set(-0.12, 0, Math.PI * 1.1);
+    if (st.happy > 0) eyes.forEach(e => { e.scale.y *= 1 - 0.45 * st.happy; e.position.y += 0.015 * st.happy; });
     // 当たったときの顔の伸び縮み（前後に縮み、横に広がる）
     skull.scale.set(1.12 * (1 + 0.5 * st.sq), 1.0 * (1 + 0.3 * st.sq), 1.0 * (1 - st.sq));
     face.scale.set(1 + 0.5 * st.sq, 1 + 0.3 * st.sq, 1 - st.sq);
@@ -100,8 +112,9 @@ function bakery(sc) {
   B(2.2, 0.9, 0.6, 2.45, 0.45, -0.6, wood, { line: 0.02 });
   [[1.85, 0xD9A066], [2.45, 0xC98A52], [3.05, 0xE0B077]].forEach(([x, c]) => mesh(new THREE.SphereGeometry(0.2, 14, 10), toon(c), sc, [x, 1.02, -0.6], { scale: [1.3, 0.7, 0.8], line: 0.05 }));
   // 看板（文字なし：小さなパンの形）
-  const sign = B(1.1, 0.5, 0.08, 0, 3.15, 0.04, wood, { line: 0.03 });
-  mesh(new THREE.SphereGeometry(0.16, 14, 10), toon(0xD9A066), sc, [0, 3.15, 0.1], { scale: [1.4, 0.75, 0.5] });
+  const sign = B(1.5, 0.62, 0.08, 0, 3.2, 0.04, wood, { line: 0.03 });
+  mesh(new THREE.PlaneGeometry(1.42, 0.54), new THREE.MeshBasicMaterial({ map: signTex("パン", 512, 196) }), sc, [0, 3.2, 0.085], { cast: false });
+  mesh(new THREE.SphereGeometry(0.13, 14, 10), toon(0xD9A066), sc, [0.95, 3.2, 0.12], { scale: [1.4, 0.75, 0.5], line: 0.05 });
   // 植木鉢（左）
   mesh(new THREE.CylinderGeometry(0.26, 0.2, 0.42, 14), toon(0xC9785E), sc, [-1.4, 0.21, 0.35], { line: 0.04 });
   mesh(new THREE.SphereGeometry(0.32, 12, 8), toon(0x7FA07A), sc, [-1.4, 0.62, 0.35], { scale: [1, 0.85, 1], line: 0.04 });
@@ -239,6 +252,8 @@ function backAlley(sc, X) {
   B(4, 4.2, 0.3, -2.7, 2.1, -0.15, brick); B(4, 4.2, 0.3, 2.7, 2.1, -0.15, brick); B(1.4, 4.2 - 2.55, 0.3, 0, 2.55 + (4.2 - 2.55) / 2, -0.15, brick);
   B(1.4, 2.55, 0.1, 0, 1.275, -0.3, toon(0x6F5A48));
   B(0.12, 2.65, 0.4, -0.76, 1.32, -0.1, wood, { line: 0.02 }); B(0.12, 2.65, 0.4, 0.76, 1.32, -0.1, wood, { line: 0.02 }); B(1.64, 0.12, 0.42, 0, 2.62, -0.1, wood, { line: 0.02 });
+  mesh(new THREE.BoxGeometry(1.3, 0.42, 0.06), wood, sc, [X, 3.05, 0.04], { line: 0.03 });
+  mesh(new THREE.PlaneGeometry(1.22, 0.35), new THREE.MeshBasicMaterial({ map: signTex("うらぐち", 512, 148, "#9A7656") }), sc, [X, 3.05, 0.075], { cast: false });
   const boxT = grain(0xC8A27A, 128, 128, 18, (g, w, h) => { g.fillStyle = "rgba(170,130,90,0.5)"; g.fillRect(w * 0.42, 0, w * 0.16, h); });
   const box = toon(0xffffff, { map: boxT });
   [[-0.45, 0.4, 0.55, 0.8], [0.42, 0.4, 0.6, 0.8], [-0.4, 1.2, 0.6, 0.8], [0.38, 1.22, 0.65, 0.75], [-0.05, 1.98, 0.7, 0.72], [0.35, 2.65, 0.6, 0.62], [-0.38, 2.68, 0.62, 0.6]].forEach(([x, y, z, s], i) =>
@@ -250,8 +265,8 @@ function backAlley(sc, X) {
 
 // ==== EP.01『ビッグフェイスのせまいドア』（約43秒）
 // ショット（秒）：s1 つっかえる / s2 中から / s3 横にして / s4 斜めにして・行列 / s5 行列を見る・裏口を教わる / s6 裏口に段ボール / s7 帰ろうとする・窓が開く / s8 窓でパンを受けとる / s9 窓の内と外で食べる（左右対称）
-export const EP01 = { s1: 0, s2: 2.6, s3: 5.6, s4: 9.4, s5: 12.6, s6: 16.4, s7: 22.6, s8: 29.2, s9: 33.4, end: 43.0,
-  hit1: 0.55, are: 4.6, hit2: 7.45, hit3: 10.75, kid_say: 14.4, sokka: 20.9, win: 26.6, kid_say2: 27.0, give: 31.2, bite1: 34.6, bite2: 36.6, final: 38.6 };
+export const EP01 = { s1: 0, s2: 2.6, s3: 5.6, s4: 9.4, s5: 12.6, s6: 16.4, s7: 22.6, s8: 29.2, s9: 33.4, end: 45.8,
+  hit1: 0.55, are: 4.6, hit2: 7.45, hit3: 10.75, kid_say: 14.4, sokka: 20.9, win: 26.6, kid_say2: 27.0, give: 31.2, bite1: 34.6, bite2: 36.6, final: 38.6, s10: 39.4, smile: 41.0, end2: 43.6, eye: 43.6 };
 function ep01(p) {
   const sc = S = new THREE.Scene();
   sc.background = new THREE.Color(0xE6EEE8); sc.fog = new THREE.Fog(0xE6EEE8, 20, 46);
@@ -264,6 +279,12 @@ function ep01(p) {
   const bf = bigFace(sc);
   const kid = person(sc, { h: 1.05, coat: 0xD98C74, pants: 0x7C6A5C, apron: true, hat: "toque", hair: 0x6A4A36, headR: 0.17 });
   const folk = [person(sc, { h: 1.75, coat: 0x8FA5B8, pants: 0x55606A, hair: 0x3A3A3A }), person(sc, { h: 1.6, coat: 0xC7A0B4, pants: 0x6A5A60, hair: 0x7A5A3A }), person(sc, { h: 1.5, coat: 0xB9B08A, pants: 0x5A5A50, hat: "brim", hatC: 0x6F7F78 })];
+  // アイキャッチの舞台（無地。11/10 ゲンタさん「アイキャッチのようなタイトルを最後に。ザ・ビッグフェイス」）
+  const EX = -60, EYEC = 0xF1E4CC;
+  mesh(new THREE.PlaneGeometry(40, 40), new THREE.MeshBasicMaterial({ color: EYEC }), sc, [EX, 0.001, 0], { rot: [-Math.PI / 2, 0, 0], cast: false, recv: false });
+  mesh(new THREE.PlaneGeometry(40, 40), new THREE.MeshBasicMaterial({ color: EYEC }), sc, [EX, 10, -4], { cast: false, recv: false });
+  const blob = mesh(new THREE.CircleGeometry(0.75, 32), new THREE.MeshBasicMaterial({ color: 0xC9B79C, transparent: true, opacity: 0.6 }), sc, [EX, 0.01, 0], { rot: [-Math.PI / 2, 0, 0], cast: false, recv: false });
+  const bf2 = bigFace(sc); bf2.root.position.set(EX, 0, 0);
   const stool = mesh(new THREE.CylinderGeometry(0.25, 0.22, 0.85, 14), BK.wood, sc, [2.45, 0.43, -1.2], { line: 0.03 });
   const bfBread = bread(sc, [0, -5, 0]), kidBread = bread(sc, [2.45, 1.02, -0.6]), kidBread2 = bread(sc, [0, -5, 0], 0.9);
   const E = EP01;
@@ -342,7 +363,7 @@ function ep01(p) {
     if (t > E.s8 && t < E.s9) { armUp = ease(seg(t, E.give - 0.4, E.give)); const hp = seg(t, E.give + 0.5, E.give + 1.0); if (hp > 0 && hp < 1) { bf.body.position.y += 0.06 * Math.sin(hp * Math.PI); pitch -= 0.08 * Math.sin(hp * Math.PI); } blink(E.give + 1.4); }
     // s9：食べる（大きな頭がこくんと下がる）→ 最後のひとこと
     if (t >= E.s9) { armUp = 1; [E.bite1, E.bite2].forEach(tb => { const k = seg(t, tb, tb + 0.7); if (k > 0 && k < 1) pitch += 0.42 * Math.sin(k * Math.PI); }); blink(E.s9 + 0.6); blink(E.final + 1.6);
-      if (t > E.final) { st.mouth = 0.4; pitch -= 0.04 * ease(seg(t, E.final, E.final + 0.6)); } }
+      if (t > E.s10) { blink(E.s10 + 0.7); const h = ease(seg(t, E.smile, E.smile + 0.35)); st.happy = h; pitch -= 0.05 * h; if (t > E.smile + 1.2) blink(E.smile + 1.4); } }   // 最後は顔：ほんの少し笑う（11/10 ゲンタさん「最後はビッグフェイスの表情で終わりたい」）
     bf.arms.forEach((a, i) => { a.rotation.x = -1.9 * armUp + a.rotation.x * (1 - armUp); a.rotation.z = (i ? -1 : 1) * 0.35 * armUp; });
     bf.neck.rotation.x = pitch; bf.neck.rotation.z = (t > E.s3 && t < E.s5) ? 0 : roll; bf.head.rotation.z = (t > E.s3 && t < E.s5) ? roll : 0; bf.setFace();
     // パン：渡すまでは子どもの手、そのあとビッグフェイスの手。かじるたびに小さく
@@ -356,6 +377,7 @@ function ep01(p) {
     stool.visible = t > E.s6;
     kid.arms[1].rotation.x = 0; kid.arms[0].rotation.x = 0; kid.arms[1].rotation.z = 0; kid.neck.rotation.set(0, 0, 0);
     if (t > E.kid_say && t < E.s6) { const u = ease(seg(t, E.kid_say, E.kid_say + 0.3)) * (1 - ease(seg(t, E.kid_say + 1.6, E.kid_say + 1.9))); kid.arms[0].rotation.z = 1.5 * u; kid.neck.rotation.y = 0.5 * u; }   // 横（裏）を指さす
+    if (t > E.kid_say2 && t < E.s8 + 0.6) { const u = ease(seg(t, E.kid_say2, E.kid_say2 + 0.25)) * (1 - ease(seg(t, E.s8 + 0.2, E.s8 + 0.6))); kid.arms[0].rotation.x = -u * (1.3 + 0.45 * Math.sin((t - E.kid_say2) * 11)); }   // 言葉なし：窓から手招き（11/10 ゲンタさん「言葉なし」）
     if (t > E.s7 && t < E.s9) { kid.neck.rotation.x = 0.1; const u = ease(seg(t, E.s8 + 1.2, E.give - 0.1)) * (1 - ease(seg(t, E.give + 0.1, E.give + 0.5))); kid.arms[1].rotation.x = -1.4 * u; }
     if (t >= E.s9) { kid.arms[0].rotation.x = -1.7; [E.bite1 + 0.45, E.bite2 + 0.45].forEach(tb => { const k = seg(t, tb, tb + 0.6); if (k > 0 && k < 1) kid.neck.rotation.x = 0.35 * Math.sin(k * Math.PI); });
       const hw = new THREE.Vector3(-0.19 * kid.H, 0.98, 0.25); kid.root.localToWorld(hw); kidBread2.position.copy(hw); kidBread2.scale.setScalar(0.9 * (1 - 0.2 * ((t > E.bite1 + 0.8 ? 1 : 0) + (t > E.bite2 + 0.8 ? 1 : 0)))); }
@@ -373,6 +395,17 @@ function ep01(p) {
       if (i === 0 && t > E.s5 + 0.6) f.arms[0].rotation.x = -1.2 * Math.sin(Math.min(1, seg(t, E.s5 + 0.6, E.s5 + 1.0)) * Math.PI / 2) * (1 - ease(seg(t, E.s5 + 2.4, E.s5 + 2.8)));   // 時計を見る
       if (i === 2 && u >= 1) f.legs[1].rotation.x = -0.25 * Math.max(0, Math.sin(t * 9));                                  // とんとん
     });
+    // --- アイキャッチ：上から落ちてきて、ぽふっと着地（顔がつぶれて戻る）→ うれしい顔で少しかしげる
+    if (t >= E.eye) {
+      const k = t - E.eye, fall = Math.min(1, k / 0.32), y = 3.2 * (1 - fall * fall);
+      bf2.root.position.y = y; const land = k - 0.32;
+      bf2.st.look = [0, 0]; bf2.st.blink = 0; bf2.st.mouth = 0; bf2.st.happy = 1; bf2.st.sq = 0;
+      let p2 = 0, r2 = 0;
+      if (land > 0) { bf2.st.sq = Math.max(-0.03, 0.08 * Math.exp(-land * 8) * Math.cos(land * 24)); p2 = 0.06 * Math.exp(-land * 5) * Math.sin(land * 16); bf2.body.scale.set(1 + 0.12 * Math.exp(-land * 12), 1 - 0.12 * Math.exp(-land * 12), 1); }
+      r2 = 0.09 * ease(seg(k, 1.0, 1.35)); if (k > 1.6 && k < 1.74) bf2.st.blink = Math.sin(seg(k, 1.6, 1.74) * Math.PI);
+      bf2.neck.rotation.x = p2; bf2.neck.rotation.z = r2; bf2.setFace(); blob.scale.setScalar(0.6 + 0.4 * fall);
+    }
+    if (t >= E.s10) { kid.root.position.y = -20; kidBread2.position.set(0, -20, 0); }
     // --- カメラ（1カット1種類の動き。感情の強い場面は固定）
     BK.nbR.visible = true; BK.inR.visible = true; BK.awn.visible = true; inside.intensity = 0; hemi.intensity = 1.15; sun.visible = true;
     const cam = (pos, look, fov) => { C.fov = fov; C.position.set(...pos); C.lookAt(...look); };
@@ -384,6 +417,8 @@ function ep01(p) {
     else if (t < E.s7) cam([AX + 1.0, 1.9, 10.0], [AX + 0.25, 1.9, 0.8], 40);
     else if (t < E.s8) cam([2.2, 2.0, 11.5], [2.0, 2.0, 1.2], 42);
     else if (t < E.s9) cam([6.2, 2.0, 4.6], [2.3, 1.85, -0.2], 42);
+    else if (t >= E.eye) { cam([EX, 1.4, 9.0], [EX, 0.75, 0], 36); hemi.intensity = 1.2; }
+    else if (t >= E.s10) { cam([1.95, 1.95, -3.2], [1.95, 1.95, 1.2], 34); BK.awn.visible = true; inside.intensity = 5; hemi.intensity = 1.05; }   // 窓の中（子どもの肩ごし）から顔：冒頭の「扉いっぱいの顔」と対
     else { cam([16.0, 1.92, -0.14], [2.45, 1.92, -0.14], 30); BK.awn.visible = false; BK.nbR.visible = false; BK.inR.visible = false; inside.intensity = 4; }   // 左右対称：壁を真横から（外＝左、中＝右）
     C.updateProjectionMatrix();
   };
@@ -405,4 +440,6 @@ window.setup = (j) => {
 };
 window.frame = (t) => { upd(t); R.render(S, C); return true; };
 window.probe = () => [];
+// 看板の文字（Zen Maru Gothic Bold）を読みこんでから始める
+{ const buf = await fetch("fonts/ZenMaruGothic-Bold.ttf").then(r => r.arrayBuffer()); const ff = new FontFace("ZenMaru", buf); await ff.load(); document.fonts.add(ff); }
 window.ready = true;

@@ -10,18 +10,20 @@ import music
 
 FR, OUT = sys.argv[1], sys.argv[2]
 W, H, FPS, SR = 1080, 1920, 30, 48000
-E = dict(s1=0, s2=2.6, s3=5.6, s4=9.4, s5=12.6, s6=16.4, s7=22.6, s8=29.2, s9=33.4, end=43.0,
+E = dict(s1=0, s2=2.6, s3=5.6, s4=9.4, s5=12.6, s6=16.4, s7=22.6, s8=29.2, s9=33.4, s10=39.4, eye=43.6, end=45.8,
          hit1=0.55, are=4.6, hit2=7.45, hit3=10.75, kid_say=14.4, sokka=20.9, win=26.6, kid_say2=27.0, give=31.2, bite1=34.6, bite2=36.6, final=38.6)
 F_TITLE = ImageFont.truetype(f"{HERE}/fonts/ZenMaruGothic-Bold.ttf", 70)
 F_EP = ImageFont.truetype(f"{HERE}/fonts/ZenMaruGothic-Bold.ttf", 34)
 F_SUB = ImageFont.truetype(f"{HERE}/fonts/ZenKakuGothicNew-Medium.ttf", 62)
 F_CR = ImageFont.truetype(f"{HERE}/fonts/ZenKakuGothicNew-Medium.ttf", 24)
+F_LOGO = ImageFont.truetype(f"{HERE}/fonts/ZenMaruGothic-Bold.ttf", 118)
 INK = (0x34, 0x3B, 0x3A)
 
 # セリフ（文、読み、声、時刻）。読みはここで決めた片仮名だけを使う（読み間違いを防ぐ）
 BF_V = ("0.vvm", 10, 0.82, -0.05, 0.55)      # 仮：雨晴はう（ゆっくり・抑揚ひかえめ）
 KID_V = ("0.vvm", 8, 0.98, 0.03, 1.0)        # 仮：春日部つむぎ（パン屋の子）
-LINES = [("……あれ？", "アレ？", BF_V, E["are"]),
+# 11/10 ゲンタさん「言葉なし」：セリフは使わない（動きだけで見せる）。声を足すときはここに書く
+LINES_OFF = [("……あれ？", "アレ？", BF_V, E["are"]),
          ("うらにも、ドアがあるよ", "ウラニモ、ドアガアルヨ", KID_V, E["kid_say"]),
          ("……そっか。", "ソッカ。", BF_V, E["sokka"]),
          ("ここからなら、どうぞ", "ココカラナラ、ドーゾ", KID_V, E["kid_say2"]),
@@ -29,6 +31,7 @@ LINES = [("……あれ？", "アレ？", BF_V, E["are"]),
 
 import render
 voices = []
+LINES = []
 for i, (txt, yomi, v, at) in enumerate(LINES):
     render.set_voice(*v); render._YOMI[txt] = yomi
     tmp = f"/tmp/bf_l{i}.wav"; render.tts(txt, tmp)
@@ -45,6 +48,12 @@ def text_layer(t):
     if a > 0:
         d.text((W // 2, 118), "EP.01", font=F_EP, fill=INK + (int(200 * a),), anchor="mm")
         d.text((W // 2, 190), "ビッグフェイスのせまいドア", font=F_TITLE, fill=INK + (int(255 * a),), anchor="mm")
+    k = t - E["eye"] - 0.42                                 # アイキャッチのロゴ：ぽんと出て、少しはねて止まる
+    if k > 0:
+        sc_ = 1 + 0.18 * np.exp(-k * 9) * np.cos(k * 26) - 0.18 * np.exp(-k * 30)
+        lg = Image.new("RGBA", (W, 260), (0, 0, 0, 0)); ImageDraw.Draw(lg).text((W // 2, 130), "ザ・ビッグフェイス", font=F_LOGO, fill=INK + (255,), anchor="mm")
+        lg = lg.resize((max(1, int(W * sc_)), max(1, int(260 * sc_))))
+        L.alpha_composite(lg, (int((W - lg.width) / 2), int(1250 - lg.height / 2)))
     for txt, x, at, dur in voices:                          # セリフ：上の余白に1行、白文字＋ひかえめな影
         a = alpha(t, at, at + dur + 0.7, 0.12)
         if a <= 0: continue
@@ -111,7 +120,11 @@ def fade(x, fi, fo):
     return x * e
 m02 = fade(music.bgm02(E["s6"] - E["s3"] - 0.1), 0.05, 0.6); put(bgm, m02, E["s3"], 0.8)
 m04 = fade(music.bgm04(E["win"] - E["s6"] - 1.0), 1.0, 1.2); put(bgm, m04, E["s6"] + 1.0, 0.9)
-m05 = fade(music.bgm05(E["end"] - E["s8"] - 0.4), 0.8, 0.3); put(bgm, m05, E["s8"] + 0.4, 0.85)
+m05 = fade(music.bgm05(E["eye"] - E["s8"] - 0.4), 0.8, 0.5); put(bgm, m05, E["s8"] + 0.4, 0.85)
+# アイキャッチ：着地のぽふっ＋トイピアノの短いジングル（メインテーマの頭3音＋和音）
+put(fx, pofu(1.05), E["eye"] + 0.32, 1.0)
+for j, (nn, at) in enumerate([(76, 0.45), (79, 0.62), (81, 0.79)]): put(bgm, music.toypiano(music.hz(nn), 0.6), E["eye"] + at, 0.5)
+for nn in (72, 76, 79, 84): put(bgm, music.toypiano(music.hz(nn), 1.4), E["eye"] + 1.0, 0.28)
 for txt, x, at, dur in voices: put(vo, x, at + 0.02, 0.95)
 # セリフの間はBGMを下げる
 duck = np.ones(n, np.float32)
@@ -127,7 +140,6 @@ files = sorted(glob.glob(f"{FR}/*.jpg"))
 os.makedirs("/tmp/bf_ep01_frames", exist_ok=True)
 for i, f in enumerate(files):
     im = Image.alpha_composite(Image.open(f).convert("RGBA"), text_layer(i / FPS))
-    ImageDraw.Draw(im).text((24, H - 40), "VOICEVOX:雨晴はう・春日部つむぎ", font=F_CR, fill=(255, 255, 255, 170), anchor="lm")
     im.convert("RGB").save(f"/tmp/bf_ep01_frames/{i:05d}.jpg", quality=95)
 subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-framerate", str(FPS), "-i", "/tmp/bf_ep01_frames/%05d.jpg", "-i", "/tmp/bf_ep01.wav",
                 "-af", "loudnorm=I=-14:TP=-1:LRA=11", "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "18", "-c:a", "aac", "-ar", "48000", "-ac", "2", "-b:a", "192k", "-shortest", OUT], check=True)
