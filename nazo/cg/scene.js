@@ -1512,7 +1512,205 @@ function miniCity(p) {
   };
 }
 
-const SCENES = { hakoniwa: hakoniwa, hakoniwa_eki: hakoniwaEki, stage_sea: stageSea, crowd_plaza: crowdPlaza, mini_city: miniCity, seafloor: seafloor, antarctica: antarctica, city: cityScene, icefly: icefly, seaice: seaice, orbit: orbitScene, gravity: gravityScene, surface: surfaceScene, tide: tideScene, land: landScene, flight: flightScene, rewind: rewindScene, spin: spinScene, axis: axisScene, space: spaceScene };
+// 画面いっぱいが町（11/10 ゲンタさん「見えてる画面がまるまる町とかステージみたいな世界観」「ギミックとかオブジェクトが多い方が良さそう」）
+// 板の端や空が映らないように、地面と建物をカメラの見える範囲より広く敷く。動くもの：電車と踏切、川の船、車とバス、信号、観覧車、メリーゴーランド、噴水、クレーン、ダンプ、池のアヒル、気球、鳥
+function townFull(p) {
+  const sc = CUR = new THREE.Scene();
+  sc.background = new THREE.Color(0x8fbf6a);
+  sc.add(new THREE.AmbientLight(0xffffff, 0.9));
+  const dl = new THREE.DirectionalLight(0xffffff, 1.05); dl.position.set(30, 60, 25); sc.add(dl);
+  let sd = (p.seed || 1) * 7919 + 13;
+  const rnd = () => { sd = (sd * 16807) % 2147483647; return sd / 2147483647; };
+  const ri = (a, b) => a + Math.floor(rnd() * (b - a + 1));
+  const B = (list, sz = 1, pos = [0, 0, 0]) => { const m = blocks(list, sz); m.position.set(...pos); sc.add(m); return m; };
+  const X0 = -64, X1 = 64, Z0 = -76, Z1 = 44;
+  const ROADX = [-13, 13], ROADZ = [-6, 20];
+  const RIV = [-25, -21], RAIL = -34;
+  const onRX = x => ROADX.some(r => Math.abs(x - r) <= 1), onRZ = z => ROADZ.some(r => Math.abs(z - r) <= 1);
+  const isRoad = (x, z) => onRX(x) || onRZ(z);
+  const isRiver = z => z >= RIV[0] && z <= RIV[1];
+  const occ = new Set(), key = (x, z) => Math.round(x) + "," + Math.round(z);
+  const mark = (x0, z0, w, d, pad = 1) => { for (let x = x0 - pad; x < x0 + w + pad; x++) for (let z = z0 - pad; z < z0 + d + pad; z++) occ.add(key(x, z)); };
+  // 地面
+  const G = [];
+  for (let x = X0; x <= X1; x++) for (let z = Z0; z <= Z1; z++) {
+    let c = (x + z) % 2 ? 0x6cc46c : 0x5cb85c, y = 0;
+    if (isRiver(z) && !onRX(x)) { c = (x + z) % 2 ? 0x3a8ee6 : 0x2f7fd8; y = -0.3; }
+    else if (isRoad(x, z)) c = isRiver(z) ? 0x8a7a6a : 0x5a5a60;
+    else if (Math.abs(z - RAIL) <= 1) c = 0x8a7a6a;
+    else if (ROADX.some(r => Math.abs(x - r) === 2) || ROADZ.some(r => Math.abs(z - r) === 2) || isRiver(z - 1) || isRiver(z + 1)) c = 0xd9d2c4;
+    if (onRZ(z) && Math.abs(z - Math.round(z)) < 0.01 && ROADZ.includes(z) && x % 4 === 0 && !onRX(x)) c = 0xf2f2f2;   // 中央線
+    G.push([x, y, z, c]);
+  }
+  B(G);
+  for (let x = X0; x <= X1; x++) occ.add(key(x, RAIL)), occ.add(key(x, RAIL - 1)), occ.add(key(x, RAIL + 1));
+  // 橋の欄干
+  const rail = []; ROADX.forEach(r => { for (let z = RIV[0] - 1; z <= RIV[1] + 1; z++) rail.push([r - 2, 0.8, z, 0xb04a3a], [r + 2, 0.8, z, 0xb04a3a]); }); B(rail, 0.6);
+  // 線路と電車（画面の外から外へ）
+  const tr = []; for (let x = X0; x <= X1; x++) tr.push([x, 0.35, RAIL - 0.5, 0x6a5a4a], [x, 0.35, RAIL + 0.5, 0x6a5a4a]); B(tr, 0.5);
+  const train = []; for (let i = 0; i < 6; i++) { const c = i === 0 ? 0x2a8a4a : 0xf2f2f2; const g = blocks([[-1, 0, 0, c], [0, 0, 0, c], [1, 0, 0, c], [-1, 1, 0, 0x9fd8ff], [0, 1, 0, c], [1, 1, 0, 0x9fd8ff], [-1, 0, 1, c], [0, 0, 1, 0x2a8a4a], [1, 0, 1, c], [-1, 1, 1, 0x9fd8ff], [0, 1, 1, c], [1, 1, 1, 0x9fd8ff]], 1); sc.add(g); train.push(g); }
+  const gates = []; ROADX.forEach(r => [-1, 1].forEach(sx => { const g = new THREE.Group(); g.position.set(r + sx * 2.2, 1.4, RAIL + sx * 2); const bar = blocks([[0, 0, 0, 0xf2f2f2], [1, 0, 0, 0xe03a3a], [2, 0, 0, 0xf2f2f2]], 0.45); bar.position.x = -sx * 0.4; g.add(bar); g.scale.x = -sx; sc.add(g); gates.push(g); B([[0, 0, 0, 0x333333], [0, 1, 0, 0x333333]], 0.6, [r + sx * 2.2, 0.6, RAIL + sx * 2]); }));
+  // 遠くの町（画面の上をビルで埋める）
+  for (let k = 0; k < 140; k++) {
+    let x, z; do { x = ri(X0 + 2, X1 - 4); z = ri(Z0 + 2, RAIL - 4); } while (onRX(x) || onRX(x + 2));
+    const h = 3 + Math.floor(rnd() * (6 + (RAIL - z) / 4)), c = [0xf2e6d0, 0xe0c8a8, 0xc8d8e8, 0xf0c0b0, 0xd8e8c8, 0xe8e8e8, 0xb8c8d8][ri(0, 6)];
+    const bl = []; for (let y = 1; y <= h; y++) for (let dx = 0; dx < 3; dx++) for (let dz = 0; dz < 3; dz++) if (dx === 1 && dz === 1 && y < h) continue; else bl.push([dx, y, dz, (y % 2 && dz === 2 && dx !== 1) ? 0x9fc8e8 : c]);
+    B(bl, 1, [x, 0, z]);
+  }
+  // 建物（町の中）
+  const house = (x, z, w, d, h, c, roof) => {
+    const bl = []; for (let y = 1; y <= h; y++) for (let dx = 0; dx < w; dx++) for (let dz = 0; dz < d; dz++) { if (dx > 0 && dx < w - 1 && dz > 0 && dz < d - 1 && y < h) continue; bl.push([dx, y, dz, (y % 2 && dz === d - 1 && dx % 2 === 0) ? 0x9fc8e8 : c]); }
+    for (let dx = 0; dx < w; dx++) for (let dz = 0; dz < d; dz++) bl.push([dx, h + 1, dz, roof]);
+    B(bl, 1, [x, 0, z]); mark(x, z, w, d);
+  };
+  const CB = [0xf2e6d0, 0xe0c8a8, 0xc8d8e8, 0xf0c0b0, 0xd8e8c8, 0xe8e8e8], CR = [0xb04a3a, 0x3a6fd8, 0x4a8a3a, 0x8a5a3a, 0x555555];
+  const tryHouse = (xa, xb, za, zb, wmax, hmax) => { for (let n = 0; n < 30; n++) { const w = ri(2, wmax), d = ri(2, 3), x = ri(xa, xb - w), z = ri(za, zb - d); let ok = true; for (let a = x - 1; a <= x + w && ok; a++) for (let b = z - 1; b <= z + d; b++) if (occ.has(key(a, b)) || isRoad(a, b) || isRiver(b)) { ok = false; break; } if (ok) { house(x, z, w, d, ri(2, hmax), CB[ri(0, 5)], CR[ri(0, 4)]); return; } } };
+  // 風車（左の手前）
+  const mills = [[-19, -13], [19, -16], [-6, 24]].map(([x, z]) => { B([[0, 1, 0, 0xf2f2f2], [0, 2, 0, 0xf2f2f2], [0, 3, 0, 0xf2f2f2], [0, 4, 0, 0xf2f2f2], [0, 5, 0, 0xf2f2f2]], 1, [x, 0, z]); const g = new THREE.Group(); g.position.set(x, 5.5, z + 0.7); const bl = []; for (let r = 1; r <= 4; r++) bl.push([r, 0, 0, 0xe8e8e8], [-r, 0, 0, 0xe8e8e8], [0, r, 0, 0xe8e8e8], [0, -r, 0, 0xe8e8e8]); g.add(blocks(bl, 0.7)); sc.add(g); mark(x, z, 1, 1); return g; });
+  // 手前：プールと駐車場
+  const pool = []; for (let x = 0; x < 8; x++) for (let z = 0; z < 4; z++) pool.push([x, 0.05, z, (x === 0 || x === 7 || z === 0 || z === 3) ? 0xf2f2f2 : 0x5ac8f0]); B(pool, 1, [3, 0, 24]); mark(3, 24, 8, 4, 0);
+  const floats = []; for (let i = 0; i < 3; i++) { const m = blocks([[0, 0, 0, [0xff4a7a, 0xf2c230, 0x6ad86a][i]]], 0.7); sc.add(m); floats.push(m); }
+  const park = []; for (let x = 0; x < 10; x++) for (let z = 0; z < 5; z++) park.push([x, 0.05, z, x % 2 ? 0x77777c : 0x6a6a70]); B(park, 1, [-18, 0, 24]);
+  for (let k = 0; k < 6; k++) { const c = [0xd83a3a, 0x3a6fd8, 0xf2c230, 0xffffff, 0x333333, 0x3aa65a][(k * 7 + (p.seed || 1)) % 6]; B([[0, 0, 0, c], [0, 0, 1, c], [0, 0.8, 0.5, 0x9fd8ff]], 0.8, [-17 + (k % 5) * 2, 1, 24 + (k > 4 ? 3 : 0.5)]); }
+  mark(-18, 24, 10, 5, 0);
+  // 川と線路のあいだ、両端
+  for (let k = 0; k < 34; k++) tryHouse(X0 + 2, X1 - 2, RAIL + 3, RIV[0] - 2, 4, 6);
+  // 川の手前の町（左右のブロック）
+  for (let k = 0; k < 10; k++) tryHouse(-40, -16, RIV[1] + 3, ROADZ[0] - 3, 4, 7);
+  for (let k = 0; k < 10; k++) tryHouse(16, 40, RIV[1] + 3, ROADZ[0] - 3, 4, 7);
+  // 手前の家並み（いちばん下）
+  for (let k = 0; k < 28; k++) tryHouse(X0 + 2, X1 - 2, ROADZ[1] + 3, Z1 - 1, 3, 3);
+  // 中央の広場：噴水と屋台
+  const FX = 0, FZ = -14;
+  const fb = []; for (let a = 0; a < 20; a++) { const t = a / 20 * Math.PI * 2; fb.push([Math.round(Math.cos(t) * 3), 0.6, Math.round(Math.sin(t) * 3), 0xd9d2c4]); } B(fb, 1, [FX, 0, FZ]);
+  const fw = []; for (let x = -2; x <= 2; x++) for (let z = -2; z <= 2; z++) if (x * x + z * z <= 5) fw.push([x, 0.5, z, 0x6ab8f0]); B(fw, 1, [FX, 0, FZ]);
+  const jets = []; for (let i = 0; i < 7; i++) { const m = blocks([[0, 0, 0, 0xdff3ff]], 0.6); sc.add(m); jets.push(m); }
+  mark(FX - 3, FZ - 3, 7, 7, 0);
+  const awn = [0xe03a3a, 0x3a7fd8, 0xf2c230, 0x3aa65a, 0xd85aa0];
+  for (let i = 0; i < 5; i++) { const x = -9 + i * 4, z = -19; B([[0, 1, 0, 0xf2e6d0], [1, 1, 0, 0xf2e6d0], [0, 2, 0, awn[i]], [1, 2, 0, awn[i]], [0, 2, 1, awn[i]], [1, 2, 1, awn[i]]], 1, [x, 0, z]); mark(x, z, 2, 1, 0); }
+  // 工事現場：クレーン（回る）とダンプ（行き来）
+  const CX = -22, CZ = 7;
+  const cf = []; for (let x = -6; x <= 6; x++) for (let z = -5; z <= 5; z++) if (Math.abs(x) === 6 || Math.abs(z) === 5) cf.push([x, 0.6, z, (x + z) % 2 ? 0xf2c230 : 0x333333]); B(cf, 0.6, [CX, 0, CZ]);
+  const mast = []; for (let y = 1; y <= 14; y++) mast.push([0, y, 0, 0xf2a020]); B(mast, 0.8, [CX, 0, CZ]);
+  const jib = new THREE.Group(); jib.position.set(CX, 11.6, CZ); sc.add(jib);
+  const jl = []; for (let x = -3; x <= 10; x++) jl.push([x, 0, 0, x < 0 ? 0x888888 : 0xf2a020]); jib.add(blocks(jl, 0.8));
+  const hook = blocks([[0, 0, 0, 0x555555], [0, -1, 0, 0x555555], [0, -2, 0, 0x555555], [0, -3, 0, 0x8a5a2a], [0.8, -3, 0, 0x8a5a2a]], 0.6); hook.position.set(6, 0, 0); jib.add(hook);
+  B([[0, 1, 0, 0xc8c8c8], [1, 1, 0, 0xc8c8c8], [0, 2, 0, 0xc8c8c8], [1, 2, 0, 0xc8c8c8], [0, 1, 1, 0xc8c8c8], [1, 1, 1, 0xc8c8c8]], 1, [CX + 2, 0, CZ - 3]);
+  const dump = blocks([[0, 0, 0, 0xf2c230], [1, 0, 0, 0xf2c230], [2, 0, 0, 0x8a5a2a], [3, 0, 0, 0x8a5a2a], [0, 1, 0, 0x9fd8ff], [2, 1, 0, 0x8a5a2a], [3, 1, 0, 0x8a5a2a]], 0.8); sc.add(dump);
+  mark(CX - 6, CZ - 5, 13, 11, 0);
+  // 公園：メリーゴーランドと池のアヒル
+  const MX = 0, MZ = 7;
+  const mg = new THREE.Group(); mg.position.set(MX, 0, MZ); sc.add(mg);
+  const disk = []; for (let x = -4; x <= 4; x++) for (let z = -4; z <= 4; z++) if (x * x + z * z <= 17) disk.push([x, 0.6, z, (x + z) % 2 ? 0xf2e6d0 : 0xd85aa0]); mg.add(blocks(disk, 1));
+  const top = []; for (let x = -4; x <= 4; x++) for (let z = -4; z <= 4; z++) if (x * x + z * z <= 17) top.push([x, 5.2, z, (Math.atan2(z, x) * 4 / Math.PI | 0) % 2 ? 0xe03a3a : 0xf2f2f2]); mg.add(blocks(top, 1));
+  mg.add(blocks([[0, 1.5, 0, 0xf2c230], [0, 2.5, 0, 0xf2c230], [0, 3.5, 0, 0xf2c230], [0, 4.5, 0, 0xf2c230]], 1));
+  const horses = []; for (let i = 0; i < 6; i++) { const c = [0xffffff, 0x8a5a2a, 0xf2c230, 0x4ab0ff, 0xff4a7a, 0x333333][i]; const h = blocks([[0, 0, 0, c], [0.8, 0, 0, c], [1.2, 0.7, 0, c]], 0.8); mg.add(h); horses.push(h); }
+  mark(MX - 4, MZ - 4, 9, 9, 0);
+  const PX = 6, PZ = 14;
+  const pond = []; for (let x = -3; x <= 3; x++) for (let z = -2; z <= 2; z++) if (x * x / 9 + z * z / 4 <= 1) pond.push([x, 0.05, z, 0x4aa0e8]); B(pond, 1, [PX, 0, PZ]);
+  const ducks = []; for (let i = 0; i < 4; i++) { const d = blocks([[0, 0, 0, i ? 0xffffff : 0xf2c230], [0.5, 0.5, 0, i ? 0xffffff : 0xf2c230]], 0.5); sc.add(d); ducks.push(d); }
+  mark(PX - 3, PZ - 2, 7, 5, 0);
+  // 観覧車（右）
+  const WX = 21, WZ = 10;
+  const FW = new THREE.Group(); FW.position.set(WX, 9, WZ); FW.rotation.x = -0.75; sc.add(FW);
+  const ring = []; for (let a = 0; a < 36; a++) { const t = a / 36 * Math.PI * 2; ring.push([Math.round(Math.sin(t) * 70) / 10, Math.round(Math.cos(t) * 70) / 10, 0, 0xf2f2f2]); }
+  const wheel = new THREE.Group(); FW.add(wheel); wheel.add(blocks(ring, 0.6));
+  const spk = []; for (let a = 0; a < 8; a++) for (let r = 1; r < 7; r++) { const t = a / 8 * Math.PI * 2; spk.push([Math.cos(t) * r, Math.sin(t) * r, 0, 0xcccccc]); } wheel.add(blocks(spk, 0.3));
+  const gond = [0xff4a7a, 0x4ab0ff, 0xffd23a, 0x6ad86a, 0xff9a3a, 0x9a6ad8, 0xff4a7a, 0x4ab0ff].map(c => { const g = blocks([[0, 0, 0, c]], 1.1); FW.add(g); return g; });
+  B([[0, 0, 0, 0x888888], [0, 1, 0, 0x888888], [0, 2, 0, 0x888888], [0, 3, 0, 0x888888], [0, 4, 0, 0x888888], [0, 5, 0, 0x888888], [0, 6, 0, 0x888888], [0, 7, 0, 0x888888]], 1, [WX, 1, WZ - 1]);
+  mark(WX - 7, WZ - 2, 15, 4, 0);
+  // 木
+  for (let k = 0; k < 70; k++) {
+    let x, z, n = 0; do { x = ri(X0 + 2, X1 - 2); z = ri(RAIL + 3, Z1 - 1); n++; } while ((isRoad(x, z) || isRiver(z) || occ.has(key(x, z)) || Math.abs(z - RAIL) < 3) && n < 50);
+    if (n >= 50) continue;
+    B([[0, 1, 0, COL.trunk], [0, 2, 0, COL.leaf], [1, 2, 0, COL.leaf2], [-1, 2, 0, COL.leaf2], [0, 2, 1, COL.leaf], [0, 2, -1, COL.leaf2], [0, 3, 0, COL.leaf]], 0.8, [x, 0, z]); occ.add(key(x, z));
+  }
+  // 信号（交差点の角。色が変わる）
+  const lights = [];
+  ROADX.forEach(rx => ROADZ.forEach(rz => { const x = rx + 2.2, z = rz + 2.2; B([[0, 0, 0, 0x333333], [0, 1, 0, 0x333333], [0, 2, 0, 0x333333]], 0.5, [x, 0.4, z]); const l = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.6, 0.6), new THREE.MeshBasicMaterial({ color: 0x3ad83a })); l.position.set(x, 1.9, z); sc.add(l); lights.push(l); }));
+  // 船（川を行き来）
+  const boats = [0xf2f2f2, 0xe03a3a, 0xf2c230].map((c, i) => { const g = blocks([[-1, 0, 0, c], [0, 0, 0, c], [1, 0, 0, c], [2, 0, 0, c], [0, 1, 0, 0x9fd8ff], [1, 1, 0, c]], 0.8); sc.add(g); return { g, z: RIV[0] + 1 + (i % 2) * 2, sp: (i % 2 ? -1 : 1) * (2 + i), ph: i * 30 }; });
+  // 車とバス（道を行き来。画面の外から出入りする）
+  const autos = [];
+  for (let k = 0; k < 18; k++) {
+    const bus = k % 6 === 5, c = bus ? 0x3aa65a : [0xd83a3a, 0x3a6fd8, 0xf2c230, 0xffffff, 0x333333][k % 5];
+    const list = bus ? [[0, 0, 0, c], [1, 0, 0, c], [2, 0, 0, c], [3, 0, 0, c], [0, 0.8, 0, 0x9fd8ff], [1, 0.8, 0, 0x9fd8ff], [2, 0.8, 0, 0x9fd8ff], [3, 0.8, 0, 0x9fd8ff]] : [[0, 0, 0, c], [1, 0, 0, c], [0.5, 0.8, 0, 0x9fd8ff]];
+    const m = blocks(list, 0.8); sc.add(m);
+    const vert = k % 2 === 0, lane = vert ? ROADX[(k >> 1) % 2] : ROADZ[(k >> 1) % 2], dir = (k % 4 < 2) ? 1 : -1;
+    autos.push({ m, vert, lane: lane + dir * 0.6, sp: dir * (4 + rnd() * 3), ph: rnd() * 200 });
+  }
+  // 気球と鳥
+  const balloons = [[0xe03a3a, 0xf2f2f2], [0xf2c230, 0x3a7fd8]].map(([a, b], i) => { const bl = []; for (let x = -2; x <= 2; x++) for (let y = -2; y <= 2; y++) for (let z = -2; z <= 2; z++) if (x * x + y * y + z * z <= 5) bl.push([x, y, z, (x + 2) % 2 ? a : b]); bl.push([0, -3.5, 0, 0x8a5a2a]); const m = blocks(bl, 0.8); sc.add(m); return { m, i }; });
+  const birds = []; for (let i = 0; i < 7; i++) { const m = blocks([[0, 0, 0, 0xffffff], [-0.6, 0.2, 0, 0xffffff], [0.6, 0.2, 0, 0xffffff]], 0.4); sc.add(m); birds.push(m); }
+  // 人形（人もずんだもんも同じ形）
+  const SH = [0xe8452a, 0x3a7fd8, 0xf2c230, 0x3aa65a, 0xd85aa0, 0xffffff, 0x8a5ad8, 0xff9a3a, 0x444444, 0x2ab8b0];
+  const HAIRS = [0x222222, 0x5a3418, 0x8a5a2a, 0xe8c070, 0x777777];
+  const doll = (kind) => {
+    const g = new THREE.Group();
+    const add = (w, h, d, x, y, z, col) => { const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), new THREE.MeshLambertMaterial({ color: col })); m.position.set(x, y, z); g.add(m); return m; };
+    const Z = kind === 9;
+    const shirt = (Z || kind === 2 || kind === 3) ? 0xf6f6f6 : SH[Math.floor(rnd() * SH.length)];
+    const low = (Z || kind === 2) ? 0x4f9e2c : [0x2a3a6a, 0x333333, 0x6a4a2a, 0x2a5a3a][Math.floor(rnd() * 4)];
+    const hair = (Z || kind === 1 || kind === 3) ? 0xa6d94a : HAIRS[Math.floor(rnd() * HAIRS.length)];
+    const legs = [add(0.3, 0.7, 0.3, -0.18, 0.35, 0, Z ? 0xf6f6f6 : low), add(0.3, 0.7, 0.3, 0.18, 0.35, 0, Z ? 0xf6f6f6 : low)];
+    if (Z) add(0.95, 0.4, 0.6, 0, 0.82, 0, 0x4f9e2c);
+    add(0.8, 0.8, 0.5, 0, 1.2, 0, shirt);
+    add(0.7, 0.7, 0.7, 0, 1.95, 0, 0xffe2c8);
+    add(0.78, 0.25, 0.78, 0, 2.35, 0, hair);
+    add(0.78, 0.55, 0.15, 0, 2.05, -0.36, hair);
+    if (Z) { add(0.18, 0.3, 0.18, -0.5, 2.35, 0, 0x5aa830); add(0.18, 0.3, 0.18, 0.5, 2.35, 0, 0x5aa830); }
+    g.userData = { legs }; g.scale.setScalar(p.doll ?? 0.72); sc.add(g); return g;
+  };
+  const bad = (x, z) => isRoad(x, z) || isRiver(z) || occ.has(key(x, z)) || Math.abs(z - RAIL) < 2.5;
+  const free = (zmin, zmax, xm) => { for (;;) { const x = (rnd() * 2 - 1) * xm, z = zmin + rnd() * (zmax - zmin), a = rnd() * Math.PI * 2, r = 0.8 + rnd() * 2;
+    if (!bad(x, z) && !bad(x + Math.cos(a) * r, z + Math.sin(a) * r) && !bad(x - Math.cos(a) * r, z - Math.sin(a) * r)) return { x0: x, z0: z, a, r }; } };
+  const walkers = [];
+  const N = p.n || 230;
+  for (let i = 0; i < N; i++) {
+    const kind = i % 7 === 0 ? 1 : i % 10 === 0 ? 2 : i % 17 === 0 ? 3 : 0;
+    walkers.push(Object.assign({ g: doll(kind), sp: 0.3 + rnd() * 0.5, ph: rnd() * 6.28 }, free(-31, 29, 30)));
+  }
+  const zs = [];
+  for (let k = 0; k < (p.zcount || 1); k++) zs.push(Object.assign({ g: doll(9), sp: 0.4, ph: rnd() * 6.28 }, free(p.z_zmin ?? -18, p.z_zmax ?? 24, p.z_xm ?? 22)));
+  const place = (w, t) => {
+    const u = Math.sin(t * w.sp + w.ph);
+    const x = w.x0 + Math.cos(w.a) * w.r * u, z = w.z0 + Math.sin(w.a) * w.r * u;
+    const dir = Math.cos(t * w.sp + w.ph) >= 0 ? 1 : -1;
+    w.g.position.set(x, 0.5, z); w.g.rotation.y = Math.atan2(Math.cos(w.a) * dir, Math.sin(w.a) * dir);
+    const s = Math.sin(t * 9 * w.sp + w.ph); w.g.userData.legs[0].rotation.x = 0.5 * s; w.g.userData.legs[1].rotation.x = -0.5 * s;
+    return [x, z];
+  };
+  const LEN = X1 - X0;
+  return (t, d) => {
+    const sw = Math.sin(t * 0.18) * 1.5;
+    C.position.set(sw, p.cam_h ?? 60, p.cam_z ?? 26); C.lookAt(sw * 0.3, 0, 1);
+    walkers.forEach(w => place(w, t));
+    zs.forEach((w, k) => { const [x, z] = place(w, t); ANCH["zunda" + k] = [x, 2, z]; });
+    // 電車：12秒で画面を横切る。近づくと踏切が下りる
+    const hx = ((t * 9 + 20) % (LEN + 40)) + X0 - 20;
+    train.forEach((g, i) => g.position.set(hx - i * 3.2, 1, RAIL - 0.5));
+    const near = ROADX.some(r => hx + 6 > r && hx - 6 * 3.2 - 6 < r);
+    gates.forEach(g => { const tgt = near ? 0 : 1.3; g.rotation.z += (tgt * Math.sign(g.scale.x) - g.rotation.z) * 0.25; });
+    // 信号：6秒ごとに 青→黄→赤
+    const ph = (t % 6) / 6; lights.forEach((l, i) => l.material.color.setHex(((ph + i * 0.5) % 1) < 0.45 ? 0x3ad83a : ((ph + i * 0.5) % 1) < 0.55 ? 0xf2c230 : 0xe03a3a));
+    wheel.rotation.z = t * 0.25;
+    gond.forEach((g, i) => { const a = t * 0.25 + i / gond.length * Math.PI * 2; g.position.set(Math.cos(a) * 7, Math.sin(a) * 7 - 0.8, 0.6); });
+    mg.rotation.y = t * 0.6;
+    horses.forEach((h, i) => { const a = i / horses.length * Math.PI * 2; h.position.set(Math.cos(a) * 3, 1.6 + Math.sin(t * 3 + i) * 0.4, Math.sin(a) * 3); h.rotation.y = -a; });
+    jets.forEach((j, i) => { const u = ((t * 1.2 + i / jets.length) % 1); const a = i / jets.length * Math.PI * 2; j.position.set(FX + Math.cos(a) * u * 2, 1 + Math.sin(u * Math.PI) * 4, FZ + Math.sin(a) * u * 2); });
+    jib.rotation.y = Math.sin(t * 0.3) * 1.4; hook.position.y = -1 + Math.sin(t * 0.7) * 1.5;
+    dump.position.set(CX - 4 + (Math.sin(t * 0.5) + 1) * 4, 1, CZ + 3);
+    ducks.forEach((dk, i) => { const a = t * 0.5 + i * 0.5; dk.position.set(PX + Math.cos(a) * 2, 0.5, PZ + Math.sin(a) * 1.2); dk.rotation.y = -a; });
+    mills.forEach((m, i) => m.rotation.z = t * (1.2 + i * 0.3));
+    floats.forEach((m, i) => m.position.set(5 + i * 2 + Math.sin(t * 0.7 + i) * 1.2, 0.4 + Math.sin(t * 2 + i) * 0.1, 25.5 + Math.cos(t * 0.5 + i * 2) * 0.6));
+    boats.forEach(b => { const s = (((t * b.sp + b.ph) % LEN) + LEN) % LEN + X0; b.g.position.set(s, 0.2, b.z); b.g.rotation.y = b.sp > 0 ? 0 : Math.PI; });
+    autos.forEach(a => { const s = (((t * a.sp + a.ph) % LEN) + LEN) % LEN; if (a.vert) { a.m.position.set(a.lane, 1, Z0 + s * (Z1 - Z0) / LEN); a.m.rotation.y = a.sp > 0 ? -Math.PI / 2 : Math.PI / 2; } else { a.m.position.set(X0 + s, 1, a.lane); a.m.rotation.y = a.sp > 0 ? 0 : Math.PI; } });
+    balloons.forEach(b => b.m.position.set(-30 + b.i * 50 + t * 0.8, 24 + Math.sin(t * 0.5 + b.i) * 1.5, -44 + b.i * 6));
+    birds.forEach((m, i) => { const a = t * 0.6 + i * 0.25; m.position.set(Math.cos(a) * 18 + (i % 3), 20 + (i % 2), -10 + Math.sin(a) * 10); m.rotation.y = -a; m.children; });
+  };
+}
+
+const SCENES = { town_full: townFull, hakoniwa: hakoniwa, hakoniwa_eki: hakoniwaEki, stage_sea: stageSea, crowd_plaza: crowdPlaza, mini_city: miniCity, seafloor: seafloor, antarctica: antarctica, city: cityScene, icefly: icefly, seaice: seaice, orbit: orbitScene, gravity: gravityScene, surface: surfaceScene, tide: tideScene, land: landScene, flight: flightScene, rewind: rewindScene, spin: spinScene, axis: axisScene, space: spaceScene };
 
 window.setup = (j) => {
   job = j; seed = 12345;
