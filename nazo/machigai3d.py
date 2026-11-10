@@ -106,6 +106,24 @@ def _logo(d, x, y, size, anchor="lm"):
     d.text((x, y), LOGO[0], font=motion.font(size), fill=INK, anchor=anchor)
 
 
+_TM = {}
+
+
+def _tilt(img):
+    from PIL import ImageFilter
+    w, h = img.size
+    if (w, h) not in _TM:
+        m = Image.new("L", (w, h), 0); dm = ImageDraw.Draw(m)
+        for y in range(h):
+            u = y / h
+            v = max(0.0, (0.26 - u) / 0.26) if u < 0.26 else max(0.0, (u - 0.93) / 0.07)   # 探す場所はぼかさない（上の奥と下の端だけ）
+            dm.line([(0, y), (w, y)], fill=int(255 * min(1.0, v * 1.3)))
+        _TM[(w, h)] = m
+    bl = img.filter(ImageFilter.GaussianBlur(5))
+    sat = img
+    return Image.composite(bl, sat, _TM[(w, h)])
+
+
 def frame_ah(t, sp, A, Bm, events, lines, t_s, t_a, t_e, total, S):
     fr = Image.new("RGB", (W, H), PAPER)
     d = ImageDraw.Draw(fr, "RGBA")
@@ -141,6 +159,8 @@ def frame_ah(t, sp, A, Bm, events, lines, t_s, t_a, t_e, total, S):
     oy_a, oy_b = TOPY, TOPY + PH + GAPY
     wipe = _ease((t - OPEN) / 0.35)          # パネルが横から入る
     xa, xb = int(-W * (1 - wipe)), int(W * (1 - wipe))
+    if sp.get("tilt"):      # ミニチュア写真のように上下をぼかす（ティルトシフト風）
+        A = _tilt(A)
     fr.paste(A, (xa, oy_a))
     if Bm is not None:
         fr.paste(Bm, (xb, oy_b))

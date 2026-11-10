@@ -1403,7 +1403,116 @@ function crowdPlaza(p) {
   };
 }
 
-const SCENES = { hakoniwa: hakoniwa, hakoniwa_eki: hakoniwaEki, stage_sea: stageSea, crowd_plaza: crowdPlaza, seafloor: seafloor, antarctica: antarctica, city: cityScene, icefly: icefly, seaice: seaice, orbit: orbitScene, gravity: gravityScene, surface: surfaceScene, tide: tideScene, land: landScene, flight: flightScene, rewind: rewindScene, spin: spinScene, axis: axisScene, space: spaceScene };
+// ---------- ずんだもんはどこ？ ミニチュアの街（11/10 ゲンタさん「等身が1人だけ違う」「ミニチュアの街みたいな、車とか電車とか観覧車とか動いてる世界で、もう少し小さく」）
+// 人もずんだもんも同じ小さな人形の形（ずんだもんは緑の髪・白い服・緑のスカート・小さな枝豆のさや）。まぎらわしい人を多めに混ぜる。
+function miniCity(p) {
+  const sc = CUR = new THREE.Scene();
+  sc.background = new THREE.Color(0xcfeeff);
+  sc.add(new THREE.AmbientLight(0xffffff, 0.9));
+  const dl = new THREE.DirectionalLight(0xffffff, 1.05); dl.position.set(30, 60, 25); sc.add(dl);
+  let sd = (p.seed || 1) * 7919 + 13;
+  const rnd = () => { sd = (sd * 16807) % 2147483647; return sd / 2147483647; };
+  const B = (list, sz = 1, pos = [0, 0, 0]) => { const m = blocks(list, sz); m.position.set(...pos); sc.add(m); return m; };
+  const XW = 22, ZD = 32;
+  const ROADX = [-8, 8], ROADZ = [-14, 2, 18];              // 道（縦2本・横2本）
+  const isRoad = (x, z) => ROADX.some(r => Math.abs(x - r) <= 1) || ROADZ.some(r => Math.abs(z - r) <= 1);
+  // 地面：道・歩道・芝
+  const G = [];
+  for (let x = -XW; x <= XW; x++) for (let z = -ZD; z <= ZD; z++) {
+    let c = (x + z) % 2 ? 0x6cc46c : 0x5cb85c;
+    if (isRoad(x, z)) c = 0x5a5a60;
+    else if (ROADX.some(r => Math.abs(x - r) === 2) || ROADZ.some(r => Math.abs(z - r) === 2)) c = 0xd9d2c4;
+    G.push([x, 0, z, c]);
+  }
+  B(G);
+  // 線路（奥の長方形の輪）
+  const RX0 = -20, RX1 = 20, RZ0 = -31, RZ1 = -26;
+  const rl = []; for (let x = RX0; x <= RX1; x++) rl.push([x, 0.55, RZ0, 0x6a5a4a], [x, 0.55, RZ1, 0x6a5a4a]);
+  for (let z = RZ0; z <= RZ1; z++) rl.push([RX0, 0.55, z, 0x6a5a4a], [RX1, 0.55, z, 0x6a5a4a]);
+  const rlm = B(rl); rlm.scale.y = 0.3;
+  const PER = 2 * ((RX1 - RX0) + (RZ1 - RZ0));
+  const rp = s => { s = ((s % PER) + PER) % PER; const w = RX1 - RX0, h = RZ1 - RZ0;
+    if (s < w) return [RX0 + s, RZ0, 0]; if ((s -= w) < h) return [RX1, RZ0 + s, Math.PI / 2];
+    if ((s -= h) < w) return [RX1 - s, RZ1, Math.PI]; s -= w; return [RX0, RZ1 - s, -Math.PI / 2]; };
+  const cars = [0xd83a3a, 0xf2f2f2, 0xd83a3a, 0xf2f2f2].map(c => { const g = new THREE.Group(); g.add(blocks([[-1, 0, 0, c], [0, 0, 0, c], [1, 0, 0, c], [-1, 0.9, 0, 0x9fd8ff], [0, 0.9, 0, 0x9fd8ff], [1, 0.9, 0, 0x9fd8ff]], 0.9)); sc.add(g); return g; });
+  // 建物（区画ごと）
+  for (let k = 0; k < 26; k++) {
+    let x, z; do { x = Math.round((rnd() * 2 - 1) * (XW - 3)); z = Math.round(-24 + rnd() * 8); } while (isRoad(x, z) || isRoad(x + 1, z + 1));
+    const h = 2 + Math.floor(rnd() * 5), c = [0xf2e6d0, 0xe0c8a8, 0xc8d8e8, 0xf0c0b0, 0xd8e8c8, 0xe8e8e8][Math.floor(rnd() * 6)];
+    const bl = []; for (let y = 1; y <= h; y++) for (let dx = 0; dx < 2; dx++) for (let dz = 0; dz < 2; dz++) bl.push([dx, y, dz, (y % 2 && dx === 0) ? 0x9fc8e8 : c]);
+    bl.push([0, h + 1, 0, 0xb04a3a], [1, h + 1, 0, 0xb04a3a], [0, h + 1, 1, 0xb04a3a], [1, h + 1, 1, 0xb04a3a]);
+    B(bl, 1, [x, 0, z]);
+  }
+  // 観覧車（右手前）
+  const FW = new THREE.Group(); FW.position.set(15, 9, 9); sc.add(FW);
+  const ring = []; for (let a = 0; a < 32; a++) { const t = a / 32 * Math.PI * 2; ring.push([0, Math.round(Math.cos(t) * 7 * 10) / 10, Math.round(Math.sin(t) * 7 * 10) / 10, 0xf2f2f2]); }
+  const wheel = new THREE.Group(); FW.add(wheel); wheel.add(blocks(ring.map(r => [r[2], r[1], 0, r[3]]), 0.6));
+  const gond = [0xff4a7a, 0x4ab0ff, 0xffd23a, 0x6ad86a, 0xff9a3a, 0x9a6ad8, 0xff4a7a, 0x4ab0ff].map(c => { const g = blocks([[0, 0, 0, c]], 1.1); FW.add(g); return g; });
+  B([[0, 0, 0, 0x888888], [0, 1, 0, 0x888888], [0, 2, 0, 0x888888], [0, 3, 0, 0x888888], [0, 4, 0, 0x888888], [0, 5, 0, 0x888888], [0, 6, 0, 0x888888], [0, 7, 0, 0x888888]], 1, [15, 1, 8]);
+  // 木
+  for (let k = 0; k < 22; k++) {
+    let x, z; do { x = Math.round((rnd() * 2 - 1) * (XW - 2)); z = Math.round((rnd() * 2 - 1) * (ZD - 2)); } while (isRoad(x, z) || (z > -25 && z < -15));
+    B([[0, 1, 0, COL.trunk], [0, 2, 0, COL.leaf], [1, 2, 0, COL.leaf2], [-1, 2, 0, COL.leaf2], [0, 2, 1, COL.leaf], [0, 2, -1, COL.leaf2], [0, 3, 0, COL.leaf]], 0.8, [x, 0, z]);
+  }
+  // 車（道を行き来）
+  const autos = [];
+  for (let k = 0; k < 10; k++) {
+    const c = [0xd83a3a, 0x3a6fd8, 0xf2c230, 0xffffff, 0x333333, 0x3aa65a][k % 6];
+    const m = blocks([[0, 0, 0, c], [1, 0, 0, c], [0.5, 0.8, 0, 0x9fd8ff]], 0.8); sc.add(m);
+    const vert = k % 2 === 0, lane = vert ? ROADX[k % 4 < 2 ? 0 : 1] : ROADZ[k % 4 < 2 ? 0 : 1];
+    autos.push({ m, vert, lane: lane + (k % 3 === 0 ? 0.6 : -0.6), sp: (k % 3 === 0 ? 1 : -1) * (3 + rnd() * 3), ph: rnd() * 60 });
+  }
+  // 人形（人もずんだもんも同じ形）
+  const SH = [0xe8452a, 0x3a7fd8, 0xf2c230, 0x3aa65a, 0xd85aa0, 0xffffff, 0x8a5ad8, 0xff9a3a, 0x444444, 0x2ab8b0];
+  const HAIRS = [0x222222, 0x5a3418, 0x8a5a2a, 0xe8c070, 0x777777];
+  const doll = (kind) => {   // kind: 0 ふつう, 1 緑の髪, 2 白い服＋緑の下, 3 緑の髪＋白い服（いちばんまぎらわしい）, 9 ずんだもん
+    const g = new THREE.Group();
+    const add = (w, h, d, x, y, z, col) => { const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), new THREE.MeshLambertMaterial({ color: col })); m.position.set(x, y, z); g.add(m); return m; };
+    const Z = kind === 9;
+    const shirt = (Z || kind === 2 || kind === 3) ? 0xf6f6f6 : SH[Math.floor(rnd() * SH.length)];
+    const low = (Z || kind === 2) ? 0x4f9e2c : [0x2a3a6a, 0x333333, 0x6a4a2a, 0x2a5a3a][Math.floor(rnd() * 4)];
+    const hair = (Z || kind === 1 || kind === 3) ? 0xa6d94a : HAIRS[Math.floor(rnd() * HAIRS.length)];
+    const legs = [add(0.3, 0.7, 0.3, -0.18, 0.35, 0, Z ? 0xf6f6f6 : low), add(0.3, 0.7, 0.3, 0.18, 0.35, 0, Z ? 0xf6f6f6 : low)];
+    if (Z) add(0.95, 0.4, 0.6, 0, 0.82, 0, 0x4f9e2c);    // スカート
+    add(0.8, 0.8, 0.5, 0, 1.2, 0, shirt);
+    add(0.7, 0.7, 0.7, 0, 1.95, 0, 0xffe2c8);
+    add(0.78, 0.25, 0.78, 0, 2.35, 0, hair);
+    add(0.78, 0.55, 0.15, 0, 2.05, -0.36, hair);
+    if (Z) { add(0.18, 0.3, 0.18, -0.5, 2.35, 0, 0x5aa830); add(0.18, 0.3, 0.18, 0.5, 2.35, 0, 0x5aa830); }   // 小さな枝豆のさや
+    g.userData = { legs }; g.scale.setScalar(p.doll ?? 0.72); sc.add(g); return g;
+  };
+  const free = () => { let x, z; do { x = (rnd() * 2 - 1) * (XW - 2); z = -12 + rnd() * (ZD + 10); } while (isRoad(x, z) || (x > 10 && x < 20 && z < 13 && z > 5)); return [x, z]; };
+  const walkers = [];
+  const N = p.n || 170;
+  for (let i = 0; i < N; i++) {
+    const kind = i % 7 === 0 ? 1 : i % 10 === 0 ? 2 : i % 17 === 0 ? 3 : 0;
+    const [x0, z0] = free();
+    walkers.push({ g: doll(kind), x0, z0, a: rnd() * Math.PI * 2, r: 1 + rnd() * 3, sp: 0.3 + rnd() * 0.5, ph: rnd() * 6.28 });
+  }
+  const zs = [];
+  for (let k = 0; k < (p.zcount || 1); k++) { const [x0, z0] = free(); zs.push({ g: doll(9), x0, z0, a: rnd() * Math.PI * 2, r: 1.5 + rnd() * 2, sp: 0.4, ph: rnd() * 6.28 }); }
+  const place = (w, t) => {
+    const u = Math.sin(t * w.sp + w.ph);
+    let x = w.x0 + Math.cos(w.a) * w.r * u, z = w.z0 + Math.sin(w.a) * w.r * u;
+    x = Math.max(-XW + 1, Math.min(XW - 1, x)); z = Math.max(-ZD + 1, Math.min(ZD - 1, z));
+    const dir = Math.cos(t * w.sp + w.ph) >= 0 ? 1 : -1;
+    w.g.position.set(x, 0.5, z); w.g.rotation.y = Math.atan2(Math.cos(w.a) * dir, Math.sin(w.a) * dir);
+    const s = Math.sin(t * 9 * w.sp + w.ph); w.g.userData.legs[0].rotation.x = 0.5 * s; w.g.userData.legs[1].rotation.x = -0.5 * s;
+    return [x, z];
+  };
+  return (t, d) => {
+    const sw = Math.sin(t * 0.18) * 1.5;
+    C.position.set(sw, p.cam_h ?? 60, p.cam_z ?? 26); C.lookAt(sw * 0.3, 0, 1);
+    walkers.forEach(w => place(w, t));
+    zs.forEach((w, k) => { const [x, z] = place(w, t); ANCH["zunda" + k] = [x, 2, z]; });
+    cars.forEach((g, i) => { const [x, z, h] = rp(t * 4 - i * 2.8); g.position.set(x, 1, z); g.rotation.y = -h; });
+    wheel.rotation.z = t * 0.25;
+    gond.forEach((g, i) => { const a = t * 0.25 + i / gond.length * Math.PI * 2; g.position.set(Math.cos(a) * 7, Math.sin(a) * 7 - 0.8, 0.6); });
+    autos.forEach(a => { const s = (((t * a.sp + a.ph) % (2 * XW)) + 2 * XW) % (2 * XW) - XW; if (a.vert) { a.m.position.set(a.lane, 1, s * ZD / XW); a.m.rotation.y = Math.PI / 2; } else { a.m.position.set(s, 1, a.lane); a.m.rotation.y = 0; } });
+  };
+}
+
+const SCENES = { hakoniwa: hakoniwa, hakoniwa_eki: hakoniwaEki, stage_sea: stageSea, crowd_plaza: crowdPlaza, mini_city: miniCity, seafloor: seafloor, antarctica: antarctica, city: cityScene, icefly: icefly, seaice: seaice, orbit: orbitScene, gravity: gravityScene, surface: surfaceScene, tide: tideScene, land: landScene, flight: flightScene, rewind: rewindScene, spin: spinScene, axis: axisScene, space: spaceScene };
 
 window.setup = (j) => {
   job = j; seed = 12345;
