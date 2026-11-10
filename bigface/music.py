@@ -1,6 +1,6 @@
 # bigface/music.py — 『ビッグフェイスの〇〇』の共通BGM（オリジナル。ここで音を合成する）
 # どの曲にもメインテーマの短い音型（MOTIF）を入れ、曲ごとに形を変える（仕様書 08）。
-#   bgm02(秒)：なんだかへんだ 104 BPM ピチカート＋クラリネット（音型の1音を半音ずらして「へん」にする）
+#   bgm02(秒)：なんだかへんだ 104 BPM 丸い低音（ぽん）＋クラリネット（音型の1音を半音ずらして「へん」にする）
 #   bgm04(秒)：ひとりぼっち 68 BPM フェルトピアノ（音型を短調でゆっくり）
 #   bgm05(秒)：そういうことか 76 BPM マリンバ＋やわらかい弦（音型を長調で、最後は和音で止める）
 import numpy as np
@@ -26,6 +26,9 @@ def pizz(f, dur, rng=np.random.default_rng(5)):        # はじいた弦（カ�
     L = int(dur * SR); P = max(2, int(SR / f)); buf = rng.uniform(-1, 1, P); out = np.zeros(L)
     for i in range(L): out[i] = buf[i % P]; buf[i % P] = 0.5 * (buf[i % P] + buf[(i + 1) % P]) * 0.993
     return _lp(out, 3) * _env(L, 0.001, 0.18)
+def softpluck(f, dur):                                  # 丸く短い「ぽん」（倍音少なめ、すぐ消える）
+    L = int(dur * SR); t = np.arange(L) / SR
+    return (np.sin(2 * np.pi * f * t) + 0.15 * np.sin(4 * np.pi * f * t) * np.exp(-t * 20)) * _env(L, 0.006, 0.09)
 def clarinet(f, dur):
     L = int(dur * SR); t = np.arange(L) / SR; vib = 1 + 0.004 * np.sin(2 * np.pi * 5.2 * t) * np.minimum(1, t / 0.3)
     ph = 2 * np.pi * f * np.cumsum(vib) / SR
@@ -51,7 +54,7 @@ def bgm02(sec):
     """なんだかへんだ：104 BPM。ピチカートの低音（ド・ソ）＋クラリネットの音型（ラを半音下げる）"""
     bpm = 104; b = 60 / bpm; out = np.zeros(int((sec + 2) * SR))
     bass = [48, 55, 50, 55]
-    for k in range(int(sec / b) + 1): _place(out, pizz(hz(bass[k % 4]), 0.5), k * b, 0.55)
+    for k in range(int(sec / b) + 1): _place(out, softpluck(hz(bass[k % 4]), 0.4), k * b, 0.32)   # 弦（ギターっぽい）をやめて丸い音に（11/10 ゲンタさん「ギターみたいな音がうるさい」）
     mot = [(n - 1 if n == 69 else n, d) for n, d in MOTIF]          # 1音だけ「へん」
     t = 2 * b
     while t < sec - 1:
