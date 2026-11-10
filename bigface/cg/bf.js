@@ -382,9 +382,9 @@ function ep01(p) {
     else bf.body.scale.setScalar(1);
     // s8：パンを受けとる（腕を上げる）→ うれしい（頭が少し上がり、体が小さくはねる）
     let armUp = 0;
-    if (t > E.s8 && t < E.give - 0.6) { const k = t - E.s8; st.look = [0.4 * Math.sin(Math.PI * Math.min(1, Math.max(0, seg(k, 3.0, 4.2)))), 0.3 * ease(seg(k, 2.8, 3.1)) * (1 - ease(seg(k, 4.6, 4.9)))]; roll = 0.06 * Math.sin(Math.PI * Math.min(1, Math.max(0, seg(k, 3.1, 4.3)))); blink(E.s8 + 3.7); }   // 待つ：奥をのぞく、少し首をかしげる
-    if (t > E.give + 0.6 && t < E.s9) { st.look = [0, -0.6 * ease(seg(t, E.give + 0.6, E.give + 0.8)) * (1 - ease(seg(t, E.give + 1.4, E.give + 1.6))) ]; st.happy = ease(seg(t, E.give + 1.3, E.give + 1.5)); }   // パンを見て、うれしい
-    if (t > E.s8 && t < E.s9) { armUp = ease(seg(t, E.give - 0.7, E.give)); const hp = seg(t, E.give + 1.45, E.give + 1.85); if (hp > 0 && hp < 1) { bf.body.position.y += 0.06 * Math.sin(hp * Math.PI); pitch -= 0.08 * Math.sin(hp * Math.PI); } blink(E.give + 1.4); }
+    if (t > E.s8 + 2.4 && t < E.give - 0.6) blink(E.s8 + 3.6);   // 待つあいだは動かない（まばたきだけ）
+    if (t > E.give + 0.9 && t < E.s9) st.happy = ease(seg(t, E.give + 0.9, E.give + 1.3));   // 受けとって、少し笑う
+    if (t > E.s8 && t < E.s9) { armUp = ease(seg(t, E.give - 0.7, E.give)); }
     // s9：食べる（大きな頭がこくんと下がる）→ 最後のひとこと
     if (t >= E.s9) { armUp = t >= E.s10 ? 0.45 : 1; [E.bite1, E.bite2].forEach(tb => { const k = seg(t, tb, tb + 0.7); if (k > 0 && k < 1) pitch += 0.42 * Math.sin(k * Math.PI); }); blink(E.s9 + 0.6); blink(E.final + 1.6);
       if (t > E.s10) { blink(E.s10 + 0.7); const h = ease(seg(t, E.smile, E.smile + 0.35)); st.happy = h; pitch -= 0.05 * h; if (t > E.smile + 1.4) blink(E.smile + 1.6); } }   // 最後は顔：ほんの少し笑う（11/10 ゲンタさん「最後はビッグフェイスの表情で終わりたい」）
@@ -396,7 +396,7 @@ function ep01(p) {
     stool.visible = t > E.s6;
     kid.arms[1].rotation.x = 0; kid.arms[0].rotation.x = 0; kid.arms[1].rotation.z = 0; kid.neck.rotation.set(0, 0, 0);
     if (t > E.kid_say && t < E.s6) { const u = ease(seg(t, E.kid_say, E.kid_say + 0.3)) * (1 - ease(seg(t, E.kid_say + 1.6, E.kid_say + 1.9))); kid.arms[0].rotation.z = 1.5 * u; kid.neck.rotation.y = 0.5 * u; }   // 横（裏）を指さす
-    if (t > E.kid_say2 && t < E.s8 + 0.1) { const u = ease(seg(t, E.kid_say2, E.kid_say2 + 0.25)) * (1 - ease(seg(t, E.s8 - 0.25, E.s8 + 0.1))); kid.arms[0].rotation.x = -u * (1.3 + 0.45 * Math.sin((t - E.kid_say2) * 11)); }   // 言葉なし：窓から手招き（11/10 ゲンタさん「言葉なし」）
+    if (t > E.kid_say2 && t < E.s8 + 0.1) { const u = ease(seg(t, E.kid_say2, E.kid_say2 + 0.5)) * (1 - ease(seg(t, E.s8 - 0.6, E.s8 + 0.1))); kid.arms[0].rotation.x = -1.3 * u; }   // 手を一度あげるだけ（ふらない）   // 言葉なし：窓から手招き（11/10 ゲンタさん「言葉なし」）
     if (t > E.s7 && t < E.s9) { kid.neck.rotation.x = 0.1; const k = t - E.s8;
       const reach = Math.sin(Math.PI * Math.min(1, Math.max(0, seg(k, 2.55, 3.15))));   // 棚に手をのばす
       const carry = ease(seg(k, 2.95, 3.25)) * (1 - ease(seg(k, 5.4, 5.6)));          // 右手にパン（左手は空）
@@ -448,10 +448,7 @@ function ep01(p) {
     else if (t < E.s6) { const k = ease(seg(t, E.s5, E.s6)); cam([-5.6 + 0.3 * k, 2.5, 10.2 - 0.5 * k], [-0.2, 1.6, 2.4], 48); }   // ゆっくり寄る
     else if (t < E.s7) cam([AX + 1.0, 1.9, 10.0], [AX + 0.25, 1.9, 0.8], 40);   // 斜め前から：段ボールを見上げる顔と「そっか」が見える（11/10 ゲンタさん「もう少し全体的にビッグフェイスの表情を見たい」）
     else if (t < E.s8) cam([2.2, 2.0, 11.5], [2.0, 2.0, 1.2], 42);
-    else if (t < E.s9) { const k = t - E.s8;
-      if (k > 3.0 && k < 3.95) { cam([1.95, 1.8, -3.6], [1.95, 1.9, 1.2], 36); BK.awn.visible = false; inside.intensity = 5; hemi.intensity = 1.15; sun.visible = false; }   // 待っている顔（窓の中から）
-      else if (k > 0.8 && k < 4.95) { cam([4.1, 1.75, -0.45], [2.35, 1.1, -2.9], 60); inside.intensity = 5; hemi.intensity = 1.05; }   // 店の中から：子どもが奥の棚までパンを取りに行って戻る
-      else cam([7.2, 2.1, 5.6], [2.3, 1.8, -0.2], 40); }   // 窓の桟が顔にかからないよう外側へ（Codex 指摘）
+    else if (t < E.s9) { cam([3.75, 2.8, -5.95], [2.25, 1.25, -1.6], 50); BK.winL.rotation.y = -2.95; BK.winR.rotation.y = 2.95; BK.awn.visible = false; inside.intensity = 5; hemi.intensity = 1.15; sun.visible = false; }   // 店の奥からの固定1カット：窓にビッグフェイスの顔、手前で子どもがパンを取って戻り、渡す（11/11 ゲンタさん「カット割りがヘンテコ。忙しない。余計なカットとモーション」）
     else if (t >= E.eye) { cam([EX, 1.4, 9.0], [EX, 0.75, 0], 36); hemi.intensity = 1.2; }
     else if (t >= E.s10) { cam([1.95, 1.78, -3.9], [1.95, 1.88, 1.2], 33); BK.winL.rotation.y = -2.95; BK.winR.rotation.y = 2.95; BK.awn.visible = false; inside.intensity = 5; hemi.intensity = 1.15; sun.visible = false; }   // 窓の中（子どもの肩ごし）から顔：冒頭の「扉いっぱいの顔」と対   // 窓枠が額にかからないよう少し引いて低く（Codex 指摘）
     else { cam([16.0, 1.95, 0.25], [2.2, 1.92, 0.15], 32); BK.winL.rotation.y = -2.95; BK.winR.rotation.y = 2.95; BK.awn.visible = false; BK.nbR.visible = false; BK.inR.visible = false; inside.intensity = 4; }   // 左右対称：壁の真横から。開いた窓は壁にぴったり倒し、顔にかからないように（Codex 指摘）
@@ -462,7 +459,7 @@ function ep01(p) {
       C.fov = fov; C.position.set(hp.x + d.x * dist, hp.y + 0.05 + dy, hp.z + d.z * dist); C.lookAt(hp.x, hp.y - 0.05, hp.z);
       sun.visible = true; inside.intensity = 0; hemi.intensity = 1.15; BK.awn.visible = true; };
     if (t > E.sokka + 1.35 && t < E.s7) cu(0.0, 3.5, 50);                // 裏口があかない：ふり返った顔に寄る
-    if (t > E.win - 0.05 && t < E.kid_say2 + 1.0) cu(0.25, 4.3, 54);    // 窓が開く音に気づく
+
     C.updateProjectionMatrix();
   };
 }
