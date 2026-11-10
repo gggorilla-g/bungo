@@ -22,7 +22,7 @@ SE_GAIN, BGM_GAIN = 0.7, 0.8
 
 def reveal(sp):
     # 11/3 ゲンタさん「答えは概要欄…映像の中で答え合わせはせずに」：reveal=false なら答え合わせをせず、答えは説明欄に書く（実験B）
-    return sp.get("reveal", True)
+    return sp.get("reveal", not find(sp))
 
 
 def ah(sp):
@@ -35,13 +35,29 @@ OPEN = 1.5      # 頭のアニメの長さ（ah）
 OUTRO = 1.1     # 終わりのロゴの長さ（ah）
 
 
+def find(sp):
+    # 11/10 ゲンタさん「ウォーリーを探せはずんだもんでもできるか。うごく3D世界で」「僕は何人いる？」：大勢の中からずんだもんを探す／数える。パネルは1枚
+    return sp.get("mode") in ("find", "count")
+
+
+FPH = 1240      # find のパネルの高さ（下の約2割は空ける）
+
+
 def hype(sp):
     # 11/10 ゲンタさん「間違い探しはもっとハイテンションにして」：速い声・途中の煽り・時間切れの「そこまでー！」・速いBGM・効果音・字幕が跳ねる
     return sp.get("hype", False)
 
 
 def lines_of(sp):
-    n = len(sp["diffs"])
+    n = len(sp.get("diffs", []))
+    if find(sp):
+        zc = sp.get("zcount", 1)
+        q = "ぼくは、どこにいるのだ？" if zc == 1 else "ぼくは、何人いるのだ？"
+        return [("intro", sp.get("intro", f"{q}{sp['search']}秒！")),
+                ("mid", sp.get("mid", "あと半分！")),
+                ("left3", sp.get("left3", "あと3秒！")),
+                ("stop", sp.get("stop", "そこまで！")),
+                ("end", sp.get("end", "見つけられたら、天才なのだ！" if zc == 1 else "数えられたら、天才なのだ！"))]
     if ah(sp):
         return [("intro", sp.get("intro", f"違いは{n}つ。{sp['search']}秒なのだ！")),
                 ("mid", sp.get("mid", "あと半分！")),
@@ -83,14 +99,19 @@ def _shapes(d, cx, cy, sc):
     d.polygon([(cx + 3 * r, cy - r), (cx + 3 * r + r, cy + r), (cx + 3 * r - r, cy + r)], fill=AB)
 
 
+LOGO = ["どこちがう？"]
+
+
 def _logo(d, x, y, size, anchor="lm"):
-    d.text((x, y), "どこちがう？", font=motion.font(size), fill=INK, anchor=anchor)
+    d.text((x, y), LOGO[0], font=motion.font(size), fill=INK, anchor=anchor)
 
 
 def frame_ah(t, sp, A, Bm, events, lines, t_s, t_a, t_e, total, S):
     fr = Image.new("RGB", (W, H), PAPER)
     d = ImageDraw.Draw(fr, "RGBA")
     tel = dict(lines)
+    F = find(sp)
+    LOGO[0] = sp.get("logo", ("ずんだもんはどこ？" if sp.get("zcount", 1) == 1 else "ずんだもんは何人？") if F else "どこちがう？")
     # ---- 頭（0〜OPEN）：図形が拍に合わせて落ちてきて、ロゴ。最後に上へ縮んで本編へ
     if t < OPEN:
         for k, (dx, col) in enumerate([(-1, AR), (0, AY), (1, AB)]):
@@ -103,8 +124,8 @@ def frame_ah(t, sp, A, Bm, events, lines, t_s, t_a, t_e, total, S):
             if k == 2: d.polygon([(cx, cy - r), (cx + r, cy + r), (cx - r, cy + r)], fill=col)
         if t > 0.62:
             u = _ease((t - 0.62) / 0.2)
-            _logo(d, W // 2, 1000, int(150 * (0.6 + 0.4 * u)), "mm")
-            d.text((W // 2, 1120), "ずんだもんの まちがいさがし", font=motion.font(44, "Bold"), fill=GR, anchor="mm")
+            _logo(d, W // 2, 1000, int((150 if not F else 120) * (0.6 + 0.4 * u)), "mm")
+            d.text((W // 2, 1120), "ずんだもんの まちがいさがし" if not F else "ずんだもんを さがせ", font=motion.font(44, "Bold"), fill=GR, anchor="mm")
         if t > OPEN - 0.3:   # 左へ紙がめくれるように次の画面
             u = _ease((t - (OPEN - 0.3)) / 0.3)
             d.rectangle([W - int(W * u), 0, W, H], fill=INK)
@@ -113,27 +134,32 @@ def frame_ah(t, sp, A, Bm, events, lines, t_s, t_a, t_e, total, S):
     if t >= total - OUTRO:
         u = _ease((t - (total - OUTRO)) / 0.25)
         _shapes(d, W // 2, 820, 1.4 * (0.7 + 0.3 * u))
-        _logo(d, W // 2, 1000, 140, "mm")
+        _logo(d, W // 2, 1000, 140 if not F else 112, "mm")
         d.text((W // 2, 1110), "こたえは 説明欄", font=motion.font(50), fill=AR, anchor="mm")
         return fr
     # ---- 本編の画面
     oy_a, oy_b = TOPY, TOPY + PH + GAPY
     wipe = _ease((t - OPEN) / 0.35)          # パネルが横から入る
     xa, xb = int(-W * (1 - wipe)), int(W * (1 - wipe))
-    fr.paste(A, (xa, oy_a)); fr.paste(Bm, (xb, oy_b))
+    fr.paste(A, (xa, oy_a))
+    if Bm is not None:
+        fr.paste(Bm, (xb, oy_b))
     if wipe < 1:   # 頭の黒幕の残り
         d.rectangle([0, 0, int(W * (1 - wipe)), H], fill=INK) if False else None
     # 枠とラベル
     hurry = t_s <= t < t_a and (t_a - t) < 3
     beat = max(0.0, 1 - ((t_a - t) % 1) / 0.25) if hurry else 0
     bw = 6 + int(8 * beat)
-    for ox, oy, lab in ((xa, oy_a, "A"), (xb, oy_b, "B")):
-        d.rectangle([ox, oy, ox + PW - 1, oy + PH - 1], outline=(AR if hurry else INK), width=bw)
-        d.rectangle([ox, oy, ox + 70, oy + 70], fill=INK)
-        d.text((ox + 35, oy + 35), lab, font=motion.font(48), fill=PAPER, anchor="mm")
+    if F:
+        d.rectangle([xa, oy_a, xa + PW - 1, oy_a + FPH - 1], outline=(AR if hurry else INK), width=bw)
+    else:
+        for ox, oy, lab in ((xa, oy_a, "A"), (xb, oy_b, "B")):
+            d.rectangle([ox, oy, ox + PW - 1, oy + PH - 1], outline=(AR if hurry else INK), width=bw)
+            d.rectangle([ox, oy, ox + 70, oy + 70], fill=INK)
+            d.text((ox + 35, oy + 35), lab, font=motion.font(48), fill=PAPER, anchor="mm")
     # 見出し：印とロゴ（左）、丸いタイマー（右）
     _shapes(d, 120, 110, 0.42)
-    _logo(d, 230, 110, 84)
+    _logo(d, 230, 110, 84 if not F else 72)
     tx, ty, tr = W - 120, 118, 74
     if t_s <= t < t_a:
         v = t_a - t; frac = v / S
@@ -157,16 +183,16 @@ def frame_ah(t, sp, A, Bm, events, lines, t_s, t_a, t_e, total, S):
     # 時間切れ：黒い帯が横切って「そこまで」
     if t_a <= t < t_e:
         u = _ease((t - t_a) / 0.22)
-        cy = oy_b - GAPY // 2
+        cy = oy_b - GAPY // 2 if not F else oy_a + FPH // 2
         d.rectangle([0, cy - 120, int(W * u), cy + 120], fill=INK)
         if u > 0.6:
             d.text((W // 2, cy), "そこまで", font=motion.font(130), fill=PAPER, anchor="mm")
     # 終わりの案内：まん中に白縁取りの赤文字（11/10 ゲンタさん「タイトル欄をタップは真ん中に出していいです。白縁取り文字で」）
     if t >= t_e:
         u = 1 + 0.25 * max(0.0, 1 - (t - t_e) / 0.2)
-        d.text((W // 2, oy_b - GAPY // 2), sp.get("to_desc", "答えはタイトルをタップ→説明欄"), font=motion.font(int(64 * u)),
+        d.text((W // 2, (oy_b - GAPY // 2) if not F else (oy_a + FPH // 2)), sp.get("to_desc", "答えはタイトルをタップ→説明欄"), font=motion.font(int(64 * u)),
                fill=AR, anchor="mm", stroke_width=10, stroke_fill=PAPER)
-    d.text((24, oy_b + PH + 30), "VOICEVOX:ずんだもん", font=motion.font(26, "Bold"), fill=GR, anchor="lm")
+    d.text((24, (oy_b + PH + 30) if not F else (oy_a + FPH + 30)), "VOICEVOX:ずんだもん", font=motion.font(26, "Bold"), fill=GR, anchor="lm")
     return fr
 
 
@@ -221,7 +247,7 @@ def build(sid):
     L = dict(lines_of(sp)); dur = {}
     for k, t in lines_of(sp):
         dur[k] = tts(t, f"{B}/{k}.wav")
-    n, S = len(sp["diffs"]), sp["search"]
+    n, S = len(sp.get("diffs", [])), sp["search"]
     t_intro = max(1.8, dur["intro"] + 0.2) if not hype(sp) else max(1.4, dur["intro"] + 0.05)
     if ah(sp):
         t_intro = OPEN + dur["intro"] + 0.1                     # 冒頭：0秒から箱庭が2つ動いている。声とテロップで出題
@@ -251,17 +277,24 @@ def build(sid):
         events = [("intro", 0.05), ("left3", t_ans0 - 3.0), ("end", t_end0)]
     print("長さ", round(total, 1), "秒")
     # ---- CG（A と B を同じカメラで描く。答え合わせの間はカメラを止める）
-    names = [d[0] for d in sp["diffs"]]
+    names = [d[0] for d in sp.get("diffs", [])]
+    if find(sp):
+        names = [f"zunda{k}" for k in range(sp.get("zcount", 1))]
     a0, a1 = sp.get("cam", [-0.45, 0.45])
     base = {"cam_a0": a0, "cam_a1": a1, "hold": t_ans0, "cam_r": sp.get("cam_r", 21), "cam_h": sp.get("cam_h", 11)}
     jobs = [{"scene": sp.get("scene", "hakoniwa"), "p": dict(base), "d": total, "fps": FPS, "w": PW, "h": PH, "out": f"{B}/A"},
             {"scene": sp.get("scene", "hakoniwa"), "p": dict(base, diff=names), "d": total, "fps": FPS, "w": PW, "h": PH, "out": f"{B}/B",
              "probe": {"t": t_ans0 + 0.01, "names": names}}]
+    if find(sp):
+        fp = {"seed": sp.get("seed", 1), "zcount": sp.get("zcount", 1), "n": sp.get("crowd", 95)}
+        jobs = [{"scene": sp.get("scene", "crowd_plaza"), "p": fp, "d": total, "fps": FPS, "w": PW, "h": FPH, "out": f"{B}/A",
+                 "probe": {"t": t_ans0 + 0.01, "names": names}}]
+        os.makedirs(f"{B}/B", exist_ok=True)
     json.dump(jobs, open(f"{B}/jobs.json", "w"))
     t1 = time.time()
     subprocess.run(["node", "nazo/cg/render_cg.js", f"{B}/jobs.json"], check=True)
     t_cg = time.time() - t1
-    pos = json.load(open(f"{B}/B/probe.json"))
+    pos = json.load(open(f"{B}/{'A' if find(sp) else 'B'}/probe.json"))
     for nm, q in zip(names, pos):
         if RV and (q is None or not (0.05 < q[0] < 0.86 and 0.06 < q[1] < 0.94)):   # 右端のボタンに丸がかからないように（答えの丸を出す回だけ）
             sys.exit(f"違い {nm} の場所が画面の外（{q}）。カメラの角度を変える")
@@ -294,7 +327,7 @@ def build(sid):
         o.setnchannels(1); o.setsampwidth(2); o.setframerate(sr); o.writeframes((mix * 32767).astype(np.int16).tobytes())
     # ---- 合成
     tel = {k: t for k, t in lines_of(sp)}
-    tel_d = {f"d{i}": d[2] for i, d in enumerate(sp["diffs"])}
+    tel_d = {f"d{i}": d[2] for i, d in enumerate(sp.get("diffs", []))}
     def cur_tel(t):
         k = None
         for kk, at in events:
@@ -315,7 +348,7 @@ def build(sid):
         t = fi / FPS
         if AH:
             ia = min(fi, len(os.listdir(f"{B}/A")) - 1)
-            fr = frame_ah(t, sp, Image.open(f"{B}/A/{ia:05d}.jpg"), Image.open(f"{B}/B/{ia:05d}.jpg"), events, lines_of(sp),
+            fr = frame_ah(t, sp, Image.open(f"{B}/A/{ia:05d}.jpg"), None if find(sp) else Image.open(f"{B}/B/{ia:05d}.jpg"), events, lines_of(sp),
                           t_search0, t_ans0, t_end0, total, S)
             pr.stdin.write(fr.tobytes()); continue
         fr = Image.new("RGB", (W, H), (255, 214, 64))
@@ -413,7 +446,17 @@ def build(sid):
     subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", out, "-vf", f"fps=1/2,scale=216:-1,tile={min(nt, 9)}x{math.ceil(nt / 9)}", "-frames:v", "1", f"{kit}/{sid}_sheet2s.jpg"])
     subprocess.run(["ffmpeg", "-v", "error", "-y", "-ss", f"{t_end0:.2f}", "-i", out, "-frames:v", "1", "-vf", "scale=540:-1", f"{kit}/{sid}_answers.jpg"])
     ans_txt = ""
-    if not RV:
+    if find(sp):
+        def where(q):
+            h = "左" if q[0] < 0.36 else ("右" if q[0] > 0.64 else "まん中")
+            v = "上のほう" if q[1] < 0.4 else ("下のほう" if q[1] > 0.7 else "まん中あたり")
+            return f"{v}の{h}" if not (h == "まん中" and v == "まん中あたり") else "画面のまん中あたり"
+        zc = sp.get("zcount", 1)
+        if zc == 1:
+            ans_txt = f"\n\n■ 答え\n時間切れのとき、ずんだもんは{where(pos[0])}にいるのだ。" + (f"（{sp['hint']}）" if sp.get("hint") else "")
+        else:
+            ans_txt = f"\n\n■ 答え\nずんだもんは {zc}人。"
+    elif not RV:
         ans_txt = "\n\n■ 答え（下の絵Bで違うところ）\n" + "\n".join(f"{i + 1}. {d[2]}" for i, d in enumerate(sp["diffs"]))
     desc = (f"{sp.get('desc', '')}{ans_txt}\n\n音声: VOICEVOX:ずんだもん\nBGM: {bgm_credit}\n効果音: オリジナル\n3DCG: オリジナル（three.js で作成）")
     open(f"{kit}/{sid}_upload.txt", "w", encoding="utf-8").write(f"【タイトル】\n{sp['title']}\n\n【説明】\n{desc}\n\n【タグ】\n{','.join(sp.get('tags', []))}\n")
