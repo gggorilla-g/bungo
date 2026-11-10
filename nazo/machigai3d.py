@@ -25,6 +25,16 @@ def reveal(sp):
     return sp.get("reveal", True)
 
 
+def ah(sp):
+    # 11/10 ゲンタさん「NHKの番組間のミニコーナー的な作り込み」「デザインあ」：番組の顔（頭と終わりのアニメ＋ジングル）、
+    # 白地・黒の細い線・原色の図形だけの画面、リズムで切る場面転換、丸いタイマー、木琴の曲。NHK の番組名・ロゴ・キャラは使わない（自作の「どこちがう？」）
+    return sp.get("style") == "ah"
+
+
+OPEN = 1.5      # 頭のアニメの長さ（ah）
+OUTRO = 1.1     # 終わりのロゴの長さ（ah）
+
+
 def hype(sp):
     # 11/10 ゲンタさん「間違い探しはもっとハイテンションにして」：速い声・途中の煽り・時間切れの「そこまでー！」・速いBGM・効果音・字幕が跳ねる
     return sp.get("hype", False)
@@ -32,6 +42,12 @@ def hype(sp):
 
 def lines_of(sp):
     n = len(sp["diffs"])
+    if ah(sp):
+        return [("intro", sp.get("intro", f"違いは{n}つ。{sp['search']}秒なのだ！")),
+                ("mid", sp.get("mid", "あと半分！")),
+                ("left3", sp.get("left3", "あと3秒！")),
+                ("stop", sp.get("stop", "そこまで！")),
+                ("end", sp.get("end", "全部見つけたら、天才なのだ！"))]
     if hype(sp):
         L = [("intro", sp.get("intro", f"違いは{n}つ！{sp['search']}秒で見つけるのだー！")),
              ("mid", sp.get("mid", "あと半分なのだ！急ぐのだ！")),   # 11/10 ゲンタさん「まだまだあるのだ は意味がわからない」
@@ -49,6 +65,109 @@ def lines_of(sp):
     L += [(f"d{i}", d[1]) for i, d in enumerate(sp["diffs"])]
     L.append(("end", sp.get("end", f"{n}つ全部、見つけられたのだ？")))
     return L
+
+
+# ---------------- デザインあ風（自作の「どこちがう？」） ----------------
+PAPER, INK, AR, AY, AB, GR = (246, 244, 238), (20, 20, 20), (232, 56, 40), (250, 196, 0), (30, 110, 220), (150, 150, 150)
+
+
+def _ease(u):
+    u = max(0.0, min(1.0, u)); return 1 - (1 - u) ** 3
+
+
+def _shapes(d, cx, cy, sc):
+    """番組の印：赤い丸・黄色い四角・青い三角（どれも自作の図形）"""
+    r = int(46 * sc)
+    d.ellipse([cx - 3 * r - r, cy - r, cx - 3 * r + r, cy + r], fill=AR)
+    d.rectangle([cx - r, cy - r, cx + r, cy + r], fill=AY)
+    d.polygon([(cx + 3 * r, cy - r), (cx + 3 * r + r, cy + r), (cx + 3 * r - r, cy + r)], fill=AB)
+
+
+def _logo(d, x, y, size, anchor="lm"):
+    d.text((x, y), "どこちがう？", font=motion.font(size), fill=INK, anchor=anchor)
+
+
+def frame_ah(t, sp, A, Bm, events, lines, t_s, t_a, t_e, total, S):
+    fr = Image.new("RGB", (W, H), PAPER)
+    d = ImageDraw.Draw(fr, "RGBA")
+    tel = dict(lines)
+    # ---- 頭（0〜OPEN）：図形が拍に合わせて落ちてきて、ロゴ。最後に上へ縮んで本編へ
+    if t < OPEN:
+        for k, (dx, col) in enumerate([(-1, AR), (0, AY), (1, AB)]):
+            u = _ease((t - 0.25 * k) / 0.22)
+            if u <= 0:
+                continue
+            cx, cy, r = W // 2 + dx * 190, int(-200 + (760 + 200) * u), 80
+            if k == 0: d.ellipse([cx - r, cy - r, cx + r, cy + r], fill=col)
+            if k == 1: d.rectangle([cx - r, cy - r, cx + r, cy + r], fill=col)
+            if k == 2: d.polygon([(cx, cy - r), (cx + r, cy + r), (cx - r, cy + r)], fill=col)
+        if t > 0.62:
+            u = _ease((t - 0.62) / 0.2)
+            _logo(d, W // 2, 1000, int(150 * (0.6 + 0.4 * u)), "mm")
+            d.text((W // 2, 1120), "ずんだもんの まちがいさがし", font=motion.font(44, "Bold"), fill=GR, anchor="mm")
+        if t > OPEN - 0.3:   # 左へ紙がめくれるように次の画面
+            u = _ease((t - (OPEN - 0.3)) / 0.3)
+            d.rectangle([W - int(W * u), 0, W, H], fill=INK)
+        return fr
+    # ---- 終わりのロゴ（total-OUTRO〜）
+    if t >= total - OUTRO:
+        u = _ease((t - (total - OUTRO)) / 0.25)
+        _shapes(d, W // 2, 820, 1.4 * (0.7 + 0.3 * u))
+        _logo(d, W // 2, 1000, 140, "mm")
+        d.text((W // 2, 1110), "こたえは 説明欄", font=motion.font(50), fill=AR, anchor="mm")
+        return fr
+    # ---- 本編の画面
+    oy_a, oy_b = TOPY, TOPY + PH + GAPY
+    wipe = _ease((t - OPEN) / 0.35)          # パネルが横から入る
+    xa, xb = int(-W * (1 - wipe)), int(W * (1 - wipe))
+    fr.paste(A, (xa, oy_a)); fr.paste(Bm, (xb, oy_b))
+    if wipe < 1:   # 頭の黒幕の残り
+        d.rectangle([0, 0, int(W * (1 - wipe)), H], fill=INK) if False else None
+    # 枠とラベル
+    hurry = t_s <= t < t_a and (t_a - t) < 3
+    beat = max(0.0, 1 - ((t_a - t) % 1) / 0.25) if hurry else 0
+    bw = 6 + int(8 * beat)
+    for ox, oy, lab in ((xa, oy_a, "A"), (xb, oy_b, "B")):
+        d.rectangle([ox, oy, ox + PW - 1, oy + PH - 1], outline=(AR if hurry else INK), width=bw)
+        d.rectangle([ox, oy, ox + 70, oy + 70], fill=INK)
+        d.text((ox + 35, oy + 35), lab, font=motion.font(48), fill=PAPER, anchor="mm")
+    # 見出し：印とロゴ（左）、丸いタイマー（右）
+    _shapes(d, 120, 110, 0.42)
+    _logo(d, 230, 110, 84)
+    tx, ty, tr = W - 120, 118, 74
+    if t_s <= t < t_a:
+        v = t_a - t; frac = v / S
+        sc_ = 1 + 0.12 * beat
+        rr = int(tr * sc_)
+        d.ellipse([tx - rr, ty - rr, tx + rr, ty + rr], fill=PAPER, outline=INK, width=6)
+        d.pieslice([tx - rr + 12, ty - rr + 12, tx + rr - 12, ty + rr - 12], -90, -90 + 360 * frac, fill=(AR if v < 3 else AY))
+        d.text((tx, ty), f"{int(math.ceil(v))}", font=motion.font(int(56 * sc_)), fill=INK, anchor="mm", stroke_width=6, stroke_fill=PAPER)
+    elif t >= t_a:
+        d.ellipse([tx - tr, ty - tr, tx + tr, ty + tr], fill=AR, outline=INK, width=6)
+        d.text((tx, ty), "0", font=motion.font(56), fill=PAPER, anchor="mm")
+    # 字幕（白地に黒の太字。急ぐところは赤）。出た瞬間に少し跳ねる
+    k = None
+    for kk, at in events:
+        if at <= t: k = kk
+    txt = tel.get(k or "intro", "")
+    et = max([at for kk, at in events if at <= t] or [0])
+    pop = 1 + 0.22 * max(0.0, 1 - (t - et) / 0.16)
+    base = 64 if len(txt) <= 13 else int(64 * 13 / len(txt))
+    d.text((W // 2, 236), txt, font=motion.font(int(base * pop)), fill=(AR if k in ("left3", "stop") else INK), anchor="mm")
+    # 時間切れ：黒い帯が横切って「そこまで」
+    if t_a <= t < t_e:
+        u = _ease((t - t_a) / 0.22)
+        cy = oy_b - GAPY // 2
+        d.rectangle([0, cy - 120, int(W * u), cy + 120], fill=INK)
+        if u > 0.6:
+            d.text((W // 2, cy), "そこまで", font=motion.font(130), fill=PAPER, anchor="mm")
+    # 終わりの案内：まん中に白縁取りの赤文字（11/10 ゲンタさん「タイトル欄をタップは真ん中に出していいです。白縁取り文字で」）
+    if t >= t_e:
+        u = 1 + 0.25 * max(0.0, 1 - (t - t_e) / 0.2)
+        d.text((W // 2, oy_b - GAPY // 2), sp.get("to_desc", "答えはタイトルをタップ→説明欄"), font=motion.font(int(64 * u)),
+               fill=AR, anchor="mm", stroke_width=10, stroke_fill=PAPER)
+    d.text((24, oy_b + PH + 30), "VOICEVOX:ずんだもん", font=motion.font(26, "Bold"), fill=GR, anchor="lm")
+    return fr
 
 
 def gate_key(pairs):
@@ -95,7 +214,7 @@ def build(sid):
         sys.exit(f"読みの関門を通っていない（python nazo/machigai3d.py check {sid}）")
     shutil.rmtree(B, ignore_errors=True); os.makedirs(B); os.makedirs("output", exist_ok=True)
     render.B = B; render.TIGHT = True
-    render.set_voice(**sp.get("voice", {"vvm": "0.vvm", "style": 3, "speed": 1.27, "intonation": 1.6, "pitch": 0.04} if hype(sp) else {"vvm": "0.vvm", "style": 3, "speed": 1.1, "intonation": 1.15}))
+    render.set_voice(**sp.get("voice", {"vvm": "0.vvm", "style": 3, "speed": 1.27, "intonation": 1.6, "pitch": 0.04} if (hype(sp) or ah(sp)) else {"vvm": "0.vvm", "style": 3, "speed": 1.1, "intonation": 1.15}))
     for s, t in pairs:
         render._YOMI[s] = t
     # ---- 声と時間割
@@ -103,7 +222,9 @@ def build(sid):
     for k, t in lines_of(sp):
         dur[k] = tts(t, f"{B}/{k}.wav")
     n, S = len(sp["diffs"]), sp["search"]
-    t_intro = max(1.8, dur["intro"] + 0.2) if not hype(sp) else max(1.4, dur["intro"] + 0.05)                     # 冒頭：0秒から箱庭が2つ動いている。声とテロップで出題
+    t_intro = max(1.8, dur["intro"] + 0.2) if not hype(sp) else max(1.4, dur["intro"] + 0.05)
+    if ah(sp):
+        t_intro = OPEN + dur["intro"] + 0.1                     # 冒頭：0秒から箱庭が2つ動いている。声とテロップで出題
     t_search0 = t_intro                                        # 探す時間（タイマーが動く）
     t_ans0 = t_search0 + S
     RV = reveal(sp)
@@ -113,6 +234,11 @@ def build(sid):
         t_end0 = t_d[-1] + per[-1]
         total = t_end0 + dur["end"] + 0.6
         events = [("intro", 0.05), ("left3", t_ans0 - 3.0), ("ans", t_ans0 + 0.1)] + [(f"d{i}", t_d[i]) for i in range(n)] + [("end", t_end0)]
+    elif ah(sp):
+        t_d = []
+        t_end0 = t_ans0 + 0.05 + max(dur["stop"] + 0.15, 1.0)
+        total = t_end0 + max(dur["end"] + 0.4, 2.4) + OUTRO
+        events = [("intro", OPEN), ("mid", t_search0 + S * 0.5), ("left3", t_ans0 - 3.4), ("stop", t_ans0 + 0.05), ("end", t_end0)]
     elif hype(sp):
         t_d = []
         t_end0 = t_ans0 + 0.05 + dur["stop"] + 0.1
@@ -153,6 +279,13 @@ def build(sid):
     if hype(sp):
         sev = [("zip_long", 0.0), ("pop_big", 0.05), ("boing", t_search0 + S * 0.5), ("drumroll", t_ans0 - 3.0),
                ("crash", t_ans0), ("kira", t_end0)] + [("tick", t_ans0 - k) for k in (5, 4, 3, 2, 1)]
+    if ah(sp):
+        sev = [("pop_hi", 0.0), ("pop_mid", 0.25), ("pop_lo", 0.5), ("whoosh_s", OPEN - 0.3), ("pop_mid", t_search0 + S * 0.5),
+               ("whoosh_l", t_ans0 - 0.05), ("thud", t_ans0 + 0.1), ("kira", t_end0 + 0.1)] + [("tick", t_ans0 - k) for k in (5, 4, 3, 2, 1)]
+        import chip
+        jg = np.interp(np.arange(int(len(chip.jingle()) * sr / chip.SR)) * chip.SR / sr, np.arange(len(chip.jingle())), chip.jingle()).astype(np.float32) * 0.35
+        for at in (0.62, total - OUTRO + 0.05):
+            i = int(at * sr); mix[i:i + len(jg)] += jg[:len(mix) - i]
     for nm, at in sev:
         s = se.sound(nm).astype(np.float32) * SE_GAIN
         i = int(at * sr); mix[i:i + len(s)] += s[:len(mix) - i]
@@ -177,8 +310,14 @@ def build(sid):
     pr = subprocess.Popen(["ffmpeg", "-y", "-v", "error", "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{W}x{H}", "-r", str(FPS), "-i", "-",
                            "-c:v", "libx264", "-preset", "medium", "-crf", "17", "-pix_fmt", "yuv420p", f"{B}/v.mp4"], stdin=subprocess.PIPE)
     nf = int(round(total * FPS))
+    AH = ah(sp)
     for fi in range(nf):
         t = fi / FPS
+        if AH:
+            ia = min(fi, len(os.listdir(f"{B}/A")) - 1)
+            fr = frame_ah(t, sp, Image.open(f"{B}/A/{ia:05d}.jpg"), Image.open(f"{B}/B/{ia:05d}.jpg"), events, lines_of(sp),
+                          t_search0, t_ans0, t_end0, total, S)
+            pr.stdin.write(fr.tobytes()); continue
         fr = Image.new("RGB", (W, H), (255, 214, 64))
         ia = min(fi, len(os.listdir(f"{B}/A")) - 1)
         A = Image.open(f"{B}/A/{ia:05d}.jpg"); Bm = Image.open(f"{B}/B/{ia:05d}.jpg")
@@ -249,10 +388,10 @@ def build(sid):
     chip_kind = sp.get("bgm_chip")                           # 11/3 ゲンタさん「まちがいさがしのbgmは8bitのほうがいい」：自作の8ビット風（nazo/chip.py）
     if chip_kind:
         import chip
-        y = chip.bgm(total + 0.5, "hyper" if hype(sp) else chip_kind)
+        y = chip.groove(total + 0.5) if ah(sp) else chip.bgm(total + 0.5, "hyper" if hype(sp) else chip_kind)
         with wave.open(f"{B}/bgm.wav", "wb") as o:
             o.setnchannels(1); o.setsampwidth(2); o.setframerate(chip.SR); o.writeframes((y * 32767).astype(np.int16).tobytes())
-        bgm_credit = "オリジナル（8ビット風）"
+        bgm_credit = "オリジナル" if ah(sp) else "オリジナル（8ビット風）"
     elif os.path.exists(bgm_file):
         subprocess.run(["ffmpeg", "-y", "-v", "error", "-stream_loop", "-1", "-i", bgm_file, "-t", f"{total:.2f}", "-ar", "24000", "-ac", "1", f"{B}/bgm.wav"], check=True)
         bgm_credit = sp.get("bgm_credit", "ムード２ / 今川彰人オーケストラ（OpenTracks（旧DOVA-SYNDROME））")
