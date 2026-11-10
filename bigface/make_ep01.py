@@ -35,9 +35,8 @@ LINES = []
 # タイトルコール（声は語りだけ。物語のセリフは言葉なしのまま。11/10 ゲンタさん「タイトルコールは声欲しいですね」）
 NAR_V = ("6.vvm", 31, 0.92, 0.0, 1.0)        # 仮：No.7 読み聞かせ（絵本を読む声）
 EYE_V = ("0.vvm", 8, 1.0, 0.04, 1.15)        # 仮：春日部つむぎ（明るく）
-CALLS = [("ビッグフェイスの、せまいドア", "ビッグフェイスノ、セマイドア", NAR_V, E["title_in"] + 0.45),
-         ("ザ・ビッグフェイス", "ザ、ビッグフェイス", EYE_V, E["eye"] + 0.5)]
-CREDIT = "VOICEVOX:No.7・春日部つむぎ"
+CALLS = [("ビッグフェイスの、せまいドア", "ビッグフェイスノ、セマイドア", NAR_V, E["title_in"] + 0.45)]   # アイキャッチは声なし（11/10 ゲンタさん「ザビッグフェイスは声なくていいです」）
+CREDIT = "VOICEVOX:No.7"
 for i, (txt, yomi, v, at) in enumerate(LINES):
     render.set_voice(*v); render._YOMI[txt] = yomi
     tmp = f"/tmp/bf_l{i}.wav"; render.tts(txt, tmp)
@@ -124,6 +123,9 @@ for k in range(9): put(fx, step(1 + 0.05 * (k % 2)), E["s6"] + 0.15 + k / 4.2, 0
 for k in range(15): put(fx, step(0.9 + 0.04 * (k % 2)), E["s7"] + 0.25 + k / 3.2, 0.3)   # ゆっくり帰る
 put(fx, creak(), E["win"])
 for k in range(6): put(fx, step(), E["s8"] + 0.15 + k / 4.6, 0.4)
+for k in range(6): put(fx, step(1.35, True), E["s8"] + 0.45 + k * 0.18, 0.18)          # 子どもが奥へ（小さな足音）
+put(fx, rustle(), E["s8"] + 1.6, 0.8)                                                    # 棚からパンを取る
+for k in range(6): put(fx, step(1.35, True), E["s8"] + 1.95 + k * 0.18, 0.18)          # 戻ってくる
 put(fx, rustle(), E["give"] - 0.1)
 for b in (E["bite1"], E["bite2"]): put(fx, munch(), b + 0.33, 0.6); put(fx, munch(), b + 0.8, 0.35)
 # BGM：冒頭は無音 → なんだかへんだ → （止める）→ ひとりぼっち → （窓の音で止める）→ そういうことか
@@ -132,7 +134,7 @@ def fade(x, fi, fo):
     if a: e[:a] = np.linspace(0, 1, a)
     if b: e[-b:] = np.linspace(1, 0, b)
     return x * e
-m02 = fade(music.bgm02(E["s6"] - E["s3"] - 0.1), 0.05, 0.6); put(bgm, m02, E["s3"], 0.8)
+m02 = fade(music.bgm02(E["s6"] - E["s3"] - 0.1), 0.4, 0.6); put(bgm, m02, E["s3"], 0.38)   # 序盤のBGMは小さく（11/10 ゲンタさん「序盤の音楽がうるさい」）
 m04 = fade(music.bgm04(E["win"] - E["s6"] - 1.0), 1.0, 1.2); put(bgm, m04, E["s6"] + 1.0, 0.9)
 m05 = fade(music.bgm05(E["eye"] - E["s8"] - 0.4), 0.8, 0.5); put(bgm, m05, E["s8"] + 0.4, 0.85)
 # アイキャッチ：着地のぽふっ＋トイピアノの短いジングル（メインテーマの頭3音＋和音）
