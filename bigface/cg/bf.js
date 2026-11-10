@@ -46,7 +46,7 @@ function signTex(txt, w, h, bg = "#A9805E", fg = "#F3E8D4", size = 0.62) {
 function bigFace(parent) {
   const root = new THREE.Group(); parent.add(root);
   const body = new THREE.Group(); root.add(body);
-  const cloth = toon(PAL.cloth), skin = toon(PAL.face), dark = new THREE.MeshBasicMaterial({ color: PAL.ink });
+  const cloth = toon(0xffffff, { map: grain(PAL.cloth, 128, 128, 3) }), skin = toon(PAL.face), dark = new THREE.MeshBasicMaterial({ color: PAL.ink });
   mesh(new THREE.SphereGeometry(1, 20, 14), cloth, body, [0, 0.66, 0], { scale: [0.40, 0.34, 0.34], line: 0.06 });
   const legs = [-1, 1].map(s => { const g = new THREE.Group(); g.position.set(s * 0.15, 0.40, 0); body.add(g);
     mesh(new THREE.CapsuleGeometry(0.085, 0.16, 4, 10), skin, g, [0, -0.16, 0], { line: 0.12 });
@@ -69,8 +69,8 @@ function bigFace(parent) {
     smile.visible = st.happy > 0.5; mouth.visible = !smile.visible; smile.position.set(st.look[0] * 0.04, my + 0.035, surf(0, my) - 0.004); smile.rotation.set(-0.12, 0, Math.PI * 1.1);
     if (st.happy > 0) eyes.forEach(e => { e.scale.y *= 1 - 0.45 * st.happy; e.position.y += 0.015 * st.happy; });
     // 当たったときの顔の伸び縮み（前後に縮み、横に広がる）
-    skull.scale.set(1.12 * (1 + 0.5 * st.sq), 1.0 * (1 + 0.3 * st.sq), 1.0 * (1 - st.sq));
-    face.scale.set(1 + 0.5 * st.sq, 1 + 0.3 * st.sq, 1 - st.sq);
+    const depth = 1 - THREE.MathUtils.clamp(st.sq, -0.03, 0.06), lateral = 1 / Math.sqrt(depth);   // 体積を保つ（Codex 案）
+    skull.scale.set(1.12 * lateral, lateral, depth); face.scale.set(lateral, lateral, depth);
   }
   return { root, body, neck, head, legs, arms, st, setFace };
 }
@@ -232,10 +232,10 @@ function person(parent, o) {
   return { root, body, neck, legs, arms, eyes, st, H };
 }
 function walkPose(c, phase, on, amp = 0.5) {
-  const sw = on ? Math.sin(phase) : 0;
+  const weight = Number(on), sw = weight * Math.sin(phase);   // on は 0〜1 の重み（止まるとき徐々に戻る。Codex 案）
   c.legs[0].rotation.x = amp * sw; c.legs[1].rotation.x = -amp * sw;
   c.arms[0].rotation.x = -0.6 * amp * sw; c.arms[1].rotation.x = 0.6 * amp * sw;
-  c.body.position.y = on ? 0.03 * Math.abs(Math.cos(phase)) : 0;
+  c.body.position.y = weight * 0.025 * (1 - Math.cos(2 * phase)) * 0.5;
 }
 function bread(parent, pos, sc = 1) {
   const g = new THREE.Group(); g.position.set(...pos); parent.add(g);
@@ -265,15 +265,19 @@ function backAlley(sc, X) {
 
 // ==== EP.01『ビッグフェイスのせまいドア』（約43秒）
 // ショット（秒）：s1 つっかえる / s2 中から / s3 横にして / s4 斜めにして・行列 / s5 行列を見る・裏口を教わる / s6 裏口に段ボール / s7 帰ろうとする・窓が開く / s8 窓でパンを受けとる / s9 窓の内と外で食べる（左右対称）
-export const EP01 = { s1: 0, s2: 2.6, s3: 5.6, s4: 9.4, s5: 12.6, s6: 16.4, s7: 22.6, s8: 29.2, s9: 33.4, end: 45.8,
-  hit1: 0.55, are: 4.6, hit2: 7.45, hit3: 10.75, kid_say: 14.4, sokka: 20.9, win: 26.6, kid_say2: 27.0, give: 31.2, bite1: 34.6, bite2: 36.6, final: 38.6, s10: 39.4, smile: 41.0, end2: 43.6, eye: 43.6 };
+export const EP01 = await fetch("ep01_time.json").then(r => r.json());
 function ep01(p) {
   const sc = S = new THREE.Scene();
   sc.background = new THREE.Color(0xE6EEE8); sc.fog = new THREE.Fog(0xE6EEE8, 20, 46);
   const hemi = new THREE.HemisphereLight(0xFFF6EA, 0xD8C7B2, 1.15); sc.add(hemi);
   const sun = new THREE.DirectionalLight(0xFFF0DC, 1.6); sun.position.set(6, 10, 8); sun.castShadow = true;
   sun.shadow.mapSize.set(2048, 2048); sun.shadow.radius = 6; sun.shadow.bias = -0.0008; sun.shadow.normalBias = 0.05;
-  Object.assign(sun.shadow.camera, { left: -9, right: 9, top: 8, bottom: -5, near: 1, far: 30 }); sc.add(sun); sc.add(sun.target);
+  Object.assign(sun.shadow.camera, { left: -7, right: 7, top: 7, bottom: -5, near: 1, far: 30 }); sc.add(sun); sc.add(sun.target);
+  // 接地のうす影（足もとだけ。Codex 案）
+  const ccv = document.createElement("canvas"); ccv.width = ccv.height = 128; const cctx = ccv.getContext("2d");
+  const cgr = cctx.createRadialGradient(64, 64, 8, 64, 64, 64); cgr.addColorStop(0, "rgba(52,59,58,0.22)"); cgr.addColorStop(1, "rgba(52,59,58,0)"); cctx.fillStyle = cgr; cctx.fillRect(0, 0, 128, 128);
+  const ctex = new THREE.CanvasTexture(ccv); ctex.colorSpace = THREE.SRGBColorSpace;
+  const contact = mesh(new THREE.PlaneGeometry(1.1, 0.75), new THREE.MeshBasicMaterial({ map: ctex, transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits: -1 }), sc, [0, 0.012, 0], { rot: [-Math.PI / 2, 0, 0], cast: false, recv: false });
   const inside = new THREE.PointLight(0xFFD9A8, 0, 9, 1.5); inside.position.set(0, 2.8, -2.5); sc.add(inside);
   const BK = bakery(sc); const AX = 40; backAlley(sc, AX);
   const bf = bigFace(sc);
@@ -303,9 +307,9 @@ function ep01(p) {
       const lookKid = ease(seg(t, E.kid_say - 0.2, E.kid_say + 0.2));
       return [lerp(0, -1.5, side), 1.7 + 0.2 * side, H_DOOR - turn * 1.9 + lookKid * 0.6, t > E.s5 + 1.3 && t < E.s5 + 1.9]; }
     if (t < E.s7) { // 裏口へ歩く（左から）
-      const u = ease(seg(t, E.s6 + 0.1, E.s6 + 2.5));
-      const turn = ease(seg(t, E.s6 + 2.55, E.s6 + 2.95));
-      return [AX + lerp(-4.2, 1.35, u), 2.1, lerp(Math.PI / 2, H_DOOR + 0.45, turn), t > E.s6 + 0.1 && t < E.s6 + 2.5]; }
+      const u = ease(seg(t, E.s6 + 0.1, E.s6 + 2.3));
+      const turn = ease(seg(t, E.s6 + 2.3, E.s6 + 2.7));
+      return [AX + lerp(-2.4, 1.35, u), 2.1, lerp(Math.PI / 2, H_DOOR + 0.45, turn), t > E.s6 + 0.1 && t < E.s6 + 2.3]; }
     if (t < E.s8) { // 店の前を右から左へ、ゆっくり帰る → 窓が開いて止まり、ふり返る
       const stopT = E.kid_say2 + 0.35;
       const u = seg(t, E.s7 + 0.2, stopT), x = lerp(5.6, 0.6, Math.min(1, Math.max(0, u)) - 0.02 * Math.max(0, Math.min(1, u)) * 0);
@@ -314,31 +318,35 @@ function ep01(p) {
     if (t < E.s9) { // 窓の前へ戻る
       const u = ease(seg(t, E.s8 + 0.1, E.s8 + 1.3)), turn = ease(seg(t, E.s8 + 1.2, E.s8 + 1.6));
       return [lerp(0.6, 1.95, u), lerp(2.2, 1.2, u), lerp(Math.PI * 0.75, H_DOOR, turn), t > E.s8 + 0.1 && t < E.s8 + 1.3]; }
-    return [1.95, 1.2, H_DOOR, false];
+    if (t >= E.s10) return [1.95, 1.2, H_DOOR, false];   // 最後の顔のアップは窓（子どもの目線）へ正面
+    return [1.95, 1.35, H_DOOR - 1.1, false];   // 窓の前：カメラ側へ少し向ける（目が見えるように）
   }
   const kidPos = t => { // 子ども：扉の内側に出てくる → 窓の中（台の上の椅子）
     if (t < E.s5 + 1.6) return [0, -30, 0, 0];
     if (t < E.s6) { const u = ease(seg(t, E.s5 + 1.7, E.s5 + 2.4)); return [0, lerp(-1.6, -0.55, u), 0, u > 0 && u < 1]; }
-    return [2.45, -1.2, 0, false];
+    return [2.45, -1.2, t >= E.s9 ? 1.0 : 0, false];
   };
-  const head = { x: 0, v: 0 }; let lastT = -1, prevV = 0, phase = 0, kphase = 0, fphase = [0, 0, 0];
+  const head = { x: 0, v: 0 }; let lastT = -1, prevV = 0, phase = 0, gaitW = 0, kphase = 0, fphase = [0, 0, 0];
   const folkSpot = [[1.3, 2.7], [1.9, 3.5], [2.5, 4.3]];
   return (t) => {
-    const dt = 1 / 60; if (lastT < 0) lastT = t;
-    while (lastT < t - 1e-6) {
+    const dt = 1 / 120;   // 固定刻みで0秒から進める（途中の時刻から描いても同じ状態。Codex 案）
+    if (lastT < 0 || t < lastT - 1e-6) { lastT = 0; prevV = 0; head.x = head.v = 0; phase = kphase = gaitW = 0; fphase = [0, 0, 0]; }
+    while (lastT + dt <= t + 1e-6) {
       const a = bfPath(lastT), b = bfPath(lastT + dt);
       const v = (Math.abs(b[0] - a[0]) > 5 ? 0 : Math.hypot(b[0] - a[0], b[1] - a[1])) / dt, acc = Math.abs(b[0] - a[0]) > 5 ? 0 : (v - prevV) / dt; prevV = v;
-      const w = 2 * Math.PI * 2.3, z = 0.3, tgt = THREE.MathUtils.clamp(-acc * 0.02, -0.17, 0.17);
-      head.v += (-w * w * (head.x - tgt) - 2 * z * w * head.v) * dt; head.x += head.v * dt;
-      if (a[3]) phase += dt * 2 * Math.PI * (t > E.s7 && t < E.s8 ? 1.6 : 2.3);
+      const reloc = Math.abs(b[0] - a[0]) > 5; if (reloc) { head.x = head.v = 0; prevV = 0; }
+      const w = 2 * Math.PI * 2.0, z = 0.58, tgt = THREE.MathUtils.clamp(-acc * 0.02, -0.17, 0.17);   // 止まったあとの揺れを早く収める（2.0Hz・減衰0.58、Codex 案）
+      if (!reloc) head.v += (-w * w * (head.x - tgt) - 2 * z * w * head.v) * dt; head.x += head.v * dt;
+      gaitW += ((a[3] && !reloc ? 1 : 0) - gaitW) * (1 - Math.exp(-dt / 0.065));
+      if (a[3] && !reloc) phase += v * dt / 0.36 * Math.PI;   // 足の運びを移動距離に合わせる（一歩0.36）
       kphase += dt * 2 * Math.PI * 2.6; fphase = fphase.map((f, i) => f + dt * 2 * Math.PI * (1.9 + i * 0.15));
       lastT += dt;
     }
     const [x, z, hd, walking] = bfPath(t);
     bf.root.position.set(x, 0, z); bf.root.rotation.y = hd;
-    walkPose(bf, phase, walking, t > E.s7 && t < E.s8 ? 0.35 : 0.55);
-    let pitch = head.x, roll = 0; const st = bf.st; st.look = [0, 0]; st.blink = 0; st.mouth = 0; st.sq = 0;
-    const bump = (th) => { if (t < th || t > th + 0.6) return; const k = t - th; st.sq = Math.max(-0.02, 0.055 * Math.exp(-k * 9) * Math.cos(k * 28) + (k < 0.04 ? 0.055 * k / 0.04 : 0)); pitch += 0.05 * Math.exp(-k * 6) * Math.sin(k * 20); };
+    walkPose(bf, phase, gaitW, t > E.s7 && t < E.s8 ? 0.35 : 0.55);
+    let pitch = head.x, roll = 0; const st = bf.st; st.look = [0, 0]; st.blink = 0; st.mouth = 0; st.sq = 0; st.happy = 0;
+    const bump = (th) => { if (t < th || t > th + 0.6) return; const k = t - th; st.sq = 0.06 * (1 - Math.exp(-k * 70)) * Math.exp(-k * 8) * Math.sin(k * 24 + 0.5); pitch += 0.05 * Math.exp(-k * 6) * Math.sin(k * 20); };   // ゼロからなめらかに縮む（Codex 案）
     bump(E.hit1); bump(E.hit2); bump(E.hit3);
     const blink = (tb) => { if (t > tb && t < tb + 0.14) st.blink = Math.sin(seg(t, tb, tb + 0.14) * Math.PI); };
     // s2：中から。止まって、まばたき、目だけ左右、「……あれ？」で首をかしげる
@@ -353,7 +361,7 @@ function ep01(p) {
       pitch += 0.16 * ease(seg(t, E.s5 + 0.9, E.s5 + 1.3)) * (1 - ease(seg(t, E.kid_say - 0.1, E.kid_say + 0.3))); blink(E.s5 + 2.2); blink(E.kid_say + 1.0);
       if (t > E.kid_say + 1.3) pitch += 0.08 * Math.sin(seg(t, E.kid_say + 1.3, E.kid_say + 1.6) * Math.PI) * (t < E.kid_say + 1.6 ? 1 : 0); }
     // s6：段ボールを見上げる →「……そっか。」
-    if (t > E.s6 && t < E.s7) { const up = ease(seg(t, E.s6 + 3.2, E.s6 + 3.6)) * (1 - ease(seg(t, E.sokka - 0.3, E.sokka + 0.2))); st.look = [0, up]; pitch -= 0.22 * up; blink(E.s6 + 4.2);
+    if (t > E.s6 && t < E.s7) { const up = ease(seg(t, E.s6 + 2.8, E.s6 + 3.2)) * (1 - ease(seg(t, E.sokka - 0.3, E.sokka + 0.2))); st.look = [0, up]; pitch -= 0.22 * up; blink(E.s6 + 3.5);
       if (t > E.sokka) { pitch += 0.12 * ease(seg(t, E.sokka, E.sokka + 0.8)); st.mouth = 0.6; } }
     // s7：うつむいて歩く（SAD）→ 窓が開く音で止まる → 見る
     if (t > E.s7 && t < E.s8) { pitch += 0.2 * (1 - ease(seg(t, E.kid_say2 + 0.4, E.kid_say2 + 0.9))); bf.body.scale.setScalar(1 - 0.03 * (1 - ease(seg(t, E.kid_say2 + 0.4, E.kid_say2 + 0.9)))); st.look = [-0.6 * ease(seg(t, E.kid_say2 + 0.3, E.kid_say2 + 0.45)), 0]; blink(E.kid_say2 + 1.4); }
@@ -362,8 +370,8 @@ function ep01(p) {
     let armUp = 0;
     if (t > E.s8 && t < E.s9) { armUp = ease(seg(t, E.give - 0.4, E.give)); const hp = seg(t, E.give + 0.5, E.give + 1.0); if (hp > 0 && hp < 1) { bf.body.position.y += 0.06 * Math.sin(hp * Math.PI); pitch -= 0.08 * Math.sin(hp * Math.PI); } blink(E.give + 1.4); }
     // s9：食べる（大きな頭がこくんと下がる）→ 最後のひとこと
-    if (t >= E.s9) { armUp = 1; [E.bite1, E.bite2].forEach(tb => { const k = seg(t, tb, tb + 0.7); if (k > 0 && k < 1) pitch += 0.42 * Math.sin(k * Math.PI); }); blink(E.s9 + 0.6); blink(E.final + 1.6);
-      if (t > E.s10) { blink(E.s10 + 0.7); const h = ease(seg(t, E.smile, E.smile + 0.35)); st.happy = h; pitch -= 0.05 * h; if (t > E.smile + 1.2) blink(E.smile + 1.4); } }   // 最後は顔：ほんの少し笑う（11/10 ゲンタさん「最後はビッグフェイスの表情で終わりたい」）
+    if (t >= E.s9) { armUp = t >= E.s10 ? 0.45 : 1; [E.bite1, E.bite2].forEach(tb => { const k = seg(t, tb, tb + 0.7); if (k > 0 && k < 1) pitch += 0.42 * Math.sin(k * Math.PI); }); blink(E.s9 + 0.6); blink(E.final + 1.6);
+      if (t > E.s10) { blink(E.s10 + 0.7); const h = ease(seg(t, E.smile, E.smile + 0.35)); st.happy = h; pitch -= 0.05 * h; if (t > E.smile + 1.4) blink(E.smile + 1.6); } }   // 最後は顔：ほんの少し笑う（11/10 ゲンタさん「最後はビッグフェイスの表情で終わりたい」）
     bf.arms.forEach((a, i) => { a.rotation.x = -1.9 * armUp + a.rotation.x * (1 - armUp); a.rotation.z = (i ? -1 : 1) * 0.35 * armUp; });
     bf.neck.rotation.x = pitch; bf.neck.rotation.z = (t > E.s3 && t < E.s5) ? 0 : roll; bf.head.rotation.z = (t > E.s3 && t < E.s5) ? roll : 0; bf.setFace();
     // パン：渡すまでは子どもの手、そのあとビッグフェイスの手。かじるたびに小さく
@@ -407,6 +415,8 @@ function ep01(p) {
     }
     if (t >= E.s10) { kid.root.position.y = -20; kidBread2.position.set(0, -20, 0); }
     // --- カメラ（1カット1種類の動き。感情の強い場面は固定）
+    const lx = t >= E.eye ? EX : (t >= E.s6 && t < E.s7 ? AX : 0); sun.position.set(lx + 6, 10, 8); sun.target.position.set(lx, 0, 0);   // 影の範囲を場所ごとに（Codex 案）
+    contact.position.set(x, t >= E.s2 && t < E.s5 ? 0.058 : 0.012, z); contact.visible = t < E.eye;
     BK.nbR.visible = true; BK.inR.visible = true; BK.awn.visible = true; inside.intensity = 0; hemi.intensity = 1.15; sun.visible = true;
     const cam = (pos, look, fov) => { C.fov = fov; C.position.set(...pos); C.lookAt(...look); };
     if (t < E.s2) cam([0.9, 1.8, 10.2], [-0.2, 2.15, 0.6], 42);
@@ -416,10 +426,10 @@ function ep01(p) {
     else if (t < E.s6) { const k = ease(seg(t, E.s5, E.s6)); cam([-5.6 + 0.3 * k, 2.5, 10.2 - 0.5 * k], [-0.2, 1.6, 2.4], 48); }   // ゆっくり寄る
     else if (t < E.s7) cam([AX + 1.0, 1.9, 10.0], [AX + 0.25, 1.9, 0.8], 40);
     else if (t < E.s8) cam([2.2, 2.0, 11.5], [2.0, 2.0, 1.2], 42);
-    else if (t < E.s9) cam([6.2, 2.0, 4.6], [2.3, 1.85, -0.2], 42);
+    else if (t < E.s9) cam([7.2, 2.1, 5.6], [2.3, 1.8, -0.2], 40);   // 窓の桟が顔にかからないよう外側へ（Codex 指摘）
     else if (t >= E.eye) { cam([EX, 1.4, 9.0], [EX, 0.75, 0], 36); hemi.intensity = 1.2; }
-    else if (t >= E.s10) { cam([1.95, 1.95, -3.2], [1.95, 1.95, 1.2], 34); BK.awn.visible = true; inside.intensity = 5; hemi.intensity = 1.05; }   // 窓の中（子どもの肩ごし）から顔：冒頭の「扉いっぱいの顔」と対
-    else { cam([16.0, 1.92, -0.14], [2.45, 1.92, -0.14], 30); BK.awn.visible = false; BK.nbR.visible = false; BK.inR.visible = false; inside.intensity = 4; }   // 左右対称：壁を真横から（外＝左、中＝右）
+    else if (t >= E.s10) { cam([1.95, 1.78, -3.9], [1.95, 1.88, 1.2], 33); BK.winL.rotation.y = -2.95; BK.winR.rotation.y = 2.95; BK.awn.visible = false; inside.intensity = 5; hemi.intensity = 1.15; sun.visible = false; }   // 窓の中（子どもの肩ごし）から顔：冒頭の「扉いっぱいの顔」と対   // 窓枠が額にかからないよう少し引いて低く（Codex 指摘）
+    else { cam([16.0, 1.95, 0.25], [2.2, 1.92, 0.15], 32); BK.winL.rotation.y = -2.95; BK.winR.rotation.y = 2.95; BK.awn.visible = false; BK.nbR.visible = false; BK.inR.visible = false; inside.intensity = 4; }   // 左右対称：壁の真横から。開いた窓は壁にぴったり倒し、顔にかからないように（Codex 指摘）
     C.updateProjectionMatrix();
   };
 }

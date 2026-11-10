@@ -10,13 +10,13 @@ import music
 
 FR, OUT = sys.argv[1], sys.argv[2]
 W, H, FPS, SR = 1080, 1920, 30, 48000
-E = dict(s1=0, s2=2.6, s3=5.6, s4=9.4, s5=12.6, s6=16.4, s7=22.6, s8=29.2, s9=33.4, s10=39.4, eye=43.6, end=45.8,
-         hit1=0.55, are=4.6, hit2=7.45, hit3=10.75, kid_say=14.4, sokka=20.9, win=26.6, kid_say2=27.0, give=31.2, bite1=34.6, bite2=36.6, final=38.6)
+import json
+E = json.load(open(f"{HERE}/cg/ep01_time.json"))   # 時刻表は bf.js と同じファイル
 F_TITLE = ImageFont.truetype(f"{HERE}/fonts/ZenMaruGothic-Bold.ttf", 70)
 F_EP = ImageFont.truetype(f"{HERE}/fonts/ZenMaruGothic-Bold.ttf", 34)
 F_SUB = ImageFont.truetype(f"{HERE}/fonts/ZenKakuGothicNew-Medium.ttf", 62)
 F_CR = ImageFont.truetype(f"{HERE}/fonts/ZenKakuGothicNew-Medium.ttf", 24)
-F_LOGO = ImageFont.truetype(f"{HERE}/fonts/ZenMaruGothic-Bold.ttf", 118)
+F_LOGO = ImageFont.truetype(f"{HERE}/fonts/ZenMaruGothic-Bold.ttf", 102)   # 端に余白（Codex 指摘で約13%小さく）
 INK = (0x34, 0x3B, 0x3A)
 
 # セリフ（文、読み、声、時刻）。読みはここで決めた片仮名だけを使う（読み間違いを防ぐ）
@@ -32,6 +32,12 @@ LINES_OFF = [("……あれ？", "アレ？", BF_V, E["are"]),
 import render
 voices = []
 LINES = []
+# タイトルコール（声は語りだけ。物語のセリフは言葉なしのまま。11/10 ゲンタさん「タイトルコールは声欲しいですね」）
+NAR_V = ("6.vvm", 31, 0.92, 0.0, 1.0)        # 仮：No.7 読み聞かせ（絵本を読む声）
+EYE_V = ("0.vvm", 8, 1.0, 0.04, 1.15)        # 仮：春日部つむぎ（明るく）
+CALLS = [("ビッグフェイスの、せまいドア", "ビッグフェイスノ、セマイドア", NAR_V, E["title_in"] + 0.45),
+         ("ザ・ビッグフェイス", "ザ、ビッグフェイス", EYE_V, E["eye"] + 0.5)]
+CREDIT = "VOICEVOX:No.7・春日部つむぎ"
 for i, (txt, yomi, v, at) in enumerate(LINES):
     render.set_voice(*v); render._YOMI[txt] = yomi
     tmp = f"/tmp/bf_l{i}.wav"; render.tts(txt, tmp)
@@ -39,12 +45,20 @@ for i, (txt, yomi, v, at) in enumerate(LINES):
     x = np.interp(np.arange(int(len(x) * SR / vsr)) / SR, np.arange(len(x)) / vsr, x).astype(np.float32)
     voices.append((txt, x, at, len(x) / SR))
 
+calls = []
+for i, (txt, yomi, v, at) in enumerate(CALLS):
+    render.set_voice(*v); render._YOMI[txt] = yomi
+    tmp = f"/tmp/bf_c{i}.wav"; render.tts(txt, tmp)
+    with wave.open(tmp) as w: x = np.frombuffer(w.readframes(w.getnframes()), np.int16).astype(np.float32) / 32768; vsr = w.getframerate()
+    x = np.interp(np.arange(int(len(x) * SR / vsr)) / SR, np.arange(len(x)) / vsr, x).astype(np.float32)
+    calls.append((txt, x, at, len(x) / SR))
+
 def alpha(t, a, b, f=0.18):
     if t < a or t > b: return 0.0
     return min(1, (t - a) / f, (b - t) / f)
 def text_layer(t):
     L = Image.new("RGBA", (W, H), (0, 0, 0, 0)); d = ImageDraw.Draw(L)
-    a = alpha(t, 0.7, 2.5)                                   # タイトル：最初の事件の上に約1.8秒
+    a = alpha(t, E["title_in"], E["title_out"], 0.3)       # タイトル：最初の事件から中の顔のカットまで約5秒（11/10 ゲンタさん「タイトルもっと長く見せたい」）
     if a > 0:
         d.text((W // 2, 118), "EP.01", font=F_EP, fill=INK + (int(200 * a),), anchor="mm")
         d.text((W // 2, 190), "ビッグフェイスのせまいドア", font=F_TITLE, fill=INK + (int(255 * a),), anchor="mm")
@@ -106,7 +120,7 @@ put(fx, pop(), E["s4"] + 0.12); put(fx, step(0.95), E["hit3"] - 0.18, 0.45); put
 for i in range(3):                                       # 行列の人が来る
     for k in range(7): put(fx, step(1.1 + 0.05 * i, True), E["s4"] + 0.35 + i * 0.5 + k / 3.6, 0.22)
 for k in range(3): put(fx, step(), E["s5"] + 1.35 + k * 0.2, 0.4)
-for k in range(11): put(fx, step(1 + 0.05 * (k % 2)), E["s6"] + 0.15 + k / 4.6, 0.45)
+for k in range(9): put(fx, step(1 + 0.05 * (k % 2)), E["s6"] + 0.15 + k / 4.2, 0.45)
 for k in range(15): put(fx, step(0.9 + 0.04 * (k % 2)), E["s7"] + 0.25 + k / 3.2, 0.3)   # ゆっくり帰る
 put(fx, creak(), E["win"])
 for k in range(6): put(fx, step(), E["s8"] + 0.15 + k / 4.6, 0.4)
@@ -126,9 +140,10 @@ put(fx, pofu(1.05), E["eye"] + 0.32, 1.0)
 for j, (nn, at) in enumerate([(76, 0.45), (79, 0.62), (81, 0.79)]): put(bgm, music.toypiano(music.hz(nn), 0.6), E["eye"] + at, 0.5)
 for nn in (72, 76, 79, 84): put(bgm, music.toypiano(music.hz(nn), 1.4), E["eye"] + 1.0, 0.28)
 for txt, x, at, dur in voices: put(vo, x, at + 0.02, 0.95)
+for txt, x, at, dur in calls: put(vo, x, at, 0.95)
 # セリフの間はBGMを下げる
 duck = np.ones(n, np.float32)
-for txt, x, at, dur in voices:
+for txt, x, at, dur in voices + calls:
     i, j = int((at - 0.15) * SR), int((at + dur + 0.25) * SR); duck[max(0, i):min(n, j)] = 0.45
 duck = lp(duck, 2400).astype(np.float32)
 mix = np.clip(fx + bgm * duck * 0.9 + vo, -1, 1)
@@ -140,6 +155,7 @@ files = sorted(glob.glob(f"{FR}/*.jpg"))
 os.makedirs("/tmp/bf_ep01_frames", exist_ok=True)
 for i, f in enumerate(files):
     im = Image.alpha_composite(Image.open(f).convert("RGBA"), text_layer(i / FPS))
+    ImageDraw.Draw(im).text((24, H - 40), CREDIT, font=F_CR, fill=(0x34, 0x3B, 0x3A, 150), anchor="lm")
     im.convert("RGB").save(f"/tmp/bf_ep01_frames/{i:05d}.jpg", quality=95)
 subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-framerate", str(FPS), "-i", "/tmp/bf_ep01_frames/%05d.jpg", "-i", "/tmp/bf_ep01.wav",
                 "-af", "loudnorm=I=-14:TP=-1:LRA=11", "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "18", "-c:a", "aac", "-ar", "48000", "-ac", "2", "-b:a", "192k", "-shortest", OUT], check=True)
