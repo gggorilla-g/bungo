@@ -311,7 +311,7 @@ function ep01(p) {
     if (t < E.s7) { // 裏口へ歩く（左から）
       const u = ease(seg(t, E.s6 + 0.1, E.s6 + 2.3));
       const turn = ease(seg(t, E.s6 + 2.3, E.s6 + 2.7));
-      return [AX + lerp(-2.4, 1.35, u), 2.1, lerp(Math.PI / 2, H_DOOR + 0.45, turn), t > E.s6 + 0.1 && t < E.s6 + 2.3]; }
+      return [AX + lerp(-2.4, 1.35, u), 2.1, lerp(Math.PI / 2, H_DOOR + 1.9, turn), t > E.s6 + 0.1 && t < E.s6 + 2.3]; }   // 段ボールのほうへ横向き（顔がカメラに見える）
     if (t < E.s8) { // 店の前を右から左へ、ゆっくり帰る → 窓が開いて止まり、ふり返る
       const stopT = E.kid_say2 + 0.35;
       const u = seg(t, E.s7 + 0.2, stopT), x = lerp(5.6, 0.6, Math.min(1, Math.max(0, u)) - 0.02 * Math.max(0, Math.min(1, u)) * 0);
@@ -319,7 +319,8 @@ function ep01(p) {
       return [u < 1 ? lerp(5.6, 0.6, Math.max(0, u)) : 0.6, 2.2, lerp(-Math.PI / 2, -Math.PI * 0.15 + 0.0, turn) , t > E.s7 + 0.2 && t < stopT]; }
     if (t < E.s9) { // 窓の前へ戻る
       const u = ease(seg(t, E.s8 + 0.1, E.s8 + 1.3)), turn = ease(seg(t, E.s8 + 1.2, E.s8 + 1.6));
-      return [lerp(0.6, 1.95, u), lerp(2.2, 1.2, u), lerp(Math.PI * 0.75, H_DOOR, turn), t > E.s8 + 0.1 && t < E.s8 + 1.3]; }
+      const back = ease(seg(t, E.give + 0.3, E.give + 0.75));   // 受けとったら、こちらへ向いてパンを見る
+      return [lerp(0.6, 1.95, u), lerp(2.2, 1.2, u) + 0.35 * back, lerp(Math.PI * 0.75, H_DOOR, turn) - 3.55 * back, t > E.s8 + 0.1 && t < E.s8 + 1.3]; }
     if (t >= E.s10) return [1.95, 1.2, H_DOOR, false];   // 最後の顔のアップは窓（子どもの目線）へ正面
     return [1.95, 1.35, H_DOOR - 1.1, false];   // 窓の前：カメラ側へ少し向ける（目が見えるように）
   }
@@ -374,7 +375,7 @@ function ep01(p) {
       pitch += 0.16 * ease(seg(t, E.s5 + 0.9, E.s5 + 1.3)) * (1 - ease(seg(t, E.kid_say - 0.1, E.kid_say + 0.3))); blink(E.s5 + 2.2); blink(E.kid_say + 1.0);
       if (t > E.kid_say + 1.3) pitch += 0.08 * Math.sin(seg(t, E.kid_say + 1.3, E.kid_say + 1.6) * Math.PI) * (t < E.kid_say + 1.6 ? 1 : 0); }
     // s6：段ボールを見上げる →「……そっか。」
-    if (t > E.s6 && t < E.s7) { const up = ease(seg(t, E.s6 + 2.8, E.s6 + 3.2)) * (1 - ease(seg(t, E.sokka - 0.3, E.sokka + 0.2))); st.look = [0, up]; pitch -= 0.22 * up; blink(E.s6 + 3.5);
+    if (t > E.s6 && t < E.s7) { const up = ease(seg(t, E.s6 + 2.8, E.s6 + 3.2)) * (1 - ease(seg(t, E.sokka - 0.3, E.sokka + 0.2))); st.look = [0.8 * up, up]; pitch -= 0.22 * up; blink(E.s6 + 3.5);
       if (t > E.sokka) { pitch += 0.12 * ease(seg(t, E.sokka, E.sokka + 0.8)); st.mouth = 0.6; } }
     // s7：うつむいて歩く（SAD）→ 窓が開く音で止まる → 見る
     if (t > E.s7 && t < E.s8) { pitch += 0.2 * (1 - ease(seg(t, E.kid_say2 + 0.4, E.kid_say2 + 0.9))); bf.body.scale.setScalar(1 - 0.03 * (1 - ease(seg(t, E.kid_say2 + 0.4, E.kid_say2 + 0.9)))); st.look = [-0.6 * ease(seg(t, E.kid_say2 + 0.3, E.kid_say2 + 0.45)), 0]; blink(E.kid_say2 + 1.4); }
@@ -382,7 +383,8 @@ function ep01(p) {
     // s8：パンを受けとる（腕を上げる）→ うれしい（頭が少し上がり、体が小さくはねる）
     let armUp = 0;
     if (t > E.s8 && t < E.give - 0.4) { const k = t - E.s8; st.look = [0.4 * Math.sin(Math.PI * Math.min(1, Math.max(0, seg(k, 1.5, 2.6)))), 0.3 * ease(seg(k, 1.4, 1.6))]; roll = 0.06 * Math.sin(Math.PI * Math.min(1, Math.max(0, seg(k, 1.7, 2.7)))); blink(E.s8 + 2.3); }   // 待つ：奥をのぞく、少し首をかしげる
-    if (t > E.s8 && t < E.s9) { armUp = ease(seg(t, E.give - 0.4, E.give)); const hp = seg(t, E.give + 0.5, E.give + 1.0); if (hp > 0 && hp < 1) { bf.body.position.y += 0.06 * Math.sin(hp * Math.PI); pitch -= 0.08 * Math.sin(hp * Math.PI); } blink(E.give + 1.4); }
+    if (t > E.give + 0.6 && t < E.s9) { st.look = [0, -0.6 * ease(seg(t, E.give + 0.6, E.give + 0.8)) * (1 - ease(seg(t, E.give + 1.4, E.give + 1.6))) ]; st.happy = ease(seg(t, E.give + 1.3, E.give + 1.5)); }   // パンを見て、うれしい
+    if (t > E.s8 && t < E.s9) { armUp = ease(seg(t, E.give - 0.4, E.give)); const hp = seg(t, E.give + 1.45, E.give + 1.85); if (hp > 0 && hp < 1) { bf.body.position.y += 0.06 * Math.sin(hp * Math.PI); pitch -= 0.08 * Math.sin(hp * Math.PI); } blink(E.give + 1.4); }
     // s9：食べる（大きな頭がこくんと下がる）→ 最後のひとこと
     if (t >= E.s9) { armUp = t >= E.s10 ? 0.45 : 1; [E.bite1, E.bite2].forEach(tb => { const k = seg(t, tb, tb + 0.7); if (k > 0 && k < 1) pitch += 0.42 * Math.sin(k * Math.PI); }); blink(E.s9 + 0.6); blink(E.final + 1.6);
       if (t > E.s10) { blink(E.s10 + 0.7); const h = ease(seg(t, E.smile, E.smile + 0.35)); st.happy = h; pitch -= 0.05 * h; if (t > E.smile + 1.4) blink(E.smile + 1.6); } }   // 最後は顔：ほんの少し笑う（11/10 ゲンタさん「最後はビッグフェイスの表情で終わりたい」）
@@ -444,10 +446,11 @@ function ep01(p) {
     else if (t < E.s4) { cam([0, 1.55, -4.6], [0, 1.95, 0.4], 34); inside.intensity = 6; hemi.intensity = 1.0; sun.visible = false; }   // 中から：横になった顔がそのまま押しつけられる
     else if (t < E.s5) { cam([0, 1.55, -4.6], [0, 1.95, 0.4], 34); inside.intensity = 6; hemi.intensity = 1.0; sun.visible = false; }   // 3回目も同じ構図（くり返しの笑い）
     else if (t < E.s6) { const k = ease(seg(t, E.s5, E.s6)); cam([-5.6 + 0.3 * k, 2.5, 10.2 - 0.5 * k], [-0.2, 1.6, 2.4], 48); }   // ゆっくり寄る
-    else if (t < E.s7) cam([AX + 1.0, 1.9, 10.0], [AX + 0.25, 1.9, 0.8], 40);
-    else if (t < E.s8) cam([2.2, 2.0, 11.5], [2.0, 2.0, 1.2], 42);
+    else if (t < E.s7) cam([AX - 2.2, 1.5, 6.4], [AX + 0.75, 1.9, 1.5], 44);   // 斜め前から：段ボールを見上げる顔と「そっか」が見える（11/10 ゲンタさん「もう少し全体的にビッグフェイスの表情を見たい」）
+    else if (t < E.s8) cam([-1.4, 1.5, 7.4], [2.4, 1.7, 1.6], 42);   // 前の斜めから：うつむいて帰る顔が見える。窓は後ろ
     else if (t < E.s9) { const k = t - E.s8;
       if (k > 0.55 && k < 2.85) { cam([3.9, 1.6, -0.6], [2.2, 1.15, -4.8], 48); inside.intensity = 5; hemi.intensity = 1.05; }   // 店の中から：子どもが奥の棚までパンを取りに行って戻る（11/10 ゲンタさん「わざわざ奥から持ってくる」）
+      else if (t > E.give + 0.25) cam([0.9, 1.7, 6.4], [1.95, 1.7, 1.4], 38);   // 受けとったあとは顔：うれしい（前の斜めから）
       else cam([7.2, 2.1, 5.6], [2.3, 1.8, -0.2], 40); }   // 窓の桟が顔にかからないよう外側へ（Codex 指摘）
     else if (t >= E.eye) { cam([EX, 1.4, 9.0], [EX, 0.75, 0], 36); hemi.intensity = 1.2; }
     else if (t >= E.s10) { cam([1.95, 1.78, -3.9], [1.95, 1.88, 1.2], 33); BK.winL.rotation.y = -2.95; BK.winR.rotation.y = 2.95; BK.awn.visible = false; inside.intensity = 5; hemi.intensity = 1.15; sun.visible = false; }   // 窓の中（子どもの肩ごし）から顔：冒頭の「扉いっぱいの顔」と対   // 窓枠が額にかからないよう少し引いて低く（Codex 指摘）

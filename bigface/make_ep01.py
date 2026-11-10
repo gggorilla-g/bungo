@@ -63,7 +63,8 @@ def text_layer(t):
         d.text((W // 2, 190), "ビッグフェイスのせまいドア", font=F_TITLE, fill=INK + (int(255 * a),), anchor="mm")
     k = t - E["eye"] - 0.42                                 # アイキャッチのロゴ：ぽんと出て、少しはねて止まる
     if k > 0:
-        sc_ = 1 + 0.18 * np.exp(-k * 9) * np.cos(k * 26) - 0.18 * np.exp(-k * 30)
+        sc_ = 1 - 0.35 * np.exp(-k * 11) * np.cos(k * 18)   # 小さく出て一度はね、0.4秒ほどで止まる（11/10 ゲンタさん「最後に不自然に文字が大きくなる」）
+        if k > 0.6: sc_ = 1.0
         lg = Image.new("RGBA", (W, 260), (0, 0, 0, 0)); ImageDraw.Draw(lg).text((W // 2, 130), "ザ・ビッグフェイス", font=F_LOGO, fill=INK + (255,), anchor="mm")
         lg = lg.resize((max(1, int(W * sc_)), max(1, int(260 * sc_))))
         L.alpha_composite(lg, (int((W - lg.width) / 2), int(1250 - lg.height / 2)))
