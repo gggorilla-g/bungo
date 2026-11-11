@@ -254,8 +254,8 @@ function backAlley(sc, X) {
   B(4, 4.2, 0.3, -2.7, 2.1, -0.15, brick); B(4, 4.2, 0.3, 2.7, 2.1, -0.15, brick); B(1.4, 4.2 - 2.55, 0.3, 0, 2.55 + (4.2 - 2.55) / 2, -0.15, brick);
   B(1.4, 2.55, 0.1, 0, 1.275, -0.3, toon(0x6F5A48));
   B(0.12, 2.65, 0.4, -0.76, 1.32, -0.1, wood, { line: 0.02 }); B(0.12, 2.65, 0.4, 0.76, 1.32, -0.1, wood, { line: 0.02 }); B(1.64, 0.12, 0.42, 0, 2.62, -0.1, wood, { line: 0.02 });
-  mesh(new THREE.BoxGeometry(1.3, 0.42, 0.06), wood, sc, [X, 3.05, 0.04], { line: 0.03 });
-  mesh(new THREE.PlaneGeometry(1.22, 0.35), new THREE.MeshBasicMaterial({ map: signTex("うらぐち", 512, 148, "#9A7656") }), sc, [X, 3.05, 0.075], { cast: false });
+  mesh(new THREE.BoxGeometry(1.3, 0.42, 0.06), wood, sc, [X, 3.75, 0.04], { line: 0.03 });   // 段ボールより上に（11/11 ゲンタさん「うらぐちの文字がダンボールで完全に隠れてる」）
+  mesh(new THREE.PlaneGeometry(1.22, 0.35), new THREE.MeshBasicMaterial({ map: signTex("うらぐち", 512, 148, "#9A7656") }), sc, [X, 3.75, 0.075], { cast: false });
   const boxT = grain(0xC8A27A, 128, 128, 18, (g, w, h) => { g.fillStyle = "rgba(170,130,90,0.5)"; g.fillRect(w * 0.42, 0, w * 0.16, h); });
   const box = toon(0xffffff, { map: boxT });
   [[-0.45, 0.4, 0.55, 0.8], [0.42, 0.4, 0.6, 0.8], [-0.4, 1.2, 0.6, 0.8], [0.38, 1.22, 0.65, 0.75], [-0.05, 1.98, 0.7, 0.72], [0.35, 2.65, 0.6, 0.62], [-0.38, 2.68, 0.62, 0.6]].forEach(([x, y, z, s], i) =>
@@ -306,10 +306,11 @@ function ep01(p) {
     if (t < E.s5) {
       const back = eo(seg(t, E.s4 + 0.05, E.s4 + 0.6)), fwd = ei(seg(t, E.hit3 - 0.4, E.hit3)), back2 = eo(seg(t, E.hit3 + 0.7, E.hit3 + 1.3));
       return [0, lerp(lerp(lerp(ZHIT, 1.65, back), ZHIT, fwd), 1.7, back2), H_DOOR, (t > E.s4 + 0.05 && t < E.s4 + 0.6) || (t > E.hit3 - 0.4 && t < E.hit3) || (t > E.hit3 + 0.7 && t < E.hit3 + 1.3)]; }
-    if (t < E.s6) { // 行列のほうを見て、少し横へよける
-      const side = ease(seg(t, E.s5 + 1.5, E.s5 + 2.3)), turn = ease(seg(t, E.s5 + 0.35, E.s5 + 0.9)) * (1 - ease(seg(t, E.s5 + 1.2, E.s5 + 1.7)));
-      const lookKid = ease(seg(t, E.kid_say - 0.2, E.kid_say + 0.2));
-      return [lerp(0, -1.5, side), 1.7 + 0.2 * side, H_DOOR - turn * 1.9 + lookKid * 0.6, t > E.s5 + 1.5 && t < E.s5 + 2.3]; }
+    if (t < E.s6) { // 行列のほうを見る → 並んでいる人が裏を指さす → その先を見る → 向き直っておじぎ → ゆっくり裏へ（11/11 ゲンタさん「並んでる人の親切で裏口まで回った風に」「ゆっくり目のカット。情感があるように」）
+      const P = E.point, a = ease(seg(t, E.s5 + 0.35, E.s5 + 1.1)), b = ease(seg(t, P + 1.0, P + 1.6)), c = ease(seg(t, P + 2.0, P + 2.5)), d = ease(seg(t, P + 3.5, P + 4.2));
+      const w = ease(seg(t, P + 3.9, P + 6.6)), m = 1 - w;   // 行列の前を、手前（カメラのほう）へゆっくり回りこむ。画面の右へ向かう（次の裏口のカットで左から入ってくる向きとつながる）
+      const px = 2 * w * m * 0.1 + w * w * 3.2, pz = m * m * 1.7 + 2 * w * m * 4.4 + w * w * 5.2;
+      return [px, pz, H_DOOR - 2.2 * a + 0.8 * b - 0.8 * c - 0.9 * d, t > P + 3.9]; }
     if (t < E.s7) { // 裏口へ歩く（左から）
       const u = ease(seg(t, E.s6 + 0.1, E.s6 + 2.3));
       const turn = ease(seg(t, E.s6 + 2.3, E.s6 + 2.7));
@@ -328,8 +329,7 @@ function ep01(p) {
   // かじる動き：0.5秒かけて口元へ → 0.3秒とめる → 0.5秒でもどす（0〜1）
   const biteU = t => Math.max(...[E.bite1, E.bite2].map(tb => ease(seg(t, tb, tb + 0.5)) * (1 - ease(seg(t, tb + 0.8, tb + 1.3)))));
   const kidPos = t => { // 子ども：扉の内側に出てくる → 窓の中（台の上の椅子）
-    if (t < E.s5 + 1.6) return [0, -30, 0, 0];
-    if (t < E.s6) { const u = ease(seg(t, E.s5 + 1.7, E.s5 + 2.4)); return [0, lerp(-1.6, -0.55, u), 0, u > 0 && u < 1]; }
+    if (t < E.s6) return [0, -30, 0, 0];   // 裏口を教えるのは行列の人（子どもは出さない）
     if (t >= E.s8 && t < E.s9) {   // 椅子から降りて奥の棚へ → パンを1つ取って戻る → 椅子に上がる（ゆっくり。11/10 ゲンタさん「すごい素早いタイミングで動いてる箇所があるのでやめて」）
       const k = t - E.s8;
       if (k < 0.75) return [2.45, lerp(-1.2, -1.6, ease(seg(k, 0.3, 0.75))), Math.PI * ease(seg(k, 0.2, 0.75)), false];
@@ -344,7 +344,7 @@ function ep01(p) {
     const hop = (a, b, y0, y1) => lerp(y0, y1, ease(seg(k, a, b))) + 0.1 * Math.sin(Math.PI * Math.min(1, Math.max(0, seg(k, a, b))));
     if (k < 0.75) return hop(0.3, 0.75, 0.86, 0); if (k < 4.95) return 0; return hop(4.95, 5.4, 0, 0.86); };
   const head = { x: 0, v: 0 }; let lastT = -1, prevV = 0, phase = 0, gaitW = 0, kphase = 0, fphase = [0, 0, 0];
-  const folkSpot = [[1.3, 2.7], [1.9, 3.5], [2.5, 4.3]];
+  const folkSpot = [[1.3, 2.7], [2.2, 3.7], [2.9, 4.6]];
   return (t) => {
     const dt = 1 / 120;   // 固定刻みで0秒から進める（途中の時刻から描いても同じ状態。Codex 案）
     if (lastT < 0 || t < lastT - 1e-6) { lastT = 0; prevV = 0; head.x = head.v = 0; phase = kphase = gaitW = 0; fphase = [0, 0, 0]; }
@@ -374,9 +374,13 @@ function ep01(p) {
     // s4：斜め（45度）→ 当たる → 引く
     if (t > E.s4 && t < E.s5) { roll = -(Math.PI / 4) * ease(seg(t, E.s4 + 0.6, E.s4 + 1.0)) * (1 - ease(seg(t, E.hit3 + 0.8, E.hit3 + 1.3))); blink(E.hit3 + 0.45); }
     // s5：行列に気づく（目→頭→体の順）→ 少しうつむく（はずかしい）→ 子どもの声で顔を上げる
-    if (t > E.s5 && t < E.s6) { st.look = [1 * ease(seg(t, E.s5 + 0.15, E.s5 + 0.3)) * (1 - ease(seg(t, E.s5 + 1.1, E.s5 + 1.3))), 0];
-      pitch += 0.16 * ease(seg(t, E.s5 + 0.9, E.s5 + 1.3)) * (1 - ease(seg(t, E.kid_say - 0.1, E.kid_say + 0.3))); blink(E.s5 + 2.2); blink(E.kid_say + 1.0);
-      if (t > E.kid_say + 1.3) pitch += 0.08 * Math.sin(seg(t, E.kid_say + 1.3, E.kid_say + 1.6) * Math.PI) * (t < E.kid_say + 1.6 ? 1 : 0); }
+    if (t > E.s5 && t < E.s6) { const P = E.point;   // 目が先に行列へ → うつむく → 指さしで顔を上げる → 指の先を目で追う → おじぎ
+      const q = ease(seg(t, E.s5 + 0.15, E.s5 + 0.35)) * (1 - ease(seg(t, E.s5 + 1.0, E.s5 + 1.25))), f = ease(seg(t, P + 1.2, P + 1.5)) * (1 - ease(seg(t, P + 1.9, P + 2.2)));
+      st.look = [q - 0.8 * f, 0];
+      pitch += 0.16 * ease(seg(t, E.s5 + 1.1, E.s5 + 1.6)) * (1 - ease(seg(t, P + 0.3, P + 0.9)));
+      pitch += 0.2 * Math.sin(Math.PI * Math.min(1, Math.max(0, seg(t, P + 2.7, P + 3.5))));
+      st.happy = Math.max(st.happy || 0, 0.6 * ease(seg(t, P + 2.4, P + 2.9)));
+      blink(E.s5 + 1.9); blink(P + 0.95); blink(P + 3.7); }
     // s6：段ボールを見上げる →「……そっか。」
     if (t > E.s6 && t < E.s7) { const up = ease(seg(t, E.s6 + 2.8, E.s6 + 3.2)) * (1 - ease(seg(t, E.sokka - 0.3, E.sokka + 0.2))); st.look = [0, up]; pitch -= 0.22 * up; blink(E.s6 + 3.5);
       if (t > E.sokka) { pitch += 0.12 * ease(seg(t, E.sokka, E.sokka + 0.8)); st.mouth = 0.6; }
@@ -409,7 +413,6 @@ function ep01(p) {
     kid.root.position.y = kidY(t);            // 窓の中では椅子の上（パンを取りに行くあいだは床）
     stool.visible = t > E.s6;
     kid.arms[1].rotation.x = 0; kid.arms[0].rotation.x = 0; kid.arms[1].rotation.z = 0; kid.neck.rotation.set(0, 0, 0);
-    if (t > E.kid_say && t < E.s6) { const u = ease(seg(t, E.kid_say, E.kid_say + 0.3)) * (1 - ease(seg(t, E.kid_say + 1.6, E.kid_say + 1.9))); kid.arms[0].rotation.z = 1.5 * u; kid.neck.rotation.y = 0.5 * u; }   // 横（裏）を指さす
     if (t > E.kid_say2 && t < E.s8 + 0.1) { const u = ease(seg(t, E.kid_say2, E.kid_say2 + 0.5)) * (1 - ease(seg(t, E.s8 - 0.6, E.s8 + 0.1))); kid.arms[0].rotation.x = -1.3 * u; }   // 手を一度あげるだけ（ふらない）   // 言葉なし：窓から手招き（11/10 ゲンタさん「言葉なし」）
     if (t > E.s7 && t < E.s9) { kid.neck.rotation.x = 0.1; const k = t - E.s8;
       const reach = Math.sin(Math.PI * Math.min(1, Math.max(0, seg(k, 2.55, 3.15))));   // 棚に手をのばす
@@ -436,7 +439,12 @@ function ep01(p) {
       const u = ease(seg(t, E.s4 + 0.3 + i * 0.5, E.s4 + 2.3 + i * 0.5)); const x0 = 8 + i * 1.2;
       f.root.position.set(lerp(x0, sx, u), 0, lerp(2.2, sz, u)); f.root.rotation.y = u < 1 ? -Math.PI / 2 - 0.2 : -Math.PI * 0.82;
       walkPose(f, fphase[i], u > 0 && u < 1, 0.45);
-      if (i === 0 && t > E.s5 + 0.6) f.arms[0].rotation.x = -1.2 * Math.sin(Math.min(1, seg(t, E.s5 + 0.6, E.s5 + 1.0)) * Math.PI / 2) * (1 - ease(seg(t, E.s5 + 2.4, E.s5 + 2.8)));   // 時計を見る
+      if (i === 0 && t > E.s5) {   // 先頭の人：ビッグフェイスのほうへ向き直り → 店の横（裏へ回る道）を腕で指して、そちらを見る → 顔を戻して小さくうなずく
+        const P = E.point, arm = ease(seg(t, P, P + 0.7)) * (1 - ease(seg(t, P + 2.1, P + 2.7)));
+        f.root.rotation.y = lerp(-Math.PI * 0.82, -2.23, ease(seg(t, P - 0.7, P - 0.1)));
+        f.arms[0].rotation.z = -2.3 * arm;   // 頭より上へ。後ろの人に隠れない
+        f.neck.rotation.y = -0.7 * ease(seg(t, P + 0.2, P + 0.6)) * (1 - ease(seg(t, P + 1.7, P + 2.1)));
+        f.neck.rotation.x = 0.15 * Math.sin(Math.PI * Math.min(1, Math.max(0, seg(t, P + 2.9, P + 3.5)))); }
       if (i === 2 && u >= 1) f.legs[1].rotation.x = -0.25 * Math.max(0, Math.sin(t * 9));                                  // とんとん
     });
     // --- アイキャッチ：上から落ちてきて、ぽふっと着地（顔がつぶれて戻る）→ うれしい顔で少しかしげる
@@ -459,7 +467,7 @@ function ep01(p) {
     else if (t < E.s3) { cam([0, 1.55, -4.6], [0, 1.95, 0.4], 34); inside.intensity = 6; hemi.intensity = 1.0; sun.visible = false; }
     else if (t < E.s4) { cam([0, 1.55, -4.6], [0, 1.95, 0.4], 34); inside.intensity = 6; hemi.intensity = 1.0; sun.visible = false; }   // 中から：横になった顔がそのまま押しつけられる
     else if (t < E.s5) { cam([0, 1.55, -4.6], [0, 1.95, 0.4], 34); inside.intensity = 6; hemi.intensity = 1.0; sun.visible = false; }   // 3回目も同じ構図（くり返しの笑い）
-    else if (t < E.s6) { const k = ease(seg(t, E.s5, E.s6)); cam([-5.6 + 0.3 * k, 2.5, 10.2 - 0.5 * k], [-0.2, 1.6, 2.4], 48); }   // ゆっくり寄る
+    else if (t < E.s6) { const k = ease(seg(t, E.s5, E.s6)); cam([1.7 - 0.3 * k, 2.4 - 0.1 * k, 11.0 - 1.4 * k], [0.2, 1.8, 2.0], 46 - 3 * k); }   // ほぼ正面から：ビッグフェイスの顔と、指さす人の腕が同時に見える。1カットでゆっくり寄る（切らない）
     else if (t < E.s7) cam([AX + 1.0, 1.9, 10.0], [AX + 0.25, 1.9, 0.8], 40);   // 斜め前から：段ボールを見上げる顔と「そっか」が見える（11/10 ゲンタさん「もう少し全体的にビッグフェイスの表情を見たい」）
     else if (t < E.s8) cam([2.2, 2.0, 11.5], [2.0, 2.0, 1.2], 42);
     else if (t < E.s9) { cam([3.75, 2.8, -5.95], [2.25, 1.25, -1.6], 50); BK.winL.rotation.y = -2.95; BK.winR.rotation.y = 2.95; BK.awn.visible = false; inside.intensity = 5; hemi.intensity = 1.15; sun.visible = false; }   // 店の奥からの固定1カット：窓にビッグフェイスの顔、手前で子どもがパンを取って戻り、渡す（11/11 ゲンタさん「カット割りがヘンテコ。忙しない。余計なカットとモーション」）

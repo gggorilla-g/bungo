@@ -24,7 +24,7 @@ BF_V = ("0.vvm", 10, 0.82, -0.05, 0.55)      # 仮：雨晴はう（ゆっくり
 KID_V = ("0.vvm", 8, 0.98, 0.03, 1.0)        # 仮：春日部つむぎ（パン屋の子）
 # 11/10 ゲンタさん「言葉なし」：セリフは使わない（動きだけで見せる）。声を足すときはここに書く
 LINES_OFF = [("……あれ？", "アレ？", BF_V, E["are"]),
-         ("うらにも、ドアがあるよ", "ウラニモ、ドアガアルヨ", KID_V, E["kid_say"]),
+         ("うらにも、ドアがあるよ", "ウラニモ、ドアガアルヨ", KID_V, E["point"]),
          ("……そっか。", "ソッカ。", BF_V, E["sokka"]),
          ("ここからなら、どうぞ", "ココカラナラ、ドーゾ", KID_V, E["kid_say2"]),
          ("ここも、いい席だね。", "ココモ、イイセキダネ。", BF_V, E["final"])]
@@ -119,7 +119,7 @@ put(fx, pop(), E["s3"] + 0.18); put(fx, step(), E["s3"] + 0.4, 0.4); put(fx, ste
 put(fx, pop(), E["s4"] + 0.12); put(fx, step(0.95), E["hit3"] - 0.18, 0.45); put(fx, pofu(0.94), E["hit3"]); put(fx, pop(), E["hit3"] + 0.72)
 for i in range(3):                                       # 行列の人が来る
     for k in range(7): put(fx, step(1.1 + 0.05 * i, True), E["s4"] + 0.35 + i * 0.5 + k / 3.6, 0.22)
-for k in range(3): put(fx, step(), E["s5"] + 1.35 + k * 0.2, 0.4)
+for k in range(5): put(fx, step(1 + 0.05 * (k % 2)), E["point"] + 3.95 + k * 0.3, 0.4)   # 裏へゆっくり歩き出す
 for k in range(9): put(fx, step(1 + 0.05 * (k % 2)), E["s6"] + 0.15 + k / 4.2, 0.45)
 for k in range(15): put(fx, step(0.9 + 0.04 * (k % 2)), E["s7"] + 0.25 + k / 3.2, 0.3)   # ゆっくり帰る
 put(fx, creak(), E["win"])
@@ -135,7 +135,7 @@ def fade(x, fi, fo):
     if a: e[:a] = np.linspace(0, 1, a)
     if b: e[-b:] = np.linspace(1, 0, b)
     return x * e
-m02 = fade(music.bgm02(E["s6"] - E["s3"] - 0.1), 0.4, 0.6); put(bgm, m02, E["s3"], 0.38)   # 序盤のBGMは小さく（11/10 ゲンタさん「序盤の音楽がうるさい」）
+m02 = fade(music.bgm02(E["point"] + 0.6 - E["s3"]), 0.4, 1.4)   # 指さしのところで静かに消える（親切の間は音楽なし）; put(bgm, m02, E["s3"], 0.38)   # 序盤のBGMは小さく（11/10 ゲンタさん「序盤の音楽がうるさい」）
 m04 = fade(music.bgm04(E["win"] - E["s6"] - 1.0), 1.0, 1.2); put(bgm, m04, E["s6"] + 1.0, 0.9)
 m05 = fade(music.bgm05(E["eye"] - E["s8"] - 0.4), 0.8, 0.5); put(bgm, m05, E["s8"] + 0.4, 0.85)
 # アイキャッチ：着地のぽふっ＋トイピアノの短いジングル（メインテーマの頭3音＋和音）
