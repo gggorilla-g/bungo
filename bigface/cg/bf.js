@@ -292,6 +292,8 @@ function ep01(p) {
   const blob = mesh(new THREE.CircleGeometry(0.75, 32), new THREE.MeshBasicMaterial({ color: 0xC9B79C, transparent: true, opacity: 0.6 }), sc, [EX, 0.01, 0], { rot: [-Math.PI / 2, 0, 0], cast: false, recv: false });
   const bf2 = bigFace(sc); bf2.root.position.set(EX, 0, 0);
   const stool = mesh(new THREE.CylinderGeometry(0.25, 0.22, 0.85, 14), BK.wood, sc, [2.45, 0.43, -1.2], { line: 0.03 });
+  const fore = [0, 1].map(() => { const g = new THREE.Group(); bf.body.add(g); mesh(new THREE.CapsuleGeometry(0.065, 0.14, 4, 10), toon(PAL.face), g, [0, -0.13, 0], { line: 0.12 });
+    const hand = mesh(new THREE.SphereGeometry(0.095, 12, 10), toon(PAL.face), bf.body, [0, 0, 0], { line: 0.1 }); g.visible = false; hand.visible = false; return { g, hand }; });
   const bfBread = bread(sc, [0, -5, 0]), kidBread = bread(sc, [2.45, 1.02, -0.6]), kidBread2 = bread(sc, [0, -5, 0], 0.9);
   const E = EP01;
   // --- ビッグフェイスの道のり（区間ごと。x,z,向き,歩いているか）
@@ -391,10 +393,16 @@ function ep01(p) {
     if (t >= E.s9) { armUp = t >= E.s10 ? 0.45 : 1; pitch += 0.1 * biteU(t); if (t < E.s10) [E.bite1, E.bite2].forEach(tb => { const c = seg(t, tb + 0.95, tb + 1.75); if (c > 0 && c < 1) st.mouth = 0.5 + 0.5 * Math.sin(c * Math.PI * 4); });   // 食べる：手がのびてパンが口元まで来る → もぐもぐ（11/11 ゲンタさん「手が伸びて口元までパンがくる感じに」） blink(E.s9 + 0.6); blink(E.final + 1.6);
       if (t > E.s10) { blink(E.s10 + 0.7); const h = ease(seg(t, E.smile, E.smile + 0.35)); st.happy = h; pitch -= 0.05 * h; if (t > E.smile + 1.4) blink(E.smile + 1.6); } }   // 最後は顔：ほんの少し笑う（11/10 ゲンタさん「最後はビッグフェイスの表情で終わりたい」）
     bf.arms.forEach((a, i) => { a.rotation.x = -1.9 * armUp + a.rotation.x * (1 - armUp); a.rotation.z = (i ? -1 : 1) * 0.35 * armUp; a.scale.set(1, 1, 1); });
-    const bu = biteU(t), HOLD = new THREE.Vector3(0, 0.98, 0.42), MOUTH = new THREE.Vector3(0, 1.6, 1.08), breadL = HOLD.clone().lerp(MOUTH, bu);
-    if (t >= E.s9 && t < E.s10) bf.arms.forEach((a, i) => {   // 腕をパンへ向けて、とどくまでのばす
-      const sh = new THREE.Vector3((i ? 1 : -1) * 0.36, 0.78, 0), d = breadL.clone().add(new THREE.Vector3((i ? 1 : -1) * 0.16, -0.04, 0)).sub(sh), len = d.length();
-      a.quaternion.setFromUnitVectors(new THREE.Vector3(0, -1, 0), d.normalize()); a.scale.set(1, Math.max(1, len / 0.27), 1); });
+    const bu = biteU(t), HOLD = new THREE.Vector3(0, 0.98, 0.5), MOUTH = new THREE.Vector3(0, 1.6, 1.2), breadL = HOLD.clone().lerp(MOUTH, bu);
+    // 腕は「肩 → ひじ → 手」の2本。ひじを顔の前下に出して、顔にめりこまないようにする。手はパンの両わきをにぎる（11/11 ゲンタさん「顔に埋め込まれないようにして腕が」「最後もちゃんとパンを握ってるように」）
+    const holding = t >= E.s9 && t < E.eye;
+    fore.forEach((f, i) => { f.g.visible = holding; f.hand.visible = holding; });
+    if (holding) bf.arms.forEach((a, i) => {
+      const sx = i ? 1 : -1, sh = new THREE.Vector3(sx * 0.36, 0.78, 0);
+      const el = new THREE.Vector3(sx * 0.44, 0.8, 0.3).lerp(new THREE.Vector3(sx * 0.52, 0.86, 1.12), bu);
+      const hd = breadL.clone().add(new THREE.Vector3(sx * 0.2, -0.02, 0));
+      const aim = (g, from, to) => { const d = to.clone().sub(from), len = d.length(); g.quaternion.setFromUnitVectors(new THREE.Vector3(0, -1, 0), d.normalize()); g.scale.set(1, Math.max(0.6, len / 0.27), 1); };
+      aim(a, sh, el); fore[i].g.position.copy(el); aim(fore[i].g, el, hd); fore[i].hand.position.copy(hd); });
     bf.neck.rotation.x = pitch; bf.neck.rotation.z = (t > E.s3 && t < E.s5) ? 0 : roll; bf.head.rotation.z = (t > E.s3 && t < E.s5) ? roll : 0; bf.setFace();
     // --- 子ども
     const [kx, kz, kh, kw] = kidPos(t); kid.root.position.set(kx, 0, kz); kid.root.rotation.y = kh; walkPose(kid, kphase, kw, 0.6);
@@ -414,7 +422,7 @@ function ep01(p) {
     const bites = (t > E.bite1 + 0.7 ? 1 : 0) + (t > E.bite2 + 0.7 ? 1 : 0);
     kid.root.updateMatrixWorld(true); bf.root.updateMatrixWorld(true);
     const khand = new THREE.Vector3(0, -0.26 * kid.H, 0.08); kid.arms[1].localToWorld(khand);
-    const bh = (t >= E.s9 && t < E.s10 ? breadL.clone() : new THREE.Vector3(0, 0.98, 0.42)); bf.root.localToWorld(bh);
+    const bh = (t >= E.s9 ? breadL.clone() : new THREE.Vector3(0, 0.98, 0.42)); bf.root.localToWorld(bh);
     if (t > E.s8 + 3.0 && t < E.give - 0.25) bfBread.position.copy(khand);
     else if (t >= E.give - 0.25 && t < E.give + 0.35) bfBread.position.copy(khand.lerp(bh, ease(seg(t, E.give - 0.25, E.give + 0.35))));
     else if (t >= E.give + 0.35) { bfBread.position.copy(bh); bfBread.rotation.y = bf.root.rotation.y; bfBread.scale.setScalar(1 - 0.22 * bites); }
@@ -456,7 +464,7 @@ function ep01(p) {
     else if (t < E.s8) cam([2.2, 2.0, 11.5], [2.0, 2.0, 1.2], 42);
     else if (t < E.s9) { cam([3.75, 2.8, -5.95], [2.25, 1.25, -1.6], 50); BK.winL.rotation.y = -2.95; BK.winR.rotation.y = 2.95; BK.awn.visible = false; inside.intensity = 5; hemi.intensity = 1.15; sun.visible = false; }   // 店の奥からの固定1カット：窓にビッグフェイスの顔、手前で子どもがパンを取って戻り、渡す（11/11 ゲンタさん「カット割りがヘンテコ。忙しない。余計なカットとモーション」）
     else if (t >= E.eye) { cam([EX, 1.4, 9.0], [EX, 0.75, 0], 36); hemi.intensity = 1.2; }
-    else if (t >= E.s10) { cam([1.95, 1.78, -3.9], [1.95, 1.88, 1.2], 33); BK.winL.rotation.y = -2.95; BK.winR.rotation.y = 2.95; BK.awn.visible = false; inside.intensity = 5; hemi.intensity = 1.15; sun.visible = false; }   // 窓の中（子どもの肩ごし）から顔：冒頭の「扉いっぱいの顔」と対   // 窓枠が額にかからないよう少し引いて低く（Codex 指摘）
+    else if (t >= E.s10) { cam([1.95, 1.62, -3.9], [1.95, 1.72, 1.2], 33); BK.winL.rotation.y = -2.95; BK.winR.rotation.y = 2.95; BK.awn.visible = false; inside.intensity = 5; hemi.intensity = 1.15; sun.visible = false; }   // 窓の中（子どもの肩ごし）から顔：冒頭の「扉いっぱいの顔」と対   // 窓枠が額にかからないよう少し引いて低く（Codex 指摘）
     else { cam([16.0, 1.95, 0.25], [2.2, 1.92, 0.15], 32); BK.winL.rotation.y = -2.95; BK.winR.rotation.y = 2.95; BK.awn.visible = false; BK.nbR.visible = false; BK.inR.visible = false; inside.intensity = 4; }   // 左右対称：壁の真横から。開いた窓は壁にぴったり倒し、顔にかからないように（Codex 指摘）
     // 表情に寄る（アングルはそのまま、要所だけ顔のアップを挟む。11/10 ゲンタさん「裏口空いてなくてその時の表情に寄るとか。さっきのアングルにプラスで表情に寄る」）
     const cu = (yaw = 0.35, dist = 2.6, fov = 30, dy = 0.0) => {
