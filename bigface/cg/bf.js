@@ -486,7 +486,22 @@ function ep01(p) {
   };
 }
 
-const SCENES = { ep01_test: ep01Test, ep01: ep01 };
+
+// ==== チャンネルの絵（ヘッダー 2560x1440／アイコン 800x800）。p.kind = "banner" | "icon"
+function art(p) {
+  const sc = S = new THREE.Scene();
+  const bg = p.kind === "icon" ? 0xF1E4CC : 0xE6EEE8; sc.background = new THREE.Color(bg);
+  const hemi = new THREE.HemisphereLight(0xFFF6EA, 0xD8C7B2, 1.15); sc.add(hemi);
+  const sun = new THREE.DirectionalLight(0xFFF0DC, 1.6); sun.position.set(6, 10, 8); sun.castShadow = true;
+  sun.shadow.mapSize.set(2048, 2048); sun.shadow.radius = 6; sun.shadow.bias = -0.0008; sun.shadow.normalBias = 0.05;
+  Object.assign(sun.shadow.camera, { left: -9, right: 9, top: 7, bottom: -5, near: 1, far: 30 }); sc.add(sun); sc.add(sun.target);
+  if (p.kind !== "icon") bakery(sc);
+  const bf = bigFace(sc); bf.root.position.set(0, 0, 1.7); bf.st.happy = 1; bf.st.look = [0, 0]; bf.setFace();
+  return () => {
+    C.fov = p.fov; C.position.set(...p.cam); C.lookAt(...p.look); C.updateProjectionMatrix();
+  };
+}
+const SCENES = { ep01_test: ep01Test, ep01: ep01, art };
 window.setup = (j) => {
   job = j;
   if (!R) {
