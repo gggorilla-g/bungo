@@ -128,7 +128,7 @@ for k in range(7): put(fx, step(1.35, True), E["s8"] + 0.85 + k * 0.26, 0.18)   
 put(fx, rustle(), E["s8"] + 2.8, 0.8)                                                    # 棚からパンを取る
 for k in range(7): put(fx, step(1.35, True), E["s8"] + 3.25 + k * 0.26, 0.18)          # 戻ってくる
 put(fx, rustle(), E["give"] - 0.1)
-for b in (E["bite1"], E["bite2"]): put(fx, munch(), b + 0.33, 0.6); put(fx, munch(), b + 0.8, 0.35)
+for b in (E["bite1"], E["bite2"]): put(fx, munch(), b + 0.6, 0.6); put(fx, munch(), b + 1.15, 0.35); put(fx, munch(), b + 1.5, 0.3)   # 口元に来てから「もぐ」
 # BGM：冒頭は無音 → なんだかへんだ → （止める）→ ひとりぼっち → （窓の音で止める）→ そういうことか
 def fade(x, fi, fo):
     L = len(x); e = np.ones(L); a = int(fi * SR); b = int(fo * SR)

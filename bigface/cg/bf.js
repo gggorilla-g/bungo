@@ -323,6 +323,8 @@ function ep01(p) {
     if (t >= E.s10) return [1.95, 1.2, H_DOOR, false];   // 最後の顔のアップは窓（子どもの目線）へ正面
     return [1.95, 1.35, H_DOOR - 1.1, false];   // 窓の前：カメラ側へ少し向ける（目が見えるように）
   }
+  // かじる動き：0.5秒かけて口元へ → 0.3秒とめる → 0.5秒でもどす（0〜1）
+  const biteU = t => Math.max(...[E.bite1, E.bite2].map(tb => ease(seg(t, tb, tb + 0.5)) * (1 - ease(seg(t, tb + 0.8, tb + 1.3)))));
   const kidPos = t => { // 子ども：扉の内側に出てくる → 窓の中（台の上の椅子）
     if (t < E.s5 + 1.6) return [0, -30, 0, 0];
     if (t < E.s6) { const u = ease(seg(t, E.s5 + 1.7, E.s5 + 2.4)); return [0, lerp(-1.6, -0.55, u), 0, u > 0 && u < 1]; }
@@ -386,9 +388,13 @@ function ep01(p) {
     if (t > E.give + 0.9 && t < E.s9) st.happy = ease(seg(t, E.give + 0.9, E.give + 1.3));   // 受けとって、少し笑う
     if (t > E.s8 && t < E.s9) { armUp = ease(seg(t, E.give - 0.7, E.give)); }
     // s9：食べる（大きな頭がこくんと下がる）→ 最後のひとこと
-    if (t >= E.s9) { armUp = t >= E.s10 ? 0.45 : 1; [E.bite1, E.bite2].forEach(tb => { const k = seg(t, tb, tb + 0.7); if (k > 0 && k < 1) pitch += 0.42 * Math.sin(k * Math.PI); }); blink(E.s9 + 0.6); blink(E.final + 1.6);
+    if (t >= E.s9) { armUp = t >= E.s10 ? 0.45 : 1; pitch += 0.1 * biteU(t); if (t < E.s10) [E.bite1, E.bite2].forEach(tb => { const c = seg(t, tb + 0.95, tb + 1.75); if (c > 0 && c < 1) st.mouth = 0.5 + 0.5 * Math.sin(c * Math.PI * 4); });   // 食べる：手がのびてパンが口元まで来る → もぐもぐ（11/11 ゲンタさん「手が伸びて口元までパンがくる感じに」） blink(E.s9 + 0.6); blink(E.final + 1.6);
       if (t > E.s10) { blink(E.s10 + 0.7); const h = ease(seg(t, E.smile, E.smile + 0.35)); st.happy = h; pitch -= 0.05 * h; if (t > E.smile + 1.4) blink(E.smile + 1.6); } }   // 最後は顔：ほんの少し笑う（11/10 ゲンタさん「最後はビッグフェイスの表情で終わりたい」）
-    bf.arms.forEach((a, i) => { a.rotation.x = -1.9 * armUp + a.rotation.x * (1 - armUp); a.rotation.z = (i ? -1 : 1) * 0.35 * armUp; });
+    bf.arms.forEach((a, i) => { a.rotation.x = -1.9 * armUp + a.rotation.x * (1 - armUp); a.rotation.z = (i ? -1 : 1) * 0.35 * armUp; a.scale.set(1, 1, 1); });
+    const bu = biteU(t), HOLD = new THREE.Vector3(0, 0.98, 0.42), MOUTH = new THREE.Vector3(0, 1.6, 1.08), breadL = HOLD.clone().lerp(MOUTH, bu);
+    if (t >= E.s9 && t < E.s10) bf.arms.forEach((a, i) => {   // 腕をパンへ向けて、とどくまでのばす
+      const sh = new THREE.Vector3((i ? 1 : -1) * 0.36, 0.78, 0), d = breadL.clone().add(new THREE.Vector3((i ? 1 : -1) * 0.16, -0.04, 0)).sub(sh), len = d.length();
+      a.quaternion.setFromUnitVectors(new THREE.Vector3(0, -1, 0), d.normalize()); a.scale.set(1, Math.max(1, len / 0.27), 1); });
     bf.neck.rotation.x = pitch; bf.neck.rotation.z = (t > E.s3 && t < E.s5) ? 0 : roll; bf.head.rotation.z = (t > E.s3 && t < E.s5) ? roll : 0; bf.setFace();
     // --- 子ども
     const [kx, kz, kh, kw] = kidPos(t); kid.root.position.set(kx, 0, kz); kid.root.rotation.y = kh; walkPose(kid, kphase, kw, 0.6);
@@ -405,10 +411,10 @@ function ep01(p) {
     if (t >= E.s9) { [E.bite1 + 0.3, E.bite2 + 0.3].forEach(tb => { const k = seg(t, tb, tb + 0.9); if (k > 0 && k < 1) kid.neck.rotation.z = 0.12 * Math.sin(k * Math.PI); }); }   // 子どもは食べない。食べるのを見て、首を少しかしげる（11/10 ゲンタさん「店の人もパン食べてるのは意味がわからない」）
     kidBread2.position.set(0, -20, 0); kidBread.visible = false;
     // パン：子どもの右手 → ゆっくり手渡し → ビッグフェイスの手。かじるたびに小さく
-    const bites = (t > E.bite1 + 0.35 ? 1 : 0) + (t > E.bite2 + 0.35 ? 1 : 0);
+    const bites = (t > E.bite1 + 0.7 ? 1 : 0) + (t > E.bite2 + 0.7 ? 1 : 0);
     kid.root.updateMatrixWorld(true); bf.root.updateMatrixWorld(true);
     const khand = new THREE.Vector3(0, -0.26 * kid.H, 0.08); kid.arms[1].localToWorld(khand);
-    const bh = new THREE.Vector3(0, 0.98, 0.42); bf.root.localToWorld(bh);
+    const bh = (t >= E.s9 && t < E.s10 ? breadL.clone() : new THREE.Vector3(0, 0.98, 0.42)); bf.root.localToWorld(bh);
     if (t > E.s8 + 3.0 && t < E.give - 0.25) bfBread.position.copy(khand);
     else if (t >= E.give - 0.25 && t < E.give + 0.35) bfBread.position.copy(khand.lerp(bh, ease(seg(t, E.give - 0.25, E.give + 0.35))));
     else if (t >= E.give + 0.35) { bfBread.position.copy(bh); bfBread.rotation.y = bf.root.rotation.y; bfBread.scale.setScalar(1 - 0.22 * bites); }
