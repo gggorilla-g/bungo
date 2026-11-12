@@ -506,9 +506,9 @@ function frog(parent) {
 function umbrella(parent, color = 0xE2B85C) {
   const g = new THREE.Group(); parent.add(g);
   const cloth = toon(color, { side: THREE.DoubleSide }), stick = toon(0x6A5240);
-  const canopy = mesh(new THREE.ConeGeometry(0.85, 0.34, 10, 1, true), cloth, g, [0, 3.25, 0], { line: 0.02 });
+  const canopy = mesh(new THREE.ConeGeometry(0.85, 0.34, 10, 1, true), cloth, g, [0, 1.0, 0], { line: 0.02 });
   mesh(new THREE.SphereGeometry(0.035, 8, 6), stick, canopy, [0, 0.19, 0], {});
-  const shaft = mesh(new THREE.CylinderGeometry(0.022, 0.022, 3.25, 6), stick, g, [0, 1.62, 0], { line: 0.2 });
+  const shaft = mesh(new THREE.CylinderGeometry(0.022, 0.022, 1.1, 6), stick, g, [0, 0.5, 0], { line: 0.2 });
   const hook = mesh(new THREE.TorusGeometry(0.07, 0.02, 6, 10, Math.PI), stick, g, [0.07, 0.0, 0], { rot: [0, 0, Math.PI], line: 0.15 });
   return { g, canopy, shaft, hook };
 }
@@ -544,7 +544,7 @@ function ep02(p) {
       dummy.position.set(cx + (rr(i, 0) - 0.5) * size, y, cz + (rr(i, 1) - 0.5) * size); if (dummy.position.distanceTo(C.position) < 2.6) dummy.position.y = -60; dummy.rotation.set(0, 0, 0.06); dummy.updateMatrix(); rain.setMatrixAt(i, dummy.matrix); }
     rain.instanceMatrix.needsUpdate = true; }
   // 登場：ビッグフェイス、傘、カエル
-  const bf = bigFace(sc), fr = frog(sc), um = umbrella(bf.root);
+  const bf = bigFace(sc), fr = frog(sc), um = umbrella(bf.body);
   const fore = [0, 1].map(() => { const g = new THREE.Group(); bf.body.add(g); mesh(new THREE.CapsuleGeometry(0.065, 0.14, 4, 10), toon(PAL.face), g, [0, -0.13, 0], { line: 0.12 });
     const hand = mesh(new THREE.SphereGeometry(0.095, 12, 10), toon(PAL.face), bf.body, [0, 0, 0], { line: 0.1 }); return { g, hand }; });
   // ほおの雨つぶ（頭の表面をつたって下りる）
@@ -596,60 +596,60 @@ function ep02(p) {
     bf.root.position.set(x, 0, z); bf.root.rotation.y = hd; walkPose(bf, phase, gaitW, 0.45);
     let pitch = head.x, roll = 0; const st = bf.st; st.look = [0, 0]; st.blink = 0; st.mouth = 0; st.sq = 0; st.happy = 0; st.wink = [0, 0];
     const blink = (tb) => { if (t > tb && t < tb + 0.14) st.blink = Math.sin(seg(t, tb, tb + 0.14) * Math.PI); };
-    // 傘：横位置 ox（頭の中心から）、高さ、前へ出す量、閉じ具合
-    let ox = 0.55, oy = 0, oz = 0.25, tilt = 0, open = 1;
-    if (t < E.s3) ox = lerp(0.55, -0.55, ease(seg(t, E.swap, E.swap + 0.8)));
-    else if (t < E.s5) ox = lerp(-0.55, 0, ease(seg(t, E.center - 0.2, E.center + 0.5)));
-    else if (t < E.s8) { ox = 0; }
-    // 雨にぬれる側：0=左ほお（画面右） 1=右ほお（画面左）
-    let wet = [0, 0];
-    if (t < E.s3) { const u = ease(seg(t, E.swap, E.swap + 0.8)); wet = [1 - u, u]; }
-    else if (t < E.s4) wet = [0.5, 0.5];
+    // 傘を持つ位置：sd = +1 右がわ（頭の横）、-1 左がわ。柄はふつうの長さで、腕のほうが伸びて頭の外を回る（11/12 ゲンタさん「傘が貫通しまくってる」「持ち手が長すぎる。腕伸ばして」）
+    const uS = ease(seg(t, E.swap, E.swap + 1.3));   // 持ちかえ：頭の上を弧をえがいて反対がわへ（とちゅうは両手）
+    let sd = Math.cos(Math.PI * uS), arcY = Math.sin(Math.PI * uS);
+    let open = 1, reach = 0, offerW = null, lower = 0;
+    // 雨にぬれる側（傘のない側）：0=-x がわ 1=+x がわ
+    let wet = [(1 + sd) / 2, (1 - sd) / 2];
     // 顔の演技
     if (t < E.s2) { blink(2.2); }
     if (t >= E.s2 && t < E.s3) { const k = t - E.s2;
-      st.look = [0.8 * ease(seg(k, 0.6, 0.8)) * (1 - ease(seg(k, 1.8, 2.0))) - 0.8 * ease(seg(t, E.swap + 1.4, E.swap + 1.6)), 0];
-      st.wink = [0.55 * wet[0], 0.55 * wet[1]]; blink(E.swap + 0.9); }
-    if (t >= E.s3 && t < E.s4) { pitch += 0.08 * ease(seg(t, E.center + 0.7, E.center + 1.4)); st.wink = [0.35, 0.35]; blink(E.s3 + 2.1); st.mouth = 0.2; }
+      st.look = [0.8 * ease(seg(k, 0.6, 0.8)) * (1 - ease(seg(k, 1.8, 2.0))) - 0.8 * ease(seg(t, E.swap + 1.8, E.swap + 2.0)), 0];
+      st.wink = [0.55 * wet[0], 0.55 * wet[1]]; blink(E.swap + 1.4); }
+    if (t >= E.s3 && t < E.s4) { pitch += 0.08 * ease(seg(t, E.center + 0.7, E.center + 1.4)); st.wink = [0, 0.5]; st.look = [-0.6, 0]; blink(E.s3 + 2.1); st.mouth = 0.2; }
     if (t >= E.s4 && t < E.s5) { st.look = [0, -0.8 * ease(seg(t, E.notice, E.notice + 0.25))]; pitch += 0.18 * ease(seg(t, E.notice + 0.2, E.notice + 0.8)); blink(E.notice + 1.6); }
-    // 差し出す（腕がにゅーっと伸びる）：腕の先は傘の柄。傘はカエルの上へ
-    let reach = 0, tgtW = null;
+    // 差し出す（腕がにゅーっと伸びる）：傘はカエルの真上へ
     if (t >= E.s5 && t < E.s8) {
       const r1 = ease(seg(t, E.offer1, E.offer1 + 0.9)), r2 = ease(seg(t, E.offer2, E.offer2 + 1.0)), back = ease(seg(t, E.hop2 + 0.7, E.s6 + 0.4));
       reach = Math.max(r1, r2) * (1 - back);
-      const fp = frogPos(Math.min(t, E.hop1 + 0.25 + (t > E.offer2 ? 99 : 0))); const fp2 = frogPos(t);
-      const follow = t > E.offer2 ? fp2 : frogPos(Math.min(t, E.hop1 - 0.05));
-      tgtW = new THREE.Vector3(follow[0] - 0.05, -0.55, follow[2] - 0.15);   // 傘の布がカエルの上 2.7m ほど（柄の手元は低く。腕は下へ長く伸びる）   // カエルの真上 1m くらいに傘の柄の手元
+      const follow = t > E.offer2 ? frogPos(t) : frogPos(Math.min(t, E.hop1 - 0.05));
+      offerW = new THREE.Vector3(follow[0], 1.45, follow[2]);   // 柄の手元はカエルの上 1.45m、布はその 1m 上
       pitch += 0.2 * reach; st.look = [0, -0.7 * reach];
       if (t > E.hop1 && t < E.offer2) { st.look = [0.6 * ease(seg(t, E.hop1, E.hop1 + 0.3)), -0.5]; }
       if (t > E.hop2 && t < E.s6) st.look = [0.6, -0.5];
-      wet = [0.9 * reach, 0.9 * reach]; st.wink = [0.4 * reach, 0.4 * reach]; }
-    if (t >= E.s6 && t < E.s7) { roll = 0.1 * ease(seg(t, E.s6 + 0.5, E.s6 + 1.1)); blink(E.s6 + 1.5); st.look = [0.5, -0.3]; wet = [0.8, 0.8]; st.wink = [0.3, 0.3]; }
-    if (t >= E.s7 && t < E.s8) { wet = [0.8, 0.8]; }
-    if (t >= E.s8 && t < E.s9) { const k = t - E.s8; st.look = [0.4 * (1 - ease(seg(t, E.smile - 0.4, E.smile))), -0.25];
-      st.happy = ease(seg(t, E.smile, E.smile + 0.4)); blink(E.s8 + 0.7); open = 1 - ease(seg(t, E.close, E.close + 0.8)); wet = [0.8, 0.8];
-      const sd = ease(seg(t, E.close - 0.7, E.close)); ox = 1.3 * sd; oy = -0.9 * sd; oz = 0.15; }   // 閉じる傘は顔の横へ（顔の前に来ると口ばしに見える）
-    if (t >= E.s9) { open = 0; st.happy = 1; wet = [0.7, 0.7]; blink(E.s9 + 2.0); blink(E.s9 + 4.4); }
+      wet = [Math.max(wet[0], 0.9 * reach), Math.max(wet[1], 0.9 * reach)]; st.wink = [0.4 * reach, 0.4 * reach]; }
+    if (t >= E.s6 && t < E.s7) { roll = 0.1 * ease(seg(t, E.s6 + 0.5, E.s6 + 1.1)); blink(E.s6 + 1.5); st.look = [0.5, -0.3]; st.wink = [0, 0.3]; }
+    if (t >= E.s8 && t < E.s9) { st.look = [0.4 * (1 - ease(seg(t, E.smile - 0.4, E.smile))), -0.25];
+      st.happy = ease(seg(t, E.smile, E.smile + 0.4)); blink(E.s8 + 0.7); open = 1 - ease(seg(t, E.close, E.close + 0.8));
+      lower = ease(seg(t, E.close + 0.6, E.close + 1.6)); wet = [Math.max(wet[0], 0.8 * lower), Math.max(wet[1], 0.8 * lower)]; }
+    if (t >= E.s9) { open = 0; lower = 1; st.happy = 1; wet = [0.7, 0.7]; blink(E.s9 + 2.0); blink(E.s9 + 4.4); }
     if (t >= E.s10 && t < E.eye) { const u = ease(seg(t, E.s10 + 0.9, E.s10 + 1.6)); pitch -= 0.14 * u; st.blink = Math.max(st.blink, 0.85 * u); st.happy = 1; }
-    // 傘の形と位置
-    const closed = 1 - open;
-    um.canopy.scale.set(lerp(1, 0.13, closed), lerp(1, 3.0, closed), lerp(1, 0.13, closed)); um.canopy.position.y = lerp(3.25, 2.75, closed);
-    if (tgtW && reach > 0.001) {   // 差し出し中：ワールドの目標位置へ
-      bf.root.updateMatrixWorld(true); const loc = bf.root.worldToLocal(tgtW.clone());
-      const rest = new THREE.Vector3(ox, 1.05 + oy, oz);
-      const cur = rest.clone().lerp(loc, reach); um.g.position.set(cur.x, cur.y - 1.05, cur.z); um.g.rotation.set(0, 0, 0);
-    } else if (t >= E.s9) { um.g.position.set(0.42, -1.25, 0.5); um.g.rotation.set(0.0, 0, -0.2); }   // 閉じた傘を手にさげて歩く
-    else { um.g.position.set(ox, oy, oz); um.g.rotation.set(tilt, 0, 0); }
-    // 腕：右手（i=1）で柄をにぎる。肩 → ひじ → 手（手は柄の 1.05 の高さ）。伸びるときはゴムのように長く
-    bf.root.updateMatrixWorld(true);
-    const gripW = new THREE.Vector3(0, t >= E.s9 ? 2.6 : (reach > 0.001 ? 1.05 + 1.6 * reach : 1.05), 0); um.g.localToWorld(gripW); const grip = bf.body.worldToLocal(gripW.clone());
-    bf.arms.forEach((a, i) => { a.scale.set(1, 1, 1); a.rotation.set(0, 0, 0); a.quaternion.identity(); });
-    const aim = (g, from, to) => { const d = to.clone().sub(from), len = d.length(); g.quaternion.setFromUnitVectors(new THREE.Vector3(0, -1, 0), d.normalize()); g.scale.set(1, Math.max(0.5, len / 0.27), 1); };
-    const sh = new THREE.Vector3(0.36, 0.78, 0); const elR = sh.clone().lerp(grip, 0.45).add(new THREE.Vector3(0.12, -0.05, 0.12 * (1 - reach)));
-    aim(bf.arms[1], sh, elR); fore[1].g.position.copy(elR); aim(fore[1].g, elR, grip); fore[1].hand.position.copy(grip);
-    fore[0].g.visible = false; fore[0].hand.visible = false;   // 左腕はふつう
-    bf.arms[0].rotation.z = 0.1;
     bf.neck.rotation.x = pitch; bf.neck.rotation.z = roll; bf.setFace();
+    // ---- 傘と腕（すべて体のローカル座標）。頭（だ円）の中に入らないように押し出す
+    bf.root.updateMatrixWorld(true);
+    const HCw = new THREE.Vector3(); bf.head.getWorldPosition(HCw); const HC = bf.body.worldToLocal(HCw.clone());
+    const pushOut = (p, m = 1.22) => { const v = p.clone().sub(HC), d = Math.hypot(v.x / 1.12, v.y, v.z); return d >= m ? p : HC.clone().add(v.multiplyScalar(m / Math.max(d, 1e-3))); };
+    const side = (q, ay = 0) => [new THREE.Vector3(q * 1.34, HC.y + 0.9 + 0.75 * ay, 0.12), new THREE.Vector3(-0.5 * q, 0.87, 0).normalize()];
+    let [grip, dir] = side(sd, arcY);
+    if (reach > 0.001) { const tg = bf.body.worldToLocal(offerW.clone()); grip = pushOut(grip.clone().lerp(tg, reach), 1.3); dir = dir.clone().lerp(new THREE.Vector3(0, 1, 0), reach).normalize(); }
+    if (lower > 0) { const hang = new THREE.Vector3(-0.66, 1.2, 0.32), mid = new THREE.Vector3(-1.55, 1.9, 0.3);
+      const u = lower, a = grip.clone().lerp(mid, u), b = mid.clone().lerp(hang, u); grip = pushOut(a.lerp(b, u), 1.3);
+      dir = dir.clone().lerp(new THREE.Vector3(0.12, -1, 0.15), u).normalize(); }
+    const closed = 1 - open;
+    um.canopy.scale.set(lerp(1, 0.14, closed), lerp(1, 2.4, closed), lerp(1, 0.14, closed)); um.canopy.position.y = lerp(1.0, 0.62, closed);
+    um.g.position.copy(grip); um.g.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir);
+    // 持つ手：右がわ（sd>0）は右手、左がわは左手。持ちかえの途中（頭の上）は両手
+    const hold = [sd < 0.35 || lower > 0 || reach > 0.001 ? 1 : 0, sd > -0.35 && lower === 0 && reach <= 0.001 ? 1 : 0];
+    if (reach > 0.001) { hold[0] = 1; hold[1] = 0; }
+    const aim = (g, from, to) => { const d = to.clone().sub(from), len = d.length(); g.quaternion.setFromUnitVectors(new THREE.Vector3(0, -1, 0), d.normalize()); g.scale.set(1, Math.max(0.5, len / 0.27), 1); };
+    bf.arms.forEach((a, i) => { const sx = i ? 1 : -1;
+      a.scale.set(1, 1, 1); a.rotation.set(0, 0, 0); a.quaternion.identity();
+      if (!hold[i]) { fore[i].g.visible = false; fore[i].hand.visible = false; a.rotation.z = sx * 0.1; return; }
+      fore[i].g.visible = true; fore[i].hand.visible = true;
+      const sh = new THREE.Vector3(sx * 0.36, 0.78, 0), hg = grip.clone().add(new THREE.Vector3(sx * 0.03, 0.02, 0));
+      const el = pushOut(sh.clone().lerp(hg, 0.5).add(new THREE.Vector3(sx * 0.35, 0, 0.12)), 1.3);
+      aim(a, sh, el); fore[i].g.position.copy(el); aim(fore[i].g, el, hg); fore[i].hand.position.copy(hg); });
     // ほおの雨つぶ
     drops.forEach((side, si) => side.forEach((d, k) => { const sx = si ? 1 : -1; const u = ((t * 0.9 + k * 0.27 + si * 0.13) % 1);
       const xx = sx * (0.72 + 0.08 * (k % 2)), yy = 0.25 - 0.85 * u; d.visible = wet[si] > 0.2 + k * 0.15 && t < E.eye;
@@ -680,7 +680,7 @@ function ep02(p) {
     let rc = [0, 5];
     sun.position.set(6, 12, 8); sun.target.position.set(0, 0, 3); rain.visible = true; hemi.intensity = 1.7;
     if (t < E.s2) { cam([3.2, 2.3, 13.5], [-1.6, 1.9, 3.8], 40); rc = [-1, 7]; }
-    else if (t < E.s3) { cam([-0.8, 2.4, 10.6], [-0.8, 2.45, 4.2], 36); rc = [-0.8, 6]; }
+    else if (t < E.s3) { cam([-0.8, 2.6, 11.4], [-0.8, 2.95, 4.2], 42); rc = [-0.8, 6]; }   // 傘まで入る
     else if (t < E.s4) { const hp = cu(0, 3.6, 46, 0.45); rc = [hp.x, hp.z]; }
     else if (t < E.s5) { cam([1.5, 0.42, 8.9], [0.1, 1.35, 4.8], 44); rc = [0.6, 6.5]; }
     else if (t < E.s6) { cam([0.9, 1.9, 11.6], [0.9, 1.2, 5.3], 38); rc = [0.9, 7]; }
