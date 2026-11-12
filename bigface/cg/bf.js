@@ -628,7 +628,7 @@ function ep02(p) {
     if (t >= E.s7 && t < E.s8) { wet = [0.8, 0.8]; }
     if (t >= E.s8 && t < E.s9) { const k = t - E.s8; st.look = [0.4 * (1 - ease(seg(t, E.smile - 0.4, E.smile))), -0.25];
       st.happy = ease(seg(t, E.smile, E.smile + 0.4)); blink(E.s8 + 0.7); open = 1 - ease(seg(t, E.close, E.close + 0.8)); wet = [0.8, 0.8];
-      ox = 0; oy = -0.9 * ease(seg(t, E.close - 0.6, E.close)); oz = 0.6 * ease(seg(t, E.close - 0.6, E.close)); }
+      const sd = ease(seg(t, E.close - 0.7, E.close)); ox = 1.3 * sd; oy = -0.9 * sd; oz = 0.15; }   // 閉じる傘は顔の横へ（顔の前に来ると口ばしに見える）
     if (t >= E.s9) { open = 0; st.happy = 1; wet = [0.7, 0.7]; blink(E.s9 + 2.0); blink(E.s9 + 4.4); }
     if (t >= E.s10 && t < E.eye) { const u = ease(seg(t, E.s10 + 0.9, E.s10 + 1.6)); pitch -= 0.14 * u; st.blink = Math.max(st.blink, 0.85 * u); st.happy = 1; }
     // 傘の形と位置
