@@ -760,7 +760,7 @@ function ep03(p) {
     if (t < E.s3) return [0, 1.45, 0, false];
     if (t < E.s4) { const u = ease(seg(t, E.s3 + 0.3, E.s3 + 1.4)); return [lerp(0, 1.95, u), lerp(1.45, 1.25, u), lerp(0, 0, u), t > E.s3 + 0.3 && t < E.s3 + 1.4]; }
     if (t < E.s5) { const u = ease(seg(t, E.s4 + 0.2, E.s4 + 1.6)); const x = lerp(1.95, 0, u), z = lerp(1.25, -1.15, u) + Math.sin(Math.PI * u) * 0.0;
-      return [u < 0.5 ? lerp(1.95, 2.9, u * 2) : lerp(2.9, 0, (u - 0.5) * 2), u < 0.5 ? lerp(1.25, 0.2, u * 2) : lerp(0.2, -1.15, (u - 0.5) * 2), u < 0.05 ? 0 : (u < 0.5 ? -2.4 : -Math.PI / 2 - 0.6 + 0.6 * ease(seg(t, E.s4 + 1.5, E.s4 + 2.0))) , t > E.s4 + 0.2 && t < E.s4 + 1.6]; }
+      return [u < 0.5 ? lerp(1.95, 2.9, u * 2) : lerp(2.9, 0, (u - 0.5) * 2), u < 0.5 ? lerp(1.25, 0.2, u * 2) : lerp(0.2, -1.15, (u - 0.5) * 2), u < 0.05 ? 0 : lerp(2.4, 4.28, ease(seg(u, 0.4, 0.6))) + (2 * Math.PI - 4.28) * ease(seg(t, E.s4 + 1.5, E.s4 + 2.1)), t > E.s4 + 0.2 && t < E.s4 + 1.6]; }   // 後ろに回って、カメラのほうへ向き直る
     if (t < E.s6) { const u = ease(seg(t, E.point + 0.6, E.s6 + 1.4)); const tgt = [0, 7.6];
       return [lerp(0, 2.6, Math.min(1, u * 2)) * (1 - Math.max(0, u * 2 - 1)) + tgt[0] * Math.max(0, u * 2 - 1), lerp(-1.15, tgt[1], u), u > 0.02 ? (u < 0.98 ? 0.3 : Math.PI) : 0, t > E.point + 0.6]; }
     if (t < E.s9) { const u = ease(seg(t, E.s6, E.s6 + 0.6)); return [0, 7.6, lerp(0.3, Math.PI, Math.max(u, 0.0)), false]; }
@@ -784,7 +784,8 @@ function ep03(p) {
     const blink = (tb) => { if (t > tb && t < tb + 0.14) st.blink = Math.sin(seg(t, tb, tb + 0.14) * Math.PI); };
     // 首がのびる（後ろに立ったとき）
     const ns = t >= E.s4 && t < E.s5 + 1.2 ? ease(seg(t, E.stretch, E.stretch + 1.0)) * (1 - ease(seg(t, E.s5 + 0.2, E.s5 + 1.0))) : 0;
-    const L = 2.3 * ns;   // 首がにゅーっと長く（少し奇妙なからだ） bf.neck.position.y = 0.92 + L; longNeck.visible = L > 0.02; longNeck.position.y = 0.92 + L / 2 + 0.05; longNeck.scale.y = Math.max(0.01, L + 0.1);
+    const L = 2.3 * ns;   // 首がにゅーっと長く（少し奇妙なからだ）
+    bf.neck.position.y = 0.92 + L; longNeck.visible = L > 0.02; longNeck.position.y = 0.92 + L / 2 + 0.05; longNeck.scale.y = Math.max(0.01, L + 0.1);
     bf.arms.forEach((a, i) => { a.rotation.set(0, 0, 0); a.scale.set(1, 1, 1); a.quaternion.identity(); });
     fore.forEach(f => { f.g.visible = f.hand.visible = false; });
     // 顔
