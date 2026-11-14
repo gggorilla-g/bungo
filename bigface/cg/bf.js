@@ -915,7 +915,7 @@ function flowerPot(parent) {   // 大きな植木鉢（素焼き）。上下さ�
   mesh(new THREE.CylinderGeometry(1.3, 0.95, 1.25, 28, 1, true), terra, g, [0, 0, 0], { line: 0.015 });
   mesh(new THREE.TorusGeometry(1.3, 0.09, 8, 32), terra, g, [0, 0.62, 0], { rot: [Math.PI / 2, 0, 0], line: 0.02 });   // 縁
   const bottom = mesh(new THREE.CircleGeometry(0.95, 28), terra, g, [0, -0.625, 0], { rot: [Math.PI / 2, 0, 0] });
-  mesh(new THREE.CircleGeometry(0.11, 14), dark, g, [0, -0.63, 0], { rot: [Math.PI / 2, 0, 0], cast: false });   // 鉢底の穴（外側）
+  mesh(new THREE.CircleGeometry(0.17, 18), dark, g, [0, -0.63, 0], { rot: [Math.PI / 2, 0, 0], cast: false });   // 鉢底の穴（外側）
   const soil = mesh(new THREE.CircleGeometry(1.22, 28), toon(0x6A4A36), g, [0, 0.5, 0], { rot: [-Math.PI / 2, 0, 0], cast: false }); soil.visible = false;
   return { g, soil };
 }
@@ -958,6 +958,19 @@ function ep04(p) {
   const fore = [0, 1].map(() => { const g = new THREE.Group(); bf.body.add(g); mesh(new THREE.CapsuleGeometry(0.065, 0.14, 4, 10), skinM, g, [0, -0.13, 0], { line: 0.12 });
     const hand = mesh(new THREE.SphereGeometry(0.095, 12, 10), skinM, bf.body, [0, 0, 0], { line: 0.1 }); g.visible = hand.visible = false; return { g, hand }; });
   const crumbs = Array.from({ length: 8 }, () => mesh(new THREE.SphereGeometry(0.05, 6, 5), toon(0x6A4A36), sc, [0, -20, 0], { cast: false }));
+  // 小鳥（種をくわえてくる）と種、穴に入る雨つぶ
+  const bird = new THREE.Group(); sc.add(bird); const bm = toon(0x9A7A5E), bw = toon(0xE9DCC6);
+  mesh(new THREE.SphereGeometry(0.13, 14, 10), bm, bird, [0, 0.13, 0], { scale: [1.25, 1, 1], line: 0.08 });
+  mesh(new THREE.SphereGeometry(0.085, 12, 10), bm, bird, [0.13, 0.26, 0], { line: 0.08 });
+  mesh(new THREE.SphereGeometry(0.06, 10, 8), bw, bird, [0.02, 0.09, 0], { scale: [1.4, 0.9, 1.3], cast: false });
+  mesh(new THREE.ConeGeometry(0.025, 0.07, 8), toon(0xE0A040), bird, [0.235, 0.255, 0], { rot: [0, 0, -Math.PI / 2], line: 0.15 });
+  [-1, 1].forEach(s2 => mesh(new THREE.SphereGeometry(0.014, 6, 5), new THREE.MeshBasicMaterial({ color: 0x222222 }), bird, [0.18, 0.29, s2 * 0.055], { cast: false }));
+  mesh(new THREE.BoxGeometry(0.14, 0.02, 0.07), bm, bird, [-0.19, 0.17, 0], { rot: [0, 0, 0.35], line: 0.08 });
+  const wings = [-1, 1].map(s2 => { const w = new THREE.Group(); bird.add(w); w.position.set(-0.02, 0.18, s2 * 0.12);
+    mesh(new THREE.SphereGeometry(0.1, 10, 8), bm, w, [-0.04, 0, s2 * 0.04], { scale: [1.1, 0.25, 0.8], line: 0.08 }); return w; });
+  [-1, 1].forEach(s2 => mesh(new THREE.CylinderGeometry(0.008, 0.008, 0.06, 5), toon(0xE0A040), bird, [0.02, 0.0, s2 * 0.04], {}));
+  const seed = mesh(new THREE.SphereGeometry(0.035, 10, 8), toon(0x5A4030), sc, [0, -20, 0], { scale: [1.4, 0.9, 0.9], line: 0.12 });
+  const hdrops = Array.from({ length: 5 }, () => mesh(new THREE.SphereGeometry(0.018, 8, 6), new THREE.MeshBasicMaterial({ color: 0xE8F2F8 }), sc, [0, -20, 0], { scale: [0.6, 3.2, 0.6], cast: false }));
   const drops = Array.from({ length: 6 }, () => mesh(new THREE.SphereGeometry(0.02, 8, 6), new THREE.MeshBasicMaterial({ color: 0xF4F8FA }), bf.head, [0, 0, 0], { scale: [1, 1.4, 0.6], cast: false }));
   const surf = (x, y) => Math.sqrt(Math.max(0.02, 1 - (x / 1.12) ** 2 - y * y));
   // アイキャッチ
@@ -971,7 +984,10 @@ function ep04(p) {
     if (t < E.s1) { const u = ease(seg(t, 0.3, 4.0)); return [lerp(EXT - 4.5, EXT, u), lerp(3.2, 0.9, u), u < 0.85 ? Math.PI / 2 - 0.6 : lerp(Math.PI / 2 - 0.6, Math.PI, ease(seg(u, 0.85, 1))), t > 0.3 && t < 4.0]; }   // 帽子屋へ
     if (t < E.s2) { const u = ease(seg(t, E.s1 + 0.2, E.s1 + 2.4)); return [SHOP + 0.4, lerp(5.0, 0.6, u), Math.PI * (1 - ease(seg(t, E.s1 + 2.0, E.s1 + 2.8))) + (u < 1 ? 0 : 0), t > E.s1 + 0.2 && t < E.s1 + 2.4]; }
     if (t < E.s4) return [SHOP + 0.4, 0.6, 0, false];
-    if (t < E.night) { const u = seg(t, E.s4, E.night); return [lerp(-0.4, 0.3, u) + 0.0, lerp(0.5, 9.5, u), 0, true]; }   // 帰り道：こちらへ歩いてくる
+    if (t < E.stop) { const u = seg(t, E.s4, E.stop); return [lerp(-0.4, -0.2, u), lerp(0.5, 3.0, u), 0, true]; }   // 帰り道：こちらへ歩いてくる
+    if (t < E.walk2) return [-0.2, 3.0, 0, false];   // 小鳥がとまるので立ちどまる
+    if (t < E.s5) { const u = seg(t, E.walk2, E.s5); return [lerp(-0.2, 0.3, u), lerp(3.0, 7.0, u), 0, true]; }
+    if (t < E.night) return [0.3, 7.0, 0, false];   // 雨の中で立ちどまり、上を見る
     if (t < E.s7) return [ROOM + 0.2, -0.6, 0, false];
     if (t < E.s8) { const u = ease(seg(t, E.lift + 0.2, E.place)); return [ROOM + 0.2, lerp(-0.6, -0.1, u), lerp(0, Math.PI, ease(seg(t, E.lift + 0.6, E.place - 0.3))), false]; }
     if (t < E.s9) return [ROOM + 0.9, -0.3, Math.PI - 0.5, false];
@@ -1027,13 +1043,28 @@ function ep04(p) {
     if (t >= E.s3 && t < E.roll) { pot.g.position.set(SHOP + 4.6, 0.64, -2.3); pot.g.rotation.set(0, 0, 0); pot.soil.visible = true; }
     crumbs.forEach((c, k) => { const u = seg(t, E.potOn - 0.15 + k * 0.03, E.potOn + 0.55 + k * 0.03); if (u <= 0 || u >= 1 || t >= E.s4) { c.position.y = -20; return; }
       const a = k / 8 * Math.PI * 2; c.position.set(topW.x + Math.cos(a) * 1.25, topW.y + 0.3 - 2.6 * u * u, topW.z + Math.sin(a) * 1.25); });   // 鉢から土がこぼれる（芽のヒント）
+    // 小鳥：さかさの鉢のてっぺん（鉢底の穴のまわり）にとまり、種を穴に落として飛んでいく
+    bird.position.set(0, -20, 0); seed.position.set(0, -20, 0); hdrops.forEach(d => d.position.set(0, -20, 0));
+    const PT = pot.g.position.clone().add(new THREE.Vector3(0, 0.66, 0));   // 鉢底（いまは上）の面
+    if (t >= E.arrive && t < E.fly + 1.2 && t < E.night) {
+      const land = ease(seg(t, E.arrive, E.land)), hop = ease(seg(t, E.hop, E.hop + 0.3)), off = ease(seg(t, E.fly, E.fly + 1.0));
+      const spot = PT.clone().add(new THREE.Vector3(lerp(0.62, 0.3, hop), 0, 0.12)), from = PT.clone().add(new THREE.Vector3(3.2, 2.2, 1.0)), to = PT.clone().add(new THREE.Vector3(-2.5, 3.0, -1.5));
+      const p0 = from.clone().lerp(spot, land); p0.y += Math.sin(Math.PI * land) * 0.4 + Math.sin(Math.PI * hop) * 0.12;
+      const p1 = p0.lerp(to, off); p1.y += Math.sin(Math.PI * off) * 0.3; bird.position.copy(p1);
+      bird.rotation.set(0, off > 0 ? 2.6 : (land < 1 ? 2.9 : Math.PI), 0);   // くちばしは穴のほう（-x）を向く
+      const flying = land < 1 || off > 0; wings.forEach((w, k) => { w.rotation.x = (k ? -1 : 1) * (flying ? 0.9 * Math.sin(t * 60) : 0); });
+      if (!flying) { bird.rotation.z = 0.35 * Math.sin(Math.PI * seg(t, E.seed - 0.25, E.seed + 0.15)); bird.position.y += 0.02 * Math.abs(Math.sin(t * 7)); }
+      if (t < E.seed) { const bk = new THREE.Vector3(0.25, 0.25, 0).applyEuler(bird.rotation).add(bird.position); seed.position.copy(bk); }   // くわえている種
+      else if (t < E.seed + 0.5) { const u = seg(t, E.seed, E.seed + 0.5); seed.position.copy(PT).add(new THREE.Vector3(lerp(0.3 - 0.25, 0, u), 0.25 * (1 - u * u) - 0.25 * u, 0.12 * (1 - u))); } }
+    if (t >= E.s5 && t < E.night) hdrops.forEach((d, k) => { const u = ((t - E.s5) * 1.3 + k * 0.37) % 1; d.position.copy(PT).add(new THREE.Vector3(0.04 * Math.sin(k * 3), 1.4 * (1 - u) - 0.05, 0.04 * Math.cos(k * 3))); d.visible = u < 0.97; });   // 雨つぶが穴に入る
     // 顔
     if (t < E.s1) { blink(1.8); st.look = [0.3, 0.4 * ease(seg(t, 2.8, 3.2))]; }   // 看板を見上げる
     else if (t < E.s2) { blink(E.s1 + 2.6); st.look = [-0.4, 0.3 * ease(seg(t, E.s1 + 2.6, E.s1 + 3.0))]; }
     if (t >= E.s2 && t < E.s3) { const k = [E.h1, E.h2, E.h3, E.h4].filter(h => t > h + 0.5).length; st.look = [0, 0.8 * (t % 1.9 < 1.3 && k > 0 ? 1 : 0)]; st.mouth = 0.1 * k; blink(E.h2 + 1.4); blink(E.h4 + 1.4);
       if (t > E.h4 + 0.7) pitch += 0.06; }
     if (t >= E.s3 && t < E.s4) { st.look = [0.6 * ease(seg(t, E.think + 1.0, E.think + 1.3)), -0.3]; if (t > E.potOn) { st.happy = ease(seg(t, E.smile, E.smile + 0.4)); st.look = [0, 0.6]; } st.sq = 0.05 * Math.exp(-Math.max(0, t - E.potOn) * 6) * (t > E.potOn ? 1 : 0); }
-    if (t >= E.s4 && t < E.s5) { st.happy = 1 - ease(seg(t, E.rain + 0.6, E.rain + 1.2)) * 0.5; if (t > E.rain + 0.8) st.look = [0, 0.7]; blink(E.rain + 1.4); }
+    if (t >= E.s4 && t < E.s5) { st.happy = 1 - ease(seg(t, E.rain + 0.6, E.rain + 1.2)) * 0.5;
+      if (t > E.arrive + 0.6 && t < E.fly + 0.6) { st.look = [0.2, 0.9]; st.happy = 1; } if (t > E.rain + 0.8) st.look = [0, 0.7]; blink(E.land + 0.6); blink(E.rain + 1.4); }
     let wet = 0;
     if (t >= E.s5 && t < E.night) { wet = 1; st.wink = [0.4, 0.4]; st.look = [0, 0.5]; blink(E.drip + 0.5); blink(E.drip + 1.9); st.mouth = 0.2; }
     if (t >= E.night && t < E.s6) { st.blink = ease(seg(t, E.night + 0.2, E.night + 0.9)); pitch += 0.08; }   // 夜：鉢をかぶったまま眠る
@@ -1080,8 +1111,9 @@ function ep04(p) {
     else if (t < E.s2) { cam([SHOP + 3.4, 2.6, 7.4], [SHOP - 0.4, 1.6, -0.6], 46); bg = 0xEAD9C6; sp_ = [SHOP + 3, 9, 6]; tg = [SHOP, 0, 0]; }
     else if (t < E.s3) { cam([SHOP + 0.9, 2.3, 7.6], [SHOP + 0.75, 2.2, 0.4], 40); bg = 0xEAD9C6; sp_ = [SHOP + 3, 9, 6]; tg = [SHOP, 0, 0]; }
     else if (t < E.s4) { if (t < E.roll) cam([SHOP + 1.0, 2.6, 9.6], [SHOP + 2.4, 1.6, -0.6], 50); else cam([SHOP + 1.4, 2.6, 9.0], [SHOP + 1.4, 2.3, 0.8], 46); bg = 0xEAD9C6; sp_ = [SHOP + 3, 9, 6]; tg = [SHOP, 0, 0]; }
-    else if (t < E.s5) { const k = seg(t, E.s4, E.s5); cam([0.6, 2.2, 14.5], [0, 2.0, 5.0 + 3 * k], 40); const dk = rainAmt; bg = 0xBFDDEB; hi = lerp(1.15, 0.85, dk); si = lerp(1.5, 0.45, dk); rain.set(t, 0, 9, rainAmt); }
-    else if (t < E.night) { cu(0, 4.4, 46, 0.25); hi = 0.85; si = 0.45; rain.set(t, x, z, 1); }
+    else if (t < E.s5 && (t < E.hole || t >= E.walk2)) { const k = seg(t, E.s4, E.s5); cam([0.6, 2.2, 14.5], [0, 2.4, 3.0 + 4 * k], 40); const dk = rainAmt; bg = 0xBFDDEB; hi = lerp(1.15, 0.85, dk); si = lerp(1.5, 0.45, dk); rain.set(t, 0, 9, rainAmt); }
+    else if (t < E.night) { const PT2 = pot.g.position.clone().add(new THREE.Vector3(0, 0.66, 0)), wetS = t >= E.s5;   // 鉢のてっぺんのアップ：穴・小鳥・種／雨が穴に入る
+      cam([PT2.x + 0.4, PT2.y + 1.9, PT2.z + 3.6], [PT2.x, PT2.y - 0.7, PT2.z], 46); if (wetS) { hi = 0.85; si = 0.45; rain.set(t, x, z, 1); } }
     else if (t < E.s6) { cam([ROOM + 0.2, 2.6, 6.0], [ROOM + 0.2, 2.65, -0.6], 46); bg = 0x2A3550; sp_ = [ROOM + 2, 7, 6]; tg = [ROOM, 0, -1]; si = 0.15; hi = 0.45; }   // 夜（同じ構図で朝へ）
     else if (t < E.s7) { cam([ROOM + 0.2, 2.6, 6.0], [ROOM + 0.2, 2.65, -0.6], 46); bg = 0xF0E6D6; sp_ = [ROOM + 2, 7, 6]; tg = [ROOM, 0, -1]; si = 1.0; hi = 1.5; }
     else if (t < E.s8) { cam([ROOM + 4.4, 2.6, 4.6], [ROOM, 1.8, -1.2], 48); bg = 0xF0E6D6; sp_ = [ROOM + 2, 7, 6]; tg = [ROOM, 0, -1]; si = 1.0; hi = 1.5; }

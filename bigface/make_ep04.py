@@ -55,7 +55,8 @@ put(thunk(), E["potOn"], 1.0); put(thunk() * 0.6, E["place"] + 0.15, 0.8)
 def step(p=1.0):
     L = int(0.07 * SR); t = np.arange(L) / SR
     return np.sin(2 * np.pi * 380 * p * t) * env(L, 0.002, 0.02) * 0.4 + lp(rng.standard_normal(L), 4) * env(L, 0.001, 0.012) * 0.25
-for k in range(int((E["s5"] - E["s4"]) / 0.42)): put(step(1 + 0.05 * (k % 2)), E["s4"] + 0.1 + k * 0.42, 0.4)
+for a0, a1 in [(E["s4"], E["stop"]), (E["walk2"], E["s5"])]:
+    for k in range(int((a1 - a0) / 0.42)): put(step(1 + 0.05 * (k % 2)), a0 + 0.1 + k * 0.42, 0.4)
 # 雨（帰り道）と、鉢の中のしずく「ぽちゃん」（鉢の中で響く）
 rn = hp(lp(rng.standard_normal(n), 3), 40).astype(np.float32); rn /= np.abs(rn).max()
 ra = np.clip((tt - E["rain"]) / 1.4, 0, 1) * (tt < E["night"]); mix += rn * ra * 0.1
@@ -70,6 +71,12 @@ for at in np.arange(E["drip"], E["night"] - 0.2, 0.7): put(plink(0.9 + 0.2 * rng
 # 朝：小鳥、芽「ぴょこ」、水
 def bird(p=1.0):
     L = int(0.12 * SR); t = np.arange(L) / SR; return np.sin(2 * np.pi * (3000 * p + 700 * np.sin(t * 80)) * t) * env(L, 0.004, 0.03) * 0.06
+# 帰り道の小鳥：はばたき、さえずり、種が穴に落ちる「ころん」（鉢の中で響く）
+def flutter(sec):
+    L = int(sec * SR); t = np.arange(L) / SR; x = hp(rng.standard_normal(L), 6) * (0.5 + 0.5 * np.sin(2 * np.pi * 22 * t)) ** 2; return x / np.abs(x).max() * 0.12 * np.minimum(1, t / 0.05) * np.minimum(1, (sec - t) / 0.1)
+put(flutter(E["land"] - E["arrive"]), E["arrive"], 0.6); put(flutter(0.9), E["fly"], 0.6)
+for at in (E["land"] + 0.25, E["land"] + 0.45, E["hole"] + 0.3, E["fly"] - 0.4): put(bird(1.0 + 0.1 * rng.random()) * 2.2, at, 0.7)
+put(plink(0.55) * 0.9, E["seed"] + 0.45, 0.9)
 for at in np.arange(E["s6"] + 0.3, E["eye"], 1.9): put(bird(0.9 + 0.2 * rng.random()), at + rng.random() * 0.6)
 def sproutS():
     L = int(0.25 * SR); t = np.arange(L) / SR; f = 600 + 1400 * t / 0.25; return np.sin(2 * np.pi * np.cumsum(f) / SR) * env(L, 0.003, 0.09) * 0.35
