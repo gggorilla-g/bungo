@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8">
+<style>
+@font-face{font-family:"JumpSans";font-weight:400;src:url(fonts_jp/NotoSansCJKjp-Regular.woff2) format("woff2")}
+@font-face{font-family:"JumpSans";font-weight:700;src:url(fonts_jp/NotoSansCJKjp-Bold.woff2) format("woff2")}
+@font-face{font-family:"JumpSans";font-weight:900;src:url(fonts_jp/NotoSansCJKjp-Black.woff2) format("woff2")}
+html,body{margin:0;background:#000}
+#stage{position:relative;width:540px;height:960px;overflow:hidden}
+#stage canvas{position:absolute;left:0;top:0}
+#haze{position:absolute;left:0;top:0;width:540px;height:960px;background:#ffffff;opacity:0}
+#hud{position:absolute;left:0;top:0;width:540px;height:960px;font-family:"JumpSans"}
+#hud text{paint-order:stroke;stroke:#101010;stroke-linejoin:round;fill:#fff}
+</style></head>
+<body><div id="stage"><div id="haze"></div><svg id="hud" viewBox="0 0 540 960" xmlns="http://www.w3.org/2000/svg"></svg></div>
+<script src="vendor.js"></script>
+<script>
+// S-004「冷蔵庫を宇宙船にする方法」 問題が出るたびにパーツを1つ足していく（アップグレード型）
+const getJ=u=>{const x=new XMLHttpRequest();x.open('GET',u,false);x.send();if(x.status!==200)throw new Error('読めない: '+u);return JSON.parse(x.responseText)};
+const ID=(new URLSearchParams(location.search).get('spec')||'fridge').replace(/^.*\//,'').replace(/\.json$/,'');
+const SPEC=getJ('specs/'+ID+'.json'),TL=getJ('specs/'+ID+'_timeline.json');
+const W=540,H=960,DUR=TL.total,FOV=30,TANH=Math.tan(FOV/2*Math.PI/180);
+const clamp=(x,a,b)=>Math.min(b,Math.max(a,x)),lerp=(a,b,k)=>a+(b-a)*k,sstep=(a,b,x)=>{const k=clamp((x-a)/(b-a),0,1);return k*k*(3-2*k)};
+function rng(seed){let s=seed>>>0;return()=>{s=(Math.imul(s,1664525)+1013904223)>>>0;return s/4294967296}}
+const LINES=SPEC.lines.map((l,i)=>Object.assign({},l,TL.beats[i]));
+const beat=id=>LINES.find(l=>l.id===id);
+const fxStart=fx=>{const l=LINES.find(l=>l.fx===fx);return l?l.t0:1e9};
+const fxEnd=fx=>{let e=-1;for(const l of LINES)if(l.fx===fx)e=l.t1;return e};
+const addT={};for(const l of LINES)if(l.add)addT[l.add]=l.t0+0.25;   // パーツはセリフの出だし0.25秒後に付く
+const T_LAUNCH=fxStart('launchSpin'),T_STRAIGHT=fxStart('straight'),T_SPACE=fxStart('space'),T_TURN=fxStart('turn'),T_REENTRY=fxStart('reentry'),T_REEND=fxEnd('reentry'),T_SHOW=fxStart('showcase');
+
+const renderer=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true});
+renderer.setPixelRatio(window.devicePixelRatio||1);renderer.setSize(W,H);renderer.autoClear=false;renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+document.getElementById('stage').prepend(renderer.domElement);
+const L=(c,o)=>new THREE.MeshLambertMaterial(Object.assign({color:c,flatShading:true},o||{}));
+const S=(c,o)=>new THREE.MeshStandardMaterial(Object.assign({color:c,roughness:.45,metalness:.1},o||{}));
+function mesh(g,m,sh=true){const x=new THREE.Mesh(g,m);x.castShadow=sh;x.receiveShadow=true;return x}
+const box=(w,h,d,m)=>mesh(new THREE.BoxGeometry(w,h,d),m);
+
+// ===== 背景：地上（発射台）と宇宙（地球・星）は別シーンで先に描く =====
+const bgGround=new THREE.Scene();bgGround.background=new THREE.Color(0x9fd2f2);
+const bgSpace=new THREE.Scene();bgSpace.background=new THREE.Color(0x04060c);
+{const r=rng(9),n=1200,pos=new Float32Array(n*3);for(let i=0;i<n;i++){const v=new THREE.Vector3(r()*2-1,r()*2-1,r()*2-1).normalize().multiplyScalar(900);pos.set([v.x,v.y,v.z],i*3)}
+ const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(pos,3));bgSpace.add(new THREE.Points(g,new THREE.PointsMaterial({color:0xe6ecf5,size:1.8,sizeAttenuation:false})))}
+const earthMat=new THREE.MeshLambertMaterial({color:0xffffff});const earth=new THREE.Mesh(new THREE.SphereGeometry(300,128,96),earthMat);earth.position.set(0,-390,-120);bgSpace.add(earth);
+const atm=new THREE.Mesh(new THREE.SphereGeometry(306,96,64),new THREE.MeshBasicMaterial({color:0x7fb6ff,transparent:true,opacity:.22,side:THREE.BackSide,depthWrite:false}));atm.position.copy(earth.position);bgSpace.add(atm);
+bgSpace.add(new THREE.AmbientLight(0x404858,1));{const d=new THREE.DirectionalLight(0xffffff,2.4);d.position.set(300,200,200);bgSpace.add(d)}
+const bgCam=new THREE.PerspectiveCamera(FOV,W/H,.1,3000);
+function earthTexture(img){const c=document.createElement('canvas');c.width=img.width;c.height=img.height;const x=c.getContext('2d');x.drawImage(img,0,0);
+  const d=x.getImageData(0,0,c.width,c.height),p=d.data;for(let i=0;i<p.length;i+=4){const k=p[i]/255,y=(i/4/c.width)/c.height,lat=Math.abs(90-y*180);
+    const land=lat>66?[236,240,244]:(lat<23?[150,164,96]:[110,150,88]),sea=[38,92,160];for(let j=0;j<3;j++)p[i+j]=sea[j]+(land[j]-sea[j])*k;p[i+3]=255}
+  x.putImageData(d,0,0);const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;return t}
+
+// ===== 主役のシーン：冷蔵庫と発射台 =====
+const scene=new THREE.Scene();
+const hemi=new THREE.HemisphereLight(0xffffff,0x8a9a80,1.5);scene.add(hemi);
+const sun=new THREE.DirectionalLight(0xfff4e2,2.4);sun.position.set(4,8,5);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);
+{const c=sun.shadow.camera;c.left=-6;c.right=6;c.top=6;c.bottom=-6;c.near=.5;c.far=40;sun.shadow.bias=-.0005}scene.add(sun);scene.add(sun.target);
+const groundG=new THREE.Group();scene.add(groundG);
+{const g=mesh(new THREE.PlaneGeometry(400,400),L(0xa3b98f));g.rotation.x=-Math.PI/2;groundG.add(g);
+ const pad=mesh(new THREE.CylinderGeometry(1.6,1.8,.25,32),L(0x9a9a9a));pad.position.y=.125;groundG.add(pad);
+ const tower=box(.35,6,.35,L(0xd2512f));tower.position.set(-1.9,3,-.6);groundG.add(tower);
+ for(let i=0;i<5;i++){const a=box(1.2,.08,.08,L(0xd2512f));a.position.set(-1.35,1+i*1.1,-.6);groundG.add(a)}
+ const r=rng(4);for(let i=0;i<14;i++){const h=mesh(new THREE.IcosahedronGeometry(8+r()*10,0),L(0x8fae7a));h.scale.y=.45;h.position.set(-90+r()*180,0,-60-r()*80);groundG.add(h)}}
+// 冷蔵庫（幅0.7、高さ1.8、奥行き0.7m）。原点は底の中心
+const FR=new THREE.Group();scene.add(FR);
+const body=new THREE.Group();FR.add(body);
+const shellMat=S(0xf2f2ee,{roughness:.35});
+const shell=box(.7,1.8,.66,shellMat);shell.position.set(0,.9,-.02);body.add(shell);
+const doorMat=S(0xfafaf7,{roughness:.3});
+const doorTop=box(.7,.62,.06,doorMat);doorTop.position.set(0,1.48,.34);body.add(doorTop);
+const doorBot=box(.7,1.12,.06,doorMat);doorBot.position.set(0,.6,.34);body.add(doorBot);
+for(const[y,h]of[[1.32,.3],[.82,.4]]){const hd=box(.04,h,.05,S(0x9aa0a6,{metalness:.6}));hd.position.set(.28,y,.39);body.add(hd)}
+const seam=box(.7,.012,.065,L(0x777777));seam.position.set(0,1.165,.34);body.add(seam);
+// パーツ（足した時刻にポップイン）
+const P={};const part=k=>{const g=new THREE.Group();FR.add(g);P[k]=g;g.visible=false;return g};
+{const g=part('plates'),m=S(0x8c939b,{metalness:.7,roughness:.35});for(const y of[.25,.9,1.55]){const b=box(.76,.08,.72,m);b.position.set(0,y,0);g.add(b)}
+ for(const y of[.25,.9,1.55])for(const x of[-.3,-.1,.1,.3]){const rv=mesh(new THREE.SphereGeometry(.018,8,6),m);rv.position.set(x,y,.365);g.add(rv)}}
+{const g=part('engine'),m=S(0x55595e,{metalness:.6});const mount=box(.5,.1,.5,m);mount.position.y=-.05;g.add(mount);
+ const bell=mesh(new THREE.CylinderGeometry(.14,.3,.42,24,1,true),S(0x3c3f43,{metalness:.7,side:THREE.DoubleSide}));bell.position.y=-.31;g.add(bell)}
+{const g=part('fins'),m=L(0xd84a34);const sh=new THREE.Shape();sh.moveTo(0,0);sh.lineTo(.42,-.12);sh.lineTo(.42,-.3);sh.lineTo(0,.55);sh.lineTo(0,0);
+ const geo=new THREE.ExtrudeGeometry(sh,{depth:.03,bevelEnabled:false});geo.translate(0,0,-.015);
+ for(let i=0;i<4;i++){const f=mesh(geo,m);const a=Math.PI/4+i*Math.PI/2;f.position.set(Math.cos(a)*.46,.12,Math.sin(a)*.46);f.rotation.y=-a;g.add(f)}}
+const foilMat=S(0xd9a531,{metalness:.85,roughness:.32});
+{const g=part('foil');for(const[x,z,w,d]of[[-.365,-.02,.012,.68],[.365,-.02,.012,.68],[0,-.36,.71,.012]]){const s=box(w,1.82,d,foilMat);s.position.set(x,.9,z);g.add(s)}
+ const top=box(.73,.012,.7,foilMat);top.position.set(0,1.81,-.02);g.add(top)}
+{const g=part('oxygen');const m=S(0xe8eef2,{metalness:.3}),cap=S(0x2f9e5b);for(const z of[-.16,.12]){const c=mesh(new THREE.CylinderGeometry(.1,.1,.9,20),m);c.position.set(-.48,.95,z);g.add(c);
+  const k=mesh(new THREE.SphereGeometry(.1,16,10,0,Math.PI*2,0,Math.PI/2),cap);k.position.set(-.48,1.4,z);g.add(k)}}
+{const g=part('window');const ring=mesh(new THREE.TorusGeometry(.17,.03,10,32),S(0x9aa0a6,{metalness:.7}));ring.position.set(-.04,.72,.38);g.add(ring);
+ const glass=mesh(new THREE.CircleGeometry(.16,32),S(0x2a4f7a,{metalness:.2,roughness:.1}));glass.position.set(-.04,.72,.376);g.add(glass)}
+const PUFF=[];{const g=part('thrusters'),m=S(0x55595e,{metalness:.6});for(const[x,z,ax]of[[.36,.3,1],[-.36,.3,-1],[.36,-.34,1],[-.36,-.34,-1]]){const t=box(.08,.08,.08,m);t.position.set(x,1.72,z);g.add(t);
+  const pf=mesh(new THREE.SphereGeometry(.06,10,8),new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0}),false);pf.position.set(x+ax*.12,1.72,z);g.add(pf);PUFF.push({pf,ax})}}
+const WING=[];{const g=part('solar'),cell=S(0x1d3f8f,{metalness:.4,roughness:.25}),frame=S(0xb8bec4,{metalness:.7});
+ for(const s of[1,-1]){const w=new THREE.Group();w.position.set(s*.4,1.15,0);g.add(w);const arm=box(.3,.04,.04,frame);arm.position.set(s*.15,0,0);w.add(arm);
+  const pn=box(1.0,.62,.02,cell);pn.position.set(s*.8,0,0);w.add(pn);for(let i=1;i<4;i++){const ln=box(.01,.62,.025,frame);ln.position.set(s*(.3+i*.25),0,0);w.add(ln)}WING.push({w,s})}}
+{const g=part('shield');const sh=mesh(new THREE.CylinderGeometry(.58,.52,.1,40),L(0x5b3a26));sh.position.y=-.6;g.add(sh)}
+// 炎、ふくらむ矢印、大気圏の熱
+const flame=mesh(new THREE.ConeGeometry(.22,1.3,20,1,true),new THREE.MeshBasicMaterial({color:0xffb347,transparent:true,opacity:.9,blending:THREE.AdditiveBlending,depthWrite:false}),false);flame.rotation.x=Math.PI;FR.add(flame);
+const flameIn=mesh(new THREE.ConeGeometry(.11,.8,16,1,true),new THREE.MeshBasicMaterial({color:0xfff2c0,transparent:true,opacity:.95,blending:THREE.AdditiveBlending,depthWrite:false}),false);flameIn.rotation.x=Math.PI;FR.add(flameIn);
+const ARR=[];{const m=new THREE.MeshBasicMaterial({color:0xff4d3a,transparent:true,opacity:0});for(let i=0;i<4;i++){const a=new THREE.Group();const sh=mesh(new THREE.CylinderGeometry(.03,.03,.3,8),m,false);sh.rotation.z=Math.PI/2;a.add(sh);
+  const hd=mesh(new THREE.ConeGeometry(.07,.14,10),m,false);hd.rotation.z=-Math.PI/2;hd.position.x=.2;a.add(hd);const ang=i*Math.PI/2;a.position.set(Math.cos(ang)*.62,1.0,Math.sin(ang)*.62);a.rotation.y=-ang;FR.add(a);ARR.push(a)}}
+const heat=mesh(new THREE.SphereGeometry(1,32,20,0,Math.PI*2,Math.PI/2,Math.PI/2),new THREE.MeshBasicMaterial({color:0xff6a2a,transparent:true,opacity:0,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide}),false);
+heat.scale.set(.9,.9,.9);heat.position.y=-.35;FR.add(heat);
+const cam=new THREE.PerspectiveCamera(FOV,W/H,.05,1000);
+
+// ===== HUD =====
+const NS='http://www.w3.org/2000/svg',hud=document.getElementById('hud'),haze=document.getElementById('haze');
+function el(tag,a,txt,parent){const e=document.createElementNS(NS,tag);for(const k in a)e.setAttribute(k,a[k]);if(txt!=null)e.textContent=txt;(parent||hud).appendChild(e);return e}
+const tw=(s,size)=>{let w=0;for(const ch of String(s))w+=ch.charCodeAt(0)<256?.58:1;return w*size};
+function T(x,y,size,txt,o={}){const a={x,y,'font-size':size,'font-weight':o.w||900,'text-anchor':o.a||'start','stroke-width':o.sw!=null?o.sw:Math.max(3,size*.2)};let st='';if(o.fill)st+='fill:'+o.fill+';';if(o.op!=null)st+='opacity:'+o.op+';';if(st)a.style=st;return el('text',a,txt)}
+function pill(x,y,txt,size,fill,anchor){const w=tw(txt,size)+20,x0=anchor==='middle'?x-w/2:x;el('rect',{x:x0,y:y-size-6,width:w,height:size+13,rx:6,fill});el('text',{x:x0+10,y,'font-size':size,'font-weight':900,'stroke-width':0},txt)}
+const PARTS=Object.keys(SPEC.parts);
+function drawHud(t){hud.innerHTML='';
+  T(270,96,32,SPEC.title[0],{a:'middle',sw:7});T(270,138,32,SPEC.title[1],{a:'middle',sw:7,fill:'#ffd43b'});
+  const got=PARTS.filter(k=>t>=addT[k]);
+  // 付けたパーツの一覧（左上）。最後に付いたものは少し大きく
+  el('rect',{x:14,y:168,width:150,height:30+got.length*25+6,rx:8,fill:'#101010','fill-opacity':got.length?.6:0});
+  if(got.length){T(26,190,15,'改造 '+got.length+'/'+PARTS.length,{w:900,sw:0,fill:'#ffd43b'});got.forEach((k,i)=>{const fresh=clamp((t-addT[k])/.6,0,1);T(26,218+i*25,17,'+ '+SPEC.parts[k],{w:700,sw:0,fill:fresh<1?'#ffd43b':null})})}
+  const l=LINES.find(x=>t>=x.t0-.02&&t<x.t1+.12)||LINES.filter(x=>x.t0<=t).pop();if(!l)return;
+  const a=clamp((t-l.t0)/.12,0,1);
+  if(l.kind==='problem')pill(270,636,'問題',18,'#e0412f','middle');else if(l.kind==='fix')pill(270,636,'解決',18,'#2f9e5b','middle');
+  let y=l.cap.length>1?690:704;l.cap.forEach((s,i)=>{const size=Math.min(i===l.cap.length-1?40:34,476/tw(s,1));T(270,y+(1-a)*6,size,s,{a:'middle',sw:9,op:(.3+.7*a).toFixed(2)});y+=size+12})}
+
+// ===== 1コマ =====
+const popS=(t,t0)=>{const u=(t-t0)/.35;if(u<0)return 0;if(u>=1)return 1;const c=1.70158;return 1+(c+1)*Math.pow(u-1,3)+c*Math.pow(u-1,2)};
+window.renderAt=function(t){
+  const space=t>=T_SPACE;
+  // 冷蔵庫の動き
+  let y=0,spin=0,tilt=0,yaw=0;
+  if(t>=T_LAUNCH&&!space){const u=t-T_LAUNCH;y=1.2*u*u+.2*u;const damp=t<T_STRAIGHT?1:Math.exp(-(t-T_STRAIGHT)*5);
+    spin=(t<T_STRAIGHT?u*u*3.2:(T_STRAIGHT-T_LAUNCH)**2*3.2+(1-damp)*0.6);tilt=Math.sin(u*7)*.18*damp}
+  if(space){yaw=.35*Math.sin((t-T_SPACE)*.35);tilt=.08*Math.sin((t-T_SPACE)*.5);
+    if(t>=T_TURN){const k=sstep(T_TURN+.3,T_TURN+1.8,t);yaw+=k*Math.PI*.5}
+    if(t>=T_REENTRY&&t<T_SHOW){tilt+=sstep(T_REENTRY,T_REENTRY+.6,t)*.22*(1-sstep(T_SHOW-.4,T_SHOW,t))}}
+  FR.position.y=space?0:y;FR.rotation.set(tilt,spin+yaw,0,'YXZ');
+  // ふくらむ（問題1）
+  const sw=fxStart('swell'),swk=t>=sw&&t<beat('b02').t0+.3?Math.abs(Math.sin((t-sw)*5))*.05:0;body.scale.set(1+swk,1,1+swk);
+  ARR.forEach((a,i)=>{a.children.forEach(c=>c.material.opacity=t>=sw&&t<beat('b02').t0+.3?.9:0);a.position.setLength(.62+swk*2)});
+  // パーツ
+  for(const k of PARTS){const g=P[k],s=popS(t,addT[k]);g.visible=s>0;if(s>0)g.scale.setScalar(Math.max(.001,s))}
+  WING.forEach(({w,s})=>{w.scale.x=Math.max(.02,sstep(addT.solar+.1,addT.solar+.9,t))});
+  shellMat.color.set(0xf2f2ee);if(t>=addT.foil)shellMat.color.lerp(new THREE.Color(0xd9a531),sstep(addT.foil,addT.foil+.5,t));
+  // 噴射口のけむり（向きを変えるとき）
+  PUFF.forEach(({pf,ax},i)=>{const on=t>=T_TURN+.2&&t<T_TURN+1.9;const ph=((t*6+i*.37)%1);pf.material.opacity=on&&(i%2===0)?(1-ph)*.85:0;pf.scale.setScalar(.5+ph*1.4);pf.position.x=(ax>0?.36:-.36)+ax*(.1+ph*.25)});
+  // 炎
+  const firing=(t>=addT.engine+.6&&t<T_SPACE)||(t>=T_LAUNCH&&!space);const fl=firing?1:0;const fk=.85+.15*Math.sin(t*53)+.08*Math.sin(t*31);
+  flame.visible=flameIn.visible=fl>0&&t>=T_LAUNCH-0.4;flame.scale.set(fk,fk*(1+.3*Math.sin(t*41)),fk);flame.position.y=-.52-.65*fk;flameIn.scale.copy(flame.scale);flameIn.position.y=-.52-.4*fk;
+  // 大気圏の熱
+  const hk=t>=T_REENTRY&&t<T_SHOW?sstep(T_REENTRY,T_REENTRY+.7,t)*(1-sstep(T_SHOW-.5,T_SHOW,t)):0;heat.material.opacity=hk*(.32+.06*Math.sin(t*37));heat.visible=hk>0;
+  // 電気がない（暗くなる）→ 太陽電池で戻る
+  const dk=t>=fxStart('dark')&&t<addT.solar+.6?sstep(fxStart('dark'),fxStart('dark')+.4,t)*(1-sstep(addT.solar+.1,addT.solar+.6,t)):0;
+  // 光
+  groundG.visible=!space;hemi.intensity=space?.35*(1-dk*.6):1.5;sun.intensity=space?3.0*(1-dk*.75):2.4;
+  hemi.groundColor.set(space?0x223040:0x8a9a80);
+  // カメラ：ゆっくり回りこむ（オービット）。パネルが付いたら少し引く
+  const Vh=lerp(4.4,6.2,sstep(addT.solar,addT.solar+.9,t))*lerp(1,1.12,sstep(T_SHOW,DUR,t))+(t>=T_LAUNCH&&!space?sstep(T_LAUNCH,T_LAUNCH+1,t)*.6:0);
+  const d=Vh/(2*TANH),az=(28+22*Math.sin(t*.11)+(t>=T_SHOW?(t-T_SHOW)*9:0))*Math.PI/180,el=(10+6*Math.sin(t*.07+1))*Math.PI/180;
+  const tgt=new THREE.Vector3(0,FR.position.y+.9-Vh*50/960,0);   // 冷蔵庫の中心を画面の430px付近に（字幕と重ねない）
+  cam.position.set(tgt.x+Math.sin(az)*d*Math.cos(el),tgt.y+d*Math.sin(el),tgt.z+Math.cos(az)*d*Math.cos(el));cam.lookAt(tgt);cam.updateProjectionMatrix();
+  sun.position.set(FR.position.x+4,FR.position.y+8,5);sun.target.position.set(0,FR.position.y,0);
+  // 背景（カメラの向きだけ共有）
+  bgCam.position.set(0,0,0);bgCam.quaternion.copy(cam.quaternion);bgCam.updateMatrixWorld();
+  // 地球はカメラから見て常に右下奥（カメラの回りこみに引きずられない）
+  {const p=new THREE.Vector3(120,-330,-640).applyQuaternion(cam.quaternion);earth.position.copy(p);atm.position.copy(p);earth.rotation.y=2.2+t*.01}
+  renderer.clear();renderer.render(space?bgSpace:bgGround,bgCam);renderer.clearDepth();renderer.render(scene,cam);
+  // 宇宙へ出る瞬間は白く飛ばしてつなぐ（0.5秒）
+  const hz=1-Math.min(1,Math.abs(t-T_SPACE)/.25);haze.style.opacity=clamp(hz,0,1).toFixed(3);
+  drawHud(t);return{t}};
+window.__info={total:DUR};
+const FONTS=Promise.all([400,700,900].map(w=>document.fonts.load(w+' 20px JumpSans','あ0')));
+const IMG=new Promise((ok,ng)=>{const i=new Image();i.onload=()=>ok(i);i.onerror=()=>ng(new Error('陸地の画像が読めない'));i.src='assets/land_4096.png'}).then(i=>{earthMat.map=earthTexture(i);earthMat.needsUpdate=true});
+Promise.all([FONTS,IMG]).then(()=>{window.__fig={kind:'none'};window.__ready=true},e=>console.log('load error: '+e.message));
+</script></body></html>
