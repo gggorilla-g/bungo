@@ -31,9 +31,9 @@ function serve() {
     await pg.waitForFunction(() => window.ready === true, null, { timeout: 30000 });
     await pg.evaluate(job => window.setup(job), j);
     fs.mkdirSync(j.out, { recursive: true });
-    const n = Math.round(j.d * j.fps), t1 = Date.now();
+    const TS = j.times || null, n = TS ? TS.length : Math.round(j.d * j.fps), t1 = Date.now();   // j.times：その時刻だけ描く（確認用の静止画）
     for (let i = 0; i < n; i++) {
-      const b64 = await pg.evaluate(t => { window.frame(t); return document.querySelector("canvas").toDataURL("image/jpeg", 0.97).slice(23); }, i / j.fps);
+      const b64 = await pg.evaluate(t => { window.frame(t); return document.querySelector("canvas").toDataURL("image/jpeg", 0.97).slice(23); }, TS ? TS[i] : i / j.fps);
       fs.writeFileSync(path.join(j.out, String(i).padStart(5, "0") + ".jpg"), Buffer.from(b64, "base64"));
     }
     if (j.probe) fs.writeFileSync(path.join(j.out, "probe.json"), JSON.stringify(await pg.evaluate(q => window.probe(q.t, q.names), j.probe)));
