@@ -271,6 +271,7 @@ function backAlley(sc, X) {
 export const EP01 = await fetch("ep01_time.json").then(r => r.json());
 export const EP02 = await fetch("ep02_time.json").then(r => r.json());
 export const EP03 = await fetch("ep03_time.json").then(r => r.json());
+export const EP04 = await fetch("ep04_time.json").then(r => r.json());
 function ep01(p) {
   const sc = S = new THREE.Scene();
   sc.background = new THREE.Color(0xE6EEE8); sc.fog = new THREE.Fog(0xE6EEE8, 20, 46);
@@ -857,6 +858,214 @@ function ep03(p) {
   };
 }
 
+// ==== EP.04『ビッグフェイスのぼうし』：帽子屋 → 植木鉢をかぶって帰る → 雨 → 翌朝、芽が出る → 窓辺に置いて水をやる
+function hatShop(sc, ox) {   // 帽子屋の中（ox：x方向にずらして置く）
+  const g = new THREE.Group(); g.position.x = ox; sc.add(g);
+  const woodT = grain(0xB08A66, 256, 256, 18), wallT = grain(0xEAD9C6, 256, 256, 10);
+  mesh(new THREE.PlaneGeometry(14, 24), toon(0xffffff, { map: woodT }), g, [0, 0.012, 6], { rot: [-Math.PI / 2, 0, 0], cast: false });
+  mesh(new THREE.PlaneGeometry(14, 6), toon(0xffffff, { map: wallT }), g, [0, 3, -4], { cast: false });
+  mesh(new THREE.PlaneGeometry(12, 6), toon(0xffffff, { map: wallT }), g, [-6, 3, 2], { rot: [0, Math.PI / 2, 0], cast: false });
+  mesh(new THREE.PlaneGeometry(12, 6), toon(0xffffff, { map: wallT }), g, [6, 3, 2], { rot: [0, -Math.PI / 2, 0], cast: false });
+  const wood = toon(0x9A7454), hatC = [0x7C6A5C, 0xC98A6A, 0x8FA5B8, 0xD9C27A, 0x6E8A6A, 0xB98AA8, 0x5E5A55];
+  [1.0, 1.9, 2.8].forEach((y, r) => { mesh(new THREE.BoxGeometry(5.6, 0.08, 0.6), wood, g, [0, y, -3.6], { line: 0.03 });
+    for (let k = 0; k < 7; k++) { const x = -2.4 + k * 0.8, c = toon(hatC[(k + r * 2) % 7]);
+      mesh(new THREE.CylinderGeometry(0.26, 0.26, 0.03, 16), c, g, [x, y + 0.06, -3.55], { line: 0.04 }); mesh(new THREE.CylinderGeometry(0.15, 0.17, 0.2, 14), c, g, [x, y + 0.17, -3.55], { line: 0.05 }); } });
+  mesh(new THREE.BoxGeometry(2.4, 1.0, 0.8), wood, g, [3.6, 0.5, -1.6], { line: 0.02 });   // カウンター
+  mesh(new THREE.BoxGeometry(1.3, 2.4, 0.08), toon(0x9A7454), g, [-4.6, 1.5, -3.2], { line: 0.03 }); mesh(new THREE.PlaneGeometry(1.1, 2.2), toon(0xD8E2E4), g, [-4.6, 1.5, -3.15], { cast: false });   // 鏡
+  // サイズの札（S M L XL）：台の上
+  mesh(new THREE.BoxGeometry(2.6, 0.8, 0.6), wood, g, [-2.0, 0.4, 0.4], { line: 0.02 });
+  ["S", "M", "L", "XL"].forEach((t, i) => mesh(new THREE.PlaneGeometry(0.42, 0.26), new THREE.MeshBasicMaterial({ map: signTex(t, 168, 104, "#F3E8D4", "#343B3A", 0.7) }), g, [-2.9 + i * 0.6, 0.62, 0.72], { cast: false }));
+  return g;
+}
+function room(sc, ox) {   // ビッグフェイスの部屋（朝）
+  const g = new THREE.Group(); g.position.x = ox; sc.add(g);
+  const wallT = grain(0xF0E6D6, 256, 256, 8), floorT = grain(0xC8A782, 256, 256, 16);
+  mesh(new THREE.PlaneGeometry(14, 20), toon(0xffffff, { map: floorT }), g, [0, 0.012, 6], { rot: [-Math.PI / 2, 0, 0], cast: false });
+  const wall = toon(0xffffff, { map: wallT }), wood = toon(0xA9805E);
+  // 奥の壁に窓（x -0.9〜0.9, y 1.1〜2.7）
+  mesh(new THREE.BoxGeometry(4.6, 5, 0.2), wall, g, [-3.8, 2.5, -3], {}); mesh(new THREE.BoxGeometry(4.6, 5, 0.2), wall, g, [3.8, 2.5, -3], {});   // 大きな窓（x -1.5〜1.5, y 0.3〜3.3）
+  mesh(new THREE.BoxGeometry(3.0, 0.3, 0.2), wall, g, [0, 0.15, -3], {}); mesh(new THREE.BoxGeometry(3.0, 1.7, 0.2), wall, g, [0, 4.15, -3], {});
+  mesh(new THREE.BoxGeometry(3.2, 0.1, 0.4), wood, g, [0, 0.32, -2.9], { line: 0.03 });
+  [[-1.55, 1.8], [1.55, 1.8]].forEach(([x, y]) => mesh(new THREE.BoxGeometry(0.12, 3.1, 0.26), wood, g, [x, y, -2.95], { line: 0.03 }));
+  mesh(new THREE.BoxGeometry(3.2, 0.12, 0.26), wood, g, [0, 3.32, -2.95], { line: 0.03 }); mesh(new THREE.BoxGeometry(0.06, 3.0, 0.06), wood, g, [0, 1.8, -2.95], {});
+  mesh(new THREE.PlaneGeometry(30, 14), new THREE.MeshBasicMaterial({ color: 0xF6E2C0 }), g, [0, 3, -9], { cast: false });   // 外は朝の光
+  [[-2.5, 0.8], [2.8, 1.1], [0.6, 0.6]].forEach(([x, r]) => mesh(new THREE.SphereGeometry(r, 12, 8), new THREE.MeshBasicMaterial({ color: 0xBFD3A8 }), g, [x, 0.9, -8], { cast: false }));
+  mesh(new THREE.PlaneGeometry(12, 5), wall, g, [-5.8, 2.5, 2], { rot: [0, Math.PI / 2, 0], cast: false });
+  mesh(new THREE.BoxGeometry(2.2, 0.5, 1.2), toon(0xD8CDBE), g, [-3.6, 0.25, -1.6], { line: 0.02 }); mesh(new THREE.BoxGeometry(2.2, 0.2, 1.2), toon(0x9DB3C8), g, [-3.6, 0.6, -1.6], { line: 0.02 });   // ベッド
+  return g;
+}
+function flowerPot(parent) {   // 大きな植木鉢（素焼き）。上下さかさにかぶる
+  const g = new THREE.Group(); parent.add(g);
+  const terra = toon(0xC9785E, { side: THREE.DoubleSide }), dark = new THREE.MeshBasicMaterial({ color: 0x3A2A22 });
+  mesh(new THREE.CylinderGeometry(1.3, 0.95, 1.25, 28, 1, true), terra, g, [0, 0, 0], { line: 0.015 });
+  mesh(new THREE.TorusGeometry(1.3, 0.09, 8, 32), terra, g, [0, 0.62, 0], { rot: [Math.PI / 2, 0, 0], line: 0.02 });   // 縁
+  const bottom = mesh(new THREE.CircleGeometry(0.95, 28), terra, g, [0, -0.625, 0], { rot: [Math.PI / 2, 0, 0] });
+  mesh(new THREE.CircleGeometry(0.11, 14), dark, g, [0, -0.63, 0], { rot: [Math.PI / 2, 0, 0], cast: false });   // 鉢底の穴（外側）
+  const soil = mesh(new THREE.CircleGeometry(1.22, 28), toon(0x6A4A36), g, [0, 0.5, 0], { rot: [-Math.PI / 2, 0, 0], cast: false }); soil.visible = false;
+  return { g, soil };
+}
+function sproutM(parent) {
+  const g = new THREE.Group(); parent.add(g); const lf = toon(0x8FC27A);
+  mesh(new THREE.CylinderGeometry(0.022, 0.026, 0.28, 6), lf, g, [0, 0.14, 0], { line: 0.15 });
+  [-1, 1].forEach(s => mesh(new THREE.SphereGeometry(0.09, 10, 8), lf, g, [s * 0.09, 0.3, 0], { scale: [1.3, 0.35, 0.8], rot: [0, 0, s * 0.4], line: 0.08 }));
+  return g;
+}
+function makeRain(sc, n = 1300) {
+  const rain = new THREE.InstancedMesh(new THREE.BoxGeometry(0.012, 0.4, 0.012), new THREE.MeshBasicMaterial({ color: 0xE3ECF0, transparent: true, opacity: 0.42, depthWrite: false }), n);
+  rain.frustumCulled = false; sc.add(rain);
+  const rr = (i, k) => { const x = Math.sin(i * 12.9898 + k * 78.233) * 43758.5453; return x - Math.floor(x); }, d = new THREE.Object3D();
+  return { rain, set(t, cx, cz, amt) { for (let i = 0; i < n; i++) { const Hh = 8, sp = 9.5 + rr(i, 3) * 2, y = 3.5 + Hh / 2 - ((t * sp + rr(i, 2) * Hh) % Hh);
+    d.position.set(cx + (rr(i, 0) - 0.5) * 9, y, cz + (rr(i, 1) - 0.5) * 9); if (rr(i, 4) > amt || d.position.distanceTo(C.position) < 2.6) d.position.y = -60;
+    d.rotation.set(0, 0, 0.06); d.updateMatrix(); rain.setMatrixAt(i, d.matrix); } rain.instanceMatrix.needsUpdate = true; } };
+}
+function ep04(p) {
+  const E = EP04;
+  const sc = S = new THREE.Scene();
+  sc.background = new THREE.Color(0xBFDDEB); sc.fog = new THREE.Fog(0xBFDDEB, 22, 70);
+  const hemi = new THREE.HemisphereLight(0xFFF8EC, 0xA8B890, 1.15); sc.add(hemi);
+  const sun = new THREE.DirectionalLight(0xFFF2DE, 1.5); sun.position.set(5, 11, 8); sun.castShadow = true;
+  sun.shadow.mapSize.set(2048, 2048); sun.shadow.radius = 6; sun.shadow.bias = -0.0008; sun.shadow.normalBias = 0.05;
+  Object.assign(sun.shadow.camera, { left: -9, right: 9, top: 9, bottom: -6, near: 1, far: 40 }); sc.add(sun); sc.add(sun.target);
+  const SHOP = 40, ROOM = 80;   // 帽子屋は x=40、部屋は x=80、帰り道（公園）は x=0
+  park(sc); hatShop(sc, SHOP); room(sc, ROOM);
+  const rain = makeRain(sc);
+  // 店員（脚立の上で帽子をのせる）
+  const clerk = person(sc, { h: 1.6, coat: 0x8FA5B8, pants: 0x55606A, apron: true, hair: 0x5A3A2A });
+  const ladder = new THREE.Group(); sc.add(ladder); const lw = toon(0xB59A6E);
+  [-0.28, 0.28].forEach(x => mesh(new THREE.BoxGeometry(0.06, 1.3, 0.06), lw, ladder, [x, 0.65, 0], { line: 0.05 }));
+  [0.35, 0.7, 1.05, 1.28].forEach(y => mesh(new THREE.BoxGeometry(0.62, 0.05, 0.3), lw, ladder, [0, y, 0], { line: 0.05 }));
+  const hats = [0.26, 0.33, 0.41, 0.5].map((r, i) => { const g = new THREE.Group(); sc.add(g); const c = toon([0x7C6A5C, 0xC98A6A, 0x8FA5B8, 0x6E8A6A][i]);
+    mesh(new THREE.CylinderGeometry(r, r, 0.03, 18), c, g, [0, 0.015, 0], { line: 0.04 }); mesh(new THREE.CylinderGeometry(r * 0.58, r * 0.62, r * 0.75, 16), c, g, [0, r * 0.4, 0], { line: 0.05 });
+    mesh(new THREE.CylinderGeometry(r * 0.63, r * 0.63, r * 0.12, 16), toon(0x343B3A), g, [0, r * 0.12, 0], {}); return g; });
+  const bf = bigFace(sc), skinM = toon(PAL.face), pot = flowerPot(sc), sp = sproutM(sc), can = new THREE.Group(); sc.add(can);
+  mesh(new THREE.CylinderGeometry(0.2, 0.22, 0.34, 16), toon(0x8FA5B8), can, [0, 0, 0], { line: 0.05 }); mesh(new THREE.CylinderGeometry(0.02, 0.035, 0.42, 8), toon(0x8FA5B8), can, [0.26, 0.08, 0], { rot: [0, 0, -0.9], line: 0.1 });
+  const stream = mesh(new THREE.CylinderGeometry(0.012, 0.012, 1, 6), new THREE.MeshBasicMaterial({ color: 0xCFE6F2, transparent: true, opacity: 0.8 }), sc, [0, -10, 0], { cast: false });
+  const fore = [0, 1].map(() => { const g = new THREE.Group(); bf.body.add(g); mesh(new THREE.CapsuleGeometry(0.065, 0.14, 4, 10), skinM, g, [0, -0.13, 0], { line: 0.12 });
+    const hand = mesh(new THREE.SphereGeometry(0.095, 12, 10), skinM, bf.body, [0, 0, 0], { line: 0.1 }); g.visible = hand.visible = false; return { g, hand }; });
+  const drops = Array.from({ length: 6 }, () => mesh(new THREE.SphereGeometry(0.02, 8, 6), new THREE.MeshBasicMaterial({ color: 0xF4F8FA }), bf.head, [0, 0, 0], { scale: [1, 1.4, 0.6], cast: false }));
+  const surf = (x, y) => Math.sqrt(Math.max(0.02, 1 - (x / 1.12) ** 2 - y * y));
+  // アイキャッチ
+  const EX = -60, EYEC = 0xF1E4CC;
+  mesh(new THREE.PlaneGeometry(40, 40), new THREE.MeshBasicMaterial({ color: EYEC }), sc, [EX, 0.001, 0], { rot: [-Math.PI / 2, 0, 0], cast: false, recv: false });
+  mesh(new THREE.PlaneGeometry(40, 40), new THREE.MeshBasicMaterial({ color: EYEC }), sc, [EX, 10, -4], { cast: false, recv: false });
+  const blob = mesh(new THREE.CircleGeometry(0.75, 32), new THREE.MeshBasicMaterial({ color: 0xC9B79C, transparent: true, opacity: 0.6 }), sc, [EX, 0.01, 0], { rot: [-Math.PI / 2, 0, 0], cast: false, recv: false });
+  const bf2 = bigFace(sc); bf2.root.position.set(EX, 0, 0);
+  // ビッグフェイスの場所
+  function bfPath(t) {
+    if (t < E.s4) return [SHOP + 0.4, 0.6, 0, false];
+    if (t < E.s6) { const u = seg(t, E.s4, E.s6); return [lerp(-0.4, 0.3, u) + 0.0, lerp(0.5, 9.5, u), 0, true]; }   // 帰り道：こちらへ歩いてくる
+    if (t < E.s7) return [ROOM + 0.2, -0.6, 0, false];
+    if (t < E.s8) { const u = ease(seg(t, E.lift + 0.2, E.place)); return [ROOM + 0.2, lerp(-0.6, -0.1, u), lerp(0, Math.PI, ease(seg(t, E.lift + 0.6, E.place - 0.3))), false]; }
+    if (t < E.s9) return [ROOM + 0.9, -0.3, Math.PI - 0.5, false];
+    return [ROOM + 0.9, -0.3, lerp(Math.PI - 0.5, Math.PI + 0.15, ease(seg(t, E.s9, E.s9 + 0.6))), false];
+  }
+  const head = { x: 0, v: 0 }; let lastT = -1, prevV = 0, phase = 0, gaitW = 0;
+  const aim = (g, from, to) => { const d = to.clone().sub(from), len = d.length(); g.quaternion.setFromUnitVectors(new THREE.Vector3(0, -1, 0), d.normalize()); g.scale.set(1, Math.max(0.5, len / 0.27), 1); };
+  function arm(i, hg) {   // 体ローカルの hg に手をのばす（頭をよける）
+    const sx = i ? 1 : -1, sh = new THREE.Vector3(sx * 0.36, 0.78, 0); bf.root.updateMatrixWorld(true);
+    const HCw = new THREE.Vector3(); bf.head.getWorldPosition(HCw); const HC = bf.body.worldToLocal(HCw.clone());
+    const push = (q, m = 1.3) => { const v = q.clone().sub(HC), dd = Math.hypot(v.x / 1.12, v.y, v.z); return dd >= m ? q : HC.clone().add(v.multiplyScalar(m / Math.max(dd, 1e-3))); };
+    const el = push(sh.clone().lerp(hg, 0.5).add(new THREE.Vector3(sx * 0.35, 0, 0.1)));
+    aim(bf.arms[i], sh, el); fore[i].g.visible = fore[i].hand.visible = true; fore[i].g.position.copy(el); aim(fore[i].g, el, hg); fore[i].hand.position.copy(hg); }
+  return (t) => {
+    const dt = 1 / 120;
+    if (lastT < 0 || t < lastT - 1e-6) { lastT = 0; prevV = 0; head.x = head.v = 0; phase = gaitW = 0; }
+    while (lastT + dt <= t + 1e-6) { const a = bfPath(lastT), b = bfPath(lastT + dt);
+      const v = Math.min(3, Math.hypot(b[0] - a[0], b[1] - a[1]) / dt), acc = THREE.MathUtils.clamp((v - prevV) / dt, -20, 20); prevV = v;
+      const w = 2 * Math.PI * 2.0, z = 0.58, tg = THREE.MathUtils.clamp(-acc * 0.02, -0.17, 0.17);
+      head.v += (-w * w * (head.x - tg) - 2 * z * w * head.v) * dt; head.x += head.v * dt;
+      gaitW += ((a[3] ? 1 : 0) - gaitW) * (1 - Math.exp(-dt / 0.065)); if (a[3]) phase += v * dt / 0.36 * Math.PI; lastT += dt; }
+    const [x, z, hd] = bfPath(t);
+    bf.root.position.set(x, 0, z); bf.root.rotation.y = hd; walkPose(bf, phase, gaitW, 0.45);
+    let pitch = head.x, roll = 0; const st = bf.st; st.look = [0, 0]; st.blink = 0; st.mouth = 0; st.sq = 0; st.happy = 0; st.wink = [0, 0];
+    const blink = (tb) => { if (t > tb && t < tb + 0.14) st.blink = Math.sin(seg(t, tb, tb + 0.14) * Math.PI); };
+    bf.arms.forEach(a => { a.rotation.set(0, 0, 0); a.scale.set(1, 1, 1); a.quaternion.identity(); }); fore.forEach(f => { f.g.visible = f.hand.visible = false; });
+    // 帽子：順番に頭のてっぺんへ（小さすぎてちょこんと乗る）→ 店員がもどす
+    bf.root.updateMatrixWorld(true); const topW = new THREE.Vector3(); bf.head.getWorldPosition(topW); topW.y += 0.98;
+    const CL = new THREE.Vector3(SHOP + 1.55, 0, 0.75); ladder.position.set(CL.x, 0, CL.z); ladder.rotation.y = -0.4;
+    clerk.root.position.set(CL.x, 1.3, CL.z); clerk.root.rotation.set(0, -0.9, 0); clerk.arms.forEach(a => a.rotation.set(0, 0, 0)); clerk.legs.forEach(l => l.rotation.set(0, 0, 0)); clerk.neck.rotation.set(0, 0, 0); clerk.st.blink = 0;
+    const handW = new THREE.Vector3(CL.x - 0.35, 2.75, CL.z - 0.05);
+    hats.forEach((h, i) => { const t0 = [E.h1, E.h2, E.h3, E.h4][i]; const up = ease(seg(t, t0, t0 + 0.6)), down = ease(seg(t, t0 + 1.25, t0 + 1.7));
+      if (t < E.s2 || t >= E.s3 || t < t0 - 0.3 || down >= 1) { h.position.set(SHOP - 2.9 + i * 0.6, t < t0 ? 0.82 : -20, 0.3); h.rotation.set(0, 0, 0); return; }
+      const on = up * (1 - down), p0 = new THREE.Vector3(SHOP - 2.9 + i * 0.6, 0.82, 0.3).lerp(handW, ease(seg(t, t0 - 0.3, t0)));
+      const pos = p0.clone().lerp(topW, on); pos.y += Math.sin(Math.PI * on) * 0.25; h.position.copy(pos); h.rotation.set(0, 0, 0.05 * Math.sin(t * 9) * on);
+      if (on > 0.05) clerk.arms[0].rotation.x = -2.6 * Math.min(1, on * 2); });
+    // 植木鉢：店員がころがして持ってくる → ビッグフェイスが腕を伸ばして持ちあげ、さかさにかぶる
+    let potOn = 0, potWorld = null;
+    if (t >= E.s3 && t < E.s4) {
+      const r = ease(seg(t, E.roll, E.grab - 0.2)), lift = ease(seg(t, E.grab, E.potOn)), onH = ease(seg(t, E.potOn - 0.25, E.potOn + 0.15));
+      if (lift <= 0) { pot.g.position.set(SHOP + lerp(4.8, 1.5, r), 1.3, 1.6); pot.g.rotation.set(0, 0, Math.PI / 2 + (1 - r) * 6); }
+      else { const a = new THREE.Vector3(SHOP + 1.5, 1.3, 1.6), b = topW.clone().add(new THREE.Vector3(0, 0.25, 0)), m = new THREE.Vector3(SHOP + 1.4, 4.3, 1.2);
+        const pp = a.clone().lerp(m, lift).lerp(m.clone().lerp(b, lift), lift); pot.g.position.copy(pp); pot.g.rotation.set(0, 0, lerp(Math.PI / 2, Math.PI, lift)); potWorld = pp;
+        if (lift < 1) { const hl = bf.body.worldToLocal(pp.clone().add(new THREE.Vector3(-1.2, 0, 0))), hr = bf.body.worldToLocal(pp.clone().add(new THREE.Vector3(1.2, 0, 0))); arm(0, hl); arm(1, hr); } }
+      potOn = onH;
+      clerk.root.position.set(SHOP + lerp(5.6, 2.5, r), 0, 1.6 + 0.7); clerk.root.rotation.y = -Math.PI / 2; walkPose(clerk, t * 12, r > 0 && r < 1 ? 1 : 0, 0.5); clerk.arms[0].rotation.x = clerk.arms[1].rotation.x = -1.2 * (1 - lift);
+      ladder.position.y = -20; }
+    if (t >= E.s4 && t < E.s7) potOn = 1;
+    if (potOn > 0 && !(t >= E.s3 && t < E.potOn)) { pot.g.position.copy(topW).add(new THREE.Vector3(0, 0.08, 0)); pot.g.rotation.set(0, bf.root.rotation.y, Math.PI); }
+    if (t < E.s3) pot.g.position.set(SHOP + 9, -20, 0);
+    // 顔
+    if (t < E.s2) { blink(2.4); st.look = [-0.4, 0.3]; }
+    if (t >= E.s2 && t < E.s3) { const k = [E.h1, E.h2, E.h3, E.h4].filter(h => t > h + 0.5).length; st.look = [0, 0.8 * (t % 1.9 < 1.3 && k > 0 ? 1 : 0)]; st.mouth = 0.1 * k; blink(E.h2 + 1.4); blink(E.h4 + 1.4);
+      if (t > E.h4 + 0.7) pitch += 0.06; }
+    if (t >= E.s3 && t < E.s4) { st.look = [0.6 * ease(seg(t, E.roll + 0.3, E.roll + 0.6)), -0.3]; if (t > E.potOn) { st.happy = ease(seg(t, E.smile, E.smile + 0.4)); st.look = [0, 0.6]; } st.sq = 0.05 * Math.exp(-Math.max(0, t - E.potOn) * 6) * (t > E.potOn ? 1 : 0); }
+    if (t >= E.s4 && t < E.s5) { st.happy = 1 - ease(seg(t, E.rain + 0.6, E.rain + 1.2)) * 0.5; if (t > E.rain + 0.8) st.look = [0, 0.7]; blink(E.rain + 1.4); }
+    let wet = 0;
+    if (t >= E.s5 && t < E.s6) { wet = 1; st.wink = [0.4, 0.4]; st.look = [0, 0.5]; blink(E.drip + 0.5); blink(E.drip + 1.9); st.mouth = 0.2; }
+    if (t >= E.s6 && t < E.s7) { st.look = [0, 0.95 * ease(seg(t, E.notice, E.notice + 0.25))]; blink(E.s6 + 0.8); if (t > E.notice + 0.8) st.happy = ease(seg(t, E.notice + 0.8, E.notice + 1.2)); }
+    if (t >= E.s7 && t < E.s8) { st.happy = 0.6; st.look = [0, -0.4]; blink(E.place + 0.5); }
+    if (t >= E.s8 && t < E.s9) { st.happy = 0.8; st.look = [0, -0.6]; pitch += 0.12; blink(E.water + 1.0); }
+    if (t >= E.s9 && t < E.eye) { st.happy = ease(seg(t, E.final, E.final + 0.4)); blink(E.s9 + 0.3); }
+    bf.neck.rotation.x = pitch; bf.neck.rotation.z = roll; bf.setFace();
+    drops.forEach((d, k) => { const u = (t * 0.8 + k * 0.17) % 1, xx = (k % 2 ? 1 : -1) * (0.2 + 0.12 * k), yy = 0.35 - 0.95 * u; d.visible = wet > 0 && t < E.eye; d.position.set(xx, yy, surf(xx, yy) + 0.01); });
+    // 芽：朝、鉢底の穴から出る → 窓辺では土から
+    sp.visible = false;
+    if (t >= E.s6 && t < E.lift + 0.6) { sp.visible = true; sp.position.copy(pot.g.position).add(new THREE.Vector3(0, 0.63, 0)); sp.scale.setScalar(0.05 + 0.95 * ease(seg(t, E.sprout, E.sprout + 1.4))); }
+    // 持ちあげて、ひっくり返して窓辺へ（腕が伸びる）
+    if (t >= E.s7 && t < E.eye) {
+      const up = ease(seg(t, E.lift, E.lift + 0.6)), flip = ease(seg(t, E.lift + 0.5, E.place - 0.2)), set = ease(seg(t, E.place - 0.4, E.place + 0.2));
+      const sill = new THREE.Vector3(ROOM + 0.1, 0.64, -2.05), above = topW.clone().add(new THREE.Vector3(0, 0.2 + 0.6 * up, 0));
+      const pp = above.clone().lerp(sill.clone().add(new THREE.Vector3(0, 0.5, 0)), flip).lerp(sill, set); pot.g.position.copy(pp); pot.g.rotation.set(0, 0, Math.PI * (1 - flip));
+      pot.soil.visible = flip > 0.5; potOn = 0;
+      if (t < E.place + 0.5) { const hl = bf.body.worldToLocal(pp.clone().add(new THREE.Vector3(-1.25, 0, 0))), hr = bf.body.worldToLocal(pp.clone().add(new THREE.Vector3(1.25, 0, 0))); arm(0, hl); arm(1, hr); }
+      if (flip > 0.5) { sp.visible = true; sp.position.copy(pp).add(new THREE.Vector3(0, 0.52, 0)); sp.scale.setScalar(1 + 0.25 * ease(seg(t, E.water + 0.6, E.waterEnd + 0.6))); } }
+    // じょうろ
+    can.position.set(0, -20, 0); stream.position.set(0, -20, 0);
+    if (t >= E.s8 && t < E.s9) { const w = ease(seg(t, E.water - 0.6, E.water)) * (1 - ease(seg(t, E.waterEnd, E.waterEnd + 0.5)));
+      const cp = new THREE.Vector3(ROOM - 0.25, 1.75 - 0.05 * w, -1.55); can.position.copy(cp); can.rotation.set(0, 0, -0.5 * w);
+      arm(1, bf.body.worldToLocal(cp.clone().add(new THREE.Vector3(-0.15, 0.05, 0))));
+      if (w > 0.8 && t < E.waterEnd) { stream.position.set(ROOM + 0.08, 1.45, -1.62); stream.scale.y = 0.42; stream.rotation.set(0, 0, 0.35); } }
+    // 雨と空
+    const rainAmt = t >= E.s4 && t < E.s6 ? ease(seg(t, E.rain, E.rain + 1.4)) : 0;
+    rain.rain.visible = rainAmt > 0;
+    // アイキャッチ
+    if (t >= E.eye) {
+      const k = t - E.eye, fall = Math.min(1, k / 0.32), y = 3.2 * (1 - fall * fall); bf2.root.position.y = y; const land = k - 0.32;
+      bf2.st.look = [0, 0]; bf2.st.blink = 0; bf2.st.mouth = 0; bf2.st.happy = 1; bf2.st.sq = 0; let p2 = 0;
+      if (land > 0) { bf2.st.sq = Math.max(-0.03, 0.08 * Math.exp(-land * 8) * Math.cos(land * 24)); p2 = 0.06 * Math.exp(-land * 5) * Math.sin(land * 16); bf2.body.scale.set(1 + 0.12 * Math.exp(-land * 12), 1 - 0.12 * Math.exp(-land * 12), 1); }
+      if (k > 1.6 && k < 1.74) bf2.st.blink = Math.sin(seg(k, 1.6, 1.74) * Math.PI);
+      bf2.neck.rotation.x = p2; bf2.neck.rotation.z = 0.09 * ease(seg(k, 1.0, 1.35)); bf2.setFace(); blob.scale.setScalar(0.6 + 0.4 * fall);
+    }
+    // カメラと光
+    const cam = (pos, look, fov) => { C.fov = fov; C.position.set(...pos); C.lookAt(...look); };
+    const cu = (yaw = 0, dist = 3.4, fov = 42, dy = 0.2) => { bf.root.updateMatrixWorld(true); const hp = new THREE.Vector3(); bf.head.getWorldPosition(hp);
+      const h = bf.root.rotation.y + yaw, d = new THREE.Vector3(Math.sin(h), 0, Math.cos(h)); C.fov = fov; C.position.set(hp.x + d.x * dist, hp.y + 0.1 + dy, hp.z + d.z * dist); C.lookAt(hp.x, hp.y + dy * 0.5, hp.z); return hp; };
+    let bg = 0xBFDDEB, hi = 1.15, si = 1.5, sp_ = [5, 11, 8], tg = [0, 0, 2];
+    if (t < E.s2) { cam([SHOP + 3.4, 2.6, 7.4], [SHOP - 0.4, 1.6, -0.6], 46); bg = 0xEAD9C6; sp_ = [SHOP + 3, 9, 6]; tg = [SHOP, 0, 0]; }
+    else if (t < E.s3) { cam([SHOP + 0.9, 2.3, 7.6], [SHOP + 0.75, 2.2, 0.4], 40); bg = 0xEAD9C6; sp_ = [SHOP + 3, 9, 6]; tg = [SHOP, 0, 0]; }
+    else if (t < E.s4) { cam([SHOP + 1.4, 2.6, 9.0], [SHOP + 1.4, 2.3, 0.8], 46); bg = 0xEAD9C6; sp_ = [SHOP + 3, 9, 6]; tg = [SHOP, 0, 0]; }
+    else if (t < E.s5) { const k = seg(t, E.s4, E.s5); cam([0.6, 2.2, 14.5], [0, 2.0, 5.0 + 3 * k], 40); const dk = rainAmt; bg = 0xBFDDEB; hi = lerp(1.15, 0.85, dk); si = lerp(1.5, 0.45, dk); rain.set(t, 0, 9, rainAmt); }
+    else if (t < E.s6) { cu(0, 4.4, 46, 0.25); hi = 0.85; si = 0.45; rain.set(t, x, z, 1); }
+    else if (t < E.s7) { cam([ROOM + 0.2, 3.0, 4.2], [ROOM + 0.2, 3.0, -0.6], 44); bg = 0xF0E6D6; sp_ = [ROOM + 2, 7, 6]; tg = [ROOM, 0, -1]; si = 1.0; hi = 1.5; }
+    else if (t < E.s8) { cam([ROOM + 4.4, 2.6, 4.6], [ROOM, 1.8, -1.2], 48); bg = 0xF0E6D6; sp_ = [ROOM + 2, 7, 6]; tg = [ROOM, 0, -1]; si = 1.0; hi = 1.5; }
+    else if (t < E.s9) { cam([ROOM + 5.4, 2.0, -0.4], [ROOM + 0.2, 1.5, -1.6], 44); bg = 0xF0E6D6; sp_ = [ROOM + 2, 7, 6]; tg = [ROOM, 0, -1]; si = 1.0; hi = 1.5; }   // 横から：じょうろと鉢
+    else if (t < E.eye) { cam([ROOM + 0.1, 1.55, -4.8], [ROOM + 0.75, 1.75, -0.3], 40); bg = 0xF0E6D6; sp_ = [ROOM - 2, 6, -8]; tg = [ROOM, 0, -1]; si = 1.0; hi = 1.5; }   // 窓辺の芽ごしに顔
+    else { cam([EX, 1.4, 9.0], [EX, 0.75, 0], 36); bg = 0xF1E4CC; sp_ = [EX + 6, 10, 8]; tg = [EX, 0, 0]; }
+    sc.background.setHex(bg); sc.fog.color.setHex(bg); hemi.intensity = hi; sun.intensity = si; sun.position.set(...sp_); sun.target.position.set(...tg);
+    C.updateProjectionMatrix();
+  };
+}
+
 // ==== チャンネルの絵（ヘッダー 2560x1440／アイコン 800x800）。p.kind = "banner" | "icon"
 function art(p) {
   const sc = S = new THREE.Scene();
@@ -871,7 +1080,7 @@ function art(p) {
     C.fov = p.fov; C.position.set(...p.cam); C.lookAt(...p.look); C.updateProjectionMatrix();
   };
 }
-const SCENES = { ep01_test: ep01Test, ep01: ep01, ep02, ep03, art };
+const SCENES = { ep01_test: ep01Test, ep01: ep01, ep02, ep03, ep04, art };
 window.setup = (j) => {
   job = j;
   if (!R) {
