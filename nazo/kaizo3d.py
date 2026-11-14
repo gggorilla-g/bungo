@@ -48,8 +48,8 @@ def voice(sid):
         render.tts(ln["say"], wav)
         d = moso3d.voiced_len(wav)
         beats.append({"id": ln["id"], "t0": round(t, 3), "t1": round(t + d, 3), "voice": round(d, 3)})
-        t += d + GAP
-    total = round(t + TAIL, 2)
+        t += d + sp.get("gap", GAP)
+    total = round(t + sp.get("tail", TAIL), 2)
     scene = {"title": sp["scene_title"], "parts": sp["parts"],
              "lines": [{k: ln[k] for k in ("id", "kind", "cap", "add", "fx") if k in ln} | {"text": ln["say"]} for ln in sp["lines"]]}
     os.makedirs(f"{KZ}/specs", exist_ok=True)

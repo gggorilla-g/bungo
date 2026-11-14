@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8">
+<style>
+@font-face{font-family:"JumpSans";font-weight:400;src:url(fonts_jp/NotoSansCJKjp-Regular.woff2) format("woff2")}
+@font-face{font-family:"JumpSans";font-weight:700;src:url(fonts_jp/NotoSansCJKjp-Bold.woff2) format("woff2")}
+@font-face{font-family:"JumpSans";font-weight:900;src:url(fonts_jp/NotoSansCJKjp-Black.woff2) format("woff2")}
+html,body{margin:0;background:#000}
+#stage{position:relative;width:540px;height:960px;overflow:hidden}
+#stage canvas{position:absolute;left:0;top:0}
+#haze{position:absolute;left:0;top:0;width:540px;height:960px;background:#ffffff;opacity:0}
+#hud{position:absolute;left:0;top:0;width:540px;height:960px;font-family:"JumpSans"}
+#hud text{paint-order:stroke;stroke:#101010;stroke-linejoin:round;fill:#fff}
+</style></head>
+<body><div id="stage"><div id="haze"></div><svg id="hud" viewBox="0 0 540 960" xmlns="http://www.w3.org/2000/svg"></svg></div>
+<script src="vendor.js"></script>
+<script>
+// 改造ショート「ワインボトルを宇宙船にする方法」 発射台の上で問題→解決を重ね、最後に発射して宇宙へ
+const getJ=u=>{const x=new XMLHttpRequest();x.open('GET',u,false);x.send();if(x.status!==200)throw new Error('読めない: '+u);return JSON.parse(x.responseText)};
+const ID=(new URLSearchParams(location.search).get('spec')||'kaizo_bottle').replace(/^.*\//,'').replace(/\.json$/,'');
+const SPEC=getJ('specs/'+ID+'.json'),TL=getJ('specs/'+ID+'_timeline.json');
+const W=540,H=960,DUR=TL.total,FOV=30,TANH=Math.tan(FOV/2*Math.PI/180);
+const clamp=(x,a,b)=>Math.min(b,Math.max(a,x)),lerp=(a,b,k)=>a+(b-a)*k,sstep=(a,b,x)=>{const k=clamp((x-a)/(b-a),0,1);return k*k*(3-2*k)};
+function rng(seed){let s=seed>>>0;return()=>{s=(Math.imul(s,1664525)+1013904223)>>>0;return s/4294967296}}
+const LINES=SPEC.lines.map((l,i)=>Object.assign({},l,TL.beats[i]));
+const fxL=fx=>LINES.find(l=>l.fx===fx);
+const fxStart=fx=>{const l=fxL(fx);return l?l.t0:1e9},fxEnd=fx=>{const l=fxL(fx);return l?l.t1:-1};
+const addT={};for(const l of LINES)if(l.add)addT[l.add]=l.t0+0.25;
+const LL=fxL('launch'),T_CD=LL?LL.t0:1e9,T_LAUNCH=LL?LL.t0+LL.voice*.72:1e9,T_SPACE=T_LAUNCH+2.3,T_SHOW=fxStart('showcase');
+const CD=LL?[0,.2,.4].map(k=>LL.t0+LL.voice*k):[];   // 「3、2、1」の数字を出す時刻（声の長さの割合で合わせる）
+
+const renderer=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true});
+renderer.setPixelRatio(window.devicePixelRatio||1);renderer.setSize(W,H);renderer.autoClear=false;renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.05;
+document.getElementById('stage').prepend(renderer.domElement);
+const L=(c,o)=>new THREE.MeshLambertMaterial(Object.assign({color:c,flatShading:true},o||{}));
+const S=(c,o)=>new THREE.MeshStandardMaterial(Object.assign({color:c,roughness:.45,metalness:.1},o||{}));
+function mesh(g,m,sh=true){const x=new THREE.Mesh(g,m);x.castShadow=sh;x.receiveShadow=true;return x}
+const box=(w,h,d,m)=>mesh(new THREE.BoxGeometry(w,h,d),m);
+
+// ===== 背景：地上は上が青・下が白っぽい空（主役の暗い緑のびんがくっきり見える）。宇宙は地球と星 =====
+function gradTex(stops){const c=document.createElement('canvas');c.width=4;c.height=512;const x=c.getContext('2d'),g=x.createLinearGradient(0,0,0,512);stops.forEach(([k,col])=>g.addColorStop(k,col));x.fillStyle=g;x.fillRect(0,0,4,512);
+  const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;return t}
+const bgGround=new THREE.Scene();bgGround.background=gradTex([[0,'#5fa8e8'],[.55,'#bfe0f7'],[1,'#f3efe4']]);
+const bgSpace=new THREE.Scene();bgSpace.background=new THREE.Color(0x04060c);
+const STARS=new THREE.Group();bgSpace.add(STARS);
+{const r=rng(9),n=1400,pos=new Float32Array(n*3);for(let i=0;i<n;i++){const v=new THREE.Vector3(r()*2-1,r()*2-1,r()*2-1).normalize().multiplyScalar(900);pos.set([v.x,v.y,v.z],i*3)}
+ const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(pos,3));STARS.add(new THREE.Points(g,new THREE.PointsMaterial({color:0xe6ecf5,size:1.8,sizeAttenuation:false})))}
+const earthMat=new THREE.MeshLambertMaterial({color:0xffffff});const earth=new THREE.Mesh(new THREE.SphereGeometry(300,128,96),earthMat);bgSpace.add(earth);
+const atm=new THREE.Mesh(new THREE.SphereGeometry(306,96,64),new THREE.MeshBasicMaterial({color:0x7fb6ff,transparent:true,opacity:.22,side:THREE.BackSide,depthWrite:false}));bgSpace.add(atm);
+bgSpace.add(new THREE.AmbientLight(0x404858,1));{const d=new THREE.DirectionalLight(0xffffff,2.4);d.position.set(300,200,200);bgSpace.add(d)}
+const bgCam=new THREE.PerspectiveCamera(FOV,W/H,.1,3000);
+function earthTexture(img){const c=document.createElement('canvas');c.width=img.width;c.height=img.height;const x=c.getContext('2d');x.drawImage(img,0,0);
+  const d=x.getImageData(0,0,c.width,c.height),p=d.data;for(let i=0;i<p.length;i+=4){const k=p[i]/255,y=(i/4/c.width)/c.height,lat=Math.abs(90-y*180);
+    const land=lat>66?[236,240,244]:(lat<23?[150,164,96]:[110,150,88]),sea=[38,92,160];for(let j=0;j<3;j++)p[i+j]=sea[j]+(land[j]-sea[j])*k;p[i+3]=255}
+  x.putImageData(d,0,0);const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;return t}
+
+// ===== 主役のシーン =====
+const scene=new THREE.Scene();
+const hemi=new THREE.HemisphereLight(0xeaf4ff,0xb9b2a4,1.3);scene.add(hemi);
+const sun=new THREE.DirectionalLight(0xfff4e2,2.3);sun.position.set(4,8,5);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);
+{const c=sun.shadow.camera;c.left=-5;c.right=5;c.top=5;c.bottom=-5;c.near=.5;c.far=40;sun.shadow.bias=-.0005}scene.add(sun);scene.add(sun.target);
+const rim=new THREE.DirectionalLight(0xdff0ff,2.2);scene.add(rim);scene.add(rim.target);   // 後ろからの光で、びんの輪郭を明るく縁どる（リムライト）
+const groundG=new THREE.Group();scene.add(groundG);
+{const g=mesh(new THREE.PlaneGeometry(400,400),L(0xd8d3c8,{flatShading:false}));g.rotation.x=-Math.PI/2;groundG.add(g);
+ const pad=mesh(new THREE.CylinderGeometry(1.5,1.65,.12,48),S(0x9c9a95,{roughness:.8}));pad.position.y=.06;groundG.add(pad);
+ const ring=mesh(new THREE.RingGeometry(1.15,1.25,64),new THREE.MeshBasicMaterial({color:0xf2c230}),false);ring.rotation.x=-Math.PI/2;ring.position.y=.125;groundG.add(ring);
+ for(let i=0;i<8;i++){const a=i*Math.PI/4,s=mesh(new THREE.PlaneGeometry(.08,.22),new THREE.MeshBasicMaterial({color:0x2b2b2b}),false);s.rotation.x=-Math.PI/2;s.rotation.z=a;s.position.set(Math.cos(a)*1.38,.126,Math.sin(a)*1.38);groundG.add(s)}
+ const r=rng(4);for(let i=0;i<10;i++){const h=mesh(new THREE.IcosahedronGeometry(10+r()*12,0),L(0xb7c3cc));h.scale.y=.32;h.castShadow=false;h.position.set(-110+r()*220,-1,-90-r()*60);groundG.add(h)}}
+const SMOKE=[];{const m=new THREE.MeshLambertMaterial({color:0xeeeeee,transparent:true,opacity:0});const r=rng(12);for(let i=0;i<26;i++){const s=mesh(new THREE.IcosahedronGeometry(.35,1),m.clone(),false);s.visible=false;scene.add(s);SMOKE.push({s,a:r()*6.283,v:.8+r()*1.6,d:r()*.5})}}
+
+// ワインボトル（高さ約2.4の大きな模型として扱う）。原点は底の中心
+const FR=new THREE.Group();scene.add(FR);
+const body=new THREE.Group();FR.add(body);
+const prof=[[0,.03],[.3,.0],[.38,.03],[.4,.1],[.4,1.25],[.38,1.42],[.3,1.58],[.2,1.72],[.145,1.86],[.135,1.98],[.135,2.24],[.152,2.26],[.152,2.33],[.138,2.35],[0,2.35]].map(([x,y])=>new THREE.Vector2(x,y));
+const glassMat=new THREE.MeshPhysicalMaterial({color:0x1d5a33,roughness:.1,metalness:0,clearcoat:1,clearcoatRoughness:.05,sheen:0});
+const bottle=mesh(new THREE.LatheGeometry(prof,64),glassMat);body.add(bottle);
+const cork=mesh(new THREE.CylinderGeometry(.122,.122,.12,24),S(0xc89a5e,{roughness:.9}));cork.position.y=2.38;body.add(cork);
+const capsule=mesh(new THREE.CylinderGeometry(.155,.15,.26,32),S(0x7a1b24,{roughness:.35,metalness:.3}));capsule.position.y=2.25;body.add(capsule);
+const label=mesh(new THREE.CylinderGeometry(.404,.404,.62,64,1,true),S(0xf1ead7,{roughness:.7}));label.position.y=.72;body.add(label);
+const labelMat=label.material;
+// パーツ
+const P={};const part=k=>{const g=new THREE.Group();FR.add(g);P[k]=g;g.visible=false;return g};
+const metal=S(0x8c939b,{metalness:.75,roughness:.32});
+{const g=part('plates');for(const y of[.22,1.16]){const b=mesh(new THREE.CylinderGeometry(.418,.418,.07,64),metal);b.position.y=y;g.add(b);
+   for(let i=0;i<12;i++){const a=i*Math.PI/6,rv=mesh(new THREE.SphereGeometry(.016,8,6),metal);rv.position.set(Math.cos(a)*.42,y,Math.sin(a)*.42);g.add(rv)}}
+ const nb=mesh(new THREE.CylinderGeometry(.16,.16,.08,32),metal);nb.position.y=1.95;g.add(nb)}
+{const g=part('engine'),m=S(0x55595e,{metalness:.65,roughness:.35});const mount=mesh(new THREE.CylinderGeometry(.3,.34,.12,32),m);mount.position.y=-.06;g.add(mount);
+ const bell=mesh(new THREE.CylinderGeometry(.14,.3,.42,32,1,true),S(0x3c3f43,{metalness:.7,side:THREE.DoubleSide}));bell.position.y=-.33;g.add(bell);
+ for(let i=0;i<4;i++){const a=Math.PI/4+i*Math.PI/2,leg=box(.04,.62,.04,m);leg.position.set(Math.cos(a)*.36,-.31,Math.sin(a)*.36);leg.rotation.set(Math.sin(a)*.12,0,-Math.cos(a)*.12);g.add(leg)}}
+{const g=part('fins'),m=S(0xd8402c,{roughness:.4});const sh=new THREE.Shape();sh.moveTo(0,0);sh.lineTo(.4,-.45);sh.lineTo(.4,-.62);sh.lineTo(0,-.42);sh.lineTo(0,.5);sh.lineTo(0,0);
+ const geo=new THREE.ExtrudeGeometry(sh,{depth:.035,bevelEnabled:false});geo.translate(0,0,-.017);
+ for(let i=0;i<4;i++){const f=mesh(geo,m);const a=Math.PI/4+i*Math.PI/2;f.position.set(Math.cos(a)*.38,.0,Math.sin(a)*.38);f.rotation.y=-a;g.add(f)}}
+const goldMat=S(0xe9b336,{metalness:.35,roughness:.3,emissive:0x3a2600});
+{const g=part('foil');const f=mesh(new THREE.CylinderGeometry(.41,.41,.64,64,1,true),goldMat);f.position.y=.72;g.add(f)}
+{const g=part('oxygen');const m=S(0xeef2f5,{metalness:.25,roughness:.3}),cap=S(0x2f9e5b);for(const z of[-.14,.14]){const c=mesh(new THREE.CylinderGeometry(.085,.085,.8,20),m);c.position.set(-.5,.75,z);g.add(c);
+  const k=mesh(new THREE.SphereGeometry(.085,16,10,0,Math.PI*2,0,Math.PI/2),cap);k.position.set(-.5,1.15,z);g.add(k)}
+ const st=box(.12,.06,.4,metal);st.position.set(-.44,.5,0);g.add(st)}
+const PUFF=[];{const g=part('thrusters'),m=S(0x55595e,{metalness:.6});for(let i=0;i<4;i++){const a=i*Math.PI/2,x=Math.cos(a)*.36,z=Math.sin(a)*.36;const t=box(.09,.09,.09,m);t.position.set(x,1.5,z);t.rotation.y=-a;g.add(t);
+  const pf=mesh(new THREE.SphereGeometry(.06,10,8),new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0}),false);g.add(pf);PUFF.push({pf,a})}}
+const WING=[];{const g=part('solar'),cell=S(0x1d3f8f,{metalness:.4,roughness:.25}),frame=S(0xb8bec4,{metalness:.7});
+ for(const s of[1,-1]){const w=new THREE.Group();w.position.set(s*.4,1.0,0);g.add(w);const arm=box(.3,.04,.04,frame);arm.position.set(s*.15,0,0);w.add(arm);
+  const pn=box(1.0,.6,.02,cell);pn.position.set(s*.8,0,0);w.add(pn);for(let i=1;i<4;i++){const ln=box(.01,.6,.025,frame);ln.position.set(s*(.3+i*.25),0,0);w.add(ln)}WING.push({w,s})}}
+{const g=part('shield');const sh=mesh(new THREE.CylinderGeometry(.5,.46,.08,48),L(0x5b3a26,{flatShading:false}));sh.position.y=-.02;g.add(sh)}
+// 炎、警告の矢印、熱
+const flameM=c=>new THREE.MeshBasicMaterial({color:c,transparent:true,opacity:.9,blending:THREE.AdditiveBlending,depthWrite:false});
+const flame=mesh(new THREE.ConeGeometry(.22,1.3,20,1,true),flameM(0xffb347),false);flame.rotation.x=Math.PI;FR.add(flame);
+const flameIn=mesh(new THREE.ConeGeometry(.11,.8,16,1,true),flameM(0xfff2c0),false);flameIn.rotation.x=Math.PI;FR.add(flameIn);
+const ARR=[];{const m=new THREE.MeshBasicMaterial({color:0xff4d3a,transparent:true,opacity:0});for(let i=0;i<4;i++){const a=new THREE.Group();const sh=mesh(new THREE.CylinderGeometry(.03,.03,.3,8),m,false);sh.rotation.z=Math.PI/2;a.add(sh);
+  const hd=mesh(new THREE.ConeGeometry(.07,.14,10),m,false);hd.rotation.z=Math.PI/2;hd.position.x=-.2;a.add(hd);const ang=i*Math.PI/2;a.position.set(Math.cos(ang)*.75,.9,Math.sin(ang)*.75);a.rotation.y=-ang;FR.add(a);ARR.push(a)}}
+const heat=mesh(new THREE.SphereGeometry(1,32,20,0,Math.PI*2,Math.PI/2,Math.PI/2),new THREE.MeshBasicMaterial({color:0xff6a2a,transparent:true,opacity:0,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide}),false);
+heat.scale.set(.75,.6,.75);heat.position.y=-.05;FR.add(heat);
+const cam=new THREE.PerspectiveCamera(FOV,W/H,.05,1000);
+
+// ===== HUD =====
+const NS='http://www.w3.org/2000/svg',hud=document.getElementById('hud'),haze=document.getElementById('haze');
+function el(tag,a,txt,parent){const e=document.createElementNS(NS,tag);for(const k in a)e.setAttribute(k,a[k]);if(txt!=null)e.textContent=txt;(parent||hud).appendChild(e);return e}
+const tw=(s,size)=>{let w=0;for(const ch of String(s))w+=ch.charCodeAt(0)<256?.58:1;return w*size};
+function T(x,y,size,txt,o={}){const a={x,y,'font-size':size,'font-weight':o.w||900,'text-anchor':o.a||'start','stroke-width':o.sw!=null?o.sw:Math.max(3,size*.2)};let st='';if(o.fill)st+='fill:'+o.fill+';';if(o.op!=null)st+='opacity:'+o.op+';';if(st)a.style=st;if(o.tf)a.transform=o.tf;return el('text',a,txt)}
+function pill(x,y,txt,size,fill){const w=tw(txt,size)+20,x0=x-w/2;el('rect',{x:x0,y:y-size-6,width:w,height:size+13,rx:6,fill});el('text',{x:x0+10,y,'font-size':size,'font-weight':900,'stroke-width':0},txt)}
+const PARTS=Object.keys(SPEC.parts);
+const PILL={problem:['問題','#e0412f'],fix:['解決','#2f9e5b'],bonus:['もともと解決','#c98a12'],launch:['発射','#e0412f']};
+function drawHud(t){hud.innerHTML='';
+  T(270,96,32,SPEC.title[0],{a:'middle',sw:7});T(270,138,32,SPEC.title[1],{a:'middle',sw:7,fill:'#ffd43b'});
+  // 「3、2、1」の大きな数字（声に合わせる）
+  if(LL&&t>=CD[0]&&t<T_LAUNCH+.6){const k=t<CD[1]?0:t<CD[2]?1:t<T_LAUNCH?2:3,txt=['3','2','1','発射'][k],t0=k<3?CD[k]:T_LAUNCH,u=clamp((t-t0)/.18,0,1),sc=1.35-.35*u;
+    T(430,470,k<3?118:62,txt,{a:'middle',sw:14,fill:k<3?'#ffd43b':'#ff6a3d',tf:`translate(430 440) scale(${sc.toFixed(3)}) translate(-430 -440)`})}
+  const l=LINES.find(x=>t>=x.t0-.02&&t<x.t1+.12)||LINES.filter(x=>x.t0<=t).pop();if(!l)return;
+  const a=clamp((t-l.t0)/.12,0,1);
+  let y=l.cap.length>1?690:712;l.cap.forEach((s,i)=>{const size=Math.min(44,476/tw(s,1));T(270,y+(1-a)*6,size,s,{a:'middle',sw:9,op:(.3+.7*a).toFixed(2)});y+=size+12})}
+
+// ===== 1コマ =====
+const popS=(t,t0)=>{const u=(t-t0)/.35;if(u<0)return 0;if(u>=1)return 1;const c=1.70158;return 1+(c+1)*Math.pow(u-1,3)+c*Math.pow(u-1,2)};
+const win=(t,a,b,e=.3)=>t>=a&&t<b+e?sstep(a,a+e,t)*(1-sstep(b,b+e,t)):0;
+window.renderAt=function(t){
+  const space=t>=T_SPACE;
+  // エンジンが付くと脚で持ち上がる
+  const lift=.66*sstep(addT.engine,addT.engine+.35,t);
+  let y=lift,spin=0,tilt=0;
+  // 尾翼がないと回る（その場で小さく跳んで見せる）
+  const SD=fxL('spinDemo');if(SD&&t>=SD.t0&&t<SD.t1+.4){const u=(t-SD.t0)/(SD.t1+.4-SD.t0);y+=Math.sin(Math.PI*u)*.5;spin=u*u*Math.PI*4;tilt=Math.sin(u*20)*.16*Math.sin(Math.PI*u)}
+  // 向きを変える（噴射）
+  const TU=fxL('turn');let yaw=0;if(TU&&t>=TU.t0)yaw=sstep(TU.t0+.3,TU.t0+1.6,t)*Math.PI*.5;
+  // 発射
+  if(t>=T_LAUNCH){const u=t-T_LAUNCH;y+=space?0:1.6*u*u+.3*u}
+  if(space){tilt=.05*Math.sin((t-T_SPACE)*.8)}
+  FR.position.y=space?0:y;FR.rotation.set(tilt,spin+yaw,0,'YXZ');
+  // 問題1：割れやすい（赤い矢印が外からぶつかる）
+  const w1=win(t,fxStart('warn'),fxEnd('warn'));ARR.forEach((a,i)=>{a.children.forEach(c=>c.material.opacity=w1*.95);const k=Math.abs(Math.sin(t*6+i));a.position.setLength(.62+.22*k)});
+  body.position.x=w1*.012*Math.sin(t*60);
+  // パーツ
+  for(const k of PARTS){const g=P[k],s=popS(t,addT[k]);g.visible=s>0;if(s>0)g.scale.setScalar(Math.max(.001,s))}
+  WING.forEach(({w})=>{w.scale.x=Math.max(.02,sstep(addT.solar+.1,addT.solar+.9,t))});
+  // 噴射口のけむり
+  PUFF.forEach(({pf,a},i)=>{const on=TU&&t>=TU.t0+.2&&t<TU.t0+1.8&&i%2===0;const ph=((t*6+i*.37)%1);pf.material.opacity=on?(1-ph)*.85:0;pf.scale.setScalar(.5+ph*1.4);
+    const rr=.36+.1+ph*.28;pf.position.set(Math.cos(a)*rr,1.5,Math.sin(a)*rr)});
+  // 炎（回る見本のとき・発射のとき）
+  const fire=(SD&&t>=SD.t0&&t<SD.t1+.4)||t>=T_LAUNCH-.25;const big=t>=T_LAUNCH?1+sstep(T_LAUNCH,T_LAUNCH+.6,t)*.8:.7;
+  const fk=(.85+.15*Math.sin(t*53)+.08*Math.sin(t*31))*big;flame.visible=flameIn.visible=fire;flame.scale.set(fk,fk*(1+.3*Math.sin(t*41)),fk);flame.position.y=-.55-.65*fk;flameIn.scale.copy(flame.scale);flameIn.position.y=-.55-.4*fk;
+  // 発射のけむり（地面に広がる）
+  SMOKE.forEach(o=>{const u=t-T_LAUNCH-o.d;o.s.visible=!space&&u>0;if(u>0){const r=.6+o.v*u*1.2;o.s.position.set(Math.cos(o.a)*r,.25+u*.25,Math.sin(o.a)*r);o.s.scale.setScalar(.6+u*1.3);o.s.material.opacity=clamp(.85-u*.25,0,.85)}});
+  // 大気圏の熱（見本）
+  const RE=fxL('reentryDemo'),hk=RE?win(t,RE.t0+.2,RE.t1,.4):0;heat.material.opacity=hk*(.4+.06*Math.sin(t*37));heat.visible=hk>0;
+  // 電気がない（暗くなる）→ 太陽電池で戻る
+  const dk=t>=fxStart('dark')&&t<addT.solar+.6?sstep(fxStart('dark'),fxStart('dark')+.4,t)*(1-sstep(addT.solar+.1,addT.solar+.6,t)):0;
+  // 日なたと日かげ（右が赤っぽく、左が青っぽく）
+  const hc=win(t,fxStart('hotcold'),fxEnd('hotcold'),.4);
+  sun.color.set(0xfff4e2).lerp(new THREE.Color(0xff6a3a),hc*.8);hemi.color.set(0xeaf4ff).lerp(new THREE.Color(0x5f8cff),hc*.7);
+  groundG.visible=!space;hemi.intensity=(space?.45:1.3)*(1-dk*.65);sun.intensity=(space?3.0:2.3)*(1-dk*.7);rim.intensity=2.2*(1-dk*.6);
+  // カメラ：ゆっくり回りこむ（オービット）。発射は下から見上げて追う
+  const Vh=lerp(5.3,6.6,sstep(addT.solar,addT.solar+.9,t));
+  const d=Vh/(2*TANH),az=(30+20*Math.sin(t*.11)+(t>=T_SHOW&&t<T_LAUNCH?(t-T_SHOW)*10:0))*Math.PI/180;
+  let el=(9+5*Math.sin(t*.07+1))*Math.PI/180;
+  let ty=FR.position.y+1.3-Vh*50/960;
+  if(t>=T_LAUNCH&&!space){const u=t-T_LAUNCH;ty=lift+1.3-Vh*50/960+(FR.position.y-lift)*.75;el-=sstep(0,1.2,u)*.12}
+  if(space)ty=1.3-Vh*50/960;
+  const tgt=new THREE.Vector3(0,ty,0);cam.position.set(Math.sin(az)*d*Math.cos(el),tgt.y+d*Math.sin(el),Math.cos(az)*d*Math.cos(el));cam.lookAt(tgt);cam.updateProjectionMatrix();
+  sun.position.set(4,FR.position.y+8,5);sun.target.position.set(0,FR.position.y,0);
+  rim.position.set(-Math.sin(az)*6,FR.position.y+5,-Math.cos(az)*6);rim.target.position.set(0,FR.position.y+1,0);
+  // 背景
+  bgCam.position.set(0,0,0);bgCam.quaternion.copy(cam.quaternion);bgCam.updateMatrixWorld();
+  {const p=new THREE.Vector3(140,-360,-640).applyQuaternion(cam.quaternion);earth.position.copy(p);atm.position.copy(p);earth.rotation.y=2.2+t*.02}
+  if(space)STARS.rotation.x=(t-T_SPACE)*.08;   // 星が流れて、進んでいるように見せる
+  renderer.clear();renderer.render(space?bgSpace:bgGround,bgCam);renderer.clearDepth();renderer.render(scene,cam);
+  const hz=1-Math.min(1,Math.abs(t-T_SPACE)/.28);haze.style.opacity=clamp(hz,0,1).toFixed(3);
+  drawHud(t);return{t}};
+window.__info={total:DUR};
+const FONTS=Promise.all([400,700,900].map(w=>document.fonts.load(w+' 20px JumpSans','あ0')));
+const IMG=new Promise((ok,ng)=>{const i=new Image();i.onload=()=>ok(i);i.onerror=()=>ng(new Error('陸地の画像が読めない'));i.src='assets/land_4096.png'}).then(i=>{earthMat.map=earthTexture(i);earthMat.needsUpdate=true});
+Promise.all([FONTS,IMG]).then(()=>{window.__fig={kind:'none'};window.__ready=true},e=>console.log('load error: '+e.message));
+</script></body></html>
