@@ -36,7 +36,7 @@ def env(L, a, d): t = np.arange(L) / SR; return np.minimum(1, t / a) * np.exp(-t
 def lp(x, k): c = np.ones(k) / k; return np.convolve(np.convolve(x, c, "same"), c, "same")
 def hp(x, k): return x - lp(x, k)
 amb = lp(rng.standard_normal(n), 120).astype(np.float32); amb /= np.abs(amb).max()
-mix += amb * np.where(tt < E["s4"], 0.02, np.where(tt < E["s6"], 0.03, np.where(tt < E["eye"], 0.015, 0)))
+mix += amb * np.where(tt < E["s4"], 0.02, np.where(tt < E["night"], 0.03, np.where(tt < E["s6"], 0.008, np.where(tt < E["eye"], 0.015, 0))))
 def pop(p=1.0):   # 帽子がちょこんと乗る「ぽこ」
     L = int(0.12 * SR); t = np.arange(L) / SR; f = (700 * p) * np.exp(-t * 18) + 250
     return np.sin(2 * np.pi * np.cumsum(f) / SR) * env(L, 0.002, 0.03) * 0.5
@@ -55,18 +55,18 @@ put(thunk(), E["potOn"], 1.0); put(thunk() * 0.6, E["place"] + 0.15, 0.8)
 def step(p=1.0):
     L = int(0.07 * SR); t = np.arange(L) / SR
     return np.sin(2 * np.pi * 380 * p * t) * env(L, 0.002, 0.02) * 0.4 + lp(rng.standard_normal(L), 4) * env(L, 0.001, 0.012) * 0.25
-for k in range(int((E["s6"] - E["s4"]) / 0.42)): put(step(1 + 0.05 * (k % 2)), E["s4"] + 0.1 + k * 0.42, 0.4)
+for k in range(int((E["s5"] - E["s4"]) / 0.42)): put(step(1 + 0.05 * (k % 2)), E["s4"] + 0.1 + k * 0.42, 0.4)
 # 雨（帰り道）と、鉢の中のしずく「ぽちゃん」（鉢の中で響く）
 rn = hp(lp(rng.standard_normal(n), 3), 40).astype(np.float32); rn /= np.abs(rn).max()
-ra = np.clip((tt - E["rain"]) / 1.4, 0, 1) * (tt < E["s6"]); mix += rn * ra * 0.1
+ra = np.clip((tt - E["rain"]) / 1.4, 0, 1) * (tt < E["night"]); mix += rn * ra * 0.1
 def tick():
     L = int(0.03 * SR); t = np.arange(L) / SR; return (np.sin(2 * np.pi * 1300 * t) * 0.4 + hp(rng.standard_normal(L), 4) * 0.4) * env(L, 0.0005, 0.008)
 k = E["rain"] + 0.5
-while k < E["s6"]: put(tick(), k, 0.25); k += 0.05 + 0.08 * rng.random()   # 鉢に当たる雨
+while k < E["night"]: put(tick(), k, 0.25); k += 0.05 + 0.08 * rng.random()   # 鉢に当たる雨
 def plink(p=1.0):
     L = int(0.35 * SR); t = np.arange(L) / SR; f = (1100 + 600 * np.exp(-t * 40)) * p
     x = np.sin(2 * np.pi * np.cumsum(f) / SR) * env(L, 0.001, 0.05); echo = np.zeros(L); d = int(0.07 * SR); echo[d:] = x[:-d] * 0.45; return (x + echo) * 0.5
-for at in np.arange(E["drip"], E["s6"] - 0.2, 0.7): put(plink(0.9 + 0.2 * rng.random()), at, 0.8)
+for at in np.arange(E["drip"], E["night"] - 0.2, 0.7): put(plink(0.9 + 0.2 * rng.random()), at, 0.8)
 # 朝：小鳥、芽「ぴょこ」、水
 def bird(p=1.0):
     L = int(0.12 * SR); t = np.arange(L) / SR; return np.sin(2 * np.pi * (3000 * p + 700 * np.sin(t * 80)) * t) * env(L, 0.004, 0.03) * 0.06
