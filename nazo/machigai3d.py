@@ -58,25 +58,25 @@ def lines_of(sp):
                 ("left3", sp.get("left3", "あと3秒！")),
                 ("stop", sp.get("stop", "そこまで！")),
                 # 11/10 ゲンタさん「見つけたらいいね！にしましょう。探せは」
-                ("end", sp.get("end", "見つけたら、いいね！" if zc == 1 else "数えられたら、天才なのだ！"))]
+                ("end", sp.get("end", "見つけたら、いいね！" if zc == 1 else "数えられたら、いいね！"))]
     if ah(sp):
         return [("intro", sp.get("intro", f"違いは{n}つ。{sp['search']}秒なのだ！")),
                 ("mid", sp.get("mid", "あと半分！")),
                 ("left3", sp.get("left3", "あと3秒！")),
                 ("stop", sp.get("stop", "そこまで！")),
-                ("end", sp.get("end", "全部見つけたら、天才なのだ！"))]
+                ("end", sp.get("end", "答えは、説明欄なのだ！"))]   # 11/15 ゲンタさん「全部見つけたら天才なのだはやめましょう」
     if hype(sp):
         L = [("intro", sp.get("intro", f"違いは{n}つ！{sp['search']}秒で見つけるのだー！")),
              ("mid", sp.get("mid", "あと半分なのだ！急ぐのだ！")),   # 11/10 ゲンタさん「まだまだあるのだ は意味がわからない」
              ("left3", sp.get("left3", "あと3秒！")),
              ("stop", sp.get("stop", "そこまでー！")),
-             ("end", sp.get("end", "全部見つけられたら、天才なのだー！"))]
+             ("end", sp.get("end", "答えは、説明欄なのだー！"))]
         return L
     L = [("intro", sp.get("intro", f"違いは{n}つ。{sp['search']}秒で探すのだ！")),
          ("left3", sp.get("left3", "あと3秒なのだ！"))]
     if not reveal(sp):
         # 11/3 ゲンタさん「時間内に見つけられたら天才なのだ、とかにしましょう。ずんだもんだから許される」
-        L.append(("end", sp.get("end", "時間内に見つけられたら、天才なのだ。")))
+        L.append(("end", sp.get("end", "答えは、説明欄なのだ。")))   # 11/15「天才なのだ」はやめる
         return L
     L += [("ans", sp.get("ans", "答え合わせなのだ。"))]
     L += [(f"d{i}", d[1]) for i, d in enumerate(sp["diffs"])]
