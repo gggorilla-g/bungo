@@ -95,6 +95,11 @@ def check(sid):
     for say, yt in pairs:                                 # 助詞「は、」がハと読まれていないか（読点を詰めると「はやく」等に化ける。2つのエンジンが同じ間違いをするので別に見る）
         if say.count("は、") > yomi.kana(yt).count("ワ"):
             issues.append(f"助詞の「は」がワと読まれていない: {yomi.kana(yt)}｜{say}")
+    # 秒読みの言い方（11/1・11/15 ゲンタさん）：「〇〇から〇〇が消えるまで」。「雲を消すまで」のような「〇〇を〜まで」は止める
+    for ln in sp.get("lines", []):
+        for txt in [ln.get("say", ""), ln.get("text", "")] + [x.get("say", "") for x in ln.get("parts", [])] + [f.get("label", "") for f in ln.get("fx", [])]:
+            if re.search(r"を\s*(消す|なくす|止める|とめる|溶かす|干上がらせる)まで", txt.replace("\n", "")):
+                issues.append(f"秒読みの言い方：「〇〇から〇〇が消えるまで」にする（「〇〇を〜まで」は使わない）: {txt.replace(chr(10), '')}")
     prev = (sys.argv[3] if len(sys.argv) > 3 else None) or sp.get("meta", {}).get("prev")
     if prev:                                              # 直前の回と同じ場面を同じカメラで使っていないか（アングルは回ごとに変える）
         issues += same_cam(sp, prev)
@@ -418,9 +423,9 @@ def build(sid):
         for fx in ln.get("fx", []):
             at = fx.get("at", 0.2)
             if fx["type"] == "big":
-                ev += [("boom", at, 1.0), ("crash", at, 0.4)]
+                pass   # 11/15 ゲンタさん「ボフンみたいなSEは全撤廃」：boom・crash は鳴らさない
             elif fx["type"] == "timer":
-                ev += [("tick", at + k, 1.4) for k in range(int(fx["from"]))] + [("boom", at + fx["from"], 1.3), ("crash", at + fx["from"], 1.0)]
+                ev += [("tick", at + k, 1.4) for k in range(int(fx["from"]))]   # 秒読みの3・2・1に合わせた小さな音だけ（ボフンなし）
             elif fx["type"] == "clock":
                 ev += [("whoosh_l", 0.0, 1.0), ("zip_long", 0.3, 0.9), ("whoosh_l", d * 0.5, 0.8)]
             elif fx["type"] == "count":
@@ -473,7 +478,7 @@ def build(sid):
                 if k == "big":
                     fx_big(fr, fx, t)
                 elif k == "timer":
-                    fx_timer(fr, fx, t, burst_t)
+                    pass   # 11/15 ゲンタさん「カウントダウンのメーターもけします」：計器盤は描かない
                 elif k == "clock":
                     fx_clock(fr, fx, t, d)
                 elif k == "count":
