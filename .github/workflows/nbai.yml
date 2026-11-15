@@ -9,6 +9,7 @@ on:
       id: { description: "台本ID（空なら予約表の今日の分）", default: "" }
       publish_at: { description: "公開日時 UTC（id を指定したとき）", default: "" }
       dry_run: { description: "true なら上げない（書き出しだけ。動画は nbai-out-<id> ブランチ）", default: "false" }
+      channel: { description: "moso（妄想科学）/ miw（Make It Work 3D）", default: "moso" }
 permissions:
   contents: write
 concurrency:
@@ -27,7 +28,7 @@ jobs:
       - id: pick
         run: |
           if [ -n "${{ inputs.id }}" ]; then
-            echo "id=${{ inputs.id }}" >> $GITHUB_OUTPUT; echo "at=${{ inputs.publish_at }}" >> $GITHUB_OUTPUT
+            echo "id=${{ inputs.id }}" >> $GITHUB_OUTPUT; echo "at=${{ inputs.publish_at }}" >> $GITHUB_OUTPUT; echo "ch=${{ inputs.channel }}" >> $GITHUB_OUTPUT
           else
             E=$(python3 nazo/nbai.py next)
             if [ -z "$E" ]; then echo "::notice::今日の在庫なし"; echo "id=" >> $GITHUB_OUTPUT; exit 0; fi
