@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8">
+<style>
+@font-face{font-family:"JumpSans";font-weight:400;src:url(fonts_jp/NotoSansCJKjp-Regular.woff2) format("woff2")}
+@font-face{font-family:"JumpSans";font-weight:700;src:url(fonts_jp/NotoSansCJKjp-Bold.woff2) format("woff2")}
+@font-face{font-family:"JumpSans";font-weight:900;src:url(fonts_jp/NotoSansCJKjp-Black.woff2) format("woff2")}
+html,body{margin:0;background:#000}
+#stage{position:relative;width:540px;height:960px;overflow:hidden}
+#stage canvas{position:absolute;left:0;top:0}
+#hud{position:absolute;left:0;top:0;width:540px;height:960px;font-family:"JumpSans"}
+#hud text{paint-order:stroke;stroke:#101010;stroke-linejoin:round;fill:#fff}
+</style></head>
+<body><div id="stage"><svg id="hud" viewBox="0 0 540 960" xmlns="http://www.w3.org/2000/svg"></svg></div>
+<script src="vendor.js"></script>
+<script src="calc.js"></script>
+<script>
+// S-001「ジャンプの高さが1回ごとに2倍になったら？」 冒頭〜11回目＋12回目の踏み切り（30秒） 人形の差し替え口つき
+// 題材の中身は spec JSON（?spec=specs/xxx.json、既定は specs/jump.json）。計算は calc.js
+const SPEC=(()=>{const u=new URLSearchParams(location.search).get('spec')||'specs/jump.json',x=new XMLHttpRequest();x.open('GET',u,false);x.send();if(x.status!==200)throw new Error('spec が読めない: '+u);return JSON.parse(x.responseText)})();
+const C=CALC.make(SPEC);
+const W=540,H=960,G=C.G,DUR=C.DUR;
+const FOV=30,TANH=Math.tan(FOV/2*Math.PI/180),AZ=14*Math.PI/180,JX=0,JZ=8;
+const TOWERREF=C.REF.tokyo_tower,TOWER=[TOWERREF.scene.positionM[0],TOWERREF.scene.positionM[2]];
+const{hN,v0N,airN,gN,SEG,segAt,segOf,stateAt}=C;
+const clamp=(x,a,b)=>Math.min(b,Math.max(a,x)), lerp=(a,b,k)=>a+(b-a)*k;
+const sstep=(a,b,x)=>{const k=clamp((x-a)/(b-a),0,1);return k*k*(3-2*k)};
+const smoother=k=>k*k*k*(k*(k*6-15)+10);
+function rng(seed){let s=seed>>>0;return()=>{s=(Math.imul(s,1664525)+1013904223)>>>0;return s/4294967296}}
+// 見せ場の回＝しゃがみ（crouch）の次の回。回りこみは速度の時間割（speedProfile）がある回から
+const CR=SEG.find(q=>q.crouch),HERO=CR?CR.next:-1,FORB=SEG.find(q=>q.type==='flight'&&q.prof)||SEG[SEG.length-1];
+const Fn=n=>Math.max(4.6,1.22*hN(Math.max(1,n))+2.0);
+const FCLOSE=6.6;
+function frameF(t){const s=segAt(t),u=t-s.t0,lg=(a,b,k)=>Math.exp(lerp(Math.log(a),Math.log(b),k));
+  if(s.type==='contact')return s.crouch?lg(Fn(s.n),FCLOSE,smoother(clamp(u/(s.dur*.85),0,1))):Fn(s.n);
+  const from=s.n===HERO?FCLOSE:Fn(s.n-1),to=Fn(s.n),T=s.T||Math.max(.5,.58*airN(s.n)/s.speed),sched=lg(from,to,smoother(clamp(u/T,0,1)));
+  // 人形が枠から出ないよう、いまの高さ（頂点まで）に合わせて下限をとる
+  const st=stateAt(t),v0=v0N(s.n),tc=Math.min(st.tau,v0/G),yb=v0*tc-.5*G*tc*tc;return Math.max(sched,1.22*yb+2.0)}
+
+// ---------- 3D ----------
+const renderer=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true});
+renderer.setPixelRatio(window.devicePixelRatio||1);renderer.setSize(W,H);
+renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+document.getElementById('stage').prepend(renderer.domElement);
+const L=c=>new THREE.MeshLambertMaterial({color:c,flatShading:true});
+const Bm=(c,o)=>new THREE.MeshBasicMaterial(Object.assign({color:c},o||{}));
+function box(w,h,d,c,sh=true){const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),L(c));m.castShadow=sh;m.receiveShadow=true;return m}
+function plane(w,d,c){const m=new THREE.Mesh(new THREE.PlaneGeometry(w,d),L(c));m.rotation.x=-Math.PI/2;m.receiveShadow=true;return m}
+const SKY=0xa9d6f5,scene=new THREE.Scene();scene.background=new THREE.Color(SKY);scene.fog=new THREE.Fog(0xcbe4f6,2600,15000);
+// 高い所まで行く題材（spec.scene.highAltitude）は、地面と霞を高さに合わせて広げる
+const SC=SPEC.scene||{},HIGH=!!SC.highAltitude;
+scene.add(new THREE.HemisphereLight(0xffffff,0x9aa68a,1.6));
+const sun=new THREE.DirectionalLight(0xfff3dd,2.2);sun.position.set(70,110,90);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);
+{const c=sun.shadow.camera;c.left=-95;c.right=95;c.top=95;c.bottom=-95;c.near=5;c.far=600;sun.shadow.bias=-.0005}scene.add(sun);
+// 地面・公園・川（地面の層は深度を使わず、描く順番で重ねる。巨大な面は深度の誤差が出るため）
+{const lay=(m,k)=>{m.material.depthTest=false;m.material.depthWrite=false;m.renderOrder=-20+k;return m};
+ const g=lay(plane(HIGH?900000:70000,HIGH?900000:70000,0xa9b89c),0);g.position.y=-.06;scene.add(g);
+ const strip=(w,len,c,y,off,k)=>{const m=lay(plane(w,len,c),k),r=len/2+150;m.position.set(Math.sin(AZ)*r+Math.cos(AZ)*off,y,Math.cos(AZ)*r-Math.sin(AZ)*off);m.rotation.z=AZ;m.receiveShadow=false;scene.add(m)};
+ strip(420,9000,0x9ccf7e,-.05,0,1);strip(64,9000,0x6aa9dd,-.04,-120,2);
+ const park=lay(plane(330,400,0x8cc36e),3);park.position.set(0,-.03,20);scene.add(park);
+ const yard=lay(plane(124,150,0xdcc79c),4);yard.position.y=0;scene.add(yard)}
+// 校舎（屋上まで約15m）
+{const b=box(64,14.4,12,0xf3efe4);b.position.set(0,7.2,-46);scene.add(b);const rf=box(66,.6,13,0xb9b4a6);rf.position.set(0,14.7,-46);scene.add(rf);
+ for(let f=0;f<4;f++)for(let i=0;i<14;i++){const w=box(3,1.9,.3,0x6f93b8,false);w.position.set(-29.25+i*4.5,2.3+f*3.5,-39.9);scene.add(w)}
+ const en=box(9,3.4,2.4,0xd8d2c4);en.position.set(0,1.7,-39.2);scene.add(en);
+ const r=rng(7),tree=(x,z,k)=>{const t=new THREE.Mesh(new THREE.CylinderGeometry(.35*k,.5*k,3*k,6),L(0x8a6a4a));t.position.set(x,1.5*k,z);t.castShadow=true;
+   const f=new THREE.Mesh(new THREE.IcosahedronGeometry(2.6*k,0),L(0x5fa55a));f.position.set(x,4.6*k,z);f.castShadow=true;scene.add(t,f)};
+ for(let i=0;i<9;i++){tree(-70-(i%2)*7,-60+i*13,.9+r()*.5);tree(70+(i%2)*7,-60+i*13,.9+r()*.5)}
+ for(let i=0;i<12;i++)tree(-66+i*12,-66-(i%2)*6,1+r()*.6);
+ [[-30,-6],[30,-6]].forEach(([x,z])=>{const a=box(.15,2.4,.15,0xffffff),b2=box(.15,2.4,.15,0xffffff),c=box(.15,.15,7.3,0xffffff);a.position.set(x,1.2,z-3.6);b2.position.set(x,1.2,z+3.6);c.position.set(x,2.4,z);scene.add(a,b2,c)})}
+// 町（箱をまとめて1回で描く）
+{const r=rng(2026),list=[],pal=[0xe9e6de,0xd5d9de,0xd2ccc0,0xc3ccd6,0xece8dc,0xb9c2c9,0xdcd3c2],roof=[0xb5674d,0x7d8fa3,0x8e9a86];
+ const clear=(x,z)=>{if(Math.abs(x)<175&&z>-190&&z<230)return true;if(z>120){const cx=z*Math.tan(AZ);if(Math.abs(x-cx)<205+.05*z)return true}
+   if(Math.hypot(x-TOWER[0],z-TOWER[1])<85)return true;return false};
+ const put=(x,z,w,d,h,c)=>{if(!clear(x,z))list.push([x,z,w,d,h,c])};
+ for(let x=-760;x<=760;x+=27)for(let z=-760;z<=760;z+=27){if(r()<.22)continue;const big=r()<.12;put(x+r()*8,z+r()*8,9+r()*7,9+r()*7,big?12+r()*16:5+r()*4.5,r()<.3?roof[Math.floor(r()*3)]:pal[Math.floor(r()*pal.length)])}
+ for(let x=-3000;x<=3000;x+=74)for(let z=-3000;z<=3000;z+=74){if(Math.abs(x)<780&&Math.abs(z)<780)continue;if(r()<.18)continue;const dt=Math.hypot(x-TOWER[0],z-TOWER[1]);
+   let h=8+r()*24;if(r()<.06)h=40+r()*60;put(x+r()*20,z+r()*20,26+r()*22,26+r()*22,h,pal[Math.floor(r()*pal.length)])}
+ for(let x=-9000;x<=9000;x+=215)for(let z=-9000;z<=9000;z+=215){if(Math.abs(x)<3050&&Math.abs(z)<3050)continue;if(r()<.2)continue;put(x+r()*60,z+r()*60,90+r()*60,90+r()*60,10+r()*38,pal[Math.floor(r()*pal.length)])}
+ for(let i=0;i<150;i++){const a=r()*6.283,d=95+r()*620;const x=TOWER[0]+Math.cos(a)*d,z=TOWER[1]+Math.sin(a)*d;list.push([x,z,30+r()*18,30+r()*18,45+r()*185*(1-d/760),pal[Math.floor(r()*pal.length)]])}
+ const geo=new THREE.BoxGeometry(1,1,1);geo.translate(0,.5,0);const im=new THREE.InstancedMesh(geo,new THREE.MeshLambertMaterial({flatShading:true}),list.length);
+ const m=new THREE.Matrix4(),q=new THREE.Quaternion(),c=new THREE.Color();
+ list.forEach((b,i)=>{m.compose(new THREE.Vector3(b[0],0,b[1]),q,new THREE.Vector3(b[2],b[4],b[3]));im.setMatrixAt(i,m);c.set(b[5]);im.setColorAt(i,c)});
+ im.frustumCulled=false;im.instanceMatrix.needsUpdate=true;im.instanceColor.needsUpdate=true;scene.add(im);window.__boxes=list.length}
+// 東京タワー風の塔（333m）
+{const T=new THREE.Group(),or=0xe9562b,wh=0xf4f1ea;
+ const fr=(y0,y1,rb,rt,c)=>{const m=new THREE.Mesh(new THREE.CylinderGeometry(rt,rb,y1-y0,4,1),L(c));m.position.y=(y0+y1)/2;m.rotation.y=Math.PI/4;T.add(m)};
+ fr(0,75,62,30,or);fr(75,125,30,19,wh);const d1=box(48,14,48,0xf0ede6,false);d1.position.y=132;T.add(d1);fr(139,200,17,10,or);fr(200,245,10,7,wh);
+ const d2=box(18,9,18,0xf0ede6,false);d2.position.y=250;T.add(d2);fr(255,300,5.5,2.6,or);fr(300,TOWERREF.value,1.6,1.2,wh);T.position.set(TOWER[0],0,TOWER[1]);scene.add(T)}
+// 山（高さの比較用。位置は実際とは違う）
+const MT=SC.mountain?C.REF[SC.mountain.ref]:null;
+if(MT){const h=MT.value,r=h*4.2,p=SC.mountain.positionM,M=new THREE.Group();
+ const body=new THREE.Mesh(new THREE.ConeGeometry(r,h,48,1),L(0x587894));body.material.fog=false;body.position.y=h/2;M.add(body);
+ const cap=new THREE.Mesh(new THREE.ConeGeometry(r*.22,h*.22,48,1),L(0xf4f6f8));cap.material.fog=false;cap.position.y=h-h*.11+2;M.add(cap);
+ M.position.set(p[0],0,p[2]);scene.add(M)}
+// 雲
+{const r=rng(77);for(let i=0;i<30;i++){const c=new THREE.Mesh(new THREE.IcosahedronGeometry(90+r()*130,0),L(0xffffff));c.scale.set(2.2,.42,1.3);
+  c.position.set(-4200+r()*8400,330+r()*1100,-700-r()*5600);scene.add(c)}}
+// ---------- 人形（差し替え口）----------
+// 既定は箱の仮人形。URLに ?fig=<VRMファイル> を付けると、そのモデルを同じ動きで使う。
+// 姿勢 pose={squat:しゃがみ0..1, arms:腕の上げ角(0=下げ, π=真上), legL/legR:太ももの振り(後ろが+), face:表情名}
+const FIGH=1.6,fig=new THREE.Group(),pivot=new THREE.Group();fig.add(pivot);pivot.position.y=FIGH/2;fig.position.set(JX,0,JZ);fig.rotation.y=.42;scene.add(fig);
+function boxPuppet(){const P={},skin=0xf4f4f4,vest=0xff8a3d,dark=0x4a4a4a,mk=(w,h,d,c,x,y)=>{const g=new THREE.Group(),m=box(w,h,d,c);m.position.y=-h/2;g.add(m);g.position.set(x,y-.8,0);pivot.add(g);return g};
+  P.legL=mk(.22,.72,.24,dark,-.14,.72);P.legR=mk(.22,.72,.24,dark,.14,.72);
+  P.torso=box(.56,.62,.32,vest);P.torso.position.y=1.01-.8;pivot.add(P.torso);P.head=box(.44,.44,.44,skin);P.head.position.y=1.56-.8;pivot.add(P.head);
+  P.armL=mk(.16,.6,.2,skin,-.38,1.3);P.armR=mk(.16,.6,.2,skin,.38,1.3);fig.traverse(o=>{if(o.material)o.material.fog=false});
+  return{kind:'box',apply(p){for(const k of['legL','legR','armL','armR']){P[k].rotation.set(0,0,0);P[k].scale.set(1,1,1)}
+    P.legL.position.y=.72-.8;P.legR.position.y=.72-.8;P.torso.position.y=1.01-.8;P.head.position.y=1.56-.8;P.armL.position.set(-.38,1.3-.8,0);P.armR.position.set(.38,1.3-.8,0);
+    const c=p.squat||0;if(c>0){P.legL.scale.y=P.legR.scale.y=1-.55*c;const dy=-.72*.55*c;P.torso.position.y+=dy;P.head.position.y+=dy;P.armL.position.y+=dy;P.armR.position.y+=dy}
+    P.armL.rotation.z=-(p.arms||0);P.armR.rotation.z=(p.arms||0);P.legL.rotation.x=p.legL||0;P.legR.rotation.x=p.legR||0}}}
+// VRM（人型の骨が規格で決まっている3Dモデル）。骨は「正規化ボーン」を回す＝モデルごとの骨の向きの差を吸収できる
+async function vrmPuppet(url){const K=window.VRMKIT,loader=new K.GLTFLoader();loader.register(parser=>new K.VRMLoaderPlugin(parser));
+  const gltf=await loader.loadAsync(url),vrm=gltf.userData.vrm;if(!vrm)throw new Error('VRMとして読めない');
+  K.VRMUtils.removeUnnecessaryVertices(gltf.scene);if(K.VRMUtils.rotateVRM0)K.VRMUtils.rotateVRM0(vrm);
+  const H=vrm.humanoid,nb=n=>H.getNormalizedBoneNode(n),B={};
+  for(const n of['hips','spine','chest','neck','head','leftUpperArm','rightUpperArm','leftLowerArm','rightLowerArm','leftUpperLeg','rightUpperLeg','leftLowerLeg','rightLowerLeg','leftFoot','rightFoot'])B[n]=nb(n);
+  const sg=(vrm.meta&&vrm.meta.metaVersion==='0')?-1:1,hipsRest=B.hips.position.clone(),legLen=B.leftLowerLeg.position.length()+B.leftFoot.position.length();
+  H.update();vrm.scene.updateMatrixWorld(true);
+  const bb=new THREE.Box3().setFromObject(vrm.scene),hm=bb.max.y-bb.min.y,k=FIGH/hm,holder=new THREE.Group();
+  vrm.scene.scale.setScalar(k);vrm.scene.position.set(-(bb.min.x+bb.max.x)/2*k,-bb.min.y*k,0);holder.position.y=-FIGH/2;holder.add(vrm.scene);
+  let tris=0;vrm.scene.traverse(o=>{if(o.isMesh){o.frustumCulled=false;o.castShadow=true;const g=o.geometry;tris+=(g.index?g.index.count:g.attributes.position.count)/3;for(const m of(Array.isArray(o.material)?o.material:[o.material]))if(m&&'fog'in m)m.fog=false}});
+  const EM=vrm.expressionManager,faces=['happy','surprised','sad','angry','relaxed','blink'].filter(n=>EM&&EM.getExpression(n));
+  return{kind:'vrm',holder,info:{name:(vrm.meta&&(vrm.meta.name||vrm.meta.title))||'',height:+hm.toFixed(3),tris:Math.round(tris),faces,metaVersion:vrm.meta&&vrm.meta.metaVersion},
+    apply(p){for(const n in B)if(B[n])B[n].quaternion.identity();B.hips.position.copy(hipsRest);
+      const sq=p.squat||0,th=1.15*sq,a=clamp((p.arms||0)-Math.PI/2,-1.2,1.3),air=p.air?1:0;
+      B.leftUpperArm.rotation.z=sg*a;B.rightUpperArm.rotation.z=-sg*a;if(B.leftLowerArm){B.leftLowerArm.rotation.z=sg*.18*Math.max(0,a);B.rightLowerArm.rotation.z=-sg*.18*Math.max(0,a)}
+      const lx=-th+(p.legL||0),rx=-th+(p.legR||0),kl=2*th+air*(.25+.9*Math.abs(p.legL||0)),kr=2*th+air*(.25+.9*Math.abs(p.legR||0));
+      B.leftUpperLeg.rotation.x=sg*lx;B.rightUpperLeg.rotation.x=sg*rx;B.leftLowerLeg.rotation.x=sg*kl;B.rightLowerLeg.rotation.x=sg*kr;
+      B.leftFoot.rotation.x=sg*(air?.35:-(lx+kl));B.rightFoot.rotation.x=sg*(air?.35:-(rx+kr));
+      B.hips.position.y=hipsRest.y-legLen*(1-Math.cos(th));B.spine.rotation.x=sg*(.32*sq+(air?(p.up?-.08:.1):0));if(B.head)B.head.rotation.x=-sg*.22*sq;
+      if(EM){for(const n of faces)EM.setValue(n,0);if(p.face&&faces.includes(p.face))EM.setValue(p.face,1);EM.update()}
+      H.update();if(vrm.nodeConstraintManager)vrm.nodeConstraintManager.update()}}}
+let puppet=boxPuppet();
+const blob=new THREE.Mesh(new THREE.CircleGeometry(.5,24),Bm(0x000000,{transparent:true,opacity:.25,depthWrite:false}));blob.rotation.x=-Math.PI/2;blob.position.set(JX,.03,JZ);scene.add(blob);
+const rulerGeo=new THREE.BoxGeometry(1,1,1);rulerGeo.translate(0,.5,0);const ruler=new THREE.Mesh(rulerGeo,Bm(0xffffff,{transparent:true,fog:false}));scene.add(ruler);
+const ticks=[];for(let i=0;i<4;i++){const m=new THREE.Mesh(new THREE.BoxGeometry(1,1,1),Bm(0xffffff,{transparent:true,fog:false}));scene.add(m);ticks.push(m)}
+const dust=[];{const r=rng(5);for(let i=0;i<14;i++){const m=new THREE.Mesh(new THREE.IcosahedronGeometry(1,0),L(0xf6eeda));m.userData={a:i/14*6.283+r()*.3,s:.7+r()*.6,l:.6+r()*.5};m.visible=false;scene.add(m);dust.push(m)}}
+const cracks=[];{const r=rng(9);for(let i=0;i<11;i++){const len=2.4+r()*3.2,a=i/11*6.283+.2,m=box(.13,.04,len,0x7d6f52,false);m.position.set(JX+Math.cos(a)*(.9+len/2),.03,JZ+Math.sin(a)*(.9+len/2));m.rotation.y=-a+Math.PI/2;m.visible=false;scene.add(m);cracks.push(m)}}
+const cam=new THREE.PerspectiveCamera(FOV,W/H,.1,60000);
+
+// ---------- HUD ----------
+const NS='http://www.w3.org/2000/svg',hud=document.getElementById('hud');
+function el(tag,a,txt){const e=document.createElementNS(NS,tag);for(const k in a)e.setAttribute(k,a[k]);if(txt!=null)e.textContent=txt;hud.appendChild(e);return e}
+const tw=(s,size)=>{let w=0;for(const ch of String(s))w+=ch.charCodeAt(0)<256?.58:1;return w*size};
+function T(x,y,size,txt,o={}){const a={x,y,'font-size':size,'font-weight':o.w||900,'text-anchor':o.a||'start','stroke-width':o.sw!=null?o.sw:Math.max(3,size*.2)};
+  let st='';if(o.fill)st+='fill:'+o.fill+';';if(o.op!=null)st+='opacity:'+o.op+';';if(st)a.style=st;if(o.tf)a.transform=o.tf;return el('text',a,txt)}
+function pill(x,y,txt,size=15,anchor='start',fill='#101010'){const w=tw(txt,size)+18,x0=anchor==='end'?x-w:x;el('rect',{x:x0,y:y-size-5,width:w,height:size+11,rx:5,fill,'fill-opacity':.74});
+  el('text',{x:x0+9,y,'font-size':size,'font-weight':700,'stroke-width':0},txt)}
+const fmtH=y=>y<.995?Math.round(y*100)+'cm':(y<100?(Math.round(y*10)/10).toFixed(1)+'m':Math.round(y).toLocaleString('en-US')+'m');
+const fmtTick=h=>h<1?Math.round(h*100)+'cm':h.toLocaleString('en-US')+'m';
+const fmtT=s=>s<60?(Math.round(s*10)/10).toFixed(1)+'秒':Math.floor(s/60)+'分'+Math.round(s%60)+'秒';
+function captions(t,st){return C.captionAt(t,st)}
+// 字幕が切り替わった時刻（出だしの動きに使う。大字幕と小字幕を別々に見る）
+const CAPCH=[];function buildCaps(){let k1=null,k2=null;for(let i=0;i<=DUR*30;i++){const t=i/30,st=stateAt(t),c=captions(t,st),x=c.c1.join('|'),y=(c.c2||[]).join('|');if(x!==k1){k1=x;CAPCH.push({t,w:1})}if(y!==k2){k2=y;CAPCH.push({t,w:2})}}}
+const lastCh=(t,w)=>{let r=-1;for(const c of CAPCH)if(c.w===w&&c.t<=t+1e-9)r=c.t===0?-1:c.t;return r};
+function drawHud(t,st,F,labels){hud.innerHTML='';
+  const t1=el('text',{x:270,y:98,'font-size':31,'font-weight':900,'text-anchor':'middle','stroke-width':7},SPEC.titleLines[0]);
+  const t2=el('text',{x:270,y:140,'font-size':31,'font-weight':900,'text-anchor':'middle','stroke-width':7});
+  SPEC.titleLines[1].forEach(([s,k])=>{const ts=document.createElementNS(NS,'tspan');ts.textContent=s;if(k)ts.setAttribute('style','fill:#ffd43b');t2.appendChild(ts)});
+  // 左：回数と高さ
+  const n=st.dispN,fl=segOf('flight',n),cr=SEG.find(q=>q.crouch),since=t-(n===HERO&&cr?cr.t0:fl.t0),pop=since>=0&&since<.2?1+.16*(1-since/.2):1;
+  pill(26,208,'ジャンプ');T(24,262,54,n+'回目',{sw:9,tf:pop>1?`translate(24 262) scale(${pop.toFixed(3)}) translate(-24 -262)`:null});
+  pill(26,300,'高さ');T(24,346,40,fmtH(st.y),{sw:8});
+  // 右：踏み切りのGと滞空
+  const g=gN(n);pill(514,208,'踏み切り',15,'end');T(516,254,36,g.toLocaleString('en-US')+'G',{a:'end',sw:8,fill:g>=64?'#ff5a4d':null});
+  const air=st.type==='contact'?(st.seg.crouch?0:airN(st.seg.n)):st.tau;pill(514,292,'滞空',15,'end');T(516,334,30,fmtT(air),{a:'end',sw:7});
+  if(st.type==='flight'&&st.seg.speed>=2)pill(514,368,st.speed>=1?'早送り ×'+st.seg.speed:'スロー 1/'+Math.round(1/Math.max(st.speed,.01)),14,'end','#1d4fa8');
+  pill(26,392,F<60?'放課後の校庭':(F<230?'校庭の上空':'東京の上空'),14);
+  // 画面内のラベル
+  labels.forEach(l=>{const v=new THREE.Vector3(l.p[0],l.p[1],l.p[2]).project(cam);if(v.z>1)return;const x=(v.x+1)/2*W,y=(1-v.y)/2*H,dx=l.dx||0,dy=l.dy||0;let op=l.op==null?1:l.op;if(l.safe)op*=sstep(388,410,y+dy);if(op<=.02)return;
+    const gg=document.createElementNS(NS,'g');gg.setAttribute('style','opacity:'+op.toFixed(2));hud.appendChild(gg);const add=(tag,a,txt)=>{const e=document.createElementNS(NS,tag);for(const k in a)e.setAttribute(k,a[k]);if(txt!=null)e.textContent=txt;gg.appendChild(e)};
+    if(dx||dy){add('line',{x1:x,y1:y,x2:x+dx,y2:y+dy,stroke:'#101010','stroke-width':4});add('line',{x1:x,y1:y,x2:x+dx,y2:y+dy,stroke:'#fff','stroke-width':1.6});add('circle',{cx:x,cy:y,r:3.2,fill:'#fff',stroke:'#101010','stroke-width':1.5})}
+    add('text',{x:x+dx+(l.a==='end'?-6:6),y:y+dy+5,'font-size':l.s||15,'font-weight':700,'text-anchor':l.a||'start','stroke-width':4.5},l.t)});
+  // 字幕（途切れさせない）
+  const c=captions(t,st),capT=lastCh(t,1),capT2=lastCh(t,2);
+  const a1=clamp((t-capT)/.13,0,1),a2=clamp((t-capT2)/.13,0,1);let y=c.c1.length>1?690:704;
+  c.c1.forEach(s=>{const size=Math.min(37,468/tw(s,1));T(270,y+(1-a1)*7,size,s,{a:'middle',sw:9,op:(.25+.75*a1).toFixed(2)});y+=47});
+  y-=8;(c.c2||[]).forEach(s=>{const size=Math.min(21,452/tw(s,1));T(270,y+(1-a2)*5,size,s,{a:'middle',w:700,sw:6,op:(.25+.75*a2).toFixed(2)});y+=29});
+  if(c.note)T(270,y+8,12.5,c.note,{a:'middle',w:500,sw:3.5})}
+
+// ---------- 1コマ ----------
+window.renderAt=function(t){const st=stateAt(t),s=st.seg,F=frameF(t),Vh=F*960/298,d=Vh/(2*TANH),lookY=.547*F,n=st.dispN;
+  // カメラ（跳ぶ高さに合わせて引く。対数で補間するズームアウト）
+  const elv=lerp(.6,2.2,sstep(Math.log(5),Math.log(600),Math.log(F)))*Math.PI/180;let sh=0;
+  const f7=segOf('flight',HERO),ds=f7?t-f7.t0:-1;if(ds>=0&&ds<.4)sh=Math.exp(-9*ds)*Math.sin(48*ds)*.007*Vh;
+  const az=AZ+sstep(FORB.t0+.8,DUR,t)*4*Math.PI/180;
+  cam.position.set(JX+Math.sin(az)*d,lookY+Math.tan(elv)*d+sh,JZ+Math.cos(az)*d);cam.near=Math.max(.3,d*.08);cam.far=HIGH?Math.max(60000,F*80):60000;if(HIGH){scene.fog.near=Math.max(2600,F*3);scene.fog.far=Math.max(15000,F*14)}cam.updateProjectionMatrix();
+  cam.lookAt(JX,lookY+sh*.6,JZ);cam.updateMatrixWorld();
+  // 人形
+  const hNow=hN(st.type==='contact'?(s.crouch?s.next:s.n):s.n),sc=Math.max(1,.0965*F),scl=1+(sc-1)*sstep(0,Math.max(.6,.12*hNow),st.y);
+  fig.position.set(JX,st.y,JZ);fig.scale.setScalar(scl);pivot.rotation.set(0,0,0);pivot.scale.set(1,1,1);pivot.position.set(0,FIGH/2,0);
+  const pose={squat:0,arms:0,legL:0,legR:0,air:false,up:false,face:null};
+  if(st.type==='contact'){if(s.crouch){const c=smoother(clamp(st.k*1.25,0,1));pose.squat=c;pose.arms=.5*c;pivot.position.x=Math.sin(t*70)*.012*c;pose.face=c>.5?'angry':null}
+    else{const q=Math.sin(Math.PI*st.k);pose.squat=.5*q;pose.arms=.25*q}}
+  else{const up=st.vy>0,a=up?2.6:1.9+.5*Math.sin(st.tau*9);pose.air=true;pose.up=up;pose.arms=a;pose.legL=up?.25:-.2;pose.legR=up?-.2:.3;
+    if(HERO>0&&s.n>=HERO){const total=airN(s.n);pivot.rotation.z=-(st.tau/total)*Math.PI*2*(s.n===HERO?1:2);pivot.rotation.x=.5*Math.sin(st.tau*1.7);pose.face='surprised'}
+    if(s.n===HERO&&st.u<.45){const k=smoother(st.u/.45);pivot.scale.set(lerp(1.55,1,k),lerp(.34,1,k),lerp(1.55,1,k))}
+    if(st.speed<1)pose.face='happy'}
+  puppet.apply(pose);
+  // 影・ものさし
+  const bs=Math.max(1,.05*F);blob.scale.setScalar(bs*(1-.45*clamp(st.y/Math.max(1,hNow),0,1)));blob.material.opacity=.08+.2*(1-clamp(st.y/Math.max(.5,.9*hNow),0,1));
+  const done=st.type==='contact'?s.n:s.n-1,vv=v0N(s.n),tcc=Math.min(st.tau,vv/G),ypk=st.type==='contact'?0:vv*tcc-.5*G*tcc*tcc,rec=Math.max(done>=1?hN(done):0,ypk),rx=JX+.75+.42*sc,th=.0034*Vh;
+  const rop=1-sstep(1.15*F,1.6*F,rec);ruler.visible=rec>.05&&rop>.02;ruler.material.opacity=rop;ruler.position.set(rx,0,JZ);ruler.scale.set(th,Math.max(.01,rec),th);
+  const labels=[];let shown=0;for(let k=s.n;k>=1&&shown<4;k--){const hk=hN(k);if(hk>rec*1.004+1e-6||rop<.02)continue;const m=ticks[shown];m.visible=true;m.material.opacity=rop;m.position.set(rx+.011*Vh,hk,JZ);m.scale.set(.022*Vh,th,th);
+    if(shown<3)labels.push({p:[rx+.024*Vh,hk,JZ],t:fmtTick(hk),s:13,dx:0,dy:0,op:(shown===0?1:.8)*rop});shown++}
+  for(let i=shown;i<4;i++)ticks[i].visible=false;
+  // 土けむり（直近の踏み切り・着地）
+  let ev=-1,evBig=1;for(const q of SEG){if(q.type==='contact')continue;if(q.t0<=t)ev=q.t0,evBig=q.n===HERO?2:1;if(q.type==='flight'&&q.t1<=t)ev=q.t1,evBig=1}
+  const de=t-ev,life=.42;dust.forEach(m=>{if(ev<0||de<0||de>life){m.visible=false;return}const k=de/life,u=m.userData,R=(.35+1.5*k*u.l)*(Vh/15)*evBig;
+    m.visible=true;m.position.set(JX+Math.cos(u.a)*R,(.1+.7*k*u.s)*(Vh/15),JZ+Math.sin(u.a)*R);m.scale.setScalar(.085*u.s*(1-.8*k)*(Vh/15)*Math.sqrt(evBig))});
+  cracks.forEach(m=>m.visible=t>=f7.t0);
+  // ラベル（校舎・塔）
+  const oS=sstep(13,17,F)*(1-sstep(55,75,F));if(oS>0)labels.push({p:[-20,15,-40],t:'校舎 約15m',dx:-8,dy:-18,a:'end',op:oS});
+  const oT=sstep(170,240,F)*(1-sstep(690,800,F));if(MT){const oM=sstep(1800,2600,F);if(oM>0)labels.push({p:[SC.mountain.positionM[0],MT.value,SC.mountain.positionM[2]],t:MT.label+' '+C.fmt(MT.value)+MT.unit+'（高さの比較）',dx:16,dy:-14,s:14,op:oM,safe:1})}
+  if(oT>0)labels.push({p:[TOWER[0],333,TOWER[1]],t:TOWERREF.label+' '+C.fmt(TOWERREF.value)+TOWERREF.unit,dx:18,dy:-24,s:14,op:oT,safe:1});
+  renderer.render(scene,cam);drawHud(t,st,F,labels);return{n:st.dispN,y:st.y,F}};
+buildCaps();
+window.__segs=SEG.map(s=>({type:s.type,n:s.n,t0:+s.t0.toFixed(3),t1:+s.t1.toFixed(3),speed:s.speed||1}));
+const FONTS=Promise.all([400,700,900].map(w=>document.fonts.load(w+' 20px JumpSans','あ0'))).then(r=>{if(r.some(x=>!x.length))throw new Error('書体が読めない')});
+const FIGURL=new URLSearchParams(location.search).get('fig');
+if(FIGURL){vrmPuppet(FIGURL).then(p=>{pivot.clear();pivot.add(p.holder);puppet=p;window.__fig=p.info;FONTS.then(()=>{window.__ready=true},e=>{window.__fig={error:e.message}})}).catch(e=>{console.log('figure load failed: '+e.message);window.__fig={error:String(e.message)};window.__ready=true})}
+else{window.__fig={kind:'box'};FONTS.then(()=>{window.__ready=true},e=>{console.log('font error: '+e.message)})}
+</script></body></html>

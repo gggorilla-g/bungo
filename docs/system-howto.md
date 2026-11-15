@@ -18,6 +18,7 @@
 | ザ・ビッグフェイス | セリフなし3Dショートアニメ | bigface/cg/bf.js（絵）＋ bigface/make_ep0N.py（音・文字） | bigface/cg/ep0N_time.json（カットの秒数） |
 | ホー博士 | 11/13 で制作停止（自動の仕組みも止めた） | nazo/main.py ほか | — |
 | Make It Work 3D（旧 今晩の百物語、UCBx3enM2p7aBROCU_EafuAw、@makeitwork3d） | 英語の仕組み系3Dショート（身近な物を問題→解決で改造）。11/15 に名前・説明・アイコン・バナーを英語に変更し、怪談の動画15本とショート8本を非公開にした（削除はしていない） | nazo/kaizo3d.py（絵は nazo/kaizo/） | nazo/shorts/kaizo_<ID>.json |
+| ずんだもんの妄想科学（N倍ショート・自動） | 「1回ごとにN倍」の計算ショート（文字だけ・声なし）。毎日 JST 12:40 に nbai.yml が予約表の今日の1本を照合→書き出し→API で予約公開（_MOSO）。在庫が無い日は何もしない | nazo/nbai.py（絵は nazo/kaizo/scene_jump.html・scene_fold.html、照合は verify.js・verify_fold.js） | nazo/shorts/nbai/<ID>.json と queue.json |
 | ずんだもんの妄想科学（改造ショート） | 身近な物を問題→解決で改造していく3D（試作中） | nazo/kaizo3d.py | nazo/shorts/kaizo_<ID>.json |
 
 - 3DCG は three.js をヘッドレスの Chromium で1コマずつ描いて画像にし、Python で文字・声・音を重ねる。
@@ -42,6 +43,12 @@
 - Claude が勝手にしないこと：公開（新しい型・アニメは見てもらってから）、削除、コメント返信、購入、アカウント・チャンネル作成。
 - 確認は1問ずつテキストで聞く。絵文字なし。観測と憶測は分けて書く。
 - 決めたことは bigface/DECISIONS.md（プロジェクトの claude/bigface-decisions.md）と各 RULES に残す。
+
+## N倍ショートの在庫の足し方（Claude 用）
+1. nazo/shorts/nbai/ の既存の台本（jump_x3.json など）を写して、倍率・時間割・字幕・比較の物・出典を変える。外部の数字は出典URLと確認日を references に書く
+2. `python nazo/nbai.py check <ID>` で NG 0件にする（「要確認」の目安の言い回しは説明欄にも書く）
+3. `node render.js --page scene_jump.html --spec specs/<ID>.json stills ...`（nazo/kaizo で）で数コマ見て、字幕のかぶり・人形の位置を確かめる
+4. queue.json に {id, publish_at（UTC）} を足して push。標準の公開は JST 20:00（11:00Z）
 
 ## よく使うコマンド（Claude 用メモ）
 - 間違い探し：python nazo/machigai3d.py check <ID> → python nazo/machigai3d.py build <ID> → output/<ID>.mp4

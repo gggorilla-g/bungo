@@ -1,0 +1,621 @@
+{
+ "schemaVersion": 1,
+ "id": "jump_x2",
+ "titleLines": [
+  "ジャンプの高さが",
+  [
+   [
+    "1回ごとに",
+    0
+   ],
+   [
+    "2倍",
+    1
+   ],
+   [
+    "になったら？",
+    0
+   ]
+  ]
+ ],
+ "output": {
+  "width": 1080,
+  "height": 1920,
+  "fps": 30,
+  "durationSeconds": 30
+ },
+ "physics": {
+  "model": "constant-gravity-v1",
+  "baseHeightM": 0.5,
+  "multiplier": 2,
+  "gravityMps2": 9.80665,
+  "pushDistanceM": 0.5
+ },
+ "timeline": [
+  {
+   "type": "flight",
+   "n": 1
+  },
+  {
+   "type": "contact",
+   "n": 1,
+   "next": 2,
+   "durationSeconds": 0.12
+  },
+  {
+   "type": "flight",
+   "n": 2
+  },
+  {
+   "type": "contact",
+   "n": 2,
+   "next": 3,
+   "durationSeconds": 0.12
+  },
+  {
+   "type": "flight",
+   "n": 3
+  },
+  {
+   "type": "contact",
+   "n": 3,
+   "next": 4,
+   "durationSeconds": 0.12
+  },
+  {
+   "type": "flight",
+   "n": 4
+  },
+  {
+   "type": "contact",
+   "n": 4,
+   "next": 5,
+   "durationSeconds": 0.12
+  },
+  {
+   "type": "flight",
+   "n": 5
+  },
+  {
+   "type": "contact",
+   "n": 5,
+   "next": 6,
+   "durationSeconds": 0.12
+  },
+  {
+   "type": "flight",
+   "n": 6
+  },
+  {
+   "type": "contact",
+   "n": 6,
+   "next": 7,
+   "durationSeconds": 0.9,
+   "crouch": true
+  },
+  {
+   "type": "flight",
+   "n": 7
+  },
+  {
+   "type": "contact",
+   "n": 7,
+   "next": 8,
+   "durationSeconds": 0.12
+  },
+  {
+   "type": "flight",
+   "n": 8,
+   "speed": 4
+  },
+  {
+   "type": "contact",
+   "n": 8,
+   "next": 9,
+   "durationSeconds": 0.1
+  },
+  {
+   "type": "flight",
+   "n": 9,
+   "speed": 6
+  },
+  {
+   "type": "contact",
+   "n": 9,
+   "next": 10,
+   "durationSeconds": 0.1
+  },
+  {
+   "type": "flight",
+   "n": 10,
+   "speed": 8
+  },
+  {
+   "type": "contact",
+   "n": 10,
+   "next": 11,
+   "durationSeconds": 0.1
+  },
+  {
+   "type": "flight",
+   "n": 11,
+   "speed": 8,
+   "speedProfile": [
+    [
+     0,
+     8
+    ],
+    [
+     1.1,
+     8
+    ],
+    [
+     1.5,
+     0.25
+    ],
+    [
+     3.8,
+     0.25
+    ],
+    [
+     4.2,
+     8
+    ]
+   ],
+   "cameraTransitionSeconds": 1.7
+  },
+  {
+   "type": "contact",
+   "n": 11,
+   "next": 12,
+   "durationSeconds": 0.1
+  },
+  {
+   "type": "flight",
+   "n": 12,
+   "speed": 8,
+   "fillToEnd": true
+  }
+ ],
+ "notes": {
+  "exp": "※現実には起こりえない思考実験です。数字は理屈の上の計算です",
+  "big": "※人形は見やすく拡大。空気抵抗は無視",
+  "end": "※地球の重力だけで計算。空気抵抗は無視"
+ },
+ "captions": [
+  {
+   "id": "end",
+   "when": {
+    "any": [
+     {
+      "nMin": 12
+     },
+     {
+      "segType": "contact",
+      "segN": 11
+     }
+    ]
+   },
+   "main": [
+    "12回目は、{h}メートル"
+   ],
+   "sub": [
+    "この先、{space}回目で宇宙"
+   ],
+   "note": "end",
+   "bindings": {
+    "h": {
+     "metric": "heightM",
+     "n": 12
+    },
+    "space": {
+     "metric": "firstNOver",
+     "value": 100000
+    }
+   },
+   "checks": [
+    {
+     "type": "firstReach",
+     "metric": "heightM",
+     "n": 19,
+     "threshold": 100000
+    }
+   ]
+  },
+  {
+   "id": "n11a",
+   "when": {
+    "n": 11,
+    "uBelow": 2.6
+   },
+   "main": [
+    "11回目で、",
+    "東京タワーをこえる"
+   ],
+   "sub": [
+    "高さ{h}メートル。滞空は{air}秒"
+   ],
+   "note": "big",
+   "bindings": {
+    "h": {
+     "metric": "heightM",
+     "n": 11
+    },
+    "air": {
+     "metric": "airSeconds",
+     "n": 11,
+     "format": "integer"
+    }
+   },
+   "checks": [
+    {
+     "type": "firstExceeds",
+     "metric": "heightM",
+     "n": 11,
+     "ref": "tokyo_tower"
+    }
+   ]
+  },
+  {
+   "id": "n11b",
+   "when": {
+    "n": 11
+   },
+   "main": [
+    "着地の速さは時速{kmh}km"
+   ],
+   "sub": [
+    "新幹線（時速{ref:shinkansen}km）より速い"
+   ],
+   "note": "big",
+   "bindings": {
+    "kmh": {
+     "metric": "landingKmh",
+     "n": 11,
+     "format": "integer"
+    }
+   },
+   "checks": [
+    {
+     "type": "exceeds",
+     "metric": "landingKmh",
+     "n": 11,
+     "ref": "shinkansen"
+    }
+   ]
+  },
+  {
+   "id": "n1",
+   "when": {
+    "n": 1
+   },
+   "main": [
+    "1回目は、{cm}センチ"
+   ],
+   "sub": [
+    "跳ぶたびに、高さが2倍になる"
+   ],
+   "note": "exp",
+   "bindings": {
+    "cm": {
+     "metric": "heightCm",
+     "n": 1
+    }
+   }
+  },
+  {
+   "id": "n2",
+   "when": {
+    "n": 2
+   },
+   "main": [
+    "2回目は、{h}メートル"
+   ],
+   "sub": [
+    "跳ぶたびに、高さが2倍になる"
+   ],
+   "note": "exp",
+   "bindings": {
+    "h": {
+     "metric": "heightM",
+     "n": 2
+    }
+   }
+  },
+  {
+   "id": "n3",
+   "when": {
+    "n": 3
+   },
+   "main": [
+    "3回目は、{h}メートル"
+   ],
+   "sub": [
+    "跳ぶたびに、高さが2倍になる"
+   ],
+   "note": "exp",
+   "bindings": {
+    "h": {
+     "metric": "heightM",
+     "n": 3
+    }
+   }
+  },
+  {
+   "id": "n4",
+   "when": {
+    "n": 4
+   },
+   "main": [
+    "4回目、{h}メートル"
+   ],
+   "sub": [
+    "バスケットゴール（{ref:hoop}m）より上"
+   ],
+   "bindings": {
+    "h": {
+     "metric": "heightM",
+     "n": 4
+    }
+   },
+   "checks": [
+    {
+     "type": "firstExceeds",
+     "metric": "heightM",
+     "n": 4,
+     "ref": "hoop"
+    }
+   ]
+  },
+  {
+   "id": "n5",
+   "when": {
+    "n": 5
+   },
+   "main": [
+    "5回目、{h}メートル"
+   ],
+   "sub": [
+    "2階建ての家くらい"
+   ],
+   "bindings": {
+    "h": {
+     "metric": "heightM",
+     "n": 5
+    }
+   },
+   "approx": "2階建て住宅の高さの目安（出典なしの言い回し）"
+  },
+  {
+   "id": "n6",
+   "when": {
+    "n": 6
+   },
+   "main": [
+    "6回目で、校舎をこえる"
+   ],
+   "sub": [
+    "高さ{h}メートル。4階建ての屋上より上"
+   ],
+   "note": "big",
+   "bindings": {
+    "h": {
+     "metric": "heightM",
+     "n": 6
+    }
+   },
+   "checks": [
+    {
+     "type": "firstExceeds",
+     "metric": "heightM",
+     "n": 6,
+     "ref": "school"
+    }
+   ]
+  },
+  {
+   "id": "n7a",
+   "when": {
+    "any": [
+     {
+      "n": 7,
+      "segType": "contact",
+      "crouch": true
+     },
+     {
+      "n": 7,
+      "segType": "flight",
+      "uBelow": 2.3
+     }
+    ]
+   },
+   "main": [
+    "7回目、踏み切りで{g}G"
+   ],
+   "sub": [
+    "人が耐えた記録は{ref:stapp}G（{ref:stapp.year}年）"
+   ],
+   "note": "※踏みこみ{cm}cmで計算",
+   "bindings": {
+    "g": {
+     "metric": "pushG",
+     "n": 7
+    },
+    "cm": {
+     "metric": "pushCm"
+    }
+   },
+   "checks": [
+    {
+     "type": "firstExceeds",
+     "metric": "pushG",
+     "n": 7,
+     "ref": "stapp"
+    }
+   ]
+  },
+  {
+   "id": "n7b",
+   "when": {
+    "n": 7
+   },
+   "main": [
+    "高さ{h}メートル"
+   ],
+   "sub": [
+    "10階建てのビルくらい"
+   ],
+   "note": "big",
+   "bindings": {
+    "h": {
+     "metric": "heightM",
+     "n": 7
+    }
+   },
+   "approx": "1階あたり約3mの目安"
+  },
+  {
+   "id": "n8",
+   "when": {
+    "n": 8
+   },
+   "main": [
+    "8回目、{h}メートル"
+   ],
+   "sub": [
+    "20階建てのビルくらい"
+   ],
+   "note": "big",
+   "bindings": {
+    "h": {
+     "metric": "heightM",
+     "n": 8
+    }
+   },
+   "approx": "1階あたり約3mの目安"
+  },
+  {
+   "id": "n9",
+   "when": {
+    "n": 9
+   },
+   "main": [
+    "9回目、{h}メートル"
+   ],
+   "sub": [
+    "40階建てのビルくらい"
+   ],
+   "note": "big",
+   "bindings": {
+    "h": {
+     "metric": "heightM",
+     "n": 9
+    }
+   },
+   "approx": "1階あたり約3mの目安"
+  },
+  {
+   "id": "n10",
+   "when": {
+    "n": 10
+   },
+   "main": [
+    "10回目、{h}メートル"
+   ],
+   "sub": [
+    "東京都庁（{ref:tocho}m）をこえる"
+   ],
+   "note": "big",
+   "bindings": {
+    "h": {
+     "metric": "heightM",
+     "n": 10
+    }
+   },
+   "checks": [
+    {
+     "type": "firstExceeds",
+     "metric": "heightM",
+     "n": 10,
+     "ref": "tocho"
+    }
+   ]
+  }
+ ],
+ "references": [
+  {
+   "id": "school",
+   "label": "校舎",
+   "value": 15,
+   "unit": "m",
+   "kind": "scene-assumption",
+   "note": "作中の設定（4階建て・屋上まで約15m）"
+  },
+  {
+   "id": "hoop",
+   "label": "バスケットゴール",
+   "value": 3.05,
+   "unit": "m",
+   "kind": "external-fact",
+   "sourceUrl": "https://assets.fiba.basketball/image/upload/documents-corporate-fiba-official-rules-2026-equipment-v1-0.pdf",
+   "checkedAt": "2026-11-14",
+   "note": "FIBA 公式ルール 2026 Equipment 1.2.4（リング上端 3,050mm）"
+  },
+  {
+   "id": "tocho",
+   "label": "東京都庁",
+   "value": 243,
+   "unit": "m",
+   "kind": "external-fact",
+   "sourceUrl": "https://www.yokoso.metro.tokyo.lg.jp/kengaku/pdf/220224_totyoukengakuannai_japanes.pdf",
+   "checkedAt": "2026-11-13",
+   "note": "第一本庁舎。原文は「約243m」"
+  },
+  {
+   "id": "tokyo_tower",
+   "label": "東京タワー",
+   "value": 333,
+   "unit": "m",
+   "kind": "external-fact",
+   "sourceUrl": "https://www.gotokyo.org/jp/destinations/southern-tokyo/tokyo-tower-and-around/index.html",
+   "checkedAt": "2026-11-13",
+   "scene": {
+    "positionM": [
+     -25,
+     0,
+     -945
+    ]
+   }
+  },
+  {
+   "id": "shinkansen",
+   "label": "新幹線（E5系の営業最高速度）",
+   "value": 320,
+   "unit": "km/h",
+   "kind": "external-fact",
+   "sourceUrl": "https://www.jreast.co.jp/train/shinkan/e5.html",
+   "checkedAt": "2026-11-12"
+  },
+  {
+   "id": "stapp",
+   "label": "人が耐えた加速度の記録（スタップ）",
+   "value": 46.2,
+   "year": 1954,
+   "unit": "G",
+   "kind": "external-fact",
+   "sourceUrl": "https://airandspace.si.edu/stories/editorial/man-behind-high-speed-safety-standards",
+   "checkedAt": "2026-11-13",
+   "note": "1954年12月10日、ロケットそり"
+  }
+ ],
+ "template": "jump",
+ "post": {
+  "title": "ジャンプの高さが1回ごとに2倍になったら？ #shorts",
+  "desc": "（投稿済み。見本として残す）",
+  "tags": [
+   "もしも",
+   "思考実験",
+   "科学"
+  ]
+ }
+}

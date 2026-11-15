@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8">
+<style>
+@font-face{font-family:"JumpSans";font-weight:400;src:url(fonts_jp/NotoSansCJKjp-Regular.woff2) format("woff2")}
+@font-face{font-family:"JumpSans";font-weight:700;src:url(fonts_jp/NotoSansCJKjp-Bold.woff2) format("woff2")}
+@font-face{font-family:"JumpSans";font-weight:900;src:url(fonts_jp/NotoSansCJKjp-Black.woff2) format("woff2")}
+html,body{margin:0;background:#000}
+#stage{position:relative;width:540px;height:960px;overflow:hidden}
+#stage canvas{position:absolute;left:0;top:0}
+#haze{position:absolute;left:0;top:0;width:540px;height:960px;background:#d4e6f4;opacity:0}
+#hud{position:absolute;left:0;top:0;width:540px;height:960px;font-family:"JumpSans"}
+#hud text{paint-order:stroke;stroke:#101010;stroke-linejoin:round;fill:#fff}
+</style></head>
+<body><div id="stage"><div id="haze"></div><svg id="hud" viewBox="0 0 540 960" xmlns="http://www.w3.org/2000/svg"></svg></div>
+<script src="vendor.js"></script>
+<script src="fold_calc.js"></script>
+<script>
+// S-003「紙を何回折ったら月に届く？」 机の上から月まで、ひと続きのズームアウト（30秒）
+const SPEC=(()=>{const u=new URLSearchParams(location.search).get('spec')||'specs/fold42.json',x=new XMLHttpRequest();x.open('GET',u,false);x.send();if(x.status!==200)throw new Error('spec が読めない: '+u);return JSON.parse(x.responseText)})();
+const C=FOLD.make(SPEC),R=C.REF;
+const W=540,H=960,DUR=C.DUR,FOV=30,TANH=Math.tan(FOV/2*Math.PI/180),AZ=14*Math.PI/180;
+const clamp=(x,a,b)=>Math.min(b,Math.max(a,x)),lerp=(a,b,k)=>a+(b-a)*k,sstep=(a,b,x)=>{const k=clamp((x-a)/(b-a),0,1);return k*k*(3-2*k)};
+function rng(seed){let s=seed>>>0;return()=>{s=(Math.imul(s,1664525)+1013904223)>>>0;return s/4294967296}}
+const DESK=0.74,BASE_PX=640,KFRAME=960/(BASE_PX-300);   // 紙の柱の根元を画面の640px、てっぺんを300px付近に置く
+const HX=27000;                                         // 地上の場面から地球の場面へ切りかえる柱の高さ（m）
+const viewH=h=>Math.hypot(0.7,KFRAME*h);
+const SBASE=540;   // 宇宙の場面では根元を上げ、地球が字幕に隠れないようにする
+
+const renderer=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true,logarithmicDepthBuffer:true});
+renderer.setPixelRatio(window.devicePixelRatio||1);renderer.setSize(W,H);renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+document.getElementById('stage').prepend(renderer.domElement);
+const L=c=>new THREE.MeshLambertMaterial({color:c,flatShading:true});
+const Bm=(c,o)=>new THREE.MeshBasicMaterial(Object.assign({color:c},o||{}));
+function box(w,h,d,c,sh=true){const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),L(c));m.castShadow=sh;m.receiveShadow=true;return m}
+function plane(w,d,c){const m=new THREE.Mesh(new THREE.PlaneGeometry(w,d),L(c));m.rotation.x=-Math.PI/2;m.receiveShadow=true;return m}
+
+// ========== 地上の場面（机・校庭・町・東京タワー・富士山） ==========
+const SKY=0xa9d6f5,ground=new THREE.Scene();ground.background=new THREE.Color(SKY);ground.fog=new THREE.Fog(0xcbe4f6,2600,15000);
+ground.add(new THREE.HemisphereLight(0xffffff,0x9aa68a,1.6));
+const sun=new THREE.DirectionalLight(0xfff3dd,2.2);sun.position.set(70,110,90);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);
+{const c=sun.shadow.camera;c.left=-60;c.right=60;c.top=60;c.bottom=-60;c.near=5;c.far=500;sun.shadow.bias=-.0004}ground.add(sun);ground.add(sun.target);
+const TOWER=[-180,-945];
+{const lay=(m,k)=>{m.material.depthTest=false;m.material.depthWrite=false;m.renderOrder=-20+k;return m};
+ const g=lay(plane(900000,900000,0xa9b89c),0);g.position.y=-.06;ground.add(g);
+ const strip=(w,len,c,y,off,k)=>{const m=lay(plane(w,len,c),k),r=len/2+150;m.position.set(Math.sin(AZ)*r+Math.cos(AZ)*off,y,Math.cos(AZ)*r-Math.sin(AZ)*off);m.rotation.z=AZ;m.receiveShadow=false;ground.add(m)};
+ strip(420,9000,0x9ccf7e,-.05,0,1);strip(64,9000,0x6aa9dd,-.04,-120,2);
+ const park=lay(plane(330,400,0x8cc36e),3);park.position.set(0,-.03,20);ground.add(park);
+ const yard=lay(plane(124,150,0xdcc79c),4);yard.position.y=0;ground.add(yard)}
+// 机（天板の高さ74cm）と、背の比較用の人形（1.6m）
+{const top=box(1.2,.04,.6,0xb8875a);top.position.set(0,DESK-.02,0);ground.add(top);
+ for(const[x,z]of[[-.56,-.26],[.56,-.26],[-.56,.26],[.56,.26]]){const l=box(.04,DESK-.04,.04,0x8a6a4a);l.position.set(x,(DESK-.04)/2,z);ground.add(l)}
+ const P=new THREE.Group(),skin=0xf4f4f4,vest=0xff8a3d,dark=0x4a4a4a,add=(w,h,d,c,x,y)=>{const m=box(w,h,d,c);m.position.set(x,y,0);P.add(m)};
+ add(.22,.72,.24,dark,-.14,.36);add(.22,.72,.24,dark,.14,.36);add(.56,.62,.32,vest,0,1.03);add(.44,.44,.44,skin,0,1.56);add(.16,.6,.2,skin,-.38,1.04);add(.16,.6,.2,skin,.38,1.04);
+ P.position.set(1.05,0,.15);P.rotation.y=-.25;ground.add(P)}
+// 校舎（屋上まで約15m）
+{const b=box(64,14.4,12,0xf3efe4);b.position.set(0,7.2,-46);ground.add(b);const rf=box(66,.6,13,0xb9b4a6);rf.position.set(0,14.7,-46);ground.add(rf);
+ for(let f=0;f<4;f++)for(let i=0;i<14;i++){const w=box(3,1.9,.3,0x6f93b8,false);w.position.set(-29.25+i*4.5,2.3+f*3.5,-39.9);ground.add(w)}
+ const r=rng(7),tree=(x,z,k)=>{const t=new THREE.Mesh(new THREE.CylinderGeometry(.35*k,.5*k,3*k,6),L(0x8a6a4a));t.position.set(x,1.5*k,z);t.castShadow=true;
+   const f=new THREE.Mesh(new THREE.IcosahedronGeometry(2.6*k,0),L(0x5fa55a));f.position.set(x,4.6*k,z);f.castShadow=true;ground.add(t,f)};
+ for(let i=0;i<9;i++){tree(-70-(i%2)*7,-60+i*13,.9+r()*.5);tree(70+(i%2)*7,-60+i*13,.9+r()*.5)}
+ for(let i=0;i<12;i++)tree(-66+i*12,-66-(i%2)*6,1+r()*.6)}
+// 町（箱をまとめて1回で描く）
+{const r=rng(2026),list=[],pal=[0xe9e6de,0xd5d9de,0xd2ccc0,0xc3ccd6,0xece8dc,0xb9c2c9,0xdcd3c2],roof=[0xb5674d,0x7d8fa3,0x8e9a86];
+ const clear=(x,z)=>{if(Math.abs(x)<175&&z>-190&&z<230)return true;if(z>120){const cx=z*Math.tan(AZ);if(Math.abs(x-cx)<205+.05*z)return true}
+   if(Math.hypot(x-TOWER[0],z-TOWER[1])<85)return true;return false};
+ const put=(x,z,w,d,h,c)=>{if(!clear(x,z))list.push([x,z,w,d,h,c])};
+ for(let x=-760;x<=760;x+=27)for(let z=-760;z<=760;z+=27){if(r()<.22)continue;const big=r()<.12;put(x+r()*8,z+r()*8,9+r()*7,9+r()*7,big?12+r()*16:5+r()*4.5,r()<.3?roof[Math.floor(r()*3)]:pal[Math.floor(r()*pal.length)])}
+ for(let x=-3000;x<=3000;x+=74)for(let z=-3000;z<=3000;z+=74){if(Math.abs(x)<780&&Math.abs(z)<780)continue;if(r()<.18)continue;let h=8+r()*24;if(r()<.06)h=40+r()*60;put(x+r()*20,z+r()*20,26+r()*22,26+r()*22,h,pal[Math.floor(r()*pal.length)])}
+ for(let x=-9000;x<=9000;x+=215)for(let z=-9000;z<=9000;z+=215){if(Math.abs(x)<3050&&Math.abs(z)<3050)continue;if(r()<.2)continue;put(x+r()*60,z+r()*60,90+r()*60,90+r()*60,10+r()*38,pal[Math.floor(r()*pal.length)])}
+ for(let i=0;i<150;i++){const a=r()*6.283,d=95+r()*620;const x=TOWER[0]+Math.cos(a)*d,z=TOWER[1]+Math.sin(a)*d;if(Math.abs(x)<60&&z>-200)continue;list.push([x,z,30+r()*18,30+r()*18,45+r()*185*(1-d/760),pal[Math.floor(r()*pal.length)]])}
+ const geo=new THREE.BoxGeometry(1,1,1);geo.translate(0,.5,0);const im=new THREE.InstancedMesh(geo,new THREE.MeshLambertMaterial({flatShading:true}),list.length);
+ const m=new THREE.Matrix4(),q=new THREE.Quaternion(),c=new THREE.Color();
+ list.forEach((b,i)=>{m.compose(new THREE.Vector3(b[0],0,b[1]),q,new THREE.Vector3(b[2],b[4],b[3]));im.setMatrixAt(i,m);c.set(b[5]);im.setColorAt(i,c)});
+ im.frustumCulled=false;im.instanceMatrix.needsUpdate=true;im.instanceColor.needsUpdate=true;ground.add(im)}
+// 東京タワー風の塔（333m）
+{const T=new THREE.Group(),or=0xe9562b,wh=0xf4f1ea;
+ const fr=(y0,y1,rb,rt,c)=>{const m=new THREE.Mesh(new THREE.CylinderGeometry(rt,rb,y1-y0,4,1),L(c));m.position.y=(y0+y1)/2;m.rotation.y=Math.PI/4;T.add(m)};
+ fr(0,75,62,30,or);fr(75,125,30,19,wh);const d1=box(48,14,48,0xf0ede6,false);d1.position.y=132;T.add(d1);fr(139,200,17,10,or);fr(200,245,10,7,wh);
+ const d2=box(18,9,18,0xf0ede6,false);d2.position.y=250;T.add(d2);fr(255,300,5.5,2.6,or);fr(300,R.tokyo_tower.value,1.6,1.2,wh);T.position.set(TOWER[0],0,TOWER[1]);ground.add(T)}
+// 富士山（高さの比較用。位置は実際とは違う）
+const FUJI=[-7000,-24000];
+{const h=R.fuji.value,r=h*4.2,M=new THREE.Group();const body=new THREE.Mesh(new THREE.ConeGeometry(r,h,48,1),L(0x587894));body.material.fog=false;body.position.y=h/2;M.add(body);
+ const cap=new THREE.Mesh(new THREE.ConeGeometry(r*.22,h*.22,48,1),L(0xf4f6f8));cap.material.fog=false;cap.position.y=h-h*.11+2;M.add(cap);M.position.set(FUJI[0],0,FUJI[1]);ground.add(M)}
+// 雲
+{const r=rng(77);for(let i=0;i<30;i++){const c=new THREE.Mesh(new THREE.IcosahedronGeometry(90+r()*130,0),L(0xffffff));c.scale.set(2.2,.42,1.3);
+  const x=-4200+r()*8400;c.position.set(Math.abs(x)<500?x+1000*Math.sign(x||1):x,330+r()*1100,-700-r()*5600);ground.add(c)}}
+// 紙の柱
+const paperG=new THREE.BoxGeometry(1,1,1);paperG.translate(0,.5,0);
+const paper=new THREE.Mesh(paperG,new THREE.MeshLambertMaterial({color:0xfbfbf8}));paper.castShadow=true;paper.receiveShadow=true;paper.position.set(0,DESK,0);ground.add(paper);
+const gcam=new THREE.PerspectiveCamera(FOV,W/H,.01,60000);
+
+// ========== 地球の場面（地球・紙の柱・月） ==========
+const space=new THREE.Scene();space.background=new THREE.Color(0x05070d);
+const RE=R.earth_r.valueM,RM=R.moon_r.valueM,DM=R.moon.valueM;
+space.add(new THREE.AmbientLight(0x6a7488,.55));const ssun=new THREE.DirectionalLight(0xffffff,2.6);space.add(ssun);space.add(ssun.target);
+// 経度・緯度→地球の中心から見た向き（SphereGeometry の貼り方に合わせる）
+const dirLL=(lon,lat)=>{const p=(lon+180)*Math.PI/180,a=lat*Math.PI/180;return new THREE.Vector3(-Math.cos(p)*Math.cos(a),Math.sin(a),Math.sin(p)*Math.cos(a)).normalize()};
+const U=dirLL(139.77,35.68);                                  // 東京から真上へ
+const SIDE=new THREE.Vector3(0,1,0).cross(U).normalize();     // 柱を横から見る向き
+const earthMat=new THREE.MeshLambertMaterial({color:0xffffff});const earth=new THREE.Mesh(new THREE.SphereGeometry(1,160,96),earthMat);space.add(earth);
+const atm=new THREE.Mesh(new THREE.SphereGeometry(1,96,64),new THREE.MeshBasicMaterial({color:0x7fb6ff,transparent:true,opacity:.18,side:THREE.BackSide,depthWrite:false}));space.add(atm);
+const moonMat=new THREE.MeshLambertMaterial({color:0xffffff});const moon=new THREE.Mesh(new THREE.SphereGeometry(1,96,64),moonMat);space.add(moon);
+const spaper=new THREE.Mesh(paperG,new THREE.MeshBasicMaterial({color:0xffffff}));space.add(spaper);
+spaper.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),U);
+{const r=rng(31),n=900,pos=new Float32Array(n*3);for(let i=0;i<n;i++){const v=new THREE.Vector3(r()*2-1,r()*2-1,r()*2-1).normalize().multiplyScalar(3e10);pos.set([v.x,v.y,v.z],i*3)}
+ const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(pos,3));space.add(new THREE.Points(g,new THREE.PointsMaterial({color:0xdfe6f2,size:2.2,sizeAttenuation:false})))}
+const scam=new THREE.PerspectiveCamera(FOV,W/H,1,1e11);
+// 地球の色：陸地の形（Natural Earth、パブリックドメイン）から作る
+function earthTexture(img){const c=document.createElement('canvas');c.width=img.width;c.height=img.height;const x=c.getContext('2d');x.drawImage(img,0,0);
+  const d=x.getImageData(0,0,c.width,c.height),p=d.data;for(let i=0;i<p.length;i+=4){const k=p[i]/255,y=(i/4/c.width)/c.height,lat=Math.abs(90-y*180);
+    const land=lat>66?[236,240,244]:(lat<23?[150,164,96]:[110,150,88]),sea=[38,92,160];for(let j=0;j<3;j++)p[i+j]=sea[j]+(land[j]-sea[j])*k;p[i+3]=255}
+  x.putImageData(d,0,0);const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=8;return t}
+function moonTexture(){const c=document.createElement('canvas');c.width=1024;c.height=512;const x=c.getContext('2d');x.fillStyle='#9c9c9a';x.fillRect(0,0,1024,512);const r=rng(5);
+  for(let i=0;i<260;i++){const cx=r()*1024,cy=60+r()*392,rr=4+Math.pow(r(),3)*60;x.fillStyle=r()<.5?'rgba(70,70,70,.35)':'rgba(190,190,186,.35)';x.beginPath();x.ellipse(cx,cy,rr,rr*.8,0,0,6.283);x.fill()}
+  const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;return t}
+moonMat.map=moonTexture();moonMat.needsUpdate=true;
+
+// ========== HUD ==========
+const NS='http://www.w3.org/2000/svg',hud=document.getElementById('hud'),haze=document.getElementById('haze');
+function el(tag,a,txt,parent){const e=document.createElementNS(NS,tag);for(const k in a)e.setAttribute(k,a[k]);if(txt!=null)e.textContent=txt;(parent||hud).appendChild(e);return e}
+const tw=(s,size)=>{let w=0;for(const ch of String(s))w+=ch.charCodeAt(0)<256?.58:1;return w*size};
+function T(x,y,size,txt,o={}){const a={x,y,'font-size':size,'font-weight':o.w||900,'text-anchor':o.a||'start','stroke-width':o.sw!=null?o.sw:Math.max(3,size*.2)};
+  let st='';if(o.fill)st+='fill:'+o.fill+';';if(o.op!=null)st+='opacity:'+o.op+';';if(st)a.style=st;if(o.tf)a.transform=o.tf;return el('text',a,txt)}
+function pill(x,y,txt,size=15,anchor='start',fill='#101010'){const w=tw(txt,size)+18,x0=anchor==='end'?x-w:x;el('rect',{x:x0,y:y-size-5,width:w,height:size+11,rx:5,fill,'fill-opacity':.74});
+  el('text',{x:x0+9,y,'font-size':size,'font-weight':700,'stroke-width':0},txt)}
+// 字幕と回数が変わった時刻（出だしの動き用）
+const CAPCH=[],NCH=[];{let k1=null,k2=null,pn=null;for(let i=0;i<=DUR*30;i++){const t=i/30,c=C.captionAt(t),x=c.c1.join('|'),y=c.c2.join('|'),n=C.nInt(t);
+  if(x!==k1){k1=x;CAPCH.push({t,w:1})}if(y!==k2){k2=y;CAPCH.push({t,w:2})}if(n!==pn){pn=n;NCH.push(t)}}}
+const lastCh=(t,w)=>{let r=-1;for(const c of CAPCH)if(c.w===w&&c.t<=t+1e-9)r=c.t===0?-1:c.t;return r};
+const lastN=t=>{let r=-1;for(const x of NCH)if(x<=t+1e-9)r=x;return r};
+function drawHud(t,n,place,labels,cam){hud.innerHTML='';
+  const t1=el('text',{x:270,y:98,'font-size':31,'font-weight':900,'text-anchor':'middle','stroke-width':7},SPEC.titleLines[0]);
+  const t2=el('text',{x:270,y:140,'font-size':31,'font-weight':900,'text-anchor':'middle','stroke-width':7});
+  SPEC.titleLines[1].forEach(([s,k])=>{const ts=document.createElementNS(NS,'tspan');ts.textContent=s;if(k)ts.setAttribute('style','fill:#ffd43b');t2.appendChild(ts)});
+  const since=t-lastN(t),pop=t>=C.CO&&since>=0&&since<.18?1+.16*(1-since/.18):1;
+  pill(26,208,'折った回数');T(24,262,54,n+'回',{sw:9,fill:n>C.rec?'#ffd43b':null,tf:pop>1?`translate(24 262) scale(${pop.toFixed(3)}) translate(-24 -262)`:null});
+  pill(26,300,'厚さ');T(24,346,n>=36?34:40,C.fmtLen(C.thick(n)),{sw:8});
+  pill(514,208,'実際に折れた記録',15,'end');T(516,254,36,C.rec+'回',{a:'end',sw:8});
+  pill(26,392,place,14);
+  labels.forEach(l=>{const v=new THREE.Vector3(l.p[0],l.p[1],l.p[2]).project(cam);if(v.z>1)return;const x=(v.x+1)/2*W,y=(1-v.y)/2*H,dx=l.dx||0,dy=l.dy||0;let op=l.op==null?1:l.op;
+    op*=sstep(392,414,y+dy)*(1-sstep(600,640,y+dy));if(op<=.02)return;
+    const gg=el('g',{style:'opacity:'+op.toFixed(2)});
+    if(dx||dy){el('line',{x1:x,y1:y,x2:x+dx,y2:y+dy,stroke:'#101010','stroke-width':4},null,gg);el('line',{x1:x,y1:y,x2:x+dx,y2:y+dy,stroke:'#fff','stroke-width':1.6},null,gg);el('circle',{cx:x,cy:y,r:3.2,fill:'#fff',stroke:'#101010','stroke-width':1.5},null,gg)}
+    el('text',{x:x+dx+(l.a==='end'?-6:6),y:y+dy+5,'font-size':l.s||14,'font-weight':700,'text-anchor':l.a||'start','stroke-width':4.5},l.t,gg)});
+  const c=C.captionAt(t),capT=lastCh(t,1),capT2=lastCh(t,2);
+  const a1=clamp((t-capT)/.13,0,1),a2=clamp((t-capT2)/.13,0,1);let y=c.c1.length>1?690:704;
+  c.c1.forEach(s=>{const size=Math.min(40,468/tw(s,1));T(270,y+(1-a1)*7,size,s,{a:'middle',sw:9,op:(.25+.75*a1).toFixed(2)});y+=49});
+  y-=8;(c.c2||[]).forEach(s=>{const size=Math.min(23,452/tw(s,1));T(270,y+(1-a2)*5,size,s,{a:'middle',w:700,sw:6,op:(.25+.75*a2).toFixed(2)});y+=30});
+  if(c.note)T(270,y+8,12.5,c.note,{a:'middle',w:500,sw:3.5})}
+
+// ========== 1コマ ==========
+const dims=k=>{let a=SPEC.paper.sheetM[0],b=SPEC.paper.sheetM[1];for(let i=0;i<k;i++){if(b>=a)b/=2;else a/=2}return[a,b]};
+const fmtRef=r=>r.label.replace(/（.*）/,'')+' '+r.value.toLocaleString('en-US')+r.unit;
+window.renderAt=function(t){
+  const nf=C.nAt(t),n=C.nInt(t),h=C.thick(nf);
+  // 最後の止めでゆっくり引く（冒頭のコールドオープンは引き終わった構図＝ループでつながる）
+  const zf=t<C.CO?1.06:1+.06*sstep(25,30,t),Vh=viewH(h)*zf,d=Vh/(2*TANH);
+  const hz=Math.log(h/HX)/Math.log(2.2),hop=clamp(1-Math.abs(hz),0,1);haze.style.opacity=(hop*hop*(3-2*hop)).toFixed(3);
+  const labels=[];let cam,place;
+  if(h<HX){// 地上
+    const tgt=new THREE.Vector3(0,DESK+Vh*(BASE_PX-480)/960,0),elv=lerp(13,2,sstep(Math.log(1.5),Math.log(400),Math.log(Vh)))*Math.PI/180;
+    gcam.position.set(Math.sin(AZ)*d*Math.cos(elv),tgt.y+d*Math.sin(elv),Math.cos(AZ)*d*Math.cos(elv));gcam.near=Math.max(.01,d*.05);gcam.far=Math.max(60000,d*40);gcam.updateProjectionMatrix();gcam.lookAt(tgt);gcam.updateMatrixWorld();
+    ground.fog.near=Math.max(2600,d*2.5);ground.fog.far=Math.max(15000,d*14);
+    const k=Math.floor(nf),f=nf-k,a=dims(k),b=dims(k+1),wmin=.016*Vh;
+    paper.scale.set(Math.max(lerp(a[0],b[0],f),wmin),Math.max(h,.0001),Math.max(lerp(a[1],b[1],f),wmin*.8));
+    const px=v=>v/Vh*960;   // 高さ v が画面で何px か
+    const lab=(p,txt,v,o)=>{const s=px(v);const op=sstep(26,60,s)*(1-sstep(520,700,s));if(op>.02)labels.push(Object.assign({p,t:txt,op},o||{}))};
+    lab([1.05,1.6,.15],'人形 1.6m',1.6,{dx:-10,dy:-22,a:'end'});
+    lab([-20,15,-40],'校舎 約15m',15,{dx:-10,dy:-18,a:'end'});
+    lab([TOWER[0],333,TOWER[1]],fmtRef(R.tokyo_tower),333,{dx:16,dy:52});
+    lab([FUJI[0],R.fuji.value,FUJI[1]],fmtRef(R.fuji)+'（高さの比較）',R.fuji.value,{dx:-12,dy:-18,a:'end'});
+    renderer.render(ground,gcam);cam=gcam;place=h<1.2?'机の上':(h<60?'校庭':'東京の上空')}
+  else{// 地球と月（大きさは見やすく拡大。最小でも画面に対して一定の大きさ）
+    const re=Math.max(RE,.08*Vh),rm=Math.max(RM,.035*Vh),B=U.clone().multiplyScalar(re);
+    earth.scale.setScalar(re);atm.scale.setScalar(re*(1+Math.max(.012,60000/re)));
+    moon.scale.setScalar(rm);moon.position.copy(B).addScaledVector(U,DM-RE).addScaledVector(SIDE,-(rm*1.35+.02*Vh));
+    spaper.position.copy(B);const w=.012*Vh;spaper.scale.set(w,h,w);
+    const tgt=B.clone().addScaledVector(U,Vh*(SBASE-480)/960);
+    scam.up.copy(U);scam.position.copy(tgt).addScaledVector(SIDE,d).addScaledVector(U,d*.03);scam.near=Math.max(1,d*.01);scam.far=1e11;scam.updateProjectionMatrix();scam.lookAt(tgt);scam.updateMatrixWorld();
+    ssun.position.copy(tgt).addScaledVector(SIDE,1).addScaledVector(U,.6).addScaledVector(new THREE.Vector3().crossVectors(U,SIDE),.5);ssun.target.position.copy(tgt);
+    const px=v=>v/Vh*960,lab=(v,txt,o)=>{const s=px(v);const op=sstep(22,50,s);if(op>.02){const p=B.clone().addScaledVector(U,v);labels.push(Object.assign({p:[p.x,p.y,p.z],t:txt,op},o||{}))}};
+    lab(R.karman.valueM,fmtRef(R.karman),{dx:-16,dy:-6,a:'end'});lab(R.geo.valueM,fmtRef(R.geo),{dx:-16,dy:-6,a:'end'});
+    renderer.render(space,scam);cam=scam;place='宇宙'}
+  const ho=1-hop;labels.forEach(l=>l.op=(l.op==null?1:l.op)*ho);drawHud(t,n,place,labels,cam);return{n,h,Vh}};
+window.__info={keys:SPEC.timeline.keys};
+const FONTS=Promise.all([400,700,900].map(w=>document.fonts.load(w+' 20px JumpSans','あ0'))).then(r=>{if(r.some(x=>!x.length))throw new Error('書体が読めない')});
+const IMG=new Promise((ok,ng)=>{const i=new Image();i.onload=()=>ok(i);i.onerror=()=>ng(new Error('陸地の画像が読めない'));i.src='assets/land_4096.png'}).then(i=>{earthMat.map=earthTexture(i);earthMat.needsUpdate=true});
+Promise.all([FONTS,IMG]).then(()=>{window.__fig={kind:'none'};window.__ready=true},e=>{console.log('load error: '+e.message)});
+</script></body></html>
