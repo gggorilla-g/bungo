@@ -1181,13 +1181,13 @@ function ep05(p) {
     person(sc, { h: 1.1, coat: 0xB9A0D8, pants: 0x6A5A60, hair: 0x2E2E2E, headR: 0.18 }), person(sc, { h: 0.85, coat: 0xF2C84A, pants: 0x7C6A5C, hair: 0x7A5A3A, headR: 0.16 })];
   const bfl = butterfly(sc);
   // 遠い谷（迷子の子がいる場所）：遠くの稜線の向こうに、ビッグフェイスの頭がシルエットで出る
-  const VZ = 160, sil = new THREE.MeshBasicMaterial({ color: 0x3E3A3E }), ridgeM = new THREE.MeshBasicMaterial({ color: 0x8C7064 }), ridge2 = new THREE.MeshBasicMaterial({ color: 0xB48A74 });   // 遠いほど空の色に近い（かすみ）
+  const VZ = 160, ridgeM = new THREE.MeshBasicMaterial({ color: 0xA98070 }), ridge2 = new THREE.MeshBasicMaterial({ color: 0xC69A80 });   // 遠いほど空の色に近い（かすみ）。頭のシルエットも稜線と同じ色（11/15 ゲンタさん「稜線のシルエットの色とビッグフェイスのシルエットの色を合わせて」）
   mesh(new THREE.PlaneGeometry(120, 120), toon(0x7A8A62), sc, [0, 0, VZ], { rot: [-Math.PI / 2, 0, 0], cast: false });
-  [[-30, 9, 14], [-8, 11, 16], [16, 10, 15], [38, 12, 14]].forEach(([x, h, r]) => mesh(new THREE.SphereGeometry(r, 24, 12), ridge2, sc, [x, h - r, VZ - 62], { scale: [1.5, 1, 1], cast: false, recv: false }));   // 遠い山なみ（うすい）
-  [[-18, 5.6, 9], [-6, 6.4, 8], [4, 5.2, 7], [14, 6.8, 9], [26, 5.8, 8]].forEach(([x, h, r]) => mesh(new THREE.SphereGeometry(r, 24, 12), ridgeM, sc, [x, h - r, VZ - 32], { scale: [1.4, 1, 0.8], cast: false, recv: false }));   // 稜線（でこぼこ。上端は高さ5〜7）
+  [[-50, 16, 24], [-14, 19, 26], [24, 17, 25], [60, 20, 24]].forEach(([x, h, r]) => mesh(new THREE.SphereGeometry(r, 24, 12), ridge2, sc, [x, h - r, VZ - 120], { scale: [1.5, 1, 1], cast: false, recv: false }));   // 遠い山なみ（うすい）
+  [[-36, 9.5, 16], [-12, 11, 14], [6, 9, 12], [26, 11.5, 15], [48, 10, 14]].forEach(([x, h, r]) => mesh(new THREE.SphereGeometry(r, 24, 12), ridgeM, sc, [x, h - r, VZ - 70], { scale: [1.4, 1, 0.8], cast: false, recv: false }));   // 稜線（約70m先。上端は高さ9〜11.5）   // 稜線（でこぼこ。上端は高さ5〜7）
   const silHead = new THREE.Group(); sc.add(silHead);
-  mesh(new THREE.SphereGeometry(1, 28, 18), sil, silHead, [0, 0, 0], { scale: [1.12, 1, 1], cast: false, recv: false });
-  const silNeck = mesh(new THREE.CylinderGeometry(0.14, 0.16, 1, 10), sil, silHead, [0, -4, 0], { scale: [1, 8, 1], cast: false, recv: false });
+  mesh(new THREE.SphereGeometry(1, 28, 18), ridgeM, silHead, [0, 0, 0], { scale: [1.12, 1, 1], cast: false, recv: false });
+  const silNeck = mesh(new THREE.CylinderGeometry(0.14, 0.16, 1, 10), ridgeM, silHead, [0, -4, 0], { scale: [1, 8, 1], cast: false, recv: false });
   [[-6, VZ + 1.5, 3.4, 1.6], [5.5, VZ + 2.5, 3.8, 1.8], [-9, VZ - 3, 3.0, 1.5], [8.5, VZ - 4, 3.2, 1.6], [-1.6, VZ + 4.5, 3.6, 1.7], [1.9, VZ + 6.5, 3.4, 1.6], [-3.4, VZ - 8, 3.2, 1.5], [4.8, VZ - 10, 3.4, 1.6]].forEach(([x, z, h, r]) => {   // 谷の木（暗め）
     mesh(new THREE.CylinderGeometry(0.18, 0.26, h, 8), toon(0x5A4436), sc, [x, h / 2, z], { line: 0.04 }); mesh(new THREE.SphereGeometry(r, 14, 10), toon(0x4E6A50), sc, [x, h + r * 0.6, z], { line: 0.02 }); });
   const tears = [0, 1, 2, 3].map(() => mesh(new THREE.SphereGeometry(0.018, 8, 6), new THREE.MeshBasicMaterial({ color: 0x9FD0F0 }), sc, [0, -10, 0], { scale: [1, 1.5, 1], cast: false }));
@@ -1195,8 +1195,8 @@ function ep05(p) {
   const longNeck = mesh(new THREE.CylinderGeometry(0.13, 0.15, 1, 14), skinM, bf.body, [0, 1, 0], { line: 0.1 });
   // アイキャッチの舞台
   const EX = -60, EYEC = 0xF1E4CC;
-  mesh(new THREE.PlaneGeometry(40, 40), new THREE.MeshBasicMaterial({ color: EYEC }), sc, [EX, 0.001, 0], { rot: [-Math.PI / 2, 0, 0], cast: false, recv: false });
-  mesh(new THREE.PlaneGeometry(40, 40), new THREE.MeshBasicMaterial({ color: EYEC }), sc, [EX, 10, -4], { cast: false, recv: false });
+  const eyeFloor = mesh(new THREE.PlaneGeometry(40, 40), new THREE.MeshBasicMaterial({ color: EYEC }), sc, [EX, 0.001, 0], { rot: [-Math.PI / 2, 0, 0], cast: false, recv: false });
+  const eyeWall = mesh(new THREE.PlaneGeometry(40, 40), new THREE.MeshBasicMaterial({ color: EYEC }), sc, [EX, 10, -4], { cast: false, recv: false });   // 谷のカットで遠くに見えないよう、アイキャッチのときだけ出す
   const blob = mesh(new THREE.CircleGeometry(0.75, 32), new THREE.MeshBasicMaterial({ color: 0xC9B79C, transparent: true, opacity: 0.6 }), sc, [EX, 0.01, 0], { rot: [-Math.PI / 2, 0, 0], cast: false, recv: false });
   const bf2 = bigFace(sc); bf2.root.position.set(EX, 0, 0);
   // 点の列をたどる（[時刻, x, z]）。動いている間は walking=true
@@ -1250,7 +1250,12 @@ function ep05(p) {
     else if (t < E.s4) { place(oni, path(t, [[E.s3 + 0.5, -8.6, 2.8], [E.find2 - 0.3, -5.1, 3.7]]), [T2[0], T2[1]]); if (t > E.find2) point(oni, E.find2, 0);
       k1.root.visible = k2.root.visible = kt.root.visible = false; }
     else if (t < E.s5) { place(oni, path(t, [[E.s4 + 0.5, 2.8, 9.8], [E.find3 - 0.2, 0.5, 7.8]]), [T3[0], T3[1]]); if (t > E.find3) point(oni, E.find3, 0);
-      place(kt, path(t, [[E.s4, -6.5, 2.0], [E.s5 - 0.4, KID[0], KID[1]]])); k1.root.visible = k2.root.visible = false; }   // 小さい子がチョウを追って林へ
+      place(kt, path(t, [[E.s4, -6.5, 2.0], [E.lost - 0.1, KID[0], KID[1]]])); k1.root.visible = k2.root.visible = false;
+      if (t >= E.lost) { oni.root.visible = false;   // チョウを追っているうちに、谷の奥まで来てしまう
+        const P = path(t, [[E.lost, 1.6, VZ + 3.0], [E.lost + 1.7, 0, VZ]]); place(kt, P); kt.root.rotation.y = Math.PI + 0.5 * Math.max(0, 1 - seg(t, E.lost, E.lost + 1.7));
+        const up = ease(seg(t, E.lost + 1.2, E.lost + 1.6)) * (1 - ease(seg(t, E.lost + 2.1, E.lost + 2.4))); kt.arms[1].rotation.x = -2.6 * up; kt.neck.rotation.x = -0.45 * up;   // 手をのばすが、チョウは高く飛んでいく
+        if (t > E.lost + 2.3) { const lk = seg(t, E.lost + 2.3, E.s5); kt.root.rotation.y = Math.PI + Math.sin(lk * 7) * 1.4 * Math.min(1, lk * 3); kt.neck.rotation.x = 0.1; }   // ふり返る。だれもいない
+      } }   // 小さい子がチョウを追って林へ
     else if (t < E.s7) {   // 夕方：みんな集まる。オニが人数を数える。ひとり足りない
       place(oni, [0, -1.2, false]); oni.root.rotation.y = 0; place(k1, [-1.0, 0.2, false], [0, -1.2]); place(k2, [1.0, 0.2, false], [0, -1.2]); kt.root.visible = false;
       const tg = t < E.c2 ? [-1.0, 0.2] : t < E.c3 ? [1.0, 0.2] : t < E.cEmpty ? [2.6, -0.7] : [-2.2, -0.1];
@@ -1268,7 +1273,7 @@ function ep05(p) {
       if (t < E.go) { place(kt, [0, VZ, false]); kt.root.rotation.y = Math.PI; cry(t < E.see); if (t >= E.see) { kt.neck.rotation.x = -0.35 * ease(seg(t, E.see, E.see + 0.4)); } }   // 顔をあげて、稜線の上の頭に気づく
       else { place(kt, path(t, [[E.go, 0, VZ], [E.s9, 0, VZ - 6]])); kt.root.rotation.y = Math.PI; kt.neck.rotation.x = -0.2; } }
     // 稜線の向こうの頭（シルエット）：首がのびて、稜線の上に出てくる
-    silHead.visible = t >= E.s8 && t < E.s9; { const r = ease(seg(t, E.rise0, E.rise1)); silHead.position.set(-1.0, lerp(3.0, 7.6, r), VZ - 35); silHead.rotation.z = 0.06 * Math.sin(t * 1.4); }
+    silHead.visible = t >= E.s8 && t < E.s9; { const r = ease(seg(t, E.rise0, E.rise1)); silHead.position.set(-3.0, lerp(8.0, 13.0, r), VZ - 74); silHead.rotation.z = 0.06 * Math.sin(t * 1.4); }
     if (t >= E.s9 && t < E.eye) { place(oni, path(t, [[E.hug - 0.4, -0.6, -0.4], [E.hug + 0.6, -0.4, 1.6]]), [1.0, 0.8]); place(k1, path(t, [[E.hug - 0.2, 0.2, -1.4], [E.hug + 0.8, 2.2, 2.0]]), [1.0, 0.8]); place(k2, path(t, [[E.hug, 2.4, -0.2], [E.hug + 0.9, 2.6, 0.9]]), [1.0, 0.8]);
       const P = path(t, [[E.s9 + 0.2, -5.4, -3.2], [E.hug, 0.3, 1.1]]); place(kt, P, [1.0, 0.8]);
       if (t >= E.hug) { kt.root.rotation.y = Math.atan2(1.0 - 0.3, 0.8 - 1.1); kt.arms[0].rotation.x = kt.arms[1].rotation.x = -1.4; }   // だきつく
@@ -1277,9 +1282,11 @@ function ep05(p) {
     // チョウ（いちばん小さい子の前をひらひら）
     bfl.g.visible = (t > 1.6 && t < E.s3) || (t >= E.s4 && t < E.s5);
     { let bp; if (t < E.s3) bp = [-3.4 + 0.3 * Math.sin(t * 1.3), 1.3 + 0.2 * Math.sin(t * 3.1), 0.2 + 0.3 * Math.cos(t * 1.1)];
-      else { const u = ease(seg(t, E.s4 - 0.3, E.s5 - 0.7)); bp = [lerp(-7.0, KID[0] - 0.6, u) + 0.3 * Math.sin(t * 1.5), 1.3 + 0.25 * Math.sin(t * 3), lerp(1.4, KID[1] - 0.8, u)]; }
+      else if (t < E.lost) { const u = ease(seg(t, E.s4 - 0.3, E.lost - 0.3)); bp = [lerp(-7.0, KID[0] - 0.6, u) + 0.3 * Math.sin(t * 1.5), 1.3 + 0.25 * Math.sin(t * 3), lerp(1.4, KID[1] - 0.8, u)]; }
+      else { const u = ei(seg(t, E.lost + 1.3, E.lost + 3.0)); bp = [lerp(0.2, -3.0, u) + 0.3 * Math.sin(t * 1.5), lerp(1.25, 7.5, u) + 0.2 * Math.sin(t * 3), lerp(VZ - 1.0, VZ - 14, u)]; }   // 高く飛んでいってしまう
       bfl.g.position.set(...bp); bfl.w.forEach((w, i) => w.rotation.y = (i ? -1 : 1) * 0.9 * Math.abs(Math.sin(t * 14))); bfl.g.rotation.y = t * 0.6; }
     // アイキャッチ
+    eyeFloor.visible = eyeWall.visible = t >= E.eye;
     if (t >= E.eye) {
       const k = t - E.eye, fall = Math.min(1, k / 0.32), y = 3.2 * (1 - fall * fall); bf2.root.position.y = y; const land = k - 0.32;
       bf2.st.look = [0, 0]; bf2.st.blink = 0; bf2.st.mouth = 0; bf2.st.happy = 1; bf2.st.sq = 0; let p2 = 0;
@@ -1294,15 +1301,16 @@ function ep05(p) {
     else if (t < E.s3) cam([T1[0] - 1.0, 1.7, T1[1] + 8.0], [T1[0] - 0.5, 1.5, T1[1]], 48);   // 木の後ろ：顔が両側からはみ出す
     else if (t < E.s4) cam([-6.2, 1.5, 6.8], [T2[0] + 0.2, 1.0, T2[1]], 50);   // 段ボール箱：ふたが頭にのる
     else if (t < E.kidcut) cam([1.0, 1.8, 17.0], [-5.0, 1.2, -3.0], 54);
-    else if (t < E.s5) { kt.root.updateMatrixWorld(true); const kp = kt.root.position; cam([kp.x + 2.2, 0.9, kp.z + 3.4], [kp.x - 1.0, 0.8, kp.z - 2.6], 46); }   // 小さい子がチョウを追って林に入っていく（迷子の前ふり）   // 茂み。奥で小さい子がチョウを追って林へ
+    else if (t < E.lost) { kt.root.updateMatrixWorld(true); const kp = kt.root.position; cam([kp.x + 2.2, 0.9, kp.z + 3.4], [kp.x - 1.0, 0.8, kp.z - 2.6], 46); }   // 小さい子がチョウを追って林に入っていく（迷子の前ふり）
+    else if (t < E.s5) cam([2.6, 1.1, VZ + 4.6], [0.2, 1.1, VZ - 1.0], 44);   // 谷の奥：チョウが飛んでいき、ふり返るとだれもいない   // 茂み。奥で小さい子がチョウを追って林へ
     else if (t < E.s6) cam([1.0, 2.0, 8.0], [0.4, 1.0, -0.6], 46);
     else if (t < E.s7) cam([0.35, 0.85, VZ - 2.6], [0, 0.72, VZ], 44);   // 遠い谷：泣いている子の前から
     else if (t < E.s8) cam([-3.4, 1.0, -2.4], [1.0, 4.8, 0.8], 62);   // 前の下から：首がのびていく
-    else if (t < E.s9) cam([0.25, 1.0, VZ + 2.6], [-0.5, 3.6, VZ - 35], 40);   // 子の後ろから：遠くの稜線の上に、シルエットの頭
+    else if (t < E.s9) cam([0.25, 1.0, VZ + 2.6], [-1.0, 7.0, VZ - 70], 40);   // 子の後ろから：遠くの稜線の上に、シルエットの頭
     else if (t < E.s10) cam([3.0, 1.7, 7.0], [0.4, 1.3, 0.6], 46);
     else if (t < E.eye) { const u = ease(seg(t, E.s10, E.eye)); cam([lerp(7, 12, u), lerp(3, 5, u), lerp(12, 20, u)], [0, 1.6, 0], 42); }   // 引きの絵で終わる
     else { cam([EX, 1.4, 9.0], [EX, 0.75, 0], 36); sun.position.set(EX + 6, 10, 8); sun.target.position.set(EX, 0, 0); sun.color.setHex(0xFFF2DE); sun.intensity = 1.55; hemi.intensity = 1.15; hemi.color.setHex(0xFFF8EC); }
-    const far = (t >= E.s6 && t < E.s7) || (t >= E.s8 && t < E.s9); sc.fog.near = far ? 200 : 24; sc.fog.far = far ? 400 : 75;   // 谷では霧で稜線が消えないように
+    const far = (t >= E.lost && t < E.s5) || (t >= E.s6 && t < E.s7) || (t >= E.s8 && t < E.s9); sc.fog.near = far ? 200 : 24; sc.fog.far = far ? 400 : 75;   // 谷では霧で稜線が消えないように
     C.updateProjectionMatrix();
   };
 }
