@@ -77,6 +77,9 @@ def shrinkS(sec):
 put(shrinkS(1.4), E["retract"], 0.8)
 for nn, at in [(79, 0.0), (84, 0.25)]: put(music.toypiano(music.hz(nn), 0.8), E["see"] + 0.3 + at, 0.4)   # 林の子が顔に気づく
 for nn in (72, 76, 79): put(music.feltpiano(music.hz(nn), 1.6), E["hug"], 0.22)                          # だきつく
+def sniff():      # すすり泣き（息を吸う短い音。声ではない）
+    L = int(0.22 * SR); t = np.arange(L) / SR; x = hp(rng.standard_normal(L), 3) * np.sin(np.pi * t / 0.22) ** 2; return x / np.abs(x).max() * 0.08
+for at in list(np.arange(E["s6"] + 0.4, E["s7"] - 0.3, 0.9)) + list(np.arange(E["s8"] + 0.2, E["see"] - 0.2, 0.9)): put(sniff(), at + 0.1 * rng.random(), 0.8)
 import render
 render.set_voice("0.vvm", 10, 0.85, -0.03, 0.9)
 render._YOMI["ビッグフェイスのかくれんぼ"] = "ビッグフェイスの、カクレンボ"
