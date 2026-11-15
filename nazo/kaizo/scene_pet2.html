@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8">
+<style>
+@font-face{font-family:"JumpSans";font-weight:400;src:url(fonts_jp/NotoSansCJKjp-Regular.woff2) format("woff2")}
+@font-face{font-family:"JumpSans";font-weight:700;src:url(fonts_jp/NotoSansCJKjp-Bold.woff2) format("woff2")}
+@font-face{font-family:"JumpSans";font-weight:900;src:url(fonts_jp/NotoSansCJKjp-Black.woff2) format("woff2")}
+html,body{margin:0;background:#000}
+#stage{position:relative;width:540px;height:960px;overflow:hidden}
+#stage canvas{position:absolute;left:0;top:0}
+#haze{position:absolute;left:0;top:0;width:540px;height:960px;background:#ffffff;opacity:0}
+#hud{position:absolute;left:0;top:0;width:540px;height:960px;font-family:"JumpSans"}
+#hud text{paint-order:stroke;stroke:#101010;stroke-linejoin:round;fill:#fff}
+</style></head>
+<body><div id="stage"><div id="haze"></div><svg id="hud" viewBox="0 0 540 960" xmlns="http://www.w3.org/2000/svg"></svg></div>
+<script src="vendor.js"></script>
+<script>
+// 改造ショート「ペットボトルでロケットを作る」（紆余曲折版） 水ロケットで失敗→エンジン→上昇→宇宙→帰還→着水
+const getJ=u=>{const x=new XMLHttpRequest();x.open('GET',u,false);x.send();if(x.status!==200)throw new Error('読めない: '+u);return JSON.parse(x.responseText)};
+const ID=(new URLSearchParams(location.search).get('spec')||'kaizo_bottle').replace(/^.*\//,'').replace(/\.json$/,'');
+const SPEC=getJ('specs/'+ID+'.json'),TL=getJ('specs/'+ID+'_timeline.json');
+const W=540,H=960,DUR=TL.total,FOV=30,TANH=Math.tan(FOV/2*Math.PI/180);
+const clamp=(x,a,b)=>Math.min(b,Math.max(a,x)),lerp=(a,b,k)=>a+(b-a)*k,sstep=(a,b,x)=>{const k=clamp((x-a)/(b-a),0,1);return k*k*(3-2*k)};
+function rng(seed){let s=seed>>>0;return()=>{s=(Math.imul(s,1664525)+1013904223)>>>0;return s/4294967296}}
+const LINES=SPEC.lines.map((l,i)=>Object.assign({},l,TL.beats[i]));
+const fxL=fx=>LINES.find(l=>l.fx===fx);
+const fxStart=fx=>{const l=fxL(fx);return l?l.t0:1e9},fxEnd=fx=>{const l=fxL(fx);return l?l.t1:-1};
+const addT={};for(const l of LINES)if(l.add)addT[l.add]=l.t0+0.25;
+// 発射は早め（「発射」のセリフの途中）。宇宙に出るのは fx:'space' の行の頭。そのあいだは空を上っていく
+const LL=fxL('launch'),T_LAUNCH=LL?LL.t0+LL.voice*.45:1e9,T_SPACE=fxStart('space'),T_SHOW=1e9,T_STRAIGHT=addT.fins||1e9;
+const WL=fxL('waterLaunch'),T_WL=WL?WL.t0+WL.voice*.3:1e9,FB=fxL('fallback'),T_WEND=FB?FB.t1+.2:1e9;
+const T_RE=fxStart('reentry'),T_FALL=fxStart('falling'),T_SPLASH=fxStart('splash'),T_CHUTE=addT.chute||1e9;
+const CD=[];
+
+const renderer=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true});
+renderer.setPixelRatio(window.devicePixelRatio||1);renderer.setSize(W,H);renderer.autoClear=false;renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.05;
+document.getElementById('stage').prepend(renderer.domElement);
+const L=(c,o)=>new THREE.MeshLambertMaterial(Object.assign({color:c,flatShading:true},o||{}));
+const S=(c,o)=>new THREE.MeshStandardMaterial(Object.assign({color:c,roughness:.45,metalness:.1},o||{}));
+function mesh(g,m,sh=true){const x=new THREE.Mesh(g,m);x.castShadow=sh;x.receiveShadow=true;return x}
+const box=(w,h,d,m)=>mesh(new THREE.BoxGeometry(w,h,d),m);
+
+// ===== 背景：地上は上が青・下が白っぽい空（主役の暗い緑のびんがくっきり見える）。宇宙は地球と星 =====
+function gradTex(stops){const c=document.createElement('canvas');c.width=4;c.height=512;const x=c.getContext('2d'),g=x.createLinearGradient(0,0,0,512);stops.forEach(([k,col])=>g.addColorStop(k,col));x.fillStyle=g;x.fillRect(0,0,4,512);
+  const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;return t}
+const bgGround=new THREE.Scene();const SKYTEX=gradTex([[0,'#5fa8e8'],[.55,'#bfe0f7'],[1,'#f3efe4']]),SKYC=new THREE.Color(0x7fbcec);bgGround.background=SKYTEX;
+const bgSpace=new THREE.Scene();bgSpace.background=new THREE.Color(0x04060c);
+const STARS=new THREE.Group();bgSpace.add(STARS);
+{const r=rng(9),n=1400,pos=new Float32Array(n*3);for(let i=0;i<n;i++){const v=new THREE.Vector3(r()*2-1,r()*2-1,r()*2-1).normalize().multiplyScalar(900);pos.set([v.x,v.y,v.z],i*3)}
+ const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(pos,3));STARS.add(new THREE.Points(g,new THREE.PointsMaterial({color:0xe6ecf5,size:1.8,sizeAttenuation:false})))}
+const earthMat=new THREE.MeshLambertMaterial({color:0xffffff});const earth=new THREE.Mesh(new THREE.SphereGeometry(300,128,96),earthMat);bgSpace.add(earth);
+const atm=new THREE.Mesh(new THREE.SphereGeometry(306,96,64),new THREE.MeshBasicMaterial({color:0x7fb6ff,transparent:true,opacity:.22,side:THREE.BackSide,depthWrite:false}));bgSpace.add(atm);
+bgSpace.add(new THREE.AmbientLight(0x404858,1));{const d=new THREE.DirectionalLight(0xffffff,2.4);d.position.set(300,200,200);bgSpace.add(d)}
+const bgCam=new THREE.PerspectiveCamera(FOV,W/H,.1,3000);
+function earthTexture(img){const c=document.createElement('canvas');c.width=img.width;c.height=img.height;const x=c.getContext('2d');x.drawImage(img,0,0);
+  const d=x.getImageData(0,0,c.width,c.height),p=d.data;for(let i=0;i<p.length;i+=4){const k=p[i]/255,y=(i/4/c.width)/c.height,lat=Math.abs(90-y*180);
+    const land=lat>66?[236,240,244]:(lat<23?[150,164,96]:[110,150,88]),sea=[38,92,160];for(let j=0;j<3;j++)p[i+j]=sea[j]+(land[j]-sea[j])*k;p[i+3]=255}
+  x.putImageData(d,0,0);const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;return t}
+
+// ===== 主役のシーン =====
+const scene=new THREE.Scene();
+const hemi=new THREE.HemisphereLight(0xeaf4ff,0xb9b2a4,1.3);scene.add(hemi);
+const sun=new THREE.DirectionalLight(0xfff4e2,2.3);sun.position.set(4,8,5);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);
+{const c=sun.shadow.camera;c.left=-5;c.right=5;c.top=5;c.bottom=-5;c.near=.5;c.far=40;sun.shadow.bias=-.0005}scene.add(sun);scene.add(sun.target);
+const rim=new THREE.DirectionalLight(0xdff0ff,2.2);scene.add(rim);scene.add(rim.target);   // 後ろからの光で、びんの輪郭を明るく縁どる（リムライト）
+const groundG=new THREE.Group();scene.add(groundG);
+{const g=mesh(new THREE.PlaneGeometry(400,400),L(0xd8d3c8,{flatShading:false}));g.rotation.x=-Math.PI/2;groundG.add(g);
+ const pad=mesh(new THREE.CylinderGeometry(1.5,1.65,.12,48),S(0x9c9a95,{roughness:.8}));pad.position.y=.06;groundG.add(pad);
+ const ring=mesh(new THREE.RingGeometry(1.15,1.25,64),new THREE.MeshBasicMaterial({color:0xf2c230}),false);ring.rotation.x=-Math.PI/2;ring.position.y=.125;groundG.add(ring);
+ for(let i=0;i<8;i++){const a=i*Math.PI/4,s=mesh(new THREE.PlaneGeometry(.08,.22),new THREE.MeshBasicMaterial({color:0x2b2b2b}),false);s.rotation.x=-Math.PI/2;s.rotation.z=a;s.position.set(Math.cos(a)*1.38,.126,Math.sin(a)*1.38);groundG.add(s)}
+ const r=rng(4);for(let i=0;i<10;i++){const h=mesh(new THREE.IcosahedronGeometry(10+r()*12,0),L(0xb7c3cc));h.scale.y=.32;h.castShadow=false;h.position.set(-110+r()*220,-1,-90-r()*60);groundG.add(h)}}
+const SMOKE=[];{const m=new THREE.MeshLambertMaterial({color:0xeeeeee,transparent:true,opacity:0});const r=rng(12);for(let i=0;i<26;i++){const s=mesh(new THREE.IcosahedronGeometry(.35,1),m.clone(),false);s.visible=false;scene.add(s);SMOKE.push({s,a:r()*6.283,v:.8+r()*1.6,d:r()*.5})}}
+
+const CLOUD=[];{const r=rng(21);for(let i=0;i<16;i++){const c=mesh(new THREE.IcosahedronGeometry(1,1),new THREE.MeshLambertMaterial({color:0xffffff,transparent:true,opacity:.92}),false);c.scale.set(2.4+r()*2,.7+r()*.4,1.6+r());
+  const a=r()*6.283,d=4+r()*9;CLOUD.push({c,x:Math.cos(a)*d,z:Math.sin(a)*d-3,h:r()});scene.add(c)}}
+// ワインボトル（高さ約2.4の大きな模型として扱う）。原点は底の中心
+const FR=new THREE.Group();scene.add(FR);
+const body=new THREE.Group();FR.add(body);
+const prof=[[0,.05],[.12,0],[.2,.07],[.28,0],[.36,.07],[.4,.17],[.4,1.3],[.37,1.45],[.26,1.64],[.18,1.8],[.145,1.95],[.145,2.1],[.19,2.11],[.19,2.15],[.145,2.16],[.145,2.22],[0,2.22]].map(([x,y])=>new THREE.Vector2(x,y));
+const glassMat=new THREE.MeshPhysicalMaterial({color:0xcfeaf8,roughness:.04,metalness:0,clearcoat:1,clearcoatRoughness:.03,transparent:true,opacity:.42,depthWrite:false,side:THREE.DoubleSide});
+const bottle=mesh(new THREE.LatheGeometry(prof,64),glassMat);bottle.castShadow=false;bottle.renderOrder=2;body.add(bottle);
+const edge=mesh(new THREE.LatheGeometry(prof,64),new THREE.MeshBasicMaterial({color:0x5f9fc4,side:THREE.BackSide}),false);edge.scale.set(1.025,1.004,1.025);edge.position.y=-.004;body.add(edge);   // ふちを細く縁どって、暗い背景でも形が見えるように
+const inner=mesh(new THREE.CylinderGeometry(.36,.36,1.1,48),new THREE.MeshStandardMaterial({color:0xe9f6fd,transparent:true,opacity:.18,depthWrite:false}),false);inner.position.y=.75;body.add(inner);
+const cork=mesh(new THREE.CylinderGeometry(.165,.165,.16,32),S(0x2f7fd8,{roughness:.4}));cork.position.y=2.3;body.add(cork);
+for(let i=0;i<24;i++){const r=box(.02,.14,.012,S(0x2468b8));const a=i*Math.PI/12;r.position.set(Math.cos(a)*.166,2.3,Math.sin(a)*.166);r.rotation.y=-a;body.add(r)}
+const label=mesh(new THREE.CylinderGeometry(.404,.404,.34,64,1,true),S(0x2b7bd0,{roughness:.6}));label.position.y=1.0;body.add(label);
+const labelMat=label.material;
+// パーツ
+const P={};const part=k=>{const g=new THREE.Group();FR.add(g);P[k]=g;g.visible=false;return g};
+const metal=S(0x8c939b,{metalness:.75,roughness:.32});
+{const g=part('plates');for(const y of[.25,.62,1.25]){const b=mesh(new THREE.CylinderGeometry(.418,.418,.07,64),metal);b.position.y=y;g.add(b);
+   for(let i=0;i<12;i++){const a=i*Math.PI/6,rv=mesh(new THREE.SphereGeometry(.016,8,6),metal);rv.position.set(Math.cos(a)*.42,y,Math.sin(a)*.42);g.add(rv)}}
+ const nb=mesh(new THREE.CylinderGeometry(.16,.16,.08,32),metal);nb.position.y=1.98;g.add(nb)}
+{const g=part('engine'),m=S(0x55595e,{metalness:.65,roughness:.35});const mount=mesh(new THREE.CylinderGeometry(.3,.34,.12,32),m);mount.position.y=-.06;g.add(mount);
+ const bell=mesh(new THREE.CylinderGeometry(.14,.3,.42,32,1,true),S(0x3c3f43,{metalness:.7,side:THREE.DoubleSide}));bell.position.y=-.33;g.add(bell);
+ for(let i=0;i<4;i++){const a=Math.PI/4+i*Math.PI/2,leg=box(.04,.62,.04,m);leg.position.set(Math.cos(a)*.36,-.31,Math.sin(a)*.36);leg.rotation.set(Math.sin(a)*.12,0,-Math.cos(a)*.12);g.add(leg)}}
+{const g=part('fins'),m=S(0xd8402c,{roughness:.4});const sh=new THREE.Shape();sh.moveTo(0,0);sh.lineTo(.4,-.45);sh.lineTo(.4,-.62);sh.lineTo(0,-.42);sh.lineTo(0,.5);sh.lineTo(0,0);
+ const geo=new THREE.ExtrudeGeometry(sh,{depth:.035,bevelEnabled:false});geo.translate(0,0,-.017);
+ for(let i=0;i<4;i++){const f=mesh(geo,m);const a=Math.PI/4+i*Math.PI/2;f.position.set(Math.cos(a)*.38,.0,Math.sin(a)*.38);f.rotation.y=-a;g.add(f)}}
+const goldMat=S(0xe9b336,{metalness:.35,roughness:.3,emissive:0x3a2600});
+{const g=part('foil');const f=mesh(new THREE.CylinderGeometry(.41,.41,1.14,64,1,true),goldMat);f.position.y=.74;g.add(f);
+ const sh=mesh(new THREE.CylinderGeometry(.2,.41,.36,64,1,true),goldMat);sh.position.y=1.49;g.add(sh)}
+{const g=part('window');const ring=mesh(new THREE.TorusGeometry(.15,.03,10,32),S(0x9aa0a6,{metalness:.7}));ring.position.set(0,.98,.425);g.add(ring);
+ const gl=mesh(new THREE.CircleGeometry(.14,32),S(0x7fc6ee,{metalness:.1,roughness:.05,emissive:0x0b2a44}));gl.position.set(0,.98,.421);g.add(gl)}
+{const g=part('oxygen');const m=S(0xeef2f5,{metalness:.25,roughness:.3}),cap=S(0x2f9e5b);for(const z of[-.14,.14]){const c=mesh(new THREE.CylinderGeometry(.085,.085,.8,20),m);c.position.set(-.5,.75,z);g.add(c);
+  const k=mesh(new THREE.SphereGeometry(.085,16,10,0,Math.PI*2,0,Math.PI/2),cap);k.position.set(-.5,1.15,z);g.add(k)}
+ const st=box(.12,.06,.4,metal);st.position.set(-.44,.5,0);g.add(st)}
+const PUFF=[];{const g=part('thrusters'),m=S(0x55595e,{metalness:.6});for(let i=0;i<4;i++){const a=i*Math.PI/2,x=Math.cos(a)*.36,z=Math.sin(a)*.36;const t=box(.09,.09,.09,m);t.position.set(x,1.5,z);t.rotation.y=-a;g.add(t);
+  const pf=mesh(new THREE.SphereGeometry(.06,10,8),new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0}),false);g.add(pf);PUFF.push({pf,a})}}
+const WING=[];{const g=part('solar'),cell=S(0x1d3f8f,{metalness:.4,roughness:.25}),frame=S(0xb8bec4,{metalness:.7});
+ for(const s of[1,-1]){const w=new THREE.Group();w.position.set(s*.4,1.0,0);g.add(w);const arm=box(.3,.04,.04,frame);arm.position.set(s*.15,0,0);w.add(arm);
+  const pn=box(1.0,.6,.02,cell);pn.position.set(s*.8,0,0);w.add(pn);for(let i=1;i<4;i++){const ln=box(.01,.6,.025,frame);ln.position.set(s*(.3+i*.25),0,0);w.add(ln)}WING.push({w,s})}}
+{const g=part('shield');const sh=mesh(new THREE.CylinderGeometry(.5,.46,.08,48),L(0x5b3a26,{flatShading:false}));sh.position.y=-.02;g.add(sh)}
+// 炎、警告の矢印、熱
+const flameM=c=>new THREE.MeshBasicMaterial({color:c,transparent:true,opacity:.9,blending:THREE.AdditiveBlending,depthWrite:false});
+const flame=mesh(new THREE.ConeGeometry(.22,1.3,20,1,true),flameM(0xffb347),false);flame.rotation.x=Math.PI;FR.add(flame);
+const flameIn=mesh(new THREE.ConeGeometry(.11,.8,16,1,true),flameM(0xfff2c0),false);flameIn.rotation.x=Math.PI;FR.add(flameIn);
+const ARR=[];{const m=new THREE.MeshBasicMaterial({color:0xff4d3a,transparent:true,opacity:0});for(let i=0;i<4;i++){const a=new THREE.Group();const sh=mesh(new THREE.CylinderGeometry(.03,.03,.3,8),m,false);sh.rotation.z=Math.PI/2;a.add(sh);
+  const hd=mesh(new THREE.ConeGeometry(.07,.14,10),m,false);hd.rotation.z=Math.PI/2;hd.position.x=-.2;a.add(hd);const ang=i*Math.PI/2;a.position.set(Math.cos(ang)*.75,.9,Math.sin(ang)*.75);a.rotation.y=-ang;FR.add(a);ARR.push(a)}}
+const heat=mesh(new THREE.SphereGeometry(1,32,20,0,Math.PI*2,Math.PI/2,Math.PI/2),new THREE.MeshBasicMaterial({color:0xff6a2a,transparent:true,opacity:0,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide}),false);
+heat.scale.set(.75,.6,.75);heat.position.y=-.05;FR.add(heat);
+
+const water=mesh(new THREE.CylinderGeometry(.37,.37,.6,48),new THREE.MeshStandardMaterial({color:0x3f8fe0,transparent:true,opacity:.55,depthWrite:false}),false);water.position.y=.36;body.add(water);
+const PUMP=new THREE.Group();scene.add(PUMP);{const m=S(0x5a6068,{metalness:.5});const c=mesh(new THREE.CylinderGeometry(.07,.07,.9,16),m);c.position.set(.9,.45,.4);PUMP.add(c);
+ const base=box(.4,.04,.16,m);base.position.set(.9,.02,.4);PUMP.add(base);const hose=mesh(new THREE.TorusGeometry(.45,.015,8,24,Math.PI*.8),S(0x222222));hose.position.set(.45,.15,.25);hose.rotation.set(Math.PI/2,0,.3);PUMP.add(hose)}
+const PH=new THREE.Group();PUMP.add(PH);{const m=S(0xd8402c);const rod=box(.02,.4,.02,S(0x9aa0a6,{metalness:.7}));rod.position.set(.9,1.05,.4);PH.add(rod);const hd=box(.3,.05,.05,m);hd.position.set(.9,1.26,.4);PH.add(hd)}
+const JET=[];{const m=new THREE.MeshBasicMaterial({color:0xbfe6ff,transparent:true,opacity:.8});const r=rng(33);for(let i=0;i<40;i++){const d=mesh(new THREE.SphereGeometry(.05+r()*.05,8,6),m.clone(),false);d.visible=false;scene.add(d);JET.push({d,a:r()*6.283,s:r(),v:.6+r()*.8})}}
+const hot=mesh(new THREE.CylinderGeometry(.43,.43,1.2,32,1,true,-Math.PI/2,Math.PI),new THREE.MeshBasicMaterial({color:0xff4a1a,transparent:true,opacity:0,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide}),false);hot.position.y=.75;FR.add(hot);
+{const g=part('battery');const b=box(.26,.4,.14,S(0x30343a,{metalness:.4}));b.position.set(0,.8,-.48);g.add(b);const led=box(.18,.05,.02,new THREE.MeshBasicMaterial({color:0x4cff7a}));led.position.set(0,.92,-.555);g.add(led);
+ const t=box(.06,.06,.06,S(0xd8402c));t.position.set(0,1.03,-.48);g.add(t)}
+{const g=part('chute');const can=mesh(new THREE.SphereGeometry(1.1,24,12,0,Math.PI*2,0,Math.PI/2.4),new THREE.MeshLambertMaterial({color:0xff7a2e,side:THREE.DoubleSide}));can.scale.y=.55;can.position.y=4.0;g.add(can);
+ const st=mesh(new THREE.SphereGeometry(1.104,24,12,0,Math.PI*2,0,Math.PI/2.4),new THREE.MeshLambertMaterial({color:0xffffff,side:THREE.DoubleSide,wireframe:false}));st.scale.set(.6,.56,.6);st.position.y=4.0;g.add(st);
+ for(let i=0;i<8;i++){const a=i*Math.PI/4,x=Math.cos(a)*1.0,z=Math.sin(a)*1.0;const ln=new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(x,3.8,z),new THREE.Vector3(0,2.36,0)]),new THREE.LineBasicMaterial({color:0x444444}));g.add(ln)}}
+const OCEAN=new THREE.Group();scene.add(OCEAN);{const sea=mesh(new THREE.PlaneGeometry(400,400,1,1),new THREE.MeshLambertMaterial({color:0x1d5f9e}),false);sea.rotation.x=-Math.PI/2;sea.position.y=.9;OCEAN.add(sea);OCEAN.userData.sea=sea}
+const SPL=[];{const m=new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:.9});const r=rng(44);for(let i=0;i<30;i++){const d=mesh(new THREE.SphereGeometry(.06+r()*.05,8,6),m.clone(),false);OCEAN.add(d);SPL.push({d,a:r()*6.283,v:1.2+r()*1.5})}}
+const RING=mesh(new THREE.RingGeometry(.5,.62,48),new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0,side:THREE.DoubleSide}),false);RING.rotation.x=-Math.PI/2;RING.position.y=.92;OCEAN.add(RING);
+const cam=new THREE.PerspectiveCamera(FOV,W/H,.05,1000);
+
+// ===== HUD =====
+const NS='http://www.w3.org/2000/svg',hud=document.getElementById('hud'),haze=document.getElementById('haze');
+function el(tag,a,txt,parent){const e=document.createElementNS(NS,tag);for(const k in a)e.setAttribute(k,a[k]);if(txt!=null)e.textContent=txt;(parent||hud).appendChild(e);return e}
+const tw=(s,size)=>{let w=0;for(const ch of String(s))w+=ch.charCodeAt(0)<256?.58:1;return w*size};
+function T(x,y,size,txt,o={}){const a={x,y,'font-size':size,'font-weight':o.w||900,'text-anchor':o.a||'start','stroke-width':o.sw!=null?o.sw:Math.max(3,size*.2)};let st='';if(o.fill)st+='fill:'+o.fill+';';if(o.op!=null)st+='opacity:'+o.op+';';if(st)a.style=st;if(o.tf)a.transform=o.tf;return el('text',a,txt)}
+function pill(x,y,txt,size,fill){const w=tw(txt,size)+20,x0=x-w/2;el('rect',{x:x0,y:y-size-6,width:w,height:size+13,rx:6,fill});el('text',{x:x0+10,y,'font-size':size,'font-weight':900,'stroke-width':0},txt)}
+const PARTS=Object.keys(SPEC.parts);
+const PILL={problem:['問題','#e0412f'],fix:['解決','#2f9e5b'],bonus:['もともと解決','#c98a12'],launch:['発射','#e0412f']};
+function drawHud(t){hud.innerHTML='';
+  T(270,96,32,SPEC.title[0],{a:'middle',sw:7});T(270,138,32,SPEC.title[1],{a:'middle',sw:7,fill:'#ffd43b'});
+  const l=LINES.find(x=>t>=x.t0-.02&&t<x.t1+.12)||LINES.filter(x=>x.t0<=t).pop();if(!l)return;
+  const a=clamp((t-l.t0)/.12,0,1);
+  let y=l.cap.length>1?690:712;l.cap.forEach((s,i)=>{const size=Math.min(44,476/tw(s,1));T(270,y+(1-a)*6,size,s,{a:'middle',sw:9,op:(.3+.7*a).toFixed(2)});y+=size+12})}
+
+// ===== 1コマ =====
+const popS=(t,t0)=>{const u=(t-t0)/.35;if(u<0)return 0;if(u>=1)return 1;const c=1.70158;return 1+(c+1)*Math.pow(u-1,3)+c*Math.pow(u-1,2)};
+const win=(t,a,b,e=.3)=>t>=a&&t<b+e?sstep(a,a+e,t)*(1-sstep(b,b+e,t)):0;
+window.renderAt=function(t){
+  // 場面：地上 → 上昇 → 宇宙 → 落下（空）→ 海
+  const space=t>=T_SPACE&&t<T_FALL,fly=t>=T_LAUNCH&&t<T_SPACE,fall=t>=T_FALL&&t<T_SPLASH,sea=t>=T_SPLASH,ground=t<T_LAUNCH;
+  const lift=.66*sstep(addT.engine,addT.engine+.35,t);
+  let y=lift,spin=0,tilt=0,yaw=0;
+  // 水ロケット：上がって、止まって、落ちてくる
+  if(ground&&t>=T_WL&&t<T_WEND){const T=T_WEND-T_WL,k=(t-T_WL)/T;y+=Math.sin(Math.PI*Math.min(1,k))*7*(1-.15*k);tilt=Math.sin(k*9)*.06}
+  const u=Math.max(0,t-T_LAUNCH),alt=fly?1.6*u*u+.6*u:0;y+=alt;
+  if(fly){const before=t<T_STRAIGHT,damp=before?1:Math.exp(-(t-T_STRAIGHT)*4);const s0=Math.min(t,T_STRAIGHT)-T_LAUNCH;spin=s0*s0*2.6+(before?0:(1-damp)*.8);tilt=Math.sin(u*8)*.2*damp*sstep(0,.6,u)}
+  // 宇宙：わざと回す（バーベキュー・ロール）
+  const BQ=fxL('bbq');if(BQ&&t>=BQ.t0&&t<T_FALL)yaw=(t-BQ.t0)*.9*sstep(BQ.t0,BQ.t0+.6,t);
+  if(space)tilt=.05*Math.sin((t-T_SPACE)*.8);
+  if(fall){tilt=.04*Math.sin(t*3)}
+  let fy=y;if(space||fall)fy=0;
+  if(sea){const k=t-T_SPLASH;fy=.25+.06*Math.sin(k*2.2)+Math.max(0,.5-k*1.5);tilt=.18+.05*Math.sin(k*1.7)}
+  FR.position.y=fy;FR.rotation.set(tilt,spin+yaw,0,'YXZ');
+  // 中の水（エンジンに替えたら消える）
+  water.visible=t<addT.engine;water.scale.y=ground&&t>=T_WL?Math.max(.02,1-(t-T_WL)/.6):1;water.position.y=.06+.3*water.scale.y;
+  // 空気入れ
+  const PU=fxL('pump');PUMP.visible=t<T_WL+.2;PH.position.y=PU&&t>=PU.t0&&t<PU.t1?-.3*Math.abs(Math.sin((t-PU.t0)*5)):0;
+  JET.forEach((o,i)=>{const k=(t-T_WL)*3+o.s;const on=ground&&t>=T_WL&&t<T_WL+.6;o.d.visible=on;if(on){const ph=k%1;o.d.position.set(Math.cos(o.a)*ph*.25,FR.position.y-ph*1.6*o.v,Math.sin(o.a)*ph*.25);o.d.material.opacity=.85*(1-ph)}});
+  // ふくらむ
+  const SW=fxL('swell');const swk=SW&&t>=SW.t0&&t<addT.plates+.25?sstep(SW.t0,SW.t0+.8,t)*(.06+.015*Math.sin(t*14)):0;body.scale.set(1+swk,1,1+swk);
+  ARR.forEach((a,i)=>{a.children.forEach(c=>c.material.opacity=swk>0?.95:0);a.position.setLength(.62+swk*3)});
+  // 日なた側が焼ける（宇宙に出た直後と、窓から日が差すとき）。わざと回すと消える
+  const HS=fxL('hotside');const h1=space?win(t,T_SPACE+.3,addT.foil-.1,.4):0,h2=HS?win(t,HS.t0,BQ?BQ.t0+.8:HS.t1,.5):0;hot.material.opacity=Math.max(h1,h2*.8)*(.6+.1*Math.sin(t*20));hot.visible=hot.material.opacity>.01;hot.rotation.y=-yaw-spin;
+  // パーツ
+  for(const k of PARTS){const g=P[k],s=popS(t,addT[k]);g.visible=s>0&&!(k==='chute'&&sea&&false);if(s>0)g.scale.setScalar(Math.max(.001,s))}
+  WING.forEach(({w})=>{w.scale.x=Math.max(.02,sstep(addT.solar+.1,addT.solar+.9,t))});
+  if(P.chute){P.chute.visible=t>=T_CHUTE&&t<T_SPLASH+.6;if(P.chute.visible){const k=sstep(T_CHUTE,T_CHUTE+.6,t);P.chute.scale.set(Math.max(.05,k),1,Math.max(.05,k))}}
+  // 炎：水ロケットのときは無し。エンジン発射〜宇宙まで（宇宙では弱く）、帰りは消す
+  const fire=t>=T_LAUNCH-.2&&t<T_RE;const big=space?.5:1+sstep(T_LAUNCH,T_LAUNCH+.6,t)*.7;
+  const fk=(.85+.15*Math.sin(t*53)+.08*Math.sin(t*31))*big;flame.visible=flameIn.visible=fire;flame.scale.set(fk,fk*(1+.3*Math.sin(t*41)),fk);flame.position.y=-.55-.65*fk;flameIn.scale.copy(flame.scale);flameIn.position.y=-.55-.4*fk;
+  SMOKE.forEach(o=>{const v=t-T_LAUNCH-o.d;o.s.visible=!space&&v>0&&v<4&&!fall&&!sea;if(o.s.visible){const r=.6+o.v*v*1.2;o.s.position.set(Math.cos(o.a)*r,.25+v*.25,Math.sin(o.a)*r);o.s.scale.setScalar(.6+v*1.3);o.s.material.opacity=clamp(.85-v*.25,0,.85)}});
+  // 雲：上昇中は下へ、落下中は上へ流れる
+  const p=fly?clamp((t-T_LAUNCH)/(T_SPACE-T_LAUNCH),0,1):0,q=fall?clamp((t-T_FALL)/(T_SPLASH-T_FALL),0,1):0;
+  const fallSpeed=fall?(t<T_CHUTE?14:14*Math.exp(-(t-T_CHUTE)*2)+3):0,fallDist=fall?(Math.min(t,T_CHUTE)-T_FALL)*14+(t>T_CHUTE?(t-T_CHUTE)*4:0):0;
+  CLOUD.forEach(o=>{const on=(fly&&alt>3)||fall;o.c.visible=on;if(on){const span=26,mv=fly?-alt*.9:fallDist*.9,yy=((o.h*span+mv)%span+span)%span-span/2;o.c.position.set(o.x,FR.position.y+yy,o.z);o.c.material.opacity=.9*(fly?(1-sstep(.6,.95,p)):sstep(0,.2,q))}});
+  // 大気圏の熱
+  const hk=t>=T_RE&&t<T_FALL+.3?sstep(T_RE,T_RE+.5,t)*(1-sstep(T_FALL-.1,T_FALL+.3,t)):0;heat.material.opacity=hk*(.45+.06*Math.sin(t*37));heat.visible=hk>0;
+  // 暗くなる：電気がない（太陽電池で戻る）、地球の影（電池で戻る）
+  const dk1=t>=fxStart('dark')&&t<addT.solar+.6?sstep(fxStart('dark'),fxStart('dark')+.4,t)*(1-sstep(addT.solar+.1,addT.solar+.6,t)):0;
+  const EC=fxL('eclipse');const dk2=EC?win(t,EC.t0,addT.battery+.2,.5):0;const dk=Math.max(dk1,dk2*.9);
+  // 光と背景
+  hemi.color.set(0xeaf4ff);sun.color.set(0xfff4e2);
+  groundG.visible=ground||(fly&&alt<60);OCEAN.visible=sea;
+  hemi.intensity=(space?.55:1.3)*(1-dk*.65);sun.intensity=(space?3.0:2.3)*(1-dk*.75);rim.intensity=2.4*(1-dk*.6);
+  if(ground)bgGround.background=SKYTEX;else if(fly)bgGround.background=SKYC.clone().lerp(new THREE.Color(0x0b1a3a),sstep(.25,1,p));else bgGround.background=new THREE.Color(0x0b1a3a).lerp(SKYC,sstep(0,.6,q+ (sea?1:0)));
+  if(sea)bgGround.background=SKYTEX;
+  if(space&&dk2>0)earth.material.color.setScalar(1-dk2*.7);else earth.material.color.setScalar(1);
+  // しぶき
+  const sk=sea?t-T_SPLASH:-1;SPL.forEach(o=>{const on=sk>=0&&sk<1.4;o.d.visible=on;if(on){const r=.5+o.v*sk*.6;o.d.position.set(Math.cos(o.a)*r,.9+o.v*sk*1.6-4.9*sk*sk,Math.sin(o.a)*r);o.d.material.opacity=.9*(1-sk/1.4)}});
+  RING.material.opacity=sk>=0?Math.max(0,.8-sk*.4):0;RING.scale.setScalar(1+Math.max(0,sk)*2.5);
+  // カメラ
+  const Vh=lerp(5.0,6.5,sstep(addT.solar,addT.solar+.9,t))+(P.chute&&P.chute.visible?2.2*sstep(T_CHUTE,T_CHUTE+.6,t):0);
+  const d=Vh/(2*TANH),az=(30+20*Math.sin(t*.11))*Math.PI/180;
+  const el=(9+5*Math.sin(t*.07+1))*Math.PI/180-(fly?sstep(0,1,u)*.08:0)+(sea?.12:0);
+  const follow=ground?(t>=T_WL&&t<T_WEND?(FR.position.y-lift):0):0;
+  const ty=(fly?FR.position.y:(ground?lift+follow:fy))+1.2-Vh*50/960+(P.chute&&P.chute.visible?1.2*sstep(T_CHUTE,T_CHUTE+.6,t):0);
+  const tgt=new THREE.Vector3(0,ty,0);cam.position.set(Math.sin(az)*d*Math.cos(el),tgt.y+d*Math.sin(el),Math.cos(az)*d*Math.cos(el));cam.lookAt(tgt);cam.updateProjectionMatrix();
+  sun.position.set(4,FR.position.y+8,5);sun.target.position.set(0,FR.position.y,0);
+  rim.position.set(-Math.sin(az)*6,FR.position.y+5,-Math.cos(az)*6);rim.target.position.set(0,FR.position.y+1,0);
+  bgCam.position.set(0,0,0);bgCam.quaternion.copy(cam.quaternion);bgCam.updateMatrixWorld();
+  {const v=new THREE.Vector3(140,-360,-640).applyQuaternion(cam.quaternion);earth.position.copy(v);atm.position.copy(v);earth.rotation.y=2.2+t*.02}
+  if(space)STARS.rotation.x=(t-T_SPACE)*.03;
+  renderer.clear();renderer.render(space?bgSpace:bgGround,bgCam);renderer.clearDepth();renderer.render(scene,cam);
+  const hz=Math.max(1-Math.min(1,Math.abs(t-T_SPACE)/.3),1-Math.min(1,Math.abs(t-T_FALL)/.3),1-Math.min(1,Math.abs(t-T_SPLASH)/.25));haze.style.opacity=clamp(hz,0,1).toFixed(3);
+  drawHud(t);return{t}};
+window.__info={total:DUR};
+const FONTS=Promise.all([400,700,900].map(w=>document.fonts.load(w+' 20px JumpSans','あ0')));
+const IMG=new Promise((ok,ng)=>{const i=new Image();i.onload=()=>ok(i);i.onerror=()=>ng(new Error('陸地の画像が読めない'));i.src='assets/land_4096.png'}).then(i=>{earthMat.map=earthTexture(i);earthMat.needsUpdate=true});
+Promise.all([FONTS,IMG]).then(()=>{window.__fig={kind:'none'};window.__ready=true},e=>console.log('load error: '+e.message));
+</script></body></html>
