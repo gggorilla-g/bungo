@@ -50,27 +50,22 @@ def write_wav(p, a):
 
 
 def sfx_jump(sid, dur):
-    """着地ごとに「ドン」、見せ場（しゃがみの次の回）からの踏み切りに低く長い一発"""
+    """着地ごとに軽い「タッ」"""
     info = subprocess.run(["node", "render.js", "--page", TPL["jump"]["page"], "--spec", f"specs/{sid}.json", "info"],
                           cwd=KZ, env=node_env(), capture_output=True, text=True, check=True).stdout
     segs = json.loads([l for l in info.splitlines() if l.startswith("{")][-1])["segs"]
+    # 11/15 ルール：ボフン・ドーン（低い衝撃音）は使わない。着地は軽い「タッ」だけ
     out = np.zeros(int(SR * dur)); rng = np.random.default_rng(1)
-    def thud(t0, amp, d=.28, f0=95, f1=45):
-        n = int(SR * d); t = np.arange(n) / SR; f = f1 + (f0 - f1) * np.exp(-t * 18)
-        body = np.sin(2 * np.pi * np.cumsum(f) / SR) * np.exp(-t * (14 if d < .5 else 5))
-        nz = np.convolve(rng.standard_normal(n), np.ones(24) / 24, "same") * np.exp(-t * 60) * .9
-        i = int(t0 * SR); s = (body + nz) * amp; out[i:i + n] += s[:len(out) - i]
-    hero = next((s["next"] for s in segs if s.get("crouch")), None)
     for k, s in enumerate([s for s in segs if s["type"] == "contact"]):
-        thud(s["t0"], min(.95, .5 + .06 * k))
-    for s in segs:
-        if s["type"] == "flight" and hero and s["n"] >= hero and s["t0"] > 0:
-            thud(s["t0"], 1.0, d=.9, f0=120, f1=32)
+        d = .06; t = np.arange(int(SR * d)) / SR
+        nz = np.convolve(rng.standard_normal(len(t)), [1, -1], "same")   # 高めのかすれた音
+        tap = (nz * .5 + np.sin(2 * np.pi * 1400 * t) * .3) * np.exp(-t * 70) * min(.6, .3 + .03 * k)
+        i = int(s["t0"] * SR); out[i:i + len(tap)] += tap[:len(out) - i]
     return out
 
 
 def sfx_fold(sid, dur):
-    """1回折るごとに短い「カッ」、字幕が変わる節目に低い「ドン」"""
+    """1回折るごとに短い「カッ」、字幕が変わる節目に「チン」"""
     js = ("const {make}=require('./fold_calc.js'),spec=require('./specs/%s.json'),C=make(spec);const ticks=[],hits=[];let pn=null,pc=null;"
           "for(let i=0;i<=%d;i++){const t=i/30,n=C.nInt(t),c=C.captionAt(t).id;if(t>=C.CO&&pn!==null&&n!==pn)ticks.push({t,n});if(pc!==null&&c!==pc)hits.push({t,id:c});pn=n;pc=c}"
           "console.log(JSON.stringify({ticks,hits}))") % (sid, int(dur * 30))
@@ -81,9 +76,9 @@ def sfx_fold(sid, dur):
     for e in ev["ticks"]:
         d = .05; t = np.arange(int(SR * d)) / SR; f = 900 + e["n"] * 18
         add(e["t"], (np.sin(2 * np.pi * f * t) * .5 + rng.standard_normal(len(t)) * .25) * np.exp(-t * 90) * .32)
-    for e in ev["hits"]:
-        d = .6; t = np.arange(int(SR * d)) / SR; f = 40 + 80 * np.exp(-t * 16)
-        add(e["t"], np.sin(2 * np.pi * np.cumsum(f) / SR) * np.exp(-t * 7) * (.9 if e["id"] != "start" else .6))
+    for e in ev["hits"]:                       # 字幕の節目は「チン」（ボフン・ドーンは使わない 11/15）
+        d = .4; t = np.arange(int(SR * d)) / SR
+        add(e["t"], (np.sin(2 * np.pi * 1760 * t) + .4 * np.sin(2 * np.pi * 2640 * t)) * np.exp(-t * 9) * .22)
     return out
 
 

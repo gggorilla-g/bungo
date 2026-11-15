@@ -108,35 +108,33 @@ def sfx_track(sid, sp, tl, sr):
             env = np.minimum(1, t / .3) * np.minimum(1, (d - t) / .4)
             add(b["t0"], noise * env * (1.6 if ln["fx"] == "launchSpin" else 1.1))
         fx, at = ln.get("fx"), b["t0"] + ln.get("at", 0) * b["voice"]
-        if fx in ("stuck", "ball"):                                     # ゴン（低い打撃音）
-            d = .25; t = np.arange(int(sr * d)) / sr
-            add(at, (np.sin(2 * np.pi * 95 * t) + .4 * np.sin(2 * np.pi * 180 * t)) * np.exp(-t * 18) * .8)
+        # 11/15 ルール：ボフン・ドーン（低い衝撃音）は全チャンネルで使わない。軽い高めの音だけにする
+        def knock(t0, f, amp=.35, d=.07):
+            t = np.arange(int(sr * d)) / sr
+            add(t0, (np.sin(2 * np.pi * f * t) + .3 * np.sin(2 * np.pi * f * 2.7 * t)) * np.exp(-t * 60) * amp)
+        if fx in ("stuck", "ball"):                                     # コツ（軽く当たる）
+            knock(at, 900)
         if fx == "deflect":                                             # キン（はじく音）
             d = .35; t = np.arange(int(sr * d)) / sr
             add(at, (np.sin(2 * np.pi * 1850 * t) + .5 * np.sin(2 * np.pi * 2900 * t)) * np.exp(-t * 12) * .35)
-        if fx in ("recoilMiss", "fire"):                                # ドン（発砲）
-            d = .9; n = int(sr * d); t = np.arange(n) / sr; rng = np.random.default_rng(7)
-            noise = np.convolve(rng.standard_normal(n), np.ones(30) / 30, "same")
-            add(at, (np.sin(2 * np.pi * 55 * t) * 1.2 + noise * 2.2) * np.exp(-t * 6) * .8)
-            if fx == "fire":                                            # 的に当たる音
-                d = .3; t = np.arange(int(sr * d)) / sr
-                add(at + .55, np.sin(2 * np.pi * 140 * t) * np.exp(-t * 14) * .7)
+        if fx == "fire":                                                # 的に当たる「コン」だけ
+            knock(at + .55, 1200, .4)
     return out
 
 
-def build(sid, bgm=None, gpu=False, jobs=2):
+def build(sid, bgm=None, gpu=False, jobs=2, audio_only=False):
     sp = load(sid)
     tl = json.load(open(f"{KZ}/specs/{sid}_timeline.json", encoding="utf-8"))
     page = sp.get("scene_page", "scene_fridge.html")
     n = int(round(tl["total"] * FPS))
     fr = f"{B}/{sid}/fr"; os.makedirs(fr, exist_ok=True)
-    # ---- 絵（並列でコマを描く）
+    # ---- 絵（並列でコマを描く）。audio_only なら描いてあるコマを使い、音だけ作り直す
     env = dict(os.environ); env.setdefault("NODE_PATH", "/opt/npm-tools/node_modules")
     step = (n + jobs - 1) // jobs; procs = []
     for j in range(jobs):
         a, z = j * step, min(n, (j + 1) * step)
         args = ["node", "render.js", "--page", page, "--spec", f"specs/{sid}.json"] + (["--gpu"] if gpu else []) + ["range", str(a), str(z), os.path.abspath(fr)]
-        procs.append(subprocess.Popen(args, cwd=KZ, env=env))
+        procs.append(subprocess.Popen(args, cwd=KZ, env=env)) if not audio_only else None
     if any(p.wait() for p in procs):
         sys.exit("コマの書き出しに失敗")
     # ---- 音（声を時刻どおりに置き、効果音とBGMを重ねる）
@@ -174,6 +172,6 @@ if __name__ == "__main__":
     if cmd == "voice":
         voice(sid)
     elif cmd == "build":
-        build(sid, bgm=get("--bgm"), gpu="--gpu" in opt, jobs=int(get("--jobs", 2)))
+        build(sid, bgm=get("--bgm"), gpu="--gpu" in opt, jobs=int(get("--jobs", 2)), audio_only="--audio-only" in opt)
     else:
         sys.exit("voice / build")
