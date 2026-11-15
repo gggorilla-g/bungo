@@ -1,0 +1,17 @@
+{
+ "thumb": "nazo/manual/nbai/rockets_long_ja_thumb.jpg",
+ "thumb_error": "<HttpError 403 when requesting https://youtube.googleapis.com/upload/youtube/v3/thumbnails/set?videoId=yss67_pWik4&alt=json&uploadType=media returned \"The authenticated user doesn't have permissions to upload and set custom video thumbnails.\". Details: \"[{'message': \"The authenticated user doesn't h",
+ "id": "yss67_pWik4",
+ "url": "https://youtube.com/shorts/yss67_pWik4",
+ "requested_publishAt": "2026-11-17T09:00:00Z",
+ "returned_status": {
+  "uploadStatus": "uploaded",
+  "privacyStatus": "private",
+  "publishAt": "2026-11-17T09:00:00Z",
+  "license": "youtube",
+  "embeddable": true,
+  "publicStatsViewable": true,
+  "selfDeclaredMadeForKids": false,
+  "containsSyntheticMedia": false
+ }
+}

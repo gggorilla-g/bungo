@@ -1,0 +1,52 @@
+【タイトル】
+ロケットの大きさ比べ｜人から世界最大のスターシップまで17機を3Dで並べた
+
+【説明】
+人の身長から、世界最大のロケット「スターシップ」まで、17機を高さの順に3Dで並べました。日本・アメリカ・欧州・インドのロケットが出てきます。
+※高さは公式の値です（「約」は公式の表記が概数のもの）。太さ・形・色は見やすくした目安で、実物とは違います。人の身長は1.7mとしています。
+
+目次
+0:00 はじめに
+0:04 人
+0:15 エレクトロン（米・ニュージーランド）
+0:27 イプシロン（日本）
+0:38 マーキュリー・レッドストーン（米・1961年）
+0:50 ヴェガC（欧州）
+1:01 LVM3（インド）
+1:13 PSLV（インド）
+1:24 H-IIA（日本）
+1:36 H-IIB（日本）
+1:47 ヴァルカン（米）
+1:59 H3（日本）
+2:10 ファルコン9（米）
+2:22 ファルコンヘビー（米）
+2:33 ニューグレン（米）
+2:45 SLS（米・アルテミス計画）
+2:56 サターンV（米・アポロ計画）
+3:08 スターシップ（米）
+3:19 全部を並べて
+
+高さの出典
+・エレクトロン（米・ニュージーランド）：Rocket Lab https://rocketlabcorp.com/assets/Uploads/RL-EducationGraphics-About-Rocket-Lab-and-Electron.pdf
+・イプシロン（日本）：JAXA https://fanfun.jaxa.jp/faq/detail/292.html
+・マーキュリー・レッドストーン（米・1961年）：NASA https://www.nasa.gov/centers-and-facilities/marshall/mercury-redstone-launch-vehicle/
+・ヴェガC（欧州）：ESA https://www.esa.int/Enabling_Support/Space_Transportation/Vega/Vega-C
+・LVM3（インド）：ISRO https://www.isro.gov.in/GSLVmk3_CON.html
+・PSLV（インド）：ISRO https://www.isro.gov.in/PSLV_CON.html
+・H-IIA（日本）：JAXA https://www.rocket.jaxa.jp/rocket/h2a/
+・H-IIB（日本）：JAXA https://fanfun.jaxa.jp/faq/detail/292.html
+・ヴァルカン（米）：ULA https://www.ulalaunch.com/docs/default-source/rockets/vulcancentaur.pdf
+・H3（日本）：JAXA https://www.jaxa.jp/projects/pr/brochure/pdf/01/rocket09.pdf
+・ファルコン9（米）：SpaceX https://new.spacex.com/vehicles/falcon-9
+・ファルコンヘビー（米）：SpaceX https://new.spacex.com/vehicles/falcon-heavy
+・ニューグレン（米）：Blue Origin https://www.blueorigin.com/new-glenn
+・SLS（米・アルテミス計画）：NASA https://www.nasa.gov/reference/space-launch-system/
+・サターンV（米・アポロ計画）：NASA https://www.nasa.gov/learning-resources/for-kids-and-students/what-was-the-saturn-v-grades-5-8/
+・スターシップ（米）：SpaceX https://new.spacex.com/vehicles/starship
+
+BGM：オリジナル
+
+#宇宙 #ロケット #大きさ比べ
+
+【タグ】
+ロケット, 大きさ比べ, 宇宙, 3DCG, H3, スターシップ, サターンV, SLS, ファルコンヘビー
