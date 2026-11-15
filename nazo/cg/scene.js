@@ -1833,7 +1833,130 @@ function driveScene(p) {
   };
 }
 
-const SCENES = { drive: driveScene, town_full: townFull, hakoniwa: hakoniwa, hakoniwa_eki: hakoniwaEki, stage_sea: stageSea, crowd_plaza: crowdPlaza, mini_city: miniCity, seafloor: seafloor, antarctica: antarctica, city: cityScene, icefly: icefly, seaice: seaice, orbit: orbitScene, gravity: gravityScene, surface: surfaceScene, tide: tideScene, land: landScene, flight: flightScene, rewind: rewindScene, spin: spinScene, axis: axisScene, space: spaceScene };
+// ---------- 動く間違い探し：ドライブ横移動版（drive2）
+// 11/15 ゲンタさん「赤青の違いみたいな感じでマンネリ化してる」「縦構図より横移動のカット割ったやつの方が評判いい」
+// → カメラは車の横を並走（3カット：横・低い望遠・高い横）。違いは色以外：ない／ある、形、数、大きさ、動き、向き。
+// p.biome: "sea"（海沿い）/ "snow"（雪道）/ "town"（夕方の町）。違いの名前は各場面の ITEMS を見る
+function drive2Scene(p) {
+  const sc = CUR = new THREE.Scene();
+  const D = new Set(p.diff || []), BI = p.biome || "sea";
+  const PAL = { sea: { sky: 0xa8e0ff, ground: 0x6cc26c, far: 0x86bf8c }, snow: { sky: 0xd6e8f5, ground: 0xf4f6f8, far: 0xcfdbe6 }, town: { sky: 0xf2b27a, ground: 0x9a8f80, far: 0xc98e72 } }[BI];
+  sc.background = new THREE.Color(PAL.sky); sc.fog = new THREE.Fog(PAL.sky, 60, 170);
+  sc.add(new THREE.AmbientLight(0xffffff, BI === "town" ? 0.8 : 0.95));
+  const dl = new THREE.DirectionalLight(BI === "town" ? 0xffd2a0 : 0xffffff, 1.1); dl.position.set(-30, 40, 20); sc.add(dl);
+  let sd = p.seed || 99; const rr = () => { sd = (sd * 16807) % 2147483647; return sd / 2147483647; };
+  const B = (list, sz = 1, pos = [0, 0, 0]) => { const m = blocks(list, sz); m.position.set(...pos); sc.add(m); return m; };
+  const Bs = (list, sz, pos = [0, 0, 0]) => B(list.map(([x, y, z, c]) => [x * sz, y * sz, z * sz, c]), sz, pos);
+  const V = 5.5, HOLD = p.hold ?? 17, L = V * HOLD, LANE = -1.6, zAt = f => -L * f;
+  const plane = (w, d, col, x, y, z) => { const m = new THREE.Mesh(new THREE.PlaneGeometry(w, d), new THREE.MeshLambertMaterial({ color: col })); m.rotation.x = -Math.PI / 2; m.position.set(x, y, z); sc.add(m); return m; };
+  const ZN = 40, ZF = -L - 120, ZM = (ZN + ZF) / 2, ZL = ZN - ZF;
+  plane(400, ZL, PAL.ground, 0, 0, ZM); plane(7.2, ZL, BI === "snow" ? 0x8a8e94 : 0x5a5a60, 0, 0.02, ZM);
+  const dash = []; for (let z = ZN; z > ZF; z -= 4) dash.push([0, 0.04, z, 0xffffff]); const dm = B(dash, 1); dm.scale.set(0.18, 0.05, 2);
+  if (BI === "sea") { plane(30, ZL, 0xeedc9a, -19, 0.01, ZM); const sea = plane(300, ZL, 0x2f8fe0, -184, 0.03, ZM); }   // 左は砂浜と海
+  for (let k = 0; k < 10; k++) { const x = -(70 + rr() * 60), z = -40 - rr() * (L + 60), h = 14 + rr() * 16;   // 遠くの山（左奥）
+    const m = new THREE.Mesh(new THREE.ConeGeometry(h * 1.3, h, 4), new THREE.MeshLambertMaterial({ color: PAL.far, flatShading: true })); m.position.set(x, h / 2, z); m.rotation.y = Math.PI / 4; sc.add(m); }
+  // 部品
+  const leaf = BI === "snow" ? [0xffffff, 0xe8eef2] : [COL.leaf, COL.leaf2];
+  const tree = (x, z, s = 1) => { const lf = [[0, 0.5, 0, COL.trunk], [0, 1.5, 0, COL.trunk]];
+    for (let a = -1; a <= 1; a++) for (let b = -1; b <= 1; b++) for (let c = 0; c <= 1; c++) lf.push([a, 2.5 + c, b, leaf[(a + b + c + 9) % 2]]);
+    lf.push([0, 4.5, 0, leaf[0]]); return Bs(lf, 0.8 * s, [x, 0, z]); };
+  const palm = (x, z, s = 1) => { const L2 = []; for (let y = 0; y < 6; y++) L2.push([Math.sin(y * 0.4) * 0.6, y, 0, 0x9a7044]);
+    [[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [-1, -1]].forEach(([a, b]) => { L2.push([a, 6, b, 0x3fa34d]); L2.push([a * 2, 5.6, b * 2, 0x2e8b3a]); }); L2.push([0, 6.4, 0, 0x3fa34d]);
+    return Bs(L2, 0.55 * s, [x, 0, z]); };
+  const house = (x, z, wall, roof, o = {}) => { const L2 = [], win = o.win ?? 2;
+    for (let a = -2; a <= 2; a++) for (let b = -2; b <= 2; b++) for (let y = 0; y <= 2; y++) if (Math.abs(a) === 2 || Math.abs(b) === 2) {
+      let c = wall; if (y === 1 && a === 2 && Math.abs(b) <= 1 && (win === 3 || b !== 0) && !(win === 1 && b !== 0)) c = 0x9fd8ff; if (y === 0 && a === 2 && b === 0) c = 0x7a5030; L2.push([a, y + 0.5, b, c]); }
+    for (let a = -3; a <= 3; a++) for (let b = -3; b <= 3; b++) L2.push([a, 3.5, b, roof]);
+    for (let a = -2; a <= 2; a++) for (let b = -2; b <= 2; b++) L2.push([a, 4.5, b, roof]);
+    for (let a = -1; a <= 1; a++) for (let b = -1; b <= 1; b++) L2.push([a, 5.5, b, roof]);
+    if (o.chimney) { L2.push([-1, 6.5, -1, 0x8a5a4a], [-1, 7.5, -1, 0x8a5a4a]); }
+    if (o.antenna) { L2.push([1, 6.5, 1, 0x666666], [1, 7.5, 1, 0x666666], [1, 8.3, 0.5, 0x888888], [1, 8.3, 1.5, 0x888888]); }
+    if (BI === "snow") for (let a = -3; a <= 3; a++) for (let b = -3; b <= 3; b++) if (Math.abs(a) === 3 || Math.abs(b) === 3) L2.push([a, 3.9, b, 0xffffff]);
+    return Bs(L2, 0.9, [x, 0, z]); };
+  const pole = (x, z) => Bs([[0, 0, 0, 0x8a7a6a], [0, 1, 0, 0x8a7a6a], [0, 2, 0, 0x8a7a6a], [0, 3, 0, 0x8a7a6a], [0, 4, 0, 0x8a7a6a], [0, 4.2, 0.6, 0x555555], [0, 4.2, -0.6, 0x555555]], 0.4, [x, 0.2, z]);
+  // 違い（場面ごと5つ）。f = 車がそこを通る時刻の割合。どれも色ではなく、形・ある/ない・数・大きさ・動き・向き
+  const ITEMS = {
+    sea: ["palm_gone", "boat_sail", "umbrella_closed", "lighthouse_short", "crab_extra"],
+    snow: ["snowman_hat", "tree_gone", "house_chimney", "sign_shape", "sled_extra"],
+    town: ["roof_antenna", "cat_extra", "house_window", "bench_person", "lamp_bent"],
+  }[BI];
+  const FS = [0.1, 0.27, 0.45, 0.62, 0.8], DZ = {}; ITEMS.forEach((k, i) => DZ[k] = zAt(FS[i]) - 2);
+  const near = z => Object.values(DZ).some(dz => Math.abs(dz - z) < 7);
+  // 道ばた（左だけ。カメラは右から並走するので、右は遠くに少しだけ）
+  for (let z = ZN; z > ZF; z -= 4.5) {
+    if (near(z)) continue;
+    const x = -(5.5 + rr() * 2.5), u = rr();
+    if (BI === "sea") { if (u < 0.45) palm(x - 1, z + rr() * 2); else if (u < 0.6) pole(-4.6, z); else if (u < 0.7) Bs([[0, 0, 0, 0xffffff], [1, 0, 0, 0xff9a3a], [2, 0, 0, 0xffffff]], 0.35, [x - 3, 0.2, z]); }
+    else if (BI === "snow") { if (u < 0.5) tree(x, z + rr() * 2); else if (u < 0.62) pole(-4.6, z); else if (u < 0.74) house(-(11 + rr() * 5), z, 0xf4e8d8, 0x7a5a3a); }
+    else { if (u < 0.45) house(-(9.5 + rr() * 3), z, [0xf4efe4, 0xffe3b0, 0xdde8f4][Math.floor(rr() * 3)], [0x7a5a3a, 0x5a6a7a, 0x8a5a4a][Math.floor(rr() * 3)], { chimney: rr() < 0.5 });
+      else if (u < 0.65) tree(x, z); else if (u < 0.8) Bs([[0, 0, 0, 0x555555], [0, 1, 0, 0x555555], [0, 2, 0, 0x555555], [0, 3, 0, 0x555555], [0.6, 3.6, 0, 0xffe9a0]], 0.4, [-4.8, 0.2, z]); }
+    if (rr() < 0.4) (BI === "sea" ? palm : tree)(-(14 + rr() * 10), z + 2, 1.2);
+  }
+  for (let z = ZN; z > ZF; z -= 9) if (rr() < 0.5) (BI === "sea" ? palm : tree)(16 + rr() * 14, z, 1.2);
+  // 違いの物
+  const anim = [];
+  if (BI === "sea") {
+    if (!D.has("palm_gone")) palm(-7, DZ.palm_gone); palm(-9.5, DZ.palm_gone + 2.5); palm(-6.5, DZ.palm_gone - 3);
+    const boat = new THREE.Group(); boat.position.set(-37, 0.2, DZ.boat_sail + 3); boat.scale.setScalar(2.4); sc.add(boat);   // 海の上の舟：B は帆がない
+    boat.add(blocks([-2, -1, 0, 1, 2].map(a => [a * 0.8, 0, 0, 0x8a5a3a]).concat([[0, 0.8, 0, 0x8a5a3a], [0, 1.6, 0, 0x8a5a3a], [0, 2.4, 0, 0x8a5a3a]]), 0.8));
+    if (!D.has("boat_sail")) boat.add(blocks([[0.8, 1.2, 0, 0xffffff], [0.8, 2.0, 0, 0xffffff], [1.6, 1.2, 0, 0xffffff], [0.8, 2.8, 0, 0xffffff]], 0.8));
+    anim.push(t => { boat.position.y = 0.2 + 0.15 * Math.sin(t * 1.6); boat.rotation.z = 0.05 * Math.sin(t * 1.3); });
+    Bs([[0, 0, 0, 0xffffff], [0, 1, 0, 0xffffff], [0, 2, 0, 0xffffff], [0, 3, 0, 0xffffff]], 0.3, [-12, 0.15, DZ.umbrella_closed]);   // パラソル：B はたたんでいる
+    if (D.has("umbrella_closed")) Bs([[0, 4, 0, 0xff6a5a], [0, 5, 0, 0xff6a5a], [0, 6, 0, 0xff6a5a]], 0.3, [-12, 0.15, DZ.umbrella_closed]);
+    else { const um = []; for (let a = -3; a <= 3; a++) for (let b = -3; b <= 3; b++) if (a * a + b * b <= 10) um.push([a, 4 + (a * a + b * b <= 2 ? 0.6 : 0), b, (a + b + 20) % 2 ? 0xff6a5a : 0xffffff]); Bs(um, 0.3, [-12, 0.15, DZ.umbrella_closed]); }
+    const lh = []; const H2 = D.has("lighthouse_short") ? 6 : 10; for (let y = 0; y < H2; y++) for (const [a, b] of [[0, 0], [1, 0], [0, 1], [1, 1]]) lh.push([a, y, b, (y >> 1) % 2 ? 0xd83a3a : 0xffffff]);   // 灯台：B は低い
+    lh.push([0, H2, 0, 0xffe9a0], [1, H2, 1, 0xffe9a0], [0, H2 + 1, 0, 0x555555], [1, H2 + 1, 1, 0x555555]); Bs(lh, 0.7, [-22, 0, DZ.lighthouse_short]);
+    if (D.has("crab_extra")) { const cr = Bs([[0, 0, 0, 0xe85a3a], [1, 0, 0, 0xe85a3a], [-0.6, 0.6, 0, 0x222222], [1.6, 0.6, 0, 0x222222], [-1, 0, 0, 0xe85a3a], [2, 0, 0, 0xe85a3a]], 0.6, [-10, 0.3, DZ.crab_extra]); anim.push(t => { cr.position.z = DZ.crab_extra + 0.6 * Math.sin(t * 2); }); }   // B だけカニがいる
+    Bs([[0, 0, 0, 0xb9a070], [1, 0, 0, 0xb9a070], [0, 1, 0, 0xb9a070]], 0.6, [-11, 0.3, DZ.crab_extra + 1.6]);
+  }
+  if (BI === "snow") {
+    const sm = [[0, 0, 0, 0xffffff], [0, 1.6, 0, 0xffffff], [0.6, 1.8, 0.0, 0xff8a2a]]; Bs(sm.slice(0, 2), 1.4, [-7.5, 0.7, DZ.snowman_hat]); Bs([[0, 0, 0, 0x222222], [0, 0, 0.5, 0x222222]], 0.18, [-6.85, 3.1, DZ.snowman_hat - 0.25]); Bs([[0, 0, 0, 0xff8a2a]], 0.3, [-6.75, 2.8, DZ.snowman_hat]);
+    if (!D.has("snowman_hat")) Bs([[0, 0, 0, 0x333333], [0, 1, 0, 0x333333]], 0.8, [-7.5, 3.9, DZ.snowman_hat]);   // 雪だるま：B は帽子がない
+    tree(-7, DZ.tree_gone - 3); if (!D.has("tree_gone")) tree(-7.5, DZ.tree_gone); tree(-6.5, DZ.tree_gone + 3);
+    house(-11, DZ.house_chimney, 0xf4e8d8, 0x8a5a3a, { chimney: !D.has("house_chimney") });
+    Bs([[0, 0, 0, 0x888888], [0, 1, 0, 0x888888], [0, 2, 0, 0x888888]], 0.35, [-4.8, 0.2, DZ.sign_shape]);   // 標識：A は丸、B は三角
+    if (D.has("sign_shape")) { const tri = []; for (let y = 0; y < 4; y++) for (let a = -(3 - y); a <= 3 - y; a++) tri.push([0, y, a, 0xf2c230]); Bs(tri, 0.25, [-4.8, 1.0, DZ.sign_shape]); }
+    else { const ci = []; for (let a = -3; a <= 3; a++) for (let b = -3; b <= 3; b++) if (a * a + b * b <= 9) ci.push([0, a, b, 0xf2c230]); Bs(ci, 0.25, [-4.8, 1.6, DZ.sign_shape]); }
+    if (D.has("sled_extra")) Bs([[0, 0, 0, 0xc85a3a], [0, 0, 1, 0xc85a3a], [0, 0, 2, 0xc85a3a], [0, 0.6, -0.4, 0xc85a3a]], 0.9, [-8.5, 0.45, DZ.sled_extra]);   // B だけソリがある
+    tree(-9, DZ.sled_extra + 2.5, 0.9);
+  }
+  if (BI === "town") {
+    house(-10, DZ.roof_antenna, 0xf4efe4, 0x5a6a7a, { antenna: !D.has("roof_antenna") });   // 屋根のアンテナ：B はない
+    house(-10, DZ.cat_extra, 0xffe3b0, 0x7a5a3a); if (D.has("cat_extra")) { const cat = Bs([[0, 0, 0, 0x333333], [1, 0, 0, 0x333333], [1.4, 0.7, 0, 0x333333], [1.4, 1.2, 0.3, 0x333333], [1.4, 1.2, -0.3, 0x333333], [-0.8, 0.6, 0, 0x333333]], 0.55, [-8.4, 6.0, DZ.cat_extra]); anim.push(t => { cat.rotation.y = 0.3 * Math.sin(t * 1.5); }); }   // B だけ屋根にネコ
+    house(-10, DZ.house_window, 0xdde8f4, 0x8a5a4a, { win: D.has("house_window") ? 1 : 3 });   // 窓の数：A は3つ、B は1つ
+    const bench = Bs([[0, 0, 0, 0x8a6a4a], [1, 0, 0, 0x8a6a4a], [2, 0, 0, 0x8a6a4a], [0, -1, 0, 0x555555], [2, -1, 0, 0x555555]], 0.4, [-5.6, 0.85, DZ.bench_person - 0.4]); bench.rotation.y = Math.PI / 2;
+    if (!D.has("bench_person")) { const pc = blockChar(); pc.scale.setScalar(0.9); pc.position.set(-5.8, 1.1, DZ.bench_person); pc.rotation.y = Math.PI / 2; sc.add(pc); }   // ベンチの人：B はいない
+    const lampB = D.has("lamp_bent");   // 街灯：B は先が反対を向いている
+    Bs([[0, 0, 0, 0x555555], [0, 1, 0, 0x555555], [0, 2, 0, 0x555555], [0, 3, 0, 0x555555], [0, 4, 0, 0x555555], [0, 4, lampB ? -1 : 1, 0x555555], [0, 3.6, lampB ? -1.4 : 1.4, 0xffe9a0]], 0.45, [-4.8, 0.2, DZ.lamp_bent]);
+  }
+  ITEMS.forEach(k => { ANCH[k] = [-8, 2, DZ[k]]; });
+  // ずんだもんの車
+  const mkCar = (col) => { const g = new THREE.Group(), cb = [];
+    for (let a = -1; a <= 1; a++) for (let b = -2; b <= 2; b++) cb.push([a, 0, b, col]);
+    for (let a = -1; a <= 1; a++) for (let b = -1; b <= 0; b++) cb.push([a, 1, b, (b === -1 || Math.abs(a) === 1) ? 0x9fd8ff : col]);
+    [[-1.2, -1.4], [1.2, -1.4], [-1.2, 1.4], [1.2, 1.4]].forEach(([a, b]) => cb.push([a, -0.5, b, 0x222222]));
+    cb.push([-0.7, 0, -2.6, 0xfff2a0], [0.7, 0, -2.6, 0xfff2a0]);
+    const m = blocks(cb.map(([x, y, z, c]) => [x * 0.62, y * 0.62, z * 0.62, c]), 0.62); m.position.y = 0.72; g.add(m); sc.add(g); return g; };
+  const car = mkCar(BI === "snow" ? 0xd84a3a : 0x5aa830);
+  const drv = blockChar(); drv.scale.setScalar(0.62); drv.position.set(0, 1.25, 0.1); drv.rotation.y = Math.PI; car.add(drv);
+  const snow = BI === "snow" ? Array.from({ length: 160 }, () => { const m = new THREE.Mesh(new THREE.SphereGeometry(0.06, 5, 4), new THREE.MeshBasicMaterial({ color: 0xffffff })); sc.add(m); return { m, x: rr() * 30 - 22, y: rr() * 12, z: rr() * 30 - 15, s: 0.6 + rr() }; }) : [];
+  return (t) => {
+    const tc = Math.min(t, HOLD), stopE = 1.2;
+    const dist = tc < HOLD - stopE ? V * tc : V * (HOLD - stopE) + V * stopE * (1 - Math.pow(1 - (tc - HOLD + stopE) / stopE, 2)) / 2;
+    const cz = -dist, f = tc / HOLD, bob = 0.03 * Math.sin(t * 13) * (t < HOLD ? 1 : 0);
+    car.position.set(LANE, bob, cz);
+    anim.forEach(a => a(t));
+    snow.forEach(sn => { const y = ((sn.y - t * sn.s) % 12 + 12) % 12; sn.m.position.set(sn.x, y, cz + sn.z); });
+    // カメラ（3カット、どれも右から横に並走）
+    const k = f < 0.34 ? 0 : (f < 0.67 ? 1 : 2);
+    if (k === 0) { C.fov = 50; C.position.set(LANE + 6.2, 3.4, cz - 1.0); C.lookAt(LANE - 4, 1.2, cz - 1.0); }
+    else if (k === 1) { C.fov = 34; C.position.set(LANE + 12, 2.6, cz + 0.5); C.lookAt(LANE - 7, 1.6, cz); }   // 低い望遠：背景が詰まって流れる
+    else { C.fov = 50; C.position.set(LANE + 7.5, 6.8, cz - 2.0); C.lookAt(LANE - 6, 0.8, cz - 2.0); }   // 高い横
+    C.updateProjectionMatrix();
+  };
+}
+
+const SCENES = { drive2: drive2Scene, drive: driveScene, town_full: townFull, hakoniwa: hakoniwa, hakoniwa_eki: hakoniwaEki, stage_sea: stageSea, crowd_plaza: crowdPlaza, mini_city: miniCity, seafloor: seafloor, antarctica: antarctica, city: cityScene, icefly: icefly, seaice: seaice, orbit: orbitScene, gravity: gravityScene, surface: surfaceScene, tide: tideScene, land: landScene, flight: flightScene, rewind: rewindScene, spin: spinScene, axis: axisScene, space: spaceScene };
 
 window.setup = (j) => {
   job = j; seed = 12345;
