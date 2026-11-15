@@ -169,10 +169,13 @@ LIB = {
     "pop_big":  (lambda: pop(900, 0.15), 0.35),
 }
 _cache = {}
+BANNED = {"boom", "crash"}   # ボフン・ドーンの衝撃音（11/15 ゲンタさん「全撤廃」）。どこから呼ばれても鳴らさない
 ALIAS = {}   # チャンネルごとの音の置き換え（例：怪談では whoosh_l → 風の音）
 
 
 def sound(name):
+    if ALIAS.get(name, name) in BANNED:        # 11/15 ボフン系は全撤廃：直接呼ばれても無音を返す
+        return np.zeros(int(SR * 0.05), np.float32)
     if name not in _cache:
         f, g = LIB[name]
         y = f()
@@ -190,6 +193,8 @@ def mix(wav_path, events):
     sr = p.framerate
     for name, at, k in events:
         name = ALIAS.get(name, name)
+        if name in BANNED:                     # 11/15 ゲンタさん「ボフンみたいなSEは全撤廃」（全チャンネル）
+            continue
         s = sound(name)
         if sr != SR:   # 念のため（通常は24kHz）
             s = np.interp(np.arange(int(len(s) * sr / SR)) * SR / sr, np.arange(len(s)), s)

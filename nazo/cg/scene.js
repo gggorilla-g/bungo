@@ -1722,7 +1722,8 @@ function driveScene(p) {
   sc.background = new THREE.Color(0xa8e0ff); sc.fog = new THREE.Fog(0xa8e0ff, 70, 190);
   sc.add(new THREE.AmbientLight(0xffffff, 0.95));
   const dl = new THREE.DirectionalLight(0xffffff, 1.1); dl.position.set(30, 50, 25); sc.add(dl);
-  let sd = 4242; const rr = () => { sd = (sd * 16807) % 2147483647; return sd / 2147483647; };
+  const FRONT = p.mode === "front";   // 11/15 ゲンタさん「カットは割らずに風景が流れていく感じ。ずんだもんは正面」：車の前から1カットで撮り続ける
+  let sd = p.seed || 4242; const rr = () => { sd = (sd * 16807) % 2147483647; return sd / 2147483647; };
   const B = (list, sz = 1, pos = [0, 0, 0]) => { const m = blocks(list, sz); m.position.set(...pos); sc.add(m); return m; };
   const Bs = (list, sz, pos = [0, 0, 0]) => B(list.map(([x, y, z, c]) => [x * sz, y * sz, z * sz, c]), sz, pos);   // ブロックをすき間なく並べる
   const V = 7, HOLD = p.hold ?? 17, L = V * HOLD, LANE = -1.6;
@@ -1748,7 +1749,8 @@ function driveScene(p) {
     return B(L2, 0.9, [x, 0, z]); };
   const flowers = (x, z) => { const fl = []; for (let k = 0; k < 6; k++) fl.push([rr() * 3 - 1.5, 0.15, rr() * 3 - 1.5, [0xff6a8a, 0xffd23a, 0xffffff, 0xb36aff][k % 4]]); B(fl, 0.3, [x, 0, z]); };
   // 違いの物の場所（車がそこを通る時刻の割合）
-  const DZ = { sign_arrow: zAt(0.2) - 4, mill_reverse: zAt(0.25), house_roof: zAt(0.45), cow_gone: zAt(0.58), mail_blue: zAt(0.8) };
+  const DZ = FRONT ? { sign_arrow: zAt(0.12), mill_reverse: zAt(0.22), house_roof: zAt(0.34), cow_gone: zAt(0.52), mail_blue: zAt(0.68) }   // 前から撮るときは、車の横を通りすぎてから奥へ遠ざかる間に見える
+    : { sign_arrow: zAt(0.2) - 4, mill_reverse: zAt(0.25), house_roof: zAt(0.45), cow_gone: zAt(0.58), mail_blue: zAt(0.8) };
   const near = (z, side) => Object.entries(DZ).some(([k, dz]) => Math.abs(dz - z) < (k === "mill_reverse" ? 4 : 9) && (k === "mill_reverse" ? side > 0 : side < 0));
   // 道ばた（左右）
   for (const side of [-1, 1]) for (let z = ZN; z > ZF; z -= 5) {
@@ -1763,7 +1765,7 @@ function driveScene(p) {
   const signB = Bs(brd, 0.28, [-4.6, 1.75, DZ.sign_arrow + 0.08]);
   const dirA = D.has("sign_arrow") ? -1 : 1, arr = [];
   for (let a = -2; a <= 1; a++) arr.push([a * dirA, 0, 0, 0xffffff]); arr.push([1 * dirA, 1, 0, 0xffffff], [1 * dirA, -1, 0, 0xffffff], [2 * dirA, 0, 0, 0xffffff]);
-  Bs(arr, 0.22, [-4.6, 1.75, DZ.sign_arrow + 0.25]);
+  Bs(arr, 0.22, [-4.6, 1.75, DZ.sign_arrow + 0.25]); Bs(arr, 0.22, [-4.6, 1.75, DZ.sign_arrow - 0.12]);   // 裏にも矢印（前から撮るときは裏が見える）
   ANCH.sign_arrow = [-4.6, 1.75, DZ.sign_arrow];
   // 2) 風車（右の丘）
   const MX = 16, mill = []; for (let y = 0; y <= 7; y++) mill.push([0, y, 0, 0xf4efe4]); mill.push([0, 8, 0, 0xd85a3a]);
@@ -1780,13 +1782,13 @@ function driveScene(p) {
   [-3, 0, 3].forEach((dz, i) => { if (D.has("cow_gone") && i === 1) return;
     const c = [[0, 0, 0, 0xffffff], [1, 0, 0, 0x222222], [-1, 0, 0, 0xffffff], [0, 0, 1, 0x222222], [1, 0, 1, 0xffffff], [-1, 0, 1, 0xffffff], [2, 0.6, 0.5, 0xffffff], [2.6, 0.6, 0.5, 0xf5b8c0],
       [-1, -1, 0, 0xeeeeee], [1, -1, 0, 0xeeeeee], [-1, -1, 1, 0xeeeeee], [1, -1, 1, 0xeeeeee]];
-    const m = Bs(c, 0.6, [-9 - (i % 2) * 2, 1.0, DZ.cow_gone + dz * 1.6]); m.rotation.y = Math.PI / 2 + (i - 1) * 0.5; cows.push(m); });
+    const m = Bs(c, 0.6, [-8 - (i % 2) * 1.2, 1.0, DZ.cow_gone + dz * 1.3]); m.rotation.y = Math.PI / 2 + (i - 1) * 0.5; cows.push(m); });
   ANCH.cow_gone = [-9, 1.2, DZ.cow_gone];
   // 5) ポスト（左の歩道）
   Bs([[0, 0, 0, 0x555555], [0, 1, 0, D.has("mail_blue") ? 0x2f6fd8 : 0xd83a3a], [0, 1.6, 0, D.has("mail_blue") ? 0x2f6fd8 : 0xd83a3a]], 0.6, [-4.5, 0.3, DZ.mail_blue]);
   ANCH.mail_blue = [-4.5, 1.2, DZ.mail_blue];
   // 道ばたで手をふるずんだもん（1人）
-  const wv = blockChar(); wv.scale.setScalar(1.2); wv.position.set(-5.2, 1.0, zAt(0.68)); wv.rotation.y = Math.PI / 2; sc.add(wv);
+  const wv = blockChar(); wv.scale.setScalar(1.2); wv.position.set(-6.8, 1.0, zAt(0.68)); wv.rotation.y = Math.PI / 2; sc.add(wv);
   // 風船（balloon：空の高いところ。車について来る）
   const bal = D.has("balloon") ? B([[0, 0, 0, 0xff4a7a], [0, -0.9, 0, 0xeeeeee]], 0.8) : null;
   // 雲
@@ -1815,17 +1817,18 @@ function driveScene(p) {
     car.position.set(LANE, bob, cz);
     drv.userData.ears && drv.userData.ears.forEach((e, i) => { e.rotation.z = (i ? -1 : 1) * 0.15 * Math.sin(t * 6); });
     // 対向車：f=0.15 と f=0.72 ごろにすれちがう
-    [[0.15, 0], [0.72, 1]].forEach(([fp, i]) => { const meet = HOLD * fp, z = -V * meet + (t - meet) * V; onc[i].position.set(-LANE, 0, z); if (i === 1) ANCH.car_red = [-LANE, 1.2, z]; });
+    (FRONT ? [[0.25, 0], [0.62, 1]] : [[0.15, 0], [0.72, 1]]).forEach(([fp, i]) => { const meet = HOLD * fp, z = -V * meet + (t - meet) * V; onc[i].position.set(-LANE, 0, z); if (i === 1) ANCH.car_red = [-LANE, 1.2, z]; });
     blades.rotation.z = (D.has("mill_reverse") ? -1 : 1) * t * 1.6;
     cows.forEach((m, i) => { m.rotation.z = 0.06 * Math.sin(t * 2 + i); });
     wv.userData.arms && wv.userData.arms[1] && (wv.userData.arms[1].rotation.z = 2.4 + 0.5 * Math.sin(t * 8));
     wv.position.y = 1.0 + Math.abs(Math.sin(t * 4)) * 0.15;
-    if (bal) { bal.position.set(-6, 13 + 0.5 * Math.sin(t * 1.3), cz - 22); ANCH.balloon = [-6, bal.position.y, cz - 22]; }
+    if (bal) { const bz = FRONT ? zAt(0.42) : cz - 22, bx = FRONT ? -9 : -6, by = (FRONT ? 8 : 13) + 0.5 * Math.sin(t * 1.3); bal.position.set(bx, by, bz); ANCH.balloon = [bx, by, bz]; }
     // カメラ（3カット）
-    const k = f < 0.34 ? 0 : (f < 0.67 ? 1 : 2);
+    const k = FRONT ? 2 : (f < 0.34 ? 0 : (f < 0.67 ? 1 : 2));
     car.visible = k !== 0; hood.visible = k === 0; hood.position.set(LANE, 0.78 + bob, cz - 1.9);
     if (k === 0) { C.position.set(LANE, 1.75 + bob, cz + 0.2); C.lookAt(LANE + 0.3, 1.6, cz - 30); }
     else if (k === 1) { C.position.set(LANE + 6.5, 2.4, cz - 1.5); C.lookAt(LANE - 3, 1.6, cz - 1.0); }
+    else if (FRONT) { C.position.set(LANE + 0.8, 3.4, cz - 7.5); C.lookAt(LANE + 0.2, 1.6, cz + 6); }
     else { C.position.set(LANE + 1.0, 3.0, cz - 8); C.lookAt(LANE, 1.3, cz + 3); }
   };
 }
