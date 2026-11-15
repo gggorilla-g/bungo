@@ -29,3 +29,4 @@ build_mach3d/
 # 改造ショート（kaizo3d）：書き出し途中のファイルと、元の大きい書体
 build_kaizo/
 nazo/kaizo/fonts/
+build_nbai/
