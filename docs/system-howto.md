@@ -16,7 +16,9 @@
 | ずんだもんの脳がとける雑学 | 雑学ショート（写真＋動き） | nazo/short3.py | nazo/shorts/<ID>.json |
 | ずんだもんの妄想科学 | 3DCGの妄想科学ショート | nazo/moso3d.py（絵は nazo/cg/） | nazo/shorts/<ID>.json |
 | ザ・ビッグフェイス | セリフなし3Dショートアニメ | bigface/cg/bf.js（絵）＋ bigface/make_ep0N.py（音・文字） | bigface/cg/ep0N_time.json（カットの秒数） |
-| ホー博士・今晩の百物語 | 11/13 で制作停止（自動の仕組みも止めた） | nazo/main.py ほか / kaidan/ | — |
+| ホー博士 | 11/13 で制作停止（自動の仕組みも止めた） | nazo/main.py ほか | — |
+| Make It Work 3D（旧 今晩の百物語、UCBx3enM2p7aBROCU_EafuAw、@makeitwork3d） | 英語の仕組み系3Dショート（身近な物を問題→解決で改造）。11/15 に名前・説明・アイコン・バナーを英語に変更し、怪談の動画15本とショート8本を非公開にした（削除はしていない） | nazo/kaizo3d.py（絵は nazo/kaizo/） | nazo/shorts/kaizo_<ID>.json |
+| ずんだもんの妄想科学（改造ショート） | 身近な物を問題→解決で改造していく3D（試作中） | nazo/kaizo3d.py | nazo/shorts/kaizo_<ID>.json |
 
 - 3DCG は three.js をヘッドレスの Chromium で1コマずつ描いて画像にし、Python で文字・声・音を重ねる。
 - 重い書き出しは GitHub Actions でも回せる（例：.github/workflows/mach3d.yml に台本IDを渡す）。
