@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8">
+<style>
+@font-face{font-family:"JumpSans";font-weight:400;src:url(fonts_jp/NotoSansCJKjp-Regular.woff2) format("woff2")}
+@font-face{font-family:"JumpSans";font-weight:700;src:url(fonts_jp/NotoSansCJKjp-Bold.woff2) format("woff2")}
+@font-face{font-family:"JumpSans";font-weight:900;src:url(fonts_jp/NotoSansCJKjp-Black.woff2) format("woff2")}
+html,body{margin:0;background:#000}
+#stage{position:relative;width:540px;height:960px;overflow:hidden}
+#stage canvas{position:absolute;left:0;top:0}
+#hud{position:absolute;left:0;top:0;width:540px;height:960px;font-family:"JumpSans"}
+#hud text{paint-order:stroke;stroke:#101010;stroke-linejoin:round;fill:#fff}
+</style></head>
+<body><div id="stage"><svg id="hud" viewBox="0 0 540 960" xmlns="http://www.w3.org/2000/svg"></svg></div>
+<script src="vendor.js"></script>
+<script>
+// 改造ショート「ロボット掃除機を戦車に改造する」（声なし・字幕だけ）。前は +x
+const getJ=u=>{const x=new XMLHttpRequest();x.open('GET',u,false);x.send();if(x.status!==200)throw new Error('読めない: '+u);return JSON.parse(x.responseText)};
+const ID=(new URLSearchParams(location.search).get('spec')||'kaizo_tank').replace(/^.*\//,'').replace(/\.json$/,'');
+const SPEC=getJ('specs/'+ID+'.json'),TL=getJ('specs/'+ID+'_timeline.json');
+const W=540,H=960,DUR=TL.total,FOV=30,TANH=Math.tan(FOV/2*Math.PI/180);
+const clamp=(x,a,b)=>Math.min(b,Math.max(a,x)),lerp=(a,b,k)=>a+(b-a)*k,sstep=(a,b,x)=>{const k=clamp((x-a)/(b-a),0,1);return k*k*(3-2*k)};
+function rng(seed){let s=seed>>>0;return()=>{s=(Math.imul(s,1664525)+1013904223)>>>0;return s/4294967296}}
+const LINES=SPEC.lines.map((l,i)=>Object.assign({},l,TL.beats[i]));
+LINES.forEach((l,i)=>{l.end=i+1<LINES.length?LINES[i+1].t0:DUR;l.d=l.voice;l.tAt=l.t0+(l.at||0)*l.d});
+const fxL=fx=>LINES.find(l=>l.fx===fx)||{t0:1e9,t1:1e9,end:1e9,d:1,tAt:1e9};
+const addL=k=>LINES.find(l=>l.add===k)||{t0:1e9,t1:1e9,end:1e9,d:1};
+const addT={};for(const l of LINES)if(l.add)addT[l.add]=l.t0+0.25;
+const has=(k,t)=>t>=addT[k];
+const STUCK=fxL('stuck'),TRK=addL('tracks'),BUMP=fxL('bump'),WHL=addL('wheels'),BLIND=fxL('blind'),PERI=addL('periscope'),BALL=fxL('ball'),DEF=fxL('deflect'),
+  TURN=fxL('turnBody'),TUR=addL('turret'),WOB=fxL('wobble'),STAB=addL('stab'),MISS=fxL('recoilMiss'),RCL=addL('recoil'),FIRE=fxL('fire'),FIN=fxL('finale');
+const TGT=new THREE.Vector3(21,1.35,-6);
+
+const renderer=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true});
+renderer.setPixelRatio(window.devicePixelRatio||1);renderer.setSize(W,H);renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.05;
+document.getElementById('stage').prepend(renderer.domElement);
+const L=(c,o)=>new THREE.MeshLambertMaterial(Object.assign({color:c},o||{}));
+const S=(c,o)=>new THREE.MeshStandardMaterial(Object.assign({color:c,roughness:.5,metalness:.1},o||{}));
+function mesh(g,m,sh=true){const x=new THREE.Mesh(g,m);x.castShadow=sh;x.receiveShadow=true;return x}
+const box=(w,h,d,m)=>mesh(new THREE.BoxGeometry(w,h,d),m);
+const cylX=(r,len,m,seg=20)=>{const c=mesh(new THREE.CylinderGeometry(r,r,len,seg),m);c.rotation.z=-Math.PI/2;return c};   // x 向きの円柱
+const cylZ=(r,len,m,seg=20)=>{const c=mesh(new THREE.CylinderGeometry(r,r,len,seg),m);c.rotation.x=Math.PI/2;return c};    // z 向きの円柱
+
+// ===== 背景と地面 =====
+function gradTex(stops){const c=document.createElement('canvas');c.width=4;c.height=512;const x=c.getContext('2d'),g=x.createLinearGradient(0,0,0,512);stops.forEach(([k,col])=>g.addColorStop(k,col));x.fillStyle=g;x.fillRect(0,0,4,512);
+  const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;return t}
+const scene=new THREE.Scene();scene.background=gradTex([[0,'#5fa8e8'],[.55,'#bfe0f7'],[1,'#ece6d8']]);scene.fog=new THREE.Fog(0xe9e3d5,28,90);
+const hemi=new THREE.HemisphereLight(0xeaf4ff,0xb9b2a4,1.25);scene.add(hemi);
+const sun=new THREE.DirectionalLight(0xfff4e2,2.4);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);
+{const c=sun.shadow.camera;c.left=-7;c.right=7;c.top=7;c.bottom=-7;c.near=.5;c.far=50;sun.shadow.bias=-.0005}scene.add(sun);scene.add(sun.target);
+const rim=new THREE.DirectionalLight(0xdff0ff,1.8);scene.add(rim);scene.add(rim.target);   // 後ろからの光で輪郭を縁どる（リムライト）
+{const c=document.createElement('canvas');c.width=c.height=256;const x=c.getContext('2d');x.fillStyle='#e4ddcd';x.fillRect(0,0,256,256);x.strokeStyle='#cfc6b2';x.lineWidth=4;x.strokeRect(0,0,256,256);
+ const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(150,150);t.anisotropy=8;
+ const g=mesh(new THREE.PlaneGeometry(300,300),new THREE.MeshLambertMaterial({map:t}));g.rotation.x=-Math.PI/2;g.position.x=10;g.castShadow=false;scene.add(g)}
+// 地形：段差（壁）と、でこぼこ（半分うまった丸太）
+const WALL=[2.9,3.5,.3],BR=.12,BUMPS=[];for(let x=6.4;x<=12.81;x+=.8)BUMPS.push(x);for(let x=14.8;x<=17.61;x+=.8)BUMPS.push(x);
+{const w=box(WALL[1]-WALL[0],WALL[2],3.6,S(0xb8b4aa,{roughness:.9}));w.position.set((WALL[0]+WALL[1])/2,WALL[2]/2,0);scene.add(w);
+ const m=S(0x8f7a5c,{roughness:.9});for(const x of BUMPS){const b=cylZ(BR,3.2,m,16);b.position.set(x,0,0);scene.add(b)}}
+function Hgt(x){let h=0;if(x>=WALL[0]&&x<=WALL[1])h=WALL[2];for(const b of BUMPS){const d=x-b;if(Math.abs(d)<BR)h=Math.max(h,Math.sqrt(BR*BR-d*d))}return h}
+const onBump=x=>(x>5.6&&x<13.6)||(x>14&&x<18.4);
+// 木箱（前をふさぐ）と的
+{const m=S(0xb98a4e,{roughness:.85}),dk=S(0x8a6232,{roughness:.9});for(const [z,h,w] of [[-2.6,1.1,.85],[-1.75,.85,.8]]){const c=box(.8,h,w,m);c.position.set(17.4,h/2,z);scene.add(c);
+  for(const y of[.06,h-.06]){const s=box(.84,.06,w+.03,dk);s.position.set(17.4,y,z);scene.add(s)}}}
+const TARGET=new THREE.Group();TARGET.position.copy(TGT);scene.add(TARGET);
+{const post=box(.12,TGT.y,.12,S(0x6b5a44));post.position.y=-TGT.y/2;TARGET.add(post);const face=new THREE.Group();TARGET.add(face);TARGET.userData.face=face;
+ [[.7,0xffffff],[.56,0xe0412f],[.42,0xffffff],[.28,0xe0412f],[.14,0xffffff]].forEach(([r,c],i)=>{const d=mesh(new THREE.CylinderGeometry(r,r,.05+i*.01,40),S(c,{roughness:.6}));d.rotation.z=Math.PI/2;face.add(d)});
+ TARGET.lookAt(16,TGT.y,0);TARGET.rotateY(-Math.PI/2)}
+
+// ===== 車体 =====
+const FR=new THREE.Group();scene.add(FR);
+const VAC=new THREE.Group();FR.add(VAC);   // ロボット掃除機（上にのる）
+{const disc=mesh(new THREE.CylinderGeometry(.9,.9,.2,64),S(0x2a2d31,{roughness:.45}));VAC.add(disc);
+ const top=mesh(new THREE.CylinderGeometry(.8,.8,.012,64),S(0x3b4047,{roughness:.3,metalness:.3}));top.position.y=.106;VAC.add(top);
+ const bump=mesh(new THREE.CylinderGeometry(.915,.915,.12,48,1,true,0,Math.PI),S(0xb9bec4,{metalness:.5,roughness:.35,side:THREE.DoubleSide}));bump.position.y=-.02;VAC.add(bump);
+ const btn=mesh(new THREE.CylinderGeometry(.12,.12,.03,32),S(0xd8dde2));btn.position.set(.35,.12,0);VAC.add(btn);
+ const led=mesh(new THREE.TorusGeometry(.13,.012,8,32),new THREE.MeshBasicMaterial({color:0x3fd3ff}));led.rotation.x=Math.PI/2;led.position.set(.35,.13,0);VAC.add(led);
+ const ldr=mesh(new THREE.CylinderGeometry(.14,.15,.08,24),S(0x1b1d20));ldr.position.set(-.45,.15,0);VAC.add(ldr);
+ for(const z of[-.5,.5]){const w=cylZ(.07,.05,S(0x111111));w.position.set(0,-.1,z);VAC.add(w)}}
+const DENT=mesh(new THREE.CircleGeometry(.11,24),new THREE.MeshBasicMaterial({color:0x151515}),false);DENT.position.set(.93,0,0);DENT.rotation.y=Math.PI/2;DENT.scale.set(1,.55,1);VAC.add(DENT);
+const P={};const part=(k,par)=>{const g=new THREE.Group();(par||FR).add(g);P[k]=g;g.visible=false;return g};
+const olive=S(0x5d6b2f,{roughness:.6}),darkM=S(0x2f3230,{metalness:.5,roughness:.45}),steel=S(0x8c939b,{metalness:.7,roughness:.3});
+// 砲塔の回る軸（掃除機の上面）
+const PIV=new THREE.Group();PIV.position.y=.1;VAC.add(PIV);
+const GUN=part('gun',PIV);const MOUNT=box(.34,.16,.3,darkM);MOUNT.position.set(.12,.08,0);GUN.add(MOUNT);
+const GEL=new THREE.Group();GUN.add(GEL);const BAR=new THREE.Group();GEL.add(BAR);
+{const b=cylX(.055,1.5,steel,16);b.position.x=.85;BAR.add(b);const mz=cylX(.085,.16,darkM,16);mz.position.x=1.58;BAR.add(mz);const br=cylX(.1,.24,darkM,16);br.position.x=.12;BAR.add(br)}
+const MUZ=new THREE.Object3D();MUZ.position.x=1.68;BAR.add(MUZ);
+{const g=part('turret',PIV);const h=mesh(new THREE.CylinderGeometry(.46,.54,.3,32),olive);h.position.y=.15;g.add(h);const mt=box(.2,.24,.36,olive);mt.position.set(.5,.2,0);g.add(mt);
+ const hatch=mesh(new THREE.CylinderGeometry(.14,.14,.05,20),olive);hatch.position.set(-.12,.32,.18);g.add(hatch)}
+{const g=part('recoil',GEL);for(const z of[-.09,.09]){const c=cylX(.035,.55,steel,12);c.position.set(.32,.09,z);g.add(c)}const yk=box(.08,.08,.26,darkM);yk.position.set(.58,.09,0);g.add(yk)}
+const GYRO=[];{const g=part('stab',PIV);const b=box(.26,.2,.3,darkM);b.position.set(-.5,.38,0);g.add(b);const t=mesh(new THREE.TorusGeometry(.1,.025,8,24),S(0xf2c230,{metalness:.4}));t.position.set(-.5,.54,0);g.add(t);GYRO.push(t)}
+{const g=part('periscope',VAC);const tb=mesh(new THREE.CylinderGeometry(.055,.055,.8,16),steel);tb.position.set(-.3,.5,.55);g.add(tb);
+ const hd=box(.22,.16,.16,darkM);hd.position.set(-.27,.94,.55);g.add(hd);const gl=mesh(new THREE.PlaneGeometry(.12,.08),S(0x7fc6ee,{emissive:0x0b2a44,roughness:.05}));gl.position.set(-.155,.94,.55);gl.rotation.y=Math.PI/2;g.add(gl)}
+const EYE0=new THREE.Vector3(.95,0,0),EYE1=new THREE.Vector3(-.15,.94,.55);
+// 履帯：両側の輪を、小さな板（リンク）が回る
+const LINK=[],TR_R=.23,TR_X=1.0,TR_Y0=.04,PATH=2*TR_X*2+2*Math.PI*TR_R;
+function pathAt(s){s=((s%PATH)+PATH)%PATH;const st=2*TR_X,arc=Math.PI*TR_R;
+  if(s<st)return[TR_X-s,TR_Y0,0];s-=st;if(s<arc){const a=s/TR_R;return[-TR_X-Math.sin(a)*TR_R,TR_Y0+TR_R-Math.cos(a)*TR_R,a]}s-=arc;
+  if(s<st)return[-TR_X+s,TR_Y0+2*TR_R,Math.PI];s-=st;const a=s/TR_R;return[TR_X+Math.sin(a)*TR_R,TR_Y0+TR_R+Math.cos(a)*TR_R,Math.PI+a]}
+{const g=part('tracks');const lm=S(0x3a3a3a,{metalness:.6,roughness:.5});for(const side of[1,-1]){for(let i=0;i<36;i++){const l=box(.13,.045,.32,lm);l.position.z=side*.98;g.add(l);LINK.push({l,i,side})}
+   for(const x of[-TR_X,TR_X]){const sp=cylZ(.2,.28,darkM,20);sp.position.set(x,TR_Y0+TR_R,side*.98);g.add(sp)}}
+ const pl=box(2.1,.16,1.62,olive);pl.position.y=.4;g.add(pl)}
+const WHEEL=[];{const g=part('wheels');const wm=S(0x4a4f4a,{roughness:.6}),hub=S(0x777c80,{metalness:.6});for(const side of[1,-1])for(let i=0;i<5;i++){const x=-.8+i*.4;
+  const w=cylZ(.15,.2,wm,20);w.position.set(x,.21,side*.98);g.add(w);const hb=cylZ(.06,.22,hub,12);hb.position.copy(w.position);g.add(hb);
+  const arm=box(.22,.05,.05,steel);g.add(arm);const bar=cylZ(.025,.9,steel,8);bar.position.set(x+.16,.33,side*.5);g.add(bar);WHEEL.push({w,hb,arm,x,side})}}
+{const g=part('armor');const gl=box(.06,.7,1.9,olive);gl.position.set(1.12,.6,0);gl.rotation.z=.95;g.add(gl);
+ for(const s of[1,-1]){const sk=box(2.2,.34,.05,olive);sk.position.set(-.05,.52,s*1.17);sk.rotation.x=-s*.28;g.add(sk)}
+ const rr=box(.06,.4,1.8,olive);rr.position.set(-1.12,.5,0);rr.rotation.z=-.5;g.add(rr)}
+
+// ===== ボール・弾・光 =====
+const ball=(c)=>{const b=mesh(new THREE.SphereGeometry(.18,24,16),S(c,{roughness:.5}));b.visible=false;scene.add(b);return b};
+const BALL1=ball(0xffffff),BALL2=ball(0xf2c230);
+const SHELL=mesh(new THREE.CapsuleGeometry(.05,.16,4,10),S(0xc9a24a,{metalness:.6}),false);SHELL.visible=false;scene.add(SHELL);
+const addM=(c,op)=>new THREE.MeshBasicMaterial({color:c,transparent:true,opacity:op,blending:THREE.AdditiveBlending,depthWrite:false});
+const FLASH=mesh(new THREE.SphereGeometry(.3,16,12),addM(0xffb347,0),false);scene.add(FLASH);
+const SPARK=mesh(new THREE.SphereGeometry(.25,16,12),addM(0xfff2a0,0),false);scene.add(SPARK);
+const PUFF=[];{const r=rng(5);for(let i=0;i<10;i++){const s=mesh(new THREE.IcosahedronGeometry(.18,1),new THREE.MeshLambertMaterial({color:0xdddddd,transparent:true,opacity:0}),false);scene.add(s);PUFF.push({s,a:r()*6.28,v:.5+r()})}}
+const beam=c=>{const m=mesh(new THREE.CylinderGeometry(.022,.022,1,8),new THREE.MeshBasicMaterial({color:c,transparent:true,opacity:0,depthWrite:false}),false);m.renderOrder=3;scene.add(m);return m};
+const RED=beam(0xff3b2f),GREEN=beam(0x3bff6a),LASER=beam(0xff2a2a);
+function setBeam(m,a,b,op){const d=new THREE.Vector3().subVectors(b,a),len=d.length();m.position.copy(a).addScaledVector(d,.5);m.scale.set(1,Math.max(.001,len),1);m.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),d.normalize());m.material.opacity=op;m.visible=op>.01}
+const XM=new THREE.Group();scene.add(XM);{const m=new THREE.MeshBasicMaterial({color:0xff3b2f,transparent:true,opacity:0,depthWrite:false});for(const r of[.785,-.785]){const b=mesh(new THREE.BoxGeometry(.5,.08,.02),m,false);b.rotation.z=r;XM.add(b)}}
+const cam=new THREE.PerspectiveCamera(FOV,W/H,.05,300);
+
+// ===== 車体の位置（x）：区間ごとの目標値 =====
+const KX=[[0,0,'e'],[STUCK.t0+.15,0,'e'],[STUCK.t0+STUCK.d*.62,2.0,'e'],[addT.tracks+.3,2.0,'e'],[TRK.end,6.0,'l'],[BUMP.end,9.6,'l'],[WHL.end-.25,14,'e'],
+  [WOB.t0,14,'e'],[WOB.end,16.6,'l'],[STAB.end-.2,19,'e']];
+function vx(t){if(t<=KX[0][0])return KX[0][1];for(let i=1;i<KX.length;i++){const [a,xa]=KX[i-1],[b,xb,m]=KX[i];if(t<b){const k=clamp((t-a)/(b-a),0,1);return lerp(xa,xb,m==='l'?k:k*k*(3-2*k))}}return KX[KX.length-1][1]}
+const aimYaw=(p)=>Math.atan2(-(TGT.z-p.z),TGT.x-p.x);
+
+// ===== HUD =====
+const NS='http://www.w3.org/2000/svg',hud=document.getElementById('hud');
+function el(tag,a,txt){const e=document.createElementNS(NS,tag);for(const k in a)e.setAttribute(k,a[k]);if(txt!=null)e.textContent=txt;hud.appendChild(e);return e}
+const tw=(s,size)=>{let w=0;for(const ch of String(s))w+=ch.charCodeAt(0)<256?.58:1;return w*size};
+function T(x,y,size,txt,o={}){const a={x,y,'font-size':size,'font-weight':900,'text-anchor':'middle','stroke-width':o.sw!=null?o.sw:Math.max(3,size*.2)};let st='';if(o.fill)st+='fill:'+o.fill+';';if(o.op!=null)st+='opacity:'+o.op+';';if(st)a.style=st;return el('text',a,txt)}
+const PILL={problem:['問題','#e0412f'],fix:['工夫','#2f9e5b']};
+function drawHud(t){hud.innerHTML='';
+  T(270,96,32,SPEC.title[0],{sw:7});T(270,138,32,SPEC.title[1],{sw:7,fill:'#ffd43b'});
+  const l=LINES.filter(x=>x.t0-.02<=t).pop();if(!l)return;
+  const a=clamp((t-l.t0)/.12,0,1),pop=1+.12*(1-sstep(0,.18,t-l.t0));
+  const pl=PILL[l.kind];let y=l.cap.length>1?702:730;
+  if(pl){const s=30,w=tw(pl[0],s)+28,x0=270-w/2,yy=y-62;el('rect',{x:x0,y:yy-s-4,width:w,height:s+14,rx:8,fill:pl[1],style:'opacity:'+a.toFixed(2)});el('text',{x:270,y:yy+2,'font-size':s,'font-weight':900,'text-anchor':'middle','stroke-width':0,style:'opacity:'+a.toFixed(2)},pl[0])}
+  l.cap.forEach((s,i)=>{const size=Math.min(l.kind==='end'&&l.cap.length===1?84:52,480/tw(s,1))*pop;T(270,y+(1-a)*6,size,s,{sw:size*.2,op:(.3+.7*a).toFixed(2),fill:i===1&&pl?'#ffd43b':null});y+=size+14})}
+
+// ===== 1コマ =====
+const popS=(t,t0)=>{const u=(t-t0)/.35;if(u<0)return 0;if(u>=1)return 1;const c=1.70158;return 1+(c+1)*Math.pow(u-1,3)+c*Math.pow(u-1,2)};
+const win=(t,a,b,e=.25)=>t>=a&&t<b+e?sstep(a,a+e,t)*(1-sstep(b,b+e,t)):0;
+function parab(a,b,h,k){const p=new THREE.Vector3().lerpVectors(a,b,k);p.y+=4*h*k*(1-k);return p}
+const V=(x,y,z)=>new THREE.Vector3(x,y,z);
+window.renderAt=function(t){
+  const trk=popS(t,addT.tracks),whl=has('wheels',t),stb=has('stab',t),tur=popS(t,addT.turret),rcl=has('recoil',t);
+  // 位置・向き
+  let x=vx(t),z=0,yaw=0,pitch=0,y=0;
+  if(t>=STUCK.t0&&t<addT.tracks){const k=t-STUCK.tAt;if(k>0)x-=.06*Math.exp(-k*6)*Math.sin(k*30)}   // 壁に当たって小さく跳ね返る
+  if(trk>0){const hs=[];for(let s=-1;s<=1.001;s+=.1)hs.push(Hgt(x+s));const hb=Math.max(...hs.slice(0,11)),hf=Math.max(...hs.slice(10));y=(hf+hb)/2;pitch=Math.atan2(hf-hb,2)}
+  if(onBump(x)&&trk>=1){if(!whl){y+=.2*Math.abs(Math.sin(x*Math.PI/.8));pitch+=.09*Math.sin(x*Math.PI/.8+.8)}else y-=.04}
+  if(t>=WOB.t0&&t<STAB.end&&whl)pitch+=.045*Math.sin(t*9);
+  // 車体ごと回す（遅い）→ 砲塔ができたら車体は戻る
+  const a14=aimYaw(V(14,0,0));
+  if(t>=TURN.t0&&t<addT.turret+.2)yaw=a14*.8*sstep(TURN.t0+.2,TURN.end,t)+.03*Math.sin(t*7)*sstep(TURN.t0,TURN.t0+.4,t);
+  if(t>=addT.turret+.2)yaw=a14*.8*(1-sstep(addT.turret+.2,addT.turret+.9,t));
+  // 撃った反動（駐退機なし）
+  const ft=MISS.tAt,kb=t>ft?1-Math.exp(-(t-ft)*9):0;
+  const gyaw=aimYaw(V(19,0,0));
+  if(t>ft){x-=Math.cos(gyaw)*.6*kb;z+=Math.sin(gyaw)*.6*kb;pitch+=.16*Math.exp(-(t-ft)*5)*Math.sin(Math.min(Math.PI,(t-ft)*10))}
+  const f2=FIRE.tAt;if(t>f2)pitch+=.015*Math.exp(-(t-f2)*8);
+  FR.position.set(x,y,z);FR.rotation.set(0,yaw,pitch,'YZX');
+  // 掃除機：履帯がつくと持ち上がる
+  VAC.position.y=.14+.44*trk;
+  const hit1=BALL.tAt,dent=t>=hit1&&t<addT.armor;DENT.visible=dent;
+  if(t>=hit1&&t<hit1+.5)VAC.position.x=-.07*Math.exp(-(t-hit1)*8)*Math.sin((t-hit1)*30);else VAC.position.x=0;
+  // パーツ
+  for(const k of Object.keys(SPEC.parts)){const g=P[k];if(!g)continue;const s=popS(t,addT[k]);g.visible=s>0;if(s>0)g.scale.setScalar(Math.max(.001,s))}
+  MOUNT.visible=tur<.5;GEL.position.set(lerp(.18,.5,tur),lerp(.12,.22,tur),0);
+  // 履帯のリンク：車体が進んだ分だけ回る（回るときは左右で逆）
+  for(const o of LINK){const off=x*1.0+o.side*yaw*.98;const [px,py,ra]=pathAt(o.i/36*PATH+off);o.l.position.x=px;o.l.position.y=py;o.l.rotation.z=-ra}
+  // 転輪：地面に合わせて1つずつ上下
+  FR.updateMatrixWorld();
+  for(const o of WHEEL){const wx=x+o.x;let dy=whl&&onBump(x)?clamp(Hgt(wx)-.05,-.05,.12):0;o.w.position.y=o.hb.position.y=.21+dy;o.arm.position.set(o.x+.08,.27+dy/2,o.side*.82);o.arm.rotation.z=-.5-dy*2}
+  // 砲の向き
+  const pw=new THREE.Vector3();PIV.getWorldPosition(pw);
+  let ty=0,el=0;if(t>=addT.turret){ty=(aimYaw(pw)-yaw)*sstep(addT.turret,addT.turret+.5,t)}
+  const dist=Math.hypot(TGT.x-pw.x,TGT.z-pw.z),aimEl=Math.atan2(TGT.y-pw.y-.2,dist);
+  if(t>=TURN.t0){el=aimEl;if(stb)el-=pitch;else if(t>=WOB.t0)el+=.07*Math.sin(t*13)}
+  PIV.rotation.y=ty;GEL.rotation.z=el;
+  // 砲身の後退（駐退機あり）
+  BAR.position.x=t>f2?-.3*Math.exp(-(t-f2)*5)*Math.min(1,(t-f2)*30):0;
+  GYRO.forEach(g=>g.rotation.y=t*14);
+  // 見通しの線：低い所からは木箱にさえぎられる → 潜望鏡からは的まで届く
+  const e0=VAC.localToWorld(EYE0.clone()),e1=VAC.localToWorld(EYE1.clone());
+  const rOp=win(t,BLIND.t0+.3,BLIND.end-.05,.2);const hitP=new THREE.Vector3().lerpVectors(e0,TGT,(17.0-e0.x)/(TGT.x-e0.x));
+  setBeam(RED,e0,hitP,rOp*.95);XM.position.copy(hitP);XM.lookAt(cam.position);XM.children.forEach(b=>b.material.opacity=rOp);XM.visible=rOp>.01;
+  setBeam(GREEN,e1,TGT,win(t,addT.periscope+.35,PERI.end,.2)*.95);
+  // 照準の線
+  const mw=new THREE.Vector3();MUZ.getWorldPosition(mw);const fwd=new THREE.Vector3(1,0,0).transformDirection(MUZ.matrixWorld);
+  setBeam(LASER,mw,mw.clone().addScaledVector(fwd,mw.distanceTo(TGT)),win(t,WOB.t0+.1,FIRE.tAt,.15)*.8);
+  // ボール：1つ目はへこむ、2つ目は斜めの装甲ではじかれる
+  {const a0=hit1-.6,k=(t-a0)/.6;BALL1.visible=t>=a0&&t<hit1+1;if(BALL1.visible){const c=VAC.localToWorld(V(1.1,0,0));if(k<1)BALL1.position.copy(parab(V(20,3,-4.5),c,1.2,k));else{const u=t-hit1;BALL1.position.set(c.x+u*1.4,Math.max(.18,c.y+u*1.5-4.9*u*u),c.z-u*.6)}}}
+  {const h2=DEF.tAt,a0=h2-.6,k=(t-a0)/.6;BALL2.visible=t>=a0&&t<h2+1.2;if(BALL2.visible){const c=FR.localToWorld(V(1.25,.72,0));if(k<1)BALL2.position.copy(parab(V(20,3,-4.5),c,1.2,k));else{const u=t-h2;BALL2.position.set(c.x+u*.8,c.y+u*5-4.9*u*u,c.z-u*1.2)}}
+   const sp=t>=h2?Math.exp(-(t-h2)*10):0;SPARK.material.opacity=sp;SPARK.visible=sp>.02;SPARK.position.copy(FR.localToWorld(V(1.2,.75,0)));SPARK.scale.setScalar(1+(1-sp)*2)}
+  // 発砲：1発目は車体が下がって上へ外れる。2発目は命中
+  let fl=0;for(const [tf,ok] of [[ft,false],[f2,true]]){const u=t-tf;if(u>=0&&u<.2)fl=Math.max(fl,1-u/.2);
+    if(u>=0&&u<.6){const st=FR.position.clone();SHELL.visible=true;const m0=mw.clone();
+      if(ok){SHELL.position.lerpVectors(m0,TGT,Math.min(1,u/.55));if(u>.55)SHELL.visible=false}else{SHELL.position.copy(m0).addScaledVector(fwd.clone().add(V(0,.22,0)).normalize(),u*16)}
+      SHELL.lookAt(SHELL.position.clone().add(fwd));SHELL.rotateX(Math.PI/2)}}
+  if(!(t>=ft&&t<ft+.6)&&!(t>=f2&&t<f2+.55))SHELL.visible=false;
+  FLASH.material.opacity=fl;FLASH.visible=fl>.02;FLASH.position.copy(mw);FLASH.scale.setScalar(.6+(1-fl)*1.5);
+  PUFF.forEach(o=>{let u=-1;for(const tf of[ft,f2])if(t>=tf&&t<tf+1.4)u=t-tf;o.s.visible=u>=0;if(u>=0){o.s.position.copy(mw).add(V(Math.cos(o.a)*u*o.v*.6,u*.5+Math.sin(o.a)*u*.3,Math.sin(o.a)*u*o.v*.6));o.s.scale.setScalar(.4+u*1.1);o.s.material.opacity=clamp(.6-u*.5,0,.6)}});
+  // 的：当たると回る
+  {const hk=f2+.55,face=TARGET.userData.face;face.rotation.y=t>hk?Math.min(1,(t-hk)*1.2)*Math.PI*4*Math.exp(-(t-hk)*.6):0;TARGET.position.y=TGT.y+(t>hk&&t<hk+.3?.06*Math.sin((t-hk)*60):0)}
+  // カメラ：横から → 見通し以降は後ろから的の方向を見る → 最後に回りこむ
+  const veh=V(x,.6+VAC.position.y*.5,z);
+  const Vh=lerp(3.4,4.6,sstep(addT.tracks,addT.tracks+.8,t));const d=Vh/(2*TANH);
+  let az=(22+8*Math.sin(t*.15))*Math.PI/180;const elv=(11+3*Math.sin(t*.1))*Math.PI/180;
+  const sidePos=V(veh.x+Math.sin(az)*Math.cos(elv)*d,veh.y+Math.sin(elv)*d,veh.z+Math.cos(az)*Math.cos(elv)*d),sideLook=veh.clone().add(V(0,-.12*Vh,0));
+  const dir=V(TGT.x-x,0,TGT.z-z).normalize(),rt=V(-dir.z,0,dir.x);
+  const chPos=V(x,0,z).addScaledVector(dir,-11).addScaledVector(rt,2.5).add(V(0,2.5,0)),chLook=V(x,0,z).addScaledVector(dir,3.5);
+  const fin=FIN.t0<1e8?sstep(FIN.t0,FIN.t0+.8,t):0;
+  const c=sstep(BLIND.t0-.1,BLIND.t0+.5,t)*(1-fin);
+  const p=new THREE.Vector3().lerpVectors(sidePos,chPos,c),lk=new THREE.Vector3().lerpVectors(sideLook,chLook,c);
+  if(fin>0){const a=.4+(t-FIN.t0)*.45,dd=15;p.lerp(V(x+Math.sin(a)*dd,3.8,z+Math.cos(a)*dd),fin);lk.lerp(V(x,.05,z),fin)}
+  cam.position.copy(p);cam.lookAt(lk);
+  sun.position.set(x+4,9,z+6);sun.target.position.set(x,0,z);rim.position.set(x-dir.x*6,5,z-dir.z*6);rim.target.position.set(x,.6,z);
+  renderer.render(scene,cam);
+  drawHud(t);return{t}};
+window.__info={total:DUR};
+const FONTS=Promise.all([400,700,900].map(w=>document.fonts.load(w+' 20px JumpSans','あ0')));
+FONTS.then(()=>{window.__fig={kind:'none'};window.__ready=true},e=>console.log('load error: '+e.message));
+</script></body></html>

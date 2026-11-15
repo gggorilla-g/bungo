@@ -49,9 +49,10 @@ def tts_en(text, wav, v):
 
 def voice(sid):
     sp = load(sid)
-    en = sp["voice"].get("engine") == "kokoro"
+    eng = sp["voice"].get("engine")
+    en, mute = eng == "kokoro", eng == "none"          # none = 声なし（字幕だけ）。各行の dur（秒）か字幕の長さで時間を決める
     os.makedirs(f"{B}/{sid}", exist_ok=True)
-    if not en:                                              # 日本語は読みの関門を通してから VOICEVOX
+    if not en and not mute:                                              # 日本語は読みの関門を通してから VOICEVOX
         pairs = gate_ok(sid, sp)
         render.B = B; render.TIGHT = True
         v = dict(sp["voice"]); v["speed"] = v.get("speed", 1.0) * moso3d.SPEED
@@ -61,6 +62,11 @@ def voice(sid):
     beats, t = [], 0.25
     for ln in sp["lines"]:
         wav = f"{B}/{sid}/{ln['id']}.wav"
+        if mute:
+            d = ln.get("dur") or min(2.8, max(1.6, 1.0 + 0.1 * len("".join(ln["cap"]))))
+            beats.append({"id": ln["id"], "t0": round(t, 3), "t1": round(t + d, 3), "voice": round(d, 3)})
+            t += d + sp.get("gap", GAP)
+            continue
         if en:
             tts_en(ln["say"], wav, sp["voice"])
         else:
@@ -70,7 +76,7 @@ def voice(sid):
         t += d + sp.get("gap", GAP)
     total = round(t + sp.get("tail", TAIL), 2)
     scene = {"title": sp["scene_title"], "parts": sp["parts"],
-             "lines": [{k: ln[k] for k in ("id", "kind", "cap", "add", "fx") if k in ln} | {"text": ln["say"]} for ln in sp["lines"]]}
+             "lines": [{k: ln[k] for k in ("id", "kind", "cap", "add", "fx", "at") if k in ln} | {"text": ln.get("say", "".join(ln["cap"]))} for ln in sp["lines"]]}
     os.makedirs(f"{KZ}/specs", exist_ok=True)
     json.dump(scene, open(f"{KZ}/specs/{sid}.json", "w", encoding="utf-8"), ensure_ascii=False, indent=1)
     json.dump({"total": total, "estimated": 0, "beats": beats}, open(f"{KZ}/specs/{sid}_timeline.json", "w", encoding="utf-8"), indent=1)
@@ -101,6 +107,20 @@ def sfx_track(sid, sp, tl, sr):
             noise = np.convolve(rng.standard_normal(n), np.ones(60) / 60, "same")
             env = np.minimum(1, t / .3) * np.minimum(1, (d - t) / .4)
             add(b["t0"], noise * env * (1.6 if ln["fx"] == "launchSpin" else 1.1))
+        fx, at = ln.get("fx"), b["t0"] + ln.get("at", 0) * b["voice"]
+        if fx in ("stuck", "ball"):                                     # ゴン（低い打撃音）
+            d = .25; t = np.arange(int(sr * d)) / sr
+            add(at, (np.sin(2 * np.pi * 95 * t) + .4 * np.sin(2 * np.pi * 180 * t)) * np.exp(-t * 18) * .8)
+        if fx == "deflect":                                             # キン（はじく音）
+            d = .35; t = np.arange(int(sr * d)) / sr
+            add(at, (np.sin(2 * np.pi * 1850 * t) + .5 * np.sin(2 * np.pi * 2900 * t)) * np.exp(-t * 12) * .35)
+        if fx in ("recoilMiss", "fire"):                                # ドン（発砲）
+            d = .9; n = int(sr * d); t = np.arange(n) / sr; rng = np.random.default_rng(7)
+            noise = np.convolve(rng.standard_normal(n), np.ones(30) / 30, "same")
+            add(at, (np.sin(2 * np.pi * 55 * t) * 1.2 + noise * 2.2) * np.exp(-t * 6) * .8)
+            if fx == "fire":                                            # 的に当たる音
+                d = .3; t = np.arange(int(sr * d)) / sr
+                add(at + .55, np.sin(2 * np.pi * 140 * t) * np.exp(-t * 14) * .7)
     return out
 
 
@@ -122,6 +142,7 @@ def build(sid, bgm=None, gpu=False, jobs=2):
     # ---- 音（声を時刻どおりに置き、効果音とBGMを重ねる）
     total = tl["total"]; vo = np.zeros(int(SR * total), np.float32)
     for b in tl["beats"]:
+        if sp["voice"].get("engine") == "none": break
         a, sr = read_wav(f"{B}/{sid}/{b['id']}.wav"); a = a[:int(b["voice"] * sr)]
         i = int(b["t0"] * SR); vo[i:i + len(a)] += a[:len(vo) - i]
     sf = sfx_track(sid, sp, tl, SR) * moso3d.SE_GAIN
