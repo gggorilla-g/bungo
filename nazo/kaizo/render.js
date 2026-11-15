@@ -15,7 +15,8 @@ const server = http.createServer((req, res) => {
   await new Promise(r => server.listen(0, '127.0.0.1', r)); const port = server.address().port; const mode = args[0];
   // --gpu：通常の Chromium を headless で起動（Mac mini M1 で Metal を使えた設定。2026-11-13 Codex 検証）。既定は GPU なし環境向けの SwiftShader
   const b = useGpu ? await chromium.launch({ channel: 'chromium', headless: true }) : await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
-  const p = await b.newPage({ viewport: { width: 540, height: 960 }, deviceScaleFactor: 2 });
+  let OW = 1080, OH = 1920; try { const o = JSON.parse(fs.readFileSync(path.join(__dirname, specRel), 'utf8')).output || {}; OW = o.width || OW; OH = o.height || OH } catch (e) {}   // 横長（長尺 1920x1080）にも対応
+  const p = await b.newPage({ viewport: { width: OW / 2, height: OH / 2 }, deviceScaleFactor: 2 });
   p.on('pageerror', e => console.log('pageerror:', e.message));
   p.on('console', m => { const t = m.text(); if (!/deprecated|GPU stall|toNonIndexed/.test(t)) console.log('console:', t); });
   const q = new URLSearchParams({ spec: specRel }); if (figPath) q.set('fig', '/__fig');

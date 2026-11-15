@@ -83,6 +83,19 @@ def sfx_fold(sid, dur):
     return out
 
 
+def sfx_lineup(sid, dur):
+    """物が切り替わるたびに軽い「チン」（ボフン・ドーンは使わない 11/15）"""
+    js = ("const {make}=require('./lineup_calc.js'),C=make(require('./specs/%s.json'));"
+          "console.log(JSON.stringify(C.items.map(i=>i.t0).concat([C.T_OUT])))") % sid
+    ts = json.loads(subprocess.run(["node", "-e", js], cwd=KZ, env=node_env(), capture_output=True, text=True, check=True).stdout)
+    out = np.zeros(int(SR * dur))
+    for k, t0 in enumerate(ts):
+        d = .5; t = np.arange(int(SR * d)) / SR; f = 1320 * (2 ** (min(k, 12) / 24))   # 少しずつ高くなる
+        s = (np.sin(2 * np.pi * f * t) + .35 * np.sin(2 * np.pi * f * 1.5 * t)) * np.exp(-t * 7) * .2
+        i = int(t0 * SR); n = min(len(s), len(out) - i); out[i:i + n] += s[:n]
+    return out
+
+
 def kit(sid, sp):
     os.makedirs(MAN, exist_ok=True)
     p = sp["post"]; k = f"{MAN}/{sid}_upload.txt"
@@ -92,22 +105,24 @@ def kit(sid, sp):
 
 def build(sid, jobs=3):
     sp = check(sid); dur = sp["output"]["durationSeconds"]; fps = sp["output"]["fps"]; n = int(round(dur * fps))
-    fr = os.path.abspath(f"{B}/{sid}/fr"); shutil.rmtree(fr, ignore_errors=True); os.makedirs(fr)
+    fr = os.path.abspath(f"{B}/{sid}/fr"); audio_only = os.environ.get("AUDIO_ONLY") == "1"   # 1 なら描いたコマを使い、音だけ作り直す
+    if not audio_only:
+        shutil.rmtree(fr, ignore_errors=True); os.makedirs(fr)
     step = (n + jobs - 1) // jobs; procs = []
-    for j in range(jobs):
+    for j in (range(jobs) if not audio_only else []):
         a, z = j * step, min(n, (j + 1) * step)
         procs.append(subprocess.Popen(["node", "render.js", "--page", TPL[sp["template"]]["page"], "--spec", f"specs/{sid}.json", "range", str(a), str(z), fr],
                                       cwd=KZ, env=node_env()))
     if any(p.wait() for p in procs):
         sys.exit("コマの書き出しに失敗")
-    se = (sfx_jump if sp["template"] == "jump" else sfx_fold)(sid, dur)
+    se = {"jump": sfx_jump, "fold": sfx_fold, "lineup": sfx_lineup}[sp["template"]](sid, dur)
     wv = f"{B}/{sid}/sfx.wav"; write_wav(wv, se)
     out = f"output/{sid}.mp4"; os.makedirs("output", exist_ok=True)
     fc = (f"[1:a]aresample=48000,pan=stereo|c0=c0|c1=c0[s];[2:a]aresample=48000,volume=0.35,afade=t=in:d=0.3,afade=t=out:st={dur - 1.2:.2f}:d=1.2[m];"
           "[s][m]amix=inputs=2:normalize=0,loudnorm=I=-14:TP=-1.5:LRA=11[a]")
     subprocess.run(["ffmpeg", "-v", "error", "-y", "-framerate", str(fps), "-i", f"{fr}/f%04d.jpg", "-i", wv, "-stream_loop", "-1", "-i", BGM,
                     "-filter_complex", fc, "-map", "0:v", "-map", "[a]",
-                    "-vf", "scale=1080:1920:in_color_matrix=bt601:out_color_matrix=bt709:in_range=full:out_range=tv,format=yuv420p",
+                    "-vf", f"scale={sp['output'].get('width', 1080)}:{sp['output'].get('height', 1920)}:in_color_matrix=bt601:out_color_matrix=bt709:in_range=full:out_range=tv,format=yuv420p",
                     "-c:v", "libx264", "-preset", "slow", "-crf", "22", "-maxrate", "3000k", "-bufsize", "6000k",
                     "-c:a", "aac", "-b:a", "160k", "-t", f"{dur:.2f}", "-movflags", "+faststart", out], check=True)
     print("書き出し:", out, f"{os.path.getsize(out) / 1e6:.1f}MB", "キット:", kit(sid, sp))

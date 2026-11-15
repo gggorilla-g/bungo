@@ -17,9 +17,10 @@ html,body{margin:0;background:#000}
 // 大きさ比べ：小さい順に左から並べ、カメラが横へ流れながら引いていく。形・並び・字幕はすべて spec のデータから
 const getJ=u=>{const x=new XMLHttpRequest();x.open('GET',u,false);x.send();if(x.status!==200)throw new Error('読めない: '+u);return JSON.parse(x.responseText)};
 const ID=(new URLSearchParams(location.search).get('spec')||'rockets_ja').replace(/^.*\//,'').replace(/\.json$/,'');
-const SPEC=getJ('specs/'+ID+'.json'),C=LINEUP.make(SPEC),IT=C.items,W=540,H=960,FOV=30,TANH=Math.tan(FOV/2*Math.PI/180),ASP=W/H;
+const SPEC=getJ('specs/'+ID+'.json'),C=LINEUP.make(SPEC),IT=C.items,W=(SPEC.output.width||1080)/2,H=(SPEC.output.height||1920)/2,LAND=W>H,U=Math.min(W,H)/540,CX=W/2,FOV=30,TANH=Math.tan(FOV/2*Math.PI/180),ASP=W/H;
 const clamp=(x,a,b)=>Math.min(b,Math.max(a,x)),lerp=(a,b,k)=>a+(b-a)*k,sstep=(a,b,x)=>{const k=clamp((x-a)/(b-a),0,1);return k*k*(3-2*k)};
 const renderer=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true});
+{const st=document.getElementById('stage');st.style.width=W+'px';st.style.height=H+'px';const hv=document.getElementById('hud');hv.setAttribute('viewBox','0 0 '+W+' '+H);hv.style.width=W+'px';hv.style.height=H+'px'}
 renderer.setPixelRatio(window.devicePixelRatio||1);renderer.setSize(W,H);renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
 renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.05;document.getElementById('stage').prepend(renderer.domElement);
 function gradTex(stops){const c=document.createElement('canvas');c.width=4;c.height=512;const x=c.getContext('2d'),g=x.createLinearGradient(0,0,0,512);stops.forEach(([k,col])=>g.addColorStop(k,col));x.fillStyle=g;x.fillRect(0,0,4,512);
@@ -62,17 +63,17 @@ function el(tag,a,txt){const e=document.createElementNS(NS,tag);for(const k in a
 const tw=(s,size)=>{let w=0;for(const ch of String(s))w+=ch.charCodeAt(0)<256?.58:1;return w*size};
 function T(x,y,size,txt,o={}){const a={x,y,'font-size':size,'font-weight':o.w||900,'text-anchor':o.a||'middle','stroke-width':o.sw!=null?o.sw:Math.max(3,size*.2)};let st='';if(o.fill)st+='fill:'+o.fill+';';if(o.op!=null)st+='opacity:'+o.op+';';if(st)a.style=st;return el('text',a,txt)}
 function drawHud(t,f,vh){hud.innerHTML='';
-  T(270,92,30,C.L(SPEC.title),{sw:7});
+  T(CX,H*.096,30*U,C.L(SPEC.title),{sw:7*U});
   // 物の上のラベル（見せ終わった物だけ。小さすぎる物は出さない）
   const showN=f.out!=null?C.N:f.i+1;
-  for(let i=0;i<showN;i++){const it=IT[i],p=new THREE.Vector3(it.x,it.h,0).project(cam),q=new THREE.Vector3(it.x,0,0).project(cam);const ph=(p.y-q.y)/2*H;if(ph<26)continue;
-    const x=(p.x+1)/2*W,y=(1-p.y)/2*H;if(x<-60||x>W+60)continue;const big=i===f.i&&f.out==null,sz=big?24:clamp(ph/8,13,19);
+  for(let i=0;i<showN;i++){const it=IT[i],p=new THREE.Vector3(it.x,it.h,0).project(cam),q=new THREE.Vector3(it.x,0,0).project(cam);const ph=(p.y-q.y)/2*H;if(ph<26*U)continue;
+    const x=(p.x+1)/2*W,y=(1-p.y)/2*H;if(x<-60||x>W+60)continue;const big=i===f.i&&f.out==null,sz=(big?24:clamp(ph/8,13,19))*U;
     const op=i===f.i||f.out!=null?1:.85;const nm=C.nameText(it).replace(/（.*?）|\(.*?\)/g,'');
-    if(!(f.out!=null&&ph<70))T(x,y-8-sz*1.25,sz,nm,{w:700,sw:sz*.24,op});T(x,y-8,sz*1.08,C.valueText(it).replace(/ \(.*\)$/,''),{sw:sz*.26,fill:'#ffd43b',op})}
+    if(!(f.out!=null&&ph<70*U))T(x,y-8-sz*1.25,sz,nm,{w:700,sw:sz*.24,op});T(x,y-8,sz*1.08,C.valueText(it).replace(/ \(.*\)$/,''),{sw:sz*.26,fill:'#ffd43b',op})}
   const c=C.captionAt(t),a=f.out!=null?1:clamp((t-(t<C.IN?0:IT[f.i].t0))/.12,0,1);
-  const y1=c.c2?724:744,s1=Math.min(44,470/tw(c.c1,1));T(270,y1+(1-a)*5,s1,c.c1,{sw:s1*.22,op:(.3+.7*a).toFixed(2)});
-  if(c.c2){const s2=Math.min(64,470/tw(c.c2,1));T(270,y1+s2+8+(1-a)*5,s2,c.c2,{sw:s2*.2,fill:'#ffd43b',op:(.3+.7*a).toFixed(2)})}
-  T(270,940,11,C.L(SPEC.notes),{w:400,sw:3,op:.85})}
+  const y1=H*(LAND?(c.c2?.80:.84):(c.c2?.754:.775)),s1=Math.min(44*U,W*.87/tw(c.c1,1));T(CX,y1+(1-a)*5,s1,c.c1,{sw:s1*.22,op:(.3+.7*a).toFixed(2)});
+  if(c.c2){const s2=Math.min(64*U,W*.87/tw(c.c2,1));T(CX,y1+s2+8+(1-a)*5,s2,c.c2,{sw:s2*.2,fill:'#ffd43b',op:(.3+.7*a).toFixed(2)})}
+  T(CX,H*.98,11*U,C.L(SPEC.notes),{w:400,sw:3*U,op:.85})}
 // ===== 1コマ =====
 const VH=it=>Math.max(4.2,it.h*2.1),SHIFT=it=>it===IT[0]?0:VH(it)*ASP*.16;   // 注目の物は少し右寄せ（左に見せ終わった物、右の次の物は隠れ気味）
 const hmax=Math.max(...IT.map(i=>i.h)),xl=IT[0].x-IT[0].w,xr=IT[C.N-1].x+IT[C.N-1].w;
