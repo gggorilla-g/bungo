@@ -2,7 +2,7 @@
 #   台本: nazo/shorts/nbai/<id>.json（template: jump / fold、post: タイトル・説明・タグ）
 #   python nazo/nbai.py check <id>    … 数字と比較の照合だけ（NG があれば終了コード1）
 #   python nazo/nbai.py build <id>    … 照合 → 3DCGを1コマずつ → 効果音とBGM → output/<id>.mp4 と投稿キット
-#   python nazo/nbai.py next          … 予約表（queue.json）から、今日（JST）作る1本の id と公開日時を出す
+#   python nazo/nbai.py next          … 予約表（queue.json）から、公開まで36時間以内の未投稿の1本を出す（毎日2回の実行で拾う）
 #   予約表: nazo/shorts/nbai/queue.json  [{"id": ..., "publish_at": "2026-11-18T11:00:00Z"}, ...]
 #   投稿済みの記録: nazo/manual/nbai/api_upload_<id>.txt（あれば作らない）
 import datetime, json, os, shutil, subprocess, sys, wave
@@ -15,7 +15,8 @@ B = "build_nbai"
 SR = 48000
 BGM = "assets/bgm_nazo.m4a"          # tools/bgm.py で合成したオリジナル曲（権利の心配なし）
 TPL = {"jump": {"page": "scene_jump.html", "verify": "verify.js"},
-       "fold": {"page": "scene_fold.html", "verify": "verify_fold.js"}}
+       "fold": {"page": "scene_fold.html", "verify": "verify_fold.js"},
+       "lineup": {"page": "scene_lineup.html", "verify": "verify_lineup.js"}}   # 大きさ比べ（日英は spec の lang）
 
 
 def load(sid):
@@ -112,14 +113,21 @@ def build(sid, jobs=3):
     print("書き出し:", out, f"{os.path.getsize(out) / 1e6:.1f}MB", "キット:", kit(sid, sp))
 
 
-def next_item(today=None):
+def next_item(now=None):
+    """予約表から、公開まで36時間以内でまだ上げていない最初の1本（公開が早い順）。dry_run の回は公開日の当日だけ"""
     q = json.load(open(f"{SD}/queue.json", encoding="utf-8"))
-    jst = datetime.timezone(datetime.timedelta(hours=9))
-    today = today or datetime.datetime.now(jst).date().isoformat()
-    for e in q:
-        pa = datetime.datetime.fromisoformat(e["publish_at"].replace("Z", "+00:00")).astimezone(jst)
-        if pa.date().isoformat() == today and not os.path.exists(f"{MAN}/api_upload_{e['id']}.txt"):
-            return e
+    utc = datetime.timezone.utc
+    now = datetime.datetime.fromisoformat(now).replace(tzinfo=utc) if now else datetime.datetime.now(utc)
+    for e in sorted(q, key=lambda e: e["publish_at"]):
+        pa = datetime.datetime.fromisoformat(e["publish_at"].replace("Z", "+00:00"))
+        if not (now < pa <= now + datetime.timedelta(hours=36)):
+            continue
+        if e.get("dry_run"):
+            if os.path.exists(f"{MAN}/dry_{e['id']}_{pa.date()}.txt"):
+                continue
+        elif os.path.exists(f"{MAN}/api_upload_{e['id']}.txt"):
+            continue
+        return e
     return None
 
 
@@ -130,7 +138,7 @@ if __name__ == "__main__":
     elif cmd == "build":
         build(sys.argv[2], jobs=int(os.environ.get("JOBS", 3)))
     elif cmd == "next":
-        e = next_item(sys.argv[2] if len(sys.argv) > 2 else None)
+        e = next_item(sys.argv[2] if len(sys.argv) > 2 else None)   # 引数は UTC の日時（試験用、例 2026-11-16T03:40:00）
         print(json.dumps(e) if e else "")
     else:
         sys.exit("check / build / next")

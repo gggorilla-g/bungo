@@ -1,9 +1,9 @@
 name: N倍ショート（自動・毎日）
 # 予約表 nazo/shorts/nbai/queue.json から「今日（JST）公開」の1本を取り、照合 → 書き出し → 妄想科学に予約公開（API）。
-# 在庫が無い日は何もしない。予約表で dry_run: true の回は上げずに書き出しだけ（試運転用）。照合で NG なら上げない。手動実行では id と publish_at を指定できる（dry_run で上げずに書き出しだけ）。
+# 予約表の channel: moso（妄想科学、既定）/ miw（Make It Work 3D、英語。鍵は旧百物語の YT_REFRESH_TOKEN_KAIDAN）。在庫が無い日は何もしない。予約表で dry_run: true の回は上げずに書き出しだけ（試運転用）。照合で NG なら上げない。手動実行では id と publish_at を指定できる（dry_run で上げずに書き出しだけ）。
 on:
   schedule:
-    - cron: "40 3 * * *"     # 毎日 JST 12:40 に制作 → 予約表の時刻（標準は JST 20:00）に公開
+    - cron: "40 3,15 * * *"  # 毎日 JST 12:40 と 0:40。公開まで36時間以内の未投稿を1本ずつ作って予約
   workflow_dispatch:
     inputs:
       id: { description: "台本ID（空なら予約表の今日の分）", default: "" }
@@ -34,6 +34,7 @@ jobs:
             echo "id=$(echo "$E" | python3 -c 'import json,sys;print(json.load(sys.stdin)["id"])')" >> $GITHUB_OUTPUT
             echo "at=$(echo "$E" | python3 -c 'import json,sys;print(json.load(sys.stdin)["publish_at"])')" >> $GITHUB_OUTPUT
             echo "dry=$(echo "$E" | python3 -c 'import json,sys;print(str(json.load(sys.stdin).get("dry_run",False)).lower())')" >> $GITHUB_OUTPUT
+            echo "ch=$(echo "$E" | python3 -c 'import json,sys;print(json.load(sys.stdin).get("channel","moso"))')" >> $GITHUB_OUTPUT
           fi
       - if: steps.pick.outputs.id != ''
         run: |
@@ -49,13 +50,17 @@ jobs:
           N="${{ steps.pick.outputs.id }}"; mkdir -p ../out && cp "output/$N.mp4" nazo/manual/nbai/${N}_upload.txt ../out/
           cd ../out && git init -q && git add . && git -c user.name=bungo-bot -c user.email=bot@users.noreply.github.com commit -q -m "nbai $N" \
             && git push -q -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" HEAD:refs/heads/nbai-out-$N
+          cd "$GITHUB_WORKSPACE" && D=$(echo "${{ steps.pick.outputs.at }}" | cut -c1-10) && echo done > "nazo/manual/nbai/dry_${N}_${D}.txt"
+          git config user.name "bungo-bot"; git config user.email "bot@users.noreply.github.com"
+          git add nazo/manual/nbai && git commit -q -m "nbai dry run: $N" && for i in 1 2 3; do git pull --rebase -q && git push -q && break; sleep 5; done
       - if: steps.pick.outputs.id != '' && inputs.dry_run != 'true' && steps.pick.outputs.dry != 'true'
         env:
           PUBLISH_AT: ${{ steps.pick.outputs.at }}
           NO_VOICE: "1"
           YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
           YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
-          YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN_MOSO }}
+          YT_REFRESH_TOKEN: ${{ steps.pick.outputs.ch == 'miw' && secrets.YT_REFRESH_TOKEN_KAIDAN || secrets.YT_REFRESH_TOKEN_MOSO }}
+          VIDEO_LANG: ${{ steps.pick.outputs.ch == 'miw' && 'en' || 'ja' }}
         run: |
           N="${{ steps.pick.outputs.id }}"
           python3 tools/short_upload.py "output/$N.mp4" "nazo/manual/nbai/${N}_upload.txt" 2> >(tee err.txt >&2) || { tail -n 4 err.txt | sed "s/^/::error::/"; exit 1; }

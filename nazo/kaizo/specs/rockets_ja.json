@@ -1,0 +1,462 @@
+{
+ "schemaVersion": 1,
+ "template": "lineup",
+ "output": {
+  "width": 1080,
+  "height": 1920,
+  "fps": 30,
+  "durationSeconds": 44
+ },
+ "intro": 1.6,
+ "outro": 4.6,
+ "title": {
+  "ja": "ロケットの大きさ比べ",
+  "en": "Rocket Size Comparison"
+ },
+ "endLine": {
+  "ja": "人と比べると、この大きさ",
+  "en": "All rockets, side by side"
+ },
+ "notes": {
+  "ja": "高さは公式の値。太さ・形・色は目安",
+  "en": "Heights from official sources. Shapes and colors are approximate."
+ },
+ "items": [
+  {
+   "id": "person",
+   "name": {
+    "ja": "人",
+    "en": "Person"
+   },
+   "m": 1.7,
+   "kind": "scene-assumption",
+   "note": "比べるための人（身長の目安）",
+   "shape": {
+    "type": "person",
+    "h": 1.7
+   }
+  },
+  {
+   "id": "electron",
+   "name": {
+    "ja": "エレクトロン（米・ニュージーランド）",
+    "en": "Electron"
+   },
+   "m": 18,
+   "kind": "external-fact",
+   "source": {
+    "url": "https://rocketlabcorp.com/assets/Uploads/RL-EducationGraphics-About-Rocket-Lab-and-Electron.pdf",
+    "label": "Rocket Lab",
+    "checkedAt": "2026-11-15"
+   },
+   "shape": {
+    "type": "rocket",
+    "stages": [
+     {
+      "h": 12.1,
+      "d": 1.2,
+      "color": "#1e1e1e"
+     },
+     {
+      "h": 2.4,
+      "d": 1.2,
+      "color": "#1e1e1e"
+     },
+     {
+      "h": 1.5,
+      "d": 1.2,
+      "color": "#1e1e1e"
+     },
+     {
+      "h": 2.0,
+      "d": 1.2,
+      "color": "#1e1e1e",
+      "d1": 0
+     }
+    ]
+   }
+  },
+  {
+   "id": "epsilon",
+   "name": {
+    "ja": "イプシロン（日本）",
+    "en": "Epsilon (Japan)"
+   },
+   "m": 24,
+   "kind": "external-fact",
+   "source": {
+    "url": "https://fanfun.jaxa.jp/faq/detail/292.html",
+    "label": "JAXA",
+    "checkedAt": "2026-11-15"
+   },
+   "shape": {
+    "type": "rocket",
+    "stages": [
+     {
+      "h": 11.0,
+      "d": 2.6,
+      "color": "#f2f2ee"
+     },
+     {
+      "h": 4.5,
+      "d": 2.6,
+      "color": "#9aa0a6"
+     },
+     {
+      "h": 3.5,
+      "d": 2.6,
+      "color": "#f2f2ee"
+     },
+     {
+      "h": 5.0,
+      "d": 2.6,
+      "color": "#f2f2ee",
+      "d1": 0
+     }
+    ]
+   }
+  },
+  {
+   "id": "h2a",
+   "name": {
+    "ja": "H-IIA（日本）",
+    "en": "H-IIA (Japan)"
+   },
+   "m": 53,
+   "kind": "external-fact",
+   "source": {
+    "url": "https://www.rocket.jaxa.jp/rocket/h2a/",
+    "label": "JAXA",
+    "checkedAt": "2026-11-15"
+   },
+   "shape": {
+    "type": "rocket",
+    "stages": [
+     {
+      "h": 37,
+      "d": 4,
+      "color": "#f2f2ee"
+     },
+     {
+      "h": 9,
+      "d": 4,
+      "color": "#f2f2ee"
+     },
+     {
+      "h": 3,
+      "d": 4.07,
+      "color": "#f2f2ee"
+     },
+     {
+      "h": 4,
+      "d": 4.07,
+      "color": "#f2f2ee",
+      "d1": 0
+     }
+    ],
+    "boosters": {
+     "n": 2,
+     "h": 15,
+     "d": 2.5,
+     "color": "#f2f2ee"
+    }
+   }
+  },
+  {
+   "id": "h2b",
+   "name": {
+    "ja": "H-IIB（日本）",
+    "en": "H-IIB (Japan)"
+   },
+   "m": 56.6,
+   "kind": "external-fact",
+   "source": {
+    "url": "https://fanfun.jaxa.jp/faq/detail/292.html",
+    "label": "JAXA",
+    "checkedAt": "2026-11-15"
+   },
+   "shape": {
+    "type": "rocket",
+    "stages": [
+     {
+      "h": 38,
+      "d": 5.2,
+      "color": "#f2f2ee"
+     },
+     {
+      "h": 10,
+      "d": 4,
+      "color": "#f2f2ee"
+     },
+     {
+      "h": 4,
+      "d": 5.1,
+      "color": "#f2f2ee",
+      "d1": 5.1
+     },
+     {
+      "h": 4.6,
+      "d": 5.1,
+      "color": "#f2f2ee",
+      "d1": 0
+     }
+    ],
+    "boosters": {
+     "n": 4,
+     "h": 15,
+     "d": 2.5,
+     "color": "#f2f2ee"
+    }
+   }
+  },
+  {
+   "id": "h3",
+   "name": {
+    "ja": "H3（日本）",
+    "en": "H3 (Japan)"
+   },
+   "m": 63,
+   "kind": "external-fact",
+   "source": {
+    "url": "https://www.jaxa.jp/projects/pr/brochure/pdf/01/rocket09.pdf",
+    "label": "JAXA",
+    "checkedAt": "2026-11-15"
+   },
+   "shape": {
+    "type": "rocket",
+    "stages": [
+     {
+      "h": 37,
+      "d": 5.2,
+      "color": "#f2f2ee"
+     },
+     {
+      "h": 12,
+      "d": 5.2,
+      "color": "#9aa0a6"
+     },
+     {
+      "h": 7,
+      "d": 5.2,
+      "color": "#f2f2ee"
+     },
+     {
+      "h": 7,
+      "d": 5.2,
+      "color": "#f2f2ee",
+      "d1": 0
+     }
+    ],
+    "boosters": {
+     "n": 2,
+     "h": 17,
+     "d": 2.5,
+     "color": "#f2f2ee"
+    }
+   }
+  },
+  {
+   "id": "falcon9",
+   "name": {
+    "ja": "ファルコン9（米）",
+    "en": "Falcon 9"
+   },
+   "m": 70,
+   "ft": 229.6,
+   "kind": "external-fact",
+   "source": {
+    "url": "https://new.spacex.com/vehicles/falcon-9",
+    "label": "SpaceX",
+    "checkedAt": "2026-11-15"
+   },
+   "shape": {
+    "type": "rocket",
+    "stages": [
+     {
+      "h": 41.2,
+      "d": 3.7,
+      "color": "#f2f2ee"
+     },
+     {
+      "h": 6.5,
+      "d": 3.7,
+      "color": "#1e1e1e"
+     },
+     {
+      "h": 9.1,
+      "d": 3.7,
+      "color": "#f2f2ee"
+     },
+     {
+      "h": 6.6,
+      "d": 5.2,
+      "color": "#f2f2ee"
+     },
+     {
+      "h": 6.6,
+      "d": 5.2,
+      "color": "#f2f2ee",
+      "d1": 0
+     }
+    ]
+   }
+  },
+  {
+   "id": "sls",
+   "name": {
+    "ja": "SLS（米・アルテミス計画）",
+    "en": "SLS (Artemis)"
+   },
+   "m": 98.1,
+   "ft": 322,
+   "kind": "external-fact",
+   "source": {
+    "url": "https://www.nasa.gov/reference/space-launch-system/",
+    "label": "NASA",
+    "checkedAt": "2026-11-15"
+   },
+   "shape": {
+    "type": "rocket",
+    "stages": [
+     {
+      "h": 64.6,
+      "d": 8.4,
+      "color": "#d9782f"
+     },
+     {
+      "h": 5,
+      "d": 8.4,
+      "color": "#f2f2ee",
+      "d1": 5
+     },
+     {
+      "h": 8.2,
+      "d": 5,
+      "color": "#f2f2ee"
+     },
+     {
+      "h": 8,
+      "d": 5,
+      "color": "#f2f2ee",
+      "d1": 3.2
+     },
+     {
+      "h": 12.3,
+      "d": 3.2,
+      "color": "#f2f2ee",
+      "d1": 0
+     }
+    ],
+    "boosters": {
+     "n": 2,
+     "h": 53.9,
+     "d": 3.66,
+     "color": "#f2f2ee"
+    }
+   }
+  },
+  {
+   "id": "saturn5",
+   "name": {
+    "ja": "サターンV（米・アポロ計画）",
+    "en": "Saturn V (Apollo)"
+   },
+   "m": 111,
+   "ft": 363,
+   "kind": "external-fact",
+   "source": {
+    "url": "https://www.nasa.gov/learning-resources/for-kids-and-students/what-was-the-saturn-v-grades-5-8/",
+    "label": "NASA",
+    "checkedAt": "2026-11-15"
+   },
+   "shape": {
+    "type": "rocket",
+    "stages": [
+     {
+      "h": 42,
+      "d": 10.1,
+      "color": "#f2f2ee"
+     },
+     {
+      "h": 24.8,
+      "d": 10.1,
+      "color": "#f2f2ee"
+     },
+     {
+      "h": 3,
+      "d": 10.1,
+      "color": "#f2f2ee",
+      "d1": 6.6
+     },
+     {
+      "h": 14.8,
+      "d": 6.6,
+      "color": "#f2f2ee"
+     },
+     {
+      "h": 9,
+      "d": 6.6,
+      "color": "#f2f2ee",
+      "d1": 3.9
+     },
+     {
+      "h": 17.4,
+      "d": 3.9,
+      "color": "#f2f2ee",
+      "d1": 0
+     }
+    ]
+   }
+  },
+  {
+   "id": "starship",
+   "name": {
+    "ja": "スターシップ（米）",
+    "en": "Starship"
+   },
+   "m": 124,
+   "kind": "external-fact",
+   "source": {
+    "url": "https://new.spacex.com/vehicles/starship",
+    "label": "SpaceX",
+    "checkedAt": "2026-11-15"
+   },
+   "shape": {
+    "type": "rocket",
+    "stages": [
+     {
+      "h": 72,
+      "d": 9,
+      "color": "#b9bec4"
+     },
+     {
+      "h": 40,
+      "d": 9,
+      "color": "#b9bec4"
+     },
+     {
+      "h": 12,
+      "d": 9,
+      "color": "#b9bec4",
+      "d1": 0
+     }
+    ]
+   }
+  }
+ ],
+ "lang": "ja",
+ "id": "rockets_ja",
+ "post": {
+  "title": "ロケットの大きさ比べ（人・日本・アメリカ） #shorts",
+  "tags": [
+   "ロケット",
+   "大きさ比べ",
+   "宇宙",
+   "H3",
+   "スターシップ",
+   "サターンV",
+   "3DCG"
+  ],
+  "desc": "人と、日本とアメリカのロケットを、高さの順に並べて比べました。\n※高さは公式の値です。太さ・形・色は見やすくした目安で、実物とは違います。人の身長は1.7mとしています。\n\n高さの出典\n・エレクトロン（米・ニュージーランド） 18m：Rocket Lab https://rocketlabcorp.com/assets/Uploads/RL-EducationGraphics-About-Rocket-Lab-and-Electron.pdf\n・イプシロン（日本） 24m：JAXA https://fanfun.jaxa.jp/faq/detail/292.html\n・H-IIA（日本） 53m：JAXA https://www.rocket.jaxa.jp/rocket/h2a/\n・H-IIB（日本） 56.6m：JAXA https://fanfun.jaxa.jp/faq/detail/292.html\n・H3（日本） 63m：JAXA https://www.jaxa.jp/projects/pr/brochure/pdf/01/rocket09.pdf\n・ファルコン9（米） 70m：SpaceX https://new.spacex.com/vehicles/falcon-9\n・SLS（米・アルテミス計画） 98.1m：NASA https://www.nasa.gov/reference/space-launch-system/\n・サターンV（米・アポロ計画） 111m：NASA https://www.nasa.gov/learning-resources/for-kids-and-students/what-was-the-saturn-v-grades-5-8/\n・スターシップ（米） 124m：SpaceX https://new.spacex.com/vehicles/starship\n\nBGM：オリジナル\n\n#宇宙 #ロケット #大きさ比べ"
+ }
+}

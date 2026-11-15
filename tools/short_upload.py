@@ -23,7 +23,7 @@ creds = Credentials(None, refresh_token=os.environ["YT_REFRESH_TOKEN"], client_i
                     client_secret=os.environ["YT_CLIENT_SECRET"], token_uri="https://oauth2.googleapis.com/token")
 yt = build("youtube", "v3", credentials=creds)
 body = {"snippet": {"title": title[:100], "description": desc, "tags": tags, "categoryId": "27",
-                    "defaultLanguage": "ja", "defaultAudioLanguage": "ja"},
+                    "defaultLanguage": os.environ.get("VIDEO_LANG", "ja"), "defaultAudioLanguage": os.environ.get("VIDEO_LANG", "ja")},
         "status": {"selfDeclaredMadeForKids": False, "containsSyntheticMedia": False}}
 body["status"].update({"privacyStatus": "private", "publishAt": publish_at} if publish_at else {"privacyStatus": "public"})
 req = yt.videos().insert(part="snippet,status", body=body,
