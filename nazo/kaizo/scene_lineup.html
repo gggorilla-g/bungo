@@ -63,21 +63,22 @@ function el(tag,a,txt){const e=document.createElementNS(NS,tag);for(const k in a
 const tw=(s,size)=>{let w=0;for(const ch of String(s))w+=ch.charCodeAt(0)<256?.58:1;return w*size};
 function T(x,y,size,txt,o={}){const a={x,y,'font-size':size,'font-weight':o.w||900,'text-anchor':o.a||'middle','stroke-width':o.sw!=null?o.sw:Math.max(3,size*.2)};let st='';if(o.fill)st+='fill:'+o.fill+';';if(o.op!=null)st+='opacity:'+o.op+';';if(st)a.style=st;return el('text',a,txt)}
 function drawHud(t,f,vh){hud.innerHTML='';
-  T(CX,H*.096,30*U,C.L(SPEC.title),{sw:7*U});
+  if(LAND)T(W*.025,H*.07,24*U,C.L(SPEC.title),{sw:6*U,a:'start'});else T(CX,H*.096,30*U,C.L(SPEC.title),{sw:7*U});
   // 物の上のラベル（見せ終わった物だけ。小さすぎる物は出さない）
-  const showN=f.out!=null?C.N:f.i+1;
-  for(let i=0;i<showN;i++){const it=IT[i],p=new THREE.Vector3(it.x,it.h,0).project(cam),q=new THREE.Vector3(it.x,0,0).project(cam);const ph=(p.y-q.y)/2*H;if(ph<26*U)continue;
-    const x=(p.x+1)/2*W,y=(1-p.y)/2*H;if(x<-60||x>W+60)continue;const big=i===f.i&&f.out==null,sz=(big?24:clamp(ph/8,13,19))*U;
-    const op=i===f.i||f.out!=null?1:.85;const nm=C.nameText(it).replace(/（.*?）|\(.*?\)/g,'');
+  const showN=f.out!=null?C.N:f.i+1,boxes=[];   // ラベルが重なったら上へずらす
+  for(let i=0;i<showN;i++){if(LAND&&(f.out==null?i<f.i-3:(i<C.N-6&&i%2)))continue;const it=IT[i],p=new THREE.Vector3(it.x,it.h,0).project(cam),q=new THREE.Vector3(it.x,0,0).project(cam);const ph=(p.y-q.y)/2*H;if(ph<26*U)continue;
+    const x=(p.x+1)/2*W;let y=(1-p.y)/2*H;if(x<-60||x>W+60)continue;const big=i===f.i&&f.out==null,sz=(big?24:clamp(ph/8,13,19))*U;
+    const op=i===f.i||f.out!=null?1:.85;const nm=C.nameText(it).replace(/（.*?）|\(.*?\)/g,'');const vt=C.valueText(it).replace(/ \(.*\)$/,'');
+    const bw=Math.max(tw(nm,sz),tw(vt,sz*1.08))+8,bh=sz*2.5;let yy=y;for(let k=0;k<6;k++){const hit=boxes.find(b=>Math.abs(b.x-x)<(b.w+bw)/2&&Math.abs(b.y-yy)<bh);if(!hit)break;yy=hit.y-bh}boxes.push({x,y:yy,w:bw});y=yy;
     if(!(f.out!=null&&ph<70*U))T(x,y-8-sz*1.25,sz,nm,{w:700,sw:sz*.24,op});T(x,y-8,sz*1.08,C.valueText(it).replace(/ \(.*\)$/,''),{sw:sz*.26,fill:'#ffd43b',op})}
   const c=C.captionAt(t),a=f.out!=null?1:clamp((t-(t<C.IN?0:IT[f.i].t0))/.12,0,1);
   const y1=H*(LAND?(c.c2?.80:.84):(c.c2?.754:.775)),s1=Math.min(44*U,W*.87/tw(c.c1,1));T(CX,y1+(1-a)*5,s1,c.c1,{sw:s1*.22,op:(.3+.7*a).toFixed(2)});
   if(c.c2){const s2=Math.min(64*U,W*.87/tw(c.c2,1));T(CX,y1+s2+8+(1-a)*5,s2,c.c2,{sw:s2*.2,fill:'#ffd43b',op:(.3+.7*a).toFixed(2)})}
   T(CX,H*.98,11*U,C.L(SPEC.notes),{w:400,sw:3*U,op:.85})}
 // ===== 1コマ =====
-const VH=it=>Math.max(4.2,it.h*2.1),SHIFT=it=>it===IT[0]?0:VH(it)*ASP*.16;   // 注目の物は少し右寄せ（左に見せ終わった物、右の次の物は隠れ気味）
+const VH=it=>Math.max(4.2,it.h*(LAND?2.5:2.1)),SHIFT=it=>it===IT[0]?0:VH(it)*ASP*(LAND?.24:.16);   // 注目の物は少し右寄せ（左に見せ終わった物、右の次の物は隠れ気味）
 const hmax=Math.max(...IT.map(i=>i.h)),xl=IT[0].x-IT[0].w,xr=IT[C.N-1].x+IT[C.N-1].w;
-const OV={x:(xl+xr)/2,vh:Math.max(hmax*2.0,(xr-xl)/ASP*1.06)};
+const OV={x:(xl+xr)/2,vh:Math.max(hmax*(LAND?2.9:2.0),(xr-xl)/ASP*1.06)};
 window.renderAt=function(t){
   const f=C.focusAt(t),it=IT[f.i],pv=IT[Math.max(0,f.i-1)],e=f.k*f.k*(3-2*f.k);
   let X=lerp(pv.x+SHIFT(pv)*-1,it.x-SHIFT(it),e),Vh=Math.exp(lerp(Math.log(VH(pv)),Math.log(VH(it)),e));

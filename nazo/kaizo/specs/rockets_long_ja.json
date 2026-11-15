@@ -1,0 +1,797 @@
+{
+ "schemaVersion": 1,
+ "template": "lineup",
+ "id": "rockets_long_ja",
+ "lang": "ja",
+ "output": {
+  "width": 1920,
+  "height": 1080,
+  "fps": 30,
+  "durationSeconds": 213.5
+ },
+ "intro": 4.0,
+ "outro": 14.0,
+ "title": {
+  "ja": "ロケットの大きさ比べ",
+  "en": "Rocket Size Comparison"
+ },
+ "endLine": {
+  "ja": "人と比べると、この大きさ",
+  "en": "All rockets, side by side"
+ },
+ "notes": {
+  "ja": "高さは公式の値。太さ・形・色は目安",
+  "en": "Heights from official sources. Shapes and colors are approximate."
+ },
+ "items": [
+  {
+   "id": "person",
+   "name": {
+    "ja": "人",
+    "en": "Person"
+   },
+   "m": 1.7,
+   "kind": "scene-assumption",
+   "note": "比べるための人（身長の目安）",
+   "shape": {
+    "type": "person",
+    "h": 1.7
+   }
+  },
+  {
+   "id": "electron",
+   "name": {
+    "ja": "エレクトロン（米・ニュージーランド）",
+    "en": "Electron"
+   },
+   "m": 18,
+   "kind": "external-fact",
+   "source": {
+    "url": "https://rocketlabcorp.com/assets/Uploads/RL-EducationGraphics-About-Rocket-Lab-and-Electron.pdf",
+    "label": "Rocket Lab",
+    "checkedAt": "2026-11-15"
+   },
+   "shape": {
+    "type": "rocket",
+    "stages": [
+     {
+      "h": 12.1,
+      "d": 1.2,
+      "color": "#1e1e1e"
+     },
+     {
+      "h": 2.4,
+      "d": 1.2,
+      "color": "#1e1e1e"
+     },
+     {
+      "h": 1.5,
+      "d": 1.2,
+      "color": "#1e1e1e"
+     },
+     {
+      "h": 2.0,
+      "d": 1.2,
+      "color": "#1e1e1e",
+      "d1": 0
+     }
+    ]
+   }
+  },
+  {
+   "id": "epsilon",
+   "name": {
+    "ja": "イプシロン（日本）",
+    "en": "Epsilon (Japan)"
+   },
+   "m": 24,
+   "kind": "external-fact",
+   "source": {
+    "url": "https://fanfun.jaxa.jp/faq/detail/292.html",
+    "label": "JAXA",
+    "checkedAt": "2026-11-15"
+   },
+   "shape": {
+    "type": "rocket",
+    "stages": [
+     {
+      "h": 11.0,
+      "d": 2.6,
+      "color": "#f2f2ee"
+     },
+     {
+      "h": 4.5,
+      "d": 2.6,
+      "color": "#9aa0a6"
+     },
+     {
+      "h": 3.5,
+      "d": 2.6,
+      "color": "#f2f2ee"
+     },
+     {
+      "h": 5.0,
+      "d": 2.6,
+      "color": "#f2f2ee",
+      "d1": 0
+     }
+    ]
+   }
+  },
+  {
+   "id": "redstone",
+   "name": {
+    "ja": "マーキュリー・レッドストーン（米・1961年）",
+    "en": "Mercury-Redstone (1961)"
+   },
+   "m": 25.3,
+   "ft": 83,
+   "kind": "external-fact",
+   "source": {
+    "url": "https://www.nasa.gov/centers-and-facilities/marshall/mercury-redstone-launch-vehicle/",
+    "label": "NASA",
+    "checkedAt": "2026-11-16"
+   },
+   "shape": {
+    "type": "rocket",
+    "stages": [
+     {
+      "h": 17.8,
+      "d": 1.78,
+      "color": "#f2f2ee"
+     },
+     {
+      "h": 2.8,
+      "d": 1.78,
+      "color": "#1e1e1e"
+     },
+     {
+      "h": 2.0,
+      "d": 1.9,
+      "color": "#1e1e1e",
+      "d1": 0.8
+     },
+     {
+      "h": 2.7,
+      "d": 0.4,
+      "color": "#c8322b",
+      "d1": 0
+     }
+    ]
+   }
+  },
+  {
+   "id": "vegac",
+   "name": {
+    "ja": "ヴェガC（欧州）",
+    "en": "Vega-C (Europe)"
+   },
+   "m": 35,
+   "approx": true,
+   "kind": "external-fact",
+   "source": {
+    "url": "https://www.esa.int/Enabling_Support/Space_Transportation/Vega/Vega-C",
+    "label": "ESA",
+    "checkedAt": "2026-11-16"
+   },
+   "shape": {
+    "type": "rocket",
+    "stages": [
+     {
+      "h": 13.4,
+      "d": 3.4,
+      "color": "#f2f2ee"
+     },
+     {
+      "h": 1.5,
+      "d": 3.4,
+      "color": "#1e1e1e",
+      "d1": 2.4
+     },
+     {
+      "h": 8.6,
+      "d": 2.4,
+      "color": "#f2f2ee"
+     },
+     {
+      "h": 4.5,
+      "d": 3.3,
+      "color": "#f2f2ee"
+     },
+     {
+      "h": 7.0,
+      "d": 3.3,
+      "color": "#f2f2ee",
+      "d1": 0
+     }
+    ]
+   }
+  },
+  {
+   "id": "lvm3",
+   "name": {
+    "ja": "LVM3（インド）",
+    "en": "LVM3 (India)"
+   },
+   "m": 43.5,
+   "kind": "external-fact",
+   "source": {
+    "url": "https://www.isro.gov.in/GSLVmk3_CON.html",
+    "label": "ISRO",
+    "checkedAt": "2026-11-16"
+   },
+   "shape": {
+    "type": "rocket",
+    "stages": [
+     {
+      "h": 21,
+      "d": 4,
+      "color": "#f2f2ee"
+     },
+     {
+      "h": 10,
+      "d": 4,
+      "color": "#9aa0a6"
+     },
+     {
+      "h": 1,
+      "d": 4,
+      "color": "#f2f2ee",
+      "d1": 5
+     },
+     {
+      "h": 6.5,
+      "d": 5,
+      "color": "#f2f2ee"
+     },
+     {
+      "h": 5,
+      "d": 5,
+      "color": "#f2f2ee",
+      "d1": 0
+     }
+    ],
+    "boosters": {
+     "n": 2,
+     "h": 26,
+     "d": 3.2,
+     "color": "#f2f2ee"
+    }
+   }
+  },
+  {
+   "id": "pslv",
+   "name": {
+    "ja": "PSLV（インド）",
+    "en": "PSLV (India)"
+   },
+   "m": 44,
+   "kind": "external-fact",
+   "source": {
+    "url": "https://www.isro.gov.in/PSLV_CON.html",
+    "label": "ISRO",
+    "checkedAt": "2026-11-16"
+   },
+   "shape": {
+    "type": "rocket",
+    "stages": [
+     {
+      "h": 20.3,
+      "d": 2.8,
+      "color": "#f2f2ee"
+     },
+     {
+      "h": 12.8,
+      "d": 2.8,
+      "color": "#9aa0a6"
+     },
+     {
+      "h": 3.6,
+      "d": 2.8,
+      "color": "#f2f2ee"
+     },
+     {
+      "h": 4,
+      "d": 3.2,
+      "color": "#f2f2ee"
+     },
+     {
+      "h": 3.3,
+      "d": 3.2,
+      "color": "#f2f2ee",
+      "d1": 0
+     }
+    ],
+    "boosters": {
+     "n": 6,
+     "h": 12,
+     "d": 1.0,
+     "color": "#f2f2ee"
+    }
+   }
+  },
+  {
+   "id": "h2a",
+   "name": {
+    "ja": "H-IIA（日本）",
+    "en": "H-IIA (Japan)"
+   },
+   "m": 53,
+   "kind": "external-fact",
+   "source": {
+    "url": "https://www.rocket.jaxa.jp/rocket/h2a/",
+    "label": "JAXA",
+    "checkedAt": "2026-11-15"
+   },
+   "shape": {
+    "type": "rocket",
+    "stages": [
+     {
+      "h": 37,
+      "d": 4,
+      "color": "#f2f2ee"
+     },
+     {
+      "h": 9,
+      "d": 4,
+      "color": "#f2f2ee"
+     },
+     {
+      "h": 3,
+      "d": 4.07,
+      "color": "#f2f2ee"
+     },
+     {
+      "h": 4,
+      "d": 4.07,
+      "color": "#f2f2ee",
+      "d1": 0
+     }
+    ],
+    "boosters": {
+     "n": 2,
+     "h": 15,
+     "d": 2.5,
+     "color": "#f2f2ee"
+    }
+   }
+  },
+  {
+   "id": "h2b",
+   "name": {
+    "ja": "H-IIB（日本）",
+    "en": "H-IIB (Japan)"
+   },
+   "m": 56.6,
+   "kind": "external-fact",
+   "source": {
+    "url": "https://fanfun.jaxa.jp/faq/detail/292.html",
+    "label": "JAXA",
+    "checkedAt": "2026-11-15"
+   },
+   "shape": {
+    "type": "rocket",
+    "stages": [
+     {
+      "h": 38,
+      "d": 5.2,
+      "color": "#f2f2ee"
+     },
+     {
+      "h": 10,
+      "d": 4,
+      "color": "#f2f2ee"
+     },
+     {
+      "h": 4,
+      "d": 5.1,
+      "color": "#f2f2ee",
+      "d1": 5.1
+     },
+     {
+      "h": 4.6,
+      "d": 5.1,
+      "color": "#f2f2ee",
+      "d1": 0
+     }
+    ],
+    "boosters": {
+     "n": 4,
+     "h": 15,
+     "d": 2.5,
+     "color": "#f2f2ee"
+    }
+   }
+  },
+  {
+   "id": "vulcan",
+   "name": {
+    "ja": "ヴァルカン（米）",
+    "en": "Vulcan"
+   },
+   "m": 61.6,
+   "ft": 202,
+   "kind": "external-fact",
+   "source": {
+    "url": "https://www.ulalaunch.com/docs/default-source/rockets/vulcancentaur.pdf",
+    "label": "ULA",
+    "checkedAt": "2026-11-16"
+   },
+   "shape": {
+    "type": "rocket",
+    "stages": [
+     {
+      "h": 33.3,
+      "d": 5.4,
+      "color": "#f2f2ee"
+     },
+     {
+      "h": 12,
+      "d": 5.4,
+      "color": "#9aa0a6"
+     },
+     {
+      "h": 8,
+      "d": 5.4,
+      "color": "#f2f2ee"
+     },
+     {
+      "h": 8.3,
+      "d": 5.4,
+      "color": "#f2f2ee",
+      "d1": 0
+     }
+    ],
+    "boosters": {
+     "n": 4,
+     "h": 21.9,
+     "d": 1.6,
+     "color": "#f2f2ee"
+    }
+   }
+  },
+  {
+   "id": "h3",
+   "name": {
+    "ja": "H3（日本）",
+    "en": "H3 (Japan)"
+   },
+   "m": 63,
+   "kind": "external-fact",
+   "source": {
+    "url": "https://www.jaxa.jp/projects/pr/brochure/pdf/01/rocket09.pdf",
+    "label": "JAXA",
+    "checkedAt": "2026-11-15"
+   },
+   "shape": {
+    "type": "rocket",
+    "stages": [
+     {
+      "h": 37,
+      "d": 5.2,
+      "color": "#f2f2ee"
+     },
+     {
+      "h": 12,
+      "d": 5.2,
+      "color": "#9aa0a6"
+     },
+     {
+      "h": 7,
+      "d": 5.2,
+      "color": "#f2f2ee"
+     },
+     {
+      "h": 7,
+      "d": 5.2,
+      "color": "#f2f2ee",
+      "d1": 0
+     }
+    ],
+    "boosters": {
+     "n": 2,
+     "h": 17,
+     "d": 2.5,
+     "color": "#f2f2ee"
+    }
+   }
+  },
+  {
+   "id": "falcon9",
+   "name": {
+    "ja": "ファルコン9（米）",
+    "en": "Falcon 9"
+   },
+   "m": 70,
+   "ft": 229.6,
+   "kind": "external-fact",
+   "source": {
+    "url": "https://new.spacex.com/vehicles/falcon-9",
+    "label": "SpaceX",
+    "checkedAt": "2026-11-15"
+   },
+   "shape": {
+    "type": "rocket",
+    "stages": [
+     {
+      "h": 41.2,
+      "d": 3.7,
+      "color": "#f2f2ee"
+     },
+     {
+      "h": 6.5,
+      "d": 3.7,
+      "color": "#1e1e1e"
+     },
+     {
+      "h": 9.1,
+      "d": 3.7,
+      "color": "#f2f2ee"
+     },
+     {
+      "h": 6.6,
+      "d": 5.2,
+      "color": "#f2f2ee"
+     },
+     {
+      "h": 6.6,
+      "d": 5.2,
+      "color": "#f2f2ee",
+      "d1": 0
+     }
+    ]
+   }
+  },
+  {
+   "id": "falconheavy",
+   "name": {
+    "ja": "ファルコンヘビー（米）",
+    "en": "Falcon Heavy"
+   },
+   "m": 70,
+   "ft": 229.6,
+   "kind": "external-fact",
+   "source": {
+    "url": "https://new.spacex.com/vehicles/falcon-heavy",
+    "label": "SpaceX",
+    "checkedAt": "2026-11-16"
+   },
+   "shape": {
+    "type": "rocket",
+    "stages": [
+     {
+      "h": 41.2,
+      "d": 3.7,
+      "color": "#f2f2ee"
+     },
+     {
+      "h": 6.5,
+      "d": 3.7,
+      "color": "#1e1e1e"
+     },
+     {
+      "h": 9.1,
+      "d": 3.7,
+      "color": "#f2f2ee"
+     },
+     {
+      "h": 6.6,
+      "d": 5.2,
+      "color": "#f2f2ee"
+     },
+     {
+      "h": 6.6,
+      "d": 5.2,
+      "color": "#f2f2ee",
+      "d1": 0
+     }
+    ],
+    "boosters": {
+     "n": 2,
+     "h": 48,
+     "d": 3.7,
+     "color": "#f2f2ee"
+    }
+   }
+  },
+  {
+   "id": "newglenn",
+   "name": {
+    "ja": "ニューグレン（米）",
+    "en": "New Glenn"
+   },
+   "m": 98,
+   "approx": true,
+   "kind": "external-fact",
+   "source": {
+    "url": "https://www.blueorigin.com/new-glenn",
+    "label": "Blue Origin",
+    "checkedAt": "2026-11-16"
+   },
+   "shape": {
+    "type": "rocket",
+    "stages": [
+     {
+      "h": 57.5,
+      "d": 7,
+      "color": "#e8edf2"
+     },
+     {
+      "h": 23.5,
+      "d": 7,
+      "color": "#f2f2ee"
+     },
+     {
+      "h": 8.5,
+      "d": 7,
+      "color": "#f2f2ee"
+     },
+     {
+      "h": 8.5,
+      "d": 7,
+      "color": "#f2f2ee",
+      "d1": 0
+     }
+    ]
+   },
+   "ft": 320
+  },
+  {
+   "id": "sls",
+   "name": {
+    "ja": "SLS（米・アルテミス計画）",
+    "en": "SLS (Artemis)"
+   },
+   "m": 98.1,
+   "ft": 322,
+   "kind": "external-fact",
+   "source": {
+    "url": "https://www.nasa.gov/reference/space-launch-system/",
+    "label": "NASA",
+    "checkedAt": "2026-11-15"
+   },
+   "shape": {
+    "type": "rocket",
+    "stages": [
+     {
+      "h": 64.6,
+      "d": 8.4,
+      "color": "#d9782f"
+     },
+     {
+      "h": 5,
+      "d": 8.4,
+      "color": "#f2f2ee",
+      "d1": 5
+     },
+     {
+      "h": 8.2,
+      "d": 5,
+      "color": "#f2f2ee"
+     },
+     {
+      "h": 8,
+      "d": 5,
+      "color": "#f2f2ee",
+      "d1": 3.2
+     },
+     {
+      "h": 12.3,
+      "d": 3.2,
+      "color": "#f2f2ee",
+      "d1": 0
+     }
+    ],
+    "boosters": {
+     "n": 2,
+     "h": 53.9,
+     "d": 3.66,
+     "color": "#f2f2ee"
+    }
+   }
+  },
+  {
+   "id": "saturn5",
+   "name": {
+    "ja": "サターンV（米・アポロ計画）",
+    "en": "Saturn V (Apollo)"
+   },
+   "m": 111,
+   "ft": 363,
+   "kind": "external-fact",
+   "source": {
+    "url": "https://www.nasa.gov/learning-resources/for-kids-and-students/what-was-the-saturn-v-grades-5-8/",
+    "label": "NASA",
+    "checkedAt": "2026-11-15"
+   },
+   "shape": {
+    "type": "rocket",
+    "stages": [
+     {
+      "h": 42,
+      "d": 10.1,
+      "color": "#f2f2ee"
+     },
+     {
+      "h": 24.8,
+      "d": 10.1,
+      "color": "#f2f2ee"
+     },
+     {
+      "h": 3,
+      "d": 10.1,
+      "color": "#f2f2ee",
+      "d1": 6.6
+     },
+     {
+      "h": 14.8,
+      "d": 6.6,
+      "color": "#f2f2ee"
+     },
+     {
+      "h": 9,
+      "d": 6.6,
+      "color": "#f2f2ee",
+      "d1": 3.9
+     },
+     {
+      "h": 17.4,
+      "d": 3.9,
+      "color": "#f2f2ee",
+      "d1": 0
+     }
+    ]
+   }
+  },
+  {
+   "id": "starship",
+   "name": {
+    "ja": "スターシップ（米）",
+    "en": "Starship"
+   },
+   "m": 124,
+   "kind": "external-fact",
+   "source": {
+    "url": "https://new.spacex.com/vehicles/starship",
+    "label": "SpaceX",
+    "checkedAt": "2026-11-15"
+   },
+   "shape": {
+    "type": "rocket",
+    "stages": [
+     {
+      "h": 72,
+      "d": 9,
+      "color": "#b9bec4"
+     },
+     {
+      "h": 40,
+      "d": 9,
+      "color": "#b9bec4"
+     },
+     {
+      "h": 12,
+      "d": 9,
+      "color": "#b9bec4",
+      "d1": 0
+     }
+    ]
+   }
+  }
+ ],
+ "post": {
+  "title": "ロケットの大きさ比べ｜人から世界最大のスターシップまで17機を3Dで並べた",
+  "tags": [
+   "ロケット",
+   "大きさ比べ",
+   "宇宙",
+   "3DCG",
+   "H3",
+   "スターシップ",
+   "サターンV",
+   "SLS",
+   "ファルコンヘビー"
+  ],
+  "desc": "人の身長から、世界最大のロケット「スターシップ」まで、17機を高さの順に3Dで並べました。日本・アメリカ・欧州・インドのロケットが出てきます。\n※高さは公式の値です（「約」は公式の表記が概数のもの）。太さ・形・色は見やすくした目安で、実物とは違います。人の身長は1.7mとしています。\n\n目次\n0:00 はじめに\n0:04 人\n0:15 エレクトロン（米・ニュージーランド）\n0:27 イプシロン（日本）\n0:38 マーキュリー・レッドストーン（米・1961年）\n0:50 ヴェガC（欧州）\n1:01 LVM3（インド）\n1:13 PSLV（インド）\n1:24 H-IIA（日本）\n1:36 H-IIB（日本）\n1:47 ヴァルカン（米）\n1:59 H3（日本）\n2:10 ファルコン9（米）\n2:22 ファルコンヘビー（米）\n2:33 ニューグレン（米）\n2:45 SLS（米・アルテミス計画）\n2:56 サターンV（米・アポロ計画）\n3:08 スターシップ（米）\n3:19 全部を並べて\n\n高さの出典\n・エレクトロン（米・ニュージーランド）：Rocket Lab https://rocketlabcorp.com/assets/Uploads/RL-EducationGraphics-About-Rocket-Lab-and-Electron.pdf\n・イプシロン（日本）：JAXA https://fanfun.jaxa.jp/faq/detail/292.html\n・マーキュリー・レッドストーン（米・1961年）：NASA https://www.nasa.gov/centers-and-facilities/marshall/mercury-redstone-launch-vehicle/\n・ヴェガC（欧州）：ESA https://www.esa.int/Enabling_Support/Space_Transportation/Vega/Vega-C\n・LVM3（インド）：ISRO https://www.isro.gov.in/GSLVmk3_CON.html\n・PSLV（インド）：ISRO https://www.isro.gov.in/PSLV_CON.html\n・H-IIA（日本）：JAXA https://www.rocket.jaxa.jp/rocket/h2a/\n・H-IIB（日本）：JAXA https://fanfun.jaxa.jp/faq/detail/292.html\n・ヴァルカン（米）：ULA https://www.ulalaunch.com/docs/default-source/rockets/vulcancentaur.pdf\n・H3（日本）：JAXA https://www.jaxa.jp/projects/pr/brochure/pdf/01/rocket09.pdf\n・ファルコン9（米）：SpaceX https://new.spacex.com/vehicles/falcon-9\n・ファルコンヘビー（米）：SpaceX https://new.spacex.com/vehicles/falcon-heavy\n・ニューグレン（米）：Blue Origin https://www.blueorigin.com/new-glenn\n・SLS（米・アルテミス計画）：NASA https://www.nasa.gov/reference/space-launch-system/\n・サターンV（米・アポロ計画）：NASA https://www.nasa.gov/learning-resources/for-kids-and-students/what-was-the-saturn-v-grades-5-8/\n・スターシップ（米）：SpaceX https://new.spacex.com/vehicles/starship\n\nBGM：オリジナル\n\n#宇宙 #ロケット #大きさ比べ"
+ }
+}

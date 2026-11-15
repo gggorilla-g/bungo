@@ -20,12 +20,12 @@ function make(spec){
   // 表示する数字（m は出典の値。ft は出典にあればそれ、無ければ換算）
   const fmtNum=(v,d)=>{const r=Math.round(v*Math.pow(10,d))/Math.pow(10,d);return r.toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:d})};
   function valueText(it){const d=it.m<10?1:(it.m<100&&it.m%1!==0?1:0),mT=fmtNum(it.m,d)+' m';
-    if(lang==='en'){const ft=it.ft!=null?it.ft:it.m*FT;return mT+' ('+fmtNum(ft,ft<10?1:0)+' ft)'}
-    return (it.kind==='scene-assumption'?'約':'')+fmtNum(it.m,d)+'m'}
+    if(lang==='en'){const ft=it.ft!=null?it.ft:it.m*FT;return (it.approx?'about ':'')+mT+' ('+fmtNum(ft,ft<10?1:0)+' ft)'}
+    return (it.kind==='scene-assumption'||it.approx?'約':'')+fmtNum(it.m,d)+'m'}
   const nameText=it=>L(it.name);
   // いまの注目（どの物を見せているか）
   function focusAt(t){if(t<IN)return{i:0,k:1};if(t>=T_OUT)return{i:N-1,k:1,out:Math.min(1,(t-T_OUT)/1.6)};
-    const i=Math.min(N-1,Math.floor((t-IN)/SLOT)),u=(t-items[i].t0)/SLOT;return{i,k:Math.min(1,u/.32)}}
+    const i=Math.min(N-1,Math.floor((t-IN)/SLOT)),u=(t-items[i].t0)/SLOT;return{i,k:Math.min(1,(t-items[i].t0)/Math.min(.32*SLOT,2.2))}}
   function captionAt(t){const f=focusAt(t);if(t<IN)return{c1:L(spec.title),c2:''};
     if(f.out!=null&&f.out>0)return{c1:L(spec.endLine||spec.title),c2:''};
     const it=items[f.i];return{c1:nameText(it),c2:valueText(it)}}

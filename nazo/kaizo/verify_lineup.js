@@ -5,7 +5,7 @@ const spec=JSON.parse(fs.readFileSync(process.argv[2],'utf8'));const err=[],warn
 try{C=make(spec)}catch(e){console.log('NG 時間割・形: '+e.message);process.exit(1)}
 const its=C.items;
 its.forEach((it,i)=>{
-  if(i>0&&!(it.m>its[i-1].m))err.push(`並び順：${it.id}（${it.m}）が前の ${its[i-1].id}（${its[i-1].m}）以下`);
+  if(i>0&&!(it.m>=its[i-1].m))err.push(`並び順：${it.id}（${it.m}）が前の ${its[i-1].id}（${its[i-1].m}）より小さい`);
   if(it.kind==='external-fact'&&!(it.source&&it.source.url&&it.source.checkedAt))err.push(`出典なし：${it.id}`);
   if(it.kind!=='external-fact'&&it.kind!=='scene-assumption')err.push(`kind が不明：${it.id}`);
   if(Math.abs(it.h-it.m)/it.m>.015)err.push(`形の高さ ${it.h.toFixed(2)}m と数値 ${it.m}m が合わない：${it.id}`);else ok.push(`形の高さ一致 ${it.id} ${it.h.toFixed(2)}≒${it.m}`);
