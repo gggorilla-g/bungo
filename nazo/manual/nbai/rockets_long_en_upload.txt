@@ -1,0 +1,52 @@
+【タイトル】
+Rocket Size Comparison 3D | 17 Rockets from a Person to Starship
+
+【説明】
+17 rockets lined up by height in 3D, from a 1.7 m person to Starship. Rockets from the US, Japan, Europe and India.
+Heights are official figures ("about" means the official figure is rounded). Widths, shapes and colors are simplified and approximate.
+
+Chapters
+0:00 Intro
+0:04 Person
+0:15 Electron
+0:27 Epsilon (Japan)
+0:38 Mercury-Redstone (1961)
+0:50 Vega-C (Europe)
+1:01 LVM3 (India)
+1:13 PSLV (India)
+1:24 H-IIA (Japan)
+1:36 H-IIB (Japan)
+1:47 Vulcan
+1:59 H3 (Japan)
+2:10 Falcon 9
+2:22 Falcon Heavy
+2:33 New Glenn
+2:45 SLS (Artemis)
+2:56 Saturn V (Apollo)
+3:08 Starship
+3:19 All side by side
+
+Height sources
+- Electron: Rocket Lab https://rocketlabcorp.com/assets/Uploads/RL-EducationGraphics-About-Rocket-Lab-and-Electron.pdf
+- Epsilon (Japan): JAXA https://fanfun.jaxa.jp/faq/detail/292.html
+- Mercury-Redstone (1961): NASA https://www.nasa.gov/centers-and-facilities/marshall/mercury-redstone-launch-vehicle/
+- Vega-C (Europe): ESA https://www.esa.int/Enabling_Support/Space_Transportation/Vega/Vega-C
+- LVM3 (India): ISRO https://www.isro.gov.in/GSLVmk3_CON.html
+- PSLV (India): ISRO https://www.isro.gov.in/PSLV_CON.html
+- H-IIA (Japan): JAXA https://www.rocket.jaxa.jp/rocket/h2a/
+- H-IIB (Japan): JAXA https://fanfun.jaxa.jp/faq/detail/292.html
+- Vulcan: ULA https://www.ulalaunch.com/docs/default-source/rockets/vulcancentaur.pdf
+- H3 (Japan): JAXA https://www.jaxa.jp/projects/pr/brochure/pdf/01/rocket09.pdf
+- Falcon 9: SpaceX https://new.spacex.com/vehicles/falcon-9
+- Falcon Heavy: SpaceX https://new.spacex.com/vehicles/falcon-heavy
+- New Glenn: Blue Origin https://www.blueorigin.com/new-glenn
+- SLS (Artemis): NASA https://www.nasa.gov/reference/space-launch-system/
+- Saturn V (Apollo): NASA https://www.nasa.gov/learning-resources/for-kids-and-students/what-was-the-saturn-v-grades-5-8/
+- Starship: SpaceX https://new.spacex.com/vehicles/starship
+
+Music: original
+
+#space #rocket #sizecomparison
+
+【タグ】
+rocket size comparison, size comparison, space, Starship, Saturn V, SLS, Falcon Heavy, New Glenn, 3D

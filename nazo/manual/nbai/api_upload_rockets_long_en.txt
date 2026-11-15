@@ -1,0 +1,17 @@
+{
+ "thumb": "nazo/manual/nbai/rockets_long_en_thumb.jpg",
+ "thumb_error": "",
+ "id": "u1oLybu7DsY",
+ "url": "https://youtube.com/shorts/u1oLybu7DsY",
+ "requested_publishAt": "2026-11-17T01:00:00Z",
+ "returned_status": {
+  "uploadStatus": "uploaded",
+  "privacyStatus": "private",
+  "publishAt": "2026-11-17T01:00:00Z",
+  "license": "youtube",
+  "embeddable": true,
+  "publicStatsViewable": true,
+  "selfDeclaredMadeForKids": false,
+  "containsSyntheticMedia": false
+ }
+}
