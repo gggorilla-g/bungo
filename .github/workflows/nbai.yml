@@ -25,6 +25,7 @@ jobs:
         with: { python-version: "3.12" }
       - uses: actions/setup-node@v4
         with: { node-version: "22" }
+      - run: pip install -q numpy  # nbai.py は先頭で numpy を読むので、pick（next）の前に入れる
       - id: pick
         run: |
           if [ -n "${{ inputs.id }}" ]; then
