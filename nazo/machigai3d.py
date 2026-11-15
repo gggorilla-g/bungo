@@ -303,6 +303,7 @@ def build(sid):
         names = [f"zunda{k}" for k in range(sp.get("zcount", 1))]
     a0, a1 = sp.get("cam", [-0.45, 0.45])
     base = {"cam_a0": a0, "cam_a1": a1, "hold": t_ans0, "cam_r": sp.get("cam_r", 21), "cam_h": sp.get("cam_h", 11)}
+    base.update(sp.get("p", {}))   # 場面ごとの追加の指定（例：drive の mode=front・seed）
     jobs = [{"scene": sp.get("scene", "hakoniwa"), "p": dict(base), "d": total, "fps": FPS, "w": PW, "h": PH, "out": f"{B}/A"},
             {"scene": sp.get("scene", "hakoniwa"), "p": dict(base, diff=names), "d": total, "fps": FPS, "w": PW, "h": PH, "out": f"{B}/B",
              "probe": {"t": t_ans0 + 0.01, "names": names}}]
