@@ -1,6 +1,6 @@
 name: N倍ショート（自動・毎日）
 # 予約表 nazo/shorts/nbai/queue.json から「今日（JST）公開」の1本を取り、照合 → 書き出し → 妄想科学に予約公開（API）。
-# 在庫が無い日は何もしない。照合で NG なら上げない。手動実行では id と publish_at を指定できる（dry_run で上げずに書き出しだけ）。
+# 在庫が無い日は何もしない。予約表で dry_run: true の回は上げずに書き出しだけ（試運転用）。照合で NG なら上げない。手動実行では id と publish_at を指定できる（dry_run で上げずに書き出しだけ）。
 on:
   schedule:
     - cron: "40 3 * * *"     # 毎日 JST 12:40 に制作 → 予約表の時刻（標準は JST 20:00）に公開
@@ -33,6 +33,7 @@ jobs:
             if [ -z "$E" ]; then echo "::notice::今日の在庫なし"; echo "id=" >> $GITHUB_OUTPUT; exit 0; fi
             echo "id=$(echo "$E" | python3 -c 'import json,sys;print(json.load(sys.stdin)["id"])')" >> $GITHUB_OUTPUT
             echo "at=$(echo "$E" | python3 -c 'import json,sys;print(json.load(sys.stdin)["publish_at"])')" >> $GITHUB_OUTPUT
+            echo "dry=$(echo "$E" | python3 -c 'import json,sys;print(str(json.load(sys.stdin).get("dry_run",False)).lower())')" >> $GITHUB_OUTPUT
           fi
       - if: steps.pick.outputs.id != ''
         run: |
@@ -43,12 +44,12 @@ jobs:
         env: { NODE_PATH: "${{ github.workspace }}/nazo/kaizo/node_modules", JOBS: "4" }
         run: |
           python3 nazo/nbai.py build "${{ steps.pick.outputs.id }}" 2> >(tee err.txt >&2) || { tail -n 6 err.txt | sed "s/^/::error::/"; exit 1; }
-      - if: steps.pick.outputs.id != '' && inputs.dry_run == 'true'
+      - if: steps.pick.outputs.id != '' && (inputs.dry_run == 'true' || steps.pick.outputs.dry == 'true')
         run: |
           N="${{ steps.pick.outputs.id }}"; mkdir -p ../out && cp "output/$N.mp4" nazo/manual/nbai/${N}_upload.txt ../out/
           cd ../out && git init -q && git add . && git -c user.name=bungo-bot -c user.email=bot@users.noreply.github.com commit -q -m "nbai $N" \
             && git push -q -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" HEAD:refs/heads/nbai-out-$N
-      - if: steps.pick.outputs.id != '' && inputs.dry_run != 'true'
+      - if: steps.pick.outputs.id != '' && inputs.dry_run != 'true' && steps.pick.outputs.dry != 'true'
         env:
           PUBLISH_AT: ${{ steps.pick.outputs.at }}
           NO_VOICE: "1"
