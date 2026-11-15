@@ -170,9 +170,9 @@ window.renderAt=function(t){
   if(sea){const k=t-T_SPLASH;fy=.25+.06*Math.sin(k*2.2)+Math.max(0,.5-k*1.5);tilt=.18+.05*Math.sin(k*1.7)}
   FR.position.y=fy;FR.rotation.set(tilt,spin+yaw,0,'YXZ');
   // 中の水（エンジンに替えたら消える）
-  water.visible=t<addT.engine;water.scale.y=ground&&t>=T_WL?Math.max(.02,1-(t-T_WL)/.6):1;water.position.y=.06+.3*water.scale.y;
+  water.visible=!!WL&&t<addT.engine;water.scale.y=ground&&t>=T_WL?Math.max(.02,1-(t-T_WL)/.6):1;water.position.y=.06+.3*water.scale.y;
   // 空気入れ
-  const PU=fxL('pump');PUMP.visible=t<T_WL+.2;PH.position.y=PU&&t>=PU.t0&&t<PU.t1?-.3*Math.abs(Math.sin((t-PU.t0)*5)):0;
+  const PU=fxL('pump');PUMP.visible=!!WL&&t<T_WL+.2;PH.position.y=PU&&t>=PU.t0&&t<PU.t1?-.3*Math.abs(Math.sin((t-PU.t0)*5)):0;
   JET.forEach((o,i)=>{const k=(t-T_WL)*3+o.s;const on=ground&&t>=T_WL&&t<T_WL+.6;o.d.visible=on;if(on){const ph=k%1;o.d.position.set(Math.cos(o.a)*ph*.25,FR.position.y-ph*1.6*o.v,Math.sin(o.a)*ph*.25);o.d.material.opacity=.85*(1-ph)}});
   // ふくらむ
   const SW=fxL('swell');const swk=SW&&t>=SW.t0&&t<addT.plates+.25?sstep(SW.t0,SW.t0+.8,t)*(.06+.015*Math.sin(t*14)):0;body.scale.set(1+swk,1,1+swk);

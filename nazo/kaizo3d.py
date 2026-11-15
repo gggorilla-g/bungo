@@ -33,19 +33,38 @@ def gate_ok(sid, sp):
     return pairs
 
 
+KOKORO = os.environ.get("KOKORO_DIR", "vv_assets/kokoro")   # 英語の声（kokoro-onnx、Apache-2.0）。kokoro-v1.0.onnx と voices-v1.0.bin を置く
+
+
+def tts_en(text, wav, v):
+    """英語の声。モデルは GitHub の thewh1teagle/kokoro-onnx の model-files-v1.0 から取る"""
+    from kokoro_onnx import Kokoro
+    import soundfile as sf
+    global _kk
+    if "_kk" not in globals():
+        _kk = Kokoro(f"{KOKORO}/kokoro-v1.0.onnx", f"{KOKORO}/voices-v1.0.bin")
+    a, sr = _kk.create(text, voice=v.get("speaker", "af_heart"), speed=v.get("speed", 1.0), lang="en-us")
+    sf.write(wav, a, sr, subtype="PCM_16")
+
+
 def voice(sid):
     sp = load(sid)
-    pairs = gate_ok(sid, sp)
+    en = sp["voice"].get("engine") == "kokoro"
     os.makedirs(f"{B}/{sid}", exist_ok=True)
-    render.B = B; render.TIGHT = True
-    v = dict(sp["voice"]); v["speed"] = v.get("speed", 1.0) * moso3d.SPEED
-    render.set_voice(**v)
-    for say, yt in pairs:
-        render._YOMI[say] = yt
+    if not en:                                              # 日本語は読みの関門を通してから VOICEVOX
+        pairs = gate_ok(sid, sp)
+        render.B = B; render.TIGHT = True
+        v = dict(sp["voice"]); v["speed"] = v.get("speed", 1.0) * moso3d.SPEED
+        render.set_voice(**v)
+        for say, yt in pairs:
+            render._YOMI[say] = yt
     beats, t = [], 0.25
     for ln in sp["lines"]:
         wav = f"{B}/{sid}/{ln['id']}.wav"
-        render.tts(ln["say"], wav)
+        if en:
+            tts_en(ln["say"], wav, sp["voice"])
+        else:
+            render.tts(ln["say"], wav)
         d = moso3d.voiced_len(wav)
         beats.append({"id": ln["id"], "t0": round(t, 3), "t1": round(t + d, 3), "voice": round(d, 3)})
         t += d + sp.get("gap", GAP)

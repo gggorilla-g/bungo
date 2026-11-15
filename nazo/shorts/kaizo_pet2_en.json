@@ -1,0 +1,264 @@
+{
+ "main": "make_it_work_3d",
+ "label": "Make It Work 3D",
+ "builder": "nazo/kaizo3d.py",
+ "voice": {
+  "engine": "kokoro",
+  "speaker": "af_heart",
+  "speed": 1.05
+ },
+ "voice_name": "Kokoro af_heart",
+ "bgm_file": "assets/enc/bgm_trivia_mood2.mp3",
+ "bgm_vol": 0.16,
+ "gap": 0.3,
+ "tail": 2.2,
+ "title": "Turning a Plastic Bottle into a Rocket #shorts",
+ "scene_title": [
+  "Plastic Bottle",
+  "to Rocket"
+ ],
+ "scene_page": "scene_pet2.html",
+ "parts": {
+  "engine": "Engine",
+  "fins": "Fins",
+  "plates": "Metal bands",
+  "foil": "Insulation",
+  "window": "Window",
+  "solar": "Solar panels",
+  "battery": "Battery",
+  "shield": "Heat shield",
+  "chute": "Parachute"
+ },
+ "desc": "What would it take to turn a plastic bottle into a spacecraft? One problem, one fix at a time.\nA thought experiment. A real plastic bottle cannot go to space.\n\nThe science:\n- Fins keep a rocket pointed straight by using the airflow.\n- As you climb, the outside air thins. In space, the air inside pushes outward with about 1 atmosphere of pressure.\n- In space, the sunlit side gets very hot and the shaded side very cold. Apollo spacecraft rotated slowly to spread the heat (the \"barbecue roll\").\n- Solar panels make no power in Earth's shadow, so spacecraft store energy in batteries.\n- On the way back, the air in front of the spacecraft is strongly compressed and gets extremely hot. A heat shield protects it, and parachutes slow it down.\n\nVoice: Kokoro TTS (Apache-2.0)\nMusic: YouTube Audio Library\nMap data: Natural Earth (public domain)",
+ "tags": [
+  "science",
+  "engineering",
+  "rocket",
+  "plastic bottle",
+  "space",
+  "3D animation",
+  "shorts"
+ ],
+ "lines": [
+  {
+   "id": "b00",
+   "kind": "intro",
+   "say": "Let's turn a plastic bottle into a rocket!",
+   "cap": [
+    "Plastic bottle",
+    "into a rocket!"
+   ]
+  },
+  {
+   "id": "b01",
+   "kind": "fix",
+   "add": "engine",
+   "say": "Step one: a rocket engine on the bottom.",
+   "cap": [
+    "A rocket engine",
+    "on the bottom"
+   ]
+  },
+  {
+   "id": "b02",
+   "kind": "launch",
+   "fx": "launch",
+   "say": "Launch!",
+   "cap": [
+    "Launch!"
+   ]
+  },
+  {
+   "id": "b03",
+   "kind": "problem",
+   "say": "Uh oh. It starts spinning.",
+   "cap": [
+    "It starts spinning"
+   ]
+  },
+  {
+   "id": "b04",
+   "kind": "fix",
+   "add": "fins",
+   "say": "Add fins, and it flies straight.",
+   "cap": [
+    "Fins keep it straight"
+   ]
+  },
+  {
+   "id": "b05",
+   "kind": "problem",
+   "fx": "swell",
+   "say": "Higher up, the air gets thin, and the bottle swells.",
+   "cap": [
+    "Thin air outside,",
+    "the bottle swells"
+   ]
+  },
+  {
+   "id": "b06",
+   "kind": "fix",
+   "add": "plates",
+   "say": "Metal bands hold it together.",
+   "cap": [
+    "Metal bands",
+    "hold it together"
+   ]
+  },
+  {
+   "id": "b07",
+   "kind": "problem",
+   "fx": "space",
+   "say": "We made it to space. But the sunny side is roasting.",
+   "cap": [
+    "Made it to space,",
+    "but the sunny side roasts"
+   ]
+  },
+  {
+   "id": "b08",
+   "kind": "fix",
+   "add": "foil",
+   "say": "Wrap it in insulation.",
+   "cap": [
+    "Wrap it in insulation"
+   ]
+  },
+  {
+   "id": "b09",
+   "kind": "problem",
+   "say": "Now we can't see outside.",
+   "cap": [
+    "Now we can't",
+    "see outside"
+   ]
+  },
+  {
+   "id": "b10",
+   "kind": "fix",
+   "add": "window",
+   "say": "Add a window.",
+   "cap": [
+    "Add a window"
+   ]
+  },
+  {
+   "id": "b11",
+   "kind": "problem",
+   "fx": "hotside",
+   "say": "The sun shines through the window. One side is still hot.",
+   "cap": [
+    "Sun through the window,",
+    "one side is still hot"
+   ]
+  },
+  {
+   "id": "b12",
+   "kind": "fix",
+   "fx": "bbq",
+   "say": "So, spin it slowly on purpose, to spread the heat.",
+   "cap": [
+    "Spin it slowly",
+    "to spread the heat"
+   ]
+  },
+  {
+   "id": "b13",
+   "kind": "bonus",
+   "fx": "bbq2",
+   "say": "The spinning that was a problem, is now the fix.",
+   "cap": [
+    "The old problem",
+    "is now the fix"
+   ]
+  },
+  {
+   "id": "b14",
+   "kind": "problem",
+   "fx": "dark",
+   "say": "No electricity.",
+   "cap": [
+    "No power"
+   ]
+  },
+  {
+   "id": "b15",
+   "kind": "fix",
+   "add": "solar",
+   "say": "Unfold the solar panels.",
+   "cap": [
+    "Unfold solar panels"
+   ]
+  },
+  {
+   "id": "b16",
+   "kind": "problem",
+   "fx": "eclipse",
+   "say": "In Earth's shadow, everything goes dark.",
+   "cap": [
+    "In Earth's shadow,",
+    "total darkness"
+   ]
+  },
+  {
+   "id": "b17",
+   "kind": "fix",
+   "add": "battery",
+   "say": "Charge a battery while the sun is out.",
+   "cap": [
+    "Charge a battery",
+    "in the sunlight"
+   ]
+  },
+  {
+   "id": "b18",
+   "kind": "problem",
+   "fx": "reentry",
+   "say": "Coming home, the air in front gets squeezed, and extremely hot.",
+   "cap": [
+    "Coming home,",
+    "squeezed air gets hot"
+   ]
+  },
+  {
+   "id": "b19",
+   "kind": "fix",
+   "add": "shield",
+   "fx": "reentry",
+   "say": "A heat shield on the bottom.",
+   "cap": [
+    "Heat shield",
+    "on the bottom"
+   ]
+  },
+  {
+   "id": "b20",
+   "kind": "problem",
+   "fx": "falling",
+   "say": "Still falling too fast.",
+   "cap": [
+    "Still too fast"
+   ]
+  },
+  {
+   "id": "b21",
+   "kind": "fix",
+   "add": "chute",
+   "fx": "falling",
+   "say": "Open the parachute.",
+   "cap": [
+    "Open the parachute"
+   ]
+  },
+  {
+   "id": "b22",
+   "kind": "end",
+   "fx": "splash",
+   "say": "Splashdown. It's a plastic bottle, so it floats!",
+   "cap": [
+    "Splashdown!",
+    "A bottle floats"
+   ]
+  }
+ ]
+}

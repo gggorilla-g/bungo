@@ -1,0 +1,239 @@
+{
+ "title": [
+  "Plastic Bottle",
+  "to Rocket"
+ ],
+ "parts": {
+  "engine": "Engine",
+  "fins": "Fins",
+  "plates": "Metal bands",
+  "foil": "Insulation",
+  "window": "Window",
+  "solar": "Solar panels",
+  "battery": "Battery",
+  "shield": "Heat shield",
+  "chute": "Parachute"
+ },
+ "lines": [
+  {
+   "id": "b00",
+   "kind": "intro",
+   "cap": [
+    "Plastic bottle",
+    "into a rocket!"
+   ],
+   "text": "Let's turn a plastic bottle into a rocket!"
+  },
+  {
+   "id": "b01",
+   "kind": "fix",
+   "cap": [
+    "A rocket engine",
+    "on the bottom"
+   ],
+   "add": "engine",
+   "text": "Step one: a rocket engine on the bottom."
+  },
+  {
+   "id": "b02",
+   "kind": "launch",
+   "cap": [
+    "Launch!"
+   ],
+   "fx": "launch",
+   "text": "Launch!"
+  },
+  {
+   "id": "b03",
+   "kind": "problem",
+   "cap": [
+    "It starts spinning"
+   ],
+   "text": "Uh oh. It starts spinning."
+  },
+  {
+   "id": "b04",
+   "kind": "fix",
+   "cap": [
+    "Fins keep it straight"
+   ],
+   "add": "fins",
+   "text": "Add fins, and it flies straight."
+  },
+  {
+   "id": "b05",
+   "kind": "problem",
+   "cap": [
+    "Thin air outside,",
+    "the bottle swells"
+   ],
+   "fx": "swell",
+   "text": "Higher up, the air gets thin, and the bottle swells."
+  },
+  {
+   "id": "b06",
+   "kind": "fix",
+   "cap": [
+    "Metal bands",
+    "hold it together"
+   ],
+   "add": "plates",
+   "text": "Metal bands hold it together."
+  },
+  {
+   "id": "b07",
+   "kind": "problem",
+   "cap": [
+    "Made it to space,",
+    "but the sunny side roasts"
+   ],
+   "fx": "space",
+   "text": "We made it to space. But the sunny side is roasting."
+  },
+  {
+   "id": "b08",
+   "kind": "fix",
+   "cap": [
+    "Wrap it in insulation"
+   ],
+   "add": "foil",
+   "text": "Wrap it in insulation."
+  },
+  {
+   "id": "b09",
+   "kind": "problem",
+   "cap": [
+    "Now we can't",
+    "see outside"
+   ],
+   "text": "Now we can't see outside."
+  },
+  {
+   "id": "b10",
+   "kind": "fix",
+   "cap": [
+    "Add a window"
+   ],
+   "add": "window",
+   "text": "Add a window."
+  },
+  {
+   "id": "b11",
+   "kind": "problem",
+   "cap": [
+    "Sun through the window,",
+    "one side is still hot"
+   ],
+   "fx": "hotside",
+   "text": "The sun shines through the window. One side is still hot."
+  },
+  {
+   "id": "b12",
+   "kind": "fix",
+   "cap": [
+    "Spin it slowly",
+    "to spread the heat"
+   ],
+   "fx": "bbq",
+   "text": "So, spin it slowly on purpose, to spread the heat."
+  },
+  {
+   "id": "b13",
+   "kind": "bonus",
+   "cap": [
+    "The old problem",
+    "is now the fix"
+   ],
+   "fx": "bbq2",
+   "text": "The spinning that was a problem, is now the fix."
+  },
+  {
+   "id": "b14",
+   "kind": "problem",
+   "cap": [
+    "No power"
+   ],
+   "fx": "dark",
+   "text": "No electricity."
+  },
+  {
+   "id": "b15",
+   "kind": "fix",
+   "cap": [
+    "Unfold solar panels"
+   ],
+   "add": "solar",
+   "text": "Unfold the solar panels."
+  },
+  {
+   "id": "b16",
+   "kind": "problem",
+   "cap": [
+    "In Earth's shadow,",
+    "total darkness"
+   ],
+   "fx": "eclipse",
+   "text": "In Earth's shadow, everything goes dark."
+  },
+  {
+   "id": "b17",
+   "kind": "fix",
+   "cap": [
+    "Charge a battery",
+    "in the sunlight"
+   ],
+   "add": "battery",
+   "text": "Charge a battery while the sun is out."
+  },
+  {
+   "id": "b18",
+   "kind": "problem",
+   "cap": [
+    "Coming home,",
+    "squeezed air gets hot"
+   ],
+   "fx": "reentry",
+   "text": "Coming home, the air in front gets squeezed, and extremely hot."
+  },
+  {
+   "id": "b19",
+   "kind": "fix",
+   "cap": [
+    "Heat shield",
+    "on the bottom"
+   ],
+   "add": "shield",
+   "fx": "reentry",
+   "text": "A heat shield on the bottom."
+  },
+  {
+   "id": "b20",
+   "kind": "problem",
+   "cap": [
+    "Still too fast"
+   ],
+   "fx": "falling",
+   "text": "Still falling too fast."
+  },
+  {
+   "id": "b21",
+   "kind": "fix",
+   "cap": [
+    "Open the parachute"
+   ],
+   "add": "chute",
+   "fx": "falling",
+   "text": "Open the parachute."
+  },
+  {
+   "id": "b22",
+   "kind": "end",
+   "cap": [
+    "Splashdown!",
+    "A bottle floats"
+   ],
+   "fx": "splash",
+   "text": "Splashdown. It's a plastic bottle, so it floats!"
+  }
+ ]
+}
