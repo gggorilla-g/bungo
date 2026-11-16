@@ -6,7 +6,10 @@
 #   予約表: nazo/shorts/nbai/queue.json  [{"id": ..., "publish_at": "2026-11-18T11:00:00Z"}, ...]
 #   投稿済みの記録: nazo/manual/nbai/api_upload_<id>.txt（あれば作らない）
 import datetime, json, os, shutil, subprocess, sys, wave
-import numpy as np
+try:
+    import numpy as np          # next（予約表を見るだけ）は numpy なしで動くように
+except ImportError:
+    np = None
 
 KZ = "nazo/kaizo"
 SD = "nazo/shorts/nbai"
