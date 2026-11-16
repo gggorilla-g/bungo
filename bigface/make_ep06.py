@@ -35,16 +35,12 @@ def put(x, at, g=1.0):
 def env(L, a, d): t = np.arange(L) / SR; return np.minimum(1, t / a) * np.exp(-t / d)
 def lp(x, k): c = np.ones(k) / k; return np.convolve(np.convolve(x, c, "same"), c, "same")
 def hp(x, k): return x - lp(x, k)
-# 町の空気 → バスのエンジン（低いうなり。止まっている時は小さく）
+# 町の空気 → バスのエンジン（低いうなり。止まっている間は小さく）
 amb = lp(rng.standard_normal(n), 120).astype(np.float32); amb /= np.abs(amb).max()
 mix += amb * np.where(tt < E["eye"], 0.018, 0)
-moving = np.clip((tt - E["door"] - 1.2) / 1.0, 0, 1) * (tt < E["eye"])
-moving = moving * np.where((tt > E["stop"]) & (tt < E["enter1"] + 0.6), 0.35, 1.0)
 eng = (np.sin(2 * np.pi * 46 * tt) * 0.6 + np.sin(2 * np.pi * 92 * tt) * 0.25) * (1 + 0.15 * np.sin(2 * np.pi * 7 * tt)) + lp(rng.standard_normal(n), 30) * 0.5
-inside = (tt >= E["s4"]) & (tt < E["s10"])
-mix += (eng * moving * np.where(inside, 0.05, 0.035)).astype(np.float32)
-arr = np.clip(1 - (tt - E["arrive0"]) / (E["arrive1"] - E["arrive0"]), 0, 1) * (tt >= E["arrive0"]) * (tt < E["arrive1"] + 0.2)
-mix += (eng * arr * 0.05).astype(np.float32)
+run = np.where((tt > E["stopA"]) & (tt < E["stopB"]), 0.3, 1.0) * (tt < E["eye"])
+mix += (eng * run * np.where(tt < E["s2"], 0.035, 0.045)).astype(np.float32)
 def step(p=1.0):
     L = int(0.07 * SR); t = np.arange(L) / SR
     return np.sin(2 * np.pi * 380 * p * t) * env(L, 0.002, 0.02) * 0.4 + lp(rng.standard_normal(L), 4) * env(L, 0.001, 0.012) * 0.25
@@ -53,35 +49,19 @@ def steps(a, b, gap=0.42, p=1.0, g=0.4):
     while k < b: put(step(p + 0.05 * rng.random()), k, g); k += gap
 def door(sec=0.7):   # 扉の「プシュー」
     L = int(sec * SR); t = np.arange(L) / SR; x = hp(rng.standard_normal(L), 4) * np.minimum(1, t / 0.03) * np.exp(-t / (sec * 0.45)); return x / np.abs(x).max() * 0.12
-def squeak(sec):     # 顔が扉でぎゅっとなる（ゴムがこすれる音）
-    L = int(sec * SR); t = np.arange(L) / SR; f = 600 + 180 * np.sin(t * 9)
-    return np.sin(2 * np.pi * np.cumsum(f) / SR) * (0.5 + 0.5 * np.sin(t * 40)) * np.minimum(1, t / 0.05) * np.minimum(1, (sec - t) / 0.1) * 0.06
-def bonk():          # 天井にゴツン（小さめの木の音）
-    L = int(0.25 * SR); t = np.arange(L) / SR; return (np.sin(2 * np.pi * 180 * t) * 0.6 + np.sin(2 * np.pi * 410 * t) * 0.3) * env(L, 0.001, 0.06)
-def bell():          # 降車ベルではなく、発車の小さな合図
-    return music.toypiano(music.hz(88), 0.5) * 0.4
-def brake(sec=1.0):  # ブレーキの「キキー」（高すぎない）
-    L = int(sec * SR); t = np.arange(L) / SR; f = 1500 - 250 * t / sec
-    return np.sin(2 * np.pi * np.cumsum(f) / SR) * np.minimum(1, t / 0.05) * np.minimum(1, (sec - t) / 0.3) * 0.05
-def tap():           # 席をとんとん
-    L = int(0.05 * SR); t = np.arange(L) / SR; return lp(rng.standard_normal(L), 3) * env(L, 0.001, 0.012) * 0.5
-def zip_bag():       # かばんのチャック
-    L = int(0.35 * SR); t = np.arange(L) / SR; x = hp(rng.standard_normal(L), 2) * (0.5 + 0.5 * np.sign(np.sin(2 * np.pi * 60 * t))) * np.sin(np.pi * t / 0.35); return x / np.abs(x).max() * 0.05
-def sticky():        # 湿布をぺたっ
-    L = int(0.08 * SR); t = np.arange(L) / SR; return lp(rng.standard_normal(L), 6) * env(L, 0.002, 0.02) * 0.6
-steps(0.3, E["arrive1"] - 0.3, 0.5, 1.0, 0.25)
-put(door(), E["door"], 1.0); put(squeak(1.2), E["s2"] + 1.6, 1.0); put(door(0.6), E["s3"] - 0.6, 0.8)
-put(bell(), E["s3"] + 0.4, 0.5)
-steps(E["stand"] + 0.4, E["bonk"] - 0.1, 0.3, 1.1, 0.25); put(bonk(), E["bonk"], 0.6)
-for nn, at in [(76, 0.0), (72, 0.18)]: put(music.pizz(music.hz(nn), 0.4), E["bonk"] + 0.35 + at, 0.3)
-steps(E["bonk"] + 0.6, E["floor"] - 0.3, 0.32, 1.1, 0.22)
-put(door(), E["stop"] + 0.3, 0.9); steps(E["enter0"], E["look"], 0.45, 1.5, 0.2); put(door(0.6), E["sit"] + 0.4, 0.7)
-for k in range(3): put(tap(), E["pat"] + 0.1 + k * 0.14, 0.6)
-for nn, at in [(79, 0.0), (84, 0.22)]: put(music.toypiano(music.hz(nn), 0.8), E["sit"] + 0.2 + at, 0.35)   # すわれた
-for nn in (72, 76, 79): put(music.feltpiano(music.hz(nn), 1.8), E["lean"], 0.2)                             # ほほがまくら
-put(brake(1.0), E["brake"] - 0.2, 1.0); put(bonk(), E["bump"], 0.45)
-put(zip_bag(), E["bag"] + 0.1, 1.0); put(sticky(), E["stick"], 0.8)
-for nn, at in [(84, 0.0), (88, 0.2)]: put(music.toypiano(music.hz(nn), 0.8), E["stick"] + 0.3 + at, 0.35)
+def stretchS(sec):   # 首がのびる（ゆっくり上がる音）
+    L = int(sec * SR); t = np.arange(L) / SR; f = 160 + 420 * (t / sec) ** 1.4
+    return np.sin(2 * np.pi * np.cumsum(f) / SR) * np.minimum(1, t / 0.2) * np.minimum(1, (sec - t) / 0.3) * 0.16
+def soft():          # ほほがそっとふれる
+    L = int(0.25 * SR); t = np.arange(L) / SR; return lp(rng.standard_normal(L), 20) * np.sin(np.pi * t / 0.25) ** 2 * 0.25
+steps(E["manIn"], E["manStop"], 0.4, 1.0, 0.28); steps(E["manGo"], E["manGo"] + 1.6, 0.4, 1.0, 0.28)
+for nn, at in [(67, 0.0), (64, 0.3)]: put(music.pizz(music.hz(nn), 0.5), E["manGo"] + 0.2 + at, 0.3)   # やめて行ってしまう（下がる2音）
+put(door(), E["stopA"] + 0.2, 0.9); steps(E["ladyIn"], E["ladyStop"], 0.5, 1.4, 0.2); steps(E["ladyLook"] + 1.4, E["toSeat"], 0.5, 1.4, 0.2); put(door(0.6), E["stopB"] - 0.5, 0.7)
+put(stretchS(1.6), E["rise"], 0.9)
+for nn, at in [(79, 0.0), (84, 0.22)]: put(music.toypiano(music.hz(nn), 0.8), E["rise"] + 1.7 + at, 0.35)   # 席が空く
+for nn in (72, 76, 79): put(music.feltpiano(music.hz(nn), 1.8), E["sit"] + 0.8, 0.2)                        # すわれた
+put(soft(), E["lower"] + 1.5, 1.0)
+for nn in (67, 72, 76, 79): put(music.feltpiano(music.hz(nn), 2.2), E["lower"] + 1.6, 0.16)                 # ほほがまくら
 import render
 render.set_voice("0.vvm", 10, 0.85, -0.03, 0.9)
 render._YOMI["ビッグフェイスのバス"] = "ビッグフェイスの、バス"
@@ -95,10 +75,8 @@ def fade(x, fi, fo):
     return x * e
 def lay(x, at, g):
     i0 = int(at * SR); mix[i0:i0 + len(x)] += g * x[: n - i0]
-lay(fade(music.bgm02(E["s4"] - 2.4 + 0.5), 0.8, 1.4), 2.4, 0.24)                 # 乗るまで
-lay(fade(music.bgm04(E["s6"] - E["s4"]), 0.6, 1.0), E["s4"], 0.22)              # せまい車内・おばあさん
-lay(fade(music.bgm05(E["brake"] - 0.3 - E["s6"]), 1.0, 0.4), E["s6"], 0.24)     # まくら（ブレーキの手前で切る）
-lay(fade(music.bgm05(E["eye"] - E["wake"]), 1.0, 1.0), E["wake"], 0.24)         # 湿布〜走っていく
+lay(fade(music.bgm02(E["manGo"] + 0.2 - 2.4), 0.8, 1.2), 2.4, 0.22)              # 走るバス（人が行ってしまうところで消える）
+lay(fade(music.bgm05(E["eye"] - E["rise"] - 1.5), 1.5, 1.0), E["rise"] + 1.5, 0.24)   # 席が空いてから
 # アイキャッチ（ボフン系の音は使わない。11/15 ゲンタさん「ボフンみたいなSEは全撤廃」）
 for nn, at in [(76, 0.45), (79, 0.62), (81, 0.79)]: put(music.toypiano(music.hz(nn), 0.6), E["eye"] + at, 0.5)
 for nn in (72, 76, 79, 84): put(music.toypiano(music.hz(nn), 1.4), E["eye"] + 1.0, 0.28)

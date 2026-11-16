@@ -1348,6 +1348,30 @@ function bus(sc) {
   [-1, 1].forEach(sx => [L0 + 0.9, L1 - 0.9].forEach(z => mesh(new THREE.CylinderGeometry(0.45, 0.45, 0.3, 18), toon(0x333333), g, [sx * (W - 0.05), 0.45, z], { rot: [0, 0, Math.PI / 2] })));
   return { g, FY, TOP, W, doorL, doorR };
 }
+// 車内（ロングシート）。カメラ側の壁はない（舞台の切り断面）。窓の外は景色が流れる
+function busRoom(sc) {
+  const g = new THREE.Group(); sc.add(g);
+  const FY = 0.5, WX = -2.25, TOP = FY + 4.4, Z0 = -6.5, Z1 = 6.5, WB = FY + 1.25, WT = FY + 3.7;
+  const wallM = toon(0xE9E2D2), body = toon(0x8FB8A8), floorM = toon(0x7A776E), seatM = toon(0x6E7FA0), metal = toon(0xB8BCC0), strapM = toon(0xE8E2D2);
+  const B = (w, h, d, x, y, z, m, o = {}) => mesh(new THREE.BoxGeometry(w, h, d), m, g, [x, y, z], o);
+  B(6, 0.12, Z1 - Z0, 0.7, FY - 0.06, 0, floorM, { line: 0.01 });
+  B(6, 0.1, Z1 - Z0, 0.7, TOP + 0.05, 0, wallM, { line: 0.01, cast: false });
+  B(0.1, WB - FY, Z1 - Z0, WX, (FY + WB) / 2, 0, body, { line: 0.01 }); B(0.1, TOP - WT, Z1 - Z0, WX, (WT + TOP) / 2, 0, body, { line: 0.01, cast: false });
+  for (let z = Z0; z <= Z1 + 0.01; z += 2.6) B(0.12, WT - WB, 0.12, WX, (WB + WT) / 2, z, body);
+  const glass = new THREE.MeshBasicMaterial({ color: 0xCFE8F0, transparent: true, opacity: 0.15, depthWrite: false, side: THREE.DoubleSide });
+  const gl = new THREE.Mesh(new THREE.PlaneGeometry(Z1 - Z0, WT - WB), glass); gl.position.set(WX, (WB + WT) / 2, 0); gl.rotation.y = Math.PI / 2; g.add(gl);
+  B(0.12, TOP - FY, Z1 - Z0 > 0 ? 0.12 : 0.12, WX + 0.1, (FY + TOP) / 2, Z0, body); B(0.12, TOP - FY, 0.12, WX + 0.1, (FY + TOP) / 2, Z1, body);
+  // ロングシート：3つに区切る（真ん中が2人がけ z -0.8〜0.8）
+  const SD = 0.95;
+  [[-4.2, -1.7], [-0.8, 0.8], [1.7, 4.2]].forEach(([a, b]) => { B(SD, 0.45, b - a, WX + 0.05 + SD / 2, FY + 0.225, (a + b) / 2, seatM, { line: 0.02 }); B(0.12, 0.6, b - a, WX + 0.11, FY + 0.75, (a + b) / 2, seatM, { line: 0.02 });
+    [a, b].forEach(z => { B(SD + 0.05, 0.06, 0.06, WX + 0.08 + SD / 2, FY + 0.95, z, metal); B(0.06, 0.5, 0.06, WX + 0.08 + SD, FY + 0.7, z, metal); }); });   // ひじかけの仕切り
+  B(0.03, 0.02, 0.36, WX + 0.05 + SD / 2, FY + 0.46, 0, metal);   // 2人がけの真ん中の区切り線
+  // 天井の手すりとつり革
+  B(0.05, 0.05, Z1 - Z0, 0.4, TOP - 0.45, 0, metal, { cast: false });
+  for (let z = -5; z <= 5; z += 0.9) { B(0.02, 0.35, 0.02, 0.4, TOP - 0.65, z, strapM, { cast: false }); mesh(new THREE.TorusGeometry(0.07, 0.015, 6, 14), strapM, g, [0.4, TOP - 0.86, z], { rot: [0, Math.PI / 2, 0], cast: false }); }
+  [-1.5, 1.5].forEach(z => B(0.05, TOP - FY, 0.05, 0.4, (FY + TOP) / 2, z * 3, metal));
+  return { g, FY, WX, TOP, SX: WX + 0.05 + SD };   // SX：座面の前のはし
+}
 function ep06(p) {
   const E = EP06;
   const sc = S = new THREE.Scene();
@@ -1356,40 +1380,31 @@ function ep06(p) {
   const sun = new THREE.DirectionalLight(0xFFF2DE, 1.3); sun.position.set(8, 12, 6); sun.castShadow = true;
   sun.shadow.mapSize.set(2048, 2048); sun.shadow.radius = 5; sun.shadow.bias = -0.0008; sun.shadow.normalBias = 0.05;
   Object.assign(sun.shadow.camera, { left: -12, right: 12, top: 12, bottom: -12, near: 1, far: 50 }); sc.add(sun); sc.add(sun.target);
-  const inLight = new THREE.PointLight(0xFFF4E0, 0.35, 9); inLight.position.set(0, 3.3, 0.5); sc.add(inLight);
   mesh(new THREE.PlaneGeometry(400, 400), toon(0x9CB48A), sc, [0, -0.01, 0], { rot: [-Math.PI / 2, 0, 0], cast: false });
-  mesh(new THREE.PlaneGeometry(7, 400), toon(0x6E6E72), sc, [0.6, 0.0, 0], { rot: [-Math.PI / 2, 0, 0], cast: false });
-  mesh(new THREE.PlaneGeometry(2.4, 400), toon(0xCFC6B4), sc, [5.2, 0.01, 0], { rot: [-Math.PI / 2, 0, 0], cast: false });   // 歩道
-  // 外の景色（走っている間は後ろへ流れる）
+  const road = mesh(new THREE.PlaneGeometry(7, 400), toon(0x6E6E72), sc, [40.6, 0.0, 0], { rot: [-Math.PI / 2, 0, 0], cast: false });
+  // 外の景色（車内の窓の向こう x<-6 と、外のカット用の道 x=40 のまわり）。走っている間は後ろへ流れる
   const world = new THREE.Group(); sc.add(world); const LOOP = 120;
   let sd = 11; const rr = () => (sd = (sd * 16807) % 2147483647) / 2147483647;
-  for (let k = 0; k < 2; k++) for (let z = -60; z < 60; z += 6) { const zz = z + k * LOOP;
-    for (const sx of [-1, 1]) { const x = sx * (7 + rr() * 6);
+  for (let k = 0; k < 2; k++) for (let z = -60; z < 60; z += 5) { const zz = z + k * LOOP;
+    for (const x0 of [-9, 33]) { const x = x0 - rr() * 5;
       if (rr() < 0.55) { mesh(new THREE.CylinderGeometry(0.18, 0.25, 2.2, 8), toon(0x7E6048), world, [x, 1.1, zz], { line: 0.04 }); mesh(new THREE.SphereGeometry(1.2 + rr() * 0.5, 14, 10), toon([0x6E9A6C, 0x7FA87A][k % 2]), world, [x, 2.9, zz], { line: 0.02 }); }
-      else { const h = 2.2 + rr() * 2; mesh(new THREE.BoxGeometry(2.6, h, 2.6), toon([0xE8DCC8, 0xD8C7B2, 0xC9D4D8][Math.floor(rr() * 3)]), world, [x - sx * 1, h / 2, zz], { line: 0.02 }); mesh(new THREE.ConeGeometry(2.1, 1.0, 4), toon(0x9A6A58), world, [x - sx * 1, h + 0.5, zz], { rot: [0, Math.PI / 4, 0], line: 0.02 }); } }
-    mesh(new THREE.CylinderGeometry(0.06, 0.06, 4, 6), toon(0x8A8A86), world, [4.3, 2, zz + 3], {}); }
-  const stopSign = new THREE.Group(); sc.add(stopSign);   // バス停
-  mesh(new THREE.CylinderGeometry(0.05, 0.05, 2.2, 8), toon(0x8A8A86), stopSign, [4.4, 1.1, 1.0], {}); mesh(new THREE.CylinderGeometry(0.32, 0.32, 0.06, 18), toon(0xE8E2D2), stopSign, [4.4, 2.3, 1.0], { rot: [Math.PI / 2, 0, 0], line: 0.05 });
-  const BU = bus(sc);
-  // 乗客（すわっている）
+      else { const h = 2.2 + rr() * 2; mesh(new THREE.BoxGeometry(2.6, h, 2.6), toon([0xE8DCC8, 0xD8C7B2, 0xC9D4D8][Math.floor(rr() * 3)]), world, [x, h / 2, zz], { line: 0.02 }); mesh(new THREE.ConeGeometry(2.1, 1.0, 4), toon(0x9A6A58), world, [x, h + 0.5, zz], { rot: [0, Math.PI / 4, 0], line: 0.02 }); } } }
+  // 外のバス（1カット目だけ）
+  const BX = bus(sc); BX.g.position.x = 40;
+  const R = busRoom(sc), FY = R.FY;
+  const inLight = new THREE.PointLight(0xFFF4E0, 0.3, 12); inLight.position.set(2.5, R.TOP - 1.0, 0); sc.add(inLight);
   const sitPose = (pp, H) => { pp.legs.forEach(l => l.rotation.x = -1.5); pp.body.position.y = 0.45 - 0.42 * H; };
-  const pax = [];
-  const coats = [0xC8A27A, 0x8FB0C8, 0xB9A0D8, 0xE38E6A, 0x9AA66E, 0xD4B86A, 0x7E8EA8, 0xC48A8A];
-  [[-0.95, -3.2], [-0.5, -3.2], [-0.95, -2.2], [-0.5, -1.2], [-0.95, -0.2], [-0.5, -0.2], [-0.95, 0.8], [-0.5, 0.8], [-0.95, 1.8], [-0.5, 1.8], [0.95, -3.2], [0.5, -2.2], [0.95, -1.2], [0.5, -1.2], [-0.5, -2.2], [0.95, -2.2], [0.5, -3.2]].forEach(([x, z], i) => {
-    const H = 1.45 + 0.15 * ((i * 7) % 3) / 2, pp = person(BU.g, { h: H, coat: coats[i % 8], pants: 0x5E5A66, hair: [0x3A2E2A, 0x5A3A2A, 0x2E2E2E][i % 3], headR: 0.15 });
-    pp.root.position.set(x, BU.FY, z); pp.root.rotation.y = Math.PI; sitPose(pp, H); pax.push(pp); });
-  const kids = [0, 1].map(i => person(BU.g, { h: 1.0, coat: [0xF2C84A, 0x8FC8A0][i], pants: 0x6A5A60, hair: 0x5A3A2A, headR: 0.16 }));   // 立っていた子ども2人：あとで空いた席にすわる
-  const lady = person(BU.g, { h: 1.42, coat: 0x9A86B0, pants: 0x6A6070, hair: 0xD8D4CC, headR: 0.17 });
+  const coats = [0xC8A27A, 0x8FB0C8, 0xB9A0D8, 0xE38E6A, 0x9AA66E, 0xD4B86A];
+  const SIT_X = R.WX + 0.72;
+  const pax = [-3.6, -2.95, -2.3, 2.3, 2.95, 3.6].map((z, i) => { const H = 1.45 + 0.1 * (i % 3); const pp = person(R.g, { h: H, coat: coats[i], pants: 0x5E5A66, hair: [0x3A2E2A, 0x5A3A2A, 0x2E2E2E][i % 3], headR: 0.15 });
+    pp.root.position.set(SIT_X, FY, z); pp.root.rotation.y = Math.PI / 2; sitPose(pp, H); return pp; });
+  const man = person(R.g, { h: 1.62, coat: 0x7E9A8A, pants: 0x4E5260, hair: 0x2E2E2E, headR: 0.15 });   // すわろうとして、やめる人
+  const lady = person(R.g, { h: 1.42, coat: 0x9A86B0, pants: 0x6A6070, hair: 0xD8D4CC, headR: 0.17 });
   mesh(new THREE.SphereGeometry(0.08, 10, 8), toon(0xD8D4CC), lady.neck, [0, 0.3, -0.12], { line: 0.05 });   // おだんごの髪
-  const cane = mesh(new THREE.CylinderGeometry(0.018, 0.018, 0.8, 6), toon(0x7A5A3A), lady.arms[1], [0, -0.45, 0.05], {});
-  const bag = mesh(new THREE.BoxGeometry(0.2, 0.16, 0.08), toon(0xB07050), lady.arms[0], [0, -0.32, 0.06], { line: 0.05 });
-  const patch = mesh(new THREE.BoxGeometry(0.17, 0.11, 0.01), toon(0xF6F2EA), lady.arms[0], [0, -0.3, 0.12], { line: 0.15 }); patch.visible = false;   // 小さな湿布
-  const bf = bigFace(BU.g), skinM = toon(PAL.face);
-  const cheekN = new THREE.Vector3(-0.82, -0.22, 0.52).normalize(), cheekP = new THREE.Vector3(1.12 * cheekN.x, cheekN.y, cheekN.z);
-  const redM = new THREE.MeshBasicMaterial({ color: 0xE8A090, transparent: true, opacity: 0 });
-  const red = mesh(new THREE.CircleGeometry(0.16, 18), redM, bf.head, [cheekP.x * 1.003, cheekP.y, cheekP.z * 1.003], { cast: false }); red.lookAt(new THREE.Vector3().copy(cheekP).multiplyScalar(3)); red.position.copy(cheekP).multiplyScalar(1.004);
-  const onCheek = mesh(new THREE.BoxGeometry(0.17, 0.11, 0.012), toon(0xF6F2EA), bf.head, [0, 0, 0], { line: 0.15 }); onCheek.position.copy(cheekP).multiplyScalar(1.01); onCheek.lookAt(new THREE.Vector3().copy(cheekP).multiplyScalar(3)); onCheek.visible = false;
-  const zzz = [0, 1, 2].map(i => mesh(new THREE.TorusGeometry(0.04 + i * 0.012, 0.008, 4, 4), new THREE.MeshBasicMaterial({ color: 0x8A9AB0 }), BU.g, [0, -5, 0], { cast: false }));
+  mesh(new THREE.CylinderGeometry(0.018, 0.018, 0.8, 6), toon(0x7A5A3A), lady.arms[1], [0, -0.45, 0.05], {});   // つえ
+  const bf = bigFace(R.g), skinM = toon(PAL.face);
+  const longNeck = mesh(new THREE.CylinderGeometry(0.13, 0.15, 1, 14), skinM, bf.body, [0, 1, 0], { line: 0.1 });
+  const zzz = [0, 1, 2].map(i => mesh(new THREE.TorusGeometry(0.04 + i * 0.012, 0.008, 4, 4), new THREE.MeshBasicMaterial({ color: 0x8A9AB0 }), R.g, [0, -5, 0], { cast: false }));
   // アイキャッチ
   const EX = -60, EYEC = 0xF1E4CC;
   const eyeFloor = mesh(new THREE.PlaneGeometry(40, 40), new THREE.MeshBasicMaterial({ color: EYEC }), sc, [EX, 0.001, 0], { rot: [-Math.PI / 2, 0, 0], cast: false, recv: false });
@@ -1399,76 +1414,56 @@ function ep06(p) {
   const path = (t, K) => { if (t <= K[0][0]) return [K[0][1], K[0][2], false]; for (let i = 0; i < K.length - 1; i++) { const a = K[i], b = K[i + 1];
       if (t < b[0]) { const u = ease(seg(t, a[0], b[0])); return [lerp(a[1], b[1], u), lerp(a[2], b[2], u), Math.hypot(b[1] - a[1], b[2] - a[2]) > 0.01]; } }
     const z = K[K.length - 1]; return [z[1], z[2], false]; };
+  const BZ = 0.42, EZ = -0.42;   // ビッグフェイスの席・空いている席（z）
   return (t) => {
-    // バスと外の景色
-    let busZ = 0, speed = 0;
-    if (t < E.arrive1) { const u = seg(t, E.arrive0, E.arrive1); busZ = t < E.arrive0 ? -40 : -40 * (1 - ease(u)) ** 1; }
-    else if (t >= E.s10 && t < E.eye) busZ = -0.5 * 6 * (t - E.s10) ** 2;
-    BU.g.position.set(0, 0, busZ);
-    const moving = (t >= E.s3 && t < E.stop) || (t >= E.sit + 0.6 && t < E.brake);
-    const tw = (t >= E.s3 ? Math.min(t, E.stop) - E.s3 : 0) + (t >= E.sit + 0.6 ? Math.min(t, E.brake) - E.sit - 0.6 : 0);
-    world.position.z = ((tw * 8) % LOOP); stopSign.visible = !(t >= E.s3 && t < E.s10);
-    const sway = moving ? 0.012 * Math.sin(t * 3.1) : 0;
-    const brk = t >= E.brake && t < E.s8 ? Math.exp(-(t - E.brake) * 3) * Math.sin(Math.min(1, (t - E.brake) * 4) * Math.PI / 2) : 0;   // 急ブレーキで前へ
-    const op = t < E.door ? 0 : t < E.s3 ? ease(seg(t, E.door, E.door + 0.6)) : (t >= E.stop + 0.4 && t < E.sit) ? ease(seg(t, E.stop + 0.4, E.stop + 1.0)) * (1 - ease(seg(t, E.sit - 0.8, E.sit - 0.2))) : 0;
-    BU.doorL.position.z = 2.85 - 0.45 * op; BU.doorR.position.z = 3.35 + 0.45 * op;
-    // 乗客
-    pax.forEach((pp, i) => { pp.neck.rotation.set(-0.3 * brk, 0, 0); pp.body.rotation.x = -0.25 * brk; pp.root.rotation.z = sway;
-      if (t >= E.s3 && t < E.s4) pp.neck.rotation.y = (i % 3 === 0 ? 0.5 : 0) * ease(seg(t, E.s3 + 0.8, E.s3 + 1.4)); });   // 何人かが顔のほうを見る
-    // 子ども2人：最初は後ろで立っている → 空いた席（右の前から4列目）にすわる
-    kids.forEach((k, i) => { k.legs.forEach(l => l.rotation.x = 0); k.body.position.y = 0; k.root.rotation.set(0, 0, 0);
-      if (t < E.floor) { k.root.position.set(0.55 + i * 0.35, BU.FY, 4.0 + i * 0.1); k.root.rotation.y = Math.PI; k.arms[1].rotation.x = -2.6; }
-      else { const P = path(t, [[E.floor, 0.55 + i * 0.35, 4.0], [E.floor + 1.2, 0.2, 0.6], [E.floor + 1.8, [0.95, 0.5][i], -0.2]]); k.root.position.set(P[0], BU.FY, P[1]);
-        if (P[2]) { walkPose(k, t * 12, 1, 0.5); k.root.rotation.y = Math.PI; } else { k.root.rotation.y = Math.PI; sitPose(k, 1.0); } k.arms[1].rotation.x = 0; }
-      k.neck.rotation.x = -0.3 * brk; k.root.visible = t >= E.s3 && t < E.s10; });
+    const inside = t >= E.s2 && t < E.eye;
+    R.g.visible = inside; BX.g.visible = t < E.s2; road.visible = t < E.s2;
+    const stopped = t >= E.stopA && t < E.stopB;   // おばあさんが乗るあいだだけ止まる
+    const tw = t < E.stopA ? t : t < E.stopB ? E.stopA : t - (E.stopB - E.stopA);
+    world.position.z = (tw * 7) % LOOP; BX.g.position.z = -30 + t * 7;
+    const sway = stopped ? 0 : 0.008 * Math.sin(t * 3.1);
+    pax.forEach((pp, i) => { pp.root.rotation.z = sway; pp.neck.rotation.set(0, 0, 0);
+      if (t > E.manStop && t < E.manGo + 0.6 && i < 3) pp.neck.rotation.y = 0.35;
+      if (t > E.ladyStop && t < E.ladyLook + 1.4 && (i === 2 || i === 3)) pp.neck.rotation.y = i === 2 ? 0.5 : -0.5; });
+    // すわろうとして、やめる人：右から来て空いた席の前で止まり、顔を見て、左へ行ってつり革
+    man.root.visible = inside && t >= E.manIn; man.legs.forEach(l => l.rotation.set(0, 0, 0)); man.neck.rotation.set(0, 0, 0); man.arms.forEach(a => a.rotation.set(0, 0, 0)); man.body.position.y = 0;
+    { const P = path(t, [[E.manIn, 0.6, -5.5], [E.manStop, 0.55, EZ], [E.manGo, 0.55, EZ], [E.manGo + 1.6, 0.45, 3.4]]); man.root.position.set(P[0], FY, P[1]);
+      man.root.rotation.y = P[2] ? 0 : -Math.PI / 2; if (P[2]) walkPose(man, t * 8, 1, 0.4);
+      if (t > E.manStop && t < E.manGo) { man.neck.rotation.x = -0.35 * ease(seg(t, E.manStop + 0.2, E.manStop + 0.6)); man.root.position.x += 0.12 * ease(seg(t, E.manStop + 0.6, E.manStop + 1.0)); }   // 頭を見上げて、少し下がる
+      if (t > E.manGo + 1.6) { man.root.rotation.y = -Math.PI / 2; man.arms[0].rotation.x = -2.7; } }
     // ビッグフェイス
     const st = bf.st; st.look = [0, 0]; st.blink = 0; st.mouth = 0; st.sq = 0; st.happy = 0; st.wink = [0, 0];
     const blink = (tb) => { if (t > tb && t < tb + 0.14) st.blink = Math.sin(seg(t, tb, tb + 0.14) * Math.PI); };
-    bf.head.scale.set(1, 1, 1); bf.head.position.set(0, 1.0, 0); bf.neck.rotation.set(0, 0, 0); bf.arms.forEach(a => a.rotation.set(0, 0, 0)); bf.legs.forEach(l => l.rotation.set(0, 0, 0)); bf.body.position.y = 0; bf.body.rotation.set(0, 0, 0);
-    let bx = 0, by = 0, bz = 0, bh = 0, walk = false;
-    if (t < E.s2) { bx = 4.4; bz = 2.0 - busZ; bh = -0.4; by = -BU.FY; st.look = [0.3 * ease(seg(t, 1.2, 2.0)), 0]; blink(3.4); }   // バス停で待つ（バスの外。バスの座標で置く）
-    else if (t < E.s3) { const P = path(t, [[E.s2 + 0.5, 4.4, 3.1], [E.s2 + 1.4, 2.3, 3.1], [E.s2 + 3.0, 0.6, 3.1], [E.s2 + 3.8, 0.6, 1.4]]); bx = P[0]; bz = P[1]; walk = P[2]; bh = bx > 0.65 ? -Math.PI / 2 : Math.PI;
-      const sq = ease(seg(bx, 2.7, 2.0)) * (1 - ease(seg(bx, 1.0, 0.7)));   // 扉で顔がぎゅっとせまく・低くなる（扉の高さ2.4）
-      bf.head.scale.set(1 - 0.58 * sq, 1 - 0.22 * sq, 1); bf.body.position.y = -0.35 * sq; bf.head.position.y = 1.0 - 0.2 * sq;
-      by = bx > 1.3 ? -BU.FY * (1 - ease(seg(bx, 1.9, 1.3))) : 0; st.mouth = 0.5 * sq; if (sq > 0.3) st.blink = 0.7; }
-    else if (t < E.s4) { bx = 0.75; bz = -0.2; bh = Math.PI; by = 0.05; bf.legs.forEach(l => l.rotation.x = -1.5);   // 窓側の席：顔が窓でつぶれる
-      bf.neck.rotation.y = -Math.PI / 2; bf.head.scale.set(1.04, 1.06, 0.56); st.look = [0, 0]; blink(E.s3 + 1.8); }
-    else if (t < E.s5) {
-      if (t < E.stand) { bx = 0.75; bz = -0.2; by = 0.05; bh = Math.PI; bf.legs.forEach(l => l.rotation.x = -1.5); bf.head.scale.set(0.56, 1.06, 1.04); bf.head.position.x = 0.1; }
-      else { const up = ease(seg(t, E.stand, E.stand + 0.5)), hit = t > E.bonk ? Math.sin(Math.min(1, seg(t, E.bonk, E.bonk + 0.45)) * Math.PI) : 0;
-        const P = path(t, [[E.stand + 0.4, 0.75, -0.2], [E.bonk - 0.1, 0.1, 0.1], [E.floor - 0.4, -0.1, 3.0], [E.floor, 0.0, 4.5]]); bx = P[0]; bz = P[1]; walk = P[2]; bh = Math.PI;
-        const nk = ease(seg(t, E.stand + 0.3, E.bonk)) * (1 - ease(seg(t, E.bonk + 0.1, E.bonk + 0.5)));   // のびをすると首がのびて、天井にゴツン
-        bf.head.position.y = 1.0 + 0.32 * nk; bf.head.scale.set(1, 1 - 0.16 * hit, 1 + 0.06 * hit); st.blink = hit > 0.3 ? 0.9 : 0; st.mouth = hit;
-        const aisle = ease(seg(t, E.bonk + 0.5, E.bonk + 0.9)) * (1 - ease(seg(t, E.floor - 0.6, E.floor - 0.2)));   // 通路では顔を細くして、すわっている人に当たらない
-        bf.head.scale.x *= 1 - 0.6 * aisle; bf.head.scale.z *= 1 - 0.3 * aisle;
-        const down = ease(seg(t, E.floor - 0.4, E.floor + 0.2)); bf.body.position.y = -0.42 * down; bf.legs.forEach(l => l.rotation.x = -1.5 * down); }
-      blink(E.floor + 0.6); }
-    else if (t < E.eye) { bx = 0.0; bz = 4.5; bh = Math.PI; bf.body.position.y = -0.42; bf.legs.forEach(l => l.rotation.x = -1.5);
-      if (t < E.s6) { st.look = [t > E.look ? -0.6 : 0, 0];
-        const mk = ease(seg(t, E.enter1 - 0.8, E.enter1 - 0.3)) * (1 - ease(seg(t, E.sit + 0.1, E.sit + 0.6))); bf.head.scale.x = 1 - 0.45 * mk; bf.head.position.x = 0.25 * mk;   // おばあさんが通れるよう、顔を細くして場所をあける
-        if (t > E.pat && t < E.sit) { const u = ease(seg(t, E.pat, E.pat + 0.3)); bf.arms[0].rotation.set(-0.4 * u, 0, -1.1 * u + 0.15 * Math.sin(t * 14) * u); } blink(E.s5 + 1.0); }   // ここにどうぞ、と席をたたく
-      else { const tl = ease(seg(t, E.tilt, E.lean)) * (1 - ease(seg(t, E.wake, E.wake + 0.6))); bf.neck.rotation.z = 0.3 * tl; st.look = [-0.5 * tl, -0.4 * tl]; st.happy = tl > 0.5 && t < E.brake ? 0.6 : 0;   // ほほをまくらに
-        if (t >= E.brake && t < E.s8) { const b = brk; bf.neck.rotation.x = 0.55 * b; bf.arms[0].rotation.set(-0.6 * Math.min(1, b * 3), 0, -1.0 * Math.min(1, b * 3)); st.blink = b > 0.3 ? 0.9 : 0; st.mouth = b; }   // 急ブレーキ：顔が前のガラスの仕切りにぶつかる。腕でおばあさんをささえる
-        if (t >= E.bump) redM.opacity = 0.75;
-        if (t >= E.s8) { st.look = [-0.5, -0.2]; st.happy = t > E.stick + 0.3 ? 1 : 0; blink(E.s8 + 2.6); }
-        onCheek.visible = t > E.stick; } }
-    if (t < E.brake) redM.opacity = 0;
-    bf.root.position.set(bx, BU.FY + by, bz);
-    bf.root.rotation.y = bh; bf.root.rotation.z = sway; walkPose(bf, t * 9, walk ? 1 : 0, 0.45); bf.root.visible = t < E.eye; bf.setFace();
+    bf.head.scale.set(1, 1, 1); bf.neck.rotation.set(0, 0, 0); bf.arms.forEach(a => a.rotation.set(0, 0, 0)); bf.body.position.y = 0; bf.body.rotation.set(0, 0, 0);
+    bf.root.position.set(SIT_X + 0.1, FY + 0.02, BZ); bf.root.rotation.set(0, Math.PI / 2, sway); bf.legs.forEach(l => l.rotation.set(-1.5, 0, 0));
+    // かたむき：顔がとなりの席にかぶさる（droop=1）／首をのばして上へ（L）／ほほをおばあさんへ（rest）
+    const lift = ease(seg(t, E.rise, E.rise + 1.6)), lower = ease(seg(t, E.lower, E.lower + 1.6));
+    const droop = 1 - lift;
+    const L = 0.15 * droop + 1.25 * lift * (1 - lower) + 0.6 * lower;
+    const lean = lower;
+    bf.neck.position.y = 0.92 + L; longNeck.visible = L > 0.02; longNeck.position.y = 0.92 + L / 2 + 0.05; longNeck.scale.y = Math.max(0.01, L + 0.1);
+    bf.neck.rotation.z = -0.5 * droop - 0.5 * lean; bf.head.position.set(0.55 * droop + 0.15 * lean, 1.0, 0.45 - 0.2 * lean);
+    if (t < E.s3) { st.look = [0.5, 0.1]; blink(E.s2 + 2.2); }   // 窓の外を見ている（顔はとなりの席の上）
+    else if (t < E.s5) { st.look = t > E.manStop + 0.3 ? [-0.55, -0.15] : [0.3, 0]; if (t > E.manGo) { st.look = [-0.2, -0.6]; st.mouth = 0.35; } blink(E.manStop + 0.9); blink(E.s4 + 1.6); }   // 気づいて、困る
+    else if (t < E.s7) { st.look = t > E.ladyIn + 0.4 ? [-0.6, -0.1] : [0, -0.5]; if (t > E.ladyLook + 1.6) st.look = [-0.1, -0.7]; if (t > E.bfLook + 0.9) st.look = [-0.6, -0.2]; blink(E.ladyStop + 0.5); }
+    else if (t < E.s8) { st.look = [-0.5, -0.5 * (1 - lift) - 0.6 * lift]; st.happy = 0; if (t > E.offer) { const u = ease(seg(t, E.offer, E.offer + 0.6)); bf.arms[0].rotation.set(-0.9 * u, 0, -0.5 * u); st.happy = 0.6; } blink(E.rise + 2.0); }   // 席を手で示す
+    else { const sl = ease(seg(t, E.doze + 0.6, E.lower)); st.look = [-0.6 * (1 - lean), -0.7 * lean - 0.2]; st.happy = t > E.smile ? 1 : (t > E.sit + 0.8 && t < E.doze ? 0.6 : 0); blink(E.sit + 1.8); blink(E.s10 + 0.6); }
+    walkPose(bf, 0, 0, 0); bf.legs.forEach(l => l.rotation.set(-1.5, 0, 0)); bf.root.visible = inside; bf.setFace();
     // おばあさん
-    lady.root.visible = t >= E.s5 && t < E.s10; lady.legs.forEach(l => l.rotation.set(0, 0, 0)); lady.body.position.y = 0; lady.body.rotation.set(0, 0, 0); lady.neck.rotation.set(0, 0, 0); lady.root.rotation.set(0, 0, 0);
-    lady.arms[0].rotation.set(0, 0, 0); lady.arms[1].rotation.set(-0.3, 0, 0); patch.visible = false; lady.eyes.forEach(e => e.scale.y = 1.2);
-    if (t >= E.s5 && t < E.sit) { const P = path(t, [[E.enter0, 2.4, 3.1], [E.enter0 + 1.0, 0.85, 3.1], [E.look, 0.85, 3.1], [E.enter1 + 1.4, 0.95, 3.9]]); lady.root.position.set(P[0], P[0] > 1.3 ? 0 : BU.FY, P[1]); if (P[2]) walkPose(lady, t * 8, 1, 0.3);
-      lady.root.rotation.y = P[0] > 0.9 && t < E.enter0 + 1.0 ? -Math.PI / 2 : (t < E.look + 0.6 ? Math.PI : 0); if (t > E.look && t < E.look + 0.9) lady.neck.rotation.y = 0.7 * Math.sin((t - E.look) * 6); }   // 席を見回す。どこも空いていない
-    else if (t >= E.sit && t < E.s10) { const u = ease(seg(t, E.sit, E.sit + 0.6)); lady.root.position.set(1.0, BU.FY, lerp(3.9, 4.4, u)); lady.root.rotation.y = Math.PI; sitPose(lady, 1.42 * u + 0.0001);
+    lady.root.visible = inside && t >= E.ladyIn; lady.legs.forEach(l => l.rotation.set(0, 0, 0)); lady.body.position.y = 0; lady.body.rotation.set(0, 0, 0); lady.neck.rotation.set(0, 0, 0); lady.root.rotation.set(0, 0, 0);
+    lady.arms[0].rotation.set(0, 0, 0); lady.arms[1].rotation.set(-0.3, 0, 0); lady.eyes.forEach(e => e.scale.y = 1.2);
+    if (t < E.sit) { const P = path(t, [[E.ladyIn, 0.75, -6.0], [E.ladyStop, 0.75, -1.6], [E.ladyLook + 1.4, 0.75, -1.6], [E.toSeat, 0.7, EZ]]); lady.root.position.set(P[0], FY, P[1]);
+      lady.root.rotation.y = P[2] ? 0 : -Math.PI / 2; if (P[2]) walkPose(lady, t * 7, 1, 0.3);
+      if (t > E.ladyLook && t < E.ladyLook + 1.4) lady.neck.rotation.y = 0.8 * Math.sin(seg(t, E.ladyLook, E.ladyLook + 1.4) * Math.PI * 2);   // 席を見回す。どこも空いていない
+      if (t > E.toSeat) lady.neck.rotation.x = -0.35 * ease(seg(t, E.toSeat, E.toSeat + 0.4)) * (1 - ease(seg(t, E.rise + 1.0, E.rise + 1.6)));   // 顔の下の席を見る
+      if (t > E.rise + 1.6) lady.neck.rotation.x = 0.15; }
+    else { const u = ease(seg(t, E.sit, E.sit + 0.8)); lady.root.position.set(lerp(0.7, SIT_X, u), FY, EZ - 0.05); lady.root.rotation.y = lerp(-Math.PI / 2, Math.PI / 2, ease(seg(t, E.sit, E.sit + 0.4))); sitPose(lady, 1.42 * u + 0.0001);
       if (u < 1) { lady.body.position.y *= u; lady.legs.forEach(l => l.rotation.x *= u); }
-      const nod = ease(seg(t, E.nod, E.lean)) * (1 - ease(seg(t, E.wake, E.wake + 0.5)));
-      lady.root.rotation.z = 0.22 * nod; lady.neck.rotation.z = 0.3 * nod; lady.eyes.forEach(e => e.scale.y = 1.2 * (1 - 0.9 * nod));   // ほほに寄りかかって眠る
-      lady.body.rotation.x = -0.3 * brk; lady.root.rotation.z += sway;
-      if (t >= E.see) { lady.neck.rotation.y = 0.5; lady.neck.rotation.x = -0.15; }
-      if (t >= E.bag && t < E.stick + 0.4) { const a = ease(seg(t, E.bag, E.bag + 0.5)), r = ease(seg(t, E.stick - 0.8, E.stick)); lady.arms[0].rotation.set(-1.2 * a - 0.9 * r, 0, -1.0 * r); patch.visible = t > E.bag + 0.4 && t < E.stick; }   // かばんから湿布を出して、ほほにはる
-      lady.arms[1].rotation.set(-0.5, 0, 0); }
-    zzz.forEach((z, i) => { const on = t > E.lean + 0.3 && t < E.brake; const u = ((t * 0.6 + i / 3) % 1); z.position.set(1.05 + 0.1 * Math.sin(u * 6), BU.FY + 1.5 + u * 0.5, 4.3); z.visible = on; z.scale.setScalar(0.6 + u); });
+      if (t > E.bow && t < E.bow + 0.9) lady.neck.rotation.x = 0.35 * Math.sin(seg(t, E.bow, E.bow + 0.9) * Math.PI);   // 小さくおじぎ
+      const nod = ease(seg(t, E.doze, E.doze + 1.4));
+      lady.neck.rotation.z = -0.38 * nod; lady.root.rotation.z = -0.1 * nod; lady.eyes.forEach(e => e.scale.y = 1.2 * (1 - 0.9 * nod));   // 眠くなって、ビッグフェイスのほうへ頭がかたむく
+      lady.arms[1].rotation.set(-0.5, 0, 0); lady.root.rotation.z += sway; }
+    zzz.forEach((z, i) => { const on = t > E.lower + 1.2 && t < E.eye; const u = ((t * 0.6 + i / 3) % 1); z.position.set(SIT_X + 0.3, FY + 1.4 + u * 0.5, EZ - 0.35 - 0.1 * Math.sin(u * 6)); z.visible = on; z.scale.setScalar(0.6 + u); });
     // アイキャッチ
     eyeFloor.visible = eyeWall.visible = t >= E.eye;
     if (t >= E.eye) {
@@ -1478,25 +1473,24 @@ function ep06(p) {
       if (k > 1.6 && k < 1.74) bf2.st.blink = Math.sin(seg(k, 1.6, 1.74) * Math.PI);
       bf2.neck.rotation.x = p2; bf2.neck.rotation.z = 0.09 * ease(seg(k, 1.0, 1.35)); bf2.setFace(); blob.scale.setScalar(0.6 + 0.4 * fall);
     }
-    // カメラ
-    const cam = (pos, look, fov) => { C.fov = fov; C.position.set(pos[0], pos[1], pos[2] + (pos[3] ? busZ : 0)); C.lookAt(look[0], look[1], look[2] + (look[3] ? busZ : 0)); };
-    sun.target.position.set(0, 0, busZ);
-    if (t < E.s2) cam([6.2, 1.8, 10.0], [2.0, 1.5, 0.0], 44);   // バス停にバスが来る
-    else if (t < E.s3) cam([5.6, 1.7, 7.0], [1.6, 1.5, 3.1], 46);   // 扉で顔がつぶれる
-    else if (t < E.s4) cam([4.6, 2.5, 1.2], [1.0, 2.4, -0.2], 40);   // 外から窓：顔が窓ガラスにつぶれている
-    else if (t < E.s5) cam([0.0, 3.3, -4.0], [0.2, 2.1, 1.8], 58);   // 前から：立つと天井にぶつかり、床にすわる
-    else if (t < E.s6) cam([0.0, 3.3, 0.6], [0.5, 1.6, 4.0], 56);   // 満席。おばあさんが乗ってくる
-    else if (t < E.s7) cam([1.2, 2.6, 0.6], [0.5, 1.75, 4.5], 42);   // ほほをまくらに
-    else if (t < E.s8) cam([-0.1, 2.6, -0.1], [-0.05, 1.8, 4.4], 52);   // 急ブレーキ
-    else if (t < E.s10) cam([1.1, 2.5, 1.4], [0.6, 1.85, 4.5], 36);   // 小さな湿布
-    else if (t < E.eye) cam([9.0, 2.6, 6.0], [0, 1.4, -6.0], 44);   // バスが走っていく
+    // カメラ（車内はカメラ側の壁がない。座席の正面から）
+    const cam = (pos, look, fov) => { C.fov = fov; C.position.set(...pos); C.lookAt(...look); };
+    const HX = SIT_X + 0.1 + 0.55;   // 顔の中心のだいたいの x
+    if (t < E.s2) cam([54, 2.4, BX.g.position.z + 11], [40.5, 1.6, BX.g.position.z + 0.7], 44);   // 町を走るバス
+    else if (t < E.s3) cam([5.8, 2.3, 0.0], [-1.0, 1.9, 0.0], 50);   // 正面：大きな顔がとなりの席にかぶさっている
+    else if (t < E.s4) cam([5.8, 2.3, -0.3], [-1.0, 1.9, -0.3], 50);   // すわろうとした人が、やめて通りすぎる
+    else if (t < E.s5) cam([3.6, 2.2, -0.3], [HX, 2.1, -0.3], 40);   // 困った顔
+    else if (t < E.s6) cam([5.8, 2.3, -1.0], [-1.0, 1.9, -1.0], 54);   // おばあさんが乗ってくる。どこも空いていない
+    else if (t < E.s7) cam([4.0, 2.0, -2.4], [-1.0, 1.4, -0.1], 46);   // 顔の下の席を、おばあさんとビッグフェイスが見る
+    else if (t < E.s8) cam([6.4, 2.8, -0.1], [-1.0, 2.5, -0.1], 52);   // 首をのばすと、席が空く
+    else if (t < E.s9) cam([5.2, 2.6, -0.1], [-1.0, 2.3, -0.1], 52);   // すわる
+    else if (t < E.s10) cam([4.6, 2.4, -0.1], [-1.0, 2.2, -0.1], 46);   // ほほがまくら
+    else if (t < E.eye) cam([3.2, 2.3, -0.6], [HX - 0.3, 2.05, -0.3], 44);   // 顔に寄る
     else { cam([EX, 1.4, 9.0], [EX, 0.75, 0], 36); sun.position.set(EX + 6, 10, 8); sun.target.position.set(EX, 0, 0); }
-    if (t < E.eye) sun.position.set(8, 12, 6 + busZ);
-    inLight.position.set(0, 3.3, 0.5 + busZ);
+    if (t < E.eye) { sun.position.set(t < E.s2 ? 48 : 8, 12, 6); sun.target.position.set(t < E.s2 ? 40 : 0, 0, 0); }
     C.updateProjectionMatrix();
   };
 }
-
 function art(p) {
   const sc = S = new THREE.Scene();
   const bg = p.kind === "icon" ? 0xF1E4CC : 0xE6EEE8; sc.background = new THREE.Color(bg);
