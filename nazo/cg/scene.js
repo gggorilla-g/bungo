@@ -601,6 +601,9 @@ function tideScene(p) {
     ang = spd * t + (p.drag ? -1.2 * t * t / d : 0);
     eg.rotation.z = ang; ring.rotation.z = ang * 0.999;
     
+    // p.mfar：月が今の2倍の距離へ（"move"＝この場面の間に遠ざかる、1＝最初から2倍）。ふくらみは距離の3乗で小さくなる
+    const kf = p.mfar === "move" ? sstep((u - 0.15) / 0.6) : p.mfar ? 1 : 0;
+    if (kf) { moon.position.y = MP.y * (1 + kf); bulge *= lerp(1, 0.125, kf); }
     moon.visible = gone < 0.98; moon.scale.setScalar(Math.max(0.01, 1 - gone)); moon.rotation.y = t * 0.6;
     const axis = new THREE.Vector3(-Math.sin(lag), Math.cos(lag), 0);   // ふくらみの向き（回転の向きへ lag だけずれる）
     dirs.forEach((v, i) => {
@@ -612,10 +615,10 @@ function tideScene(p) {
     water.instanceMatrix.needsUpdate = true;
     pull.forEach(m => {
       const q = (m.userData.k + t * 0.9) % 1; m.visible = !p.drag && gone < 0.5;
-      m.position.set(m.userData.x * (1 - q) * 0.6, R0 + 7 + q * (MP.y - R0 - 13), 2);
+      m.position.set(m.userData.x * (1 - q) * 0.6, R0 + 7 + q * (moon.position.y - R0 - 13), 2);
     });
     // 地球は字幕より上・少し右に（左下のずんだもんと下の字幕にかからない位置）
-    C.position.set(lerp(-9, -3, u), -6, lerp(122, 116, u)); C.lookAt(lerp(-8, -3, u), -6, 0);
+    if (p.mfar) { C.position.set(-4, 4, 200); C.lookAt(-4, 6, 0); } else { C.position.set(lerp(-9, -3, u), -6, lerp(122, 116, u)); C.lookAt(lerp(-8, -3, u), -6, 0); }
   };
 }
 
@@ -786,7 +789,8 @@ function orbitScene(p) {
   tiltG.add(blocks(eq, 0.4));
   // p.r（公転の半径。1=今の地球、0.72=今の金星の位置）、p.r_to と p.r_at（その時刻から半径が移る）、p.ghost（今の軌道を点線で残す）
   // p.sun_off（太陽が消える時刻の割合）、p.lag（その何秒あとに光と重力が地球に届く。届いたら暗くなり、まっすぐ飛んでいく）
-  const OR0 = 17, mkPath = (R, col) => { const q = []; for (let i = 0; i < 60; i++) if (i % 2) { const a = i / 60 * Math.PI * 2; q.push([Math.cos(a) * R, 0, Math.sin(a) * R, col]); } return blocks(q, 0.8); };
+  const MK = p.mk || 1; sun.scale.setScalar(MK); tiltG.scale.setScalar(MK);   // p.mk：遠い軌道を引きで見せるとき、太陽・地球・軌道の印を大きく描く
+  const OR0 = 17, mkPath = (R, col) => { const q = []; for (let i = 0; i < 60; i++) if (i % 2) { const a = i / 60 * Math.PI * 2; q.push([Math.cos(a) * R, 0, Math.sin(a) * R, col]); } return blocks(q, 0.8 * MK); };
   const r1 = p.r ?? 1, r2 = p.r_to ?? r1;
   sc.add(mkPath(OR0 * r1, 0x555a66)); if (r2 !== r1) sc.add(mkPath(OR0 * r2, 0x8a6a40));
   if (p.ghost) sc.add(mkPath(OR0 * p.ghost, 0x8a6a40));
@@ -1840,10 +1844,10 @@ function driveScene(p) {
 function drive2Scene(p) {
   const sc = CUR = new THREE.Scene();
   const D = new Set(p.diff || []), BI = p.biome || "sea";
-  const PAL = { sea: { sky: 0xa8e0ff, ground: 0x6cc26c, far: 0x86bf8c }, snow: { sky: 0xd6e8f5, ground: 0xf4f6f8, far: 0xcfdbe6 }, town: { sky: 0xf2b27a, ground: 0x9a8f80, far: 0xc98e72 }, autumn: { sky: 0xbfe0f2, ground: 0xb8a06a, far: 0xc9784a }, farm: { sky: 0xb4e2ff, ground: 0x8cc85a, far: 0x9cc48c }, city: { sky: 0xa8d8f5, ground: 0xa8a8a8, far: 0x9aaab8 } }[BI];
+  const PAL = { sea: { sky: 0xa8e0ff, ground: 0x6cc26c, far: 0x86bf8c }, snow: { sky: 0xd6e8f5, ground: 0xf4f6f8, far: 0xcfdbe6 }, town: { sky: 0xf2b27a, ground: 0x9a8f80, far: 0xc98e72 }, autumn: { sky: 0xbfe0f2, ground: 0xb8a06a, far: 0xc9784a }, farm: { sky: 0xb4e2ff, ground: 0x8cc85a, far: 0x9cc48c }, city: { sky: 0xa8d8f5, ground: 0xa8a8a8, far: 0x9aaab8 }, spring: { sky: 0xcfe9fb, ground: 0x9ad07a, far: 0xa8c8a0 }, night: { sky: 0x2c3c6e, ground: 0x5a6070, far: 0x3a4a72 } }[BI];
   sc.background = new THREE.Color(PAL.sky); sc.fog = new THREE.Fog(PAL.sky, 60, 170);
-  sc.add(new THREE.AmbientLight(0xffffff, BI === "town" ? 0.8 : 0.95));
-  const dl = new THREE.DirectionalLight(BI === "town" ? 0xffd2a0 : 0xffffff, 1.1); dl.position.set(-30, 40, 20); sc.add(dl);
+  sc.add(new THREE.AmbientLight(BI === "night" ? 0xaabbe8 : 0xffffff, BI === "town" ? 0.8 : BI === "night" ? 1.2 : 0.95));
+  const dl = new THREE.DirectionalLight(BI === "town" ? 0xffd2a0 : BI === "night" ? 0xc8d4ff : 0xffffff, BI === "night" ? 0.7 : 1.1); dl.position.set(-30, 40, 20); sc.add(dl);
   let sd = p.seed || 99; const rr = () => { sd = (sd * 16807) % 2147483647; return sd / 2147483647; };
   const B = (list, sz = 1, pos = [0, 0, 0]) => { const m = blocks(list, sz); m.position.set(...pos); sc.add(m); return m; };
   const Bs = (list, sz, pos = [0, 0, 0]) => B(list.map(([x, y, z, c]) => [x * sz, y * sz, z * sz, c]), sz, pos);
@@ -1853,10 +1857,12 @@ function drive2Scene(p) {
   plane(400, ZL, PAL.ground, 0, 0, ZM); plane(7.2, ZL, BI === "snow" ? 0x8a8e94 : 0x5a5a60, 0, 0.02, ZM);
   const dash = []; for (let z = ZN; z > ZF; z -= 4) dash.push([0, 0.04, z, 0xffffff]); const dm = B(dash, 1); dm.scale.set(0.18, 0.05, 2);
   if (BI === "sea") { plane(30, ZL, 0xeedc9a, -19, 0.01, ZM); const sea = plane(300, ZL, 0x2f8fe0, -184, 0.03, ZM); }   // 左は砂浜と海
+  if (BI === "spring") plane(9, ZL, 0x5aa8e0, -19, 0.03, ZM);   // 左は川
+  if (BI === "night") { plane(12, ZL, 0x6a6a70, -11, 0.01, ZM); plane(300, ZL, 0x1a3a6a, -167, 0.03, ZM); }   // 左は岸壁と夜の海
   for (let k = 0; k < 10; k++) { const x = -(70 + rr() * 60), z = -40 - rr() * (L + 60), h = 14 + rr() * 16;   // 遠くの山（左奥）
     const m = new THREE.Mesh(new THREE.ConeGeometry(h * 1.3, h, 4), new THREE.MeshLambertMaterial({ color: PAL.far, flatShading: true })); m.position.set(x, h / 2, z); m.rotation.y = Math.PI / 4; sc.add(m); }
   // 部品
-  const leaf = BI === "snow" ? [0xffffff, 0xe8eef2] : BI === "autumn" ? [0xe0782a, 0xd8a030] : [COL.leaf, COL.leaf2];
+  const leaf = BI === "snow" ? [0xffffff, 0xe8eef2] : BI === "autumn" ? [0xe0782a, 0xd8a030] : BI === "spring" ? [0xf6b8c8, 0xf9d4de] : [COL.leaf, COL.leaf2];
   const tree = (x, z, s = 1) => { const lf = [[0, 0.5, 0, COL.trunk], [0, 1.5, 0, COL.trunk]];
     for (let a = -1; a <= 1; a++) for (let b = -1; b <= 1; b++) for (let c = 0; c <= 1; c++) lf.push([a, 2.5 + c, b, leaf[(a + b + c + 9) % 2]]);
     lf.push([0, 4.5, 0, leaf[0]]); return Bs(lf, 0.8 * s, [x, 0, z]); };
@@ -1883,6 +1889,8 @@ function drive2Scene(p) {
     autumn: ["leafpile_gone", "squirrel_acorn", "signpost_arrows", "mushroom_small", "bridge_rail"],
     farm: ["tractor_gone", "crow_move", "hay_count", "mill_stop", "fence_gap"],
     city: ["bus_stop_gone", "balloon_away", "clock_hands", "vending_extra", "building_floor"],
+    spring: ["sakura_gone", "dog_ball", "duck_count", "sign_arrow", "tower_flag"],
+    night: ["crane_gone", "cat_fish", "container_stack", "flag_dir", "buoy_gone"],
   }[BI];
   const FS = [0.1, 0.27, 0.45, 0.62, 0.8], DZ = {}; ITEMS.forEach((k, i) => DZ[k] = zAt(FS[i]) - 2);
   const near = z => Object.values(DZ).some(dz => Math.abs(dz - z) < 7);
@@ -1894,12 +1902,17 @@ function drive2Scene(p) {
     else if (BI === "snow") { if (u < 0.5) tree(x, z + rr() * 2); else if (u < 0.62) pole(-4.6, z); else if (u < 0.74) house(-(11 + rr() * 5), z, 0xf4e8d8, 0x7a5a3a); }
     else if (BI === "autumn") { if (u < 0.6) tree(x - rr() * 2, z + rr() * 2, 0.9 + rr() * 0.4); else if (u < 0.7) pole(-4.6, z); else if (u < 0.8) Bs([[0, 0, 0, 0x8a8a80], [1, 0, 0, 0x7a7a70], [0, 1, 0, 0x8a8a80]], 0.7, [x, 0.35, z]); }
     else if (BI === "farm") { if (u < 0.3) tree(-(12 + rr() * 6), z); else if (u < 0.5) pole(-4.6, z); else if (u < 0.75) { const rw = []; for (let a = 0; a < 6; a++) rw.push([a, 0, 0, 0x6aa840]); Bs(rw, 0.6, [-9 - rr() * 4, 0.3, z]); } }
+    else if (BI === "spring") { if (u < 0.55) tree(x - rr() * 1.5, z + rr() * 2, 0.9 + rr() * 0.4); else if (u < 0.65) pole(-4.6, z); else if (u < 0.75) Bs([[0, 0, 0, 0x8a6a4a], [1, 0, 0, 0x8a6a4a], [2, 0, 0, 0x8a6a4a]], 0.4, [x, 0.6, z]); }
+    else if (BI === "night") { const wh = []; const hh = 3 + Math.floor(rr() * 2), wc = [0x8a8478, 0x7a8088][Math.floor(rr() * 2)];
+      for (let y = 0; y < hh; y++) for (let a = -1; a <= 1; a++) for (let b = -2; b <= 2; b++) if (Math.abs(a) === 1 || Math.abs(b) === 2) wh.push([a, y, b, (a === 1 && y === hh - 2 && b % 2 === 0) ? 0xffe08a : wc]);
+      if (u < 0.45) Bs(wh, 1.0, [-(7 + rr() * 2), 0.5, z]); else if (u < 0.75) Bs([[0, 0, 0, 0x555555], [0, 1, 0, 0x555555], [0, 2, 0, 0x555555], [0, 3, 0, 0x555555], [0.6, 3.6, 0, 0xffe9a0]], 0.4, [-4.8, 0.2, z]); }
     else if (BI === "city") { const bh = 4 + Math.floor(rr() * 5), bc = [0xd8d0c4, 0xc4ccd8, 0xe0d4b8][Math.floor(rr() * 3)], bl = [];
       for (let y = 0; y < bh; y++) for (let a = -1; a <= 1; a++) for (let b = -1; b <= 1; b++) if (Math.abs(a) === 1 || Math.abs(b) === 1) bl.push([a, y, b, (a === 1 && y > 0 && b !== 0 && y % 1 === 0) ? 0x7ab0d8 : bc]);
       if (u < 0.7) Bs(bl, 1.2, [-(10 + rr() * 3), 0.6, z]); else if (u < 0.85) tree(x, z); }
     else { if (u < 0.45) house(-(9.5 + rr() * 3), z, [0xf4efe4, 0xffe3b0, 0xdde8f4][Math.floor(rr() * 3)], [0x7a5a3a, 0x5a6a7a, 0x8a5a4a][Math.floor(rr() * 3)], { chimney: rr() < 0.5 });
       else if (u < 0.65) tree(x, z); else if (u < 0.8) Bs([[0, 0, 0, 0x555555], [0, 1, 0, 0x555555], [0, 2, 0, 0x555555], [0, 3, 0, 0x555555], [0.6, 3.6, 0, 0xffe9a0]], 0.4, [-4.8, 0.2, z]); }
-    if (rr() < 0.4 && BI !== "city") (BI === "sea" ? palm : tree)(-(14 + rr() * 10), z + 2, 1.2);
+    if (rr() < 0.4 && BI !== "city" && BI !== "night" && BI !== "spring") (BI === "sea" ? palm : tree)(-(14 + rr() * 10), z + 2, 1.2);
+    if (BI === "spring") { tree(-(11 + rr() * 2), z + 2, 1.1 + rr() * 0.3); if (rr() < 0.7) tree(-(26 + rr() * 6), z, 1.3); }   // 川の手前と向こう岸の桜並木（違いの近くでも置く）
   }
   for (let z = ZN; z > ZF; z -= 9) if (rr() < 0.5) (BI === "sea" ? palm : tree)(16 + rr() * 14, z, 1.2);
   // 違いの物
@@ -1980,6 +1993,36 @@ function drive2Scene(p) {
     Bs(bld, 1.2, [-11, 0.6, DZ.building_floor]);   // ビル：B は2階分ひくい
     const walkers = [0, 1, 2].map(i => { const w = blockChar(); w.scale.setScalar(0.9); w.position.set(-5.4, 1.1, 0); sc.add(w); return w; });
     anim.push(t => walkers.forEach((w, i) => { w.position.z = zAt(0.2 + i * 0.3) + ((t * 1.2 + i * 5) % 10) - 5; w.rotation.y = Math.PI; }));
+  }
+  if (BI === "spring") {   // 春の川沿い。花びらが舞う（AとBで同じ。おとり）
+    tree(-6.5, DZ.sakura_gone - 3.2); if (!D.has("sakura_gone")) tree(-7, DZ.sakura_gone, 1.15); tree(-6.5, DZ.sakura_gone + 3.2);   // 桜：B は真ん中の1本がない（やさしい）
+    const dog = Bs([[0, 0, 0, 0xd8a868], [1, 0, 0, 0xd8a868], [1.6, 0.6, 0, 0xd8a868], [-0.7, 0.5, 0, 0xd8a868], [0, -0.7, 0, 0xc89858], [1, -0.7, 0, 0xc89858]], 0.6, [-6.2, 0.75, DZ.dog_ball]); dog.rotation.y = -Math.PI / 2;
+    const ball = new THREE.Mesh(new THREE.SphereGeometry(0.3, 12, 8), new THREE.MeshLambertMaterial({ color: 0xe84a3a })); sc.add(ball);   // 話のある違い：A はボールが足もと、B は犬がくわえている
+    if (D.has("dog_ball")) ball.position.set(-6.2, 1.5, DZ.dog_ball - 1.15); else ball.position.set(-5.2, 0.3, DZ.dog_ball - 1.3);
+    anim.push(t => { dog.position.y = 0.75 + 0.04 * Math.abs(Math.sin(t * 6)); });
+    const ducks = []; const nd = D.has("duck_count") ? 3 : 4;   // 川のカモ：A は親と子3羽、B は子2羽
+    for (let i = 0; i < nd; i++) { const s2 = i === 0 ? 0.75 : 0.48; ducks.push(Bs([[0, 0, 0, 0xf2e8d0], [0, 0, 1, 0xf2e8d0], [0, 0.8, 1.3, 0x3a7a3a], [0, 0.8, 2.0, 0xf2a030]], s2, [-18, 0.15, DZ.duck_count + i * 1.6])); }
+    anim.push(t => ducks.forEach((d, i) => { d.position.z = DZ.duck_count + i * 1.6 - (t * 0.3) % 6; }));
+    Bs([[0, 0, 0, 0x8a6a4a], [0, 1, 0, 0x8a6a4a], [0, 2, 0, 0x8a6a4a]], 0.4, [-5.0, 0.2, DZ.sign_arrow]);   // 看板の矢印：A は手前向き、B は奥向き
+    const ar = D.has("sign_arrow") ? -1 : 1; Bs([[0, 0, 0, 0xf4efe4], [0, 0, ar, 0xf4efe4], [0, 0, 2 * ar, 0xf4efe4], [0, 0.6, 1.6 * ar, 0xf4efe4], [0, -0.6, 1.6 * ar, 0xf4efe4]], 0.45, [-5.0, 1.35, DZ.sign_arrow]);
+    const tw = []; for (let y = 0; y < 9; y++) for (const [a, b] of [[0, 0], [1, 0], [0, 1], [1, 1]]) tw.push([a, y, b, 0xe8e2d4]); Bs(tw, 0.8, [-26, 0, DZ.tower_flag]);   // 遠くの塔：B は旗がない（むずかしい）
+    if (!D.has("tower_flag")) Bs([[0, 0, 0, 0x555555], [0, 1, 0, 0x555555], [0, 1.6, 0.8, 0x3a6ad8], [0, 1.6, 1.6, 0x3a6ad8], [0, 1, 0.8, 0x3a6ad8]], 0.5, [-25.6, 7.4, DZ.tower_flag]);
+    const pt = Array.from({ length: 50 }, () => { const m = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.02, 0.12), new THREE.MeshLambertMaterial({ color: rr() < 0.5 ? 0xf6b8c8 : 0xffffff })); sc.add(m); return { m, x: -4 - rr() * 10, y: rr() * 6, z: rr() * 24 - 12, s: 0.6 + rr() * 0.6 }; });
+    anim.push((t, cz) => pt.forEach(l => { const y = ((l.y - t * l.s) % 6 + 6) % 6; l.m.position.set(l.x + 0.4 * Math.sin(t + l.z), y, cz + l.z); l.m.rotation.set(t * 2 + l.z, t, 0); }));
+  }
+  if (BI === "night") {   // 夜の港。灯台の光が回る（AとBで同じ。おとり）
+    if (!D.has("crane_gone")) { const cr = []; for (let y = 0; y < 10; y++) cr.push([0, y, 0, 0xe8a030]); for (let k = -2; k < 8; k++) cr.push([-k, 10, 0, 0xe8a030]); cr.push([-7, 9, 0, 0x555555], [-7, 8, 0, 0x555555]); Bs(cr, 0.8, [-12, 0, DZ.crane_gone]); }   // クレーン：B はない（やさしい）
+    const cat = Bs([[0, 0, 0, 0x2e2e2e], [1, 0, 0, 0x2e2e2e], [1.4, 0.7, 0, 0x2e2e2e], [1.4, 1.2, 0.3, 0x2e2e2e], [1.4, 1.2, -0.3, 0x2e2e2e], [-0.8, 0.6, 0, 0x2e2e2e]], 0.7, [-6.3, 0.7, DZ.cat_fish]); cat.rotation.y = -Math.PI / 2;
+    if (D.has("cat_fish")) Bs([[0, 0, 0, 0xf4f4f4], [0, 0, 1, 0xf4f4f4], [0, 0, 2, 0xf4f4f4], [0, 0.5, 1, 0xf4f4f4], [0, -0.5, 1, 0xf4f4f4]], 0.25, [-5.4, 0.3, DZ.cat_fish - 1.6]);   // 話のある違い：A は魚、B は骨だけ（食べた）
+    else Bs([[0, 0, 0, 0xe88a3a], [0, 0, 1, 0xe88a3a], [0, 0, 2, 0xe88a3a], [0, 0.5, 2.6, 0xe88a3a], [0, -0.5, 2.6, 0xe88a3a]], 0.3, [-5.4, 0.3, DZ.cat_fish - 1.9]);
+    const ns = D.has("container_stack") ? 2 : 3; for (let i = 0; i < ns; i++) Bs([[0, 0, 0, [0x3a6ad8, 0xd85a3a, 0x3aa86a][i]], [0, 0, 1, [0x3a6ad8, 0xd85a3a, 0x3aa86a][i]], [0, 0, 2, [0x3a6ad8, 0xd85a3a, 0x3aa86a][i]], [0, 0, 3, [0x3a6ad8, 0xd85a3a, 0x3aa86a][i]]], 1.2, [-9.5, 0.6 + i * 1.2, DZ.container_stack - 1.8]);   // コンテナ：A は3段、B は2段
+    Bs([[0, 0, 0, 0xcccccc], [0, 1, 0, 0xcccccc], [0, 2, 0, 0xcccccc], [0, 3, 0, 0xcccccc], [0, 4, 0, 0xcccccc]], 0.4, [-6.0, 0.2, DZ.flag_dir]);   // 旗：A は手前へ、B は奥へなびく
+    const fd = D.has("flag_dir") ? -1 : 1; const fl = Bs([[0, 0, fd, 0xf4f4f4], [0, 0, 2 * fd, 0xf4f4f4], [0, -1, fd, 0xd83a3a], [0, -1, 2 * fd, 0xf4f4f4]], 0.4, [-6.0, 1.9, DZ.flag_dir]);
+    anim.push(t => { fl.rotation.x = 0.06 * Math.sin(t * 4); });
+    if (!D.has("buoy_gone")) { const by = Bs([[0, 0, 0, 0xd83a3a], [0, 1, 0, 0xf4f4f4], [0, 2, 0, 0xd83a3a], [0, 3, 0, 0xffe08a]], 0.7, [-22, 0.2, DZ.buoy_gone]); anim.push(t => { by.position.y = 0.2 + 0.15 * Math.sin(t * 1.7); by.rotation.x = 0.06 * Math.sin(t * 1.3); }); }   // 海のブイ：B はない（むずかしい）
+    const lhB = []; for (let y = 0; y < 8; y++) for (const [a, b] of [[0, 0], [1, 0], [0, 1], [1, 1]]) lhB.push([a, y, b, (y >> 1) % 2 ? 0xd83a3a : 0xffffff]); Bs(lhB, 0.7, [-30, 0, zAt(0.5)]);
+    const beam = new THREE.Mesh(new THREE.ConeGeometry(2.2, 22, 16, 1, true), new THREE.MeshBasicMaterial({ color: 0xfff2a0, transparent: true, opacity: 0.18, side: THREE.DoubleSide, depthWrite: false })); beam.geometry.translate(0, -11, 0); beam.geometry.rotateZ(Math.PI / 2);
+    const bp = new THREE.Group(); bp.position.set(-29.6, 5.9, zAt(0.5) + 0.4); bp.add(beam); sc.add(bp); anim.push(t => { bp.rotation.y = t * 0.8; });
   }
   ITEMS.forEach(k => { ANCH[k] = [-8, 2, DZ[k]]; });
   // ずんだもんの車

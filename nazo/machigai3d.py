@@ -31,7 +31,7 @@ def ah(sp):
     return sp.get("style") == "ah"
 
 
-OPEN = 1.5      # 頭のアニメの長さ（ah）
+OPEN = 1.5      # 頭のアニメの長さ（ah）。cold_open の台本では 0（11/17 巡回の実験：0秒から箱庭が動いている出だし）
 OUTRO = 1.1     # 終わりのロゴの長さ（ah）
 
 
@@ -158,7 +158,7 @@ def frame_ah(t, sp, A, Bm, events, lines, t_s, t_a, t_e, total, S):
         return fr
     # ---- 本編の画面
     oy_a, oy_b = TOPY, TOPY + PH + GAPY
-    wipe = _ease((t - OPEN) / 0.35)          # パネルが横から入る
+    wipe = _ease((t - OPEN) / 0.35) if OPEN > 0 else 1.0          # パネルが横から入る（cold_open は最初から出ている）
     xa, xb = int(-W * (1 - wipe)), int(W * (1 - wipe))
     if sp.get("tilt"):      # ミニチュア写真のように上下をぼかす（ティルトシフト風）
         A = _tilt(A)
@@ -255,6 +255,8 @@ def tts(text, wav):
 def build(sid):
     T0 = time.time()
     sp = json.load(open(f"nazo/shorts/{sid}.json", encoding="utf-8"))
+    global OPEN
+    OPEN = 0.0 if sp.get("cold_open") else 1.5
     pairs = pairs_of(sp)
     rec = f"nazo/state/mach3d_yomi_{sid}.json"
     if not os.path.exists(rec) or json.load(open(rec))["key"] != gate_key(pairs):
@@ -335,11 +337,12 @@ def build(sid):
         sev = [("zip_long", 0.0), ("pop_big", 0.05), ("boing", t_search0 + S * 0.5), ("drumroll", t_ans0 - 3.0),
                ("crash", t_ans0), ("kira", t_end0)] + [("tick", t_ans0 - k) for k in (5, 4, 3, 2, 1)]
     if ah(sp):
-        sev = [("pop_hi", 0.0), ("pop_mid", 0.25), ("pop_lo", 0.5), ("whoosh_s", OPEN - 0.3), ("pop_mid", t_search0 + S * 0.5),
+        head = [("pop_hi", 0.0), ("pop_mid", 0.25), ("pop_lo", 0.5), ("whoosh_s", OPEN - 0.3)] if OPEN > 0 else [("pop_big", 0.0)]
+        sev = head + [("pop_mid", t_search0 + S * 0.5),
                ("whoosh_l", t_ans0 - 0.05), ("thud", t_ans0 + 0.1), ("kira", t_end0 + 0.1)] + [("tick", t_ans0 - k) for k in (5, 4, 3, 2, 1)]
         import chip
         jg = np.interp(np.arange(int(len(chip.jingle()) * sr / chip.SR)) * chip.SR / sr, np.arange(len(chip.jingle())), chip.jingle()).astype(np.float32) * 0.35
-        for at in (0.62, total - OUTRO + 0.05):
+        for at in ((0.62,) if OPEN > 0 else ()) + (total - OUTRO + 0.05,):
             i = int(at * sr); mix[i:i + len(jg)] += jg[:len(mix) - i]
     for nm, at in sev:
         s = se.sound(nm).astype(np.float32) * SE_GAIN
