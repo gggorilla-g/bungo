@@ -1,0 +1,38 @@
+【タイトル】
+月・火星・金星・木星に落ちたら、体は何に負ける？【宇宙のもしも】
+
+【説明】
+宇宙服なしで、月・火星・金星・木星へ落ちていったら、体は最初に何に負けるのか。NASA の資料と計算で、落ちる速さ・気圧・温度を順に見ていきます。
+
+0:00 はじめに
+0:03 落ちたら、何に負ける？
+1:04 月
+3:16 火星
+5:27 金星
+7:33 木星
+9:46 まとめ
+
+※落ちる速さは計算による目安です（体重70kg・腹ばいの姿勢、空気抵抗の式 V=√(2W/(Cd·ρ·A)) で Cd·A=0.4m²、空気の密度は NASA の値）。月の落下は空気なし・高さ100kmからの計算。深さ約900mの水圧へのたとえは、気圧約90倍からの計算です。
+※真空で意識を失うまでの時間は、欧州宇宙機関（ESA）の専門家の説明（Space.com の記事）によります。
+
+出典
+・NASA 惑星の基本データ（重力・気圧・直径・平均気温） https://nssdc.gsfc.nasa.gov/planetary/factsheet/index.html
+・NASA 金星の基本データ（地表の密度・風） https://nssdc.gsfc.nasa.gov/planetary/factsheet/venusfact.html
+・NASA 火星の基本データ（地表の密度・気温・二酸化炭素） https://nssdc.gsfc.nasa.gov/planetary/factsheet/marsfact.html
+・NASA Moon Facts https://science.nasa.gov/moon/facts/
+・NASA Mars Facts https://science.nasa.gov/mars/facts/
+・NASA Venus Facts https://science.nasa.gov/venus/facts
+・NASA Venus Lithograph（気圧約90倍・470℃以上） https://www.nasa.gov/sites/default/files/files/Venus_Lithograph.pdf
+・NASA Jupiter Facts https://science.nasa.gov/jupiter/facts/
+・Galileo Probe Mission Quick-look Science Summary（突入速度・230G・57.6分・23bar・152℃） https://astro.sci.muni.cz/pub/galileo/first_science_summary.html
+・NASA Glenn 終端速度の式 https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/termvel
+・Space.com（ESA 専門家の説明） https://www.space.com/how-long-could-you-survive-in-space-without-spacesuit
+
+声：VOICEVOX:青山龍星
+BGM：オリジナル
+3DCG：オリジナル（three.js で作成）
+
+#宇宙 #もしも #睡眠用
+
+【タグ】
+宇宙, もしも, 惑星, 月, 火星, 金星, 木星, 科学, 睡眠用, 作業用

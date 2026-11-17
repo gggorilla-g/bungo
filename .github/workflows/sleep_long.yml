@@ -1,0 +1,48 @@
+name: 長尺（落ち着いた声＋星の3D）
+# nazo/sleep/<id>.json から書き出してアップ。channel: hoo（ホー博士、サムネ可）/ moso / miw。publish_at が空ならすぐ公開。dry_run=true なら上げない
+on:
+  workflow_dispatch:
+    inputs:
+      id: { description: "台本ID（nazo/sleep/<id>.json）", required: true }
+      publish_at: { description: "公開日時 UTC（空ならすぐ公開）", default: "" }
+      channel: { description: "hoo / moso / miw", default: "hoo" }
+      dry_run: { description: "true なら上げない", default: "false" }
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 240
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - uses: actions/setup-node@v4
+        with: { node-version: "22" }
+      - name: Cache VOICEVOX assets
+        uses: actions/cache@v4
+        with: { path: vv_assets, key: vv-assets-0.16.4 }
+      - run: |
+          for i in 1 2 3; do timeout 300 sudo apt-get update -q && timeout 600 sudo apt-get install -y -q ffmpeg && break; sleep 10; done
+          pip install -q -r requirements.txt numpy google-api-python-client google-auth
+          python src/setup_voicevox.py
+          cd nazo/kaizo && npm install -q --no-save playwright@1.56.1 && npx playwright install --with-deps chromium
+      - env: { NODE_PATH: "${{ github.workspace }}/nazo/kaizo/node_modules", JOBS: "4" }
+        run: python3 tools/sleep_long.py build "nazo/sleep/${{ inputs.id }}.json" 2> >(tee err.txt >&2) || { tail -n 6 err.txt | sed "s/^/::error::/"; exit 1; }
+      - if: inputs.dry_run == 'true'
+        run: |
+          N="${{ inputs.id }}"; mkdir -p ../out && cp "output/$N.mp4" ../out/ && cd ../out && git init -q && git add . && git -c user.name=bungo-bot -c user.email=bot@users.noreply.github.com commit -q -m "sleep $N" && git push -q -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" HEAD:refs/heads/sleep-out-$N
+      - if: inputs.dry_run != 'true'
+        env:
+          PUBLISH_AT: ${{ inputs.publish_at }}
+          YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
+          YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
+          YT_REFRESH_TOKEN: ${{ inputs.channel == 'miw' && secrets.YT_REFRESH_TOKEN_KAIDAN || (inputs.channel == 'hoo' && secrets.YT_REFRESH_TOKEN_NAZO || secrets.YT_REFRESH_TOKEN_MOSO) }}
+          VIDEO_LANG: ja
+        run: |
+          N="${{ inputs.id }}"; T="nazo/manual/sleep/${N}_thumb.jpg"; [ -f "$T" ] && export THUMB="$T"
+          python3 tools/short_upload.py "output/$N.mp4" "nazo/manual/sleep/${N}_upload.txt" > "nazo/manual/sleep/api_upload_${N}.txt" 2> >(tee err.txt >&2) || { tail -n 4 err.txt | sed "s/^/::error::/"; exit 1; }
+          cat "nazo/manual/sleep/api_upload_${N}.txt"
+          git config user.name "bungo-bot"; git config user.email "bot@users.noreply.github.com"
+          git add nazo/manual/sleep && git commit -q -m "sleep upload: $N" || exit 0
+          for i in 1 2 3; do git pull --rebase --autostash -q && git push -q && break; sleep 5; done
