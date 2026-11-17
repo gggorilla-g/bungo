@@ -1,0 +1,303 @@
+{
+ "schemaVersion": 1,
+ "template": "lineup",
+ "output": {
+  "width": 1080,
+  "height": 1920,
+  "fps": 30,
+  "durationSeconds": 36
+ },
+ "intro": 1.6,
+ "outro": 4.6,
+ "items": [
+  {
+   "id": "person",
+   "name": {
+    "ja": "人",
+    "en": "Person"
+   },
+   "m": 1.7,
+   "kind": "scene-assumption",
+   "note": "比べるための人（身長の目安）",
+   "shape": {
+    "type": "person",
+    "h": 1.7
+   }
+  },
+  {
+   "id": "tokyotower",
+   "name": {
+    "ja": "東京タワー",
+    "en": "Tokyo Tower"
+   },
+   "m": 333,
+   "kind": "external-fact",
+   "source": {
+    "url": "https://www.gotokyo.org/jp/destinations/southern-tokyo/tokyo-tower-and-around/index.html",
+    "label": "GO TOKYO",
+    "checkedAt": "2026-11-17"
+   },
+   "shape": {
+    "type": "tower",
+    "tiers": [
+     {
+      "h": 125,
+      "w": 90,
+      "w1": 34,
+      "color": "#e8502e"
+     },
+     {
+      "h": 25,
+      "w": 34,
+      "w1": 30,
+      "color": "#f4f1ea"
+     },
+     {
+      "h": 100,
+      "w": 30,
+      "w1": 10,
+      "color": "#e8502e"
+     },
+     {
+      "h": 83,
+      "w": 6,
+      "w1": 1,
+      "color": "#f4f1ea"
+     }
+    ]
+   }
+  },
+  {
+   "id": "skytree",
+   "name": {
+    "ja": "東京スカイツリー",
+    "en": "Tokyo Skytree"
+   },
+   "m": 634,
+   "kind": "external-fact",
+   "source": {
+    "url": "https://www.gotokyo.org/en/spot/6/",
+    "label": "GO TOKYO",
+    "checkedAt": "2026-11-17"
+   },
+   "shape": {
+    "type": "tower",
+    "tiers": [
+     {
+      "h": 350,
+      "w": 68,
+      "w1": 40,
+      "color": "#e9edf2",
+      "round": true
+     },
+     {
+      "h": 100,
+      "w": 40,
+      "w1": 34,
+      "color": "#dfe5ec",
+      "round": true
+     },
+     {
+      "h": 134,
+      "w": 18,
+      "w1": 12,
+      "color": "#e9edf2",
+      "round": true
+     },
+     {
+      "h": 50,
+      "w": 6,
+      "w1": 2,
+      "color": "#cfcfcf",
+      "round": true
+     }
+    ]
+   }
+  },
+  {
+   "id": "burj",
+   "name": {
+    "ja": "ブルジュ・ハリファ（ドバイ）",
+    "en": "Burj Khalifa (Dubai)"
+   },
+   "m": 828,
+   "ft": 2717,
+   "kind": "external-fact",
+   "source": {
+    "url": "https://www.skyscrapercenter.com/building/burj-khalifa/3",
+    "label": "CTBUH",
+    "checkedAt": "2026-11-17"
+   },
+   "shape": {
+    "type": "tower",
+    "tiers": [
+     {
+      "h": 160,
+      "w": 110,
+      "w1": 90,
+      "glass": true,
+      "color": "#a9bccb"
+     },
+     {
+      "h": 160,
+      "w": 90,
+      "w1": 66,
+      "glass": true,
+      "color": "#a9bccb"
+     },
+     {
+      "h": 160,
+      "w": 66,
+      "w1": 42,
+      "glass": true,
+      "color": "#a9bccb"
+     },
+     {
+      "h": 130,
+      "w": 42,
+      "w1": 22,
+      "glass": true,
+      "color": "#a9bccb"
+     },
+     {
+      "h": 218,
+      "w": 14,
+      "w1": 1,
+      "color": "#cfd6dc",
+      "round": true
+     }
+    ]
+   }
+  },
+  {
+   "id": "fuji",
+   "name": {
+    "ja": "富士山",
+    "en": "Mt. Fuji (Japan)"
+   },
+   "m": 3776,
+   "kind": "external-fact",
+   "source": {
+    "url": "https://www.data.jma.go.jp/svd/vois/data/tokyo/STOCK/souran/main/55_Fujisan.pdf",
+    "label": "気象庁 日本活火山総覧",
+    "checkedAt": "2026-11-14"
+   },
+   "note": "幅は縮めて表示",
+   "shape": {
+    "type": "tower",
+    "tiers": [
+     {
+      "h": 2832.0,
+      "w": 3776.0,
+      "w1": 991.2,
+      "color": "#5b6f8a",
+      "round": true
+     },
+     {
+      "h": 944.0,
+      "w": 991.2,
+      "w1": 75.52,
+      "color": "#f4f4f4",
+      "round": true
+     }
+    ]
+   }
+  },
+  {
+   "id": "everest",
+   "name": {
+    "ja": "エベレスト",
+    "en": "Mt. Everest"
+   },
+   "m": 8848.86,
+   "ft": 29032,
+   "kind": "external-fact",
+   "source": {
+    "url": "https://www.aljazeera.com/news/2020/12/8/mt-everest-nepal-china-announce-revised-height-at-8848-metres",
+    "label": "Al Jazeera（ネパール・中国の2020年発表）",
+    "checkedAt": "2026-11-17"
+   },
+   "note": "幅は縮めて表示",
+   "shape": {
+    "type": "tower",
+    "tiers": [
+     {
+      "h": 6194.202,
+      "w": 7963.974000000001,
+      "w1": 2508.6518100000003,
+      "color": "#77706a",
+      "round": true
+     },
+     {
+      "h": 2654.658,
+      "w": 2508.6518100000003,
+      "w1": 159.27948,
+      "color": "#f4f4f4",
+      "round": true
+     }
+    ]
+   }
+  },
+  {
+   "id": "olympus",
+   "name": {
+    "ja": "オリンポス山（火星）",
+    "en": "Olympus Mons (Mars)"
+   },
+   "m": 27000,
+   "approx": true,
+   "kind": "external-fact",
+   "source": {
+    "url": "https://www.jpl.nasa.gov/images/pia00300-olympus-mons/",
+    "label": "NASA JPL",
+    "checkedAt": "2026-11-17"
+   },
+   "note": "測り方で約22〜27km。幅は縮めて表示",
+   "shape": {
+    "type": "tower",
+    "tiers": [
+     {
+      "h": 22140.0,
+      "w": 40500.0,
+      "w1": 8910.0,
+      "color": "#b5603a",
+      "round": true
+     },
+     {
+      "h": 4860.0,
+      "w": 8910.0,
+      "w1": 1215.0,
+      "color": "#b5603a",
+      "round": true
+     }
+    ]
+   }
+  }
+ ],
+ "id": "mountains_ja",
+ "lang": "ja",
+ "title": {
+  "ja": "富士山とエベレストと火星の山",
+  "en": ""
+ },
+ "endLine": {
+  "ja": "火星の山はエベレストの約3倍",
+  "en": ""
+ },
+ "notes": {
+  "ja": "高さは公式などの値。山の幅は縮めて表示",
+  "en": ""
+ },
+ "post": {
+  "title": "富士山とエベレストと火星の山を並べて比べた #shorts",
+  "tags": [
+   "大きさ比べ",
+   "富士山",
+   "エベレスト",
+   "オリンポス山",
+   "火星",
+   "宇宙"
+  ],
+  "desc": "人から東京タワー、スカイツリー、ブルジュ・ハリファ、富士山、エベレスト、そして火星のオリンポス山まで、高さの順に並べて比べました。\n※高さは公式などの値です。オリンポス山の高さは測り方で約22〜27kmと幅があり、ここでは NASA JPL の約27kmを使っています。山の幅は画面に入るように縮めていて、形・色は目安です。人の身長は1.7mとしています。\n\n高さの出典\n・東京タワー 333m：GO TOKYO https://www.gotokyo.org/jp/destinations/southern-tokyo/tokyo-tower-and-around/index.html\n・東京スカイツリー 634m：GO TOKYO https://www.gotokyo.org/en/spot/6/\n・ブルジュ・ハリファ（ドバイ） 828m：CTBUH https://www.skyscrapercenter.com/building/burj-khalifa/3\n・富士山 3,776m：気象庁 日本活火山総覧 https://www.data.jma.go.jp/svd/vois/data/tokyo/STOCK/souran/main/55_Fujisan.pdf\n・エベレスト 8,848.86m：Al Jazeera（ネパール・中国の2020年発表） https://www.aljazeera.com/news/2020/12/8/mt-everest-nepal-china-announce-revised-height-at-8848-metres\n・オリンポス山（火星） 約27,000m：NASA JPL https://www.jpl.nasa.gov/images/pia00300-olympus-mons/\n\nBGM：オリジナル\n\n#大きさ比べ #富士山 #火星"
+ }
+}
