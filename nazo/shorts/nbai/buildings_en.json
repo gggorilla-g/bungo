@@ -1,0 +1,500 @@
+{
+ "schemaVersion": 1,
+ "template": "lineup",
+ "id": "buildings_en",
+ "lang": "en",
+ "output": {
+  "width": 1080,
+  "height": 1920,
+  "fps": 30,
+  "durationSeconds": 44
+ },
+ "intro": 1.6,
+ "outro": 4.6,
+ "title": {
+  "ja": "",
+  "en": "Tallest Buildings Size Comparison"
+ },
+ "endLine": {
+  "ja": "",
+  "en": "No. 1: Burj Khalifa, 2,717 ft"
+ },
+ "notes": {
+  "ja": "",
+  "en": "Heights from official sources. Shapes and colors are approximate."
+ },
+ "items": [
+  {
+   "id": "person",
+   "name": {
+    "ja": "人",
+    "en": "Person"
+   },
+   "m": 1.7,
+   "kind": "scene-assumption",
+   "note": "比べるための人（身長の目安）",
+   "shape": {
+    "type": "person",
+    "h": 1.7
+   }
+  },
+  {
+   "id": "liberty",
+   "name": {
+    "ja": "自由の女神（アメリカ）",
+    "en": "Statue of Liberty"
+   },
+   "m": 93,
+   "ft": 305.1,
+   "kind": "external-fact",
+   "source": {
+    "url": "https://home.nps.gov/stli/learn/historyculture/statue-statistics.htm",
+    "label": "NPS",
+    "checkedAt": "2026-11-17"
+   },
+   "shape": {
+    "type": "tower",
+    "tiers": [
+     {
+      "h": 20,
+      "w": 40,
+      "w1": 34,
+      "color": "#cdbb9a"
+     },
+     {
+      "h": 27,
+      "w": 20,
+      "w1": 17,
+      "color": "#d9cbb0"
+     },
+     {
+      "h": 34,
+      "w": 10,
+      "w1": 6,
+      "color": "#7fb5a2",
+      "round": true
+     },
+     {
+      "h": 12,
+      "w": 3,
+      "w1": 1.5,
+      "color": "#7fb5a2",
+      "round": true
+     }
+    ]
+   }
+  },
+  {
+   "id": "eiffel",
+   "name": {
+    "ja": "エッフェル塔（パリ）",
+    "en": "Eiffel Tower (Paris)"
+   },
+   "m": 330,
+   "ft": 1083,
+   "kind": "external-fact",
+   "source": {
+    "url": "https://www.toureiffel.paris/en/news/history-and-culture/300-330-meters-story-towers-height",
+    "label": "Eiffel Tower official site",
+    "checkedAt": "2026-11-17"
+   },
+   "shape": {
+    "type": "tower",
+    "tiers": [
+     {
+      "h": 57,
+      "w": 125,
+      "w1": 70,
+      "color": "#8a6d55"
+     },
+     {
+      "h": 59,
+      "w": 70,
+      "w1": 38,
+      "color": "#8a6d55"
+     },
+     {
+      "h": 160,
+      "w": 38,
+      "w1": 8,
+      "color": "#8a6d55"
+     },
+     {
+      "h": 54,
+      "w": 6,
+      "w1": 1,
+      "color": "#8a6d55"
+     }
+    ]
+   }
+  },
+  {
+   "id": "esb",
+   "name": {
+    "ja": "エンパイア・ステート・ビル（ニューヨーク）",
+    "en": "Empire State Building (NYC)"
+   },
+   "m": 381,
+   "ft": 1250,
+   "kind": "external-fact",
+   "source": {
+    "url": "https://www.skyscrapercenter.com/building/empire-state-building/261",
+    "label": "CTBUH",
+    "checkedAt": "2026-11-17"
+   },
+   "shape": {
+    "type": "tower",
+    "tiers": [
+     {
+      "h": 25,
+      "w": 120,
+      "glass": true,
+      "color": "#c9bfa8"
+     },
+     {
+      "h": 250,
+      "w": 60,
+      "glass": true,
+      "color": "#c9bfa8"
+     },
+     {
+      "h": 45,
+      "w": 45,
+      "glass": true,
+      "color": "#c9bfa8"
+     },
+     {
+      "h": 30,
+      "w": 30,
+      "w1": 24,
+      "color": "#c9bfa8"
+     },
+     {
+      "h": 31,
+      "w": 14,
+      "w1": 3,
+      "color": "#bdb39c",
+      "round": true
+     }
+    ]
+   }
+  },
+  {
+   "id": "taipei",
+   "name": {
+    "ja": "台北101（台湾）",
+    "en": "Taipei 101 (Taiwan)"
+   },
+   "m": 508,
+   "ft": 1667,
+   "kind": "external-fact",
+   "source": {
+    "url": "https://www.skyscrapercenter.com/building/taipei-101/117",
+    "label": "CTBUH",
+    "checkedAt": "2026-11-17"
+   },
+   "shape": {
+    "type": "tower",
+    "tiers": [
+     {
+      "h": 100,
+      "w": 70,
+      "w1": 60,
+      "glass": true,
+      "color": "#6fa79a"
+     },
+     {
+      "h": 36,
+      "w": 50,
+      "w1": 60,
+      "glass": true,
+      "color": "#6fa79a"
+     },
+     {
+      "h": 36,
+      "w": 50,
+      "w1": 60,
+      "glass": true,
+      "color": "#6fa79a"
+     },
+     {
+      "h": 36,
+      "w": 50,
+      "w1": 60,
+      "glass": true,
+      "color": "#6fa79a"
+     },
+     {
+      "h": 36,
+      "w": 50,
+      "w1": 60,
+      "glass": true,
+      "color": "#6fa79a"
+     },
+     {
+      "h": 36,
+      "w": 50,
+      "w1": 60,
+      "glass": true,
+      "color": "#6fa79a"
+     },
+     {
+      "h": 36,
+      "w": 50,
+      "w1": 60,
+      "glass": true,
+      "color": "#6fa79a"
+     },
+     {
+      "h": 36,
+      "w": 50,
+      "w1": 60,
+      "glass": true,
+      "color": "#6fa79a"
+     },
+     {
+      "h": 36,
+      "w": 50,
+      "w1": 60,
+      "glass": true,
+      "color": "#6fa79a"
+     },
+     {
+      "h": 60,
+      "w": 36,
+      "w1": 20,
+      "color": "#6fa79a"
+     },
+     {
+      "h": 60,
+      "w": 4,
+      "w1": 1,
+      "color": "#cfcfcf",
+      "round": true
+     }
+    ]
+   }
+  },
+  {
+   "id": "owtc",
+   "name": {
+    "ja": "ワン・ワールド・トレード・センター（ニューヨーク）",
+    "en": "One World Trade Center (NYC)"
+   },
+   "m": 541.3,
+   "ft": 1776,
+   "kind": "external-fact",
+   "source": {
+    "url": "https://www.skyscrapercenter.com/building/one-world-trade-center/98",
+    "label": "CTBUH",
+    "checkedAt": "2026-11-17"
+   },
+   "shape": {
+    "type": "tower",
+    "tiers": [
+     {
+      "h": 60,
+      "w": 61,
+      "color": "#b8c4cc"
+     },
+     {
+      "h": 357,
+      "w": 61,
+      "w1": 38,
+      "glass": true,
+      "color": "#7f9db5"
+     },
+     {
+      "h": 124.3,
+      "w": 3,
+      "w1": 1,
+      "color": "#d6d6d6",
+      "round": true
+     }
+    ]
+   }
+  },
+  {
+   "id": "shanghai",
+   "name": {
+    "ja": "上海タワー（中国）",
+    "en": "Shanghai Tower (China)"
+   },
+   "m": 632,
+   "ft": 2073,
+   "kind": "external-fact",
+   "source": {
+    "url": "https://www.skyscrapercenter.com/building/shanghai-tower/56",
+    "label": "CTBUH",
+    "checkedAt": "2026-11-17"
+   },
+   "shape": {
+    "type": "tower",
+    "tiers": [
+     {
+      "h": 580,
+      "w": 83,
+      "w1": 48,
+      "glass": true,
+      "color": "#8fb0c4",
+      "round": true
+     },
+     {
+      "h": 52,
+      "w": 48,
+      "w1": 40,
+      "color": "#b8c4cc",
+      "round": true
+     }
+    ]
+   }
+  },
+  {
+   "id": "skytree",
+   "name": {
+    "ja": "東京スカイツリー",
+    "en": "Tokyo Skytree"
+   },
+   "m": 634,
+   "kind": "external-fact",
+   "source": {
+    "url": "https://www.gotokyo.org/en/spot/6/",
+    "label": "GO TOKYO",
+    "checkedAt": "2026-11-17"
+   },
+   "shape": {
+    "type": "tower",
+    "tiers": [
+     {
+      "h": 350,
+      "w": 68,
+      "w1": 40,
+      "color": "#e9edf2",
+      "round": true
+     },
+     {
+      "h": 100,
+      "w": 40,
+      "w1": 34,
+      "color": "#dfe5ec",
+      "round": true
+     },
+     {
+      "h": 134,
+      "w": 18,
+      "w1": 12,
+      "color": "#e9edf2",
+      "round": true
+     },
+     {
+      "h": 50,
+      "w": 6,
+      "w1": 2,
+      "color": "#cfcfcf",
+      "round": true
+     }
+    ]
+   }
+  },
+  {
+   "id": "merdeka",
+   "name": {
+    "ja": "ムルデカ118（マレーシア）",
+    "en": "Merdeka 118 (Malaysia)"
+   },
+   "m": 678.9,
+   "ft": 2227,
+   "kind": "external-fact",
+   "source": {
+    "url": "https://www.skyscrapercenter.com/building/merdeka-118/10115",
+    "label": "CTBUH",
+    "checkedAt": "2026-11-17"
+   },
+   "shape": {
+    "type": "tower",
+    "tiers": [
+     {
+      "h": 518.9,
+      "w": 70,
+      "w1": 40,
+      "glass": true,
+      "color": "#7f9db5"
+     },
+     {
+      "h": 160,
+      "w": 10,
+      "w1": 1,
+      "color": "#cfcfcf"
+     }
+    ]
+   }
+  },
+  {
+   "id": "burj",
+   "name": {
+    "ja": "ブルジュ・ハリファ（ドバイ）",
+    "en": "Burj Khalifa (Dubai)"
+   },
+   "m": 828,
+   "ft": 2717,
+   "kind": "external-fact",
+   "source": {
+    "url": "https://www.skyscrapercenter.com/building/burj-khalifa/3",
+    "label": "CTBUH",
+    "checkedAt": "2026-11-17"
+   },
+   "shape": {
+    "type": "tower",
+    "tiers": [
+     {
+      "h": 160,
+      "w": 110,
+      "w1": 90,
+      "glass": true,
+      "color": "#a9bccb"
+     },
+     {
+      "h": 160,
+      "w": 90,
+      "w1": 66,
+      "glass": true,
+      "color": "#a9bccb"
+     },
+     {
+      "h": 160,
+      "w": 66,
+      "w1": 42,
+      "glass": true,
+      "color": "#a9bccb"
+     },
+     {
+      "h": 130,
+      "w": 42,
+      "w1": 22,
+      "glass": true,
+      "color": "#a9bccb"
+     },
+     {
+      "h": 218,
+      "w": 14,
+      "w1": 1,
+      "color": "#cfd6dc",
+      "round": true
+     }
+    ]
+   }
+  }
+ ],
+ "post": {
+  "title": "Tallest Buildings Size Comparison (3D) #shorts",
+  "tags": [
+   "size comparison",
+   "skyscraper",
+   "Burj Khalifa",
+   "Empire State Building",
+   "3D",
+   "architecture"
+  ],
+  "desc": "A person, the Statue of Liberty, the Eiffel Tower and the world's tallest skyscrapers, lined up by height.\n*Heights are official values (buildings: CTBUH architectural height). Widths, shapes and colors are simplified and approximate. The person is 1.7 m (5 ft 7 in).\n\nHeight sources\n- Statue of Liberty 93 m (305.1 ft): NPS https://home.nps.gov/stli/learn/historyculture/statue-statistics.htm\n- Eiffel Tower (Paris) 330 m (1,083 ft): Eiffel Tower official site https://www.toureiffel.paris/en/news/history-and-culture/300-330-meters-story-towers-height\n- Empire State Building (NYC) 381 m (1,250 ft): CTBUH https://www.skyscrapercenter.com/building/empire-state-building/261\n- Taipei 101 (Taiwan) 508 m (1,667 ft): CTBUH https://www.skyscrapercenter.com/building/taipei-101/117\n- One World Trade Center (NYC) 541.3 m (1,776 ft): CTBUH https://www.skyscrapercenter.com/building/one-world-trade-center/98\n- Shanghai Tower (China) 632 m (2,073 ft): CTBUH https://www.skyscrapercenter.com/building/shanghai-tower/56\n- Tokyo Skytree 634 m: GO TOKYO https://www.gotokyo.org/en/spot/6/\n- Merdeka 118 (Malaysia) 678.9 m (2,227 ft): CTBUH https://www.skyscrapercenter.com/building/merdeka-118/10115\n- Burj Khalifa (Dubai) 828 m (2,717 ft): CTBUH https://www.skyscrapercenter.com/building/burj-khalifa/3\n\nMusic: original\n\n#sizecomparison #skyscraper #3d"
+ }
+}

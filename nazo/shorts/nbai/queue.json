@@ -35,5 +35,14 @@
   "id": "jump_x10_en",
   "publish_at": "2026-11-20T23:00:00Z",
   "channel": "miw"
+ },
+ {
+  "id": "buildings_en",
+  "publish_at": "2026-11-19T23:00:00Z",
+  "channel": "miw"
+ },
+ {
+  "id": "buildings_ja",
+  "publish_at": "2026-11-20T11:00:00Z"
  }
 ]

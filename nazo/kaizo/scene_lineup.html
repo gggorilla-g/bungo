@@ -53,7 +53,16 @@ function rocket(s){const g=new THREE.Group();let y=0;const R0=s.stages[0].d/2;
 function person(s){const g=new THREE.Group(),h=s.h||1.7,k=h/1.7;const legs=mesh(new THREE.BoxGeometry(.32*k,.8*k,.2*k),S('#3d4450'));legs.position.y=.4*k;g.add(legs);
   const body=mesh(new THREE.BoxGeometry(.44*k,.62*k,.24*k),S('#ff8a3d'));body.position.y=1.11*k;g.add(body);
   const head=mesh(new THREE.SphereGeometry(.13*k,20,14),S('#f1d2b8'));head.position.y=1.57*k;g.add(head);return g}
-IT.forEach(it=>{const o=it.shape.type==='rocket'?rocket(it.shape):person(it.shape);o.position.x=it.x;o.rotation.y=.35;scene.add(o);it.obj=o});
+// 塔・ビル：四角すい台（または円すい台）を積む。glass は階の帯（窓）を描く
+const WT=(()=>{const c=document.createElement('canvas');c.width=64;c.height=64;const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,64,64);x.fillStyle='#b9c3cc';x.fillRect(0,40,64,10);
+  const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;t.wrapS=t.wrapT=THREE.RepeatWrapping;return t})();
+function tower(s){const g=new THREE.Group();let y=0;
+  for(const q of s.tiers){const w1=q.w1!=null?q.w1:q.w,seg=q.round?32:4,k=q.round?.5:Math.SQRT1_2;
+    const geo=new THREE.CylinderGeometry(Math.max(.01,w1*k),q.w*k,q.h,seg,1);let mat;
+    if(q.glass){const t=WT.clone();t.needsUpdate=true;t.repeat.set(seg===4?4:8,Math.max(1,Math.round(q.h/4)));mat=S(q.color||'#8fb3cc',{map:t,metalness:.25,roughness:.35})}else mat=S(q.color||'#cfcfcf');
+    const m=mesh(geo,mat);if(!q.round)m.rotation.y=Math.PI/4;m.position.y=y+q.h/2;g.add(m);y+=q.h}
+  return g}
+IT.forEach(it=>{const o=it.shape.type==='rocket'?rocket(it.shape):it.shape.type==='tower'?tower(it.shape):person(it.shape);o.position.x=it.x;o.rotation.y=.35;scene.add(o);it.obj=o});
 // いまの物の高さを示す横線
 const LINE=mesh(new THREE.BoxGeometry(1,1,1),new THREE.MeshBasicMaterial({color:0xffd43b,transparent:true,opacity:.0,depthWrite:false}),false);scene.add(LINE);
 const cam=new THREE.PerspectiveCamera(FOV,ASP,.05,20000);
@@ -66,10 +75,10 @@ function drawHud(t,f,vh){hud.innerHTML='';
   if(LAND)T(W*.025,H*.07,24*U,C.L(SPEC.title),{sw:6*U,a:'start'});else T(CX,H*.096,30*U,C.L(SPEC.title),{sw:7*U});
   // 物の上のラベル（見せ終わった物だけ。小さすぎる物は出さない）
   const showN=f.out!=null?C.N:f.i+1,boxes=[];   // ラベルが重なったら上へずらす
-  for(let i=0;i<showN;i++){if(LAND&&(f.out==null?i<f.i-3:(i<C.N-6&&i%2)))continue;const it=IT[i],p=new THREE.Vector3(it.x,it.h,0).project(cam),q=new THREE.Vector3(it.x,0,0).project(cam);const ph=(p.y-q.y)/2*H;if(ph<26*U)continue;
+  const TOPLIM=H*(LAND?.1:.125);for(let i=showN-1;i>=0;i--){if(f.out==null?i<f.i-3:(LAND&&i<C.N-6&&i%2))continue;const it=IT[i],p=new THREE.Vector3(it.x,it.h,0).project(cam),q=new THREE.Vector3(it.x,0,0).project(cam);const ph=(p.y-q.y)/2*H;if(ph<26*U)continue;
     const x=(p.x+1)/2*W;let y=(1-p.y)/2*H;if(x<-60||x>W+60)continue;const big=i===f.i&&f.out==null,sz=(big?24:clamp(ph/8,13,19))*U;
     const op=i===f.i||f.out!=null?1:.85;const nm=C.nameText(it).replace(/（.*?）|\(.*?\)/g,'');const vt=C.valueText(it).replace(/ \(.*\)$/,'');
-    const bw=Math.max(tw(nm,sz),tw(vt,sz*1.08))+8,bh=sz*2.5;let yy=y;for(let k=0;k<6;k++){const hit=boxes.find(b=>Math.abs(b.x-x)<(b.w+bw)/2&&Math.abs(b.y-yy)<bh);if(!hit)break;yy=hit.y-bh}boxes.push({x,y:yy,w:bw});y=yy;
+    const bw=Math.max(tw(nm,sz),tw(vt,sz*1.08))+8,bh=sz*2.5;let yy=y,ok=false;for(let k=0;k<6;k++){const hit=boxes.find(b=>Math.abs(b.x-x)<(b.w+bw)/2+2*U&&Math.abs(b.y-yy)<bh);if(!hit){ok=true;break}yy=hit.y-bh}if(!ok||yy-8-sz*2.4<TOPLIM)continue;boxes.push({x,y:yy,w:bw});y=yy;
     if(!(f.out!=null&&ph<70*U))T(x,y-8-sz*1.25,sz,nm,{w:700,sw:sz*.24,op});T(x,y-8,sz*1.08,C.valueText(it).replace(/ \(.*\)$/,''),{sw:sz*.26,fill:'#ffd43b',op})}
   const c=C.captionAt(t),a=f.out!=null?1:clamp((t-(t<C.IN?0:IT[f.i].t0))/.12,0,1);
   const y1=H*(LAND?(c.c2?.80:.84):(c.c2?.754:.775)),s1=Math.min(44*U,W*.87/tw(c.c1,1));T(CX,y1+(1-a)*5,s1,c.c1,{sw:s1*.22,op:(.3+.7*a).toFixed(2)});

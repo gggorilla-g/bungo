@@ -7,6 +7,7 @@ function shapeSize(it){const s=it.shape||{};
   if(s.type==='person')return{h:s.h||1.7,w:.5};
   if(s.type==='rocket'){let h=0,w=0;for(const g of s.stages){h+=g.h;w=Math.max(w,g.d,g.d1||0)}
     if(s.boosters){const b=s.boosters;w=Math.max(w,(s.stages[0].d)+2*b.d)}return{h,w}}
+  if(s.type==='tower'){let h=0,w=0;for(const g of s.tiers){h+=g.h;w=Math.max(w,g.w,g.w1||0)}return{h,w}}
   throw new Error('未知の形: '+s.type+'（'+it.id+'）')}
 function make(spec){
   const lang=spec.lang||'ja',L=o=>typeof o==='string'?o:(o[lang]||o.ja||o.en);
