@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8">
+<style>
+@font-face{font-family:"JS";font-weight:400;src:url(fonts_jp/NotoSansCJKjp-Regular.woff2) format("woff2")}
+@font-face{font-family:"JS";font-weight:700;src:url(fonts_jp/NotoSansCJKjp-Bold.woff2) format("woff2")}
+html,body{margin:0;background:#000}
+#stage{position:relative;width:960px;height:540px;overflow:hidden}
+#stage canvas{position:absolute;left:0;top:0}
+#hud{position:absolute;left:0;top:0;width:960px;height:540px;font-family:"JS"}
+</style></head>
+<body><div id="stage"><svg id="hud" viewBox="0 0 960 540" xmlns="http://www.w3.org/2000/svg"></svg></div>
+<script src="vendor.js"></script>
+<script>
+// 睡眠用の長尺：星が1つ、ゆっくり回る。声に合わせて字幕。章のはじめに星の名前
+const getJ=u=>{const x=new XMLHttpRequest();x.open('GET',u,false);x.send();if(x.status!==200)throw new Error('読めない: '+u);return JSON.parse(x.responseText)};
+const SPEC=getJ(new URLSearchParams(location.search).get('spec')),W=960,H=540,FR=SPEC.fpsRender||12;
+const clamp=(x,a,b)=>Math.min(b,Math.max(a,x)),sstep=(a,b,x)=>{const k=clamp((x-a)/(b-a),0,1);return k*k*(3-2*k)};
+const renderer=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true});renderer.setPixelRatio(2);renderer.setSize(W,H);
+renderer.toneMapping=THREE.ACESFilmicToneMapping;document.getElementById('stage').prepend(renderer.domElement);
+const scene=new THREE.Scene();scene.background=new THREE.Color('#020308');
+const cam=new THREE.PerspectiveCamera(30,W/H,.01,200);
+const key=new THREE.DirectionalLight(0xfff1dd,2.6);key.position.set(5,1.8,2.2);scene.add(key);scene.add(new THREE.AmbientLight(0x223044,.35));
+// 星空
+{const g=new THREE.BufferGeometry(),n=2200,p=new Float32Array(n*3);let s=7;const r=()=>(s=(s*16807)%2147483647)/2147483647;
+ for(let i=0;i<n;i++){const u=r()*2-1,a=r()*Math.PI*2,R=80,q=Math.sqrt(1-u*u);p.set([R*q*Math.cos(a),R*u,R*q*Math.sin(a)],i*3)}
+ g.setAttribute('position',new THREE.BufferAttribute(p,3));scene.add(new THREE.Points(g,new THREE.PointsMaterial({color:0xcfd8ff,size:.12,sizeAttenuation:true})))}
+// 星の表面（手続きで作る模様：帯＋ゆらぎ）
+function noiseTex(pal,o){const c=document.createElement('canvas');c.width=1024;c.height=512;const x=c.getContext('2d'),im=x.createImageData(1024,512);let s=o.seed||3;const r=()=>(s=(s*16807)%2147483647)/2147483647;
+  const G=[];for(let k=0;k<4;k++){const n=8<<k,a=[];for(let i=0;i<n*n/2+n;i++)a.push(r());G.push({n,a})}
+  const vn=(u,v,g)=>{const n=g.n,X=u*n,Y=v*n/2,x0=Math.floor(X),y0=Math.floor(Y),fx=X-x0,fy=Y-y0,f=t=>t*t*(3-2*t),A=(i,j)=>g.a[((j%(n/2+1))*n+((i%n)+n)%n)%g.a.length];
+    const a=A(x0,y0),b=A(x0+1,y0),c2=A(x0,y0+1),d=A(x0+1,y0+1);return (a+(b-a)*f(fx))+((c2+(d-c2)*f(fx))-(a+(b-a)*f(fx)))*f(fy)};
+  for(let j=0;j<512;j++)for(let i=0;i<1024;i++){const u=i/1024,v=j/512;let t=0,w=1,ws=0;G.forEach((g,k)=>{t+=vn(u,v,g)*w;ws+=w;w*=.55});t/=ws;
+    let k=o.bands?.5+.5*Math.sin((v*o.bands+t*o.warp)*Math.PI*2):t;k=clamp(k,0,1);const m=k*(pal.length-1),a=Math.floor(m),f=m-a,A=pal[a],B=pal[Math.min(pal.length-1,a+1)],q=(j*1024+i)*4;
+    for(let z=0;z<3;z++)im.data[q+z]=A[z]+(B[z]-A[z])*f;im.data[q+3]=255}
+  x.putImageData(im,0,0);const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;return t}
+const hex=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16));
+const PL={};for(const k in SPEC.planets){const p=SPEC.planets[k];PL[k]=new THREE.Mesh(new THREE.SphereGeometry(1,96,64),new THREE.MeshStandardMaterial({map:noiseTex(p.palette.map(hex),p),roughness:1,metalness:0}));PL[k].visible=false;scene.add(PL[k])}
+
+// ===== 落下と地表の場面 =====
+const sky=new THREE.Scene(),skyCam=new THREE.PerspectiveCamera(40,W/H,.05,400);
+function gradTex(a,b){const c=document.createElement('canvas');c.width=4;c.height=256;const x=c.getContext('2d'),g=x.createLinearGradient(0,0,0,256);g.addColorStop(0,a);g.addColorStop(1,b);x.fillStyle=g;x.fillRect(0,0,4,256);const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;return t}
+sky.add(new THREE.HemisphereLight(0xffffff,0x444444,1.4));const skun=new THREE.DirectionalLight(0xfff0dd,1.6);skun.position.set(3,5,2);sky.add(skun);
+const SKY={},GROUND={};for(const k in SPEC.planets){const p=SPEC.planets[k];SKY[k]=gradTex(p.sky?p.sky[0]:'#000',p.sky?p.sky[1]:'#000');
+  GROUND[k]=new THREE.Mesh(new THREE.PlaneGeometry(400,400,1,1),new THREE.MeshStandardMaterial({map:noiseTex((p.groundPal||p.palette).map(hex),{seed:(p.seed||1)+5}),roughness:1}));GROUND[k].material.map.wrapS=GROUND[k].material.map.wrapT=THREE.RepeatWrapping;GROUND[k].material.map.repeat.set(6,6);GROUND[k].rotation.x=-Math.PI/2;GROUND[k].visible=false;sky.add(GROUND[k])}
+const fig=new THREE.Group();{const m=c=>new THREE.MeshStandardMaterial({color:c,roughness:.8});const b=new THREE.Mesh(new THREE.BoxGeometry(.44,.62,.24),m('#e8e4dc'));b.position.y=1.11;fig.add(b);
+  const l=new THREE.Mesh(new THREE.BoxGeometry(.32,.8,.2),m('#7c8794'));l.position.y=.4;fig.add(l);const h=new THREE.Mesh(new THREE.SphereGeometry(.13,20,14),m('#e9cdb3'));h.position.y=1.57;fig.add(h);
+  for(const sx of[-1,1]){const a=new THREE.Mesh(new THREE.BoxGeometry(.12,.6,.12),m('#e8e4dc'));a.position.set(sx*.29,1.12,0);fig.add(a)}}sky.add(fig);
+const streaks=[];{let s=5;const r=()=>(s=(s*16807)%2147483647)/2147483647;for(let i=0;i<70;i++){const m=new THREE.Mesh(new THREE.BoxGeometry(.03,1,.03),new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:.35}));m.userData={x:(r()-.5)*14,z:-2-r()*14,y0:r()*30};sky.add(m);streaks.push(m)}}
+const clouds=[];{let s=9;const r=()=>(s=(s*16807)%2147483647)/2147483647;for(let i=0;i<18;i++){const m=new THREE.Mesh(new THREE.SphereGeometry(1,16,12),new THREE.MeshStandardMaterial({color:0xffffff,transparent:true,opacity:.25,roughness:1}));m.scale.set(3+r()*4,.6,2+r()*3);m.userData={x:(r()-.5)*30,z:-6-r()*20,y0:r()*60};sky.add(m);clouds.push(m)}}
+function drawShot(shot,pk,u,ln){const p=SPEC.planets[pk];sky.background=SKY[pk];for(const k in GROUND)GROUND[k].visible=false;
+  if(shot==='fall'){const sp=(ln&&ln.speed)||1;fig.position.set(0,0,0);fig.rotation.set(Math.PI/2.2+Math.sin(u*.4)*.08,u*.05,Math.sin(u*.3)*.1);
+    streaks.forEach(m=>{const y=((m.userData.y0+u*sp*6)%30)-15;m.position.set(m.userData.x,y,m.userData.z);m.scale.y=.6+sp*.8;m.visible=sp>.2;m.material.color.set(p.streak||'#ffffff')});
+    clouds.forEach(m=>{const y=((m.userData.y0+u*sp*2)%60)-30;m.position.set(m.userData.x,y,m.userData.z);m.visible=!!p.clouds;m.material.color.set(p.clouds||'#fff')});
+    skyCam.position.set(0,.6,4.2);skyCam.lookAt(0,0,0);fig.visible=true}
+  else{GROUND[pk].visible=true;fig.position.set(0,0,0);fig.rotation.set(0,.5+u*.01,0);streaks.forEach(m=>m.visible=false);clouds.forEach(m=>m.visible=false);
+    sky.fog=new THREE.Fog(new THREE.Color((p.sky||['#000','#000'])[1]),8,p.fogFar||60);
+    const a=.6+u*.012;skyCam.position.set(Math.sin(a)*4.2,1.3,Math.cos(a)*4.2);skyCam.lookAt(0,.9,0);fig.visible=true}
+  if(shot==='fall')sky.fog=null;renderer.render(sky,skyCam)}
+// 字幕
+const NS='http://www.w3.org/2000/svg',hud=document.getElementById('hud');
+function T(x,y,s,txt,o={}){const e=document.createElementNS(NS,'text');const a={x,y,'font-size':s,'font-weight':o.w||400,'text-anchor':o.a||'middle',fill:o.fill||'#f2f2f2',style:'opacity:'+(o.op??1)+';paint-order:stroke;stroke:#000;stroke-width:'+(o.sw??4)+';stroke-linejoin:round'};for(const k in a)e.setAttribute(k,a[k]);e.textContent=txt;hud.appendChild(e)}
+window.renderAt=function(t30){const t=t30*30/FR;hud.innerHTML='';
+  const ch=SPEC.chapters.find(c=>t>=c.t0&&t<c.t1)||SPEC.chapters[SPEC.chapters.length-1];
+  for(const k in PL)PL[k].visible=k===ch.planet;const m=PL[ch.planet],u=t-ch.t0,L=ch.t1-ch.t0;
+  m.rotation.y=u*.035;m.rotation.z=.12;
+  const fade=sstep(0,2.5,u)*(1-sstep(L-2.5,L,u));renderer.toneMappingExposure=.15+.95*fade;
+  const d=4.9-.6*sstep(0,L,u),a=-.5+u*.006;cam.position.set(Math.sin(a)*d,.35-.2*sstep(0,L,u),Math.cos(a)*d);cam.lookAt(.62,0,0);
+  const cur=[...SPEC.lines].reverse().find(l=>l.t0<=t+.01&&l.t0>=ch.t0)||null,shot=(cur&&cur.shot)||'orbit';
+  const sh0=cur?(SPEC.lines.filter(l=>l.t0>=ch.t0&&l.t0<=cur.t0).reverse().find((l,i,arr)=>{const nx=arr[i+1];return !nx||(nx.shot||'orbit')!==(l.shot||'orbit')})||cur).t0:ch.t0;
+  const sf=Math.min(sstep(sh0-.05,sh0+.9,t)+(sh0<=ch.t0+.01?1:0),1);
+  renderer.toneMappingExposure=(.15+.95*fade)*(.25+.75*sf);
+  if(shot==='orbit')renderer.render(scene,cam);else drawShot(shot,ch.planet,t-sh0,cur);
+  if(cur&&cur.gauge&&shot!=='orbit'){cur.gauge.forEach((g,i)=>T(28,48+i*34,22,g,{w:700,sw:4,fill:'#ffe9a8',a:'start'}))}
+  const tt=SPEC.chapters.indexOf(ch);
+  if(u<9){const op=sstep(.8,2.2,u)*(1-sstep(6.5,8.5,u));T(W*.76,H*.44,58,ch.title,{w:700,op,sw:0});if(ch.sub)T(W*.76,H*.44+40,20,ch.sub,{op:op*.85,sw:0})}
+  const ln=SPEC.lines.find(l=>t>=l.t0-.15&&t<l.t1+.6);if(ln){const op=sstep(ln.t0-.15,ln.t0+.25,t)*(1-sstep(ln.t1+.2,ln.t1+.6,t));const rows=ln.rows||[ln.text];rows.forEach((r,i)=>T(W/2,H-46-(rows.length-1-i)*30,22,r,{op,sw:3.5}))}
+  if(SPEC.note){T(W/2,H-10,9,SPEC.note,{op:.45,sw:0})}
+};
+window.__info={total:SPEC.duration};document.fonts.load('400 20px JS','あ').then(()=>{window.__fig={kind:'none'};window.__ready=true});
+</script></body></html>
