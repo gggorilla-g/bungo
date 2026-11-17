@@ -1,0 +1,123 @@
+{
+ "main": "make_it_work_3d",
+ "label": "Make It Work 3D",
+ "builder": "nazo/kaizo3d.py",
+ "voice": {
+  "engine": "kokoro",
+  "speaker": "af_heart",
+  "speed": 1.08
+ },
+ "voice_name": "Kokoro af_heart",
+ "bgm_file": "assets/enc/bgm_trivia_mood2.mp3",
+ "bgm_vol": 0.14,
+ "gap": 0.22,
+ "tail": 1.2,
+ "title": "Why Airplane Windows Have a Tiny Hole #shorts",
+ "scene_title": [
+  "",
+  ""
+ ],
+ "scene_page": "scene_window.html",
+ "parts": {},
+ "labels": {
+  "inner": "Inner pane",
+  "middle": "Middle pane",
+  "outer": "Outer pane",
+  "cabin": "Cabin",
+  "outside": "Outside",
+  "hole": "Tiny hole"
+ },
+ "desc": "Why does every airplane window have a tiny hole? It has two jobs.\n\nThe facts:\n- Most airliner windows are made of three acrylic panes: an inner scratch pane, a middle pane, and an outer pane.\n- At cruising altitude the outside air pressure is roughly a quarter of sea level, while the cabin is pressurized, so the cabin air pushes outward on the window.\n- A tiny \"breather\" (bleed) hole in the middle pane lets the pressure between the panes match the cabin, so the outer pane carries the load. The middle pane is a fail-safe if the outer pane fails.\n- The hole also lets air move in the gap, which helps keep the window from fogging up or frosting.\nSources: Popular Mechanics / Travel + Leisure explainers on airplane window breather holes; International Standard Atmosphere (about 24% of sea-level pressure at 35,000 ft).\n\nVoice: Kokoro TTS (Apache-2.0)\nMusic and sound: original\n3D animation: original (three.js)",
+ "tags": [
+  "airplane",
+  "airplane window",
+  "science",
+  "engineering",
+  "how it works",
+  "3D animation",
+  "shorts"
+ ],
+ "lines": [
+  {
+   "id": "w0",
+   "fx": "hook",
+   "say": "Every airplane window has a tiny hole. Why?",
+   "cap": [
+    "Every airplane window",
+    "has a tiny hole. Why?"
+   ]
+  },
+  {
+   "id": "w1",
+   "fx": "explode",
+   "say": "Because a window is not one pane. It's three.",
+   "cap": [
+    "It's not one pane.",
+    "It's three."
+   ]
+  },
+  {
+   "id": "w2",
+   "fx": "inner",
+   "say": "The inner one just stops scratches.",
+   "cap": [
+    "The inner one",
+    "stops scratches"
+   ]
+  },
+  {
+   "id": "w3",
+   "fx": "pressure",
+   "say": "Up high, the outside air is thin, so the cabin air pushes outward. Hard.",
+   "cap": [
+    "Cabin air pushes",
+    "outward. Hard."
+   ]
+  },
+  {
+   "id": "w4",
+   "fx": "hole",
+   "say": "The tiny hole is in the middle pane.",
+   "cap": [
+    "The hole is in",
+    "the middle pane"
+   ]
+  },
+  {
+   "id": "w5",
+   "fx": "flow",
+   "say": "It lets air through, so the outer pane takes all the push.",
+   "cap": [
+    "The outer pane",
+    "takes all the push"
+   ]
+  },
+  {
+   "id": "w6",
+   "fx": "backup",
+   "say": "If the outer pane ever fails, the middle one is the backup.",
+   "cap": [
+    "If it fails,",
+    "the middle one is the backup"
+   ]
+  },
+  {
+   "id": "w7",
+   "fx": "fog",
+   "say": "The hole also keeps the window from fogging up.",
+   "cap": [
+    "It also stops",
+    "the window fogging up"
+   ]
+  },
+  {
+   "id": "w8",
+   "fx": "end",
+   "say": "One tiny hole. Two big jobs.",
+   "cap": [
+    "One tiny hole.",
+    "Two big jobs."
+   ]
+  }
+ ]
+}

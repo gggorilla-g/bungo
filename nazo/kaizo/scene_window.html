@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8">
+<style>
+@font-face{font-family:"JumpSans";font-weight:400;src:url(fonts_jp/NotoSansCJKjp-Regular.woff2) format("woff2")}
+@font-face{font-family:"JumpSans";font-weight:700;src:url(fonts_jp/NotoSansCJKjp-Bold.woff2) format("woff2")}
+@font-face{font-family:"JumpSans";font-weight:900;src:url(fonts_jp/NotoSansCJKjp-Black.woff2) format("woff2")}
+html,body{margin:0;background:#000}
+#stage{position:relative;width:540px;height:960px;overflow:hidden}
+#stage canvas{position:absolute;left:0;top:0}
+#hud{position:absolute;left:0;top:0;width:540px;height:960px;font-family:"JumpSans"}
+#hud text{paint-order:stroke;stroke:#101010;stroke-linejoin:round;fill:#fff}
+</style></head>
+<body><div id="stage"><svg id="hud" viewBox="0 0 540 960" xmlns="http://www.w3.org/2000/svg"></svg></div>
+<script src="vendor.js"></script>
+<script>
+// 仕組みショート「飛行機の窓の小さな穴」（The Why Side 型）。窓は3枚：内側（傷よけ）・真ん中（穴あり・予備）・外側（気圧を受ける）
+// 行の fx：hook / explode / inner / pressure / hole / flow / backup / fog / end
+const getJ=u=>{const x=new XMLHttpRequest();x.open('GET',u,false);x.send();if(x.status!==200)throw new Error('読めない: '+u);return JSON.parse(x.responseText)};
+const ID=(new URLSearchParams(location.search).get('spec')||'why_window_en').replace(/^.*\//,'').replace(/\.json$/,'');
+const SPEC=getJ('specs/'+ID+'.json'),TL=getJ('specs/'+ID+'_timeline.json');
+const W=540,H=960,DUR=TL.total,FOV=32;
+const clamp=(x,a,b)=>Math.min(b,Math.max(a,x)),lerp=(a,b,k)=>a+(b-a)*k,sstep=(a,b,x)=>{const k=clamp((x-a)/(b-a),0,1);return k*k*(3-2*k)};
+function rng(seed){let s=seed>>>0;return()=>{s=(Math.imul(s,1664525)+1013904223)>>>0;return s/4294967296}}
+const LINES=SPEC.lines.map((l,i)=>Object.assign({},l,TL.beats[i]));
+const fxL=fx=>LINES.find(l=>l.fx===fx);
+const T0=fx=>{const l=fxL(fx);return l?l.t0:1e9};
+const LAB=SPEC.labels||{};
+
+const renderer=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true});
+renderer.setPixelRatio(window.devicePixelRatio||1);renderer.setSize(W,H);
+renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.05;
+document.getElementById('stage').prepend(renderer.domElement);
+const S=(c,o)=>new THREE.MeshStandardMaterial(Object.assign({color:c,roughness:.5,metalness:.05},o||{}));
+const mesh=(g,m)=>new THREE.Mesh(g,m);
+
+const scene=new THREE.Scene();
+{const c=document.createElement('canvas');c.width=4;c.height=512;const x=c.getContext('2d'),g=x.createLinearGradient(0,0,0,512);
+ g.addColorStop(0,'#2f6fc4');g.addColorStop(.6,'#8cc4ef');g.addColorStop(1,'#e9f3fb');x.fillStyle=g;x.fillRect(0,0,4,512);
+ const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;scene.background=t}
+scene.add(new THREE.HemisphereLight(0xf2f7ff,0x8a8f99,1.4));
+const sun=new THREE.DirectionalLight(0xffffff,2.2);sun.position.set(3,5,6);scene.add(sun);
+const back=new THREE.DirectionalLight(0xdfeeff,1.2);back.position.set(-3,2,-5);scene.add(back);
+
+// 雲（外側、遠く）
+const CLOUD=[];{const r=rng(5);for(let i=0;i<14;i++){const c=mesh(new THREE.IcosahedronGeometry(1,1),new THREE.MeshLambertMaterial({color:0xffffff,flatShading:true}));
+  c.scale.set(2+r()*2.5,.6+r()*.4,1.2+r());c.position.set(-14+r()*28,-3.5+r()*2.5,-14-r()*16);scene.add(c);CLOUD.push({c,x:c.position.x,v:.4+r()*.5})}}
+
+// 角の丸い窓の形
+function rrect(w,h,r,hole){const s=new THREE.Shape(),x=-w/2,y=-h/2;s.moveTo(x+r,y);s.lineTo(x+w-r,y);s.quadraticCurveTo(x+w,y,x+w,y+r);s.lineTo(x+w,y+h-r);s.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+  s.lineTo(x+r,y+h);s.quadraticCurveTo(x,y+h,x,y+h-r);s.lineTo(x,y+r);s.quadraticCurveTo(x,y,x+r,y);
+  if(hole){const p=new THREE.Path();p.absarc(hole[0],hole[1],hole[2],0,Math.PI*2,true);s.holes.push(p)}return s}
+const PW=1.0,PH=1.45,PR=.42,HOLE=[0,-.5,.035];
+const pane=(depth,col,op,hole)=>{const g=new THREE.ExtrudeGeometry(rrect(PW,PH,PR,hole),{depth,bevelEnabled:true,bevelThickness:.012,bevelSize:.012,bevelSegments:2,curveSegments:24});g.translate(0,0,-depth/2);
+  const m=new THREE.MeshPhysicalMaterial({color:col,roughness:.06,metalness:0,transparent:true,opacity:op,depthWrite:false,side:THREE.DoubleSide,clearcoat:1});
+  const o=mesh(g,m);o.renderOrder=3;
+  const e=new THREE.LineSegments(new THREE.EdgesGeometry(g,30),new THREE.LineBasicMaterial({color:0x2a5f86,transparent:true,opacity:.9}));o.add(e);return o};
+const INNER=pane(.03,0xdff1ff,.30),MID=pane(.05,0xcde9fb,.36,HOLE),OUT=pane(.09,0xbfe2f8,.40);
+const PANES=new THREE.Group();scene.add(PANES);PANES.add(INNER,MID,OUT);
+// 穴のまわりの赤い輪（強調）
+const HRING=mesh(new THREE.TorusGeometry(.085,.012,8,40),new THREE.MeshBasicMaterial({color:0xff3b2f,transparent:true,opacity:0,depthTest:false}));HRING.renderOrder=9;MID.add(HRING);HRING.position.set(HOLE[0],HOLE[1],.04);
+// 機体の壁（窓の枠）：内装の白いパネル
+const WALL=new THREE.Group();scene.add(WALL);
+{const s=new THREE.Shape();s.moveTo(-3,-4);s.lineTo(3,-4);s.lineTo(3,4);s.lineTo(-3,4);s.lineTo(-3,-4);s.holes.push(rrect(PW+.16,PH+.16,PR+.08));
+ const g=new THREE.ExtrudeGeometry(s,{depth:.5,bevelEnabled:false,curveSegments:24});g.translate(0,0,-.25);const w=mesh(g,S(0xeceae4,{roughness:.8}));WALL.add(w);
+ const sh=new THREE.Shape();sh.moveTo(-.75,1.05);sh.lineTo(.75,1.05);sh.lineTo(.75,1.7);sh.lineTo(-.75,1.7);   // 日よけ（上に上げてある）
+ const b=mesh(new THREE.ExtrudeGeometry(sh,{depth:.03,bevelEnabled:false}),S(0xd8d4cc));b.position.z=.27;WALL.add(b);
+ const rim=mesh(new THREE.TorusGeometry(1,.035,10,64),S(0xc9c5bd));rim.scale.set((PW+.16)/2,(PH+.16)/2,1);rim.position.z=.26;WALL.add(rim)}
+// 気圧の矢印（客室→外）
+const ARROWS=[];const arrM=new THREE.MeshBasicMaterial({color:0xe8432f,transparent:true,opacity:0,depthWrite:false});
+function arrow(){const a=new THREE.Group();const sh=mesh(new THREE.CylinderGeometry(.025,.025,.34,8),arrM);sh.rotation.x=Math.PI/2;sh.position.z=.17;a.add(sh);
+  const hd=mesh(new THREE.ConeGeometry(.06,.13,12),arrM);hd.rotation.x=-Math.PI/2;hd.position.z=-.03;a.add(hd);a.renderOrder=6;return a}
+for(const [x,y] of [[-.28,.42],[.28,.42],[-.28,0],[.28,0],[0,.22],[0,-.22],[-.28,-.42],[.28,-.42]]){const a=arrow();a.userData={x,y};scene.add(a);ARROWS.push(a)}
+// 穴を通る空気の粒
+const DOTS=[];{const r=rng(8);for(let i=0;i<26;i++){const d=mesh(new THREE.SphereGeometry(.018,8,6),new THREE.MeshBasicMaterial({color:0x2f9de0,transparent:true,opacity:0}));scene.add(d);DOTS.push({d,ph:r(),a:r()*6.28,s:.4+r()*.6})}}
+// ひび（外側の窓）
+const CRACK=new THREE.Group();OUT.add(CRACK);
+{const r=rng(13),pts=[];const seg=(x,y,a,n)=>{for(let i=0;i<n;i++){const nx=x+Math.cos(a)*.08,ny=y+Math.sin(a)*.08;pts.push(x,y,0,nx,ny,0);x=nx;y=ny;a+=r()-.5;if(r()<.25)seg(x,y,a+(r()-.5)*1.6,Math.max(1,n-i-2))}};
+ for(let k=0;k<6;k++)seg(.1,.2,k*1.05+r()*.4,6);const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pts,3));
+ const l=new THREE.LineSegments(g,new THREE.LineBasicMaterial({color:0xffffff,transparent:true,opacity:0}));l.position.z=.06;l.renderOrder=8;CRACK.add(l)}
+// くもり（真ん中と外側のあいだ）
+const FOG=mesh(new THREE.PlaneGeometry(PW*.96,PH*.96),new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0,depthWrite:false}));FOG.renderOrder=4;scene.add(FOG);
+{const c=document.createElement('canvas');c.width=256;c.height=372;const x=c.getContext('2d'),r=rng(3);x.fillStyle='rgba(255,255,255,.55)';x.fillRect(0,0,256,372);
+ for(let i=0;i<900;i++){x.fillStyle='rgba(255,255,255,'+(.2+r()*.6)+')';x.beginPath();x.arc(r()*256,r()*372,1+r()*3,0,6.3);x.fill()}
+ const t=new THREE.CanvasTexture(c);FOG.material.map=t;FOG.material.alphaMap=t;FOG.material.needsUpdate=true}
+
+const cam=new THREE.PerspectiveCamera(FOV,W/H,.05,200);
+// 行ごとのカメラ（位置、見る点）
+const SHOT={
+  hook:   [[.25,-.2,4.3],[0,-.25,0]],
+  explode:[[6.2,1.0,3.4],[0,-.15,0]],
+  inner:  [[5.2,.9,3.8],[0,-.15,.4]],
+  pressure:[[4.2,.5,.6],[0,-.1,0]],
+  hole:   [[.7,-.3,1.5],[0,-.5,0]],
+  flow:   [[4.2,.5,.6],[0,-.1,0]],
+  backup: [[4.4,.8,2.6],[0,-.15,-.2]],
+  fog:    [[1.4,.3,3.6],[0,-.1,-.4]],
+  end:    [[.25,-.2,4.3],[0,-.25,0]]};
+const lineAt=t=>LINES.find(x=>t>=x.t0-.02&&t<x.t1+.12)||LINES.filter(x=>x.t0<=t).pop()||LINES[0];
+function camAt(t){
+  let i=LINES.indexOf(lineAt(t));const cur=SHOT[LINES[i].fx]||SHOT.hook;
+  const prev=i>0?(SHOT[LINES[i-1].fx]||SHOT.hook):cur,k=sstep(LINES[i].t0-.15,LINES[i].t0+.55,t);
+  const p=new THREE.Vector3().fromArray(prev[0]).lerp(new THREE.Vector3().fromArray(cur[0]),k);
+  const q=new THREE.Vector3().fromArray(prev[1]).lerp(new THREE.Vector3().fromArray(cur[1]),k);
+  const dr=.05*Math.sin(t*.6);p.x+=dr;p.y+=.03*Math.sin(t*.45);   // ゆっくり漂う
+  return [p,q]}
+
+// ===== HUD =====
+const NS='http://www.w3.org/2000/svg',hud=document.getElementById('hud');
+function el(tag,a,txt){const e=document.createElementNS(NS,tag);for(const k in a)e.setAttribute(k,a[k]);if(txt!=null)e.textContent=txt;hud.appendChild(e);return e}
+const tw=(s,size)=>{let w=0;for(const ch of String(s))w+=ch.charCodeAt(0)<256?.58:1;return w*size};
+function T(x,y,size,txt,o={}){const a={x,y,'font-size':size,'font-weight':o.w||900,'text-anchor':o.a||'start','stroke-width':o.sw!=null?o.sw:Math.max(3,size*.2)};let st='';if(o.fill)st+='fill:'+o.fill+';';if(o.op!=null)st+='opacity:'+o.op+';';if(st)a.style=st;return el('text',a,txt)}
+const proj=v=>{const p=v.clone().project(cam);return[(p.x+1)/2*W,(1-p.y)/2*H,p.z]};
+function tag(v,txt,op,col){if(op<=.02||!txt)return;const[x,y,z]=proj(v);if(z>1)return;const size=Math.min(24,300/tw(txt,1));
+  const w=tw(txt,size)+18;el('rect',{x:x-w/2,y:y-size-4,width:w,height:size+12,rx:7,fill:col||'#1d1d1d',style:'opacity:'+(op*.88).toFixed(2)});
+  T(x,y+2,size,txt,{a:'middle',sw:0,op:op.toFixed(2)})}
+function drawHud(t){hud.innerHTML='';
+  const l=lineAt(t),a=clamp((t-l.t0)/.12,0,1);
+  let y=l.cap.length>1?700:722;l.cap.forEach((s,i)=>{const size=Math.min(46,480/tw(s,1));T(270,y+(1-a)*6,size,s,{a:'middle',sw:9,op:(.3+.7*a).toFixed(2),fill:i===l.cap.length-1&&l.kind!=='plain'?'#ffd43b':'#fff'});y+=size+12});
+  // 部品の名札（ばらした場面だけ）
+  const ex=PANES.userData.ex||0;
+  tag(INNER.getWorldPosition(new THREE.Vector3()).add(new THREE.Vector3(0,.82,0)),LAB.inner,ex*(1-SH.hole),'#3a6fb0');
+  tag(MID.getWorldPosition(new THREE.Vector3()).add(new THREE.Vector3(0,.82,0)),LAB.middle,ex*(1-SH.hole),'#3a6fb0');
+  tag(OUT.getWorldPosition(new THREE.Vector3()).add(new THREE.Vector3(0,.82,0)),LAB.outer,ex*(1-SH.hole),'#3a6fb0');
+  tag(new THREE.Vector3(0,-1.25,1.6),LAB.cabin,SH.side,'#b8452f');tag(new THREE.Vector3(0,-1.25,-1.7),LAB.outside,SH.side,'#2d6fb0');
+  tag(new THREE.Vector3(0,-.5,0).add(MID.position).add(new THREE.Vector3(.0,.2,0)),LAB.hole,SH.hole*.95,'#e0412f')}
+const SH={hole:0,side:0};
+
+// ===== 1コマ =====
+window.renderAt=function(t){
+  const tE=T0('explode'),tP=T0('pressure'),tF=T0('flow'),tB=T0('backup'),tG=T0('fog'),tEnd=T0('end'),tH=T0('hole'),tI=T0('inner');
+  // ばらす（explode〜fog）→ 最後に戻る
+  const ex=sstep(tE,tE+.9,t)*(1-sstep(tEnd,tEnd+.8,t));PANES.userData.ex=ex;
+  INNER.position.z=lerp(.24,1.0,ex);MID.position.z=0;OUT.position.z=lerp(-.2,-1.0,ex);
+  WALL.visible=true;WALL.position.z=0;const wallFade=ex;WALL.children.forEach(c=>{if(c.material){c.material.transparent=true;c.material.opacity=1-.92*wallFade;c.material.depthWrite=wallFade<.5}});
+  // 内側の窓を強調（inner の行）
+  const iOn=t>=tI&&t<tP?sstep(tI,tI+.3,t):0;INNER.material.emissive=new THREE.Color(0x3a7fd0);INNER.material.emissiveIntensity=iOn*.6*(.7+.3*Math.sin(t*6));
+  const hk=t<tE?sstep(.3,.7,t)*(1-sstep(tE-.2,tE+.2,t)):(t>=tEnd?sstep(tEnd+.6,tEnd+1,t):0);SH.hole=Math.max(hk,t>=tH&&t<tF+.4?sstep(tH,tH+.3,t)*(1-sstep(tF,tF+.4,t)):0);HRING.material.opacity=SH.hole*(.75+.25*Math.sin(t*9));HRING.scale.setScalar(1+.5*(t<tE||t>=tEnd?1:0));
+  // 気圧：pressure から。flow までは真ん中を押す、flow 以後は外側を押す、backup（ひび）で真ん中に戻る
+  const pOn=sstep(tP,tP+.4,t)*(1-sstep(tG,tG+.4,t));
+  const toOuter=sstep(tF+.3,tF+1.3,t)*(1-sstep(tB+.6,tB+1.2,t));
+  const crack=sstep(tB+.2,tB+.6,t)*(1-sstep(tEnd,tEnd+.5,t));
+  ARROWS.forEach((a,i)=>{const{x,y}=a.userData;const zt=lerp(MID.position.z+.06,OUT.position.z+.07,toOuter);const push=.12*Math.sin(t*5+i);
+    a.position.set(x,y-.12,zt+.36+push);a.children.forEach(c=>c.material.opacity=pOn*.95*(1-SH.hole));a.visible=pOn*(1-SH.hole)>.01});
+  // 押されている窓が少しふくらむ（外向き）
+  const bulgeM=pOn*(1-toOuter)*.18,bulgeO=pOn*toOuter*.18;MID.scale.set(1,1,1+bulgeM*3);OUT.scale.set(1,1,1+bulgeO*3);
+  // 穴の強調
+  SH.side=(t>=tP&&t<tH?sstep(tP,tP+.4,t)*(1-sstep(tH-.2,tH+.1,t)):0)+(t>=tF&&t<tG?sstep(tF,tF+.4,t)*(1-sstep(tG-.2,tG+.1,t)):0);
+  // 穴を通る空気の粒（flow〜backup）
+  const fOn=t>=tF&&t<tG?sstep(tF,tF+.3,t)*(1-sstep(tB,tB+.4,t)):0;
+  DOTS.forEach(o=>{const ph=((t*o.s*.8+o.ph)%1);const zA=MID.position.z+.5,zB=OUT.position.z+.08;const z=lerp(zA,zB,ph);
+    const r=ph<.5?(.25*(1-ph*2)):(.04+.6*(ph-.5));const funnel=Math.abs(z-MID.position.z)<.06?0:1;
+    o.d.position.set(HOLE[0]+Math.cos(o.a)*r*funnel,HOLE[1]+Math.sin(o.a)*r*.8*funnel,z);o.d.material.opacity=fOn*.95*Math.sin(Math.PI*ph);o.d.visible=o.d.material.opacity>.01});
+  // ひび
+  CRACK.children[0].material.opacity=crack;OUT.material.opacity=lerp(.40,.55,crack);
+  // くもり：fog の行の頭でつく→消える
+  const fg=t>=tG?sstep(tG,tG+.5,t)*(1-sstep(tG+2.2,tG+3.0,t)):0;FOG.material.opacity=fg*.95;FOG.visible=fg>.01;FOG.position.set(0,0,lerp(MID.position.z,OUT.position.z,.5));
+  // 雲が流れる
+  CLOUD.forEach(o=>{let x=o.x-t*o.v;x=((x+16)%32+32)%32-16;o.c.position.x=x});
+  const[p,q]=camAt(t);cam.position.copy(p);cam.lookAt(q);cam.updateProjectionMatrix();
+  renderer.render(scene,cam);drawHud(t);return{t}};
+window.__info={total:DUR};
+Promise.all([400,700,900].map(w=>document.fonts.load(w+' 20px JumpSans','あ0'))).then(()=>{window.__fig={kind:'none'};window.__ready=true},e=>console.log('load error: '+e.message));
+</script></body></html>

@@ -1,0 +1,19 @@
+【タイトル】
+Why Airplane Windows Have a Tiny Hole #shorts
+
+【説明】
+Why does every airplane window have a tiny hole? It has two jobs.
+
+The facts:
+- Most airliner windows are made of three acrylic panes: an inner scratch pane, a middle pane, and an outer pane.
+- At cruising altitude the outside air pressure is roughly a quarter of sea level, while the cabin is pressurized, so the cabin air pushes outward on the window.
+- A tiny "breather" (bleed) hole in the middle pane lets the pressure between the panes match the cabin, so the outer pane carries the load. The middle pane is a fail-safe if the outer pane fails.
+- The hole also lets air move in the gap, which helps keep the window from fogging up or frosting.
+Sources: Popular Mechanics / Travel + Leisure explainers on airplane window breather holes; International Standard Atmosphere (about 24% of sea-level pressure at 35,000 ft).
+
+Voice: Kokoro TTS (Apache-2.0)
+Music and sound: original
+3D animation: original (three.js)
+
+【タグ】
+airplane,airplane window,science,engineering,how it works,3D animation,shorts

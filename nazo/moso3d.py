@@ -97,7 +97,7 @@ def check(sid):
             issues.append(f"助詞の「は」がワと読まれていない: {yomi.kana(yt)}｜{say}")
     # 秒読みの言い方（11/1・11/15 ゲンタさん）：「〇〇から〇〇が消えるまで」。「雲を消すまで」のような「〇〇を〜まで」は止める
     for ln in sp.get("lines", []):
-        for txt in [ln.get("say", ""), ln.get("text", "")] + [x.get("say", "") for x in ln.get("parts", [])] + [f.get("label", "") for f in ln.get("fx", [])]:
+        for txt in [ln.get("say", ""), ln.get("text", "")] + [x.get("say", "") for x in ln.get("parts", [])] + [f.get("label", "") for f in (ln.get("fx") if isinstance(ln.get("fx"), list) else [])]:
             if re.search(r"を\s*(消す|なくす|止める|とめる|溶かす|干上がらせる)まで", txt.replace("\n", "")):
                 issues.append(f"秒読みの言い方：「〇〇から〇〇が消えるまで」にする（「〇〇を〜まで」は使わない）: {txt.replace(chr(10), '')}")
     prev = (sys.argv[3] if len(sys.argv) > 3 else None) or sp.get("meta", {}).get("prev")

@@ -1,0 +1,98 @@
+{
+ "title": [
+  "",
+  ""
+ ],
+ "parts": {},
+ "labels": {
+  "inner": "Inner pane",
+  "middle": "Middle pane",
+  "outer": "Outer pane",
+  "cabin": "Cabin",
+  "outside": "Outside",
+  "hole": "Tiny hole"
+ },
+ "lines": [
+  {
+   "id": "w0",
+   "cap": [
+    "Every airplane window",
+    "has a tiny hole. Why?"
+   ],
+   "fx": "hook",
+   "text": "Every airplane window has a tiny hole. Why?"
+  },
+  {
+   "id": "w1",
+   "cap": [
+    "It's not one pane.",
+    "It's three."
+   ],
+   "fx": "explode",
+   "text": "Because a window is not one pane. It's three."
+  },
+  {
+   "id": "w2",
+   "cap": [
+    "The inner one",
+    "stops scratches"
+   ],
+   "fx": "inner",
+   "text": "The inner one just stops scratches."
+  },
+  {
+   "id": "w3",
+   "cap": [
+    "Cabin air pushes",
+    "outward. Hard."
+   ],
+   "fx": "pressure",
+   "text": "Up high, the outside air is thin, so the cabin air pushes outward. Hard."
+  },
+  {
+   "id": "w4",
+   "cap": [
+    "The hole is in",
+    "the middle pane"
+   ],
+   "fx": "hole",
+   "text": "The tiny hole is in the middle pane."
+  },
+  {
+   "id": "w5",
+   "cap": [
+    "The outer pane",
+    "takes all the push"
+   ],
+   "fx": "flow",
+   "text": "It lets air through, so the outer pane takes all the push."
+  },
+  {
+   "id": "w6",
+   "cap": [
+    "If it fails,",
+    "the middle one is the backup"
+   ],
+   "fx": "backup",
+   "text": "If the outer pane ever fails, the middle one is the backup."
+  },
+  {
+   "id": "w7",
+   "cap": [
+    "It also stops",
+    "the window fogging up"
+   ],
+   "fx": "fog",
+   "text": "The hole also keeps the window from fogging up."
+  },
+  {
+   "id": "w8",
+   "cap": [
+    "One tiny hole.",
+    "Two big jobs."
+   ],
+   "fx": "end",
+   "text": "One tiny hole. Two big jobs."
+  }
+ ]
+}
