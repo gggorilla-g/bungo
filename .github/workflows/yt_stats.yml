@@ -1,8 +1,7 @@
 name: 数字の記録（読み取りだけ）
+# 今の鍵は投稿専用で読めない（403 insufficient scopes）。読み取り用の鍵ができるまで手動実行のみ。
 # 妄想科学と Make It Work 3D の動画の数字を集めて state/ に残す。投稿・編集はしない
 on:
-  schedule:
-    - cron: "10 */6 * * *"
   workflow_dispatch:
 permissions:
   contents: write
