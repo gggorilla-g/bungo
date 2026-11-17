@@ -38,6 +38,9 @@
 - 11/16 10:00 JST（予約） l7V57ooa3e4 Rocket Size Comparison (3D) #shorts（lineup、rockets_en、0:44、手動）
 - 11/15 方針：長尺とショートの二刀流。大きさ比べ（lineup）を日英共通の柱にする。長尺は横長（1920x1080）で同じデータから
 
+## ホー博士の世界の謎10分解説（日本語の長尺。サムネ可）
+- 11/17 23:2x JST 公開（予約 11/18 19:00 から前倒し） dJhA4qdigeU 太陽系の星とベテルギウスを大きさ順に並べてみた【3D大きさ比べ】（planets_long_ja、3:06、サムネ thumb_puzzle 5重ぶち）
+
 ## 妄想科学 ずんだもんの妄想科学（UCaKNAE4ONm5n2u3SgDjQ3Sw）
 
 長尺第2回 zFmJmBpUmIA（11/3 19:00予約、太陽系回の説明欄の先頭に続編リンクを追加済み（11/3）。確認なしチャンネルは説明欄のリンクがクリックできない＝Studio表示「外部リンクをクリック可能にするには、まず1回限りの確認を完了」。サムネは電話番号の確認待ち＝API 403。用意済み nazo/manual/moso_science/moso_long_jidai_thumb.png）。
