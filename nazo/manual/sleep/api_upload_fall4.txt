@@ -1,0 +1,16 @@
+{
+ "thumb": "nazo/manual/sleep/fall4_thumb.jpg",
+ "thumb_error": "",
+ "id": "5An_UgUROUs",
+ "url": "https://youtube.com/shorts/5An_UgUROUs",
+ "requested_publishAt": "",
+ "returned_status": {
+  "uploadStatus": "uploaded",
+  "privacyStatus": "public",
+  "license": "youtube",
+  "embeddable": true,
+  "publicStatsViewable": true,
+  "selfDeclaredMadeForKids": false,
+  "containsSyntheticMedia": false
+ }
+}
