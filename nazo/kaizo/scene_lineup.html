@@ -64,7 +64,12 @@ function tower(s){const g=new THREE.Group();let y=0;
     if(q.span){const a=mesh(new THREE.BoxGeometry(q.span,q.spanH||q.w*.25,q.w*.35),S(q.color||'#cfcfcf'));a.position.y=y+q.h-(q.spanH||q.w*.25)/2-(q.spanDrop||0);g.add(a)}
     y+=q.h}
   return g}
-IT.forEach(it=>{const o=it.shape.type==='rocket'?rocket(it.shape):it.shape.type==='tower'?tower(it.shape):person(it.shape);o.position.x=it.x;o.rotation.y=.35;scene.add(o);it.obj=o});
+function sphere(s){const g=new THREE.Group();const m=mesh(new THREE.SphereGeometry(s.d/2,64,40),S(s.color||'#888',{roughness:.8,metalness:0}));m.position.y=s.d/2;g.add(m);
+  if(s.ring){const r=mesh(new THREE.RingGeometry(s.d*.62,s.d*1.15,96),S(s.ringColor||'#d8c9a0',{side:THREE.DoubleSide,roughness:.9}),false);r.rotation.x=-Math.PI/2+.28;r.position.y=s.d/2;g.add(r)}
+  if(s.bands){const c=document.createElement('canvas');c.width=8;c.height=256;const x=c.getContext('2d');s.bands.forEach((b,i)=>{x.fillStyle=b;x.fillRect(0,i*256/s.bands.length,8,256/s.bands.length+1)});const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;m.material.map=t;m.material.color.set('#ffffff')}
+  return g}
+if(SPEC.space){scene.background=new THREE.Color('#05070d');ground.visible=false;sun.castShadow=false}
+IT.forEach(it=>{const o=it.shape.type==='rocket'?rocket(it.shape):it.shape.type==='sphere'?sphere(it.shape):it.shape.type==='tower'?tower(it.shape):person(it.shape);o.position.x=it.x;o.rotation.y=.35;scene.add(o);it.obj=o});
 // いまの物の高さを示す横線
 const LINE=mesh(new THREE.BoxGeometry(1,1,1),new THREE.MeshBasicMaterial({color:0xffd43b,transparent:true,opacity:.0,depthWrite:false}),false);scene.add(LINE);
 const cam=new THREE.PerspectiveCamera(FOV,ASP,.05,20000);
@@ -87,7 +92,7 @@ function drawHud(t,f,vh){hud.innerHTML='';
   if(c.c2){const s2=Math.min(64*U,W*.87/tw(c.c2,1));T(CX,y1+s2+8+(1-a)*5,s2,c.c2,{sw:s2*.2,fill:'#ffd43b',op:(.3+.7*a).toFixed(2)})}
   T(CX,H*.98,11*U,C.L(SPEC.notes),{w:400,sw:3*U,op:.85})}
 // ===== 1コマ =====
-const VH=it=>Math.max(4.2,it.h*(LAND?2.5:2.1)),SHIFT=it=>it===IT[0]?0:VH(it)*ASP*(LAND?.24:.16);   // 注目の物は少し右寄せ（左に見せ終わった物、右の次の物は隠れ気味）
+const VH=it=>SPEC.space?Math.max(it.h*1.75,it.w/ASP*1.9):Math.max(4.2,it.h*(LAND?2.5:2.1)),SHIFT=it=>it===IT[0]?0:VH(it)*ASP*(SPEC.space?.17:LAND?.24:.16);   // 注目の物は少し右寄せ（左に見せ終わった物、右の次の物は隠れ気味）
 const hmax=Math.max(...IT.map(i=>i.h)),xl=IT[0].x-IT[0].w,xr=IT[C.N-1].x+IT[C.N-1].w;
 const OV={x:(xl+xr)/2,vh:Math.max(hmax*(LAND?2.9:2.0),(xr-xl)/ASP*(LAND?1.06:1.3))};
 window.renderAt=function(t){

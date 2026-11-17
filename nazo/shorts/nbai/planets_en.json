@@ -1,0 +1,273 @@
+{
+ "schemaVersion": 1,
+ "template": "lineup",
+ "unit": "km",
+ "space": true,
+ "output": {
+  "width": 1080,
+  "height": 1920,
+  "fps": 30,
+  "durationSeconds": 46
+ },
+ "intro": 1.6,
+ "outro": 4.6,
+ "items": [
+  {
+   "id": "pluto",
+   "name": {
+    "ja": "冥王星",
+    "en": "Pluto"
+   },
+   "m": 2376,
+   "kind": "external-fact",
+   "source": {
+    "url": "https://nssdc.gsfc.nasa.gov/planetary/factsheet/index.html",
+    "label": "NASA Planetary Fact Sheet",
+    "checkedAt": "2026-11-17"
+   },
+   "shape": {
+    "type": "sphere",
+    "d": 2376,
+    "color": "#cdb89c"
+   }
+  },
+  {
+   "id": "moon",
+   "name": {
+    "ja": "月",
+    "en": "Moon"
+   },
+   "m": 3475,
+   "kind": "external-fact",
+   "source": {
+    "url": "https://nssdc.gsfc.nasa.gov/planetary/factsheet/index.html",
+    "label": "NASA Planetary Fact Sheet",
+    "checkedAt": "2026-11-17"
+   },
+   "shape": {
+    "type": "sphere",
+    "d": 3475,
+    "color": "#a9a9a9"
+   }
+  },
+  {
+   "id": "mercury",
+   "name": {
+    "ja": "水星",
+    "en": "Mercury"
+   },
+   "m": 4879,
+   "kind": "external-fact",
+   "source": {
+    "url": "https://nssdc.gsfc.nasa.gov/planetary/factsheet/index.html",
+    "label": "NASA Planetary Fact Sheet",
+    "checkedAt": "2026-11-17"
+   },
+   "shape": {
+    "type": "sphere",
+    "d": 4879,
+    "color": "#8f8a85"
+   }
+  },
+  {
+   "id": "mars",
+   "name": {
+    "ja": "火星",
+    "en": "Mars"
+   },
+   "m": 6792,
+   "kind": "external-fact",
+   "source": {
+    "url": "https://nssdc.gsfc.nasa.gov/planetary/factsheet/index.html",
+    "label": "NASA Planetary Fact Sheet",
+    "checkedAt": "2026-11-17"
+   },
+   "shape": {
+    "type": "sphere",
+    "d": 6792,
+    "color": "#c1440e"
+   }
+  },
+  {
+   "id": "venus",
+   "name": {
+    "ja": "金星",
+    "en": "Venus"
+   },
+   "m": 12104,
+   "kind": "external-fact",
+   "source": {
+    "url": "https://nssdc.gsfc.nasa.gov/planetary/factsheet/index.html",
+    "label": "NASA Planetary Fact Sheet",
+    "checkedAt": "2026-11-17"
+   },
+   "shape": {
+    "type": "sphere",
+    "d": 12104,
+    "color": "#e3c48f"
+   }
+  },
+  {
+   "id": "earth",
+   "name": {
+    "ja": "地球",
+    "en": "Earth"
+   },
+   "m": 12756,
+   "kind": "external-fact",
+   "source": {
+    "url": "https://nssdc.gsfc.nasa.gov/planetary/factsheet/index.html",
+    "label": "NASA Planetary Fact Sheet",
+    "checkedAt": "2026-11-17"
+   },
+   "shape": {
+    "type": "sphere",
+    "d": 12756,
+    "color": "#2f6fc0",
+    "bands": [
+     "#e9eef2",
+     "#2f6fc0",
+     "#3d8a4a",
+     "#2f6fc0",
+     "#2f6fc0",
+     "#3d8a4a",
+     "#2f6fc0",
+     "#e9eef2"
+    ]
+   }
+  },
+  {
+   "id": "neptune",
+   "name": {
+    "ja": "海王星",
+    "en": "Neptune"
+   },
+   "m": 49528,
+   "kind": "external-fact",
+   "source": {
+    "url": "https://nssdc.gsfc.nasa.gov/planetary/factsheet/index.html",
+    "label": "NASA Planetary Fact Sheet",
+    "checkedAt": "2026-11-17"
+   },
+   "shape": {
+    "type": "sphere",
+    "d": 49528,
+    "color": "#3f63d6"
+   }
+  },
+  {
+   "id": "uranus",
+   "name": {
+    "ja": "天王星",
+    "en": "Uranus"
+   },
+   "m": 51118,
+   "kind": "external-fact",
+   "source": {
+    "url": "https://nssdc.gsfc.nasa.gov/planetary/factsheet/index.html",
+    "label": "NASA Planetary Fact Sheet",
+    "checkedAt": "2026-11-17"
+   },
+   "shape": {
+    "type": "sphere",
+    "d": 51118,
+    "color": "#9fd9e3"
+   }
+  },
+  {
+   "id": "saturn",
+   "name": {
+    "ja": "土星",
+    "en": "Saturn"
+   },
+   "m": 120536,
+   "kind": "external-fact",
+   "source": {
+    "url": "https://nssdc.gsfc.nasa.gov/planetary/factsheet/index.html",
+    "label": "NASA Planetary Fact Sheet",
+    "checkedAt": "2026-11-17"
+   },
+   "shape": {
+    "type": "sphere",
+    "d": 120536,
+    "color": "#d9c08a",
+    "ring": true
+   }
+  },
+  {
+   "id": "jupiter",
+   "name": {
+    "ja": "木星",
+    "en": "Jupiter"
+   },
+   "m": 142984,
+   "kind": "external-fact",
+   "source": {
+    "url": "https://nssdc.gsfc.nasa.gov/planetary/factsheet/index.html",
+    "label": "NASA Planetary Fact Sheet",
+    "checkedAt": "2026-11-17"
+   },
+   "shape": {
+    "type": "sphere",
+    "d": 142984,
+    "color": "#c9a27e",
+    "bands": [
+     "#e2d1b8",
+     "#b7835a",
+     "#e8dcc6",
+     "#a86f4b",
+     "#e2d1b8",
+     "#c39a73",
+     "#e8dcc6",
+     "#b7835a",
+     "#e2d1b8"
+    ]
+   }
+  },
+  {
+   "id": "sun",
+   "name": {
+    "ja": "太陽",
+    "en": "Sun"
+   },
+   "m": 1391400,
+   "kind": "external-fact",
+   "source": {
+    "url": "https://nssdc.gsfc.nasa.gov/planetary/factsheet/sunfact.html?level=1",
+    "label": "NASA Sun Fact Sheet（半径 695,700km×2）",
+    "checkedAt": "2026-11-17"
+   },
+   "shape": {
+    "type": "sphere",
+    "d": 1391400,
+    "color": "#ffb43c"
+   }
+  }
+ ],
+ "id": "planets_en",
+ "lang": "en",
+ "title": {
+  "ja": "",
+  "en": "Solar System Size Comparison"
+ },
+ "endLine": {
+  "ja": "",
+  "en": "The Sun is about 109x Earth's diameter"
+ },
+ "notes": {
+  "ja": "",
+  "en": "Diameters from NASA. Colors are approximate."
+ },
+ "post": {
+  "title": "Solar System Size Comparison (3D) #shorts",
+  "tags": [
+   "size comparison",
+   "solar system",
+   "planets",
+   "sun",
+   "space",
+   "3D"
+  ],
+  "desc": "Pluto to Jupiter, lined up by diameter, and then the Sun.\n*Diameters from NASA (equatorial for planets). The Sun's diameter is NASA's radius of 695,700 km x 2. Colors and patterns are approximate.\n\n- Pluto 2,376 km\n- Moon 3,475 km\n- Mercury 4,879 km\n- Mars 6,792 km\n- Venus 12,104 km\n- Earth 12,756 km\n- Neptune 49,528 km\n- Uranus 51,118 km\n- Saturn 120,536 km\n- Jupiter 142,984 km\n- Sun 1,391,400 km\n\nSources\n- NASA Planetary Fact Sheet https://nssdc.gsfc.nasa.gov/planetary/factsheet/index.html\n- NASA Sun Fact Sheet https://nssdc.gsfc.nasa.gov/planetary/factsheet/sunfact.html?level=1\n\nMusic: original\n\n#sizecomparison #solarsystem #space"
+ }
+}

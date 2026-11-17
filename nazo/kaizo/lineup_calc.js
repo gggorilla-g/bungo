@@ -7,6 +7,7 @@ function shapeSize(it){const s=it.shape||{};
   if(s.type==='person')return{h:s.h||1.7,w:.5};
   if(s.type==='rocket'){let h=0,w=0;for(const g of s.stages){h+=g.h;w=Math.max(w,g.d,g.d1||0)}
     if(s.boosters){const b=s.boosters;w=Math.max(w,(s.stages[0].d)+2*b.d)}return{h,w}}
+  if(s.type==='sphere')return{h:s.d,w:s.ring?s.d*2.3:s.d};
   if(s.type==='tower'){let h=0,w=0;for(const g of s.tiers){h+=g.h;w=Math.max(w,g.w,g.w1||0)}return{h,w}}
   throw new Error('未知の形: '+s.type+'（'+it.id+'）')}
 function make(spec){
@@ -20,7 +21,9 @@ function make(spec){
   const T_OUT=IN+N*SLOT;
   // 表示する数字（m は出典の値。ft は出典にあればそれ、無ければ換算）
   const fmtNum=(v,d)=>{const r=Math.round(v*Math.pow(10,d))/Math.pow(10,d);return r.toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:d})};
-  function valueText(it){const d=it.m<10?1:(it.m<100&&it.m%1!==0?1:0),mT=fmtNum(it.m,d)+' m';
+  const KM=spec.unit==='km';
+  function valueText(it){if(KM){const k=fmtNum(it.m,0)+(lang==='en'?' km':'km');if(lang==='en')return (it.approx?'about ':'')+k+' ('+fmtNum(it.m*0.621371,0)+' mi)';return (it.approx?'約':'')+k}
+const d=it.m<10?1:(it.m<100&&it.m%1!==0?1:0),mT=fmtNum(it.m,d)+' m';
     if(lang==='en'){const ft=it.ft!=null?it.ft:it.m*FT;return (it.approx?'about ':'')+mT+' ('+fmtNum(ft,ft<10?1:0)+' ft)'}
     return (it.kind==='scene-assumption'||it.approx?'約':'')+fmtNum(it.m,d)+'m'}
   const nameText=it=>L(it.name);
