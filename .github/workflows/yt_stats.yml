@@ -1,0 +1,26 @@
+name: 数字の記録（読み取りだけ）
+# 妄想科学と Make It Work 3D の動画の数字を集めて state/ に残す。投稿・編集はしない
+on:
+  schedule:
+    - cron: "10 */6 * * *"
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  stats:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install -q google-api-python-client google-auth
+      - env:
+          YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
+          YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
+          TOKEN_MOSO: ${{ secrets.YT_REFRESH_TOKEN_MOSO }}
+          TOKEN_MIW: ${{ secrets.YT_REFRESH_TOKEN_KAIDAN }}
+        run: python tools/yt_stats.py
+      - run: |
+          git config user.name "bungo-bot"; git config user.email "bot@users.noreply.github.com"
+          git add state/stats_*.json state/stats_history.csv && git commit -q -m "stats" || exit 0
+          for i in 1 2 3; do git pull --rebase --autostash -q && git push -q && break; sleep 5; done
