@@ -9,7 +9,7 @@ on:
       id: { description: "台本ID（空なら予約表の今日の分）", default: "" }
       publish_at: { description: "公開日時 UTC（id を指定したとき）", default: "" }
       dry_run: { description: "true なら上げない（書き出しだけ。動画は nbai-out-<id> ブランチ）", default: "false" }
-      channel: { description: "moso（妄想科学）/ miw（Make It Work 3D）", default: "moso" }
+      channel: { description: "moso（妄想科学）/ miw（Make It Work 3D）/ hoo（ホー博士。サムネ可、日本語の長尺用）", default: "moso" }
 permissions:
   contents: write
 # 同時に何本でも走らせる（concurrency を付けると待ちの回が1本に間引かれて取り消される）
@@ -59,7 +59,7 @@ jobs:
           NO_VOICE: "1"
           YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
           YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
-          YT_REFRESH_TOKEN: ${{ steps.pick.outputs.ch == 'miw' && secrets.YT_REFRESH_TOKEN_KAIDAN || secrets.YT_REFRESH_TOKEN_MOSO }}
+          YT_REFRESH_TOKEN: ${{ steps.pick.outputs.ch == 'miw' && secrets.YT_REFRESH_TOKEN_KAIDAN || (steps.pick.outputs.ch == 'hoo' && secrets.YT_REFRESH_TOKEN_NAZO || secrets.YT_REFRESH_TOKEN_MOSO) }}
           VIDEO_LANG: ${{ steps.pick.outputs.ch == 'miw' && 'en' || 'ja' }}
         run: |
           N="${{ steps.pick.outputs.id }}"
