@@ -789,7 +789,8 @@ function orbitScene(p) {
   tiltG.add(blocks(eq, 0.4));
   // p.r（公転の半径。1=今の地球、0.72=今の金星の位置）、p.r_to と p.r_at（その時刻から半径が移る）、p.ghost（今の軌道を点線で残す）
   // p.sun_off（太陽が消える時刻の割合）、p.lag（その何秒あとに光と重力が地球に届く。届いたら暗くなり、まっすぐ飛んでいく）
-  const OR0 = 17, mkPath = (R, col) => { const q = []; for (let i = 0; i < 60; i++) if (i % 2) { const a = i / 60 * Math.PI * 2; q.push([Math.cos(a) * R, 0, Math.sin(a) * R, col]); } return blocks(q, 0.8); };
+  const MK = p.mk || 1; sun.scale.setScalar(MK); tiltG.scale.setScalar(MK);   // p.mk：遠い軌道を引きで見せるとき、太陽・地球・軌道の印を大きく描く
+  const OR0 = 17, mkPath = (R, col) => { const q = []; for (let i = 0; i < 60; i++) if (i % 2) { const a = i / 60 * Math.PI * 2; q.push([Math.cos(a) * R, 0, Math.sin(a) * R, col]); } return blocks(q, 0.8 * MK); };
   const r1 = p.r ?? 1, r2 = p.r_to ?? r1;
   sc.add(mkPath(OR0 * r1, 0x555a66)); if (r2 !== r1) sc.add(mkPath(OR0 * r2, 0x8a6a40));
   if (p.ghost) sc.add(mkPath(OR0 * p.ghost, 0x8a6a40));
