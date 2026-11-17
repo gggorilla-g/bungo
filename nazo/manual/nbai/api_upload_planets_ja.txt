@@ -1,0 +1,6 @@
+{
+ "id": "uD2RC6lwP14",
+ "url": "https://youtube.com/shorts/uD2RC6lwP14",
+ "requested_publishAt": "2026-11-18T03:00:00Z",
+ "note": "CI でアップ済み。記録の push が失敗したので手で記録（run 44089475037）"
+}

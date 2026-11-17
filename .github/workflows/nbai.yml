@@ -52,7 +52,7 @@ jobs:
             && git push -q -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" HEAD:refs/heads/nbai-out-$N
           cd "$GITHUB_WORKSPACE" && D=$(echo "${{ steps.pick.outputs.at }}" | cut -c1-10) && echo done > "nazo/manual/nbai/dry_${N}_${D}.txt"
           git config user.name "bungo-bot"; git config user.email "bot@users.noreply.github.com"
-          git add nazo/manual/nbai && git commit -q -m "nbai dry run: $N" && for i in 1 2 3; do git pull --rebase -q && git push -q && break; sleep 5; done
+          git add nazo/manual/nbai && git commit -q -m "nbai dry run: $N" && for i in 1 2 3; do git pull --rebase --autostash -q && git push -q && break; sleep 5; done
       - if: steps.pick.outputs.id != '' && inputs.dry_run != 'true' && steps.pick.outputs.dry != 'true'
         env:
           PUBLISH_AT: ${{ steps.pick.outputs.at }}
@@ -67,4 +67,4 @@ jobs:
           python3 tools/short_upload.py "output/$N.mp4" "nazo/manual/nbai/${N}_upload.txt" 2> >(tee err.txt >&2) || { tail -n 4 err.txt | sed "s/^/::error::/"; exit 1; }
           git config user.name "bungo-bot"; git config user.email "bot@users.noreply.github.com"
           git add nazo/manual/nbai && git commit -q -m "nbai upload: $N" || exit 0
-          for i in 1 2 3; do git pull --rebase -q && git push -q && break; sleep 5; done
+          for i in 1 2 3; do git pull --rebase --autostash -q && git push -q && break; sleep 5; done
