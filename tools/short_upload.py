@@ -16,7 +16,7 @@ def sec(name):
     return m.group(1).strip() if m else ""
 title, desc, tags = sec("タイトル"), sec("説明"), [x.strip() for x in sec("タグ").split(",") if x.strip()]
 assert title and desc, "タイトルか説明が空"
-assert "VOICEVOX:" in desc or os.environ.get("NO_VOICE"), "声のクレジットがない（声なしの動画は NO_VOICE=1）"
+assert "VOICEVOX:" in desc or "Kokoro TTS" in desc or os.environ.get("NO_VOICE"), "声のクレジットがない（声なしの動画は NO_VOICE=1）"
 publish_at = os.environ.get("PUBLISH_AT", "").strip()   # 空ならすぐ公開
 
 creds = Credentials(None, refresh_token=os.environ["YT_REFRESH_TOKEN"], client_id=os.environ["YT_CLIENT_ID"],
