@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8">
+<style>
+@font-face{font-family:"JumpSans";font-weight:400;src:url(fonts_jp/NotoSansCJKjp-Regular.woff2) format("woff2")}
+@font-face{font-family:"JumpSans";font-weight:700;src:url(fonts_jp/NotoSansCJKjp-Bold.woff2) format("woff2")}
+@font-face{font-family:"JumpSans";font-weight:900;src:url(fonts_jp/NotoSansCJKjp-Black.woff2) format("woff2")}
+html,body{margin:0;background:#000}
+#stage{position:relative;width:540px;height:960px;overflow:hidden}
+#stage canvas{position:absolute;left:0;top:0}
+#hud{position:absolute;left:0;top:0;width:540px;height:960px;font-family:"JumpSans"}
+#hud text{paint-order:stroke;stroke:#101010;stroke-linejoin:round;fill:#fff}
+</style></head>
+<body><div id="stage"><svg id="hud" viewBox="0 0 540 960" xmlns="http://www.w3.org/2000/svg"></svg></div>
+<script src="vendor.js"></script>
+<script>
+// もしもショート「まばたきをしなかったら」（Zack D. Films 型）。目の模型：白目・黒目・角膜・涙の膜・まぶた
+// 行の fx：hook / rate / film / break / dry / dust / sting / damage / end
+const getJ=u=>{const x=new XMLHttpRequest();x.open('GET',u,false);x.send();if(x.status!==200)throw new Error('読めない: '+u);return JSON.parse(x.responseText)};
+const ID=(new URLSearchParams(location.search).get('spec')||'blink_en').replace(/^.*\//,'').replace(/\.json$/,'');
+const SPEC=getJ('specs/'+ID+'.json'),TL=getJ('specs/'+ID+'_timeline.json');
+const W=540,H=960,DUR=TL.total,FOV=30;
+const clamp=(x,a,b)=>Math.min(b,Math.max(a,x)),lerp=(a,b,k)=>a+(b-a)*k,sstep=(a,b,x)=>{const k=clamp((x-a)/(b-a),0,1);return k*k*(3-2*k)};
+function rng(seed){let s=seed>>>0;return()=>{s=(Math.imul(s,1664525)+1013904223)>>>0;return s/4294967296}}
+const LINES=SPEC.lines.map((l,i)=>Object.assign({},l,TL.beats[i]));
+const fxL=fx=>LINES.find(l=>l.fx===fx);const T0=fx=>{const l=fxL(fx);return l?l.t0:1e9};
+const LAB=SPEC.labels||{};
+const renderer=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true});
+renderer.setPixelRatio(window.devicePixelRatio||1);renderer.setSize(W,H);renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.0;
+document.getElementById('stage').prepend(renderer.domElement);
+const mesh=(g,m)=>new THREE.Mesh(g,m);
+const scene=new THREE.Scene();
+{const c=document.createElement('canvas');c.width=4;c.height=512;const x=c.getContext('2d'),g=x.createLinearGradient(0,0,0,512);g.addColorStop(0,'#1d2a44');g.addColorStop(1,'#3d5277');x.fillStyle=g;x.fillRect(0,0,4,512);
+ const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;scene.background=t}
+scene.add(new THREE.HemisphereLight(0xffffff,0x5a6a8a,1.2));
+const key=new THREE.DirectionalLight(0xffffff,2.4);key.position.set(2,3,5);scene.add(key);
+const rimL=new THREE.DirectionalLight(0xbfd8ff,1.4);rimL.position.set(-4,1,-3);scene.add(rimL);
+
+// 白目（血管はキャンバスに描いて、だんだん濃くする）
+const vc=document.createElement('canvas');vc.width=1024;vc.height=512;const vx=vc.getContext('2d');
+function veins(k){vx.fillStyle='#f6f1ec';vx.fillRect(0,0,1024,512);if(k<=0)return;const r=rng(4);vx.strokeStyle='rgba(205,40,40,'+(.25+.6*k)+')';
+  for(let i=0;i<22;i++){let x=r()*1024,y=200+r()*112,a=r()*6.28;vx.lineWidth=1+2.5*r()*k;vx.beginPath();vx.moveTo(x,y);for(let j=0;j<12;j++){a+=(r()-.5)*.9;x+=Math.cos(a)*14;y+=Math.sin(a)*14;vx.lineTo(x,y)}vx.stroke()}}
+veins(0);const vtex=new THREE.CanvasTexture(vc);vtex.colorSpace=THREE.SRGBColorSpace;
+const EYE=new THREE.Group();scene.add(EYE);
+const sclera=mesh(new THREE.SphereGeometry(1,64,48),new THREE.MeshStandardMaterial({map:vtex,roughness:.35}));sclera.rotation.y=-Math.PI/2;EYE.add(sclera);
+// 黒目（虹彩）と瞳
+{const ic=document.createElement('canvas');ic.width=256;ic.height=256;const x=ic.getContext('2d');const g=x.createRadialGradient(128,128,20,128,128,128);
+ g.addColorStop(0,'#2a1a0e');g.addColorStop(.35,'#5b3a1e');g.addColorStop(.8,'#8a6232');g.addColorStop(1,'#3a2410');x.fillStyle=g;x.fillRect(0,0,256,256);
+ const r=rng(2);x.strokeStyle='rgba(40,25,10,.5)';for(let i=0;i<90;i++){const a=r()*6.28;x.beginPath();x.moveTo(128+Math.cos(a)*40,128+Math.sin(a)*40);x.lineTo(128+Math.cos(a)*124,128+Math.sin(a)*124);x.stroke()}
+ x.fillStyle='#050505';x.beginPath();x.arc(128,128,42,0,6.3);x.fill();
+ const t=new THREE.CanvasTexture(ic);t.colorSpace=THREE.SRGBColorSpace;
+ const iris=mesh(new THREE.CircleGeometry(.46,64),new THREE.MeshStandardMaterial({map:t,roughness:.6}));iris.position.z=1.006;EYE.add(iris);const pup=mesh(new THREE.CircleGeometry(.15,48),new THREE.MeshBasicMaterial({color:0x050505}));pup.position.z=1.01;EYE.add(pup)}
+// 角膜（前のふくらみ）。傷むと白くにごる
+const corneaM=new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:.08,depthWrite:false});
+const cornea=mesh(new THREE.SphereGeometry(.56,48,32,0,Math.PI*2,0,Math.PI/2.4),corneaM);cornea.rotation.x=Math.PI/2;cornea.position.z=.62;cornea.renderOrder=3;EYE.add(cornea);
+// 涙の膜：前半分を覆う水色の薄い殻。破れると、ところどころ穴があく（乾いた点＝赤）
+const filmM=new THREE.MeshBasicMaterial({color:0x6fc4ff,transparent:true,opacity:0,depthWrite:false});
+const film=mesh(new THREE.SphereGeometry(1.025,64,48,0,Math.PI*2,0,Math.PI/2.2),filmM);film.rotation.x=Math.PI/2;film.renderOrder=4;EYE.add(film);
+const DRY=[];{const r=rng(7);for(let i=0;i<16;i++){const a=r()*6.28,rr=.15+r()*.55;const p=new THREE.Vector3(Math.cos(a)*rr,Math.sin(a)*rr,0);p.z=Math.sqrt(Math.max(0,1.03*1.03-p.x*p.x-p.y*p.y))+(Math.hypot(p.x,p.y)<.5?.07:0);
+  const d=mesh(new THREE.CircleGeometry(.02+r()*.035,20),new THREE.MeshBasicMaterial({color:0xe2513a,transparent:true,opacity:0,depthWrite:false}));d.position.copy(p);d.lookAt(p.clone().multiplyScalar(2));d.renderOrder=5;EYE.add(d);DRY.push({d,k:r()})}}
+// ほこり
+const DUST=[];{const r=rng(11);for(let i=0;i<22;i++){const a=r()*6.28,rr=r()*.75;const p=new THREE.Vector3(Math.cos(a)*rr,Math.sin(a)*rr,0);p.z=Math.sqrt(Math.max(0,1.05-p.x*p.x-p.y*p.y))+(Math.hypot(p.x,p.y)<.5?.08:0);
+  const d=mesh(new THREE.IcosahedronGeometry(.008+r()*.012,0),new THREE.MeshStandardMaterial({color:0x8a8070,roughness:1}));d.visible=false;EYE.add(d);DUST.push({d,p,start:new THREE.Vector3(p.x*3+r()-.5,p.y*3+1.5+r(),p.z+2+r()*2),k:r()})}}
+// まぶた（上下）。閉じると前で合わさる
+const skin=new THREE.MeshStandardMaterial({color:0xd9a07c,roughness:.7,side:THREE.DoubleSide});
+const UP=new THREE.Group(),LO=new THREE.Group();EYE.add(UP,LO);
+const upLid=mesh(new THREE.SphereGeometry(1.08,64,32,0,Math.PI*2,0,Math.PI/2),skin);UP.add(upLid);
+const loLid=mesh(new THREE.SphereGeometry(1.075,64,32,0,Math.PI*2,0,Math.PI/2),skin);loLid.rotation.x=Math.PI;LO.add(loLid);
+const lash=new THREE.MeshBasicMaterial({color:0x1a120c});
+for(let i=0;i<26;i++){const a=-1.1+i*2.2/25,l=mesh(new THREE.CylinderGeometry(.006,.012,.22,4),lash);l.position.set(Math.sin(a)*1.08,0,Math.cos(a)*1.08);l.rotation.set(-.9,a,0,'YXZ');l.translateY(.1);UP.add(l)}
+// 開き具合：o=1 で開く、0 で閉じる
+function lids(o){const op=lerp(0,1.15,o);UP.rotation.x=-op*0.0;UP.rotation.x=-(Math.PI/2)*0+(-1)*lerp(0,1.15,o);LO.rotation.x=lerp(0,.62,o)}
+
+const cam=new THREE.PerspectiveCamera(FOV,W/H,.05,100);
+const SHOT={hook:[[.6,.4,7.6],[0,0,0]],rate:[[1.2,.5,7.8],[0,0,0]],film:[[2.6,.8,5.6],[0,0,.3]],break:[[1.4,.6,5.2],[0,0,.4]],dry:[[.5,.3,4.4],[0,0,.5]],
+  dust:[[-1.4,.9,5.0],[0,0,.4]],sting:[[1.0,.4,6.4],[0,0,0]],damage:[[.3,.2,4.2],[0,0,.5]],end:[[.6,.4,7.6],[0,0,0]]};
+const lineAt=t=>LINES.find(x=>t>=x.t0-.02&&t<x.t1+.12)||LINES.filter(x=>x.t0<=t).pop()||LINES[0];
+function camAt(t){const i=LINES.indexOf(lineAt(t)),cur=SHOT[LINES[i].fx]||SHOT.hook,prev=i>0?(SHOT[LINES[i-1].fx]||SHOT.hook):cur,k=sstep(LINES[i].t0-.15,LINES[i].t0+.6,t);
+  const p=new THREE.Vector3().fromArray(prev[0]).lerp(new THREE.Vector3().fromArray(cur[0]),k),q=new THREE.Vector3().fromArray(prev[1]).lerp(new THREE.Vector3().fromArray(cur[1]),k);
+  p.x+=.06*Math.sin(t*.5);p.y+=.04*Math.sin(t*.4);return[p,q]}
+// HUD
+const NS='http://www.w3.org/2000/svg',hud=document.getElementById('hud');
+function el(tag,a,txt){const e=document.createElementNS(NS,tag);for(const k in a)e.setAttribute(k,a[k]);if(txt!=null)e.textContent=txt;hud.appendChild(e);return e}
+const tw=(s,size)=>{let w=0;for(const ch of String(s))w+=ch.charCodeAt(0)<256?.58:1;return w*size};
+function T(x,y,size,txt,o={}){const a={x,y,'font-size':size,'font-weight':o.w||900,'text-anchor':o.a||'start','stroke-width':o.sw!=null?o.sw:Math.max(3,size*.2)};let st='';if(o.fill)st+='fill:'+o.fill+';';if(o.op!=null)st+='opacity:'+o.op+';';if(st)a.style=st;return el('text',a,txt)}
+function badge(y,txt,op,col){if(op<=.02||!txt)return;const size=40,w=tw(txt,size)+30;el('rect',{x:270-w/2,y:y-size-6,width:w,height:size+18,rx:10,fill:col,style:'opacity:'+(op*.92).toFixed(2)});T(270,y+3,size,txt,{a:'middle',sw:0,op:op.toFixed(2)})}
+function drawHud(t,b){hud.innerHTML='';const l=lineAt(t),a=clamp((t-l.t0)/.12,0,1);
+  let y=l.cap.length>1?700:722;l.cap.forEach((s,i)=>{const size=Math.min(46,480/tw(s,1));T(270,y+(1-a)*6,size,s,{a:'middle',sw:9,op:(.3+.7*a).toFixed(2),fill:i===l.cap.length-1?'#ffd23f':'#fff'});y+=size+12});
+  badge(150,LAB.rate,b.rate,'#2d6fb0');badge(150,b.timer,b.tm,'#c0392b');badge(150,LAB.days,b.days,'#6b4fa0')}
+
+window.renderAt=function(t){
+  const tR=T0('rate'),tF=T0('film'),tB=T0('break'),tD=T0('dry'),tU=T0('dust'),tS=T0('sting'),tG=T0('damage'),tE=T0('end');
+  // まぶた：rate の行では何度もまばたき。break 以後は開いたまま。end の最後でゆっくり閉じて開く
+  let o=1;
+  const blinkAt=(c)=>{const d=t-c;return d>=0&&d<.32?Math.sin(d/.32*Math.PI):0};
+  if(t>=tR&&t<tF){for(let c=tR+.3;c<tF;c+=.9)o=Math.min(o,1-blinkAt(c))}
+  if(t>=tF&&t<tB)o=1-blinkAt(tF+.25);   // 1回まばたきして、涙の膜をのばす
+  if(t>=tE){const d=t-(tE+.5);o=d<0?1:(d<.5?1-sstep(0,.5,d):(d<1.3?1-sstep(1.3,0.8,d)*0:1));if(d>=.5&&d<1.0)o=0;if(d>=1.0)o=sstep(1.0,1.4,d)}
+  lids(o);
+  // 涙の膜：まばたきでのびる（film）→ 約10秒でやぶれる（break）→ 乾く（dry）
+  const fOn=sstep(tF+.2,tF+.7,t);const brk=sstep(tB+.2,tB+2.2,t);
+  filmM.opacity=fOn*.38*(1-.75*brk)*(t>=tE+1.0?0:1)+(t>=tE+1.2?.38*sstep(tE+1.2,tE+1.6,t):0);
+  DRY.forEach(o=>{o.d.material.opacity=clamp((brk-o.k*.6)*2.5,0,1)*.85*(t>=tE+1.0?0:1)});
+  // ほこり：dust の行から落ちてきて、くっついたまま
+  DUST.forEach(o=>{const k=sstep(tU+o.k*.8,tU+o.k*.8+.6,t);o.d.visible=k>0&&t<tE+1.0;o.d.position.copy(o.start).lerp(o.p,k)});
+  // 赤い血管：sting から
+  const vk=sstep(tS,tS+1.0,t)*(t>=tE+1.0?0:1);if(Math.abs((sclera.userData.vk||0)-vk)>.02){veins(vk);vtex.needsUpdate=true;sclera.userData.vk=vk}
+  // 角膜のにごり：damage から
+  const dk=sstep(tG,tG+1.2,t)*(t>=tE+1.0?0:1);corneaM.opacity=.18+.55*dk;corneaM.color.setRGB(1,1-.05*dk,1-.1*dk);
+  EYE.rotation.y=.05*Math.sin(t*.7);EYE.rotation.x=.03*Math.sin(t*.5);
+  const[p,q]=camAt(t);cam.position.copy(p);cam.lookAt(q);cam.updateProjectionMatrix();renderer.render(scene,cam);
+  const sec=Math.max(0,Math.min(10,Math.floor((t-tB)*10/(Math.max(1,(tD-tB))))));
+  drawHud(t,{rate:t>=tR&&t<tF?sstep(tR,tR+.3,t):0,tm:t>=tB&&t<tD+.4?1:0,timer:(LAB.timer||'{s} s').replace('{s}',sec),days:t>=tG&&t<tE?sstep(tG,tG+.3,t):0});return{t}};
+window.__info={total:DUR};
+Promise.all([400,700,900].map(w=>document.fonts.load(w+' 20px JumpSans','あ0'))).then(()=>{window.__fig={kind:'none'};window.__ready=true},e=>console.log('load error: '+e.message));
+</script></body></html>

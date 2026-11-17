@@ -1,0 +1,20 @@
+【タイトル】
+What If You Never Blinked? #shorts
+
+【説明】
+What would happen to your eyes if you stopped blinking?
+A thought experiment. This is not medical advice.
+
+The facts:
+- People blink about 15 to 20 times a minute (American Academy of Ophthalmology).
+- Each blink spreads the tear film, which keeps the front of the eye moist and smooth and washes away dust.
+- In a healthy eye, the tear film usually starts to break up after about 10 seconds without blinking (tear break-up time).
+- Dry spots cause blurry vision, stinging and redness. If the eye stays exposed for a long time, the cornea can be damaged (exposure keratopathy).
+Sources: American Academy of Ophthalmology ("Why do we blink?"); Cleveland Clinic ("Dry Eye"); clinical definitions of tear break-up time.
+
+Voice: Kokoro TTS (Apache-2.0)
+Music and sound: original
+3D animation: original (three.js)
+
+【タグ】
+what if,eyes,blinking,human body,science,3D animation,shorts

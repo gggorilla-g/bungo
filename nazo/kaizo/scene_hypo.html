@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8">
+<style>
+@font-face{font-family:"JumpSans";font-weight:400;src:url(fonts_jp/NotoSansCJKjp-Regular.woff2) format("woff2")}
+@font-face{font-family:"JumpSans";font-weight:700;src:url(fonts_jp/NotoSansCJKjp-Bold.woff2) format("woff2")}
+@font-face{font-family:"JumpSans";font-weight:900;src:url(fonts_jp/NotoSansCJKjp-Black.woff2) format("woff2")}
+html,body{margin:0;background:#000}
+#stage{position:relative;width:540px;height:960px;overflow:hidden}
+#stage canvas{position:absolute;left:0;top:0}
+#hud{position:absolute;left:0;top:0;width:540px;height:960px;font-family:"JumpSans"}
+#hud text{paint-order:stroke;stroke:#101010;stroke-linejoin:round;fill:#fff}
+</style></head>
+<body><div id="stage"><svg id="hud" viewBox="0 0 540 960" xmlns="http://www.w3.org/2000/svg"></svg></div>
+<script src="vendor.js"></script>
+<script>
+// 工学ショート「古代ローマの床暖房（ハイポコースト）」（You Made It 型）。部屋の断面に、柱→床→炉→熱い空気→壁の中の管→屋根から出る、を組み立てる
+// 行の fx：hook / nofire / pillars / space / furnace / floor / walls / roof / worker / end
+const getJ=u=>{const x=new XMLHttpRequest();x.open('GET',u,false);x.send();if(x.status!==200)throw new Error('読めない: '+u);return JSON.parse(x.responseText)};
+const ID=(new URLSearchParams(location.search).get('spec')||'hypo_en').replace(/^.*\//,'').replace(/\.json$/,'');
+const SPEC=getJ('specs/'+ID+'.json'),TL=getJ('specs/'+ID+'_timeline.json');
+const W=540,H=960,DUR=TL.total,FOV=32;
+const clamp=(x,a,b)=>Math.min(b,Math.max(a,x)),lerp=(a,b,k)=>a+(b-a)*k,sstep=(a,b,x)=>{const k=clamp((x-a)/(b-a),0,1);return k*k*(3-2*k)};
+function rng(seed){let s=seed>>>0;return()=>{s=(Math.imul(s,1664525)+1013904223)>>>0;return s/4294967296}}
+const LINES=SPEC.lines.map((l,i)=>Object.assign({},l,TL.beats[i]));
+const fxL=fx=>LINES.find(l=>l.fx===fx);const T0=fx=>{const l=fxL(fx);return l?l.t0:1e9};
+const LAB=SPEC.labels||{};
+const renderer=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true});
+renderer.setPixelRatio(window.devicePixelRatio||1);renderer.setSize(W,H);renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.05;
+renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+document.getElementById('stage').prepend(renderer.domElement);
+const S=(c,o)=>new THREE.MeshStandardMaterial(Object.assign({color:c,roughness:.8,metalness:0,flatShading:true},o||{}));
+const mesh=(g,m,sh=true)=>{const x=new THREE.Mesh(g,m);x.castShadow=sh;x.receiveShadow=true;return x};
+const box=(w,h,d,m)=>mesh(new THREE.BoxGeometry(w,h,d),m);
+const scene=new THREE.Scene();scene.background=new THREE.Color(0xe9dcc5);
+scene.add(new THREE.HemisphereLight(0xfff4e2,0x9c8a72,1.15));
+const sun=new THREE.DirectionalLight(0xfff0d8,2.2);sun.position.set(5,9,7);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);{const c=sun.shadow.camera;c.left=-6;c.right=6;c.top=6;c.bottom=-6;c.near=1;c.far=40;sun.shadow.bias=-.0006}scene.add(sun);
+// 地面（土の断面）
+{const g=box(14,.6,10,S(0x8a6a48));g.position.set(0,-.3,0);scene.add(g);const t=box(14,.05,10,S(0x9fb57a));t.position.set(0,.02,-0);t.scale.set(1,1,1);}
+const ROOM=new THREE.Group();scene.add(ROOM);
+const FW=4,FD=3,PH=.6;   // 床の幅・奥行き、柱の高さ（約60cm を 0.6 で表す）
+// 下の床（土台）
+{const b=box(FW,.12,FD,S(0xb08d6a));b.position.y=.06;ROOM.add(b)}
+// 柱（れんがを積んだもの）
+const PIL=[];{const m=S(0xb5562f),m2=S(0xa34c29);for(let i=0;i<6;i++)for(let j=0;j<4;j++){const g=new THREE.Group();const x=-FW/2+.35+i*(FW-.7)/5,z=-FD/2+.35+j*(FD-.7)/3;
+  for(let k=0;k<6;k++){const b=box(.2,.09,.2,k%2?m:m2);b.position.y=.12+.045+k*.1;g.add(b)}g.position.set(x,0,z);ROOM.add(g);PIL.push({g,k:(i+j)/8})}}
+// 上の床（タイル）。温まると色が変わる
+const floorM=S(0xd9c9a6);const FLOOR=new THREE.Group();ROOM.add(FLOOR);
+{const b=box(FW,.14,FD,floorM);FLOOR.add(b);const r=rng(3);for(let i=0;i<8;i++)for(let j=0;j<6;j++){const t=box(FW/8-.02,.02,FD/6-.02,S(i%2^j%2?0xe8dcc0:0xcdbb95));t.position.set(-FW/2+(i+.5)*FW/8,.08,-FD/2+(j+.5)*FD/6);FLOOR.add(t)}}
+const HEAT=mesh(new THREE.BoxGeometry(FW,.02,FD),new THREE.MeshBasicMaterial({color:0xff6a2a,transparent:true,opacity:0,depthWrite:false}),false);HEAT.position.y=.1;FLOOR.add(HEAT);
+// 奥の壁（中に空洞のタイル＝管）。手前と右は切り断面なので無し
+const WALL=new THREE.Group();ROOM.add(WALL);const WH=2.4;
+{const w=box(FW+.3,WH,.25,S(0xe6d7bb));w.position.set(0,PH+.2+WH/2,-FD/2-.13);WALL.add(w);
+ const lw=box(.25,WH,FD,S(0xe1d1b3));lw.position.set(-FW/2-.13,PH+.2+WH/2,0);WALL.add(lw)}
+const FLUE=[];{const m=S(0xc56a3c);for(let i=0;i<5;i++){const g=new THREE.Group();const x=-FW/2+.45+i*(FW-.9)/4;for(let k=0;k<8;k++){const t=box(.28,.28,.14,m);t.position.y=PH+.34+k*.3;g.add(t);
+   const hole=box(.16,.3,.15,S(0x3a2a20));hole.position.y=t.position.y;g.add(hole)}g.position.set(x,0,-FD/2+.02);ROOM.add(g);FLUE.push(g)}}
+// 屋根（手前は切ってある）
+const ROOF=new THREE.Group();ROOM.add(ROOF);{const r=box(FW+.6,.18,FD+.4,S(0xa8482a));r.position.set(0,PH+.2+WH+.09,0);r.scale.z=.4;r.position.z=-FD/2+.3;ROOF.add(r);
+ const ch=box(.4,.7,.4,S(0x9a8770));ch.position.set(1.0,PH+.2+WH+.45,-FD/2+.1);ROOF.add(ch)}
+// 炉（部屋の左の外）
+const FURN=new THREE.Group();FURN.position.set(-FW/2-1.1,0,.2);ROOM.add(FURN);
+{const m=S(0x8b7d6b);const l=box(.2,.9,.9,m);l.position.set(-.45,.45,0);FURN.add(l);const r2=box(.2,.9,.9,m);r2.position.set(.45,.45,0);FURN.add(r2);const t=box(1.1,.25,.9,m);t.position.set(0,1.0,0);FURN.add(t);
+ const back=box(1.1,.9,.15,m);back.position.set(0,.45,-.4);FURN.add(back);const tun=box(1.1,.45,.6,S(0x3b2c22));tun.position.set(.85,.3,0);FURN.add(tun)}
+const FLAME=[];{const r=rng(5);for(let i=0;i<10;i++){const f=mesh(new THREE.ConeGeometry(.08+r()*.07,.3+r()*.25,8),new THREE.MeshBasicMaterial({color:[0xffb347,0xff7a2a,0xffe08a][i%3],transparent:true,opacity:.9}),false);f.position.set(-.25+r()*.5,.25,-.2+r()*.4);FURN.add(f);FLAME.push({f,ph:r()*6})}}
+const fireLight=new THREE.PointLight(0xff8a3a,0,6);fireLight.position.set(0,.6,.3);FURN.add(fireLight);
+// まきを入れる人
+const MAN=new THREE.Group();FURN.add(MAN);MAN.position.set(-.2,0,1.1);MAN.rotation.y=Math.PI;
+{const b=mesh(new THREE.CylinderGeometry(.18,.24,.75,12),S(0x8a5a3a));b.position.y=.38;MAN.add(b);const h=mesh(new THREE.SphereGeometry(.16,14,10),S(0xc99572));h.position.y=.9;MAN.add(h);
+ const arm=new THREE.Group();arm.position.set(0,.6,-.12);MAN.add(arm);const a=mesh(new THREE.CylinderGeometry(.05,.05,.45,8),S(0x8a5a3a));a.position.z=-.2;a.rotation.x=Math.PI/2;arm.add(a);
+ const log=mesh(new THREE.CylinderGeometry(.05,.05,.4,8),S(0x6b4a2a));log.position.set(0,0,-.45);log.rotation.z=Math.PI/2;arm.add(log);MAN.userData={arm,log}}
+// 熱い空気の粒：炉 → 床下を横切る → 奥の壁の管を上る → 屋根の煙突から出る
+const PATH=[[-FW/2-1.1,.35,.2],[-FW/2,.38,.2],[FW/2-.6,.38,0],[FW/2-.6,.38,-FD/2+.25],[1.0,.6,-FD/2+.02],[1.0,PH+.2+WH,-FD/2+.02],[1.0,PH+WH+1.2,-FD/2+.1],[1.0,PH+WH+2.0,-FD/2+.1]].map(a=>new THREE.Vector3(...a));
+const CURVE=new THREE.CatmullRomCurve3(PATH,false,'centripetal');
+const AIR=[];{const r=rng(9);for(let i=0;i<70;i++){const d=mesh(new THREE.SphereGeometry(.05+r()*.04,8,6),new THREE.MeshBasicMaterial({color:0xff7a2a,transparent:true,opacity:0,depthWrite:false}),false);d.renderOrder=5;ROOM.add(d);AIR.push({d,ph:r(),j:new THREE.Vector3(r()-.5,r()-.5,r()-.5).multiplyScalar(.25)})}}
+
+const cam=new THREE.PerspectiveCamera(FOV,W/H,.05,200);
+const SHOT={hook:[[5.6,4.4,9.2],[-.4,1.2,0]],nofire:[[5.6,4.4,9.2],[-.4,1.2,0]],pillars:[[4.2,2.6,6.4],[0,.4,0]],space:[[3.4,.9,4.6],[0,.4,0]],furnace:[[-.6,1.8,6.0],[-2.4,.6,0]],
+  floor:[[4.4,3.2,6.6],[0,.6,0]],walls:[[3.0,3.4,7.4],[0,1.8,-1]],roof:[[3.6,5.2,8.4],[0,2.6,-1]],worker:[[-1.6,1.4,4.8],[-3.1,.7,.6]],end:[[5.6,4.4,9.2],[-.4,1.2,0]]};
+const lineAt=t=>LINES.find(x=>t>=x.t0-.02&&t<x.t1+.12)||LINES.filter(x=>x.t0<=t).pop()||LINES[0];
+function camAt(t){const i=LINES.indexOf(lineAt(t)),cur=SHOT[LINES[i].fx]||SHOT.hook,prev=i>0?(SHOT[LINES[i-1].fx]||SHOT.hook):cur,k=sstep(LINES[i].t0-.15,LINES[i].t0+.65,t);
+  const p=new THREE.Vector3().fromArray(prev[0]).lerp(new THREE.Vector3().fromArray(cur[0]),k),q=new THREE.Vector3().fromArray(prev[1]).lerp(new THREE.Vector3().fromArray(cur[1]),k);
+  p.x+=.1*Math.sin(t*.45);p.y+=.06*Math.sin(t*.35);return[p,q]}
+// HUD
+const NS='http://www.w3.org/2000/svg',hud=document.getElementById('hud');
+function el(tag,a,txt){const e=document.createElementNS(NS,tag);for(const k in a)e.setAttribute(k,a[k]);if(txt!=null)e.textContent=txt;hud.appendChild(e);return e}
+const tw=(s,size)=>{let w=0;for(const ch of String(s))w+=ch.charCodeAt(0)<256?.58:1;return w*size};
+function T(x,y,size,txt,o={}){const a={x,y,'font-size':size,'font-weight':o.w||900,'text-anchor':o.a||'start','stroke-width':o.sw!=null?o.sw:Math.max(3,size*.2)};let st='';if(o.fill)st+='fill:'+o.fill+';';if(o.op!=null)st+='opacity:'+o.op+';';if(st)a.style=st;return el('text',a,txt)}
+const proj=v=>{const p=v.clone().project(cam);return[(p.x+1)/2*W,(1-p.y)/2*H,p.z]};
+function tag(v,txt,op,col){if(op<=.02||!txt)return;const[x,y,z]=proj(v);if(z>1)return;const size=Math.min(24,300/tw(txt,1));const w=tw(txt,size)+18;
+  el('rect',{x:clamp(x,w/2+6,W-w/2-6)-w/2,y:y-size-4,width:w,height:size+12,rx:7,fill:col||'#1d1d1d',style:'opacity:'+(op*.9).toFixed(2)});T(clamp(x,w/2+6,W-w/2-6),y+2,size,txt,{a:'middle',sw:0,op:op.toFixed(2)})}
+function drawHud(t,s){hud.innerHTML='';const l=lineAt(t),a=clamp((t-l.t0)/.12,0,1);
+  let y=l.cap.length>1?700:722;l.cap.forEach((c,i)=>{const size=Math.min(46,480/tw(c,1));T(270,y+(1-a)*6,size,c,{a:'middle',sw:9,op:(.3+.7*a).toFixed(2),fill:i===l.cap.length-1?'#ffd23f':'#fff'});y+=size+12});
+  tag(new THREE.Vector3(FW/2-.3,PH+.55,FD/2),LAB.pillars,s.lp,'#a34c29');tag(new THREE.Vector3(FW/2+.1,.45,FD/2),LAB.space,s.ls,'#2d6fb0');
+  tag(new THREE.Vector3(-FW/2-1.1,1.45,.2),LAB.furnace,s.lf,'#c0392b');tag(new THREE.Vector3(0,PH+2.6,-FD/2),LAB.walls,s.lw,'#a34c29');tag(new THREE.Vector3(1.0,PH+WH+1.3,-FD/2),LAB.roof,s.lr,'#555')}
+
+window.renderAt=function(t){
+  const tP=T0('pillars'),tS=T0('space'),tF=T0('furnace'),tFl=T0('floor'),tW=T0('walls'),tR=T0('roof'),tK=T0('worker'),tE=T0('end'),tN=T0('nofire');
+  // 組み立て：最初（hook）は完成形を見せる → nofire で外して空っぽに → 順に組む
+  const built=t<tN?1:0;
+  PIL.forEach(o=>{const k=built||sstep(tP+o.k*.9,tP+o.k*.9+.35,t);o.g.visible=k>0;o.g.scale.set(1,Math.max(.01,k),1)});
+  const fk=built||sstep(tS-.2,tS+.5,t);FLOOR.visible=fk>0;FLOOR.position.y=PH+.19+(1-fk)*1.6;
+  const wk=built||sstep(tW,tW+.8,t);FLUE.forEach((g,i)=>{const k=built||sstep(tW+i*.15,tW+i*.15+.5,t);g.visible=k>0;g.scale.set(1,Math.max(.01,k),1)});
+  WALL.visible=true;WALL.children.forEach(c=>{c.material.transparent=true;c.material.opacity=lerp(1,.35,sstep(tW,tW+.5,t)*(1-sstep(tE,tE+.6,t)))});
+  ROOF.visible=built||t>=tR;ROOF.position.y=(built?0:(1-sstep(tR,tR+.5,t))*1.2);
+  // 火
+  const fire=t<tN?1:sstep(tF,tF+.5,t);FLAME.forEach(o=>{o.f.visible=fire>0;o.f.scale.setScalar(Math.max(.01,fire*(.8+.3*Math.sin(t*12+o.ph))));o.f.position.y=.25+.06*Math.sin(t*9+o.ph)});fireLight.intensity=fire*(2.5+.6*Math.sin(t*13));
+  // 熱い空気：炉 → 床下（furnace〜）→ 壁（walls〜）→ 屋根（roof〜）
+  const reach=t<tN?1:(t<tF?0:(t<tW?.42*sstep(tF+.3,tF+1.5,t):(t<tR?lerp(.42,.78,sstep(tW+.3,tW+1.3,t)):lerp(.78,1,sstep(tR+.2,tR+1,t)))));
+  AIR.forEach(o=>{const u=((t*.18+o.ph)%1);const on=u<reach;o.d.visible=on&&fire>0;if(on){const p=CURVE.getPointAt(u).add(o.j.clone().multiplyScalar(u>.4&&u<.75?.4:1));o.d.position.copy(p);
+    o.d.material.opacity=.75*(u>.9?1-(u-.9)*10:1);o.d.material.color.setHex(u>.85?0x9a9a9a:0xff7a2a)}});
+  // 床が温まる
+  const hk=t<tN?1:sstep(tFl,tFl+1.5,t);HEAT.material.opacity=hk*.45*(.85+.15*Math.sin(t*3));
+  // 人：まきを入れる
+  const wk2=t>=tK&&t<tE?1:0;MAN.userData.arm.rotation.x=wk2*(.3+.5*Math.max(0,Math.sin((t-tK)*4)));MAN.userData.log.visible=wk2>0&&Math.sin((t-tK)*4)<.6;
+  const[p,q]=camAt(t);cam.position.copy(p);cam.lookAt(q);cam.updateProjectionMatrix();sun.position.set(5,9,7);
+  renderer.render(scene,cam);
+  drawHud(t,{lp:t>=tP&&t<tS+.2?sstep(tP+.8,tP+1.1,t):0,ls:t>=tS&&t<tF?sstep(tS+.4,tS+.7,t):0,lf:t>=tF&&t<tFl?sstep(tF+.2,tF+.5,t):0,lw:t>=tW&&t<tR?sstep(tW+.6,tW+.9,t):0,lr:t>=tR&&t<tK?sstep(tR+.6,tR+.9,t):0});return{t}};
+window.__info={total:DUR};
+Promise.all([400,700,900].map(w=>document.fonts.load(w+' 20px JumpSans','あ0'))).then(()=>{window.__fig={kind:'none'};window.__ready=true},e=>console.log('load error: '+e.message));
+</script></body></html>

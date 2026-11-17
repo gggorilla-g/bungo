@@ -1,0 +1,129 @@
+{
+ "main": "make_it_work_3d",
+ "label": "Make It Work 3D",
+ "builder": "nazo/kaizo3d.py",
+ "voice": {
+  "engine": "kokoro",
+  "speaker": "af_heart",
+  "speed": 1.08
+ },
+ "voice_name": "Kokoro af_heart",
+ "gap": 0.22,
+ "tail": 1.2,
+ "title": "How Romans Heated Their Floors 2,000 Years Ago #shorts",
+ "scene_title": [
+  "",
+  ""
+ ],
+ "scene_page": "scene_hypo.html",
+ "parts": {},
+ "labels": {
+  "pillars": "Brick stacks",
+  "space": "Hollow space",
+  "furnace": "Furnace",
+  "walls": "Hollow wall tiles",
+  "roof": "Smoke out"
+ },
+ "desc": "Romans heated floors and walls with fire and hot air: the hypocaust.\n\nThe facts:\n- A raised floor stood on short stacks of bricks (pilae), leaving a hollow space underneath. In the Baths of Caracalla, that cavity was about 2 feet (about 60 cm) deep.\n- A wood-fired furnace (praefurnium), usually outside the heated room, sent hot air and smoke into the space under the floor.\n- Hot air rose through hollow clay flues inside the walls (tubuli) and left near the roof, so the walls were heated too.\n- Keeping the fires going took a lot of labor: workers fed in small wood and cleared out ash and soot.\n- The animation is simplified.\nSources: Vitruvius, De architectura (via Wikipedia, \"Praefurnium\"); Engineering Rome, \"Thermal Respite in Ancient Rome: A Study of the Baths of Caracalla\".\n\nVoice: Kokoro TTS (Apache-2.0)\nMusic and sound: original\n3D animation: original (three.js)",
+ "tags": [
+  "ancient rome",
+  "hypocaust",
+  "underfloor heating",
+  "engineering",
+  "history",
+  "3D animation",
+  "shorts"
+ ],
+ "lines": [
+  {
+   "id": "h0",
+   "fx": "hook",
+   "say": "Two thousand years ago, Romans already had heated floors.",
+   "cap": [
+    "2,000 years ago, Romans",
+    "had heated floors"
+   ]
+  },
+  {
+   "id": "h1",
+   "fx": "nofire",
+   "say": "No electricity. No boiler. Just fire. So how?",
+   "cap": [
+    "No electricity.",
+    "Just fire. So how?"
+   ]
+  },
+  {
+   "id": "h2",
+   "fx": "pillars",
+   "say": "First, they stacked bricks into short pillars.",
+   "cap": [
+    "First, short pillars",
+    "of stacked bricks"
+   ]
+  },
+  {
+   "id": "h3",
+   "fx": "space",
+   "say": "The floor sat on top, with a hollow space about sixty centimeters deep.",
+   "cap": [
+    "The floor sits on top.",
+    "A hollow space below"
+   ]
+  },
+  {
+   "id": "h4",
+   "fx": "furnace",
+   "say": "A furnace outside pushed hot air and smoke into that space.",
+   "cap": [
+    "A furnace outside",
+    "sends hot air under the floor"
+   ]
+  },
+  {
+   "id": "h5",
+   "fx": "floor",
+   "say": "The heat warmed the whole floor from below.",
+   "cap": [
+    "The whole floor",
+    "warms from below"
+   ]
+  },
+  {
+   "id": "h6",
+   "fx": "walls",
+   "say": "Then the hot air rose through hollow tiles inside the walls.",
+   "cap": [
+    "Hot air rises through",
+    "hollow tiles in the walls"
+   ]
+  },
+  {
+   "id": "h7",
+   "fx": "roof",
+   "say": "and escaped near the roof. So the walls got warm too.",
+   "cap": [
+    "It escapes near the roof.",
+    "The walls get warm too"
+   ]
+  },
+  {
+   "id": "h8",
+   "fx": "worker",
+   "say": "Workers kept feeding the fire all day.",
+   "cap": [
+    "Workers kept",
+    "feeding the fire"
+   ]
+  },
+  {
+   "id": "h9",
+   "fx": "end",
+   "say": "Ancient underfloor heating.",
+   "cap": [
+    "Ancient",
+    "underfloor heating"
+   ]
+  }
+ ]
+}

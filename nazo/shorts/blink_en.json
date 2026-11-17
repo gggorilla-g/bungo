@@ -1,0 +1,118 @@
+{
+ "main": "make_it_work_3d",
+ "label": "Make It Work 3D",
+ "builder": "nazo/kaizo3d.py",
+ "voice": {
+  "engine": "kokoro",
+  "speaker": "af_heart",
+  "speed": 1.08
+ },
+ "voice_name": "Kokoro af_heart",
+ "gap": 0.22,
+ "tail": 1.2,
+ "title": "What If You Never Blinked? #shorts",
+ "scene_title": [
+  "",
+  ""
+ ],
+ "scene_page": "scene_blink.html",
+ "parts": {},
+ "labels": {
+  "rate": "15–20 blinks / min",
+  "timer": "{s} s",
+  "days": "Days later"
+ },
+ "desc": "What would happen to your eyes if you stopped blinking?\nA thought experiment. This is not medical advice.\n\nThe facts:\n- People blink about 15 to 20 times a minute (American Academy of Ophthalmology).\n- Each blink spreads the tear film, which keeps the front of the eye moist and smooth and washes away dust.\n- In a healthy eye, the tear film usually starts to break up after about 10 seconds without blinking (tear break-up time).\n- Dry spots cause blurry vision, stinging and redness. If the eye stays exposed for a long time, the cornea can be damaged (exposure keratopathy).\nSources: American Academy of Ophthalmology (\"Why do we blink?\"); Cleveland Clinic (\"Dry Eye\"); clinical definitions of tear break-up time.\n\nVoice: Kokoro TTS (Apache-2.0)\nMusic and sound: original\n3D animation: original (three.js)",
+ "tags": [
+  "what if",
+  "eyes",
+  "blinking",
+  "human body",
+  "science",
+  "3D animation",
+  "shorts"
+ ],
+ "lines": [
+  {
+   "id": "k0",
+   "fx": "hook",
+   "say": "What if you never blinked again?",
+   "cap": [
+    "What if you",
+    "never blinked again?"
+   ]
+  },
+  {
+   "id": "k1",
+   "fx": "rate",
+   "say": "You blink about fifteen to twenty times a minute, without even noticing.",
+   "cap": [
+    "15 to 20 times a minute,",
+    "without noticing"
+   ]
+  },
+  {
+   "id": "k2",
+   "fx": "film",
+   "say": "Every blink spreads a thin film of tears over your eye.",
+   "cap": [
+    "Every blink spreads",
+    "a thin film of tears"
+   ]
+  },
+  {
+   "id": "k3",
+   "fx": "break",
+   "say": "Stop blinking, and that film starts to break up in about ten seconds.",
+   "cap": [
+    "Stop blinking, and it breaks up",
+    "in about 10 seconds"
+   ]
+  },
+  {
+   "id": "k4",
+   "fx": "dry",
+   "say": "Dry spots appear, and everything goes blurry.",
+   "cap": [
+    "Dry spots appear.",
+    "Everything goes blurry."
+   ]
+  },
+  {
+   "id": "k5",
+   "fx": "dust",
+   "say": "Dust lands and stays, because nothing wipes it away.",
+   "cap": [
+    "Dust lands",
+    "and stays"
+   ]
+  },
+  {
+   "id": "k6",
+   "fx": "sting",
+   "say": "Your eyes sting, burn, and turn red.",
+   "cap": [
+    "Your eyes sting,",
+    "burn, and turn red"
+   ]
+  },
+  {
+   "id": "k7",
+   "fx": "damage",
+   "say": "After days, the clear front of your eye could get damaged.",
+   "cap": [
+    "After days, the front",
+    "of your eye gets damaged"
+   ]
+  },
+  {
+   "id": "k8",
+   "fx": "end",
+   "say": "So go ahead. Blink.",
+   "cap": [
+    "So go ahead.",
+    "Blink."
+   ]
+  }
+ ]
+}
