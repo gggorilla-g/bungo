@@ -131,7 +131,7 @@
 | 11/17 | JfLrqAg_uUE | Why Side | 飛行機の窓の小さな穴（why_window_ja） | 雑学 |
 | 11/17 | WITJikAlKJU | Ricks | The Man Who Measured Earth With a Stick（eratos_en） | Make It Work 3D |
 | 11/17 | z6SWL7QLvSw | Ricks | 棒で地球の大きさを測った男（eratos_ja） | 雑学 |
-| 11/17 | （結果待ち） | Zack D | What If You Never Blinked?（blink_en、0:26） | Make It Work 3D |
+| 11/17 | kY51En9SUjo | Zack D | What If You Never Blinked?（blink_en、0:26） | Make It Work 3D |
 
 ## 制作中・予定
 - 雑学 長尺#1「名前がひどすぎる生き物10選」＋入口ショート2本（すべてAPIで予約投稿済み、10/31）
