@@ -1,0 +1,440 @@
+{
+ "schemaVersion": 1,
+ "template": "lineup",
+ "output": {
+  "width": 1080,
+  "height": 1920,
+  "fps": 30,
+  "durationSeconds": 38
+ },
+ "intro": 1.6,
+ "outro": 4.6,
+ "items": [
+  {
+   "id": "person",
+   "name": {
+    "ja": "人",
+    "en": "Person"
+   },
+   "m": 1.7,
+   "kind": "scene-assumption",
+   "note": "比べるための人",
+   "shape": {
+    "type": "person",
+    "h": 1.7
+   }
+  },
+  {
+   "id": "kamakura",
+   "name": {
+    "ja": "鎌倉の大仏",
+    "en": "Great Buddha of Kamakura"
+   },
+   "m": 11.39,
+   "approx": true,
+   "kind": "external-fact",
+   "source": {
+    "url": "https://www.gltjp.com/ja/directory/item/10528/",
+    "label": "GLTJP",
+    "checkedAt": "2026-11-17"
+   },
+   "shape": {
+    "type": "tower",
+    "tiers": [
+     {
+      "h": 1.6,
+      "w": 10,
+      "w1": 9.6,
+      "color": "#6d7a5f",
+      "round": true
+     },
+     {
+      "h": 3.2,
+      "w": 9.4,
+      "w1": 8,
+      "color": "#6d7a5f",
+      "round": true,
+      "ball": true
+     },
+     {
+      "h": 3.4,
+      "w": 7,
+      "w1": 4.6,
+      "color": "#6d7a5f",
+      "round": true
+     },
+     {
+      "h": 0.6,
+      "w": 3,
+      "w1": 3,
+      "color": "#6d7a5f",
+      "round": true
+     },
+     {
+      "h": 2.59,
+      "w": 3.6,
+      "w1": 3.6,
+      "color": "#6d7a5f",
+      "round": true,
+      "ball": true
+     }
+    ]
+   }
+  },
+  {
+   "id": "nara",
+   "name": {
+    "ja": "奈良の大仏（東大寺）",
+    "en": "Great Buddha of Nara"
+   },
+   "m": 14.98,
+   "kind": "external-fact",
+   "source": {
+    "url": "https://www.nippon.com/ja/japan-topics/b10923/",
+    "label": "nippon.com",
+    "checkedAt": "2026-11-17"
+   },
+   "shape": {
+    "type": "tower",
+    "tiers": [
+     {
+      "h": 2,
+      "w": 12.5,
+      "w1": 12,
+      "color": "#5e5a4c",
+      "round": true
+     },
+     {
+      "h": 4,
+      "w": 12,
+      "w1": 10,
+      "color": "#5e5a4c",
+      "round": true,
+      "ball": true
+     },
+     {
+      "h": 4.6,
+      "w": 9,
+      "w1": 6,
+      "color": "#5e5a4c",
+      "round": true
+     },
+     {
+      "h": 0.8,
+      "w": 3.6,
+      "w1": 3.6,
+      "color": "#5e5a4c",
+      "round": true
+     },
+     {
+      "h": 3.58,
+      "w": 4.6,
+      "w1": 4.6,
+      "color": "#5e5a4c",
+      "round": true,
+      "ball": true
+     }
+    ]
+   }
+  },
+  {
+   "id": "christ",
+   "name": {
+    "ja": "コルコバードのキリスト像（ブラジル）",
+    "en": "Christ the Redeemer (Brazil)"
+   },
+   "m": 30,
+   "ft": 98,
+   "kind": "external-fact",
+   "source": {
+    "url": "https://www.britannica.com/print/article/1435544",
+    "label": "Britannica",
+    "checkedAt": "2026-11-17"
+   },
+   "shape": {
+    "type": "tower",
+    "tiers": [
+     {
+      "h": 22,
+      "w": 6.5,
+      "w1": 4.6,
+      "color": "#d9d6cf",
+      "round": true
+     },
+     {
+      "h": 4.6,
+      "w": 4.6,
+      "w1": 3.6,
+      "color": "#d9d6cf",
+      "round": true,
+      "span": 28,
+      "spanH": 2.4,
+      "spanDrop": 0.4
+     },
+     {
+      "h": 0.8,
+      "w": 1.6,
+      "w1": 1.6,
+      "color": "#d9d6cf",
+      "round": true
+     },
+     {
+      "h": 2.6,
+      "w": 2.4,
+      "w1": 2.4,
+      "color": "#d9d6cf",
+      "round": true,
+      "ball": true
+     }
+    ]
+   }
+  },
+  {
+   "id": "liberty",
+   "name": {
+    "ja": "自由の女神（像のみ）",
+    "en": "Statue of Liberty (statue only)"
+   },
+   "m": 46.05,
+   "ft": 151.1,
+   "kind": "external-fact",
+   "source": {
+    "url": "https://home.nps.gov/stli/learn/historyculture/statue-statistics.htm",
+    "label": "NPS",
+    "checkedAt": "2026-11-17"
+   },
+   "shape": {
+    "type": "tower",
+    "tiers": [
+     {
+      "h": 26,
+      "w": 10,
+      "w1": 6.5,
+      "color": "#6aa190",
+      "round": true
+     },
+     {
+      "h": 5,
+      "w": 6.5,
+      "w1": 4.4,
+      "color": "#6aa190",
+      "round": true
+     },
+     {
+      "h": 0.8,
+      "w": 2,
+      "w1": 2,
+      "color": "#6aa190",
+      "round": true
+     },
+     {
+      "h": 3.2,
+      "w": 3,
+      "w1": 3,
+      "color": "#6aa190",
+      "round": true,
+      "ball": true
+     },
+     {
+      "h": 4,
+      "w": 1.4,
+      "w1": 1.2,
+      "color": "#6aa190",
+      "round": true
+     },
+     {
+      "h": 7.05,
+      "w": 1.2,
+      "w1": 2.6,
+      "color": "#d8b24a",
+      "round": true
+     }
+    ]
+   }
+  },
+  {
+   "id": "ushiku",
+   "name": {
+    "ja": "牛久大仏（台座ふくむ）",
+    "en": "Ushiku Daibutsu (incl. base)"
+   },
+   "m": 120,
+   "kind": "external-fact",
+   "source": {
+    "url": "https://www.ana.co.jp/ja/vn/japan-travel-planner/ibaraki/0000006.html",
+    "label": "ANA",
+    "checkedAt": "2026-11-17"
+   },
+   "shape": {
+    "type": "tower",
+    "tiers": [
+     {
+      "h": 20,
+      "w": 40,
+      "w1": 36,
+      "color": "#bcb6a6",
+      "round": true
+     },
+     {
+      "h": 68,
+      "w": 26,
+      "w1": 20,
+      "color": "#7c8578",
+      "round": true
+     },
+     {
+      "h": 12,
+      "w": 20,
+      "w1": 13,
+      "color": "#7c8578",
+      "round": true
+     },
+     {
+      "h": 3,
+      "w": 7,
+      "w1": 7,
+      "color": "#7c8578",
+      "round": true
+     },
+     {
+      "h": 17,
+      "w": 14,
+      "w1": 14,
+      "color": "#7c8578",
+      "round": true,
+      "ball": true
+     }
+    ]
+   }
+  },
+  {
+   "id": "spring",
+   "name": {
+    "ja": "中原大仏（中国）",
+    "en": "Spring Temple Buddha (China)"
+   },
+   "m": 128,
+   "ft": 420,
+   "kind": "external-fact",
+   "source": {
+    "url": "https://springtemplebuddha.com/statue",
+    "label": "Spring Temple Buddha official",
+    "checkedAt": "2026-11-17"
+   },
+   "shape": {
+    "type": "tower",
+    "tiers": [
+     {
+      "h": 20,
+      "w": 38,
+      "w1": 30,
+      "color": "#c9a14a",
+      "round": true
+     },
+     {
+      "h": 72,
+      "w": 26,
+      "w1": 20,
+      "color": "#c9a14a",
+      "round": true
+     },
+     {
+      "h": 15,
+      "w": 20,
+      "w1": 14,
+      "color": "#c9a14a",
+      "round": true
+     },
+     {
+      "h": 4,
+      "w": 7,
+      "w1": 7,
+      "color": "#c9a14a",
+      "round": true
+     },
+     {
+      "h": 17,
+      "w": 14,
+      "w1": 14,
+      "color": "#c9a14a",
+      "round": true,
+      "ball": true
+     }
+    ]
+   }
+  },
+  {
+   "id": "unity",
+   "name": {
+    "ja": "統一の像（インド）",
+    "en": "Statue of Unity (India)"
+   },
+   "m": 182,
+   "kind": "external-fact",
+   "source": {
+    "url": "https://www.incredibleindia.gov.in/en/gujarat/vadodara/statue-of-unity",
+    "label": "Incredible India (Govt. of India)",
+    "checkedAt": "2026-11-17"
+   },
+   "shape": {
+    "type": "tower",
+    "tiers": [
+     {
+      "h": 85,
+      "w": 30,
+      "w1": 26,
+      "color": "#7a6a55",
+      "round": true
+     },
+     {
+      "h": 70,
+      "w": 32,
+      "w1": 24,
+      "color": "#7a6a55",
+      "round": true
+     },
+     {
+      "h": 4,
+      "w": 9,
+      "w1": 9,
+      "color": "#7a6a55",
+      "round": true
+     },
+     {
+      "h": 23,
+      "w": 18,
+      "w1": 18,
+      "color": "#7a6a55",
+      "round": true,
+      "ball": true
+     }
+    ]
+   }
+  }
+ ],
+ "id": "statues_en",
+ "lang": "en",
+ "title": {
+  "ja": "",
+  "en": "Giant Statues Size Comparison"
+ },
+ "endLine": {
+  "ja": "",
+  "en": "Tallest: Statue of Unity, 182 m"
+ },
+ "notes": {
+  "ja": "",
+  "en": "Heights from official sources. Shapes and colors are approximate."
+ },
+ "post": {
+  "title": "Giant Statues Size Comparison (3D) #shorts",
+  "tags": [
+   "size comparison",
+   "statue",
+   "Statue of Liberty",
+   "Statue of Unity",
+   "3D"
+  ],
+  "desc": "A person and the world's giant statues, lined up by height.\n*Statue heights only (no pedestal), except Ushiku Daibutsu, which includes its base (about 20 m). Shapes and colors are simplified. The person is 1.7 m (5 ft 7 in).\n\nHeight sources\n- Great Buddha of Kamakura about 11.39 m: GLTJP https://www.gltjp.com/ja/directory/item/10528/\n- Great Buddha of Nara 14.98 m: nippon.com https://www.nippon.com/ja/japan-topics/b10923/\n- Christ the Redeemer (Brazil) 30 m: Britannica https://www.britannica.com/print/article/1435544\n- Statue of Liberty (statue only) 46.05 m: NPS https://home.nps.gov/stli/learn/historyculture/statue-statistics.htm\n- Ushiku Daibutsu (incl. base) 120 m: ANA https://www.ana.co.jp/ja/vn/japan-travel-planner/ibaraki/0000006.html\n- Spring Temple Buddha (China) 128 m: Spring Temple Buddha official https://springtemplebuddha.com/statue\n- Statue of Unity (India) 182 m: Incredible India (Govt. of India) https://www.incredibleindia.gov.in/en/gujarat/vadodara/statue-of-unity\n\nMusic: original\n\n#sizecomparison #statue #3d"
+ }
+}

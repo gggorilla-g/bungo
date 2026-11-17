@@ -3,7 +3,7 @@ name: N倍ショート（自動・毎日）
 # 予約表の channel: moso（妄想科学、既定）/ miw（Make It Work 3D、英語。鍵は旧百物語の YT_REFRESH_TOKEN_KAIDAN）。在庫が無い日は何もしない。予約表で dry_run: true の回は上げずに書き出しだけ（試運転用）。照合で NG なら上げない。手動実行では id と publish_at を指定できる（dry_run で上げずに書き出しだけ）。
 on:
   schedule:
-    - cron: "40 3,15 * * *"  # 毎日 JST 12:40 と 0:40。公開まで36時間以内の未投稿を1本ずつ作って予約
+    - cron: "40 */3 * * *"  # 3時間ごと。公開まで36時間以内の未投稿を1本ずつ作って予約（1日に何本でも回せる）
   workflow_dispatch:
     inputs:
       id: { description: "台本ID（空なら予約表の今日の分）", default: "" }

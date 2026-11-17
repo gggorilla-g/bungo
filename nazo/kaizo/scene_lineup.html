@@ -58,9 +58,11 @@ const WT=(()=>{const c=document.createElement('canvas');c.width=64;c.height=64;c
   const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;t.wrapS=t.wrapT=THREE.RepeatWrapping;return t})();
 function tower(s){const g=new THREE.Group();let y=0;
   for(const q of s.tiers){const w1=q.w1!=null?q.w1:q.w,seg=q.round?32:4,k=q.round?.5:Math.SQRT1_2;
-    const geo=new THREE.CylinderGeometry(Math.max(.01,w1*k),q.w*k,q.h,seg,1);let mat;
+    const geo=q.ball?new THREE.SphereGeometry(q.w/2,32,20).scale(1,q.h/q.w,1):new THREE.CylinderGeometry(Math.max(.01,w1*k),q.w*k,q.h,seg,1);let mat;
     if(q.glass){const t=WT.clone();t.needsUpdate=true;t.repeat.set(seg===4?4:8,Math.max(1,Math.round(q.h/4)));mat=S(q.color||'#8fb3cc',{map:t,metalness:.25,roughness:.35})}else mat=S(q.color||'#cfcfcf');
-    const m=mesh(geo,mat);if(!q.round)m.rotation.y=Math.PI/4;m.position.y=y+q.h/2;g.add(m);y+=q.h}
+    const m=mesh(geo,mat);if(!q.round)m.rotation.y=Math.PI/4;m.position.y=y+q.h/2;g.add(m);
+    if(q.span){const a=mesh(new THREE.BoxGeometry(q.span,q.spanH||q.w*.25,q.w*.35),S(q.color||'#cfcfcf'));a.position.y=y+q.h-(q.spanH||q.w*.25)/2-(q.spanDrop||0);g.add(a)}
+    y+=q.h}
   return g}
 IT.forEach(it=>{const o=it.shape.type==='rocket'?rocket(it.shape):it.shape.type==='tower'?tower(it.shape):person(it.shape);o.position.x=it.x;o.rotation.y=.35;scene.add(o);it.obj=o});
 // いまの物の高さを示す横線

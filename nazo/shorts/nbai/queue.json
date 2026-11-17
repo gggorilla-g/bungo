@@ -44,5 +44,24 @@
  {
   "id": "buildings_ja",
   "publish_at": "2026-11-20T11:00:00Z"
+ },
+ {
+  "id": "statues_ja",
+  "publish_at": "2026-11-19T03:00:00Z"
+ },
+ {
+  "id": "jump_x3_en",
+  "publish_at": "2026-11-19T13:00:00Z",
+  "channel": "miw"
+ },
+ {
+  "id": "statues_en",
+  "publish_at": "2026-11-20T13:00:00Z",
+  "channel": "miw"
+ },
+ {
+  "id": "jump_x5_en",
+  "publish_at": "2026-11-21T13:00:00Z",
+  "channel": "miw"
  }
 ]
