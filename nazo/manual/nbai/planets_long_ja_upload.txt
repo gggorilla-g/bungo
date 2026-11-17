@@ -1,0 +1,48 @@
+【タイトル】
+太陽系の星とベテルギウスを大きさ順に並べてみた【3D大きさ比べ】
+
+【説明】
+冥王星から木星まで、太陽系の星を直径の順に並べ、太陽、そしてオリオン座の赤い星ベテルギウスと比べました。
+
+0:00 はじめに
+0:03 冥王星
+0:17 月
+0:32 水星
+0:47 火星
+1:01 金星
+1:16 地球
+1:31 海王星
+1:45 天王星
+2:00 土星
+2:15 木星
+2:29 太陽
+2:44 ベテルギウス
+2:59 まとめ
+
+直径
+・冥王星 2,376km
+・月 3,475km
+・水星 4,879km
+・火星 6,792km
+・金星 12,104km
+・地球 12,756km
+・海王星 49,528km
+・天王星 51,118km
+・土星 120,536km
+・木星 142,984km
+・太陽 1,391,400km
+・ベテルギウス（オリオン座） 約974,000,000km
+
+※惑星などの直径は NASA の値（惑星は赤道の直径）。太陽は NASA の半径 695,700km を2倍した値。ベテルギウスは NASA の「太陽の約700倍」から計算した目安で、実際の大きさは測り方や時期で変わります。色・模様は目安です。
+
+出典
+・NASA Planetary Fact Sheet https://nssdc.gsfc.nasa.gov/planetary/factsheet/index.html
+・NASA Sun Fact Sheet https://nssdc.gsfc.nasa.gov/planetary/factsheet/sunfact.html?level=1
+・NASA「What Is Betelgeuse?」 https://science.nasa.gov/universe/what-is-betelgeuse-inside-the-strange-volatile-star
+
+BGM：オリジナル
+
+#大きさ比べ #太陽系 #宇宙
+
+【タグ】
+大きさ比べ, 太陽系, 惑星, 太陽, ベテルギウス, 宇宙, 3D
