@@ -123,6 +123,16 @@
 
 - 11/11 Studioで設定：EP.01のタグ7つ（ザ・ビッグフェイス、ビッグフェイス、ショートアニメ、3DCG、アニメ、セリフなし、オリジナルアニメ）、カテゴリ「映画とアニメ」、タイトルと説明の言語「日本語」。チャンネルのキーワード（同じ7語）。アップロードのデフォルト（説明の定型文・タグ・カテゴリ・言語）
 
+## 英語圏バズ型 解説ショート（11/17〜、どれも即時公開・API）
+方針：添付の制作方針（Why Side／Ricks Clips／Zack D／You Made It の4型）を、英語版は Make It Work 3D、日本語版は 雑学（日常科学・科学史・工学）と 妄想科学（もしも）に振り分け。HOOK 0〜2秒、2〜4秒ごとに画が変わる、事実は出典つき
+| 日付 | ID | 型 | 内容 | チャンネル |
+|---|---|---|---|---|
+| 11/17 | wN3Aqe3S14c | Why Side | Why Do Airplane Windows Have Tiny Holes?（why_window_en） | Make It Work 3D |
+| 11/17 | JfLrqAg_uUE | Why Side | 飛行機の窓の小さな穴（why_window_ja） | 雑学 |
+| 11/17 | WITJikAlKJU | Ricks | The Man Who Measured Earth With a Stick（eratos_en） | Make It Work 3D |
+| 11/17 | z6SWL7QLvSw | Ricks | 棒で地球の大きさを測った男（eratos_ja） | 雑学 |
+| 11/17 | （結果待ち） | Zack D | What If You Never Blinked?（blink_en、0:26） | Make It Work 3D |
+
 ## 制作中・予定
 - 雑学 長尺#1「名前がひどすぎる生き物10選」＋入口ショート2本（すべてAPIで予約投稿済み、10/31）
 
