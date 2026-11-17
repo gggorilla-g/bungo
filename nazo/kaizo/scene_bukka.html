@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8">
+<style>
+@font-face{font-family:"JumpSans";font-weight:400;src:url(fonts_jp/NotoSansCJKjp-Regular.woff2) format("woff2")}
+@font-face{font-family:"JumpSans";font-weight:700;src:url(fonts_jp/NotoSansCJKjp-Bold.woff2) format("woff2")}
+@font-face{font-family:"JumpSans";font-weight:900;src:url(fonts_jp/NotoSansCJKjp-Black.woff2) format("woff2")}
+html,body{margin:0;background:#000}
+#stage{position:relative;width:540px;height:960px;overflow:hidden}
+#stage canvas{position:absolute;left:0;top:0}
+#hud{position:absolute;left:0;top:0;width:540px;height:960px;font-family:"JumpSans"}
+#hud text{paint-order:stroke;stroke:#101010;stroke-linejoin:round;fill:#fff}
+</style></head>
+<body><div id="stage"><svg id="hud" viewBox="0 0 540 960" xmlns="http://www.w3.org/2000/svg"></svg></div>
+<script src="vendor.js"></script>
+<script>
+// 物価くらべ：品物ごとに「1970年の値段＝コイン1段」を置き、2025年の倍率ぶんコインの塔がのびる。最後は大学の授業料49倍が画面を突き抜ける
+// 品物は SPEC.labels.items（fx名 → {name,p0,p1}）。行の fx：hook / setup / 各品物 / end
+const getJ=u=>{const x=new XMLHttpRequest();x.open('GET',u,false);x.send();if(x.status!==200)throw new Error('読めない: '+u);return JSON.parse(x.responseText)};
+const ID=(new URLSearchParams(location.search).get('spec')||'bukka_ja').replace(/^.*\//,'').replace(/\.json$/,'');
+const SPEC=getJ('specs/'+ID+'.json'),TL=getJ('specs/'+ID+'_timeline.json');
+const W=540,H=960,DUR=TL.total,FOV=34;
+const clamp=(x,a,b)=>Math.min(b,Math.max(a,x)),lerp=(a,b,k)=>a+(b-a)*k,sstep=(a,b,x)=>{const k=clamp((x-a)/(b-a),0,1);return k*k*(3-2*k)};
+const LINES=SPEC.lines.map((l,i)=>Object.assign({},l,TL.beats[i]));
+const LAB=SPEC.labels||{};const ITEMS=LAB.items;const ORDER=Object.keys(ITEMS);
+const fmt=n=>{const s=(Math.round(n*10)/10).toString();const [a,b]=s.split('.');return a.replace(/\B(?=(\d{3})+(?!\d))/g,',')+(b?'.'+b:'')};
+const yen=n=>(LAB.pre||'')+fmt(n)+(LAB.suf||'円');
+const renderer=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true});
+renderer.setPixelRatio(window.devicePixelRatio||1);renderer.setSize(W,H);renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.05;
+renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+document.getElementById('stage').prepend(renderer.domElement);
+const S=(c,o)=>new THREE.MeshStandardMaterial(Object.assign({color:c,roughness:.7,metalness:0,flatShading:true},o||{}));
+const mesh=(g,m,sh=true)=>{const x=new THREE.Mesh(g,m);x.castShadow=sh;x.receiveShadow=true;return x};
+const scene=new THREE.Scene();scene.background=new THREE.Color(0x1f3550);scene.fog=new THREE.Fog(0x1f3550,40,140);
+scene.add(new THREE.HemisphereLight(0xeaf2ff,0x34404f,1.2));
+const sun=new THREE.DirectionalLight(0xfff2dc,2.3);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);{const c=sun.shadow.camera;c.left=-40;c.right=40;c.top=40;c.bottom=-10;c.near=1;c.far=120;sun.shadow.bias=-.0005}scene.add(sun);scene.add(sun.target);
+{const g=mesh(new THREE.PlaneGeometry(300,60),S(0x2a4766,{flatShading:false})); g.rotation.x=-Math.PI/2;scene.add(g)}
+// コイン（側面に刻みの模様）
+const coinTex=(()=>{const c=document.createElement('canvas');c.width=64;c.height=256;const x=c.getContext('2d');for(let i=0;i<32;i++){x.fillStyle=i%2?'#d9a520':'#f4c84a';x.fillRect(0,i*8,64,8)}const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;return t})();
+const CH=.42; // コイン1段（1970年の値段）の高さ
+function stack(col){const m=new THREE.MeshStandardMaterial({color:col,map:coinTex.clone(),roughness:.35,metalness:.55});m.map.needsUpdate=true;const s=mesh(new THREE.CylinderGeometry(.62,.62,1,28),m);s.userData.m=m;return s}
+// 品物の形（ローポリ）
+function prop(key){const g=new THREE.Group();
+  if(key==='gas'){const b=mesh(new THREE.BoxGeometry(.9,1.5,.6),S(0xd8443a));b.position.y=.75;g.add(b);const d=mesh(new THREE.BoxGeometry(.6,.35,.05),S(0x101820));d.position.set(0,1.15,.31);g.add(d);
+    const h=mesh(new THREE.CylinderGeometry(.06,.06,.7,8),S(0x222222));h.position.set(.55,.8,0);g.add(h);const n=mesh(new THREE.BoxGeometry(.18,.3,.12),S(0x333333));n.position.set(.55,1.2,0);g.add(n)}
+  else if(key==='bread'){const b=mesh(new THREE.BoxGeometry(1.2,.6,.75),S(0xf3dfb2));b.position.y=.3;g.add(b);const t=mesh(new THREE.CylinderGeometry(.38,.38,1.2,14,1,false,0,Math.PI),S(0xc98a3e));t.rotation.z=Math.PI/2;t.rotation.y=Math.PI/2;t.position.y=.6;t.scale.set(1,1,1);g.add(t)}
+  else if(key==='ramen'){const pts=[];for(let i=0;i<=8;i++){const a=i/8;pts.push(new THREE.Vector2(.3+.4*Math.sin(a*Math.PI/2),a*.55))}const bw=mesh(new THREE.LatheGeometry(pts,24),S(0xb8352c,{side:THREE.DoubleSide}));g.add(bw);
+    const soup=mesh(new THREE.CylinderGeometry(.66,.66,.02,24),S(0x9c5a24));soup.position.y=.48;g.add(soup);for(let i=0;i<5;i++){const n=mesh(new THREE.TorusGeometry(.18+i*.08,.025,6,24),S(0xf0d36a));n.rotation.x=Math.PI/2;n.position.y=.5;g.add(n)}
+    const nr=mesh(new THREE.CylinderGeometry(.14,.14,.04,16),S(0xffffff));nr.position.set(.25,.53,.15);g.add(nr);const no=mesh(new THREE.BoxGeometry(.05,.45,.35),S(0x1b2a1a));no.position.set(-.35,.62,-.1);g.add(no)}
+  else if(key==='coffee'){const sc=mesh(new THREE.CylinderGeometry(.6,.5,.06,24),S(0xffffff));sc.position.y=.03;g.add(sc);const c=mesh(new THREE.CylinderGeometry(.34,.28,.55,20),S(0xffffff));c.position.y=.34;g.add(c);
+    const k=mesh(new THREE.CylinderGeometry(.3,.3,.02,20),S(0x3b2414));k.position.y=.6;g.add(k);const hd=mesh(new THREE.TorusGeometry(.14,.04,8,16),S(0xffffff));hd.position.set(.4,.36,0);g.add(hd)}
+  else if(key==='barber'){const tx=(()=>{const c=document.createElement('canvas');c.width=128;c.height=128;const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,128,128);x.lineWidth=18;['#d33','#25c'].forEach((col,j)=>{x.strokeStyle=col;for(let i=-2;i<4;i++){x.beginPath();x.moveTo(-20,i*64+j*32);x.lineTo(148,i*64+j*32+80);x.stroke()}});return new THREE.CanvasTexture(c)})();
+    const p=mesh(new THREE.CylinderGeometry(.22,.22,1.3,20),new THREE.MeshStandardMaterial({map:tx,roughness:.4}));p.position.y=.85;g.add(p);g.userData.spin=p;
+    [0.15,1.55].forEach(y=>{const c=mesh(new THREE.SphereGeometry(.28,16,10),S(0xcfd6dc,{metalness:.6,roughness:.3}));c.position.y=y;c.scale.y=.6;g.add(c)})}
+  else if(key==='post'){const c=mesh(new THREE.BoxGeometry(1.0,1.45,.03),S(0xfaf6ea));c.position.y=.75;c.rotation.x=-.12;g.add(c);const st=mesh(new THREE.BoxGeometry(.2,.26,.04),S(0xd8443a));st.position.set(.32,1.25,.04);st.rotation.x=-.12;g.add(st);
+    for(let i=0;i<4;i++){const l=mesh(new THREE.BoxGeometry(.6,.02,.04),S(0x8899aa));l.position.set(-.08,.95-i*.18,.05+i*.02);l.rotation.x=-.12;g.add(l)}}
+  else if(key==='univ'){const b=mesh(new THREE.CylinderGeometry(.42,.48,.32,16),S(0x1b1b22));b.position.y=.16;g.add(b);const t=mesh(new THREE.BoxGeometry(1.25,.05,1.25),S(0x1b1b22));t.position.y=.34;t.rotation.y=Math.PI/4;g.add(t);
+    const ts=mesh(new THREE.CylinderGeometry(.02,.02,.5,6),S(0xf4c84a));ts.position.set(.5,.15,0);g.add(ts);const bt=mesh(new THREE.SphereGeometry(.05,8,6),S(0xf4c84a));bt.position.y=.37;g.add(bt)}
+  return g}
+const GAP=4.2,BX=[];
+const IT=ORDER.map((k,i)=>{const it=ITEMS[k];const x=(i-(ORDER.length-1)/2)*GAP;const grp=new THREE.Group();grp.position.x=x;scene.add(grp);
+  const ped=mesh(new THREE.BoxGeometry(3.4,.3,2.4),S(0x3a5a7c));ped.position.y=.15;grp.add(ped);
+  const p=prop(k);p.position.set(0,.3,.75);grp.add(p);
+  const s0=stack(0xb8b8b8);s0.position.set(-.75,0,-.45);grp.add(s0);const s1=stack(0xf4c84a);s1.position.set(.75,0,-.45);grp.add(s1);
+  return Object.assign({k,x,grp,p,s0,s1,r:it.p1/it.p0},it)});
+function setStack(s,h){s.scale.y=Math.max(.001,h);s.position.y=.3+h/2;s.userData.m.map.repeat.set(1,Math.max(1,h/CH*.25));}
+const tOf=fx=>{const l=LINES.find(x=>x.fx===fx);return l?l.t0:1e9};const lineOf=fx=>LINES.find(x=>x.fx===fx);
+const lineAt=t=>LINES.find(x=>t>=x.t0-.02&&t<x.t1+.12)||LINES.filter(x=>x.t0<=t).pop()||LINES[0];
+// それぞれの品物の伸び（0〜1）
+function grow(it,t){const l=lineOf(it.k);if(t<tOf('setup'))return it.k==='univ'?1:0;if(!l)return 0;return sstep(l.t0+.35,l.t0+1.9,t)}
+const cam=new THREE.PerspectiveCamera(FOV,W/H,.05,400);
+const L=IT[0].x-2,R=IT[IT.length-1].x+2;
+function shotFor(fx,t){
+  const it=IT.find(o=>o.k===fx);
+  if(it){const h=CH*lerp(1,it.r,grow(it,t)),big=h>6,ty=big?.3+h*.5:Math.max(1.4,.3+h*.62),d=big?h*2.0+4:Math.max(7.4,h*1.25+3.5);return[[it.x+(big?4:1.2),ty+1.2,d],[it.x,ty,0]]}
+  if(fx==='hook'){const u=IT.find(o=>o.k==='univ'),hh=CH*u.r,k=sstep(.1,2.4,t);return[[u.x+3.5,lerp(1.2,hh*.55,k),lerp(6,hh*1.15,k)],[u.x,lerp(.8,hh*.62,k),0]]}
+  if(fx==='setup')return[[0,6,26],[0,1.2,0]];
+  // end：全体を見わたす
+  const u=IT.find(o=>o.k==='univ'),hh=CH*u.r,a=IT[0];return[[a.x-6,9,34],[u.x-7,hh*.45,-.45]]}
+function camAt(t){const l=lineAt(t),i=LINES.indexOf(l),cur=shotFor(l.fx,t),prev=i>0?shotFor(LINES[i-1].fx,l.t0):cur,k=sstep(l.t0-.1,l.t0+.7,t);
+  const p=new THREE.Vector3().fromArray(prev[0]).lerp(new THREE.Vector3().fromArray(cur[0]),k),q=new THREE.Vector3().fromArray(prev[1]).lerp(new THREE.Vector3().fromArray(cur[1]),k);p.x+=.12*Math.sin(t*.5);return[p,q]}
+// HUD
+const NS='http://www.w3.org/2000/svg',hud=document.getElementById('hud');
+function el(tag,a,txt){const e=document.createElementNS(NS,tag);for(const k in a)e.setAttribute(k,a[k]);if(txt!=null)e.textContent=txt;hud.appendChild(e);return e}
+const tw=(s,size)=>{let w=0;for(const ch of String(s))w+=ch.charCodeAt(0)<256?.58:1;return w*size};
+function T(x,y,size,txt,o={}){const a={x,y,'font-size':size,'font-weight':o.w||900,'text-anchor':o.a||'start','stroke-width':o.sw!=null?o.sw:Math.max(3,size*.2)};let st='';if(o.fill)st+='fill:'+o.fill+';';if(o.op!=null)st+='opacity:'+o.op+';';if(st)a.style=st;return el('text',a,txt)}
+const proj=v=>{const p=v.clone().project(cam);return[(p.x+1)/2*W,(1-p.y)/2*H,p.z]};
+function tag(v,lines,op,col,size){if(op<=.02)return;const[x,y,z]=proj(v);if(z>1||y<-40||y>H+40)return;const w=Math.max(...lines.map(s=>tw(s,size)))+20,hgt=lines.length*(size+6)+10;
+  const cx=clamp(x,w/2+6,W-w/2-6),cy=clamp(y,hgt+70,H-300);el('rect',{x:cx-w/2,y:cy-hgt,width:w,height:hgt,rx:8,fill:col,style:'opacity:'+(op*.92).toFixed(2)});
+  lines.forEach((s,i)=>T(cx,cy-hgt+size+3+i*(size+6),size,s,{a:'middle',sw:0,op:op.toFixed(2)}))}
+function drawHud(t){hud.innerHTML='';const l=lineAt(t),a=clamp((t-l.t0)/.12,0,1);
+  let y=l.cap.length>1?690:712;l.cap.forEach((c,i)=>{const size=Math.min(48,480/tw(c,1));T(270,y+(1-a)*6,size,c,{a:'middle',sw:9,op:(.3+.7*a).toFixed(2),fill:i===l.cap.length-1?'#ffd23f':'#fff'});y+=size+12});
+  const it=IT.find(o=>o.k===l.fx);
+  if(it){const g=grow(it,t),h1=CH*lerp(1,it.r,g),op=sstep(l.t0+.15,l.t0+.4,t);
+    tag(new THREE.Vector3(it.x-.75,.3+CH+.15,-.45),[LAB.y0||'1970年',yen(it.p0)],op,'#4b5563',28);
+    tag(new THREE.Vector3(it.x+.75,.3+h1+.15,-.45),[LAB.y1||'2025年',yen(g<=0?it.p0:(g<1?Math.round(lerp(it.p0,it.p1,g)):it.p1))],op,'#b7791f',32);
+    const bo=sstep(l.t0+1.9,l.t0+2.1,t);if(bo>0){const s=1+.25*(1-bo);const txt='×'+fmt(Math.round(it.r*10)/10);T(270,240,64*s,txt,{a:'middle',sw:12,fill:'#ffd23f',op:bo.toFixed(2)})}
+    T(270,150,34,it.name,{a:'middle',sw:8,op:op.toFixed(2)})}
+  if(l.fx==='end'){IT.forEach(o=>{const[x,y,z]=proj(new THREE.Vector3(o.x+.75,.3+CH*o.r+.2,-.45));if(z<1&&y>60)T(x,y,o.k==='univ'?30:20,'×'+fmt(Math.round(o.r*10)/10),{a:'middle',sw:6,fill:o.k==='univ'?'#ffd23f':'#fff'})})}
+  if(l.fx==='hook'){const u=IT.find(o=>o.k==='univ');T(270,150,34,u.name,{a:'middle',sw:8});const bo=sstep(l.t0+.6,l.t0+.9,t);if(bo>0)T(270,240,64,'×49',{a:'middle',sw:12,fill:'#ffd23f',op:bo.toFixed(2)})}
+  if(l.fx==='setup'){T(270,170,40,(LAB.y0||'1970年')+' → '+(LAB.y1||'2025年'),{a:'middle',sw:9});if(LAB.where)T(270,215,24,LAB.where,{a:'middle',sw:6})}}
+window.renderAt=function(t){
+  IT.forEach(o=>{setStack(o.s0,CH);setStack(o.s1,CH*lerp(1,o.r,grow(o,t)));if(o.p.userData.spin)o.p.userData.spin.rotation.y=t*2;o.p.rotation.y=.35*Math.sin(t*.6+o.x)});
+  const[p,q]=camAt(t);cam.position.copy(p);cam.lookAt(q);cam.updateProjectionMatrix();sun.position.set(q.x+8,q.y+22,14);sun.target.position.copy(q);
+  renderer.render(scene,cam);drawHud(t);return{t}};
+window.__info={total:DUR};
+Promise.all([400,700,900].map(w=>document.fonts.load(w+' 20px JumpSans','あ0'))).then(()=>{window.__fig={kind:'none'};window.__ready=true},e=>console.log('load error: '+e.message));
+</script></body></html>
