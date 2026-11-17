@@ -1,0 +1,95 @@
+{
+ "title": [
+  "",
+  ""
+ ],
+ "parts": {},
+ "labels": {
+  "rate": "15–20 blinks / min",
+  "timer": "{s} s",
+  "days": "Days later"
+ },
+ "lines": [
+  {
+   "id": "k0",
+   "cap": [
+    "What if you",
+    "never blinked again?"
+   ],
+   "fx": "hook",
+   "text": "What if you never blinked again?"
+  },
+  {
+   "id": "k1",
+   "cap": [
+    "15 to 20 times a minute,",
+    "without noticing"
+   ],
+   "fx": "rate",
+   "text": "You blink about fifteen to twenty times a minute, without even noticing."
+  },
+  {
+   "id": "k2",
+   "cap": [
+    "Every blink spreads",
+    "a thin film of tears"
+   ],
+   "fx": "film",
+   "text": "Every blink spreads a thin film of tears over your eye."
+  },
+  {
+   "id": "k3",
+   "cap": [
+    "Stop blinking, and it breaks up",
+    "in about 10 seconds"
+   ],
+   "fx": "break",
+   "text": "Stop blinking, and that film starts to break up in about ten seconds."
+  },
+  {
+   "id": "k4",
+   "cap": [
+    "Dry spots appear.",
+    "Everything goes blurry."
+   ],
+   "fx": "dry",
+   "text": "Dry spots appear, and everything goes blurry."
+  },
+  {
+   "id": "k5",
+   "cap": [
+    "Dust lands",
+    "and stays"
+   ],
+   "fx": "dust",
+   "text": "Dust lands and stays, because nothing wipes it away."
+  },
+  {
+   "id": "k6",
+   "cap": [
+    "Your eyes sting,",
+    "burn, and turn red"
+   ],
+   "fx": "sting",
+   "text": "Your eyes sting, burn, and turn red."
+  },
+  {
+   "id": "k7",
+   "cap": [
+    "After days, the front",
+    "of your eye gets damaged"
+   ],
+   "fx": "damage",
+   "text": "After days, the clear front of your eye could get damaged."
+  },
+  {
+   "id": "k8",
+   "cap": [
+    "So go ahead.",
+    "Blink."
+   ],
+   "fx": "end",
+   "text": "So go ahead. Blink."
+  }
+ ]
+}

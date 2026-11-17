@@ -1,0 +1,106 @@
+{
+ "title": [
+  "",
+  ""
+ ],
+ "parts": {},
+ "labels": {
+  "pillars": "Brick stacks",
+  "space": "Hollow space",
+  "furnace": "Furnace",
+  "walls": "Hollow wall tiles",
+  "roof": "Smoke out"
+ },
+ "lines": [
+  {
+   "id": "h0",
+   "cap": [
+    "2,000 years ago, Romans",
+    "had heated floors"
+   ],
+   "fx": "hook",
+   "text": "Two thousand years ago, Romans already had heated floors."
+  },
+  {
+   "id": "h1",
+   "cap": [
+    "No electricity.",
+    "Just fire. So how?"
+   ],
+   "fx": "nofire",
+   "text": "No electricity. No boiler. Just fire. So how?"
+  },
+  {
+   "id": "h2",
+   "cap": [
+    "First, short pillars",
+    "of stacked bricks"
+   ],
+   "fx": "pillars",
+   "text": "First, they stacked bricks into short pillars."
+  },
+  {
+   "id": "h3",
+   "cap": [
+    "The floor sits on top.",
+    "A hollow space below"
+   ],
+   "fx": "space",
+   "text": "The floor sat on top, with a hollow space about sixty centimeters deep."
+  },
+  {
+   "id": "h4",
+   "cap": [
+    "A furnace outside",
+    "sends hot air under the floor"
+   ],
+   "fx": "furnace",
+   "text": "A furnace outside pushed hot air and smoke into that space."
+  },
+  {
+   "id": "h5",
+   "cap": [
+    "The whole floor",
+    "warms from below"
+   ],
+   "fx": "floor",
+   "text": "The heat warmed the whole floor from below."
+  },
+  {
+   "id": "h6",
+   "cap": [
+    "Hot air rises through",
+    "hollow tiles in the walls"
+   ],
+   "fx": "walls",
+   "text": "Then the hot air rose through hollow tiles inside the walls."
+  },
+  {
+   "id": "h7",
+   "cap": [
+    "It escapes near the roof.",
+    "The walls get warm too"
+   ],
+   "fx": "roof",
+   "text": "and escaped near the roof. So the walls got warm too."
+  },
+  {
+   "id": "h8",
+   "cap": [
+    "Workers kept",
+    "feeding the fire"
+   ],
+   "fx": "worker",
+   "text": "Workers kept feeding the fire all day."
+  },
+  {
+   "id": "h9",
+   "cap": [
+    "Ancient",
+    "underfloor heating"
+   ],
+   "fx": "end",
+   "text": "Ancient underfloor heating."
+  }
+ ]
+}
