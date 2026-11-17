@@ -1,0 +1,29 @@
+[
+ {
+  "id": "rockets_big_en",
+  "publish_at": "2026-11-21T01:00:00Z",
+  "channel": "miw"
+ },
+ {
+  "id": "rockets_jp_ja",
+  "publish_at": "2026-11-21T11:00:00Z"
+ },
+ {
+  "id": "buildings_en",
+  "publish_at": "2026-11-19T23:00:00Z",
+  "channel": "miw"
+ },
+ {
+  "id": "buildings_ja",
+  "publish_at": "2026-11-20T11:00:00Z"
+ },
+ {
+  "id": "statues_ja",
+  "publish_at": "2026-11-19T03:00:00Z"
+ },
+ {
+  "id": "statues_en",
+  "publish_at": "2026-11-20T13:00:00Z",
+  "channel": "miw"
+ }
+]
