@@ -1,0 +1,166 @@
+{
+ "voice": {
+  "vvm": "0.vvm",
+  "style": 3,
+  "speed": 1.0,
+  "pitch": 0.0,
+  "intonation": 1.15
+ },
+ "voice_name": "ずんだもん",
+ "bgm_file": "assets/enc/bgm_trivia_mood2.mp3",
+ "bgm_credit": "ムード２ / 今川彰人オーケストラ（OpenTracks（旧DOVA-SYNDROME））",
+ "bgm_vol": 0.16,
+ "main": "trivia_daily",
+ "label": "名前がウソすぎる生き物",
+ "format": "vs",
+ "themes": [
+  "orange_rays",
+  "deep_sea",
+  "checker"
+ ],
+ "title": "ウミネコは、ネコじゃなくて鳥なのだ。名前がウソすぎる生き物 #Shorts #雑学 #鳥",
+ "tags": [
+  "ずんだもん",
+  "雑学",
+  "鳥",
+  "名前がひどい",
+  "ウミネコ",
+  "カモメ",
+  "蕪島",
+  "脳がとける雑学",
+  "ショート"
+ ],
+ "desc": "ネコって名前なのに、鳥なのだ。\n\n・ウミネコはカモメのなかま（学名 Larus crassirostris）。和名は、鳴き声がネコに似ていることに由来するとされる。尾羽は白いが、先のほうに黒い帯があり、英名 Black-tailed Gull の由来になっている（Wikipedia「ウミネコ」）https://ja.wikipedia.org/wiki/ウミネコ\n・青森県八戸市の蕪島は、繁殖期に約3万羽のウミネコが集まると推定される。「蕪島ウミネコ繁殖地」は1922年に国の天然記念物に指定（青森県教育委員会「蕪島ウミネコ繁殖地」）https://www.pref.aomori.lg.jp/soshiki/kyoiku/e-bunka/kinen_tennen_1_01.html",
+ "lines": [
+  {
+   "say": "ネコじゃないのだ。",
+   "text": "ウミネコは\nネコじゃない",
+   "face": "ドヤ",
+   "file": "File:Gull in water3.jpg",
+   "fx": [
+    {
+     "type": "stamp",
+     "text": "鳥",
+     "at": 0.0,
+     "y": 0.35,
+     "size": 260,
+     "color": [
+      230,
+      40,
+      40
+     ]
+    }
+   ],
+   "hook": true
+  },
+  {
+   "say": "ウミネコは、カモメの仲間の鳥なのだ。",
+   "text": "ウミネコは\nカモメの仲間の鳥",
+   "face": "驚き",
+   "file": "File:Black-tailed Gull at Jyoudo Beach, Iwate, Japan 1.jpg"
+  },
+  {
+   "say": "鳴き声が、ネコに似ているのだ。",
+   "text": "鳴き声が\nネコに似ている",
+   "face": "驚き",
+   "file": "File:Larus crassirostris (head).jpg",
+   "fx": [
+    {
+     "type": "stamp",
+     "text": "ミャー",
+     "at": 0.3,
+     "y": 0.35,
+     "size": 240,
+     "color": [
+      255,
+      226,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "say": "だから、ウミネコという名前なのだ。",
+   "text": "だから\nウミネコ",
+   "face": "ドヤ",
+   "file": "File:Larus crassirostris (head).jpg"
+  },
+  {
+   "say": "しっぽの先に、黒い帯があるのだ。",
+   "text": "しっぽの先に\n黒い帯",
+   "face": "指差し",
+   "file": "File:Gull in water3.jpg"
+  },
+  {
+   "say": "青森県八戸市の蕪島には、約3万羽が集まるのだ。",
+   "text": "八戸市の蕪島に\n約3万羽",
+   "face": "驚き",
+   "file": "File:Kabushima2.JPG",
+   "fx": [
+    {
+     "type": "count",
+     "to": 3,
+     "unit": "万羽",
+     "label": "繁殖期（推定）",
+     "at": 0.3
+    }
+   ]
+  },
+  {
+   "say": "ネコって名前なのに、鳥なのだ！",
+   "text": "ネコって名前なのに\n鳥",
+   "face": "怒り",
+   "up": true
+  },
+  {
+   "say": "蕪島の繁殖地は、国の天然記念物なのだ。",
+   "text": "蕪島の繁殖地は\n国の天然記念物",
+   "face": "ドヤ",
+   "file": "File:Kabushima2.JPG",
+   "fx": [
+    {
+     "type": "stamp",
+     "text": "天然記念物",
+     "at": 0.4,
+     "y": 0.35,
+     "size": 190,
+     "color": [
+      255,
+      226,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "say": "レッツ脳とけ！",
+   "text": "レッツ\n脳とけ！",
+   "face": "笑顔",
+   "logo": true
+  },
+  {
+   "say": "ちなみにこの生き物…",
+   "text": "ちなみに\nこの生き物…",
+   "face": "ドヤ",
+   "file": "File:Gull in water3.jpg",
+   "loop": true
+  }
+ ],
+ "yomi": {
+  "レッツ脳とけ！": "レッツのーとけ！",
+  "青森県八戸市の蕪島には、約3万羽が集まるのだ。": "あおもりけんはちのへしのかぶしまには、やくさんまんわがあつまるのだ。",
+  "蕪島の繁殖地は、国の天然記念物なのだ。": "かぶしまのはんしょくちは、くにのてんねんきねんぶつなのだ。"
+ },
+ "yomi_ok": [
+  "仲間",
+  "鳥",
+  "名前",
+  "先",
+  "帯",
+  "天然記念物",
+  "生き物"
+ ],
+ "meta": {
+  "exp": "雑学 1行目の長さ B（1行目12字以内）。冒頭0秒は採用済みの「1行目から題材の写真」"
+ }
+}

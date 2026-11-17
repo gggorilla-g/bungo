@@ -1,0 +1,164 @@
+{
+ "voice": {
+  "vvm": "0.vvm",
+  "style": 3,
+  "speed": 1.0,
+  "pitch": 0.0,
+  "intonation": 1.15
+ },
+ "voice_name": "ずんだもん",
+ "bgm_file": "assets/enc/bgm_trivia_mood2.mp3",
+ "bgm_credit": "ムード２ / 今川彰人オーケストラ（OpenTracks（旧DOVA-SYNDROME））",
+ "bgm_vol": 0.16,
+ "main": "trivia_daily",
+ "label": "見た目がウソすぎる生き物",
+ "format": "vs",
+ "themes": [
+  "orange_rays",
+  "deep_sea",
+  "checker"
+ ],
+ "title": "ハイエナは、イヌっぽいのにネコの仲間なのだ。見た目がウソすぎる生き物 #Shorts #雑学 #動物",
+ "tags": [
+  "ずんだもん",
+  "雑学",
+  "動物",
+  "ハイエナ",
+  "ブチハイエナ",
+  "ネコ",
+  "イヌ",
+  "脳がとける雑学",
+  "ショート"
+ ],
+ "desc": "見た目はイヌっぽいのに、ネコに近いのだ。\n\n・ハイエナ科は、食肉目（ネコ目）のうち、ネコやマングースなどと同じネコ型亜目（Feliformia）に入る。イヌは別のイヌ型亜目（Wikipedia「Feliformia」）https://en.wikipedia.org/wiki/Feliformia\n・ブチハイエナはすぐれたハンターで、食べるものの6割以上は自分たちでとらえた獲物。小臼歯がじょうぶで、あごの力が強く、獲物の骨もかみくだく。メスはオスより大きくなる（札幌市円山動物園「ブチハイエナ」）https://www.city.sapporo.jp/zoo/012-b.html",
+ "lines": [
+  {
+   "say": "ネコの仲間なのだ。",
+   "text": "ハイエナは\nネコの仲間",
+   "face": "ドヤ",
+   "file": "File:Day 21 Spotted Hyaena (Crocuta crocuta) resting on the road ... (53250462969).jpg",
+   "fx": [
+    {
+     "type": "stamp",
+     "text": "ネコ",
+     "at": 0.0,
+     "y": 0.35,
+     "size": 260,
+     "color": [
+      230,
+      40,
+      40
+     ]
+    }
+   ],
+   "hook": true
+  },
+  {
+   "say": "見た目はイヌっぽいけど、ネコに近いグループなのだ。",
+   "text": "見た目はイヌっぽいけど\nネコに近いグループ",
+   "face": "驚き",
+   "file": "File:Day 21 Spotted Hyaena (Crocuta crocuta) (53462515631).jpg"
+  },
+  {
+   "say": "しかも、食べ物の6割以上は、自分で狩るのだ。",
+   "text": "食べ物の6割以上は\n自分で狩る",
+   "face": "ドヤ",
+   "file": "File:Day 21 Spotted Hyaena (Crocuta crocuta) (53462515631).jpg",
+   "fx": [
+    {
+     "type": "count",
+     "to": 6,
+     "unit": "割以上",
+     "label": "自分で狩る",
+     "at": 0.3
+    }
+   ]
+  },
+  {
+   "say": "横取りばかり、というのは誤解なのだ。",
+   "text": "横取りばかりは\n誤解",
+   "face": "指差し",
+   "file": "File:Day 43 Spotted Hyena (Crocuta crocuta) (53301920826).jpg",
+   "fx": [
+    {
+     "type": "stamp",
+     "text": "誤解",
+     "at": 0.3,
+     "y": 0.35,
+     "size": 240,
+     "color": [
+      60,
+      140,
+      255
+     ]
+    }
+   ]
+  },
+  {
+   "say": "あごが強くて、骨までかみくだくのだ。",
+   "text": "あごが強く\n骨までかみくだく",
+   "face": "青ざめ",
+   "file": "File:Day 43 Spotted Hyena (Crocuta crocuta) (53301920826).jpg",
+   "fx": [
+    {
+     "type": "stamp",
+     "text": "骨",
+     "at": 0.3,
+     "y": 0.35,
+     "size": 260,
+     "color": [
+      230,
+      40,
+      40
+     ]
+    }
+   ]
+  },
+  {
+   "say": "メスのほうが、オスより大きいのだ。",
+   "text": "メスのほうが\nオスより大きい",
+   "face": "驚き",
+   "file": "File:Day 21 Spotted Hyaena (Crocuta crocuta) resting on the road ... (53250462969).jpg"
+  },
+  {
+   "say": "イヌっぽいのに、ネコの仲間なのだ！",
+   "text": "イヌっぽいのに\nネコの仲間",
+   "face": "怒り",
+   "up": true
+  },
+  {
+   "say": "眠るときは、こんな顔なのだ。",
+   "text": "眠るときは\nこんな顔",
+   "face": "笑顔",
+   "file": "File:Day 49 Spotted Hyena (Crocuta crocuta) sleeping on the roadside ... (53315033972).jpg"
+  },
+  {
+   "say": "レッツ脳とけ！",
+   "text": "レッツ\n脳とけ！",
+   "face": "笑顔",
+   "logo": true
+  },
+  {
+   "say": "ちなみにこの生き物…",
+   "text": "ちなみに\nこの生き物…",
+   "face": "ドヤ",
+   "file": "File:Day 21 Spotted Hyaena (Crocuta crocuta) resting on the road ... (53250462969).jpg",
+   "loop": true
+  }
+ ],
+ "yomi": {
+  "レッツ脳とけ！": "レッツのーとけ！",
+  "しかも、食べ物の6割以上は、自分で狩るのだ。": "しかも、たべもののろくわりいじょうは、じぶんでかるのだ。"
+ },
+ "yomi_ok": [
+  "仲間",
+  "見た目",
+  "食べ物",
+  "骨",
+  "顔",
+  "生き物"
+ ],
+ "meta": {
+  "exp": "雑学 1行目の長さ B（1行目12字以内）。冒頭0秒は採用済みの「1行目から題材の写真」"
+ }
+}
