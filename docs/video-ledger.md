@@ -135,6 +135,7 @@
 | 11/17 | dQgp4hiSfqE | Zack D | もしも、まばたきをしなかったら（blink_ja、0:29） | 妄想科学 |
 | 11/18 | QifZu2HnDO4 | You Made It | How Romans Heated Their Floors（hypo_en、0:30） | Make It Work 3D |
 | 11/18 | ta59AufRa0Q | You Made It | 2000年前のローマ人は床暖房を使っていた（hypo_ja、0:39） | 雑学 |
+| 11/18 | uBb1MK7f1NM | 比較（ゲンタさん案） | 1970年と2025年の値段（bukka_ja、0:50。総務省 小売物価統計。最後に国立大学授業料49倍） | 雑学 |
 
 ## 制作中・予定
 - 雑学 長尺#1「名前がひどすぎる生き物10選」＋入口ショート2本（すべてAPIで予約投稿済み、10/31）
