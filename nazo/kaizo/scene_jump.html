@@ -145,9 +145,10 @@ function T(x,y,size,txt,o={}){const a={x,y,'font-size':size,'font-weight':o.w||9
   let st='';if(o.fill)st+='fill:'+o.fill+';';if(o.op!=null)st+='opacity:'+o.op+';';if(st)a.style=st;if(o.tf)a.transform=o.tf;return el('text',a,txt)}
 function pill(x,y,txt,size=15,anchor='start',fill='#101010'){const w=tw(txt,size)+18,x0=anchor==='end'?x-w:x;el('rect',{x:x0,y:y-size-5,width:w,height:size+11,rx:5,fill,'fill-opacity':.74});
   el('text',{x:x0+9,y,'font-size':size,'font-weight':700,'stroke-width':0},txt)}
-const fmtH=y=>y<.995?Math.round(y*100)+'cm':(y<100?(Math.round(y*10)/10).toFixed(1)+'m':Math.round(y).toLocaleString('en-US')+'m');
-const fmtTick=h=>h<1?Math.round(h*100)+'cm':h.toLocaleString('en-US')+'m';
-const fmtT=s=>s<60?(Math.round(s*10)/10).toFixed(1)+'秒':Math.floor(s/60)+'分'+Math.round(s%60)+'秒';
+const EN=SPEC.lang==='en',FT=3.28084,LX=EN?{jump:'JUMP',kai:'',h:'HEIGHT',push:'TAKEOFF',air:'AIRTIME',ff:'FAST ×',slow:'SLOW 1/',p0:'School field',p1:'Above the school',p2:'Above Tokyo',school:'School ~15 m (49 ft)',cmp:' (for scale)'}:{jump:'ジャンプ',kai:'回目',h:'高さ',push:'踏み切り',air:'滞空',ff:'早送り ×',slow:'スロー 1/',p0:'放課後の校庭',p1:'校庭の上空',p2:'東京の上空',school:'校舎 約15m',cmp:'（高さの比較）'};
+const fmtH=EN?(y=>y*FT<9.95?(Math.round(y*FT*10)/10).toFixed(1)+' ft':Math.round(y*FT).toLocaleString('en-US')+' ft'):y=>y<.995?Math.round(y*100)+'cm':(y<100?(Math.round(y*10)/10).toFixed(1)+'m':Math.round(y).toLocaleString('en-US')+'m');
+const fmtTick=EN?(h=>{const f=h*FT;return (f<10?(Math.round(f*10)/10).toFixed(1):Math.round(f).toLocaleString('en-US'))+' ft'}):h=>h<1?Math.round(h*100)+'cm':h.toLocaleString('en-US')+'m';
+const fmtT=EN?(s=>s<60?(Math.round(s*10)/10).toFixed(1)+' s':Math.floor(s/60)+' min '+Math.round(s%60)+' s'):s=>s<60?(Math.round(s*10)/10).toFixed(1)+'秒':Math.floor(s/60)+'分'+Math.round(s%60)+'秒';
 function captions(t,st){return C.captionAt(t,st)}
 // 字幕が切り替わった時刻（出だしの動きに使う。大字幕と小字幕を別々に見る）
 const CAPCH=[];function buildCaps(){let k1=null,k2=null;for(let i=0;i<=DUR*30;i++){const t=i/30,st=stateAt(t),c=captions(t,st),x=c.c1.join('|'),y=(c.c2||[]).join('|');if(x!==k1){k1=x;CAPCH.push({t,w:1})}if(y!==k2){k2=y;CAPCH.push({t,w:2})}}}
@@ -158,13 +159,13 @@ function drawHud(t,st,F,labels){hud.innerHTML='';
   SPEC.titleLines[1].forEach(([s,k])=>{const ts=document.createElementNS(NS,'tspan');ts.textContent=s;if(k)ts.setAttribute('style','fill:#ffd43b');t2.appendChild(ts)});
   // 左：回数と高さ
   const n=st.dispN,fl=segOf('flight',n),cr=SEG.find(q=>q.crouch),since=t-(n===HERO&&cr?cr.t0:fl.t0),pop=since>=0&&since<.2?1+.16*(1-since/.2):1;
-  pill(26,208,'ジャンプ');T(24,262,54,n+'回目',{sw:9,tf:pop>1?`translate(24 262) scale(${pop.toFixed(3)}) translate(-24 -262)`:null});
-  pill(26,300,'高さ');T(24,346,40,fmtH(st.y),{sw:8});
+  pill(26,208,LX.jump);T(24,262,54,EN?'#'+n:n+LX.kai,{sw:9,tf:pop>1?`translate(24 262) scale(${pop.toFixed(3)}) translate(-24 -262)`:null});
+  pill(26,300,LX.h);T(24,346,40,fmtH(st.y),{sw:8});
   // 右：踏み切りのGと滞空
-  const g=gN(n);pill(514,208,'踏み切り',15,'end');T(516,254,36,g.toLocaleString('en-US')+'G',{a:'end',sw:8,fill:g>=64?'#ff5a4d':null});
-  const air=st.type==='contact'?(st.seg.crouch?0:airN(st.seg.n)):st.tau;pill(514,292,'滞空',15,'end');T(516,334,30,fmtT(air),{a:'end',sw:7});
-  if(st.type==='flight'&&st.seg.speed>=2)pill(514,368,st.speed>=1?'早送り ×'+st.seg.speed:'スロー 1/'+Math.round(1/Math.max(st.speed,.01)),14,'end','#1d4fa8');
-  pill(26,392,F<60?'放課後の校庭':(F<230?'校庭の上空':'東京の上空'),14);
+  const g=gN(n);pill(514,208,LX.push,15,'end');T(516,254,36,g.toLocaleString('en-US')+'G',{a:'end',sw:8,fill:g>=64?'#ff5a4d':null});
+  const air=st.type==='contact'?(st.seg.crouch?0:airN(st.seg.n)):st.tau;pill(514,292,LX.air,15,'end');T(516,334,30,fmtT(air),{a:'end',sw:7});
+  if(st.type==='flight'&&st.seg.speed>=2)pill(514,368,st.speed>=1?LX.ff+st.seg.speed:LX.slow+Math.round(1/Math.max(st.speed,.01)),14,'end','#1d4fa8');
+  pill(26,392,F<60?LX.p0:(F<230?LX.p1:LX.p2),14);
   // 画面内のラベル
   labels.forEach(l=>{const v=new THREE.Vector3(l.p[0],l.p[1],l.p[2]).project(cam);if(v.z>1)return;const x=(v.x+1)/2*W,y=(1-v.y)/2*H,dx=l.dx||0,dy=l.dy||0;let op=l.op==null?1:l.op;if(l.safe)op*=sstep(388,410,y+dy);if(op<=.02)return;
     const gg=document.createElementNS(NS,'g');gg.setAttribute('style','opacity:'+op.toFixed(2));hud.appendChild(gg);const add=(tag,a,txt)=>{const e=document.createElementNS(NS,tag);for(const k in a)e.setAttribute(k,a[k]);if(txt!=null)e.textContent=txt;gg.appendChild(e)};
@@ -209,9 +210,9 @@ window.renderAt=function(t){const st=stateAt(t),s=st.seg,F=frameF(t),Vh=F*960/29
     m.visible=true;m.position.set(JX+Math.cos(u.a)*R,(.1+.7*k*u.s)*(Vh/15),JZ+Math.sin(u.a)*R);m.scale.setScalar(.085*u.s*(1-.8*k)*(Vh/15)*Math.sqrt(evBig))});
   cracks.forEach(m=>m.visible=t>=f7.t0);
   // ラベル（校舎・塔）
-  const oS=sstep(13,17,F)*(1-sstep(55,75,F));if(oS>0)labels.push({p:[-20,15,-40],t:'校舎 約15m',dx:-8,dy:-18,a:'end',op:oS});
-  const oT=sstep(170,240,F)*(1-sstep(690,800,F));if(MT){const oM=sstep(1800,2600,F);if(oM>0)labels.push({p:[SC.mountain.positionM[0],MT.value,SC.mountain.positionM[2]],t:MT.label+' '+C.fmt(MT.value)+MT.unit+'（高さの比較）',dx:16,dy:-14,s:14,op:oM,safe:1})}
-  if(oT>0)labels.push({p:[TOWER[0],333,TOWER[1]],t:TOWERREF.label+' '+C.fmt(TOWERREF.value)+TOWERREF.unit,dx:18,dy:-24,s:14,op:oT,safe:1});
+  const oS=sstep(13,17,F)*(1-sstep(55,75,F));if(oS>0)labels.push({p:[-20,15,-40],t:LX.school,dx:-8,dy:-18,a:'end',op:oS});
+  const oT=sstep(170,240,F)*(1-sstep(690,800,F));if(MT){const oM=sstep(1800,2600,F);if(oM>0)labels.push({p:[SC.mountain.positionM[0],MT.value,SC.mountain.positionM[2]],t:(EN&&MT.labelEn?MT.labelEn:MT.label+' '+C.fmt(MT.value)+MT.unit)+LX.cmp,dx:16,dy:-14,s:14,op:oM,safe:1})}
+  if(oT>0)labels.push({p:[TOWER[0],333,TOWER[1]],t:EN&&TOWERREF.labelEn?TOWERREF.labelEn:TOWERREF.label+' '+C.fmt(TOWERREF.value)+TOWERREF.unit,dx:18,dy:-24,s:14,op:oT,safe:1});
   renderer.render(scene,cam);drawHud(t,st,F,labels);return{n:st.dispN,y:st.y,F}};
 buildCaps();
 window.__segs=SEG.map(s=>({type:s.type,n:s.n,t0:+s.t0.toFixed(3),t1:+s.t1.toFixed(3),speed:s.speed||1}));

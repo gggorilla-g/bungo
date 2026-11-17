@@ -25,5 +25,15 @@
  {
   "id": "rockets_jp_ja",
   "publish_at": "2026-11-21T11:00:00Z"
+ },
+ {
+  "id": "jump_x2_en",
+  "publish_at": "2026-11-18T23:00:00Z",
+  "channel": "miw"
+ },
+ {
+  "id": "jump_x10_en",
+  "publish_at": "2026-11-20T23:00:00Z",
+  "channel": "miw"
  }
 ]

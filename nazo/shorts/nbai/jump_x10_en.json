@@ -1,0 +1,488 @@
+{
+ "schemaVersion": 1,
+ "id": "jump_x10_en",
+ "titleLines": [
+  "What if every jump",
+  [
+   [
+    "went ",
+    0
+   ],
+   [
+    "10x",
+    1
+   ],
+   [
+    " higher?",
+    0
+   ]
+  ]
+ ],
+ "output": {
+  "width": 1080,
+  "height": 1920,
+  "fps": 30,
+  "durationSeconds": 30
+ },
+ "physics": {
+  "model": "constant-gravity-v1",
+  "baseHeightM": 0.5,
+  "multiplier": 10,
+  "gravityMps2": 9.80665,
+  "pushDistanceM": 0.5
+ },
+ "timeline": [
+  {
+   "type": "flight",
+   "n": 1
+  },
+  {
+   "type": "contact",
+   "n": 1,
+   "next": 2,
+   "durationSeconds": 0.12
+  },
+  {
+   "type": "flight",
+   "n": 2
+  },
+  {
+   "type": "contact",
+   "n": 2,
+   "next": 3,
+   "durationSeconds": 0.9,
+   "crouch": true
+  },
+  {
+   "type": "flight",
+   "n": 3
+  },
+  {
+   "type": "contact",
+   "n": 3,
+   "next": 4,
+   "durationSeconds": 0.12
+  },
+  {
+   "type": "flight",
+   "n": 4,
+   "speed": 6,
+   "speedProfile": [
+    [
+     0,
+     6
+    ],
+    [
+     1.0,
+     6
+    ],
+    [
+     1.4,
+     0.25
+    ],
+    [
+     4.4,
+     0.25
+    ],
+    [
+     4.8,
+     6
+    ]
+   ],
+   "cameraTransitionSeconds": 1.7
+  },
+  {
+   "type": "contact",
+   "n": 4,
+   "next": 5,
+   "durationSeconds": 0.1
+  },
+  {
+   "type": "flight",
+   "n": 5,
+   "speed": 8,
+   "speedProfile": [
+    [
+     0,
+     8
+    ],
+    [
+     2.5,
+     8
+    ],
+    [
+     3.0,
+     0.5
+    ]
+   ],
+   "fillToEnd": true
+  }
+ ],
+ "notes": {
+  "exp": "*Thought experiment. Numbers are theoretical",
+  "big": "*Figure enlarged. No air resistance",
+  "end": "*Earth gravity only. No air resistance"
+ },
+ "captions": [
+  {
+   "id": "n5a",
+   "when": {
+    "n": 5,
+    "uBelow": 5.5
+   },
+   "main": [
+    "Jump 5: {h} ft"
+   ],
+   "sub": [
+    "Higher than Mt. Fuji ({ref:fuji.ft} ft)"
+   ],
+   "note": "big",
+   "bindings": {
+    "h": {
+     "metric": "heightFt",
+     "n": 5,
+     "format": "integer"
+    }
+   },
+   "checks": [
+    {
+     "type": "firstExceeds",
+     "metric": "heightM",
+     "n": 5,
+     "ref": "fuji"
+    }
+   ]
+  },
+  {
+   "id": "n5b",
+   "when": {
+    "n": 5
+   },
+   "main": [
+    "Space (62 miles up) by jump {space}"
+   ],
+   "sub": [
+    "Jump 5 hangs in the air {air} s"
+   ],
+   "note": "end",
+   "bindings": {
+    "space": {
+     "metric": "firstNOver",
+     "value": 100000
+    },
+    "air": {
+     "metric": "airSeconds",
+     "n": 5,
+     "format": "integer"
+    }
+   },
+   "checks": [
+    {
+     "type": "firstReach",
+     "metric": "heightM",
+     "n": 7,
+     "threshold": 100000
+    }
+   ]
+  },
+  {
+   "id": "n4b",
+   "when": {
+    "n": 4,
+    "segType": "contact"
+   },
+   "main": [
+    "Landing at {mph} mph"
+   ],
+   "sub": [
+    "Faster than a bullet train ({ref:shinkansen.mph} mph)"
+   ],
+   "note": "big",
+   "bindings": {
+    "mph": {
+     "metric": "landingMph",
+     "n": 4,
+     "format": "integer"
+    }
+   },
+   "checks": [
+    {
+     "type": "exceeds",
+     "metric": "landingKmh",
+     "n": 4,
+     "ref": "shinkansen"
+    }
+   ]
+  },
+  {
+   "id": "n4a",
+   "when": {
+    "n": 4,
+    "uBelow": 4.8
+   },
+   "main": [
+    "Jump 4 clears",
+    "Tokyo Tower"
+   ],
+   "sub": [
+    "{h} ft. {air} s in the air"
+   ],
+   "note": "big",
+   "bindings": {
+    "h": {
+     "metric": "heightFt",
+     "n": 4,
+     "format": "integer"
+    },
+    "air": {
+     "metric": "airSeconds",
+     "n": 4,
+     "format": "integer"
+    }
+   },
+   "checks": [
+    {
+     "type": "firstExceeds",
+     "metric": "heightM",
+     "n": 4,
+     "ref": "tokyo_tower"
+    }
+   ]
+  },
+  {
+   "id": "n4c",
+   "when": {
+    "n": 4
+   },
+   "main": [
+    "Landing at {mph} mph"
+   ],
+   "sub": [
+    "Faster than a bullet train ({ref:shinkansen.mph} mph)"
+   ],
+   "note": "big",
+   "bindings": {
+    "mph": {
+     "metric": "landingMph",
+     "n": 4,
+     "format": "integer"
+    }
+   }
+  },
+  {
+   "id": "n1",
+   "when": {
+    "n": 1
+   },
+   "main": [
+    "Jump 1: {h} ft"
+   ],
+   "sub": [
+    "Each jump goes 10x higher"
+   ],
+   "note": "exp",
+   "bindings": {
+    "h": {
+     "metric": "heightFt",
+     "n": 1,
+     "format": "oneDecimal"
+    }
+   }
+  },
+  {
+   "id": "n2",
+   "when": {
+    "n": 2,
+    "segType": "flight"
+   },
+   "main": [
+    "Jump 2: {h} ft"
+   ],
+   "sub": [
+    "Above a basketball hoop ({ref:hoop.ft} ft)"
+   ],
+   "note": "exp",
+   "bindings": {
+    "h": {
+     "metric": "heightFt",
+     "n": 2,
+     "format": "oneDecimal"
+    }
+   },
+   "checks": [
+    {
+     "type": "firstExceeds",
+     "metric": "heightM",
+     "n": 2,
+     "ref": "hoop"
+    }
+   ]
+  },
+  {
+   "id": "n3a",
+   "when": {
+    "any": [
+     {
+      "n": 3,
+      "segType": "contact",
+      "crouch": true
+     },
+     {
+      "n": 3,
+      "segType": "flight",
+      "uBelow": 2.3
+     }
+    ]
+   },
+   "main": [
+    "Jump 3: {g} G at takeoff"
+   ],
+   "sub": [
+    "Human record: {ref:stapp} G ({ref:stapp.year})"
+   ],
+   "note": "*Assumes a {in}-inch push-off",
+   "bindings": {
+    "g": {
+     "metric": "pushG",
+     "n": 3
+    },
+    "in": {
+     "metric": "pushIn",
+     "format": "integer"
+    }
+   },
+   "checks": [
+    {
+     "type": "firstExceeds",
+     "metric": "pushG",
+     "n": 3,
+     "ref": "stapp"
+    }
+   ]
+  },
+  {
+   "id": "n3b",
+   "when": {
+    "n": 3
+   },
+   "main": [
+    "Jump 3 clears the school"
+   ],
+   "sub": [
+    "{h} ft. The school is about {ref:school.ft} ft"
+   ],
+   "note": "big",
+   "bindings": {
+    "h": {
+     "metric": "heightFt",
+     "n": 3,
+     "format": "integer"
+    }
+   },
+   "checks": [
+    {
+     "type": "firstExceeds",
+     "metric": "heightM",
+     "n": 3,
+     "ref": "school"
+    }
+   ]
+  }
+ ],
+ "references": [
+  {
+   "id": "school",
+   "label": "校舎",
+   "value": 15,
+   "unit": "m",
+   "kind": "scene-assumption",
+   "note": "作中の設定（4階建て・屋上まで約15m）",
+   "ft": 49
+  },
+  {
+   "id": "hoop",
+   "label": "バスケットゴール",
+   "value": 3.05,
+   "unit": "m",
+   "kind": "external-fact",
+   "sourceUrl": "https://assets.fiba.basketball/image/upload/documents-corporate-fiba-official-rules-2026-equipment-v1-0.pdf",
+   "checkedAt": "2026-11-14",
+   "note": "FIBA 公式ルール 2026 Equipment 1.2.4（リング上端 3,050mm）",
+   "ft": 10
+  },
+  {
+   "id": "tokyo_tower",
+   "label": "東京タワー",
+   "value": 333,
+   "unit": "m",
+   "kind": "external-fact",
+   "sourceUrl": "https://www.gotokyo.org/jp/destinations/southern-tokyo/tokyo-tower-and-around/index.html",
+   "checkedAt": "2026-11-13",
+   "scene": {
+    "positionM": [
+     -25,
+     0,
+     -945
+    ]
+   },
+   "labelEn": "Tokyo Tower 1,093 ft"
+  },
+  {
+   "id": "shinkansen",
+   "label": "新幹線（E5系の営業最高速度）",
+   "value": 320,
+   "unit": "km/h",
+   "kind": "external-fact",
+   "sourceUrl": "https://www.jreast.co.jp/train/shinkan/e5.html",
+   "checkedAt": "2026-11-12",
+   "mph": 199
+  },
+  {
+   "id": "stapp",
+   "label": "人が耐えた加速度の記録（スタップ）",
+   "value": 46.2,
+   "year": 1954,
+   "unit": "G",
+   "kind": "external-fact",
+   "sourceUrl": "https://airandspace.si.edu/stories/editorial/man-behind-high-speed-safety-standards",
+   "checkedAt": "2026-11-13",
+   "note": "1954年12月10日、ロケットそり"
+  },
+  {
+   "id": "fuji",
+   "label": "富士山",
+   "value": 3776,
+   "unit": "m",
+   "kind": "external-fact",
+   "sourceUrl": "https://www.data.jma.go.jp/svd/vois/data/tokyo/STOCK/souran/main/55_Fujisan.pdf",
+   "checkedAt": "2026-11-13",
+   "note": "気象庁 日本活火山総覧。剣ヶ峯",
+   "ft": "12,388",
+   "labelEn": "Mt. Fuji 12,388 ft"
+  }
+ ],
+ "scene": {
+  "highAltitude": true,
+  "mountain": {
+   "ref": "fuji",
+   "positionM": [
+    -7000,
+    0,
+    -24000
+   ]
+  }
+ },
+ "template": "jump",
+ "post": {
+  "title": "What if every jump went 10x higher? #shorts",
+  "desc": "Jump 1 is 50 cm (1.6 ft). Every jump goes 10 times higher. Which jump clears Tokyo Tower, Mt. Fuji, and reaches space?\n*A thought experiment. Earth gravity only, no air resistance. Takeoff G assumes a 50 cm (20 in) push-off. The figure is enlarged for visibility.\n\nSources\n- Basketball hoop 3.05 m (10 ft): FIBA Official Rules 2026 Equipment https://assets.fiba.basketball/image/upload/documents-corporate-fiba-official-rules-2026-equipment-v1-0.pdf\n- Tokyo Tower 333 m: GO TOKYO https://www.gotokyo.org/jp/destinations/southern-tokyo/tokyo-tower-and-around/index.html\n- Shinkansen E5 top speed 320 km/h: JR East https://www.jreast.co.jp/train/shinkan/e5.html\n- 46.2 G human record (John Stapp, 1954): Smithsonian https://airandspace.si.edu/stories/editorial/man-behind-high-speed-safety-standards\n- Mt. Fuji 3,776 m: Japan Meteorological Agency https://www.data.jma.go.jp/svd/vois/data/tokyo/STOCK/souran/main/55_Fujisan.pdf\n- Mt. Fuji is placed for height comparison; its position is not real.\n\nMusic: original\n#whatif #physics #science",
+  "tags": [
+   "what if",
+   "physics",
+   "thought experiment",
+   "science",
+   "jump"
+  ]
+ },
+ "lang": "en"
+}

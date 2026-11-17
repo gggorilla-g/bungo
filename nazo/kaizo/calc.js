@@ -28,8 +28,8 @@ function make(spec){
   // 字幕に差しこむ数値
   const firstOver=v=>{let n=1;while(hN(n)<v&&n<200)n++;return n};
   function metric(name,n){switch(name){case'heightM':return hN(n);case'heightCm':return hN(n)*100;case'airSeconds':return airN(n);case'pushG':return gN(n);case'landingKmh':return kmhN(n);
-    case'pushCm':return PUSH*100;case'firstNOver':return firstOver(n);default:throw new Error('未知のmetric: '+name)}}
-  const fmt=(v,f)=>{if(f==='integer')return String(Math.round(v));if(f==='oneDecimal')return(Math.round(v*10)/10).toFixed(1);
+    case'heightFt':return hN(n)*3.28084;case'landingMph':return kmhN(n)/1.609344;case'pushIn':return PUSH*39.3701;case'pushCm':return PUSH*100;case'firstNOver':return firstOver(n);default:throw new Error('未知のmetric: '+name)}}
+  const fmt=(v,f)=>{if(f==='integer')return Math.round(v)>=1000?Math.round(v).toLocaleString('en-US'):String(Math.round(v));if(f==='oneDecimal')return(Math.round(v*10)/10).toFixed(1);
     return Math.round(v*100)/100>=1000?Math.round(v).toLocaleString('en-US'):String(Math.round(v*100)/100)};
   // {名前} を値に置きかえる。名前は caption.bindings か ref:<id>.<field>
   function fill(str,c){return str.replace(/\{([^}]+)\}/g,(m,k)=>{
