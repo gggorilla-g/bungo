@@ -1,0 +1,524 @@
+{
+ "schemaVersion": 1,
+ "template": "lineup",
+ "id": "buildings_ja",
+ "lang": "ja",
+ "output": {
+  "width": 1080,
+  "height": 1920,
+  "fps": 30,
+  "durationSeconds": 46
+ },
+ "intro": 1.6,
+ "outro": 4.6,
+ "title": {
+  "ja": "世界の高いビルの大きさ",
+  "en": ""
+ },
+ "endLine": {
+  "ja": "世界一はブルジュ・ハリファ 828m",
+  "en": ""
+ },
+ "notes": {
+  "ja": "高さは公式の値。太さ・形・色は目安",
+  "en": ""
+ },
+ "items": [
+  {
+   "id": "person",
+   "name": {
+    "ja": "人",
+    "en": "Person"
+   },
+   "m": 1.7,
+   "kind": "scene-assumption",
+   "note": "比べるための人（身長の目安）",
+   "shape": {
+    "type": "person",
+    "h": 1.7
+   }
+  },
+  {
+   "id": "harukas",
+   "name": {
+    "ja": "あべのハルカス（大阪）",
+    "en": "Abeno Harukas (Osaka)"
+   },
+   "m": 300,
+   "kind": "external-fact",
+   "source": {
+    "url": "https://www.skyscrapercenter.com/building/abeno-harukas/533",
+    "label": "CTBUH",
+    "checkedAt": "2026-11-17"
+   },
+   "shape": {
+    "type": "tower",
+    "tiers": [
+     {
+      "h": 110,
+      "w": 70,
+      "glass": true,
+      "color": "#9fbad0"
+     },
+     {
+      "h": 100,
+      "w": 55,
+      "glass": true,
+      "color": "#9fbad0"
+     },
+     {
+      "h": 90,
+      "w": 42,
+      "glass": true,
+      "color": "#9fbad0"
+     }
+    ]
+   }
+  },
+  {
+   "id": "mori",
+   "name": {
+    "ja": "麻布台ヒルズ森JPタワー",
+    "en": "Mori JP Tower (Tokyo)"
+   },
+   "m": 327.2,
+   "kind": "external-fact",
+   "source": {
+    "url": "https://www.skyscrapercenter.com/building/mori-jp-tower/35022",
+    "label": "CTBUH",
+    "checkedAt": "2026-11-17"
+   },
+   "shape": {
+    "type": "tower",
+    "tiers": [
+     {
+      "h": 317.2,
+      "w": 62,
+      "w1": 52,
+      "glass": true,
+      "color": "#9fbad0",
+      "round": true
+     },
+     {
+      "h": 10,
+      "w": 46,
+      "w1": 40,
+      "color": "#d6d6d6",
+      "round": true
+     }
+    ]
+   }
+  },
+  {
+   "id": "tokyotower",
+   "name": {
+    "ja": "東京タワー",
+    "en": "Tokyo Tower"
+   },
+   "m": 333,
+   "kind": "external-fact",
+   "source": {
+    "url": "https://www.gotokyo.org/jp/destinations/southern-tokyo/tokyo-tower-and-around/index.html",
+    "label": "GO TOKYO",
+    "checkedAt": "2026-11-17"
+   },
+   "shape": {
+    "type": "tower",
+    "tiers": [
+     {
+      "h": 125,
+      "w": 90,
+      "w1": 34,
+      "color": "#e8502e"
+     },
+     {
+      "h": 25,
+      "w": 34,
+      "w1": 30,
+      "color": "#f4f1ea"
+     },
+     {
+      "h": 100,
+      "w": 30,
+      "w1": 10,
+      "color": "#e8502e"
+     },
+     {
+      "h": 83,
+      "w": 6,
+      "w1": 1,
+      "color": "#f4f1ea"
+     }
+    ]
+   }
+  },
+  {
+   "id": "esb",
+   "name": {
+    "ja": "エンパイア・ステート・ビル（NY）",
+    "en": "Empire State Building (NYC)"
+   },
+   "m": 381,
+   "ft": 1250,
+   "kind": "external-fact",
+   "source": {
+    "url": "https://www.skyscrapercenter.com/building/empire-state-building/261",
+    "label": "CTBUH",
+    "checkedAt": "2026-11-17"
+   },
+   "shape": {
+    "type": "tower",
+    "tiers": [
+     {
+      "h": 25,
+      "w": 120,
+      "glass": true,
+      "color": "#c9bfa8"
+     },
+     {
+      "h": 250,
+      "w": 60,
+      "glass": true,
+      "color": "#c9bfa8"
+     },
+     {
+      "h": 45,
+      "w": 45,
+      "glass": true,
+      "color": "#c9bfa8"
+     },
+     {
+      "h": 30,
+      "w": 30,
+      "w1": 24,
+      "color": "#c9bfa8"
+     },
+     {
+      "h": 31,
+      "w": 14,
+      "w1": 3,
+      "color": "#bdb39c",
+      "round": true
+     }
+    ]
+   }
+  },
+  {
+   "id": "taipei",
+   "name": {
+    "ja": "台北101（台湾）",
+    "en": "Taipei 101 (Taiwan)"
+   },
+   "m": 508,
+   "ft": 1667,
+   "kind": "external-fact",
+   "source": {
+    "url": "https://www.skyscrapercenter.com/building/taipei-101/117",
+    "label": "CTBUH",
+    "checkedAt": "2026-11-17"
+   },
+   "shape": {
+    "type": "tower",
+    "tiers": [
+     {
+      "h": 100,
+      "w": 70,
+      "w1": 60,
+      "glass": true,
+      "color": "#6fa79a"
+     },
+     {
+      "h": 36,
+      "w": 50,
+      "w1": 60,
+      "glass": true,
+      "color": "#6fa79a"
+     },
+     {
+      "h": 36,
+      "w": 50,
+      "w1": 60,
+      "glass": true,
+      "color": "#6fa79a"
+     },
+     {
+      "h": 36,
+      "w": 50,
+      "w1": 60,
+      "glass": true,
+      "color": "#6fa79a"
+     },
+     {
+      "h": 36,
+      "w": 50,
+      "w1": 60,
+      "glass": true,
+      "color": "#6fa79a"
+     },
+     {
+      "h": 36,
+      "w": 50,
+      "w1": 60,
+      "glass": true,
+      "color": "#6fa79a"
+     },
+     {
+      "h": 36,
+      "w": 50,
+      "w1": 60,
+      "glass": true,
+      "color": "#6fa79a"
+     },
+     {
+      "h": 36,
+      "w": 50,
+      "w1": 60,
+      "glass": true,
+      "color": "#6fa79a"
+     },
+     {
+      "h": 36,
+      "w": 50,
+      "w1": 60,
+      "glass": true,
+      "color": "#6fa79a"
+     },
+     {
+      "h": 60,
+      "w": 36,
+      "w1": 20,
+      "color": "#6fa79a"
+     },
+     {
+      "h": 60,
+      "w": 4,
+      "w1": 1,
+      "color": "#cfcfcf",
+      "round": true
+     }
+    ]
+   }
+  },
+  {
+   "id": "owtc",
+   "name": {
+    "ja": "ワン・ワールド・トレードセンター（NY）",
+    "en": "One World Trade Center (NYC)"
+   },
+   "m": 541.3,
+   "ft": 1776,
+   "kind": "external-fact",
+   "source": {
+    "url": "https://www.skyscrapercenter.com/building/one-world-trade-center/98",
+    "label": "CTBUH",
+    "checkedAt": "2026-11-17"
+   },
+   "shape": {
+    "type": "tower",
+    "tiers": [
+     {
+      "h": 60,
+      "w": 61,
+      "color": "#b8c4cc"
+     },
+     {
+      "h": 357,
+      "w": 61,
+      "w1": 38,
+      "glass": true,
+      "color": "#7f9db5"
+     },
+     {
+      "h": 124.3,
+      "w": 3,
+      "w1": 1,
+      "color": "#d6d6d6",
+      "round": true
+     }
+    ]
+   }
+  },
+  {
+   "id": "shanghai",
+   "name": {
+    "ja": "上海タワー（中国）",
+    "en": "Shanghai Tower (China)"
+   },
+   "m": 632,
+   "ft": 2073,
+   "kind": "external-fact",
+   "source": {
+    "url": "https://www.skyscrapercenter.com/building/shanghai-tower/56",
+    "label": "CTBUH",
+    "checkedAt": "2026-11-17"
+   },
+   "shape": {
+    "type": "tower",
+    "tiers": [
+     {
+      "h": 580,
+      "w": 83,
+      "w1": 48,
+      "glass": true,
+      "color": "#8fb0c4",
+      "round": true
+     },
+     {
+      "h": 52,
+      "w": 48,
+      "w1": 40,
+      "color": "#b8c4cc",
+      "round": true
+     }
+    ]
+   }
+  },
+  {
+   "id": "skytree",
+   "name": {
+    "ja": "東京スカイツリー",
+    "en": "Tokyo Skytree"
+   },
+   "m": 634,
+   "kind": "external-fact",
+   "source": {
+    "url": "https://www.gotokyo.org/en/spot/6/",
+    "label": "GO TOKYO",
+    "checkedAt": "2026-11-17"
+   },
+   "shape": {
+    "type": "tower",
+    "tiers": [
+     {
+      "h": 350,
+      "w": 68,
+      "w1": 40,
+      "color": "#e9edf2",
+      "round": true
+     },
+     {
+      "h": 100,
+      "w": 40,
+      "w1": 34,
+      "color": "#dfe5ec",
+      "round": true
+     },
+     {
+      "h": 134,
+      "w": 18,
+      "w1": 12,
+      "color": "#e9edf2",
+      "round": true
+     },
+     {
+      "h": 50,
+      "w": 6,
+      "w1": 2,
+      "color": "#cfcfcf",
+      "round": true
+     }
+    ]
+   }
+  },
+  {
+   "id": "merdeka",
+   "name": {
+    "ja": "ムルデカ118（マレーシア）",
+    "en": "Merdeka 118 (Malaysia)"
+   },
+   "m": 678.9,
+   "ft": 2227,
+   "kind": "external-fact",
+   "source": {
+    "url": "https://www.skyscrapercenter.com/building/merdeka-118/10115",
+    "label": "CTBUH",
+    "checkedAt": "2026-11-17"
+   },
+   "shape": {
+    "type": "tower",
+    "tiers": [
+     {
+      "h": 518.9,
+      "w": 70,
+      "w1": 40,
+      "glass": true,
+      "color": "#7f9db5"
+     },
+     {
+      "h": 160,
+      "w": 10,
+      "w1": 1,
+      "color": "#cfcfcf"
+     }
+    ]
+   }
+  },
+  {
+   "id": "burj",
+   "name": {
+    "ja": "ブルジュ・ハリファ（ドバイ）",
+    "en": "Burj Khalifa (Dubai)"
+   },
+   "m": 828,
+   "ft": 2717,
+   "kind": "external-fact",
+   "source": {
+    "url": "https://www.skyscrapercenter.com/building/burj-khalifa/3",
+    "label": "CTBUH",
+    "checkedAt": "2026-11-17"
+   },
+   "shape": {
+    "type": "tower",
+    "tiers": [
+     {
+      "h": 160,
+      "w": 110,
+      "w1": 90,
+      "glass": true,
+      "color": "#a9bccb"
+     },
+     {
+      "h": 160,
+      "w": 90,
+      "w1": 66,
+      "glass": true,
+      "color": "#a9bccb"
+     },
+     {
+      "h": 160,
+      "w": 66,
+      "w1": 42,
+      "glass": true,
+      "color": "#a9bccb"
+     },
+     {
+      "h": 130,
+      "w": 42,
+      "w1": 22,
+      "glass": true,
+      "color": "#a9bccb"
+     },
+     {
+      "h": 218,
+      "w": 14,
+      "w1": 1,
+      "color": "#cfd6dc",
+      "round": true
+     }
+    ]
+   }
+  }
+ ],
+ "post": {
+  "title": "世界の高いビルを並べて比べた（東京スカイツリーも） #shorts",
+  "tags": [
+   "大きさ比べ",
+   "超高層ビル",
+   "ブルジュハリファ",
+   "スカイツリー",
+   "東京タワー",
+   "建築"
+  ],
+  "desc": "人と、日本と世界の高いビル・塔を、高さの順に並べて比べました。\n※高さは公式の値です（ビルは CTBUH の「建築上の高さ」）。太さ・形・色は見やすくした目安で、実物とは違います。人の身長は1.7mとしています。\n\n高さの出典\n・あべのハルカス（大阪） 300m：CTBUH https://www.skyscrapercenter.com/building/abeno-harukas/533\n・麻布台ヒルズ森JPタワー（東京） 327.2m：CTBUH https://www.skyscrapercenter.com/building/mori-jp-tower/35022\n・東京タワー 333m：GO TOKYO https://www.gotokyo.org/jp/destinations/southern-tokyo/tokyo-tower-and-around/index.html\n・エンパイア・ステート・ビル（ニューヨーク） 381m：CTBUH https://www.skyscrapercenter.com/building/empire-state-building/261\n・台北101（台湾） 508m：CTBUH https://www.skyscrapercenter.com/building/taipei-101/117\n・ワン・ワールド・トレードセンター（ニューヨーク） 541.3m：CTBUH https://www.skyscrapercenter.com/building/one-world-trade-center/98\n・上海タワー（中国） 632m：CTBUH https://www.skyscrapercenter.com/building/shanghai-tower/56\n・東京スカイツリー 634m：GO TOKYO https://www.gotokyo.org/en/spot/6/\n・ムルデカ118（マレーシア） 678.9m：CTBUH https://www.skyscrapercenter.com/building/merdeka-118/10115\n・ブルジュ・ハリファ（ドバイ） 828m：CTBUH https://www.skyscrapercenter.com/building/burj-khalifa/3\n\nBGM：オリジナル\n\n#大きさ比べ #超高層ビル #建築"
+ }
+}
