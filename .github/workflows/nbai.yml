@@ -12,9 +12,7 @@ on:
       channel: { description: "moso（妄想科学）/ miw（Make It Work 3D）", default: "moso" }
 permissions:
   contents: write
-concurrency:
-  group: nbai
-  cancel-in-progress: false
+# 同時に何本でも走らせる（concurrency を付けると待ちの回が1本に間引かれて取り消される）
 jobs:
   build:
     runs-on: ubuntu-24.04
