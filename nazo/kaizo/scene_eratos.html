@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8">
+<style>
+@font-face{font-family:"JumpSans";font-weight:400;src:url(fonts_jp/NotoSansCJKjp-Regular.woff2) format("woff2")}
+@font-face{font-family:"JumpSans";font-weight:700;src:url(fonts_jp/NotoSansCJKjp-Bold.woff2) format("woff2")}
+@font-face{font-family:"JumpSans";font-weight:900;src:url(fonts_jp/NotoSansCJKjp-Black.woff2) format("woff2")}
+html,body{margin:0;background:#000}
+#stage{position:relative;width:540px;height:960px;overflow:hidden}
+#stage canvas{position:absolute;left:0;top:0}
+#hud{position:absolute;left:0;top:0;width:540px;height:960px;font-family:"JumpSans"}
+#hud text{paint-order:stroke;stroke:#101010;stroke-linejoin:round;fill:#fff}
+</style></head>
+<body><div id="stage"><svg id="hud" viewBox="0 0 540 960" xmlns="http://www.w3.org/2000/svg"></svg></div>
+<script src="vendor.js"></script>
+<script>
+// 科学史ショート「棒1本で地球の大きさを測った男」（エラトステネス）。Ricks Clips 型
+// 行の fx：hook / well / stick / flat / curve / angle / fifty / result / end
+const getJ=u=>{const x=new XMLHttpRequest();x.open('GET',u,false);x.send();if(x.status!==200)throw new Error('読めない: '+u);return JSON.parse(x.responseText)};
+const ID=(new URLSearchParams(location.search).get('spec')||'eratos_en').replace(/^.*\//,'').replace(/\.json$/,'');
+const SPEC=getJ('specs/'+ID+'.json'),TL=getJ('specs/'+ID+'_timeline.json');
+const W=540,H=960,DUR=TL.total,FOV=32;
+const clamp=(x,a,b)=>Math.min(b,Math.max(a,x)),lerp=(a,b,k)=>a+(b-a)*k,sstep=(a,b,x)=>{const k=clamp((x-a)/(b-a),0,1);return k*k*(3-2*k)};
+function rng(seed){let s=seed>>>0;return()=>{s=(Math.imul(s,1664525)+1013904223)>>>0;return s/4294967296}}
+const LINES=SPEC.lines.map((l,i)=>Object.assign({},l,TL.beats[i]));
+const fxL=fx=>LINES.find(l=>l.fx===fx);const T0=fx=>{const l=fxL(fx);return l?l.t0:1e9};
+const LAB=SPEC.labels||{};
+const renderer=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true});
+renderer.setPixelRatio(window.devicePixelRatio||1);renderer.setSize(W,H);renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.05;
+renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+document.getElementById('stage').prepend(renderer.domElement);
+const S=(c,o)=>new THREE.MeshStandardMaterial(Object.assign({color:c,roughness:.75,metalness:0,flatShading:true},o||{}));
+const B=c=>new THREE.MeshBasicMaterial({color:c});
+const mesh=(g,m,sh=true)=>{const x=new THREE.Mesh(g,m);x.castShadow=sh;x.receiveShadow=true;return x};
+const scene=new THREE.Scene();
+const SKY=new THREE.Color(0x8fc6ea),SPACE=new THREE.Color(0x0d1530);
+scene.add(new THREE.HemisphereLight(0xfff6e6,0xb39a74,1.1));
+const sun=new THREE.DirectionalLight(0xfff1d6,2.6);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);{const c=sun.shadow.camera;c.left=-4;c.right=4;c.top=4;c.bottom=-4;c.near=.5;c.far=40;sun.shadow.bias=-.0006}
+scene.add(sun);scene.add(sun.target);
+
+// ===== 地上（シエネの井戸とアレクサンドリアの棒）。2つの場所は x=-20 と x=+20 に置く =====
+function person(col){const g=new THREE.Group();const body=mesh(new THREE.CylinderGeometry(.22,.3,.9,12),S(col));body.position.y=.45;g.add(body);
+  const head=mesh(new THREE.SphereGeometry(.2,16,12),S(0xd9a77c));head.position.y=1.08;g.add(head);
+  const beard=mesh(new THREE.ConeGeometry(.13,.22,10),S(0xeeeeee));beard.rotation.x=Math.PI;beard.position.set(0,.92,.13);g.add(beard);
+  const hair=mesh(new THREE.SphereGeometry(.205,16,10,0,Math.PI*2,0,Math.PI/2.2),S(0xeeeeee));hair.position.y=1.1;g.add(hair);
+  const arm=mesh(new THREE.CylinderGeometry(.06,.06,.5,8),S(col));arm.position.set(.3,.62,0);arm.rotation.z=.4;g.add(arm);g.userData.arm=arm;return g}
+function ground(x0,col){const g=new THREE.Group();g.position.x=x0;scene.add(g);const gr=mesh(new THREE.PlaneGeometry(14,14),S(col));gr.rotation.x=-Math.PI/2;g.add(gr);
+  const r=rng(x0+50);for(let i=0;i<14;i++){const d=mesh(new THREE.IcosahedronGeometry(.15+r()*.35,0),S(0xc9a46a));d.scale.y=.35;d.position.set(-5+r()*10,0,-5+r()*4);g.add(d)}return g}
+const SY=ground(-20,0xe2c48a),AL=ground(20,0xdcc08c);
+// 井戸（シエネ）
+{const w=new THREE.Group();SY.add(w);const ring=mesh(new THREE.CylinderGeometry(.7,.75,.5,32,1,true),S(0xb59a73,{side:THREE.DoubleSide}));ring.position.y=.25;w.add(ring);
+ const lip=mesh(new THREE.TorusGeometry(.72,.07,8,32),S(0xa58a63));lip.rotation.x=Math.PI/2;lip.position.y=.5;w.add(lip);
+ const shaft=mesh(new THREE.CylinderGeometry(.68,.68,2.2,32,1,true),S(0x6d5a44,{side:THREE.BackSide}));shaft.position.y=-1.1;w.add(shaft);
+ const water=mesh(new THREE.CircleGeometry(.67,32),new THREE.MeshBasicMaterial({color:0x2a4a66}),false);water.rotation.x=-Math.PI/2;water.position.y=-2.1;w.add(water);
+ const glow=mesh(new THREE.CircleGeometry(.4,32),new THREE.MeshBasicMaterial({color:0xfff2a8,transparent:true,opacity:0}),false);glow.rotation.x=-Math.PI/2;glow.position.y=-2.09;w.add(glow);SY.userData.glow=glow}
+// 棒（アレクサンドリア）と、人
+const STICK=mesh(new THREE.CylinderGeometry(.05,.05,2.2,10),S(0x7a5534));STICK.position.set(0,1.1,0);AL.add(STICK);
+const SHADOW=mesh(new THREE.PlaneGeometry(.09,1),new THREE.MeshBasicMaterial({color:0x3b2a18,transparent:true,opacity:.75}),false);SHADOW.rotation.x=-Math.PI/2;AL.add(SHADOW);
+const MAN=person(0x3f6fb5);MAN.position.set(1.0,0,.6);MAN.rotation.y=.5;AL.add(MAN);
+const MAN2=person(0x3f6fb5);MAN2.position.set(1.4,0,.6);MAN2.rotation.y=.3;SY.add(MAN2);
+// 日差しの矢（地上）
+const RAYM=new THREE.MeshBasicMaterial({color:0xffd23f,transparent:true,opacity:0,depthWrite:false});
+function rays(parent,tilt){const g=new THREE.Group();parent.add(g);for(let i=-2;i<=2;i++){const r=mesh(new THREE.CylinderGeometry(.025,.025,5,6),RAYM,false);r.position.set(i*.55,3.2,-.3);g.add(r)}g.rotation.z=tilt;return g}
+const RAY_SY=rays(SY,0),RAY_AL=rays(AL,0);
+
+// ===== 地球の断面（宇宙から見た図）。z=-60 に置く =====
+const GLOBE=new THREE.Group();GLOBE.position.set(0,0,-60);scene.add(GLOBE);const R=3;
+{const disc=mesh(new THREE.CylinderGeometry(R,R,.3,96),S(0x4f9be0,{flatShading:false}),false);disc.rotation.x=Math.PI/2;GLOBE.add(disc);
+ const land=mesh(new THREE.CylinderGeometry(R*.62,R*.62,.32,64),S(0x6aa45a,{flatShading:false}),false);land.rotation.x=Math.PI/2;land.position.set(-.3,1.2,0);land.scale.set(1,.7,1);GLOBE.add(land);
+ const ring=mesh(new THREE.TorusGeometry(R,.03,8,128),B(0xffffff),false);GLOBE.add(ring)}
+const ANG=16*Math.PI/180;   // 見やすいように角度を大きく描く（ラベルは7°。説明欄に「縮尺どおりではない」）
+const pos=a=>new THREE.Vector3(Math.sin(a)*R,Math.cos(a)*R,.2);
+const SYP=pos(0),ALP=pos(-ANG);
+const gstick=(p,a)=>{const s=mesh(new THREE.CylinderGeometry(.04,.04,.7,8),S(0x7a5534),false);s.position.copy(p).add(new THREE.Vector3(Math.sin(a)*.35,Math.cos(a)*.35,0));s.rotation.z=-a;GLOBE.add(s);return s};
+gstick(SYP,0);gstick(ALP,-ANG);
+const dot=(p,c)=>{const d=mesh(new THREE.SphereGeometry(.09,12,8),B(c),false);d.position.copy(p);GLOBE.add(d);return d};dot(SYP,0xff4d3a);dot(ALP,0xff4d3a);
+// 平行な日差し（上から）
+const GRAY=[];for(let i=-6;i<=6;i++){const r=mesh(new THREE.CylinderGeometry(.025,.025,4,6),RAYM.clone(),false);r.position.set(i*.45,R+2.4,.25);GLOBE.add(r);GRAY.push(r)}
+// 中心からの2本の線と角
+const lineM=new THREE.LineBasicMaterial({color:0xffe066,transparent:true,opacity:0});
+const ln=(a,b)=>{const g=new THREE.BufferGeometry().setFromPoints([a,b]);const l=new THREE.Line(g,lineM);GLOBE.add(l);return l};
+ln(new THREE.Vector3(0,0,.25),SYP.clone().setZ(.25));ln(new THREE.Vector3(0,0,.25),ALP.clone().setZ(.25));
+const arcPts=[];for(let i=0;i<=20;i++){const a=-ANG*i/20;arcPts.push(new THREE.Vector3(Math.sin(a)*.8,Math.cos(a)*.8,.25))}const ARC=new THREE.Line(new THREE.BufferGeometry().setFromPoints(arcPts),lineM);GLOBE.add(ARC);
+// 50分割の目盛り
+const TICKS=[];for(let i=0;i<50;i++){const a=-i*2*Math.PI/50;const t=mesh(new THREE.BoxGeometry(.05,.34,.05),B(i%2?0xffd23f:0xff7a3a),false);t.position.copy(pos(a)).setZ(.3);t.rotation.z=-a;t.visible=false;GLOBE.add(t);TICKS.push(t)}
+// 赤道の輪（答え）
+const RES=mesh(new THREE.TorusGeometry(R+.08,.06,8,160),new THREE.MeshBasicMaterial({color:0xffd23f,transparent:true,opacity:0}),false);GLOBE.add(RES);
+// 平らな地面の比較
+const FLAT=new THREE.Group();FLAT.position.set(0,-1.6,-60);scene.add(FLAT);
+{const p=mesh(new THREE.BoxGeometry(7,.25,.4),S(0x6aa45a),false);FLAT.add(p);for(const x of[-1.5,1.5]){const s=mesh(new THREE.CylinderGeometry(.04,.04,.7,8),S(0x7a5534),false);s.position.set(x,.45,0);FLAT.add(s)}
+ FLAT.userData.rays=[];for(let i=-6;i<=6;i++){const r=mesh(new THREE.CylinderGeometry(.025,.025,3,6),RAYM.clone(),false);r.position.set(i*.5,2.2,.1);FLAT.add(r);FLAT.userData.rays.push(r)}}
+const STARS=new THREE.Group();scene.add(STARS);{const r=rng(9),n=600,p=new Float32Array(n*3);for(let i=0;i<n;i++){p.set([-40+r()*80,-40+r()*80,-90-r()*20],i*3)}const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(p,3));STARS.add(new THREE.Points(g,new THREE.PointsMaterial({color:0xffffff,size:1.6,sizeAttenuation:false})))}
+
+const cam=new THREE.PerspectiveCamera(FOV,W/H,.05,300);
+const SHOT={
+  hook:  [[24.5,2.4,6.5],[20,1.0,0]],
+  well:  [[-19.0,5.0,2.6],[-20,-1.2,0]],
+  stick: [[23.8,2.0,5.0],[20,.6,0]],
+  flat:  [[0,.4,-41],[0,-.4,-60]],
+  curve: [[0,.3,-39],[0,.4,-60]],
+  angle: [[0,1.6,-47],[-.2,1.2,-60]],
+  fifty: [[0,0,-38],[0,0,-60]],
+  result:[[0,0,-38],[0,0,-60]],
+  end:   [[24.5,2.4,6.5],[20,1.0,0]]};
+const lineAt=t=>LINES.find(x=>t>=x.t0-.02&&t<x.t1+.12)||LINES.filter(x=>x.t0<=t).pop()||LINES[0];
+function camAt(t){const i=LINES.indexOf(lineAt(t)),cur=SHOT[LINES[i].fx]||SHOT.hook,prev=i>0?(SHOT[LINES[i-1].fx]||SHOT.hook):cur;
+  // 地上 ↔ 宇宙は切り替え（カットで）。同じ場所どうしは動いてつなぐ
+  const far=(s)=>s[1][2]<-20,jump=far(cur)!==far(prev)||Math.abs(cur[1][0]-prev[1][0])>10;
+  const k=jump?1:sstep(LINES[i].t0-.15,LINES[i].t0+.6,t);
+  const p=new THREE.Vector3().fromArray(prev[0]).lerp(new THREE.Vector3().fromArray(cur[0]),k),q=new THREE.Vector3().fromArray(prev[1]).lerp(new THREE.Vector3().fromArray(cur[1]),k);
+  p.x+=.08*Math.sin(t*.5);p.y+=.05*Math.sin(t*.4);return[p,q,far(cur)]}
+
+// ===== HUD =====
+const NS='http://www.w3.org/2000/svg',hud=document.getElementById('hud');
+function el(tag,a,txt){const e=document.createElementNS(NS,tag);for(const k in a)e.setAttribute(k,a[k]);if(txt!=null)e.textContent=txt;hud.appendChild(e);return e}
+const tw=(s,size)=>{let w=0;for(const ch of String(s))w+=ch.charCodeAt(0)<256?.58:1;return w*size};
+function T(x,y,size,txt,o={}){const a={x,y,'font-size':size,'font-weight':o.w||900,'text-anchor':o.a||'start','stroke-width':o.sw!=null?o.sw:Math.max(3,size*.2)};let st='';if(o.fill)st+='fill:'+o.fill+';';if(o.op!=null)st+='opacity:'+o.op+';';if(st)a.style=st;return el('text',a,txt)}
+const proj=v=>{const p=v.clone().project(cam);return[(p.x+1)/2*W,(1-p.y)/2*H,p.z]};
+function tag(v,txt,op,col,big){if(op<=.02||!txt)return;const[x,y,z]=proj(v);if(z>1)return;const size=big||Math.min(24,300/tw(txt,1));
+  const w=tw(txt,size)+18;el('rect',{x:x-w/2,y:y-size-4,width:w,height:size+12,rx:7,fill:col||'#1d1d1d',style:'opacity:'+(op*.9).toFixed(2)});T(x,y+2,size,txt,{a:'middle',sw:0,op:op.toFixed(2)})}
+const G=v=>GLOBE.localToWorld(v.clone());
+function drawHud(t,st){hud.innerHTML='';const l=lineAt(t),a=clamp((t-l.t0)/.12,0,1);
+  let y=l.cap.length>1?700:722;l.cap.forEach((s,i)=>{const size=Math.min(46,480/tw(s,1));T(270,y+(1-a)*6,size,s,{a:'middle',sw:9,op:(.3+.7*a).toFixed(2),fill:i===l.cap.length-1?'#ffd23f':'#fff'});y+=size+12});
+  if(st.ground==='sy')tag(new THREE.Vector3(-20,2.3,0),LAB.syene,1,'#b8452f');
+  if(st.ground==='al')tag(new THREE.Vector3(20,2.6,0),LAB.alex,1,'#2d6fb0');
+  if(st.globe){tag(G(SYP.clone().multiplyScalar(1.28).add(new THREE.Vector3(.55,0,0))),LAB.syene,st.cities,'#b8452f');tag(G(ALP.clone().multiplyScalar(1.28).add(new THREE.Vector3(-.75,0,0))),LAB.alex,st.cities,'#2d6fb0');
+    tag(G(new THREE.Vector3(-.15,1.3,.3)),LAB.angle,st.ang,'#c98a12',30);tag(G(new THREE.Vector3(0,-R-.75,.3)),LAB.scale,st.ang*.9,'#333',15);
+    tag(G(new THREE.Vector3(0,.2,.3)),LAB.x50,st.fifty,'#c98a12',38);tag(G(new THREE.Vector3(0,-.6,.3)),LAB.result,st.res,'#2f9e5b',30)}
+  if(st.flat>0){tag(FLAT.localToWorld(new THREE.Vector3(0,3.9,0)),LAB.flat,st.flat,'#555')}}
+
+// ===== 1コマ =====
+window.renderAt=function(t){
+  const[p,q,far]=camAt(t);cam.position.copy(p);cam.lookAt(q);cam.updateProjectionMatrix();
+  scene.background=far?SPACE:SKY;STARS.visible=far;
+  const l=lineAt(t),fx=l.fx;
+  // 地上：シエネは真上から日が差す（影なし、井戸の底が光る）。アレクサンドリアは少し斜め（影あり）
+  const onSY=!far&&q.x<0,onAL=!far&&q.x>0;
+  if(onSY){sun.position.set(-20,12,0);sun.target.position.set(-20,0,0)}else{sun.position.set(20+12*Math.tan(7.2*Math.PI/180)*2.2,12,-.4);sun.target.position.set(20,0,0)}
+  sun.intensity=far?0:2.6;
+  SY.userData.glow.material.opacity=onSY?(.6+.3*Math.sin(t*3))*sstep(T0('well')+.3,T0('well')+1,t):0;
+  const sh=onAL?sstep(T0('stick')+.2,T0('stick')+.9,t)+(t<T0('well')||t>=T0('end')?1:0):0;
+  const sl=Math.min(1,sh)*2.2*Math.tan(14*Math.PI/180);SHADOW.scale.y=Math.max(.01,sl);SHADOW.position.set(-sl/2-.02,.012,0);SHADOW.visible=sh>0;
+  RAYM.opacity=0;
+  RAY_SY.visible=onSY;RAY_AL.visible=onAL;RAY_AL.rotation.z=-14*Math.PI/180;
+  if(onSY||onAL)RAYM.opacity=.75*sstep(l.t0,l.t0+.5,t);
+  RAY_SY.children.forEach(r=>r.material.opacity=RAYM.opacity);RAY_AL.children.forEach(r=>r.material.opacity=RAYM.opacity);
+  MAN.userData.arm.rotation.z=.4+.9*sstep(T0('stick'),T0('stick')+.5,t)*(t<T0('flat')?1:0);   // 影を指さす
+  // 宇宙：平らな地面 → 丸い地球
+  const tF=T0('flat'),tC=T0('curve'),tA=T0('angle'),t5=T0('fifty'),tR=T0('result');
+  const flatK=far?sstep(tF,tF+.4,t)*(1-sstep(tC,tC+.4,t)):0;FLAT.visible=flatK>0;FLAT.position.y=-1.6+(1-flatK)*.5;FLAT.userData.rays.forEach(r=>r.material.opacity=.8*flatK);
+  const globeK=far?sstep(tC,tC+.5,t):0;GLOBE.visible=globeK>0;GLOBE.scale.setScalar(Math.max(.01,globeK));
+  GRAY.forEach(r=>r.material.opacity=.75*globeK*(1-sstep(t5,t5+.4,t)));
+  lineM.opacity=far?sstep(tA,tA+.4,t)*(1-sstep(tR,tR+.4,t)):0;
+  const n=far?Math.floor(clamp((t-t5-.2)/1.4,0,1)*50):0;TICKS.forEach((x,i)=>x.visible=i<n&&t<tR+.3);
+  RES.material.opacity=far?sstep(tR,tR+.5,t)*.95:0;
+  GLOBE.rotation.z=0;
+  renderer.render(scene,cam);
+  drawHud(t,{ground:far?null:(onSY?'sy':'al'),globe:far&&globeK>.5,cities:sstep(tC+.3,tC+.7,t),ang:sstep(tA+.2,tA+.6,t)*(1-sstep(t5,t5+.3,t)),fifty:sstep(t5+.2,t5+.6,t)*(1-sstep(tR,tR+.3,t)),res:sstep(tR+.3,tR+.7,t),flat:flatK});
+  return{t}};
+window.__info={total:DUR};
+Promise.all([400,700,900].map(w=>document.fonts.load(w+' 20px JumpSans','あ0'))).then(()=>{window.__fig={kind:'none'};window.__ready=true},e=>console.log('load error: '+e.message));
+</script></body></html>

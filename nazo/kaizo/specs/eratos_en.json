@@ -1,0 +1,99 @@
+{
+ "title": [
+  "",
+  ""
+ ],
+ "parts": {},
+ "labels": {
+  "syene": "Syene",
+  "alex": "Alexandria",
+  "angle": "7°",
+  "scale": "(not to scale)",
+  "x50": "× 50",
+  "result": "~40,000 km",
+  "flat": "If Earth were flat..."
+ },
+ "lines": [
+  {
+   "id": "e0",
+   "cap": [
+    "He measured the whole Earth",
+    "with a stick"
+   ],
+   "fx": "hook",
+   "text": "Over two thousand years ago, a man measured the whole Earth with a stick."
+  },
+  {
+   "id": "e1",
+   "cap": [
+    "In Syene, the sun shone",
+    "straight down a well"
+   ],
+   "fx": "well",
+   "text": "In Syene, at noon on the longest day, the sun shone straight down a well."
+  },
+  {
+   "id": "e2",
+   "cap": [
+    "In Alexandria,",
+    "a stick cast a shadow"
+   ],
+   "fx": "stick",
+   "text": "But in Alexandria, at the same moment, a stick still cast a shadow."
+  },
+  {
+   "id": "e3",
+   "cap": [
+    "If Earth were flat,",
+    "no shadows at all"
+   ],
+   "fx": "flat",
+   "text": "If the Earth were flat, neither place would have a shadow."
+  },
+  {
+   "id": "e4",
+   "cap": [
+    "So the Earth",
+    "must be curved"
+   ],
+   "fx": "curve",
+   "text": "So the Earth must be curved."
+  },
+  {
+   "id": "e5",
+   "cap": [
+    "About 7 degrees.",
+    "1/50 of a circle"
+   ],
+   "fx": "angle",
+   "text": "The shadow's angle was about seven degrees. One fiftieth of a circle."
+  },
+  {
+   "id": "e6",
+   "cap": [
+    "Earth is 50 times",
+    "the distance between them"
+   ],
+   "fx": "fifty",
+   "text": "So the Earth is about fifty times the distance between the two cities."
+  },
+  {
+   "id": "e7",
+   "cap": [
+    "Close to the real size:",
+    "about 40,000 km around"
+   ],
+   "fx": "result",
+   "text": "His answer was close to the real size. About forty thousand kilometers around."
+  },
+  {
+   "id": "e8",
+   "cap": [
+    "Just a stick",
+    "and a shadow"
+   ],
+   "fx": "end",
+   "text": "All he needed was a stick and a shadow."
+  }
+ ]
+}

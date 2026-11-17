@@ -1,0 +1,20 @@
+【タイトル】
+He Measured the Whole Earth With a Stick #shorts
+
+【説明】
+About 2,200 years ago, Eratosthenes worked out the size of the Earth with a stick, a shadow and some geometry.
+
+The facts:
+- At noon on the summer solstice, the Sun was said to shine straight down a well in Syene (today's Aswan), so upright objects cast no shadow.
+- At the same time in Alexandria, a vertical stick cast a shadow. The angle was about 7.2 degrees, which is 1/50 of a full circle.
+- The Sun's rays are nearly parallel, so that angle equals the angle between the two cities at Earth's center. Earth's circumference is about 50 times the distance between them (about 5,000 stadia), so about 250,000 stadia.
+- Depending on the length of the stadion used, that is close to the real circumference of about 40,000 km. Historians still debate exactly how close.
+- The drawing exaggerates the angle so it is easier to see.
+Sources: Encyclopaedia Britannica, "Eratosthenes"; NASA/JPL Education, "Eratosthenes' measurement of the Earth".
+
+Voice: Kokoro TTS (Apache-2.0)
+Music and sound: original
+3D animation: original (three.js)
+
+【タグ】
+Eratosthenes,history of science,earth,geometry,ancient greece,3D animation,shorts
