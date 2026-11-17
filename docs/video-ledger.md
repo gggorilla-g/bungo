@@ -132,6 +132,8 @@
 | 11/17 | WITJikAlKJU | Ricks | The Man Who Measured Earth With a Stick（eratos_en） | Make It Work 3D |
 | 11/17 | z6SWL7QLvSw | Ricks | 棒で地球の大きさを測った男（eratos_ja） | 雑学 |
 | 11/17 | kY51En9SUjo | Zack D | What If You Never Blinked?（blink_en、0:26） | Make It Work 3D |
+| 11/17 | dQgp4hiSfqE | Zack D | もしも、まばたきをしなかったら（blink_ja、0:29） | 妄想科学 |
+| 11/18 | QifZu2HnDO4 | You Made It | How Romans Heated Their Floors（hypo_en、0:30） | Make It Work 3D |
 
 ## 制作中・予定
 - 雑学 長尺#1「名前がひどすぎる生き物10選」＋入口ショート2本（すべてAPIで予約投稿済み、10/31）
