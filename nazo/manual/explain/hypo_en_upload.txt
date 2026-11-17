@@ -1,0 +1,20 @@
+【タイトル】
+How Romans Heated Their Floors 2,000 Years Ago #shorts
+
+【説明】
+Romans heated floors and walls with fire and hot air: the hypocaust.
+
+The facts:
+- A raised floor stood on short stacks of bricks (pilae), leaving a hollow space underneath. In the Baths of Caracalla, that cavity was about 2 feet (about 60 cm) deep.
+- A wood-fired furnace (praefurnium), usually outside the heated room, sent hot air and smoke into the space under the floor.
+- Hot air rose through hollow clay flues inside the walls (tubuli) and left near the roof, so the walls were heated too.
+- Keeping the fires going took a lot of labor: workers fed in small wood and cleared out ash and soot.
+- The animation is simplified.
+Sources: Vitruvius, De architectura (via Wikipedia, "Praefurnium"); Engineering Rome, "Thermal Respite in Ancient Rome: A Study of the Baths of Caracalla".
+
+Voice: Kokoro TTS (Apache-2.0)
+Music and sound: original
+3D animation: original (three.js)
+
+【タグ】
+ancient rome,hypocaust,underfloor heating,engineering,history,3D animation,shorts
