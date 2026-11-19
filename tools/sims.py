@@ -197,7 +197,7 @@ def mirrors2(sp):
 def picount(sp):
     """壁・軽い箱（重さ1）・重い箱（重さM）。重い箱をすべらせて、完全に弾むぶつかり方で回数を数える。
     M=1 で3回、100 で31回、10000 で314回（Galperin のビリヤード。円周率の桁が出る）。3段を上から順に見せる"""
-    stages = sp.get("stages", [[1, 1.6, 2.7], [100, .8, 2.7], [10000, .8, 1.9]]); intro, tail = .3, sp.get("tail", 2.6); a0, w1 = .6, .34   # [重さ, 速さ（画面の秒あたり）, 重い箱の出発位置]
+    stages = sp.get("stages", [[1, 1.8, 1.6], [100, .9, 1.7], [10000, .8, 1.6]]); intro, tail = .3, sp.get("tail", 2.6); a0, w1 = .6, .34   # [重さ, 速さ（画面の秒あたり）, 重い箱の出発位置]
     XR = 4.2; sim = Sim(sp, (-.2, -3.3, 5.5, 3.3)); lanes = [2.0, 0.0, -2.0][:len(stages)]
     for y in lanes: sim.neon([(0, y), (XR, y)], width=4); sim.neon([(0, y), (0, y + 1.25)], width=6)
     sim.title()
@@ -243,7 +243,59 @@ def picount(sp):
     sim.finish(total)
 
 
-KINDS = {"parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2, "picount": picount}
+def sunflower(sp):
+    """たねを1個ずつ置く。n 個目は中心から c√n の距離、角度は n×137.5°（黄金角）。
+    すきまなく並び、うずまきの本数がフィボナッチ数（21・34・55…）になる（Vogel のモデル）。最初はゆっくり、だんだん速く"""
+    N, ang = sp.get("N", 500), sp.get("angle", 137.50776); T, pw = sp.get("T", 30.0), sp.get("pow", .6); intro, tail = .3, sp.get("tail", 2.2)
+    fam = sp.get("family", 34); c = 1 / math.sqrt(N); sim = Sim(sp, (-1.06, -1.06, 1.06, 1.06)); sim.title()
+    pos = [(c * math.sqrt(n) * math.sin(math.radians(ang * n)), c * math.sqrt(n) * math.cos(math.radians(ang * n))) for n in range(1, N + 1)]
+    tt = [intro + T * ((n + 1) / N) ** pw for n in range(N)]; prev = 0
+    for n in range(N):   # 置くたびに1音。うずまきの列（n を fam で割った余り）ごとに高さを変える。詰まるほど小さく短く
+        gap = tt[n] - prev; prev = tt[n]
+        sim.note(tt[n], PENTA[(n % fam) % 16], .5 * min(1, gap / .12) ** .5, .5 + .3 * pos[n][0], 6 if gap > .15 else 14)
+    total = tt[-1] + tail; k = 0; rdot = sp.get("dot", 9.5)
+    for fi in range(int(total * FPS)):
+        t = fi / FPS; fl, live = [], []
+        while k < N and tt[k] <= t: sim.dot(pos[k], rdot * (.55 + .45 * math.sqrt((k + 1) / N)), hsv((k % fam) / fam, .8, 1.0)); k += 1
+        if 0 < k < N or (k == N and t - tt[-1] < .3):
+            p = pos[k - 1]; e = t - tt[k - 1]
+            if tt[k - 1] - (tt[k - 2] if k > 1 else 0) > .07: live.append(((0, 0), p, (120, 130, 150), 1.5))   # 置く向きを示す針（速くなったら消す）
+            if e < .15: fl.append((p, 9 + e * 60, dim((255, 245, 200), 1 - e / .15), 3))
+        sim.frame(t, live, (), (sp.get("count_label", "たね："), f"{k:,}"), fl)
+    sim.finish(total)
+
+
+def ulam(sp):
+    """数字を 1 から順に、うずまきに並べる（ウラムのらせん）。素数のマスだけ明るくする。
+    素数が斜めの線に並んで見える。最初はゆっくり、だんだん速く"""
+    G = sp.get("grid", 29); N = G * G; T, pw = sp.get("T", 30.0), sp.get("pow", .5); intro, tail = .3, sp.get("tail", 2.4)
+    sim = Sim(sp, (-G / 2 - .3, -G / 2 - .3, G / 2 + .3, G / 2 + .3)); sim.title()
+    xy, x, y, dx, dy, seg, run, turn = [], 0, 0, 1, 0, 1, 0, 0
+    for n in range(1, N + 1):   # 1 を中心に、右→上→左→下の順に回る
+        xy.append((x, y)); x += dx; y += dy; run += 1
+        if run == seg:
+            run = 0; dx, dy = -dy, dx; turn += 1
+            if turn % 2 == 0: seg += 1
+    sieve = bytearray([1]) * (N + 1); sieve[0:2] = b"\0\0"
+    for i in range(2, int(N ** .5) + 1):
+        if sieve[i]: sieve[i * i::i] = bytearray(len(sieve[i * i::i]))
+    tt = [intro + T * ((n + 1) / N) ** pw for n in range(N)]; prev = 0; npr = 0
+    for n in range(N):   # 素数のマスで高い音、それ以外は低い小さい音。詰まるほど小さく短く
+        gap = tt[n] - prev; prev = tt[n]; g = min(1, gap / .12) ** .5; ring = max(abs(xy[n][0]), abs(xy[n][1]))
+        if sieve[n + 1]: sim.note(tt[n], PENTA[5 + ring % 10], .55 * g, .5 + .3 * xy[n][0] / (G / 2), 6 if gap > .15 else 14)
+        else: sim.note(tt[n], 60, .12 * g, .5, 20)
+    total = tt[-1] + tail; k = 0; pc = 0
+    for fi in range(int(total * FPS)):
+        t = fi / FPS; dots = []
+        while k < N and tt[k] <= t:
+            cx_, cy_ = xy[k]; pr = sieve[k + 1]; pc += pr
+            sim.cell((cx_ - .42, cy_ - .42), (cx_ + .42, cy_ + .42), (255, 214, 90) if pr else (22, 30, 48)); k += 1
+        if 0 < k < N: dots.append((xy[k - 1], (255, 255, 255), 5))
+        sim.frame(t, (), dots, (sp.get("count_fmt", "{n} まで　素数 ").format(n=k), f"{pc}"))
+    sim.finish(total)
+
+
+KINDS = {"sunflower": sunflower, "ulam": ulam, "parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2, "picount": picount}
 
 if __name__ == "__main__":
     sp = json.load(open(sys.argv[1], encoding="utf-8")); KINDS[sp["kind"]](sp); kit(sp)

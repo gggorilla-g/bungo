@@ -79,6 +79,17 @@ class Sim:
         for a, b, c in P: td.line([a[0] - bx0, a[1] - by0, b[0] - bx0, b[1] - by0], fill=c, width=max(1, int(width * S)))
         self.acc.paste(ImageChops.add(self.acc.crop((bx0, by0, bx1, by1)), tmp), (bx0, by0))
 
+    def dot(self, p, r, color):
+        """点を1つ、残る絵に足す（r は 1080幅での半径px）"""
+        x, y = self.to(p); rr = r * S; bx0, by0, bx1, by1 = int(x - rr) - 2, int(y - rr) - 2, int(x + rr) + 3, int(y + rr) + 3
+        if bx0 < 0 or by0 < 0 or bx1 > W * S or by1 > H * S: return
+        tmp = Image.new("RGB", (bx1 - bx0, by1 - by0)); ImageDraw.Draw(tmp).ellipse([x - rr - bx0, y - rr - by0, x + rr - bx0, y + rr - by0], fill=color)
+        self.acc.paste(ImageChops.add(self.acc.crop((bx0, by0, bx1, by1)), tmp), (bx0, by0))
+
+    def cell(self, p0, p1, color):
+        """四角を1つ、残る絵に上書きする（p0, p1 は対角）"""
+        (x0, y0), (x1, y1) = self.to(p0), self.to(p1); ImageDraw.Draw(self.acc).rectangle([min(x0, x1), min(y0, y1), max(x0, x1), max(y0, y1)], fill=color)
+
     # ---- 1コマ
     def frame(self, t, live=(), balls=(), label=None, flashes=(), draw=None):
         """live: [(p0, p1, 色, 太さ)] いま描いている途中の線。balls: [(位置, 色, 半径px)]。label: (文字, 数)。flashes: [(位置, 半径px, 色, 太さ)]"""
