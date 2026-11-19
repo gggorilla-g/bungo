@@ -1,0 +1,17 @@
+【タイトル】
+Now Triple Each Number. What Shape Appears? #shorts #math
+
+【説明】
+Put 100 numbered points (0 to 99) on a circle. From each point, send one ball to the point with triple its number (subtract 100 until it fits; for example 41 goes to 123 - 100 = 23). Doubling gave a heart-like curve with one cusp (a cardioid). Tripling gives a curve with two cusps, called a nephroid.
+
+How it works:
+- Every line from point n to point 3n is tangent to a nephroid.
+- In general, multiplying by m gives a curve with m - 1 cusps (1 for doubling, 2 for tripling, 3 for multiplying by 4).
+- The bright curve inside a cup lit by distant light (parallel rays) is part of a nephroid too.
+- Point 50 maps to itself (150 - 100 = 50), so it is skipped.
+- Every ball plays one note when it lands. Longer lines play lower notes.
+
+Simulation, sound and animation: original (Python).
+
+【タグ】
+math, nephroid, cardioid, times table, geometry, simulation, satisfying, shorts
