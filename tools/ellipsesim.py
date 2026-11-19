@@ -123,8 +123,21 @@ def main(spec_path):
     p = subprocess.Popen(["ffmpeg", "-v", "error", "-y", "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{W}x{H}", "-r", str(FPS), "-i", "-",
                           "-c:v", "libx264", "-preset", "veryfast", "-crf", "18", "-pix_fmt", "yuv420p", out_raw], stdin=subprocess.PIPE)
     nf = int(total * FPS); r = sp.get("ball_r", .028)
+    from PIL import ImageChops
+    acc = Image.new("RGB", (W * S, H * S)); done = set()   # 終わった周の軌跡を重ねて残す（行きと帰りは同じ線なので周ごとに1回）
+    keep = sp.get("keep_trails", True)
     for fi in range(nf):
-        t = fi / FPS; im = bg.copy(); d = ImageDraw.Draw(im)
+        t = fi / FPS
+        if keep:
+            for kk in range(doubles + 1):
+                if kk not in done and t >= intro + kk * cycle + T_half:
+                    done.add(kk); rk = rounds[kk]; tmp = Image.new("RGB", (W * S, H * S)); td = ImageDraw.Draw(tmp)
+                    lwk = max(1, int(2 * S * min(1, 10 / math.sqrt(rk["n"])))); gk = sp.get("trail_gain", .30)
+                    for i in range(rk["n"]):
+                        c_ = tuple(int(x * gk) for x in hsv(rk["hue"][i])); xh, yh = to(rk["hit"][i])
+                        td.line([*to(F1), xh, yh], fill=c_, width=lwk); td.line([xh, yh, *to(F2)], fill=c_, width=lwk)
+                    acc = ImageChops.add(acc, tmp)
+        im = ImageChops.add(bg, acc) if keep else bg.copy(); d = ImageDraw.Draw(im)
         k = int(max(0, t - intro) // cycle); k = min(k, doubles); rd = rounds[k]; u = t - intro - k * cycle
         n = rd["n"]; hit = rd["hit"]; l1 = rd["l1"]
         if t < intro: s, leg = 0, 0
