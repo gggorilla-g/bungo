@@ -1,0 +1,16 @@
+【タイトル】
+Spiral the Numbers and Light Up Only the Primes #shorts #math #primes
+
+【説明】
+Put 1 in the middle and write 2, 3, 4 ... in a spiral. Light up only the prime numbers (numbers divisible only by 1 and themselves) and they seem to line up along diagonals.
+
+Numbers:
+- 29 x 29 = 841 cells. There are 146 primes up to 841 (calculated).
+- The mathematician Stanislaw Ulam noticed this pattern in 1963. It is called the Ulam spiral.
+- Numbers along a diagonal follow a quadratic formula in n. Some quadratics are known to produce many primes, but why they do is still a conjecture. This video shows the result up to 841 and does not prove anything beyond that.
+- It starts slowly and speeds up. Prime cells play a higher note; the other cells play a low, quiet one.
+
+Simulation, sound and animation: original (Python).
+
+【タグ】
+math, prime numbers, ulam spiral, number theory, simulation, satisfying, shorts

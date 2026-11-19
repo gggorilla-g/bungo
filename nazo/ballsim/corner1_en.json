@@ -1,0 +1,23 @@
+{
+ "kind": "corner",
+ "title": [
+  "Drop them into a right-angle mirror.",
+  "Will they all come straight back?"
+ ],
+ "count_label": "balls: ",
+ "yt": {
+  "title": "Drop Them Into a Right-Angle Mirror. Will They All Come Straight Back? #shorts #physics #math",
+  "desc": "Drop balls straight down into two mirrors set at a right angle. Every ball bounces twice and flies straight back up, parallel to the way it came in. And they all reach the top line at the same moment.\n\nHow it works:\n- Two reflections in a right-angle corner turn the direction around exactly. Bicycle reflectors and the laser reflectors left on the Moon (which use three mirrors at right angles) work the same way.\n- The path is \"down + across + up\", and its length is the same for every ball: outer balls have a shorter way down and up but a longer way across. So at equal speed they come back together.\n- Halfway through, all the balls cross the middle at the same moment.\n- There is no gravity here (the balls move like light rays). Balls pass through each other. More balls are added every round (2, 4, 6, 10, 16, 26, 42).\n- Every ball plays one note each time it hits a mirror.\n\nSimulation, sound and animation: original (Python).",
+  "tags": [
+   "physics",
+   "math",
+   "reflection",
+   "mirror",
+   "retroreflector",
+   "simulation",
+   "satisfying",
+   "shorts"
+  ]
+ },
+ "id": "corner1_en"
+}

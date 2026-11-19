@@ -1,0 +1,20 @@
+【タイトル】
+Turn 137.5° and Place a Seed. What Pattern Appears? #shorts #math #nature
+
+【説明】
+Place seeds one at a time, each turned about 137.5 degrees from the one before. The distance from the center grows with the square root of the seed's number. The seeds pack without gaps and spirals show up. This is a model of how a sunflower head is arranged.
+
+How it works:
+- 137.5 degrees is called the golden angle (360 degrees divided by the golden ratio squared, about 137.508 degrees).
+- Putting seed n at distance c x sqrt(n) and angle n x 137.5 degrees is the sunflower model published by H. Vogel in 1979.
+- Seeds of the same color are 34 steps apart. 34 x 137.508 degrees is close to a multiple of 360 degrees (about 4.7 degrees off), so every 34th seed lines up along one spiral arm. 34 is a Fibonacci number (1, 1, 2, 3, 5, 8, 13, 21, 34, 55 ...).
+- Seeds are placed slowly at first and then faster (500 in total).
+- Every seed plays one note when it is placed.
+
+Source
+- H. Vogel, "A better way to construct the sunflower head", Mathematical Biosciences 44 (1979)
+
+Simulation, sound and animation: original (Python).
+
+【タグ】
+math, golden angle, fibonacci, sunflower, nature, simulation, satisfying, shorts

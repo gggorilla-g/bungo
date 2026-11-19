@@ -1,0 +1,6 @@
+venus1_ja MOSO ja
+cardioid2_ja MOSO ja
+rings1_ja MOSO ja
+rings1_en KAIDAN en
+pi1_ja MOSO ja
+pi1_en KAIDAN en
