@@ -1,0 +1,182 @@
+{
+ "title": [
+  "",
+  ""
+ ],
+ "parts": {},
+ "labels": {
+  "walk": "Walking 3 mph",
+  "bike": "Bike 12 mph",
+  "car": "Car 37 mph",
+  "shin": "Bullet train 199 mph",
+  "plane": "Jet airliner 560 mph",
+  "boom": "Sound 761 mph",
+  "bullet": "Rifle bullet 2,000 mph",
+  "orbit": "Orbital speed 4.9 mi/s",
+  "escape": "Escape speed 7 mi/s",
+  "real": "Air 1,500°F / 90 g"
+ },
+ "params": {
+  "st": {
+   "hook": [
+    0,
+    5
+   ],
+   "walk": [
+    0,
+    5
+   ],
+   "bike": [
+    1,
+    10
+   ],
+   "car": [
+    2,
+    20
+   ],
+   "shin": [
+    5,
+    160
+   ],
+   "plane": [
+    6,
+    320
+   ],
+   "boom": [
+    7,
+    640
+   ],
+   "bullet": [
+    8,
+    1280
+   ],
+   "orbit": [
+    11,
+    10240
+   ],
+   "escape": [
+    12,
+    20480
+   ],
+   "real": [
+    8,
+    1280
+   ],
+   "end": [
+    12,
+    20480
+   ]
+  },
+  "lang": "en"
+ },
+ "lines": [
+  {
+   "id": "k0",
+   "cap": [
+    "What if your speed",
+    "doubled every second?"
+   ],
+   "fx": "hook",
+   "text": "What if your speed doubled every second?"
+  },
+  {
+   "id": "k1",
+   "cap": [
+    "Start: 11 mph",
+    "Passing walkers"
+   ],
+   "fx": "walk",
+   "text": "Eleven miles an hour. You pass walkers."
+  },
+  {
+   "id": "k2",
+   "cap": [
+    "1 second: 22 mph",
+    "Passing a bike"
+   ],
+   "fx": "bike",
+   "text": "One second: twenty-two. You pass a bike."
+  },
+  {
+   "id": "k3",
+   "cap": [
+    "2 seconds: 45 mph",
+    "Passing cars"
+   ],
+   "fx": "car",
+   "text": "Two seconds: forty-five. You pass cars."
+  },
+  {
+   "id": "k4",
+   "cap": [
+    "5 seconds: 358 mph",
+    "Beating a bullet train"
+   ],
+   "fx": "shin",
+   "text": "Five seconds: three fifty-eight. You beat a bullet train."
+  },
+  {
+   "id": "k5",
+   "cap": [
+    "6 seconds: 716 mph",
+    "Faster than a jet"
+   ],
+   "fx": "plane",
+   "text": "Six seconds. Faster than a jet."
+  },
+  {
+   "id": "k6",
+   "cap": [
+    "7 seconds: Mach 1.9",
+    "Shock wave shatters glass"
+   ],
+   "fx": "boom",
+   "text": "Seven seconds. Sonic boom. Windows shatter."
+  },
+  {
+   "id": "k7",
+   "cap": [
+    "8 seconds: Mach 3.8",
+    "Passing a rifle bullet"
+   ],
+   "fx": "bullet",
+   "text": "Eight seconds. You pass a rifle bullet."
+  },
+  {
+   "id": "k8",
+   "cap": [
+    "11 seconds: 6.4 miles/s",
+    "The ground curves away"
+   ],
+   "fx": "orbit",
+   "text": "Eleven seconds. The ground curves away. You're in orbit."
+  },
+  {
+   "id": "k9",
+   "cap": [
+    "12 seconds",
+    "Escaping Earth"
+   ],
+   "fx": "escape",
+   "text": "Twelve seconds. You escape Earth."
+  },
+  {
+   "id": "k10",
+   "cap": [
+    "In reality, at 8 seconds:",
+    "1,500°F air, 90 g"
+   ],
+   "fx": "real",
+   "text": "In reality, by second eight, the air hits fifteen hundred degrees, and ninety g's."
+  },
+  {
+   "id": "k11",
+   "cap": [
+    "Double every second:",
+    "off Earth in 12 seconds"
+   ],
+   "fx": "end",
+   "text": "Twelve seconds, and you're off the planet."
+  }
+ ]
+}

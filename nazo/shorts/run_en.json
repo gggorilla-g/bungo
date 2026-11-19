@@ -1,0 +1,205 @@
+{
+ "main": "make_it_work_3d",
+ "label": "Make It Work 3D",
+ "builder": "nazo/kaizo3d.py",
+ "voice": {
+  "engine": "kokoro",
+  "speaker": "am_michael",
+  "speed": 1.15
+ },
+ "voice_name": "Kokoro am_michael",
+ "gap": 0.12,
+ "tail": 1.0,
+ "title": "What If Your Running Speed Doubled Every Second? #shorts",
+ "scene_title": [
+  "",
+  ""
+ ],
+ "scene_page": "scene_run.html",
+ "parts": {},
+ "labels": {
+  "walk": "Walking 3 mph",
+  "bike": "Bike 12 mph",
+  "car": "Car 37 mph",
+  "shin": "Bullet train 199 mph",
+  "plane": "Jet airliner 560 mph",
+  "boom": "Sound 761 mph",
+  "bullet": "Rifle bullet 2,000 mph",
+  "orbit": "Orbital speed 4.9 mi/s",
+  "escape": "Escape speed 7 mi/s",
+  "real": "Air 1,500°F / 90 g"
+ },
+ "params": {
+  "st": {
+   "hook": [
+    0,
+    5
+   ],
+   "walk": [
+    0,
+    5
+   ],
+   "bike": [
+    1,
+    10
+   ],
+   "car": [
+    2,
+    20
+   ],
+   "shin": [
+    5,
+    160
+   ],
+   "plane": [
+    6,
+    320
+   ],
+   "boom": [
+    7,
+    640
+   ],
+   "bullet": [
+    8,
+    1280
+   ],
+   "orbit": [
+    11,
+    10240
+   ],
+   "escape": [
+    12,
+    20480
+   ],
+   "real": [
+    8,
+    1280
+   ],
+   "end": [
+    12,
+    20480
+   ]
+  },
+  "lang": "en"
+ },
+ "desc": "What if your running speed doubled every second? A 3D thought experiment.\n\nNumbers:\n- Start at 5 m/s (11 mph), doubling every second: 10 m/s at 1 s, 20 m/s at 2 s, 160 m/s at 5 s, 320 m/s at 6 s, 640 m/s at 7 s, 1,280 m/s at 8 s, 10,240 m/s at 11 s, 20,480 m/s at 12 s (calculation).\n- The 100 m world record (9.58 s) averages about 10.4 m/s (World Athletics).\n- Japan's fastest bullet trains run at 320 km/h (199 mph) in service. Jet airliners cruise at roughly 900 km/h (560 mph).\n- Speed of sound at 15 C is about 340 m/s, so 640 m/s is about Mach 1.9 and 1,280 m/s about Mach 3.8. Rifle bullets travel roughly 900 m/s, about 2,000 mph (varies by gun and round).\n- Orbital speed near Earth is about 7.9 km/s (4.9 mi/s) and escape speed about 11.2 km/s (7 mi/s) (JAXA). Air and terrain are ignored in this thought experiment.\n- Air temperature on impact uses stagnation temperature T = T0 + v^2/(2cp) (T0 = 288 K, cp = 1005 J/kg/K): about 1,100 K, or roughly 830 C / 1,500 F, at 1,280 m/s (estimate).\n- When speed doubles every second, acceleration is speed x about 0.69: about 890 m/s^2, or 90 g, at 1,280 m/s (calculation).\n- Distances and sizes are not to scale.\n\nSources\n- World Athletics 100m records https://worldathletics.org/records/by-discipline/sprints/100-metres/all/men\n- JAXA (orbital and escape speed) https://www.jaxa.jp/projects/pr/brochure/pdf/08/kids_02.pdf\n\nVoice: Kokoro TTS (Apache-2.0)\nCharacter model: Seed-san (VirtualCast, Inc.)\nMusic and sound: original\n3D animation: original (three.js)",
+ "tags": [
+  "what if",
+  "running",
+  "speed",
+  "sound barrier",
+  "science",
+  "3D animation",
+  "shorts"
+ ],
+ "lines": [
+  {
+   "id": "k0",
+   "fx": "hook",
+   "say": "What if your speed doubled every second?",
+   "cap": [
+    "What if your speed",
+    "doubled every second?"
+   ]
+  },
+  {
+   "id": "k1",
+   "fx": "walk",
+   "say": "Eleven miles an hour. You pass walkers.",
+   "cap": [
+    "Start: 11 mph",
+    "Passing walkers"
+   ]
+  },
+  {
+   "id": "k2",
+   "fx": "bike",
+   "say": "One second: twenty-two. You pass a bike.",
+   "cap": [
+    "1 second: 22 mph",
+    "Passing a bike"
+   ]
+  },
+  {
+   "id": "k3",
+   "fx": "car",
+   "say": "Two seconds: forty-five. You pass cars.",
+   "cap": [
+    "2 seconds: 45 mph",
+    "Passing cars"
+   ]
+  },
+  {
+   "id": "k4",
+   "fx": "shin",
+   "say": "Five seconds: three fifty-eight. You beat a bullet train.",
+   "cap": [
+    "5 seconds: 358 mph",
+    "Beating a bullet train"
+   ]
+  },
+  {
+   "id": "k5",
+   "fx": "plane",
+   "say": "Six seconds. Faster than a jet.",
+   "cap": [
+    "6 seconds: 716 mph",
+    "Faster than a jet"
+   ]
+  },
+  {
+   "id": "k6",
+   "fx": "boom",
+   "say": "Seven seconds. Sonic boom. Windows shatter.",
+   "cap": [
+    "7 seconds: Mach 1.9",
+    "Shock wave shatters glass"
+   ]
+  },
+  {
+   "id": "k7",
+   "fx": "bullet",
+   "say": "Eight seconds. You pass a rifle bullet.",
+   "cap": [
+    "8 seconds: Mach 3.8",
+    "Passing a rifle bullet"
+   ]
+  },
+  {
+   "id": "k8",
+   "fx": "orbit",
+   "say": "Eleven seconds. The ground curves away. You're in orbit.",
+   "cap": [
+    "11 seconds: 6.4 miles/s",
+    "The ground curves away"
+   ]
+  },
+  {
+   "id": "k9",
+   "fx": "escape",
+   "say": "Twelve seconds. You escape Earth.",
+   "cap": [
+    "12 seconds",
+    "Escaping Earth"
+   ]
+  },
+  {
+   "id": "k10",
+   "fx": "real",
+   "say": "In reality, by second eight, the air hits fifteen hundred degrees, and ninety g's.",
+   "cap": [
+    "In reality, at 8 seconds:",
+    "1,500°F air, 90 g"
+   ]
+  },
+  {
+   "id": "k11",
+   "fx": "end",
+   "say": "Twelve seconds, and you're off the planet.",
+   "cap": [
+    "Double every second:",
+    "off Earth in 12 seconds"
+   ]
+  }
+ ]
+}

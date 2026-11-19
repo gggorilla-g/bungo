@@ -1,0 +1,27 @@
+【タイトル】
+What If Your Running Speed Doubled Every Second? #shorts
+
+【説明】
+What if your running speed doubled every second? A 3D thought experiment.
+
+Numbers:
+- Start at 5 m/s (11 mph), doubling every second: 10 m/s at 1 s, 20 m/s at 2 s, 160 m/s at 5 s, 320 m/s at 6 s, 640 m/s at 7 s, 1,280 m/s at 8 s, 10,240 m/s at 11 s, 20,480 m/s at 12 s (calculation).
+- The 100 m world record (9.58 s) averages about 10.4 m/s (World Athletics).
+- Japan's fastest bullet trains run at 320 km/h (199 mph) in service. Jet airliners cruise at roughly 900 km/h (560 mph).
+- Speed of sound at 15 C is about 340 m/s, so 640 m/s is about Mach 1.9 and 1,280 m/s about Mach 3.8. Rifle bullets travel roughly 900 m/s, about 2,000 mph (varies by gun and round).
+- Orbital speed near Earth is about 7.9 km/s (4.9 mi/s) and escape speed about 11.2 km/s (7 mi/s) (JAXA). Air and terrain are ignored in this thought experiment.
+- Air temperature on impact uses stagnation temperature T = T0 + v^2/(2cp) (T0 = 288 K, cp = 1005 J/kg/K): about 1,100 K, or roughly 830 C / 1,500 F, at 1,280 m/s (estimate).
+- When speed doubles every second, acceleration is speed x about 0.69: about 890 m/s^2, or 90 g, at 1,280 m/s (calculation).
+- Distances and sizes are not to scale.
+
+Sources
+- World Athletics 100m records https://worldathletics.org/records/by-discipline/sprints/100-metres/all/men
+- JAXA (orbital and escape speed) https://www.jaxa.jp/projects/pr/brochure/pdf/08/kids_02.pdf
+
+Voice: Kokoro TTS (Apache-2.0)
+Character model: Seed-san (VirtualCast, Inc.)
+Music and sound: original
+3D animation: original (three.js)
+
+【タグ】
+what if, running, speed, sound barrier, science, 3D animation, shorts
