@@ -9,9 +9,18 @@ T="$(mktemp -d)"; cp "$ROOT/output/$ID.mp4" "$T/"
 ( cd "$T" && git init -q && git checkout -q -b "up-$ID" && git add "$ID.mp4" && git -c user.name=bot -c user.email=bot@example.com commit -qm up && git remote add origin "$URL" && git push -q -f origin "up-$ID" 2>&1 | grep -v -e "^remote:" -e "negotiation" || true )
 git -C "$ROOT" ls-remote origin "up-$ID" | grep -q . || { echo "ブランチの push に失敗: up-$ID"; exit 1; }
 cd "$ROOT"
-BEFORE="$(gh run list --workflow upload_file.yml -L 1 --json databaseId -q '.[0].databaseId')"
+SEEN="$(gh run list --workflow upload_file.yml -L 20 --json databaseId -q '.[].databaseId' | sort)"
 gh workflow run upload_file.yml --ref kaizo3d-fridge -f id="$ID" -f kit="$KIT" -f token="$TOKEN" -f publish_at="$PUB" -f lang="$LANGC" -f no_voice="$NOVOICE" >/dev/null
-for i in $(seq 1 20); do sleep 3; R="$(gh run list --workflow upload_file.yml -L 1 --json databaseId -q '.[0].databaseId')"; [ "$R" != "$BEFORE" ] && break; done
+R=""   # 新しく出てきた実行のうち、ログにこの動画IDがあるものを選ぶ
+for i in $(seq 1 60); do
+  sleep 5
+  for c in $(gh run list --workflow upload_file.yml -L 10 --json databaseId -q '.[].databaseId'); do
+    echo "$SEEN" | grep -qx "$c" && continue
+    gh run view "$c" --log 2>/dev/null | grep -q "up-$ID\b\|/tmp/$ID.mp4" && { R="$c"; break; }
+  done
+  [ -n "$R" ] && break
+done
+[ -n "$R" ] || { echo "$ID 実行が見つからない"; exit 1; }
 gh run watch "$R" --exit-status >/dev/null 2>&1 || true
 C="$(gh run view "$R" --json conclusion -q .conclusion)"
 V="$(gh run view "$R" --log 2>/dev/null | grep -oE '"id": "[^"]+"' | head -1 | sed 's/"id": "//; s/"//')"

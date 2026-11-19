@@ -1,0 +1,17 @@
+【タイトル】
+Drop Them Into a Right-Angle Mirror. Will They All Come Straight Back? #shorts #physics #math
+
+【説明】
+Drop balls straight down into two mirrors set at a right angle. Every ball bounces twice and flies straight back up, parallel to the way it came in. And they all reach the top line at the same moment.
+
+How it works:
+- Two reflections in a right-angle corner turn the direction around exactly. Bicycle reflectors and the laser reflectors left on the Moon (which use three mirrors at right angles) work the same way.
+- The path is "down + across + up", and its length is the same for every ball: outer balls have a shorter way down and up but a longer way across. So at equal speed they come back together.
+- Halfway through, all the balls cross the middle at the same moment.
+- There is no gravity here (the balls move like light rays). Balls pass through each other. More balls are added every round (2, 4, 6, 10, 16, 26, 42).
+- Every ball plays one note each time it hits a mirror.
+
+Simulation, sound and animation: original (Python).
+
+【タグ】
+physics, math, reflection, mirror, retroreflector, simulation, satisfying, shorts
