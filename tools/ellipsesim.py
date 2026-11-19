@@ -50,14 +50,22 @@ def main(spec_path):
         rounds.append(dict(n=n, hit=hit1, l1=l1, hue=np.array([(i / n + k * .13) % 1 for i in range(n)])))
         n *= 2
     # 音の出来事
+    melodic = sp.get("melodic", True)
     for k, rd in enumerate(rounds):
         t0 = intro + k * cycle
         for leg in range(2):
             ts = t0 + leg * (T_half + hold)
             ls = rd["l1"] if leg == 0 else 2 * a - rd["l1"]  # 戻りは F2→壁 の長さ = 2a - l1（同じ壁の点で反射）
-            for i in np.argsort(ls)[:: max(1, rd["n"] // 24)]:
-                h = rd["hit"][i]; events.append((ts + ls[i] / v, "wall", math.atan2(h[1], h[0]), 1.0))
-            events.append((ts + T_half, "gold", -1 if leg == 0 else 1, 1.0))
+            if melodic:  # 1区間に目立つ反射3回まで、時刻順に ド・ミ・ソ（120ms以上あける）、到着の直前120msは空ける
+                tl = np.sort(ls / v); picks, last = [], -1
+                for q in np.quantile(tl, [.15, .5, .85]):
+                    if q - last >= .12 and q < T_half - .12: picks.append(q); last = q
+                for m, q in zip([60, 64, 67], picks): events.append((ts + q, "note", m + 12, .8))
+                events.append((ts + T_half, "note", 72 + 12, 1.15))
+            else:
+                for i in np.argsort(ls)[:: max(1, rd["n"] // 24)]:
+                    h = rd["hit"][i]; events.append((ts + ls[i] / v, "wall", math.atan2(h[1], h[0]), 1.0))
+                events.append((ts + T_half, "gold", -1 if leg == 0 else 1, 1.0))
     events.append((intro + (doubles + 1) * cycle - hold, "burst", 0, 1))
 
     # 背景
@@ -103,8 +111,12 @@ def main(spec_path):
         for i in range(n):
             xp, yp = pos[i]; col = cols[i]; d.ellipse([xp - q, yp - q, xp + q, yp + q], fill=col)
         # 集まった瞬間に光る
-        if s >= 2 * a - 1e-6:
-            x, y = to(A1); qq = .12 * px; d.ellipse([x - qq, y - qq, x + qq, y + qq], outline=(255, 245, 200), width=6 * S)
+        ta = None  # いちばん最近の到着から0.22秒だけ光らせる
+        if s >= 2 * a - 1e-6: ta, AF = 0.0, A1
+        elif t >= intro and (u - (T_half if leg == 1 else -hold)) < .22 + hold and not (leg == 0 and k == 0):
+            ta, AF = (u - T_half - hold) if leg == 1 else (u + hold), A0
+        if ta is not None and ta < .22:
+            x, y = to(AF); qq = .12 * px * (1 + ta * 1.5); al = 1 - ta / .22; d.ellipse([x - qq, y - qq, x + qq, y + qq], outline=tuple(int(c_ * al + 10) for c_ in (255, 245, 200)), width=6 * S)
         for kk, line in enumerate(sp["title"]):
             w = d.textlength(line, font=fT); d.text((W * S / 2 - w / 2, 150 * S + kk * 80 * S), line, font=fT, fill=(255, 255, 255) if kk == 0 else (255, 196, 60), stroke_width=6 * S, stroke_fill=(0, 0, 0))
         lab, num = sp.get("count_label", "balls: "), f"{n:,}"

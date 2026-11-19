@@ -185,6 +185,8 @@ def audio(events, total, out_wav, bpm=72):
             k = int(((a + np.pi) / (2 * np.pi)) * len(ch)) % len(ch)
             snd = tone(mtof(ch[k] + 12), 1.2, "mar") * min(1, .25 + s * .25) * .22
             pan = .5 + .45 * math.cos(a)
+        elif kind == "note":  # 音の高さを指定（a=MIDI、s=音量、減衰を長めに）
+            snd = tone(mtof(a), 1.1, "mar") * .3 * s; pan = .5
         elif kind == "gold":
             ch = CHORDS[int(t / (bar * 2)) % 4]
             snd = tone(mtof(ch[-1] + 12 + (0 if a > 0 else -5)), 1.6, "bell") * .12; pan = .5
