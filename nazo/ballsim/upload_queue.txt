@@ -12,3 +12,5 @@ cardioid3_ja MOSO ja
 cardioid3_en KAIDAN en
 corner1_ja MOSO ja
 corner1_en KAIDAN en
+plates4t_ja MOSO ja
+plates4t_en KAIDAN en

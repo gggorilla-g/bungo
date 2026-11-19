@@ -32,11 +32,20 @@ def main(spec_path):
             ts = t0 + rng.uniform(0, RS * .45, cnt); xs = li * LW + LW * (.14 + .72 * rng.random(cnt))
             rows.append(np.stack([np.full(cnt, li), np.full(cnt, n), ts, ts + fall, xs, np.full(cnt, pw)], 1))
     B = np.concatenate(rows); B = B[np.argsort(B[:, 3], kind="stable")]
+    # tie_at（秒）があれば、全レーンがその瞬間に最後の板を抜けるように、レーンごとの板の耐久を決める（比率は plates のまま）
+    PLs = [list(PL) for _ in lanes]; tie = sp.get("tie_at")
+    if tie:
+        for li in range(len(lanes)):
+            idx = np.where((B[:, 0] == li) & (B[:, 3] <= tie))[0]; j = idx[-1]
+            B[j, 3] = tie; B[j, 2] = tie - fall; tot = int(B[idx, 5].sum())
+            raw = [x / sum(PL) * tot for x in PL]; q = [max(1, int(round(x))) for x in raw]; q[-1] += tot - sum(q); PLs[li] = q
+        B = B[np.argsort(B[:, 3], kind="stable")]
+    CUMs = [np.cumsum(q) for q in PLs]
     # レーンごとに当たった順に足して、各ボールが当たった板、各板が割れた時刻、ゴール時刻を出す
     plate_of = np.zeros(len(B), int); brk = [[None] * NP for _ in lanes]; fin = [None] * len(lanes); cums = []
     for li in range(len(lanes)):
         idx = np.where(B[:, 0] == li)[0]; c = np.cumsum(B[idx, 5]); before = c - B[idx, 5]
-        plate_of[idx] = np.minimum(np.searchsorted(CUM, before, side="right"), NP)
+        CUM = CUMs[li]; plate_of[idx] = np.minimum(np.searchsorted(CUM, before, side="right"), NP)
         for k in range(NP):
             j = np.searchsorted(c, CUM[k]);
             if j < len(idx): brk[li][k] = B[idx[j], 3]
@@ -73,7 +82,7 @@ def main(spec_path):
                 xx = cx - LW * .22 + k_ * LW * .44; w = d.textlength(lab, font=f2); d.text((xx - w / 2, 440 * S), lab, font=f2, fill=(140, 145, 160))
                 fv = font(int(min(36, LW / S / max(4, len(val)) * 1.1) * S)); w = d.textlength(val, font=fv); d.text((xx - w / 2, 474 * S), val, font=fv, fill=c)
             dm = dmg(li, t); x0, x1 = li * LW + 14 * S, (li + 1) * LW - 14 * S
-            nb = int(np.searchsorted(CUM, dm, side="right"))   # 割れた枚数
+            CUM, PL = CUMs[li], PLs[li]; nb = int(np.searchsorted(CUM, dm, side="right"))   # 割れた枚数
             tb = f"{min(nb, NP)} / {NP}"; w = d.textlength(tb, font=f2); d.text((cx - w / 2, 540 * S), tb, font=f2, fill=(200, 204, 215))
             for k in range(NP):
                 y = py(k)
@@ -92,7 +101,7 @@ def main(spec_path):
                 d.rectangle([x0, y, x1, y + PH], fill=fillc, outline=c if cur else tuple(int(v * .5) for v in c), width=2 * S)
                 lab = f"{int(PL[k] * left):,}" if cur else f"{PL[k]:,}"
                 fp = font(int(min(22, LW / S / 7) * S)); w = d.textlength(lab, font=fp); d.text((cx - w / 2, y + (PH - 22 * S) / 2 - 3 * S), lab, font=fp, fill=(255, 255, 255) if cur else (30, 30, 36))
-            if tf is not None and t > tf:
+            if tf is not None and t > tf and sp.get("ranks", not tie):
                 rk = rank[li]; lab = sp.get("rank_labels", ["1位", "2位", "3位", "4位", "5位", "6位"])[rk]
                 fw = font(int(min(80 if rk == 0 else 48, LW / S / 2.2) * S)); w = d.textlength(lab, font=fw)
                 d.text((cx - w / 2, (740 if rk == 0 else 770) * S), lab, font=fw, fill=(255, 255, 255) if rk == 0 else (190, 194, 205), stroke_width=(7 if rk == 0 else 4) * S, stroke_fill=c if rk == 0 else (0, 0, 0))
@@ -143,7 +152,7 @@ def main(spec_path):
     subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", out_raw, "-i", wv, "-map", "0:v", "-map", "1:a", "-c:v", "copy", "-c:a", "aac", "-b:a", "192k",
                     "-af", "loudnorm=I=-14:TP=-1.5:LRA=11", "-shortest", "-movflags", "+faststart", f"output/{sid}.mp4"], check=True)
     print(f"書き出し: output/{sid}.mp4  {total:.1f}秒  勝ち {lanes[winner]['name'] if winner is not None else 'なし'}  ゴール {tf and round(tf, 2)}")
-    for li in range(len(lanes)): print(" ", lanes[li]["name"], dmg(li, total), "割れた枚数", int(np.searchsorted(CUM, dmg(li, total), side="right")))
+    for li in range(len(lanes)): print(" ", lanes[li]["name"], dmg(li, total), "割れた枚数", int(np.searchsorted(CUMs[li], dmg(li, total), side="right")), "板", PLs[li])
 
 
 if __name__ == "__main__":

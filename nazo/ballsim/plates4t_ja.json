@@ -1,0 +1,46 @@
+{
+ "id": "plates4t_ja",
+ "title": "どれが先に10枚の板を抜ける？",
+ "plates": [
+  300,
+  600,
+  1000,
+  1500,
+  2200,
+  3000,
+  4000,
+  5000,
+  5900,
+  6500
+ ],
+ "rounds": 11,
+ "round_sec": 2.8,
+ "seed": 5,
+ "lanes": [
+  {
+   "name": "毎回1000",
+   "formula": "1000",
+   "rule": "const:1000",
+   "color": "#4fd6ff"
+  },
+  {
+   "name": "2倍ずつ",
+   "formula": "2^n",
+   "rule": "pow2",
+   "color": "#c07bff"
+  },
+  {
+   "name": "n⁴",
+   "formula": "n^4",
+   "rule": "py:(n*n,n*n)",
+   "color": "#ffe14d"
+  },
+  {
+   "name": "フィボナッチ²",
+   "formula": "fib^2",
+   "rule": "fib2",
+   "color": "#ff7a59"
+  }
+ ],
+ "tie_at": 30.15
+}
