@@ -339,26 +339,25 @@ def corner(sp):
 
 
 def pendulums(sp):
-    """長さの違う振り子を並べる。いちばん左は T 秒で L0 往復、右へ1つ進むごとに1往復多い（長さは周期の2乗に比例）。
-    最初は一直線、すぐに波・うず・ばらばらに見えて、T 秒でまた一直線にそろう（小さい振れ幅の近似）"""
-    N, L0, T, A = sp.get("n", 15), sp.get("laps0", 26), sp.get("T", 36.0), sp.get("amp", .5); intro, tail = .3, sp.get("tail", 1.5)
-    per = [T / (L0 + i) for i in range(N)]; Lmax = sp.get("Lmax", 1.7); Ls = [Lmax * (p_ / per[0]) ** 2 for p_ in per]
-    xs = [(-.85 + 1.7 * i / (N - 1)) for i in range(N)]; top = 1.0
-    sim = Sim(sp, (-1.0, -.62, 1.0, 1.03)); sim.neon([(-.95, top), (.95, top)], width=5); sim.title()
-    for i in range(N):   # 真下を通るたびに1音（右ほど高い）
-        for j in range(2 * (L0 + i) + 1):
-            tt = intro + per[i] / 4 + j * per[i] / 2
-            if tt <= intro + T + .01: sim.note(tt, PENTA[i % 16], .42, .5 + .35 * xs[i], 5.0)
+    """振り子の波を真上から見た形。上の段は T 秒で L0 往復、下の段へ1つ進むごとに1往復多い。
+    最初は縦一列、すぐにへび・波・ばらばらに見えて、T 秒でまた一列にそろう（小さい振れ幅の近似）"""
+    N, L0, T = sp.get("n", 15), sp.get("laps0", 26), sp.get("T", 36.0); intro, tail = .3, sp.get("tail", 1.5)
+    per = [T / (L0 + i) for i in range(N)]; ys = [1.0 - 1.6 * i / (N - 1) for i in range(N)]; A = .82
+    sim = Sim(sp, (-1.0, -.7, 1.0, 1.1))
+    for y in ys: sim.thin([(-A, y), (A, y)], color=(40, 56, 80), width=1.2)
+    sim.thin([(A, 1.06), (A, -.66)], color=(150, 120, 40), width=2); sim.title()
+    for i in range(N):   # 右の端（出発点）に戻るたびに1音（下の段ほど高い）
+        for j in range(L0 + i + 1):
+            tt = intro + j * per[i]
+            if tt <= intro + T + .01: sim.note(tt, PENTA[i % 16], .42, .8, 5.0)
     cols = [hsv(i / N) for i in range(N)]; total = intro + T + tail
     for fi in range(int(total * FPS)):
         t = fi / FPS; u = max(0, t - intro); live, dots = [], []
         for i in range(N):
-            th = A * math.cos(2 * np.pi * u / per[i]); L = Ls[i] * .92; p = (xs[i] + L * math.sin(th), top - L * math.cos(th))
-            live.append(((xs[i], top), p, (90, 104, 128), 1.4))
-            for q in range(8):   # 尾
-                t0_, t1_ = max(0, u - .04 * (q + 1)), max(0, u - .04 * q)
-                a0, a1 = A * math.cos(2 * np.pi * t0_ / per[i]), A * math.cos(2 * np.pi * t1_ / per[i])
-                live.append(((xs[i] + L * math.sin(a0), top - L * math.cos(a0)), (xs[i] + L * math.sin(a1), top - L * math.cos(a1)), dim(cols[i], .6 * (1 - q / 8)), 4))
+            x = A * math.cos(2 * np.pi * u / per[i]); p = (x, ys[i])
+            for q in range(8):
+                t0_, t1_ = max(0, u - .035 * (q + 1)), max(0, u - .035 * q)
+                live.append(((A * math.cos(2 * np.pi * t0_ / per[i]), ys[i]), (A * math.cos(2 * np.pi * t1_ / per[i]), ys[i]), dim(cols[i], .6 * (1 - q / 8)), 5))
             dots.append((p, cols[i], 9))
         sim.frame(t, live, dots, (sp.get("count_label", ""), sp.get("time_fmt", "{:.1f}秒").format(u)))
     sim.finish(total)
