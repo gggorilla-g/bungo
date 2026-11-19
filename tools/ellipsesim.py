@@ -20,7 +20,7 @@ def main(spec_path):
     rng = np.random.default_rng(sp.get("seed", 1))
     n0, doubles = sp.get("n0", 5), sp.get("doubles", 8)
     T_half = 2 * a / v                     # F1→壁→F2 の時間
-    hold = sp.get("hold", .5)              # 集まった瞬間に止める秒数
+    hold = sp.get("hold", .08)             # 集まった瞬間に止める秒数
     # 時間割：各周 = F1→F2（T_half）＋止め＋F2→F1（T_half）＋止め
     cycle = 2 * (T_half + hold)
     intro = .6
