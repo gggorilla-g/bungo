@@ -197,12 +197,12 @@ def mirrors2(sp):
 def picount(sp):
     """壁・軽い箱（重さ1）・重い箱（重さM）。重い箱をすべらせて、完全に弾むぶつかり方で回数を数える。
     M=1 で3回、100 で31回、10000 で314回（Galperin のビリヤード。円周率の桁が出る）。3段を上から順に見せる"""
-    stages = sp.get("stages", [[1, 4.5], [100, 9.0], [10000, 11.0]]); intro, tail = .3, sp.get("tail", 2.6); a0, b0, w1 = .6, 2.7, .34
+    stages = sp.get("stages", [[1, 1.6, 2.7], [100, .8, 2.7], [10000, .8, 1.9]]); intro, tail = .3, sp.get("tail", 2.6); a0, w1 = .6, .34   # [重さ, 速さ（画面の秒あたり）, 重い箱の出発位置]
     XR = 4.2; sim = Sim(sp, (-.2, -3.3, 5.5, 3.3)); lanes = [2.0, 0.0, -2.0][:len(stages)]
     for y in lanes: sim.neon([(0, y), (XR, y)], width=4); sim.neon([(0, y), (0, y + 1.25)], width=6)
     sim.title()
     runs, t0 = [], intro
-    for (M, dur), y in zip(stages, lanes):
+    for (M, k, b0), y in zip(stages, lanes):
         a, b, v1, v2, t = a0, b0, 0.0, -1.0, 0.0; st = [(0.0, a, b, v1, v2)]; hits = []
         while True:
             tw = a / -v1 if v1 < -1e-15 else math.inf; tb = (b - a) / (v1 - v2) if v1 - v2 > 1e-15 else math.inf
@@ -211,8 +211,7 @@ def picount(sp):
             if tw < tb: a, v1 = 0.0, -v1; hits.append((t, "w"))
             else: a = b; v1, v2 = ((1 - M) * v1 + 2 * M * v2) / (1 + M), ((M - 1) * v2 + 2 * v1) / (1 + M); hits.append((t, "b"))
             st.append((t, a, b, v1, v2))
-        tend = max(t + (XR - w1 - b) / v2, t + .4)      # 重い箱が右端に着くまで（最後の1回がそれより後なら、そこまで）
-        k = tend / dur                     # 物理の時間 → 画面の時間
+        dur = (t + .8) / k                 # 最後の1回の少しあとで次の段へ（箱はそのまま動き続ける）
         runs.append(dict(M=M, y=y, t0=t0, k=k, st=st, hits=[(t0 + h / k, c) for h, c in hits], w2=.34 + .2 * math.log10(M), col=hsv(.08 + .12 * len(runs))))
         prev = -1
         for h, c in hits:   # ぶつかるたびに1音（壁は高いド、箱どうしはソ）。間が詰まるほど短く小さく
@@ -233,6 +232,7 @@ def picount(sp):
                 y = run["y"]; tau = max(0, (t - run["t0"])) * run["k"]; i = max(0, int(np.searchsorted(run["stt"], tau, side="right")) - 1)
                 _, a, b, v1, v2 = run["st"][i]; dt = tau - run["st"][i][0]; a, b = a + v1 * dt, b + v2 * dt
                 for x0, w, col, lab in ((a, w1, (120, 220, 255), "1"), (b + w1, run["w2"], run["col"], f"{run['M']:,}")):
+                    lab += sp.get("unit", "kg")
                     if x0 > XR: continue
                     X0, Y0 = sim.to((x0, y + w)); X1, Y1 = sim.to((min(XR, x0 + w), y)); d.rectangle([X0, Y0, X1, Y1 - 3 * S], fill=dim(col, .85), outline=col, width=2 * S)
                     f = F(34 * S); tw_ = d.textlength(lab, font=f)
