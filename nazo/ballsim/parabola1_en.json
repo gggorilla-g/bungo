@@ -1,0 +1,23 @@
+{
+ "kind": "parabola",
+ "title": [
+  "Drop them straight down.",
+  "Will they all cross one point?"
+ ],
+ "count_label": "balls: ",
+ "yt": {
+  "title": "Drop Them Straight Down. Will They All Cross One Point? #shorts #math #physics",
+  "desc": "Drop balls straight down into a parabola-shaped wall. After one bounce, every ball passes through the same point (the focus) at the same moment. After the focus, a second bounce sends each ball straight back up.\n\nHow it works:\n- A parabola reflects every line parallel to its axis through the focus. Satellite dishes and reflecting telescopes use the same property.\n- Every point on a parabola is as far from the focus as it is from the directrix (a straight line below the curve). So the path from the top line to the focus has the same length for every ball, and at equal speed they arrive together.\n- There is no gravity here (the balls move like light rays). Balls pass through each other. The top line acts as a mirror.\n- More balls are added every round trip (4, 6, 10, 14, 22, 32, 48).\n- Every ball plays one note each time it hits the wall.\n\nSimulation, sound and animation: original (Python).",
+  "tags": [
+   "math",
+   "physics",
+   "parabola",
+   "focus",
+   "simulation",
+   "satisfying",
+   "geometry",
+   "shorts"
+  ]
+ },
+ "id": "parabola1_en"
+}

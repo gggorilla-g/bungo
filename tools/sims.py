@@ -1,0 +1,200 @@
+# sims.py — 「数学的に必ずそうなる」を絵と音で見せるショート（simkit を使う）
+#   python tools/sims.py <spec.json>       → output/<id>.mp4 と投稿キット
+#   STILLS="5,20,30" python tools/sims.py <spec.json>   → その時刻の絵だけ（確認用）
+#   spec: id / kind / title（画面の問い2行）/ count_label / yt{title, desc, tags} ＋ 種類ごとの数値
+#   種類: parabola（放物線の焦点）/ rings（1周ずつ多く回る輪）/ venus（2つの軌道を線で結ぶ）
+import json, sys, os, math
+import numpy as np
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from simkit import Sim, PENTA, FPS, hsv, dim, kit
+
+
+def lerp(a, b, u): return (a[0] + (b[0] - a[0]) * u, a[1] + (b[1] - a[1]) * u)
+
+
+def parabola(sp):
+    """放物線 y=x²/4f。上の線からまっすぐ落とすと、どのボールも道の長さ Y+f で焦点を通る（同時）。
+    焦点を過ぎて反対側の壁で跳ね返ると、まっすぐ上に戻る（道の長さはまた Y+f）。1往復ごとにボールを増やす"""
+    f, X, Y, v = 1.0, sp.get("X", 6.0), sp.get("Y", 14.0), sp.get("v", 6.4)
+    a = 4 * f * f / X; T = (Y + f) / v          # a: 戻ってこられるいちばん内側の x。T: 上の線→焦点の時間
+    ms = sp.get("rounds", [2, 3, 5, 7, 11, 16]) + [sp.get("last", 24)]; intro, tail = .3, sp.get("tail", 1.2)
+    sim = Sim(sp, (-X - .15, -.15, X + .15, Y + .15))
+    sim.neon([(x, x * x / (4 * f)) for x in np.linspace(-X, X, 241)])
+    sim.neon([(-X, Y), (X, Y)], width=5)
+    sim.ring((0, f), 13); sim.title()
+    rounds = []
+    for r, m in enumerate(ms):
+        t0 = intro + r * 2 * T; xr = [a * (X / a) ** ((j + .5) / m) for j in range(m)]; balls = []
+        for side in (1, -1):
+            for j, x1 in enumerate(xr):
+                x1 = side * x1; y1 = x1 * x1 / (4 * f); x2 = -4 * f * f / x1; y2 = x2 * x2 / (4 * f)
+                balls.append(dict(pts=[(x1, Y), (x1, y1), (0, f), (x2, y2), (x2, Y)], cum=[0, Y - y1, Y + f, Y + 2 * f + y2, 2 * (Y + f)],
+                                  col=hsv(((j + .5) / m * .5 + (0 if side > 0 else .5)) % 1), done=0))
+        n = len(balls); h1 = np.array([b["cum"][1] for b in balls]); h2 = np.array([b["cum"][3] for b in balls])
+        o1 = np.argsort(np.argsort(h1, kind="stable")); o2 = np.argsort(np.argsort(h2, kind="stable"))
+        dec, g = 4 + 3 * math.sqrt(n / 5), .9 / math.sqrt(n)
+        sim.chord(t0, [60, 67, 72])
+        for i, b in enumerate(balls):   # 壁に当たるたびに1個ずつ。落ちてくるときは当たった順に低→高、戻るときは高→低
+            sim.note(t0 + h1[i] / v, PENTA[int(o1[i] / max(1, n - 1) * 15 + .5)], g, .5 + .3 * b["pts"][1][0] / X, dec)
+            sim.note(t0 + h2[i] / v, PENTA[int((1 - o2[i] / max(1, n - 1)) * 15 + .5)], g, .5 + .3 * b["pts"][3][0] / X, dec)
+        sim.chord(t0 + T, [72, 79, 84])
+        rounds.append((t0, balls))
+    total = intro + (len(ms) - 1) * 2 * T + T + tail
+    sim.notes = [nt for nt in sim.notes if nt[0] < total - .02]
+    for fi in range(int(total * FPS)):
+        t = fi / FPS; r = min(len(rounds) - 1, max(0, int((t - intro) // (2 * T)))); t0, balls = rounds[r]; s = max(0, t - t0) * v
+        segs = []; n = len(balls); lw = max(1.0, 2.0 * min(1, 10 / math.sqrt(n)))
+        if r > 0:   # 前の回の残りの線を確定
+            for b in rounds[r - 1][1]:
+                while b["done"] < 4: segs.append((b["pts"][b["done"]], b["pts"][b["done"] + 1], dim(b["col"], .30))); b["done"] += 1
+        live, dots = [], []
+        for b in balls:
+            cum, pts = b["cum"], b["pts"]; sc = min(s, cum[-1])
+            while b["done"] < 4 and cum[b["done"] + 1] <= sc: segs.append((pts[b["done"]], pts[b["done"] + 1], dim(b["col"], .30))); b["done"] += 1
+            k = b["done"]; p = pts[4] if k >= 4 else lerp(pts[k], pts[k + 1], (sc - cum[k]) / (cum[k + 1] - cum[k]))
+            if k < 4: live.append((pts[k], p, dim(b["col"], .7), lw))
+            dots.append((p, b["col"], 5 if n <= 32 else 4))
+        sim.commit(segs, width=lw)
+        e = t - (t0 + T); fl = [((0, f), 22 + e * 60, dim((255, 245, 200), 1 - e / .22), 5)] if 0 <= e < .22 else []
+        sim.frame(t, live, dots, (sp.get("count_label", "ボール："), f"{n:,}"), fl)
+    sim.finish(total)
+
+
+def rings(sp):
+    """同じ中心の輪の上を回るボール。外側は T 秒で L0 周、内側へ1つ進むごとに1周多い。
+    T は全部の周期の公倍数なので、T 秒後に全部が出発点にそろう（途中 T/2 で縦一列、T/3 で3方向…）"""
+    N, L0, T = sp.get("n", 12), sp.get("laps0", 4), sp.get("T", 36.0); intro, tail = .3, sp.get("tail", 1.5)
+    rad = [1.0 - i * .75 / (N - 1) for i in range(N)]
+    sim = Sim(sp, (-1.05, -1.05, 1.05, 1.05))
+    th = np.linspace(0, 2 * np.pi, 241)
+    for r in rad: sim.thin([(r * math.sin(x), r * math.cos(x)) for x in th], color=(52, 78, 110), width=1.5)
+    sim.thin([(0, rad[-1] - .05), (0, 1.04)], color=(150, 120, 40), width=2)   # そろう線（上）
+    sim.title()
+    ev = {}
+    for i in range(N):
+        laps = L0 + i
+        for j in range(laps + 1): ev.setdefault(round((intro + j * T / laps) * 1000), []).append(i)
+    for ms_, ids in ev.items():   # 上の線を通るたびに1個ずつ。同時に鳴る数が多いときは1個あたりを少し小さく
+        for i in ids: sim.note(ms_ / 1000, PENTA[i], .5 * len(ids) ** -.35, .5, 4.5)
+    total = intro + T + tail; cols = [hsv(i / N) for i in range(N)]
+    cross = [sorted(intro + j * T / (L0 + i) for j in range(L0 + i + 1)) for i in range(N)]
+    for fi in range(int(total * FPS)):
+        t = fi / FPS; u = max(0, t - intro) / T; live, dots, fl = [], [], []
+        for i in range(N):
+            ang = 2 * np.pi * (L0 + i) * u; r = rad[i]; p = (r * math.sin(ang), r * math.cos(ang))
+            for q in range(10):   # 尾（直前0.6秒、だんだん薄く）
+                a0 = 2 * np.pi * (L0 + i) * max(0, u - .6 / T * (q + 1) / 10); a1 = 2 * np.pi * (L0 + i) * max(0, u - .6 / T * q / 10)
+                live.append(((r * math.sin(a0), r * math.cos(a0)), (r * math.sin(a1), r * math.cos(a1)), dim(cols[i], .6 * (1 - q / 10)), 4))
+            dots.append((p, cols[i], 9))
+            e = min((t - c for c in cross[i] if c <= t), default=9)
+            if e < .18: fl.append(((0, r), 12 + e * 70, dim(cols[i], 1 - e / .18), 3))
+        sim.frame(t, live, dots, (sp.get("count_label", ""), sp.get("time_fmt", "{:.1f}秒").format(min(T, max(0, t - intro)))), fl)
+    sim.finish(total)
+
+
+def venus(sp):
+    """内側が n1 周・外側が n2 周する間、2つを結ぶ線を等間隔に引き続ける。会合が n1−n2 回あるので、その数の花びらが出る"""
+    T, n1, n2 = sp.get("T", 40.0), sp.get("n1", 13), sp.get("n2", 8); r1, r2 = sp.get("r1", .723), 1.0
+    NL = sp.get("lines", 610); every = sp.get("note_every", 3); intro, tail = .3, sp.get("tail", 2.0)
+    sim = Sim(sp, (-1.05, -1.05, 1.05, 1.05)); th = np.linspace(0, 2 * np.pi, 241)
+    for r in (r1, r2): sim.thin([(r * math.sin(x), r * math.cos(x)) for x in th], color=(46, 66, 92), width=1.5)
+    sim.title()
+    pos = lambda u: ((r1 * math.sin(2 * np.pi * n1 * u), r1 * math.cos(2 * np.pi * n1 * u)), (r2 * math.sin(2 * np.pi * n2 * u), r2 * math.cos(2 * np.pi * n2 * u)))
+    lines = []
+    for k in range(NL + 1):   # 線を引き続ける。every 本に1回、音を1つ（線が長いほど低い）
+        u = k / NL; p1, p2 = pos(u); ln = math.dist(p1, p2); idx = int((1 - (ln - (r2 - r1)) / (2 * r1)) * 15 + .5)
+        lines.append((intro + u * T, p1, p2, hsv(u % 1, .75, 1.0)))
+        if k % every == 0: sim.note(intro + u * T, PENTA[max(0, min(15, idx))], .34, .5 + .3 * (p1[0] + p2[0]) / 2, 6.0)
+    total = intro + T + tail; nxt = 0; E, V = sp.get("col_outer", [90, 170, 255]), sp.get("col_inner", [255, 214, 140])
+    for fi in range(int(total * FPS)):
+        t = fi / FPS; u = max(0, t - intro) / T; segs = []
+        while nxt < len(lines) and lines[nxt][0] <= t: segs.append((lines[nxt][1], lines[nxt][2], dim(lines[nxt][3], sp.get("line_gain", .30)))); nxt += 1
+        for sg in segs: sim.commit([sg], width=sp.get("line_w", 1.3))   # 1本ずつ足す（交わったところが明るくなる）
+        p1, p2 = pos(u)
+        sim.frame(t, [(p1, p2, (235, 240, 255), 2)], [((0, 0), (255, 190, 60), 13), (p1, tuple(V), 7), (p2, tuple(E), 8)],
+                  (sp.get("count_fmt", "地球 {e}周 ／ 金星 {v}周").format(e=min(n2, int(n2 * u + 1e-9)), v=min(n1, int(n1 * u + 1e-9))), ""))
+    sim.finish(total)
+
+
+def cardioid(sp):
+    """円の上に N 個の点。i 番の点から (mult×i を N で割った余り) 番の点へ、1個ずつボールを打つ。
+    残った線の重なり（包絡線）が曲線になる。mult=2 ならカージオイド（0番に光源を置いた円の中の反射光と同じ線）"""
+    N, mult = sp.get("N", 100), sp.get("mult", 2); gap, fly = sp.get("gap", .3), sp.get("fly", 2.0); intro, tail = .3, sp.get("tail", 1.6)
+    P = [(math.sin(2 * np.pi * i / N), math.cos(2 * np.pi * i / N)) for i in range(N)]
+    sim = Sim(sp, (-1.17, -1.17, 1.17, 1.17))
+    sim.neon(P, closed=True, width=5)
+    for i in range(0, N, max(1, N // 10)): sim.text((P[i][0] * 1.11, P[i][1] * 1.11), str(i), size=30)
+    sim.title()
+    shots = []
+    for i in range(1, N):
+        j = (mult * i) % N
+        if j == i: continue
+        t0 = intro + len(shots) * gap; ln = math.dist(P[i], P[j])
+        shots.append(dict(i=i, j=j, t0=t0, col=hsv(i / N), done=False))
+        sim.note(t0 + fly, PENTA[max(0, min(15, int((1 - ln / 2) * 15 + .5)))], .42, .5 + .3 * P[j][0], 5.0)   # 着いた瞬間に1個ずつ。線が長いほど低い
+    total = shots[-1]["t0"] + fly + tail
+    for fi in range(int(total * FPS)):
+        t = fi / FPS; live, dots, fl, cur = [], [], [], None
+        for sh in shots:
+            if sh["t0"] > t: break
+            cur = sh; u = (t - sh["t0"]) / fly
+            if u >= 1:
+                if not sh["done"]: sim.commit([(P[sh["i"]], P[sh["j"]], dim(sh["col"], .5))], width=1.6); sh["done"] = True
+                e = t - sh["t0"] - fly
+                if e < .18: fl.append((P[sh["j"]], 9 + e * 60, dim(sh["col"], 1 - e / .18), 3))
+                continue
+            p = lerp(P[sh["i"]], P[sh["j"]], u); live.append((P[sh["i"]], p, dim(sh["col"], .7), 1.6)); dots.append((p, sh["col"], 5))
+        lab = sp.get("rule_fmt", "{i} → {j}").format(i=cur["i"], j=cur["j"]) if cur else ""
+        sim.frame(t, live, dots, ("", lab), fl)
+    sim.finish(total)
+
+
+def mirrors2(sp):
+    """2枚の鏡（下：放物線、上：双曲線）。上の線からまっすぐ落とすと、放物線→双曲線と跳ね返って、
+    どのボールも道の長さ Y+f+2A で下の点 F2 に着く（同時）。反射望遠鏡（カセグレン式）と同じ並べ方"""
+    f, X, Y, d, yv, v = sp.get("f", 6.0), sp.get("X", 4.2), sp.get("Y", 7.5), sp.get("d", 1.6), sp.get("yv", 4.4), sp.get("v", 3.6)
+    c = (f - d) / 2; A = yv - c; C = (f + d) / 2; B2 = C * C - A * A; F1, F2 = (0, f), (0, -d)
+    xin, hole = sp.get("xin", 1.3), sp.get("hole", .45); ms = sp.get("rounds", [2, 3, 5, 7, 11, 16, 24]); every, intro, tail = sp.get("every", 3.2), .3, sp.get("tail", 1.4)
+    Lp = Y + f + 2 * A; sim = Sim(sp, (-X - .15, -d - .35, X + .15, Y + .15))
+    for sg in (1, -1): sim.neon([(sg * x, x * x / (4 * f)) for x in np.linspace(hole, X, 80)])
+    hw = 1.25; sim.neon([(x, c + A * math.sqrt(1 + x * x / B2)) for x in np.linspace(-hw, hw, 60)], width=6)
+    sim.neon([(-X, Y), (-xin + .05, Y)], width=5); sim.neon([(xin - .05, Y), (X, Y)], width=5)
+    sim.ring(F2, 13); sim.title()
+    waves = []
+    for r, m in enumerate(ms):
+        t0 = intro + r * every; balls = []
+        for side in (1, -1):
+            for j in range(m):
+                x1 = side * (xin + (X - xin) * (j + .5) / m); y1 = x1 * x1 / (4 * f); L = y1 + f; ux, uy = (0 - x1) / L, (f - y1) / L
+                q2 = x1 * x1 + (y1 + d) ** 2; b = x1 * ux + (y1 + d) * uy; s = ((2 * A + L) ** 2 - q2) / (2 * (b + 2 * A + L)); Q = (x1 + s * ux, y1 + s * uy)
+                balls.append(dict(pts=[(x1, Y), (x1, y1), Q, F2], cum=[0, Y - y1, Y - y1 + s, Lp], col=hsv(((j + .5) / m * .5 + (0 if side > 0 else .5)) % 1), done=0))
+        n = len(balls); dec, g = 4 + 3 * math.sqrt(n / 5), .9 / math.sqrt(n)
+        o1 = np.argsort(np.argsort([b["cum"][1] for b in balls], kind="stable")); o2 = np.argsort(np.argsort([b["cum"][2] for b in balls], kind="stable"))
+        for i, b in enumerate(balls):   # 鏡に当たるたびに1個ずつ（下の鏡は低い側、上の鏡は高い側の音）
+            sim.note(t0 + b["cum"][1] / v, PENTA[int(o1[i] / max(1, n - 1) * 7 + .5)], g, .5 + .3 * b["pts"][1][0] / X, dec)
+            sim.note(t0 + b["cum"][2] / v, PENTA[8 + int(o2[i] / max(1, n - 1) * 7 + .5)], g, .5 + .3 * b["pts"][2][0] / X, dec)
+        sim.chord(t0 + Lp / v, [72, 79, 84])
+        waves.append((t0, balls))
+    total = waves[-1][0] + Lp / v + tail; count = 0
+    for fi in range(int(total * FPS)):
+        t = fi / FPS; live, dots, segs, fl, shown = [], [], [], [], 0
+        for t0, balls in waves:
+            if t0 > t: break
+            s = (t - t0) * v; n = len(balls); lw = max(1.0, 2.0 * min(1, 10 / math.sqrt(n))); shown = n
+            for b in balls:
+                cum, pts = b["cum"], b["pts"]
+                while b["done"] < 3 and cum[b["done"] + 1] <= s: segs.append((pts[b["done"]], pts[b["done"] + 1], dim(b["col"], .30))); b["done"] += 1
+                k = b["done"]
+                if k < 3:
+                    p = lerp(pts[k], pts[k + 1], (s - cum[k]) / (cum[k + 1] - cum[k])); live.append((pts[k], p, dim(b["col"], .7), lw)); dots.append((p, b["col"], 5 if n <= 32 else 4))
+            e = t - (t0 + Lp / v)
+            if 0 <= e < .22: fl.append((F2, 22 + e * 60, dim((255, 245, 200), 1 - e / .22), 5))
+        sim.commit(segs, width=1.6)
+        sim.frame(t, live, dots, (sp.get("count_label", "ボール："), f"{shown:,}"), fl)
+    sim.finish(total)
+
+
+KINDS = {"parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2}
+
+if __name__ == "__main__":
+    sp = json.load(open(sys.argv[1], encoding="utf-8")); KINDS[sp["kind"]](sp); kit(sp)

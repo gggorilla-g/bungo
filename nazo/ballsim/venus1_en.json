@@ -1,0 +1,24 @@
+{
+ "kind": "venus",
+ "title": [
+  "Keep connecting Earth and Venus.",
+  "What appears?"
+ ],
+ "count_fmt": "Earth {e} / Venus {v} orbits",
+ "yt": {
+  "title": "Keep Connecting Earth and Venus. What Appears? #shorts #space #math",
+  "desc": "While Earth goes around the Sun 8 times, Venus goes around almost exactly 13 times. Keep drawing a line between the two planets and a five-petal flower appears.\n\nNumbers:\n- Orbital periods: Earth 365.256 days, Venus 224.701 days (NASA). 8 x 365.256 = 2922.05 days and 13 x 224.701 = 2921.11 days, about one day apart (calculation).\n- Orbit size (semi-major axis): Venus 108.21 million km, Earth 149.60 million km (NASA), so Venus's orbit is about 0.72 times the size of Earth's.\n- Both orbits are drawn as circles here and the ratio is set to exactly 13:8 (the real orbits are slightly elliptical and the ratio is not exact).\n- Earth and Venus line up on the same side of the Sun 13 - 8 = 5 times in 8 years, which is why the pattern repeats 5 times.\n- 610 lines are drawn at equal time steps. Every third line plays one note. Longer lines play lower notes.\n\nSource\n- NASA Venus Fact Sheet https://nssdc.gsfc.nasa.gov/planetary/factsheet/venusfact.html\n\nSimulation, sound and animation: original (Python).",
+  "tags": [
+   "space",
+   "venus",
+   "earth",
+   "math",
+   "orbits",
+   "simulation",
+   "satisfying",
+   "astronomy",
+   "shorts"
+  ]
+ },
+ "id": "venus1_en"
+}

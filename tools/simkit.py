@@ -49,6 +49,9 @@ class Sim:
     def ring(self, p, r=12, color=(255, 200, 60), width=5):
         x, y = self.to(p); ImageDraw.Draw(self.bg).ellipse([x - r * S, y - r * S, x + r * S, y + r * S], outline=color, width=int(width * S))
 
+    def text(self, p, s, size=22, color=(120, 140, 165)):
+        x, y = self.to(p); d = ImageDraw.Draw(self.bg); f = font(int(size * S)); w = d.textlength(s, font=f); d.text((x - w / 2, y - size * S * .72), s, font=f, fill=color)
+
     def title(self):
         d = ImageDraw.Draw(self.bg)
         for i, line in enumerate(self.sp["title"]):
