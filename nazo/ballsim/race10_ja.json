@@ -1,0 +1,72 @@
+{
+ "id": "race10_ja",
+ "title": "どれが最初に壁を壊す？",
+ "sub": "毎回 n が1ずつ増える ／ 壁の耐久 {hp}",
+ "hp": 30000,
+ "rounds": 12,
+ "round_sec": 2.8,
+ "seed": 5,
+ "win_label": "1位",
+ "lanes": [
+  {
+   "name": "毎回1000",
+   "formula": "1000",
+   "rule": "const:1000",
+   "color": "#4fd6ff"
+  },
+  {
+   "name": "700",
+   "formula": "700",
+   "rule": "const:700",
+   "color": "#6fa8ff"
+  },
+  {
+   "name": "100n",
+   "formula": "100n",
+   "rule": "py:(100*n,1)",
+   "color": "#8f8cff"
+  },
+  {
+   "name": "10n²",
+   "formula": "10n^2",
+   "rule": "py:(10*n*n,1)",
+   "color": "#c07bff"
+  },
+  {
+   "name": "n³",
+   "formula": "n^3",
+   "rule": "py:(n*n,n)",
+   "color": "#ff78d0"
+  },
+  {
+   "name": "2ⁿ",
+   "formula": "2^n",
+   "rule": "pow2",
+   "color": "#ff6b8a"
+  },
+  {
+   "name": "fib²",
+   "formula": "fib^2",
+   "rule": "fib2",
+   "color": "#ffb347"
+  },
+  {
+   "name": "n⁴",
+   "formula": "n^4",
+   "rule": "py:(n*n,n*n)",
+   "color": "#ffe14d"
+  },
+  {
+   "name": "300n",
+   "formula": "300n",
+   "rule": "py:(n,300)",
+   "color": "#9be15d"
+  },
+  {
+   "name": "1.5ⁿ",
+   "formula": "1.5^n",
+   "rule": "py:(int(100*1.5**n),1)",
+   "color": "#4fe0a8"
+  }
+ ]
+}

@@ -21,7 +21,16 @@ def rule(r, n):
     if r == "fib2": return FIB[n], FIB[n]
     if r == "cube": return n * n, n
     if r.startswith("lin:"): return int(r.split(":")[1]) * n, 1
+    if r.startswith("py:"): c, w = eval(r[3:], {"n": n, "FIB": FIB}); return int(c), int(w)
     raise ValueError(r)
+
+
+def sup_text(d, cx, y, txt, size, fill):
+    """'2^n' のように ^ の後ろを小さく上に付けて、中央ぞろえで描く"""
+    parts = txt.split("^"); base, ex = parts[0], (parts[1] if len(parts) > 1 else "")
+    fb, fe = font(size), font(int(size * .58)); wb = d.textlength(base, font=fb); we = d.textlength(ex, font=fe) if ex else 0
+    x = cx - (wb + we) / 2; d.text((x, y), base, font=fb, fill=fill); 
+    if ex: d.text((x + wb + size * .02, y - size * .12), ex, font=fe, fill=fill)
 
 
 def hexc(h): h = h.lstrip("#"); return tuple(int(h[i:i + 2], 16) for i in (0, 2, 4))
@@ -59,27 +68,36 @@ def main(spec_path):
     for li in range(1, len(lanes)): dg.line([li * LW, 300 * S, li * LW, 1700 * S], fill=(34, 36, 46), width=2 * S)
     fT, fN, fF, fS, fM = font(56 * S), font(40 * S), font(76 * S), font(30 * S), font(44 * S)
     out_raw = f"build_ballsim/{sid}_v.mp4"
-    p = subprocess.Popen(["ffmpeg", "-v", "error", "-y", "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{W}x{H}", "-r", str(FPS), "-i", "-",
+    reuse = os.environ.get("REUSE_VIDEO") and os.path.exists(out_raw)
+    p = None if reuse else subprocess.Popen(["ffmpeg", "-v", "error", "-y", "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{W}x{H}", "-r", str(FPS), "-i", "-",
                           "-c:v", "libx264", "-preset", "veryfast", "-crf", "18", "-pix_fmt", "yuv420p", out_raw], stdin=subprocess.PIPE)
     cols = [hexc(l["color"]) for l in lanes]
-    for fi in range(int(total * FPS)):
+    for fi in range(0 if reuse else int(total * FPS)):
         t = fi / FPS; im = bg.copy(); d = ImageDraw.Draw(im)
         n_now = int(min(NR, max(1, (t - intro) // RS + 1))) if t >= intro else 1
         if tb is not None and t > tb: n_now = int(B[(B[:, 3] <= tb)][-1, 1])
         w = d.textlength(sp["title"], font=fT); d.text((W * S / 2 - w / 2, 120 * S), sp["title"], font=fT, fill=(255, 255, 255), stroke_width=5 * S, stroke_fill=(0, 0, 0))
         sub = sp.get("sub", "").replace("{hp}", f"{HP:,}"); w = d.textlength(sub, font=fS); d.text((W * S / 2 - w / 2, 196 * S), sub, font=fS, fill=(170, 175, 190))
+        if len(lanes) > 4:
+            nl = f"n = {n_now}"; fnl = font(40 * S); w = d.textlength(nl, font=fnl); d.text((W * S / 2 - w / 2, 236 * S), nl, font=fnl, fill=(255, 210, 70), stroke_width=4 * S, stroke_fill=(0, 0, 0))
         gl = Image.new("RGB", (W * S // 6, H * S // 6)); gq = ImageDraw.Draw(gl)
         for li, ln in enumerate(lanes):
             cx = (li + .5) * LW; c = cols[li]
-            w = d.textlength(ln["name"], font=fN); d.text((cx - w / 2, 290 * S), ln["name"], font=fN, fill=(220, 222, 230))
-            w = d.textlength(ln["formula"], font=fF); d.text((cx - w / 2, 345 * S), ln["formula"], font=fF, fill=c)
             cnt, pw = rule(ln["rule"], n_now)
-            for k_, (lab, val) in enumerate([(sp.get("lab_balls", "個数"), f"{cnt:,}"), (sp.get("lab_power", "1個の力"), f"{pw:,}")]):
-                xx = cx - LW * .22 + k_ * LW * .44; w = d.textlength(lab, font=fS); d.text((xx - w / 2, 460 * S), lab, font=fS, fill=(150, 155, 170))
-                w = d.textlength(val, font=fM); d.text((xx - w / 2, 498 * S), val, font=fM, fill=c)
-            nl = f"n = {n_now}"; w = d.textlength(nl, font=fS); d.text((cx - w / 2, 560 * S), nl, font=fS, fill=(120, 125, 140))
+            if len(lanes) <= 4:
+                w = d.textlength(ln["name"], font=fN); d.text((cx - w / 2, 290 * S), ln["name"], font=fN, fill=(220, 222, 230))
+                w = d.textlength(ln["formula"], font=fF); d.text((cx - w / 2, 345 * S), ln["formula"], font=fF, fill=c)
+                for k_, (lab, val) in enumerate([(sp.get("lab_balls", "個数"), f"{cnt:,}"), (sp.get("lab_power", "1個の力"), f"{pw:,}")]):
+                    xx = cx - LW * .22 + k_ * LW * .44; w = d.textlength(lab, font=fS); d.text((xx - w / 2, 460 * S), lab, font=fS, fill=(150, 155, 170))
+                    w = d.textlength(val, font=fM); d.text((xx - w / 2, 498 * S), val, font=fM, fill=c)
+                nl = f"n = {n_now}"; w = d.textlength(nl, font=fS); d.text((cx - w / 2, 560 * S), nl, font=fS, fill=(120, 125, 140))
+            else:  # レーンが多いとき：式を大きく、個数×力を小さく
+                L_ = len(ln["formula"].replace("^", "")); sup_text(d, cx, 340 * S, ln["formula"], int(min(44, LW / S / max(1, L_) * 1.3) * S), c)
+                f2 = font(22 * S)
+                for k_, val in enumerate([f"{cnt:,}", f"×{pw:,}"]):
+                    w = d.textlength(val, font=f2); d.text((cx - w / 2, (430 + k_ * 32) * S), val, font=f2, fill=(200, 204, 215) if k_ == 0 else c)
             # 壁（残りの耐久に合わせて薄くなる。壊れたら破片）
-            dm = dmg(li, t); left = max(0, 1 - dm / HP); x0, x1 = li * LW + 18 * S, (li + 1) * LW - 18 * S
+            dm = dmg(li, t); left = max(0, 1 - dm / HP); g_ = 18 * S if len(lanes) <= 4 else 6 * S; x0, x1 = li * LW + g_, (li + 1) * LW - g_
             if broke[li] is not None and tb is not None and li == winner and t > tb:
                 k = t - tb; r2 = np.random.default_rng(li)
                 for j in range(14):
@@ -90,15 +108,15 @@ def main(spec_path):
             # 耐久のバー
             yb = y_wall + 90 * S; d.rounded_rectangle([x0, yb, x1, yb + 18 * S], radius=9 * S, fill=(40, 42, 52))
             d.rounded_rectangle([x0, yb, x0 + (x1 - x0) * min(1, dm / HP), yb + 18 * S], radius=9 * S, fill=c)
-            tx = f"{min(dm, HP):,} / {HP:,}"; w = d.textlength(tx, font=fS); d.text((cx - w / 2, yb + 34 * S), tx, font=fS, fill=(210, 212, 222))
+            tx = f"{min(dm, HP):,}" if len(lanes) > 4 else f"{min(dm, HP):,} / {HP:,}"; ft = font(22 * S) if len(lanes) > 4 else fS; w = d.textlength(tx, font=ft); d.text((cx - w / 2, yb + 34 * S), tx, font=ft, fill=(210, 212, 222))
             if tb is not None and t > tb:
                 lab = sp.get("win_label", "勝ち") if li == winner else ""
-                if lab: w = d.textlength(lab, font=fF); d.text((cx - w / 2, 1000 * S), lab, font=fF, fill=(255, 255, 255), stroke_width=7 * S, stroke_fill=c)
+                if lab: fw = fF if len(lanes) <= 4 else font(56 * S); w = d.textlength(lab, font=fw); d.text((min(max(cx - w / 2, 20 * S), W * S - w - 20 * S), 1000 * S), lab, font=fw, fill=(255, 255, 255), stroke_width=7 * S, stroke_fill=c)
         # ボール（落ちている最中のものだけ）
         m = (B[:, 2] <= t) & (B[:, 3] > t)
         if tb is not None and t > tb: m &= False
         for li_, n_, t0, t1, x, pw in B[m]:
-            y = y_top + .5 * G * (t - t0) ** 2; rr = (3 + 2.2 * math.sqrt(pw)) * S; c = cols[int(li_)]
+            y = y_top + .5 * G * (t - t0) ** 2; rr = (2.2 + 1.6 * math.sqrt(pw)) * S * (1 if len(lanes) <= 4 else .8); c = cols[int(li_)]
             d.ellipse([x - rr, y - rr, x + rr, y + rr], fill=c); gq.ellipse([x / 6 - rr / 3, y / 6 - rr / 3, x / 6 + rr / 3, y / 6 + rr / 3], fill=c)
         # 当たった瞬間の火花（0.12秒）
         mh = (B[:, 3] <= t) & (B[:, 3] > t - .12)
@@ -109,20 +127,20 @@ def main(spec_path):
         gl = gl.filter(ImageFilter.GaussianBlur(4)).resize((W * S, H * S), Image.BILINEAR)
         im = Image.fromarray(np.clip(np.asarray(im, np.int16) + (np.asarray(gl, np.int16) * .8).astype(np.int16), 0, 255).astype(np.uint8))
         p.stdin.write(im.resize((W, H), Image.LANCZOS).tobytes())
-    p.stdin.close(); p.wait()
+    if p: p.stdin.close(); p.wait()
     # ---- 音：ボール1個ずつ。同じレーン・同じ回のボールは同じ音色なので、当たる時刻の列に1音をたたみこむ
     n = int(SR * (total + 2)); L = np.zeros(n); R = np.zeros(n)
-    base = sp.get("lane_midi", [60, 67, 72]); scale = [0, 2, 4, 7, 9, 12, 14, 16, 19, 21, 24, 26]
+    base = sp.get("lane_midi", [60, 62, 64, 67, 69, 72, 74, 76, 79, 81][:len(lanes)] if len(lanes) > 3 else [60, 67, 72]); scale = [0, 2, 4, 7, 9, 12, 14, 16, 19, 21, 24, 26]
     for li in range(len(lanes)):
         pan = .5 if len(lanes) == 1 else .15 + .7 * li / (len(lanes) - 1)
         for rn in range(1, NR + 1):
             m = (B[:, 0] == li) & (B[:, 1] == rn);
             if tb is not None: m &= B[:, 3] <= tb
             if not m.any(): continue
-            cnt = int(m.sum()); f = mtof(base[li] + scale[(rn - 1) % len(scale)]); dec = 5 + 4 * math.sqrt(cnt / 10)
+            cnt = int(m.sum()); f = mtof(base[li] + (0 if len(lanes) > 3 else scale[(rn - 1) % len(scale)])); dec = 5 + 4 * math.sqrt(cnt / 10)
             tt = np.arange(int(SR * min(1.2, 6 / dec))) / SR
             tone = (np.sin(2 * np.pi * f * tt) + .28 * np.sin(2 * np.pi * f * 4 * tt) * np.exp(-tt * 20)) * np.exp(-tt * dec) * np.minimum(1, tt / .003)
-            imp = np.zeros(n); idx = (B[m, 3] * SR).astype(int); np.add.at(imp, idx[idx < n], 1 / math.sqrt(cnt) * (1 + .15 * math.sqrt(B[m, 5][idx < n])))
+            imp = np.zeros(n); idx = (B[m, 3] * SR).astype(int); np.add.at(imp, idx[idx < n], 1 / math.sqrt(cnt) * (1 + .15 * np.sqrt(B[m, 5][idx < n])))
             y = fftconvolve(imp, tone)[:n]; L += y * (1 - pan); R += y * pan
     if tb is not None:  # 壊れた時：上がる分散和音（低い衝撃音は使わない）
         for i, mm in enumerate([72, 76, 79, 84, 88, 91]):
