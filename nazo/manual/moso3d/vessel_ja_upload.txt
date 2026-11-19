@@ -1,0 +1,25 @@
+【タイトル】
+もしも、体の血管を全部つなげたら地球2周半なのだ #Shorts #科学 #もしも
+
+【説明】
+もしも、体の血管を全部1本につなげたら、を3DCGで考えるのだ。医療の助言ではないのだ。
+
+数値・根拠：
+・大人1人の動脈・毛細血管・静脈を全部つなげると、約10万km（約6万マイル）になるといわれる（Live Science「11 Surprising Facts About the Circulatory System」）。見積もりには幅があり、もっと長いとする説明もある（Frontiers for Young Minds）。
+・毛細血管の太さは平均で約8マイクロメートル。髪の毛の約10分の1（Live Science）。
+・地球1周（赤道）は約40,075km（NASA 地球の基本データ）。10万kmなら約2.5周（計算）。
+・地球から月までは平均約38万4,400km（NASA 月の基本データ）。10万kmはその約4分の1（計算）。
+・血管の網は動画では簡単な形にしている。
+
+出典
+・Live Science https://www.livescience.com/39925-circulatory-system-facts-surprising.html
+・Frontiers for Young Minds https://kids.frontiersin.org/article/10.3389/frym.2019.00151
+・NASA Earth Fact Sheet https://nssdc.gsfc.nasa.gov/planetary/factsheet/earthfact.html
+・NASA Moon Fact Sheet https://nssdc.gsfc.nasa.gov/planetary/factsheet/moonfact.html
+
+音声：VOICEVOX:ずんだもん
+BGM・効果音：オリジナル
+3DCG：オリジナル（three.js で作成）
+
+【タグ】
+ずんだもん, 科学, もしも, 妄想科学, 血管, 人体, 3DCG, ショート

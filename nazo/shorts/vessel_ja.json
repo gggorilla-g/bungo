@@ -1,0 +1,131 @@
+{
+ "main": "moso",
+ "label": "妄想科学",
+ "builder": "nazo/kaizo3d.py",
+ "voice": {
+  "vvm": "0.vvm",
+  "style": 3,
+  "speed": 1.0,
+  "pitch": 0.0,
+  "intonation": 1.2
+ },
+ "voice_name": "ずんだもん",
+ "gap": 0.22,
+ "tail": 1.2,
+ "title": "もしも、体の血管を全部つなげたら地球2周半なのだ #Shorts #科学 #もしも",
+ "scene_title": [
+  "",
+  ""
+ ],
+ "scene_page": "scene_vessel.html",
+ "parts": {},
+ "labels": {
+  "thin": "髪の毛の約10分の1",
+  "len": "{km}km",
+  "earth": "地球1周 約4万km",
+  "moon": "月まで 約38万km"
+ },
+ "desc": "もしも、体の血管を全部1本につなげたら、を3DCGで考えるのだ。医療の助言ではないのだ。\n\n数値・根拠：\n・大人1人の動脈・毛細血管・静脈を全部つなげると、約10万km（約6万マイル）になるといわれる（Live Science「11 Surprising Facts About the Circulatory System」）。見積もりには幅があり、もっと長いとする説明もある（Frontiers for Young Minds）。\n・毛細血管の太さは平均で約8マイクロメートル。髪の毛の約10分の1（Live Science）。\n・地球1周（赤道）は約40,075km（NASA 地球の基本データ）。10万kmなら約2.5周（計算）。\n・地球から月までは平均約38万4,400km（NASA 月の基本データ）。10万kmはその約4分の1（計算）。\n・血管の網は動画では簡単な形にしている。\n\n出典\n・Live Science https://www.livescience.com/39925-circulatory-system-facts-surprising.html\n・Frontiers for Young Minds https://kids.frontiersin.org/article/10.3389/frym.2019.00151\n・NASA Earth Fact Sheet https://nssdc.gsfc.nasa.gov/planetary/factsheet/earthfact.html\n・NASA Moon Fact Sheet https://nssdc.gsfc.nasa.gov/planetary/factsheet/moonfact.html\n\n音声：VOICEVOX:ずんだもん\nBGM・効果音：オリジナル\n3DCG：オリジナル（three.js で作成）",
+ "tags": [
+  "ずんだもん",
+  "科学",
+  "もしも",
+  "妄想科学",
+  "血管",
+  "人体",
+  "3DCG",
+  "ショート"
+ ],
+ "lines": [
+  {
+   "id": "k0",
+   "fx": "hook",
+   "say": "もしも、体の血管を全部1本につなげたらどうなるのだ。",
+   "yomi": "もしも、からだのけっかんをぜんぶいっぽんにつなげたらどうなるのだ。",
+   "cap": [
+    "もしも",
+    "血管を全部1本につなげたら"
+   ]
+  },
+  {
+   "id": "k1",
+   "fx": "body",
+   "say": "血管は、体のすみずみまで、細い網のように通っているのだ。",
+   "yomi": "けっかんわ、からだのすみずみまで、ほそいあみのようにとおっているのだ。",
+   "cap": [
+    "体のすみずみまで",
+    "細い網のように通っている"
+   ]
+  },
+  {
+   "id": "k2",
+   "fx": "thin",
+   "say": "いちばん細い毛細血管は、髪の毛の約10分の1の太さしかないのだ。",
+   "yomi": "いちばんほそいもうさいけっかんわ、かみのけのやくじゅうぶんのいちのふとさしかないのだ。",
+   "cap": [
+    "いちばん細い毛細血管は",
+    "髪の毛の約10分の1"
+   ]
+  },
+  {
+   "id": "k3",
+   "fx": "pull",
+   "say": "それを全部1本につなげて、伸ばしていくのだ。",
+   "yomi": "それをぜんぶいっぽんにつなげて、のばしていくのだ。",
+   "cap": [
+    "全部1本につなげて",
+    "伸ばしていく"
+   ]
+  },
+  {
+   "id": "k4",
+   "fx": "total",
+   "say": "大人1人分で、約10万キロメートルになるといわれているのだ。",
+   "yomi": "おとなひとりぶんで、やくじゅうまんきろめーとるになるといわれているのだ。",
+   "cap": [
+    "大人1人分で",
+    "約10万km"
+   ]
+  },
+  {
+   "id": "k5",
+   "fx": "earth",
+   "say": "地球1周は、約4万キロメートルなのだ。",
+   "yomi": "ちきゅういっしゅうわ、やくよんまんきろめーとるなのだ。",
+   "cap": [
+    "地球1周は",
+    "約4万km"
+   ]
+  },
+  {
+   "id": "k6",
+   "fx": "wrap",
+   "say": "だから、地球を2周半も巻けてしまうのだ。",
+   "yomi": "だから、ちきゅうをにしゅうはんもまけてしまうのだ。",
+   "cap": [
+    "地球を",
+    "2周半も巻ける"
+   ]
+  },
+  {
+   "id": "k7",
+   "fx": "moon",
+   "say": "月までの距離の、約4分の1にもなるのだ。",
+   "yomi": "つきまでのきょりの、やくよんぶんのいちにもなるのだ。",
+   "cap": [
+    "月までの距離の",
+    "約4分の1"
+   ]
+  },
+  {
+   "id": "k8",
+   "fx": "end",
+   "say": "その全部が、いまキミの体の中にあるのだ。",
+   "yomi": "そのぜんぶが、いまきみのからだのなかにあるのだ。",
+   "cap": [
+    "その全部が",
+    "キミの体の中に"
+   ]
+  }
+ ]
+}

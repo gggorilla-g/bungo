@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8">
+<style>
+@font-face{font-family:"JumpSans";font-weight:400;src:url(fonts_jp/NotoSansCJKjp-Regular.woff2) format("woff2")}
+@font-face{font-family:"JumpSans";font-weight:700;src:url(fonts_jp/NotoSansCJKjp-Bold.woff2) format("woff2")}
+@font-face{font-family:"JumpSans";font-weight:900;src:url(fonts_jp/NotoSansCJKjp-Black.woff2) format("woff2")}
+html,body{margin:0;background:#000}
+#stage{position:relative;width:540px;height:960px;overflow:hidden}
+#stage canvas{position:absolute;left:0;top:0}
+#hud{position:absolute;left:0;top:0;width:540px;height:960px;font-family:"JumpSans"}
+#hud text{paint-order:stroke;stroke:#101010;stroke-linejoin:round;fill:#fff}
+</style></head>
+<body><div id="stage"><svg id="hud" viewBox="0 0 540 960" xmlns="http://www.w3.org/2000/svg"></svg></div>
+<script src="vendor.js"></script>
+<script>
+// もしもショート「体の血管を1本につなげたら」。人の模型→毛細血管と髪の毛→1本に伸ばす→地球に2周半巻く→月までの4分の1
+// 行の fx：hook / body / thin / pull / total / earth / wrap / moon / end
+const getJ=u=>{const x=new XMLHttpRequest();x.open('GET',u,false);x.send();if(x.status!==200)throw new Error('読めない: '+u);return JSON.parse(x.responseText)};
+const ID=(new URLSearchParams(location.search).get('spec')||'vessel_ja').replace(/^.*\//,'').replace(/\.json$/,'');
+const SPEC=getJ('specs/'+ID+'.json'),TL=getJ('specs/'+ID+'_timeline.json');
+const W=540,H=960,DUR=TL.total,FOV=30;
+const clamp=(x,a,b)=>Math.min(b,Math.max(a,x)),lerp=(a,b,k)=>a+(b-a)*k,sstep=(a,b,x)=>{const k=clamp((x-a)/(b-a),0,1);return k*k*(3-2*k)};
+function rng(seed){let s=seed>>>0;return()=>{s=(Math.imul(s,1664525)+1013904223)>>>0;return s/4294967296}}
+const LINES=SPEC.lines.map((l,i)=>Object.assign({},l,TL.beats[i]));
+const fxL=fx=>LINES.find(l=>l.fx===fx);const T0=fx=>{const l=fxL(fx);return l?l.t0:1e9};
+const LAB=SPEC.labels||{};
+const renderer=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true});
+renderer.setPixelRatio(window.devicePixelRatio||1);renderer.setSize(W,H);renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.0;
+document.getElementById('stage').prepend(renderer.domElement);
+const mesh=(g,m)=>new THREE.Mesh(g,m);
+const scene=new THREE.Scene();
+const bgA=(()=>{const c=document.createElement('canvas');c.width=4;c.height=512;const x=c.getContext('2d'),g=x.createLinearGradient(0,0,0,512);g.addColorStop(0,'#1d2a44');g.addColorStop(1,'#3d5277');x.fillStyle=g;x.fillRect(0,0,4,512);const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;return t})();
+const bgS=new THREE.Color('#03050c');scene.background=bgA;
+scene.add(new THREE.HemisphereLight(0xffffff,0x5a6a8a,1.1));
+const key=new THREE.DirectionalLight(0xffffff,2.4);key.position.set(3,4,5);scene.add(key);
+// 星空（宇宙の場面だけ）
+const STARS=(()=>{const g=new THREE.BufferGeometry(),n=1500,p=new Float32Array(n*3),r=rng(5);for(let i=0;i<n;i++){const u=r()*2-1,a=r()*6.28,q=Math.sqrt(1-u*u);p.set([90*q*Math.cos(a),90*u,90*q*Math.sin(a)],i*3)}g.setAttribute('position',new THREE.BufferAttribute(p,3));const o=new THREE.Points(g,new THREE.PointsMaterial({color:0xcfd8ff,size:.25}));scene.add(o);return o})();
+// 人の模型（半透明）と血管の網
+const BODY=new THREE.Group();scene.add(BODY);
+const skinM=new THREE.MeshStandardMaterial({color:0xf0d2bd,roughness:.6,transparent:true,opacity:.35,depthWrite:false});
+[[new THREE.CapsuleGeometry(.36,.9,8,16),0,1.55],[new THREE.SphereGeometry(.24,24,16),0,2.38],[new THREE.CapsuleGeometry(.11,.85,6,12),-.5,1.6,.25],[new THREE.CapsuleGeometry(.11,.85,6,12),.5,1.6,-.25],
+ [new THREE.CapsuleGeometry(.14,.95,6,12),-.18,.55],[new THREE.CapsuleGeometry(.14,.95,6,12),.18,.55]].forEach(([g,x,y,rz])=>{const m=mesh(g,skinM);m.position.set(x,y,0);if(rz)m.rotation.z=rz;BODY.add(m)});
+const vesM=new THREE.MeshStandardMaterial({color:0xe23b3b,emissive:0x550000,transparent:true,opacity:0});
+{const r=rng(9),pts=[];const grow=(p,d,len,depth)=>{if(depth>6||len<.04)return;const q=p.clone().add(d.clone().multiplyScalar(len));pts.push(p,q);for(let i=0;i<2;i++){const nd=d.clone().add(new THREE.Vector3(r()-.5,r()-.5,(r()-.5)*.4).multiplyScalar(1.1)).normalize();grow(q,nd,len*.72,depth+1)}};
+ grow(new THREE.Vector3(0,1.8,.05),new THREE.Vector3(0,1,0),.22,1);grow(new THREE.Vector3(0,1.6,.05),new THREE.Vector3(0,-1,0),.32,0);grow(new THREE.Vector3(-.15,1.85,.05),new THREE.Vector3(-1,-.6,0),.3,0);grow(new THREE.Vector3(.15,1.85,.05),new THREE.Vector3(1,-.6,0),.3,0);grow(new THREE.Vector3(-.15,1.1,.05),new THREE.Vector3(-.2,-1,0),.35,0);grow(new THREE.Vector3(.15,1.1,.05),new THREE.Vector3(.2,-1,0),.35,0);
+ for(let i=0;i<pts.length;i+=2){const a=pts[i],b=pts[i+1],d=b.clone().sub(a),L=d.length();const m=mesh(new THREE.CylinderGeometry(.012,.012,L,5),vesM);m.position.copy(a).add(b).multiplyScalar(.5);m.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),d.normalize());BODY.add(m)}}
+// 毛細血管と髪の毛（拡大の場面）
+const ZOOM=new THREE.Group();scene.add(ZOOM);ZOOM.position.set(6,1.6,0);
+const hair=mesh(new THREE.CylinderGeometry(.35,.35,4,32),new THREE.MeshStandardMaterial({color:0x3b2a1e,roughness:.5}));hair.rotation.z=Math.PI/2;hair.position.y=.55;ZOOM.add(hair);
+const capi=mesh(new THREE.CylinderGeometry(.04,.04,4,16),new THREE.MeshStandardMaterial({color:0xd8333a,roughness:.4}));capi.rotation.z=Math.PI/2;capi.position.y=-.35;ZOOM.add(capi);
+// 1本に伸ばした血管（地平線へ）
+const GROUND=mesh(new THREE.PlaneGeometry(400,400),new THREE.MeshStandardMaterial({color:0x34465f,roughness:1}));GROUND.rotation.x=-Math.PI/2;scene.add(GROUND);
+const GRID=new THREE.GridHelper(400,200,0x5d7396,0x4a5d7c);GRID.position.y=.002;scene.add(GRID);
+const LINE=mesh(new THREE.CylinderGeometry(.06,.06,1,8),new THREE.MeshStandardMaterial({color:0xe23b3b,emissive:0x550000}));scene.add(LINE);
+// 地球と、巻きつく血管
+const EARTH=new THREE.Group();scene.add(EARTH);EARTH.position.set(0,0,-40);
+const earthTex=(()=>{const c=document.createElement('canvas');c.width=512;c.height=256;const x=c.getContext('2d');x.fillStyle='#1f5fae';x.fillRect(0,0,512,256);const r=rng(3);x.fillStyle='#3f8a46';
+ for(let i=0;i<26;i++){x.beginPath();x.ellipse(r()*512,40+r()*176,20+r()*55,12+r()*30,r()*3,0,6.3);x.fill()}x.fillStyle='#eef2f5';x.fillRect(0,0,512,14);x.fillRect(0,242,512,14);const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;return t})();
+const earth=mesh(new THREE.SphereGeometry(3,64,48),new THREE.MeshStandardMaterial({map:earthTex,roughness:.8}));EARTH.add(earth);
+const LAPS=2.5,HPTS=600;const helix=new THREE.CatmullRomCurve3(Array.from({length:HPTS+1},(_,i)=>{const a=i/HPTS*LAPS*Math.PI*2,y=(i/HPTS-.5)*1.6;const rr=Math.sqrt(Math.max(.1,3.06*3.06-y*y));return new THREE.Vector3(Math.cos(a)*rr,y,Math.sin(a)*rr)}));
+const wrapM=new THREE.MeshStandardMaterial({color:0xff3b3b,emissive:0x660000});let wrapMesh=null,wrapK=-1;
+function setWrap(k){k=Math.round(k*120)/120;if(k===wrapK)return;wrapK=k;if(wrapMesh){EARTH.remove(wrapMesh);wrapMesh.geometry.dispose()}if(k<=.005){wrapMesh=null;return}
+  const n=Math.max(2,Math.round(HPTS*k)),pts=helix.getSpacedPoints(HPTS).slice(0,n+1);wrapMesh=mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts),n,.06,6,false),wrapM);EARTH.add(wrapMesh)}
+// 月と、そこまでの線
+const moon=mesh(new THREE.SphereGeometry(.82,40,30),new THREE.MeshStandardMaterial({color:0xbdbdbd,roughness:1}));moon.position.set(0,30,-40);scene.add(moon);
+const toMoon=mesh(new THREE.CylinderGeometry(.08,.08,1,8),new THREE.MeshStandardMaterial({color:0xff3b3b,emissive:0x660000}));scene.add(toMoon);
+const guide=mesh(new THREE.CylinderGeometry(.03,.03,26.2,6),new THREE.MeshBasicMaterial({color:0x8899bb,transparent:true,opacity:.45}));guide.position.set(0,16.1,-40);scene.add(guide);
+
+const cam=new THREE.PerspectiveCamera(FOV,W/H,.05,300);
+const SHOT={hook:[[0,1.8,7.2],[0,1.4,0]],body:[[1.2,1.9,4.6],[0,1.5,0]],thin:[[6,1.6,6.5],[6,1.6,0]],pull:[[-3,2.6,6],[10,0,-10]],total:[[-4,6,10],[30,0,-30]],
+  earth:[[0,3,-18],[0,0,-40]],wrap:[[7,4,-20],[0,0,-40]],moon:[[0,14,24],[0,14,-40]],end:[[0,1.8,7.2],[0,1.4,0]]};
+const lineAt=t=>LINES.find(x=>t>=x.t0-.02&&t<x.t1+.12)||LINES.filter(x=>x.t0<=t).pop()||LINES[0];
+function camAt(t){const i=LINES.indexOf(lineAt(t)),cur=SHOT[LINES[i].fx]||SHOT.hook,prev=i>0?(SHOT[LINES[i-1].fx]||SHOT.hook):cur,k=sstep(LINES[i].t0-.15,LINES[i].t0+.8,t);
+  const p=new THREE.Vector3().fromArray(prev[0]).lerp(new THREE.Vector3().fromArray(cur[0]),k),q=new THREE.Vector3().fromArray(prev[1]).lerp(new THREE.Vector3().fromArray(cur[1]),k);
+  p.x+=.06*Math.sin(t*.5);p.y+=.04*Math.sin(t*.4);return[p,q]}
+// HUD
+const NS='http://www.w3.org/2000/svg',hud=document.getElementById('hud');
+function el(tag,a,txt){const e=document.createElementNS(NS,tag);for(const k in a)e.setAttribute(k,a[k]);if(txt!=null)e.textContent=txt;hud.appendChild(e);return e}
+const tw=(s,size)=>{let w=0;for(const ch of String(s))w+=ch.charCodeAt(0)<256?.58:1;return w*size};
+function T(x,y,size,txt,o={}){const a={x,y,'font-size':size,'font-weight':o.w||900,'text-anchor':o.a||'start','stroke-width':o.sw!=null?o.sw:Math.max(3,size*.2)};let st='';if(o.fill)st+='fill:'+o.fill+';';if(o.op!=null)st+='opacity:'+o.op+';';if(st)a.style=st;return el('text',a,txt)}
+function badge(y,txt,op,col){if(op<=.02||!txt)return;const size=40,w=tw(txt,size)+30;el('rect',{x:270-w/2,y:y-size-6,width:w,height:size+18,rx:10,fill:col,style:'opacity:'+(op*.92).toFixed(2)});T(270,y+3,size,txt,{a:'middle',sw:0,op:op.toFixed(2)})}
+function drawHud(t,b){hud.innerHTML='';const l=lineAt(t),a=clamp((t-l.t0)/.12,0,1);
+  let y=l.cap.length>1?700:722;l.cap.forEach((s,i)=>{const size=Math.min(46,480/tw(s,1));T(270,y+(1-a)*6,size,s,{a:'middle',sw:9,op:(.3+.7*a).toFixed(2),fill:i===l.cap.length-1?'#ffd23f':'#fff'});y+=size+12});
+  badge(150,LAB.thin,b.thin,'#6b4fa0');badge(150,(LAB.len||'{km}km').replace('{km}',b.km.toLocaleString('ja-JP')),b.len,'#c0392b');badge(150,LAB.earth,b.earth,'#2d6fb0');badge(150,LAB.moon,b.moon,'#2d6fb0')}
+
+window.renderAt=function(t){
+  const tB=T0('body'),tT=T0('thin'),tP=T0('pull'),tO=T0('total'),tE=T0('earth'),tW=T0('wrap'),tM=T0('moon'),tN=T0('end');
+  const space=t>=tE-.1&&t<tN;scene.background=space?bgS:bgA;STARS.visible=space;
+  vesM.opacity=Math.max(sstep(tB,tB+.8,t),t>=tN?1:0)*(space?0:1);
+  BODY.visible=!space;GROUND.visible=!space;GRID.visible=!space;ZOOM.visible=t>=tT-.3&&t<tP+.5;
+  // 伸びる血管：体の胸から地平線へ
+  const pl=t>=tP&&!space&&t<tN?sstep(tP,tO+1.2,t):0;LINE.visible=pl>0;const L=.5+pl*300;LINE.scale.y=L;const dir=new THREE.Vector3(1,-.004,-1).normalize();
+  LINE.position.set(0,1.7,0).add(dir.clone().multiplyScalar(L/2));LINE.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),dir);
+  // 地球に巻く
+  EARTH.visible=space;earth.rotation.y=t*.15;setWrap(t>=tW?sstep(tW+.1,tW+3.0,t):(t>=tE?sstep(tE+.3,tW,t)*.4:0));
+  moon.visible=space&&t>=tM-.3;guide.visible=moon.visible;const mk=t>=tM?sstep(tM+.2,tM+1.6,t):0;toMoon.visible=mk>0&&space;const ml=Math.max(.01,26.2*.26*mk);toMoon.scale.y=ml;toMoon.position.set(0,3+ml/2,-40);
+  BODY.rotation.y=.25*Math.sin(t*.4);
+  const[p,q]=camAt(t);cam.position.copy(p);cam.lookAt(q);cam.updateProjectionMatrix();renderer.render(scene,cam);
+  const km=Math.round(sstep(tP,tO+1.2,t)*100000);
+  drawHud(t,{thin:t>=tT&&t<tP?sstep(tT,tT+.3,t):0,len:t>=tP&&t<tE?1:0,km,earth:t>=tE&&t<tM?1:0,moon:t>=tM&&t<tN?1:0});if(t>=tM&&t<tN)T(270,200,18,'距離は縮めて表示',{a:'middle',sw:3,op:.8});return{t}};
+window.__info={total:DUR};
+Promise.all([400,700,900].map(w=>document.fonts.load(w+' 20px JumpSans','あ0'))).then(()=>{window.__fig={kind:'none'};window.__ready=true},e=>console.log('load error: '+e.message));
+</script></body></html>

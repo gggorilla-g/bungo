@@ -1,0 +1,33 @@
+name: 書き出し済みの動画を上げる
+# ここで書き出した動画を up-<id> ブランチに置き、それを YouTube に上げる。token は secrets の名前
+on:
+  workflow_dispatch:
+    inputs:
+      id: { description: "動画ID（up-<id> ブランチの <id>.mp4）", required: true }
+      kit: { description: "投稿キットのパス", required: true }
+      token: { description: "YT_REFRESH_TOKEN_MOSO / _KAIDAN / _NAZO", default: "YT_REFRESH_TOKEN_MOSO" }
+      publish_at: { description: "公開日時 UTC（空ならすぐ公開）", default: "" }
+      lang: { description: "ja / en", default: "ja" }
+permissions:
+  contents: write
+jobs:
+  up:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: |
+          pip install -q google-api-python-client google-auth
+          git fetch -q origin "up-${{ inputs.id }}" && git show "origin/up-${{ inputs.id }}:${{ inputs.id }}.mp4" > "/tmp/${{ inputs.id }}.mp4" && ls -la /tmp/*.mp4
+      - env:
+          PUBLISH_AT: ${{ inputs.publish_at }}
+          YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
+          YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
+          YT_REFRESH_TOKEN: ${{ secrets[inputs.token] }}
+          VIDEO_LANG: ${{ inputs.lang }}
+        run: |
+          python3 tools/short_upload.py "/tmp/${{ inputs.id }}.mp4" "${{ inputs.kit }}"
+          git config user.name "bungo-bot"; git config user.email "bot@users.noreply.github.com"
+          git add nazo/manual && git commit -q -m "upload: ${{ inputs.id }}" || exit 0
+          for i in 1 2 3; do git pull --rebase --autostash -q && git push -q && break; sleep 5; done
