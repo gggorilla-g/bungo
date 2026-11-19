@@ -3,7 +3,7 @@
 #   順番待ち: nazo/ballsim/upload_queue.txt（1行 = "<id> <MOSO|KAIDAN|NAZO> <ja|en>"）。済んだ行は upload_done.txt へ移す
 cd "$(dirname "$0")/.."
 Q=nazo/ballsim/upload_queue.txt; D=nazo/ballsim/upload_done.txt; touch "$Q" "$D"
-declare -A full
+declare -A full; for c in $SKIP; do full[$c]=1; done   # SKIP="MOSO" で、そのチャンネルを今回は飛ばす
 cp "$Q" "$Q.tmp"; : > "$Q.keep"
 while read -r id ch lg; do
   [ -z "$id" ] && continue
