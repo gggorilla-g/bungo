@@ -1,0 +1,20 @@
+【タイトル】
+Count the Collisions. Does Pi Show Up? #shorts #math #physics
+
+【説明】
+A wall, a light block (1 kg) and a heavy block in a line. Slide the heavy block toward the light one and count every collision (block to block, and block to wall). With a 1 kg heavy block you get 3 collisions, with 100 kg you get 31, and with 10,000 kg you get 314: the digits of pi, 3.14159...
+
+Conditions:
+- No friction, no air, and perfectly elastic collisions (no energy is lost).
+- Every time the mass ratio is multiplied by 100, the count gains one more digit (1,000,000 kg gives 3,141; checked by calculation).
+- This result was published by the mathematician G. Galperin in 2003.
+- In the 314 round, the shortest gap between collisions is about 1/10,000 of a second (in this video's time).
+- Every collision plays one note (a high C for the wall, G for block to block). The closer the collisions, the shorter and quieter each note.
+
+Source
+- G. Galperin, "Playing pool with pi (the number pi from a billiard point of view)", Regular and Chaotic Dynamics, 2003, vol. 8, no. 4 https://rcd.ics.org.ru/RD2003v008n04ABEH000252/
+
+Simulation, sound and animation: original (Python).
+
+【タグ】
+math, physics, pi, collisions, simulation, satisfying, shorts
