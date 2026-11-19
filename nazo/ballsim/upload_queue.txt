@@ -7,3 +7,7 @@ ulam1_ja MOSO ja
 cardioid3_ja MOSO ja
 corner1_ja MOSO ja
 plates4t_ja MOSO ja
+pend1_ja MOSO ja
+pend1_en KAIDAN en
+liss1_ja MOSO ja
+liss1_en KAIDAN en
