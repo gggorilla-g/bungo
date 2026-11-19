@@ -1,0 +1,25 @@
+【タイトル】
+Which One Breaks 10 Plates First? 1000 vs 2ⁿ vs n⁴ vs Fibonacci #shorts #math
+
+【説明】
+Four rules drop balls onto 10 plates. The first lane to break all 10 wins. Every round n, the number of balls and the power of each ball change.
+
+Rules (balls dropped in round n):
+- 1000: 1,000 balls every round, power 1 each
+- 2ⁿ: 2ⁿ balls, power 1 each (2, 4, 8, 16 ...)
+- n⁴: n² balls, power n² each (n⁴ in total per round)
+- fib²: F(n) balls, power F(n) each, where F is the Fibonacci sequence (1, 1, 2, 3, 5, 8 ...)
+
+Plate strength (top to bottom): 300, 600, 1000, 1500, 2200, 3000, 4000, 5000, 5900, 6500 (30,000 in total)
+
+Result (calculated):
+- "1000 every round" leads through round 7 (7,000 total). n⁴ passes it in round 8 (8,772 total).
+- n⁴ has 25,333 after round 10 and reaches 30,000 during round 11.
+- Doubling (2ⁿ) is last at round 11. With thicker plates it would come back: its running total passes n⁴ in round 18.
+
+Sound: every ball plays one note when it hits a plate. Deeper plates play higher notes.
+
+Simulation, sound and animation: original (Python).
+
+【タグ】
+math, functions, exponential growth, fibonacci, simulation, satisfying, function race, shorts
