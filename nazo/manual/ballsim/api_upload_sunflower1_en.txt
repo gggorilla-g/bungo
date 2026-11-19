@@ -1,0 +1,16 @@
+{
+ "thumb": "",
+ "thumb_error": "",
+ "id": "WR1N68wSv0A",
+ "url": "https://youtube.com/shorts/WR1N68wSv0A",
+ "requested_publishAt": "",
+ "returned_status": {
+  "uploadStatus": "uploaded",
+  "privacyStatus": "public",
+  "license": "youtube",
+  "embeddable": true,
+  "publicStatsViewable": true,
+  "selfDeclaredMadeForKids": false,
+  "containsSyntheticMedia": false
+ }
+}
