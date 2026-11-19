@@ -48,6 +48,7 @@ const vesM=new THREE.MeshStandardMaterial({color:0xe23b3b,emissive:0x550000,tran
 const ZOOM=new THREE.Group();scene.add(ZOOM);ZOOM.position.set(6,1.6,0);
 const hair=mesh(new THREE.CylinderGeometry(.35,.35,4,32),new THREE.MeshStandardMaterial({color:0x3b2a1e,roughness:.5}));hair.rotation.z=Math.PI/2;hair.position.y=.55;ZOOM.add(hair);
 const capi=mesh(new THREE.CylinderGeometry(.04,.04,4,16),new THREE.MeshStandardMaterial({color:0xd8333a,roughness:.4}));capi.rotation.z=Math.PI/2;capi.position.y=-.35;ZOOM.add(capi);
+if(PRM.dna){capi.visible=false;const hx=k=>new THREE.CatmullRomCurve3(Array.from({length:121},(_,i)=>{const a=i/120*Math.PI*16+k;return new THREE.Vector3(-2+i/120*4,Math.cos(a)*.06-.35,Math.sin(a)*.06)}));[0,Math.PI].forEach(k=>ZOOM.add(mesh(new THREE.TubeGeometry(hx(k),240,.012,6),new THREE.MeshStandardMaterial({color:k?0x4aa3ff:0xff5aa0,emissive:k?0x0a2a55:0x550a2a}))))}
 if(PRM.cells){capi.visible=false;for(let i=0;i<40;i++){const c=mesh(new THREE.SphereGeometry(.05,12,8),new THREE.MeshStandardMaterial({color:0xe88aa0,roughness:.5}));c.position.set(-2+i*.1,-.35,0);ZOOM.add(c)}}
 // 1本に伸ばした血管（地平線へ）
 const GROUND=mesh(new THREE.PlaneGeometry(400,400),new THREE.MeshStandardMaterial({color:0x34465f,roughness:1}));GROUND.rotation.x=-Math.PI/2;scene.add(GROUND);
@@ -63,7 +64,7 @@ const wrapM=new THREE.MeshStandardMaterial({color:0xff3b3b,emissive:0x660000});l
 function setWrap(k){k=Math.round(k*120)/120;if(k===wrapK)return;wrapK=k;if(wrapMesh){EARTH.remove(wrapMesh);wrapMesh.geometry.dispose()}if(k<=.005){wrapMesh=null;return}
   const n=Math.max(2,Math.round(HPTS*k)),pts=helix.getSpacedPoints(HPTS).slice(0,n+1);wrapMesh=mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts),n,.06,6,false),wrapM);EARTH.add(wrapMesh)}
 // 月と、そこまでの線
-const moon=mesh(new THREE.SphereGeometry(.82,40,30),new THREE.MeshStandardMaterial({color:0xbdbdbd,roughness:1}));moon.position.set(0,30,-40);scene.add(moon);
+const moon=PRM.sun?mesh(new THREE.SphereGeometry(2.2,40,30),new THREE.MeshBasicMaterial({color:0xffc34a})):mesh(new THREE.SphereGeometry(.82,40,30),new THREE.MeshStandardMaterial({color:0xbdbdbd,roughness:1}));moon.position.set(0,PRM.sun?25:30,-40);scene.add(moon);
 const toMoon=mesh(new THREE.CylinderGeometry(.08,.08,1,8),new THREE.MeshStandardMaterial({color:0xff3b3b,emissive:0x660000}));scene.add(toMoon);
 const guide=mesh(new THREE.CylinderGeometry(.03,.03,26.2,6),new THREE.MeshBasicMaterial({color:0x8899bb,transparent:true,opacity:.45}));guide.position.set(0,16.1,-40);scene.add(guide);
 
@@ -94,7 +95,7 @@ window.renderAt=function(t){
   LINE.position.set(0,1.7,0).add(dir.clone().multiplyScalar(L/2));LINE.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),dir);
   // 地球に巻く
   EARTH.visible=space;earth.rotation.y=t*.15;setWrap(t>=tW?sstep(tW+.1,tW+3.0,t):(t>=tE?sstep(tE+.3,tW,t)*.4:0));
-  moon.visible=space&&t>=tM-.3;guide.visible=moon.visible;const mk=t>=tM?sstep(tM+.2,tM+1.6,t):0;toMoon.visible=mk>0&&space;const ml=Math.max(.01,26.2*(PRM.moonFrac||.26)*mk);toMoon.scale.y=ml;toMoon.position.set(0,3+ml/2,-40);
+  moon.visible=space&&t>=tM-.3;guide.visible=moon.visible;const mk=t>=tM?sstep(tM+.2,tM+1.6,t):0;toMoon.visible=mk>0&&space;const ml=Math.max(.01,26.2*Math.min(PRM.moonFrac||.26,1.6)*mk);toMoon.scale.y=ml;toMoon.position.set(0,3+ml/2,-40);
   BODY.rotation.y=.25*Math.sin(t*.4);
   const[p,q]=camAt(t);cam.position.copy(p);cam.lookAt(q);cam.updateProjectionMatrix();renderer.render(scene,cam);
   const km=Math.round(sstep(tP,tO+1.2,t)*(PRM.km||100000));

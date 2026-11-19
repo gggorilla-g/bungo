@@ -1,0 +1,25 @@
+【タイトル】
+もしも、体のDNAを全部つなげたら太陽の150倍先なのだ #Shorts #科学 #もしも
+
+【説明】
+もしも、体のDNAを全部1本につなげたら、を3DCGで考えるのだ。体を宇宙サイズにするシリーズ、3本目なのだ。
+
+数値・根拠：
+・人の細胞1個（2倍体）のDNAを伸ばすと約2メートル（Nature Scitable「DNA Packaging: Nucleosomes and Chromatin」。約60億塩基対×約0.34ナノメートルからの計算）。
+・大人の体の細胞は約37兆2000億個、そのうち赤血球が約26兆3000億個と見積もられている（Bianconi ほか 2013）。赤血球には核がなくDNAを持たないので、のぞいた約10兆9000億個で計算した。細胞の種類によってDNAの量は違うので、目安の計算。
+・約10兆9000億個×約2メートル＝約218億km（計算）。
+・地球1周（赤道）は約40,075km（NASA）。約218億kmなら50万周以上（計算）。
+・地球から太陽までは約1億4960万km（1天文単位）。約218億kmはその約146倍（計算）。
+・動画の距離は縮めて描いている。
+
+出典
+・Nature Scitable https://www.nature.com/scitable/topicpage/dna-packaging-nucleosomes-and-chromatin-310
+・Bianconi ほか（2013） https://doi.org/10.3109/03014460.2013.807878
+・NASA Earth Fact Sheet https://nssdc.gsfc.nasa.gov/planetary/factsheet/earthfact.html
+
+音声：VOICEVOX:ずんだもん
+BGM・効果音：オリジナル
+3DCG：オリジナル（three.js で作成）
+
+【タグ】
+ずんだもん, 科学, もしも, 妄想科学, DNA, 人体, 3DCG, ショート
