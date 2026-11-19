@@ -1,0 +1,23 @@
+{
+ "kind": "cardioid",
+ "mult": 3,
+ "title": [
+  "Now triple each number.",
+  "What shape appears?"
+ ],
+ "yt": {
+  "title": "Now Triple Each Number. What Shape Appears? #shorts #math",
+  "desc": "Put 100 numbered points (0 to 99) on a circle. From each point, send one ball to the point with triple its number (subtract 100 until it fits; for example 41 goes to 123 - 100 = 23). Doubling gave a heart-like curve with one cusp (a cardioid). Tripling gives a curve with two cusps, called a nephroid.\n\nHow it works:\n- Every line from point n to point 3n is tangent to a nephroid.\n- In general, multiplying by m gives a curve with m - 1 cusps (1 for doubling, 2 for tripling, 3 for multiplying by 4).\n- The bright curve inside a cup lit by distant light (parallel rays) is part of a nephroid too.\n- Point 50 maps to itself (150 - 100 = 50), so it is skipped.\n- Every ball plays one note when it lands. Longer lines play lower notes.\n\nSimulation, sound and animation: original (Python).",
+  "tags": [
+   "math",
+   "nephroid",
+   "cardioid",
+   "times table",
+   "geometry",
+   "simulation",
+   "satisfying",
+   "shorts"
+  ]
+ },
+ "id": "cardioid3_en"
+}
