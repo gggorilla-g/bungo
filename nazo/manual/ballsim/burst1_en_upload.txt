@@ -1,0 +1,15 @@
+【タイトル】
+Every Gold Hit = 1 New Ball. How Long Until It Bursts? #shorts
+
+【説明】
+Every time a ball passes through a gold point, one new ball is added. More balls means more gold hits, so the count keeps growing faster and faster. At 500 balls, the ring bursts.
+
+How it works:
+- 2D physics simulation: gravity, perfectly elastic ring wall, ball-to-ball collisions.
+- Each ball that passes a gold point creates one new ball (one per pass).
+- Every wall hit plays one note of the current chord, so the sound gets denser as the balls multiply.
+
+Simulation, sound and animation: original (Python).
+
+【タグ】
+satisfying, physics simulation, bouncing balls, exponential growth, satisfying sounds, asmr, shorts

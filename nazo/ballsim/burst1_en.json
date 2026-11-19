@@ -1,0 +1,26 @@
+{
+ "id": "burst1_en",
+ "title": [
+  "Every gold hit = 1 new ball",
+  "How long until it bursts?"
+ ],
+ "seed": 7,
+ "dur_max": 60,
+ "ring_r": 1.0,
+ "ball_r": 0.03,
+ "gold": [
+  [
+   0,
+   0.45,
+   0.12
+  ],
+  [
+   0,
+   -0.45,
+   0.12
+  ]
+ ],
+ "burst_n": 500,
+ "g": 1.6,
+ "v0": 1.8
+}
