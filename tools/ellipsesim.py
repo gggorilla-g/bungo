@@ -12,6 +12,40 @@ from ballsim import W, H, FPS, hsv, font, audio
 SUB = 6
 
 
+PENTA = [m for o in (60, 72, 84) for m in (o, o + 2, o + 4, o + 7, o + 9)] + [96]
+
+
+def audio_perball(events, total, out_wav):
+    """1音ずつ足す。ボールが多いほど1音を短く小さくする（濁り・音割れを防ぐ）"""
+    import wave as _w
+    from ballsim import SR, mtof
+    n = int(SR * (total + 2)); L = np.zeros(n); R = np.zeros(n); cache = {}
+    def mar(m, dec):
+        key = (m, round(dec, 2))
+        if key not in cache:
+            f = mtof(m); t = np.arange(int(SR * min(1.6, 6 / dec))) / SR
+            s = np.sin(2 * np.pi * f * t) + .28 * np.sin(2 * np.pi * f * 4 * t) * np.exp(-t * 20) + .1 * np.sin(2 * np.pi * f * 10 * t) * np.exp(-t * 45)
+            cache[key] = s * np.exp(-t * dec) * np.minimum(1, t / .003)
+        return cache[key]
+    for t, kind, a, cnt in events:
+        i = int(t * SR)
+        if kind == "pb":
+            dec = 4 + 3 * math.sqrt(cnt / 5)            # 5個: 減衰ゆっくり、640個: とても短い
+            snd = mar(a, dec) * .9 / math.sqrt(cnt); pan = .5 + .35 * ((a - 78) / 18)
+        elif kind == "arrive":
+            snd = sum(mar(m, 3.0) for m in ([72, 79, 84] if a == 0 else [60, 67, 72])) * .35; pan = .5
+        else:
+            continue
+        m = min(len(snd), n - i)
+        if m <= 0: continue
+        L[i:i + m] += snd[:m] * (1 - pan) * 1.2; R[i:i + m] += snd[:m] * pan * 1.2
+    for dly, g in [(.031, .3), (.067, .24), (.113, .18), (.171, .13), (.257, .09)]:
+        o = int(SR * dly); L[o:] += R[:-o] * g; R[o:] += L[:-o] * g
+    st = np.stack([L, R], 1); st = st / (np.abs(st).max() + 1e-9) * .85
+    with _w.open(out_wav, "wb") as w:
+        w.setnchannels(2); w.setsampwidth(2); w.setframerate(SR); w.writeframes((st * 32767).astype(np.int16).tobytes())
+
+
 def main(spec_path):
     sp = json.load(open(spec_path, encoding="utf-8"))
     sid = sp["id"]; os.makedirs("build_ballsim", exist_ok=True)
@@ -48,7 +82,7 @@ def main(spec_path):
         dirs = launch(n, rng.uniform(0, 2 * np.pi))
         hit1, l1 = path(dirs, F1)            # F1→壁
         rounds.append(dict(n=n, hit=hit1, l1=l1, hue=np.array([(i / n + k * .13) % 1 for i in range(n)])))
-        n *= 2
+        n = int(round(n * sp.get("growth", 2)))
     # 音の出来事
     melodic = sp.get("melodic", True)
     for k, rd in enumerate(rounds):
@@ -56,7 +90,12 @@ def main(spec_path):
         for leg in range(2):
             ts = t0 + leg * (T_half + hold)
             ls = rd["l1"] if leg == 0 else 2 * a - rd["l1"]  # 戻りは F2→壁 の長さ = 2a - l1（同じ壁の点で反射）
-            if melodic:  # 1区間に目立つ反射3回まで、時刻順に ド・ミ・ソ（120ms以上あける）、到着の直前120msは空ける
+            if sp.get("perball", True):  # ボール1個ごとに、壁に当たった瞬間に1音。先に当たった順に低→高（帰りは高→低）
+                order = np.argsort(np.argsort(ls)); frac = order / max(1, rd["n"] - 1)
+                for i in range(rd["n"]):
+                    events.append((ts + ls[i] / v, "pb", PENTA[int(frac[i] * (len(PENTA) - 1) + .5)], rd["n"]))
+                events.append((ts + T_half, "arrive", leg, rd["n"]))
+            elif melodic:  # 1区間に目立つ反射3回まで、時刻順に ド・ミ・ソ（120ms以上あける）、到着の直前120msは空ける
                 tl = np.sort(ls / v); picks, last = [], -1
                 for q in np.quantile(tl, [.15, .5, .85]):
                     if q - last >= .12 and q < T_half - .12: picks.append(q); last = q
@@ -83,7 +122,7 @@ def main(spec_path):
     out_raw = f"build_ballsim/{sid}_v.mp4"
     p = subprocess.Popen(["ffmpeg", "-v", "error", "-y", "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{W}x{H}", "-r", str(FPS), "-i", "-",
                           "-c:v", "libx264", "-preset", "veryfast", "-crf", "18", "-pix_fmt", "yuv420p", out_raw], stdin=subprocess.PIPE)
-    nf = int(total * FPS); r = .028
+    nf = int(total * FPS); r = sp.get("ball_r", .028)
     for fi in range(nf):
         t = fi / FPS; im = bg.copy(); d = ImageDraw.Draw(im)
         k = int(max(0, t - intro) // cycle); k = min(k, doubles); rd = rounds[k]; u = t - intro - k * cycle
@@ -126,7 +165,9 @@ def main(spec_path):
             fB = font(76 * S); msg = sp["end_label"]; wb = d.textlength(msg, font=fB); d.text((W * S / 2 - wb / 2, cy - 40 * S), msg, font=fB, fill=(255, 255, 255), stroke_width=9 * S, stroke_fill=(30, 90, 200))
         p.stdin.write(im.resize((W, H), Image.LANCZOS).tobytes())
     p.stdin.close(); p.wait()
-    wv = f"build_ballsim/{sid}.wav"; audio(events, total, wv)
+    wv = f"build_ballsim/{sid}.wav"
+    if sp.get("perball", True): audio_perball(events, total, wv)
+    else: audio(events, total, wv)
     subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", out_raw, "-i", wv, "-map", "0:v", "-map", "1:a", "-c:v", "copy", "-c:a", "aac", "-b:a", "192k",
                     "-af", "loudnorm=I=-14:TP=-1.5:LRA=11", "-shortest", "-movflags", "+faststart", f"output/{sid}.mp4"], check=True)
     print(f"書き出し: output/{sid}.mp4  {total:.1f}秒  最後のボール {rounds[-1]['n']}")
