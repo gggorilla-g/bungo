@@ -8,6 +8,7 @@ on:
       token: { description: "YT_REFRESH_TOKEN_MOSO / _KAIDAN / _NAZO", default: "YT_REFRESH_TOKEN_MOSO" }
       publish_at: { description: "公開日時 UTC（空ならすぐ公開）", default: "" }
       lang: { description: "ja / en", default: "ja" }
+      no_voice: { description: "声なしの動画なら 1", default: "" }
 permissions:
   contents: write
 jobs:
@@ -26,6 +27,7 @@ jobs:
           YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
           YT_REFRESH_TOKEN: ${{ secrets[inputs.token] }}
           VIDEO_LANG: ${{ inputs.lang }}
+          NO_VOICE: ${{ inputs.no_voice }}
         run: |
           python3 tools/short_upload.py "/tmp/${{ inputs.id }}.mp4" "${{ inputs.kit }}"
           git config user.name "bungo-bot"; git config user.email "bot@users.noreply.github.com"
