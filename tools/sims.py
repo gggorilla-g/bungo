@@ -342,9 +342,9 @@ def pendulums(sp):
     """長さの違う振り子を並べる。いちばん左は T 秒で L0 往復、右へ1つ進むごとに1往復多い（長さは周期の2乗に比例）。
     最初は一直線、すぐに波・うず・ばらばらに見えて、T 秒でまた一直線にそろう（小さい振れ幅の近似）"""
     N, L0, T, A = sp.get("n", 15), sp.get("laps0", 26), sp.get("T", 36.0), sp.get("amp", .5); intro, tail = .3, sp.get("tail", 1.5)
-    per = [T / (L0 + i) for i in range(N)]; Lmax = 1.0; Ls = [Lmax * (p_ / per[0]) ** 2 for p_ in per]
+    per = [T / (L0 + i) for i in range(N)]; Lmax = sp.get("Lmax", 1.7); Ls = [Lmax * (p_ / per[0]) ** 2 for p_ in per]
     xs = [(-.85 + 1.7 * i / (N - 1)) for i in range(N)]; top = 1.0
-    sim = Sim(sp, (-1.0, .02, 1.0, 1.03)); sim.neon([(-.95, top), (.95, top)], width=5); sim.title()
+    sim = Sim(sp, (-1.0, -.62, 1.0, 1.03)); sim.neon([(-.95, top), (.95, top)], width=5); sim.title()
     for i in range(N):   # 真下を通るたびに1音（右ほど高い）
         for j in range(2 * (L0 + i) + 1):
             tt = intro + per[i] / 4 + j * per[i] / 2
@@ -366,15 +366,18 @@ def pendulums(sp):
 
 def lissajous(sp):
     """1個のボールが、横は a 回・縦は b 回ゆれる（リサージュ曲線）。軌跡を残すと、T 秒でちょうど閉じる"""
-    a, b, ph, T = sp.get("a", 3), sp.get("b", 5), sp.get("phase", .25), sp.get("T", 32.0); intro, tail = .3, sp.get("tail", 2.0)
+    a, b, ph, T = sp.get("a", 3), sp.get("b", 5), sp.get("phase", .25), sp.get("T", 24.0); intro, tail = .3, sp.get("tail", 2.0)
     sim = Sim(sp, (-1.08, -1.08, 1.08, 1.08)); sim.thin([(-1.05, 0), (1.05, 0)], color=(44, 58, 80)); sim.thin([(0, -1.05), (0, 1.05)], color=(44, 58, 80)); sim.title()
     P = lambda u: (math.sin(2 * np.pi * a * u), math.sin(2 * np.pi * (b * u + ph)))
-    steps = 4000; prev = P(0)
+    steps = 4000; prev = P(0); pp = prev
     for k in range(1, steps + 1):   # 縦の線・横の線をまたぐたびに1音（場所で高さが変わる）
         u = k / steps; p = P(u)
         if (p[0] >= 0) != (prev[0] >= 0): sim.note(intro + u * T, PENTA[int((p[1] + 1) / 2 * 15 + .5)], .45, .5, 5.0)
         if (p[1] >= 0) != (prev[1] >= 0): sim.note(intro + u * T, PENTA[int((p[0] + 1) / 2 * 15 + .5)], .45, .5 + .3 * p[0], 5.0)
-        prev = p
+        if k >= 2:   # 端で折り返すたびにも1音（横の端は低め、縦の端は高め）
+            if (p[0] - prev[0]) * (prev[0] - pp[0]) < 0: sim.note(intro + u * T, PENTA[2 if p[0] < 0 else 4], .38, .5 + .4 * p[0], 6.0)
+            if (p[1] - prev[1]) * (prev[1] - pp[1]) < 0: sim.note(intro + u * T, PENTA[11 if p[1] < 0 else 14], .38, .5 + .3 * p[0], 6.0)
+        pp = prev; prev = p
     sim.chord(intro + T, [60, 67, 72, 76]); total = intro + T + tail; done = 0
     for fi in range(int(total * FPS)):
         t = fi / FPS; u = min(1, max(0, t - intro) / T); k1 = int(u * steps); segs = []

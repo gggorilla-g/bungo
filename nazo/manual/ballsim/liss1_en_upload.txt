@@ -1,0 +1,16 @@
+【タイトル】
+3 Swings Across, 5 Swings Up. Will the Line Close? #shorts #math
+
+【説明】
+One ball swings 3 times side to side and 5 times up and down in 32 seconds. Leave its trail on screen and the line closes exactly at 32 seconds, back where it started.
+
+How it works:
+- The two swing counts are a whole-number ratio (3 : 5), so both motions return to the start together after 32 seconds and the curve closes. This shape is called a Lissajous curve.
+- If the ratio is not a ratio of whole numbers (for example sqrt(2) : 1), the line never closes and keeps drawing new paths forever.
+- The vertical motion starts a quarter cycle ahead of the horizontal one.
+- Every time the ball crosses the vertical or horizontal center line, it plays one note.
+
+Simulation, sound and animation: original (Python).
+
+【タグ】
+math, lissajous, geometry, oscillation, simulation, satisfying, shorts
