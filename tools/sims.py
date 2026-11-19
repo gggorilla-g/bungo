@@ -338,7 +338,53 @@ def corner(sp):
     sim.finish(total)
 
 
-KINDS = {"corner": corner, "sunflower": sunflower, "ulam": ulam, "parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2, "picount": picount}
+def pendulums(sp):
+    """長さの違う振り子を並べる。いちばん左は T 秒で L0 往復、右へ1つ進むごとに1往復多い（長さは周期の2乗に比例）。
+    最初は一直線、すぐに波・うず・ばらばらに見えて、T 秒でまた一直線にそろう（小さい振れ幅の近似）"""
+    N, L0, T, A = sp.get("n", 15), sp.get("laps0", 26), sp.get("T", 36.0), sp.get("amp", .5); intro, tail = .3, sp.get("tail", 1.5)
+    per = [T / (L0 + i) for i in range(N)]; Lmax = 1.0; Ls = [Lmax * (p_ / per[0]) ** 2 for p_ in per]
+    xs = [(-.85 + 1.7 * i / (N - 1)) for i in range(N)]; top = 1.0
+    sim = Sim(sp, (-1.0, .02, 1.0, 1.03)); sim.neon([(-.95, top), (.95, top)], width=5); sim.title()
+    for i in range(N):   # 真下を通るたびに1音（右ほど高い）
+        for j in range(2 * (L0 + i) + 1):
+            tt = intro + per[i] / 4 + j * per[i] / 2
+            if tt <= intro + T + .01: sim.note(tt, PENTA[i % 16], .42, .5 + .35 * xs[i], 5.0)
+    cols = [hsv(i / N) for i in range(N)]; total = intro + T + tail
+    for fi in range(int(total * FPS)):
+        t = fi / FPS; u = max(0, t - intro); live, dots = [], []
+        for i in range(N):
+            th = A * math.cos(2 * np.pi * u / per[i]); L = Ls[i] * .92; p = (xs[i] + L * math.sin(th), top - L * math.cos(th))
+            live.append(((xs[i], top), p, (90, 104, 128), 1.4))
+            for q in range(8):   # 尾
+                t0_, t1_ = max(0, u - .04 * (q + 1)), max(0, u - .04 * q)
+                a0, a1 = A * math.cos(2 * np.pi * t0_ / per[i]), A * math.cos(2 * np.pi * t1_ / per[i])
+                live.append(((xs[i] + L * math.sin(a0), top - L * math.cos(a0)), (xs[i] + L * math.sin(a1), top - L * math.cos(a1)), dim(cols[i], .6 * (1 - q / 8)), 4))
+            dots.append((p, cols[i], 9))
+        sim.frame(t, live, dots, (sp.get("count_label", ""), sp.get("time_fmt", "{:.1f}秒").format(u)))
+    sim.finish(total)
+
+
+def lissajous(sp):
+    """1個のボールが、横は a 回・縦は b 回ゆれる（リサージュ曲線）。軌跡を残すと、T 秒でちょうど閉じる"""
+    a, b, ph, T = sp.get("a", 3), sp.get("b", 5), sp.get("phase", .25), sp.get("T", 32.0); intro, tail = .3, sp.get("tail", 2.0)
+    sim = Sim(sp, (-1.08, -1.08, 1.08, 1.08)); sim.thin([(-1.05, 0), (1.05, 0)], color=(44, 58, 80)); sim.thin([(0, -1.05), (0, 1.05)], color=(44, 58, 80)); sim.title()
+    P = lambda u: (math.sin(2 * np.pi * a * u), math.sin(2 * np.pi * (b * u + ph)))
+    steps = 4000; prev = P(0)
+    for k in range(1, steps + 1):   # 縦の線・横の線をまたぐたびに1音（場所で高さが変わる）
+        u = k / steps; p = P(u)
+        if (p[0] >= 0) != (prev[0] >= 0): sim.note(intro + u * T, PENTA[int((p[1] + 1) / 2 * 15 + .5)], .45, .5, 5.0)
+        if (p[1] >= 0) != (prev[1] >= 0): sim.note(intro + u * T, PENTA[int((p[0] + 1) / 2 * 15 + .5)], .45, .5 + .3 * p[0], 5.0)
+        prev = p
+    sim.chord(intro + T, [60, 67, 72, 76]); total = intro + T + tail; done = 0
+    for fi in range(int(total * FPS)):
+        t = fi / FPS; u = min(1, max(0, t - intro) / T); k1 = int(u * steps); segs = []
+        while done < k1: segs.append((P(done / steps), P((done + 1) / steps), hsv(done / steps, .75, .9))); done += 1
+        sim.commit(segs, width=3.2); p = P(u)
+        sim.frame(t, (), [(p, (255, 255, 255), 8)], (sp.get("count_label", ""), sp.get("time_fmt", "{:.1f}秒").format(max(0, t - intro))))
+    sim.finish(total)
+
+
+KINDS = {"pendulums": pendulums, "lissajous": lissajous, "corner": corner, "sunflower": sunflower, "ulam": ulam, "parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2, "picount": picount}
 
 if __name__ == "__main__":
     sp = json.load(open(sys.argv[1], encoding="utf-8")); KINDS[sp["kind"]](sp); kit(sp)

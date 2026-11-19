@@ -365,3 +365,10 @@
 - 調査（Social Blade、11/20）：BetOnTheColor は9/17開設・79本で登録3.73万、30日で+2.6万・2,700万再生（1,000再生あたり約1人）。ミリタリースタジオ「〜の理由」型 30日+3,000。ゆむゆむ（ミステリー3選）1,000再生あたり約0.9人、Slender aviation（航空事故）約0.65人。妄想科学は約0.23人
 - upload_file.yml に no_voice（声なし動画用）を追加
 - 11/20 楕円を差し替え：妄想科学 97HV-ZEx4Zo（ellipse1d_ja、遅く・ボール1個ごとに音・小さく・1.5倍ずつ・軌跡を残す）を公開、旧 3TN09aA7PWU は非公開に変更（削除はしていない）
+
+### 11/20 シミュレーション量産（tools/sims.py・simkit.py・platesim.py、順番待ち upload_queue.txt / upq.sh）
+- 調査：MathCarlooo（9/29開設・69本・登録2.42万・30日+6,500）。上位は「全部戻ってくる？」152万・「2枚の鏡」62万・「全部入る？」52万・「13:8の軌道」39万。raymathquiz（関数レース）は登録83・中央値1,230回
+- 公開（妄想科学）：板レース旧 WI1TLb76b-Y、放物線 L7x7RVcgMSw、2枚の鏡 X2cVfGFhT-s。その後1日の上限に到達（venus1_ja 以降は順番待ち）
+- 公開（MIW）：板レース旧 JRk_yCvr9BY、放物線 hoN_D9F5g8o、2枚の鏡 oQqaE3dGxX8、金星 IaO9iDnnSaI、カージオイド rKRFvb43uQs、輪 D0uMIKjEWD0、円周率 X-JSx8NofyY、ヒマワリ WR1N68wSv0A、素数 4D_msDJE4Ko、3倍（ネフロイド）XAG9Se2KxQI、直角の鏡 wmy0z6RcLT4
+- ミス：輪・円周率の英語が重複（i3XNNGec4K0・1tSJlBKdRoY）→ 非公開に。up.sh を動画IDで実行を確かめる形に修正
+- 板レースは「順位なし・全レーン同時に最後の板」版（plates4t）に作り直し。上がったら旧版を非公開にする

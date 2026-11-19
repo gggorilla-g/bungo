@@ -1,16 +1,10 @@
 venus1_ja MOSO ja
 cardioid2_ja MOSO ja
 rings1_ja MOSO ja
-rings1_en KAIDAN en
 pi1_ja MOSO ja
-pi1_en KAIDAN en
 sunflower1_ja MOSO ja
-sunflower1_en KAIDAN en
 ulam1_ja MOSO ja
-ulam1_en KAIDAN en
 cardioid3_ja MOSO ja
-cardioid3_en KAIDAN en
 corner1_ja MOSO ja
-corner1_en KAIDAN en
 plates4t_ja MOSO ja
 plates4t_en KAIDAN en

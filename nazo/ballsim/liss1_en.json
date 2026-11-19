@@ -1,0 +1,22 @@
+{
+ "kind": "lissajous",
+ "title": [
+  "3 swings across, 5 swings up.",
+  "Will the line close?"
+ ],
+ "time_fmt": "{:.1f} s",
+ "yt": {
+  "title": "3 Swings Across, 5 Swings Up. Will the Line Close? #shorts #math",
+  "desc": "One ball swings 3 times side to side and 5 times up and down in 32 seconds. Leave its trail on screen and the line closes exactly at 32 seconds, back where it started.\n\nHow it works:\n- The two swing counts are a whole-number ratio (3 : 5), so both motions return to the start together after 32 seconds and the curve closes. This shape is called a Lissajous curve.\n- If the ratio is not a ratio of whole numbers (for example sqrt(2) : 1), the line never closes and keeps drawing new paths forever.\n- The vertical motion starts a quarter cycle ahead of the horizontal one.\n- Every time the ball crosses the vertical or horizontal center line, it plays one note.\n\nSimulation, sound and animation: original (Python).",
+  "tags": [
+   "math",
+   "lissajous",
+   "geometry",
+   "oscillation",
+   "simulation",
+   "satisfying",
+   "shorts"
+  ]
+ },
+ "id": "liss1_en"
+}

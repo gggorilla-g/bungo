@@ -3,3 +3,5 @@
 2026-11-19T23:10:25Z sunflower1_en success WR1N68wSv0A (run 44635096170)
 2026-11-19T23:12:21Z ulam1_en success 4D_msDJE4Ko (run 44635338005)
 # 注意：rings1_en は D0uMIKjEWD0 と i3XNNGec4K0、pi1_en は X-JSx8NofyY と 1tSJlBKdRoY の2回上がった。後の方（i3XNNGec4K0・1tSJlBKdRoY）は非公開にした（11/20）
+2026-11-19T23:14:16Z cardioid3_en success XAG9Se2KxQI (run 44635633335)
+2026-11-19T23:16:52Z corner1_en success wmy0z6RcLT4 (run 44635918579)

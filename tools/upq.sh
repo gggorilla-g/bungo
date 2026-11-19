@@ -13,4 +13,5 @@ while read -r id ch lg; do
   if echo "$out" | grep -q " success "; then echo "$(date -u +%FT%TZ) $out" | tail -1 >> "$D"
   else echo "$id $ch $lg" >> "$Q.keep"; echo "$out" | grep -q "exceeded the number of videos" && { full[$ch]=1; echo "上限: $ch はあとで"; }; fi
 done < "$Q.tmp"
+grep -vxFf "$Q.tmp" "$Q" >> "$Q.keep" 2>/dev/null   # 走っている間に足された行は残す
 mv "$Q.keep" "$Q"; rm -f "$Q.tmp"; echo "残り $(wc -l < "$Q") 本"
