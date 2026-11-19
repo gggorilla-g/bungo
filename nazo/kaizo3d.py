@@ -75,7 +75,7 @@ def voice(sid):
         beats.append({"id": ln["id"], "t0": round(t, 3), "t1": round(t + d, 3), "voice": round(d, 3)})
         t += d + sp.get("gap", GAP)
     total = round(t + sp.get("tail", TAIL), 2)
-    scene = {"title": sp["scene_title"], "parts": sp["parts"], "labels": sp.get("labels", {}),
+    scene = {"title": sp["scene_title"], "parts": sp["parts"], "labels": sp.get("labels", {}), "params": sp.get("params", {}),
              "lines": [{k: ln[k] for k in ("id", "kind", "cap", "add", "fx", "at") if k in ln} | {"text": ln.get("say", "".join(ln["cap"]))} for ln in sp["lines"]]}
     os.makedirs(f"{KZ}/specs", exist_ok=True)
     json.dump(scene, open(f"{KZ}/specs/{sid}.json", "w", encoding="utf-8"), ensure_ascii=False, indent=1)

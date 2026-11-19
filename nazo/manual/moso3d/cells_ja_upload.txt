@@ -1,0 +1,24 @@
+【タイトル】
+もしも、体の細胞を1列に並べたら月まで届くのだ #Shorts #科学 #もしも
+
+【説明】
+もしも、体の細胞を全部1列に並べたら、を3DCGで考えるのだ。
+
+数値・根拠：
+・大人の体の細胞の数は、約37兆2000億個と見積もられている（Bianconi ほか 2013、Annals of Human Biology「An estimation of the number of cells in the human body」）。見積もりには幅がある。
+・細胞の大きさは種類によって大きく違う。動画では、仮に1個を10マイクロメートルとして計算した。37兆2000億個×10マイクロメートル＝約37万2000km（計算）。
+・地球1周（赤道）は約40,075km（NASA 地球の基本データ）。37万2000kmなら約9.3周（計算）。
+・地球から月までは平均約38万4,400km（NASA 月の基本データ）。37万2000kmはその約97%（計算）。
+・動画の細胞と距離は簡単な形・縮めた距離で描いている。
+
+出典
+・Bianconi ほか（2013） https://doi.org/10.3109/03014460.2013.807878
+・NASA Earth Fact Sheet https://nssdc.gsfc.nasa.gov/planetary/factsheet/earthfact.html
+・NASA Moon Fact Sheet https://nssdc.gsfc.nasa.gov/planetary/factsheet/moonfact.html
+
+音声：VOICEVOX:ずんだもん
+BGM・効果音：オリジナル
+3DCG：オリジナル（three.js で作成）
+
+【タグ】
+ずんだもん, 科学, もしも, 妄想科学, 細胞, 人体, 3DCG, ショート
