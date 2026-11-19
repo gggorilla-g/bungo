@@ -16,6 +16,14 @@ PENTA = [m for o in (60, 72, 84) for m in (o, o + 2, o + 4, o + 7, o + 9)] + [96
 def dim(c, g): return tuple(int(v * g) for v in c)
 
 
+_F = {}
+def F(sz):
+    """文字の大きさごとに1回だけ読み込む"""
+    sz = int(sz)
+    if sz not in _F: _F[sz] = font(sz)
+    return _F[sz]
+
+
 class Sim:
     def __init__(self, sp, box, area=(.06, .225, .94, .80)):
         """box: 図の範囲 (xmin, ymin, xmax, ymax)。area: 画面のどこに収めるか（左・上・右・下の割合）。数は上、図は中央（下2割は投稿画面の文字とかぶるので空ける）"""
@@ -72,7 +80,7 @@ class Sim:
         self.acc.paste(ImageChops.add(self.acc.crop((bx0, by0, bx1, by1)), tmp), (bx0, by0))
 
     # ---- 1コマ
-    def frame(self, t, live=(), balls=(), label=None, flashes=()):
+    def frame(self, t, live=(), balls=(), label=None, flashes=(), draw=None):
         """live: [(p0, p1, 色, 太さ)] いま描いている途中の線。balls: [(位置, 色, 半径px)]。label: (文字, 数)。flashes: [(位置, 半径px, 色, 太さ)]"""
         if self.stills is not None and not any(abs(t - s) < .5 / FPS for s in self.stills): return
         im = ImageChops.add(self.bg, self.acc); d = ImageDraw.Draw(im)
@@ -86,8 +94,9 @@ class Sim:
                 x, y = self.to(p); rr = r * S; d.ellipse([x - rr, y - rr, x + rr, y + rr], fill=c)
         for p, r, col, wd in flashes:
             x, y = self.to(p); d.ellipse([x - r * S, y - r * S, x + r * S, y + r * S], outline=col, width=max(1, int(wd * S)))
+        if draw: draw(d)
         if label:
-            lab, num = label; fC, fN = font(50 * S), font(62 * S); w1, w2 = d.textlength(lab, font=fC), d.textlength(num, font=fN); x0 = W * S / 2 - (w1 + w2) / 2; y = 318 * S
+            lab, num = label; fC, fN = F(50 * S), F(62 * S); w1, w2 = d.textlength(lab, font=fC), d.textlength(num, font=fN); x0 = W * S / 2 - (w1 + w2) / 2; y = 318 * S
             d.text((x0, y + 8 * S), lab, font=fC, fill=(235, 235, 240), stroke_width=5 * S, stroke_fill=(0, 0, 0))
             d.text((x0 + w1, y), num, font=fN, fill=(255, 210, 70), stroke_width=6 * S, stroke_fill=(0, 0, 0))
         out = im.resize((W, H), Image.LANCZOS)

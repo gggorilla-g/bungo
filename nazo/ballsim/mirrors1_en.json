@@ -1,0 +1,23 @@
+{
+ "kind": "mirrors2",
+ "title": [
+  "Two mirrors.",
+  "Will every ball reach one point?"
+ ],
+ "count_label": "balls: ",
+ "yt": {
+  "title": "Two Mirrors. Will Every Ball Reach One Point? #shorts #physics #math",
+  "desc": "Balls dropped straight down bounce off two mirrors. The large lower mirror is a parabola and the small upper mirror is a hyperbola. Every ball bounces twice and passes through the same point below at the same moment.\n\nHow it works:\n- A parabolic mirror reflects every line parallel to its axis toward its focus.\n- A hyperbolic mirror reflects a line aimed at one focus toward its other focus. One focus of the upper mirror sits exactly on the focus of the lower mirror.\n- The path from the top line to the final point has the same length for every ball (a property of the parabola and the hyperbola), so at equal speed they arrive together.\n- This is the mirror layout of a Cassegrain reflecting telescope.\n- There is no gravity here (the balls move like light rays). A larger group is dropped every 3.2 seconds (4, 6, 10, 14, 22, 32, 48).\n- Every ball plays one note each time it hits a mirror.\n\nSimulation, sound and animation: original (Python).",
+  "tags": [
+   "physics",
+   "math",
+   "telescope",
+   "parabola",
+   "hyperbola",
+   "simulation",
+   "satisfying",
+   "shorts"
+  ]
+ },
+ "id": "mirrors1_en"
+}

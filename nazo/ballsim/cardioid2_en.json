@@ -1,0 +1,21 @@
+{
+ "kind": "cardioid",
+ "title": [
+  "Send each ball to double its number.",
+  "What shape appears?"
+ ],
+ "yt": {
+  "title": "Send Each Ball to Double Its Number. What Shape Appears? #shorts #math",
+  "desc": "Put 100 numbered points (0 to 99) on a circle. From each point, send one ball to the point with double its number (subtract 100 if it goes past 99; for example 63 goes to 126 - 100 = 26). The lines left behind pile up into a heart-like curve called a cardioid.\n\nHow it works:\n- Every line from point n to point 2n is tangent to a cardioid. Draw enough of them and the curve shows up as their envelope.\n- These lines are also the paths of light reflected once inside a circle from a source at point 0 (light going from 0 to n bounces toward 2n). The bright curve made inside a round cup by a light at its rim is the same cardioid.\n- Every ball plays one note when it lands. Longer lines play lower notes.\n\nSimulation, sound and animation: original (Python).",
+  "tags": [
+   "math",
+   "cardioid",
+   "times table",
+   "geometry",
+   "simulation",
+   "satisfying",
+   "shorts"
+  ]
+ },
+ "id": "cardioid2_en"
+}

@@ -6,7 +6,7 @@
 import json, sys, os, math
 import numpy as np
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from simkit import Sim, PENTA, FPS, hsv, dim, kit
+from simkit import Sim, PENTA, FPS, S, F, hsv, dim, kit
 
 
 def lerp(a, b, u): return (a[0] + (b[0] - a[0]) * u, a[1] + (b[1] - a[1]) * u)
@@ -88,7 +88,7 @@ def rings(sp):
             dots.append((p, cols[i], 9))
             e = min((t - c for c in cross[i] if c <= t), default=9)
             if e < .18: fl.append(((0, r), 12 + e * 70, dim(cols[i], 1 - e / .18), 3))
-        sim.frame(t, live, dots, (sp.get("count_label", ""), sp.get("time_fmt", "{:.1f}秒").format(min(T, max(0, t - intro)))), fl)
+        sim.frame(t, live, dots, (sp.get("count_label", ""), sp.get("time_fmt", "{:.1f}秒").format(max(0, t - intro))), fl)
     sim.finish(total)
 
 
@@ -194,7 +194,56 @@ def mirrors2(sp):
     sim.finish(total)
 
 
-KINDS = {"parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2}
+def picount(sp):
+    """壁・軽い箱（重さ1）・重い箱（重さM）。重い箱をすべらせて、完全に弾むぶつかり方で回数を数える。
+    M=1 で3回、100 で31回、10000 で314回（Galperin のビリヤード。円周率の桁が出る）。3段を上から順に見せる"""
+    stages = sp.get("stages", [[1, 4.5], [100, 9.0], [10000, 11.0]]); intro, tail = .3, sp.get("tail", 2.6); a0, b0, w1 = .6, 2.7, .34
+    XR = 4.2; sim = Sim(sp, (-.2, -3.3, 5.5, 3.3)); lanes = [2.0, 0.0, -2.0][:len(stages)]
+    for y in lanes: sim.neon([(0, y), (XR, y)], width=4); sim.neon([(0, y), (0, y + 1.25)], width=6)
+    sim.title()
+    runs, t0 = [], intro
+    for (M, dur), y in zip(stages, lanes):
+        a, b, v1, v2, t = a0, b0, 0.0, -1.0, 0.0; st = [(0.0, a, b, v1, v2)]; hits = []
+        while True:
+            tw = a / -v1 if v1 < -1e-15 else math.inf; tb = (b - a) / (v1 - v2) if v1 - v2 > 1e-15 else math.inf
+            if not math.isfinite(min(tw, tb)): break
+            dt = min(tw, tb); a += v1 * dt; b += v2 * dt; t += dt
+            if tw < tb: a, v1 = 0.0, -v1; hits.append((t, "w"))
+            else: a = b; v1, v2 = ((1 - M) * v1 + 2 * M * v2) / (1 + M), ((M - 1) * v2 + 2 * v1) / (1 + M); hits.append((t, "b"))
+            st.append((t, a, b, v1, v2))
+        tend = max(t + (XR - w1 - b) / v2, t + .4)      # 重い箱が右端に着くまで（最後の1回がそれより後なら、そこまで）
+        k = tend / dur                     # 物理の時間 → 画面の時間
+        runs.append(dict(M=M, y=y, t0=t0, k=k, st=st, hits=[(t0 + h / k, c) for h, c in hits], w2=.34 + .2 * math.log10(M), col=hsv(.08 + .12 * len(runs))))
+        prev = -1
+        for h, c in hits:   # ぶつかるたびに1音（壁は高いド、箱どうしはソ）。間が詰まるほど短く小さく
+            th = t0 + h / k; gap = th - prev; prev = th
+            sim.note(th, 84 if c == "w" else 79, .5 * min(1, gap / .06) ** .5, .25 if c == "w" else .6, 14 if gap > .08 else 40)
+        t0 += dur
+    total = t0 + tail
+    def state(run, t):
+        tau = (t - run["t0"]) * run["k"]; st = run["st"]; i = np.searchsorted([q[0] for q in st], tau, side="right") - 1
+        if i < 0: return None
+        _, a, b, v1, v2 = st[i]; dt = tau - st[i][0]; return a + v1 * dt, b + v2 * dt
+    for run in runs: run["times"] = [h for h, _ in run["hits"]]; run["stt"] = np.array([q[0] for q in run["st"]])
+    for fi in range(int(total * FPS)):
+        t = fi / FPS
+        def draw(d, t=t):
+            for run in runs:
+                if t < run["t0"] and run is not runs[0]: continue
+                y = run["y"]; tau = max(0, (t - run["t0"])) * run["k"]; i = max(0, int(np.searchsorted(run["stt"], tau, side="right")) - 1)
+                _, a, b, v1, v2 = run["st"][i]; dt = tau - run["st"][i][0]; a, b = a + v1 * dt, b + v2 * dt
+                for x0, w, col, lab in ((a, w1, (120, 220, 255), "1"), (b + w1, run["w2"], run["col"], f"{run['M']:,}")):
+                    if x0 > XR: continue
+                    X0, Y0 = sim.to((x0, y + w)); X1, Y1 = sim.to((min(XR, x0 + w), y)); d.rectangle([X0, Y0, X1, Y1 - 3 * S], fill=dim(col, .85), outline=col, width=2 * S)
+                    f = F(34 * S); tw_ = d.textlength(lab, font=f)
+                    if x0 + w <= XR: d.text(((X0 + X1) / 2 - tw_ / 2, Y0 - 50 * S), lab, font=f, fill=(215, 222, 235))
+                n = int(np.searchsorted(run["times"], t, side="right")); f = F(96 * S); s_ = f"{n}"; tw_ = d.textlength(s_, font=f); X, Y = sim.to((5.45, y + .95))
+                d.text((X - tw_, Y), s_, font=f, fill=(255, 210, 70), stroke_width=6 * S, stroke_fill=(0, 0, 0))
+        sim.frame(t, draw=draw)
+    sim.finish(total)
+
+
+KINDS = {"parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2, "picount": picount}
 
 if __name__ == "__main__":
     sp = json.load(open(sys.argv[1], encoding="utf-8")); KINDS[sp["kind"]](sp); kit(sp)

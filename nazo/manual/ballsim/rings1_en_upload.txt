@@ -1,0 +1,17 @@
+【タイトル】
+Each Ball Does One More Lap. When Do They Line Up Again? #shorts #math #satisfying
+
+【説明】
+Twelve balls circle on twelve rings. The outer ball does 4 laps in 36 seconds. Each ring further in does one more lap, up to 15 laps for the innermost ball.
+
+They start in a line at the top and quickly curl into a spiral. At 9 seconds they form 4 spokes, at 12 seconds 3 spokes, and at 18 seconds a vertical line (half at the top, half at the bottom). At 36 seconds they are all back in line at the top.
+
+How it works:
+- 36 seconds is a common multiple of every lap time (36/4 s, 36/5 s, ..., 36/15 s), so all balls are back at the start after 36 seconds. Because the lap counts are consecutive whole numbers, they cannot all meet at the top any earlier.
+- At 18 seconds, balls with an even lap count are at the top and odd ones are at the bottom. At 12 seconds the remainder mod 3 decides the spoke; at 9 seconds, the remainder mod 4.
+- Every ball plays one note each time it crosses the top line. Outer rings play lower notes.
+
+Simulation, sound and animation: original (Python).
+
+【タグ】
+math, polyrhythm, least common multiple, simulation, satisfying, pendulum wave, shorts
