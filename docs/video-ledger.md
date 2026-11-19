@@ -356,3 +356,11 @@
 - 妄想科学 x2K_gCfDPog「もしも、走る速さが1秒ごとに2倍になったら12秒で地球の外なのだ」35.6秒。scene_run.html（新規）、人物 Seed-san（VirtualCast, Inc.、クレジット記載）
 - 狙い：ジャンプ以外の体の動きで、倍率・段階・追い越し（歩く人→自転車→車→新幹線→旅客機→音速→ライフル弾→第1・第2宇宙速度）が通じるかの検証。ジャンプ続編は止める
 - 判定：48時間で速報、7日で主判定。比較相手はジャンプ2倍・10倍の同じ経過時間
+
+### 11/20 腕・英語版走り・ボールシミュレーション
+- 妄想科学 VI3c8LAV2Ao「もしも、腕の長さが1秒ごとに2倍になったら29秒で月なのだ」35.2秒（scene_arm.html、ジャンプ構造の移植 #2）
+- MIW mALeNQZay0E「What If Your Running Speed Doubled Every Second?」32.5秒（run_en、mph表示）
+- MIW 1mDvgaF3Slw「Every Gold Hit = 1 New Ball. How Long Until It Bursts?」37.7秒（tools/ballsim.py、声なし・和音の音）
+- 妄想科学 3TN09aA7PWU「片方の点から全方向に打つと、全部もう片方の点に集まる？」36.1秒（tools/ellipsesim.py、5→1,280個）
+- 調査（Social Blade、11/20）：BetOnTheColor は9/17開設・79本で登録3.73万、30日で+2.6万・2,700万再生（1,000再生あたり約1人）。ミリタリースタジオ「〜の理由」型 30日+3,000。ゆむゆむ（ミステリー3選）1,000再生あたり約0.9人、Slender aviation（航空事故）約0.65人。妄想科学は約0.23人
+- upload_file.yml に no_voice（声なし動画用）を追加
