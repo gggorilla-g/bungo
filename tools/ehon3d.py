@@ -149,6 +149,12 @@ def main(path, mode=None, arg=None):
             for c in P["cam"]: c.pop("_own", None)
             for a_, b_ in zip(P["cam"], P["cam"][1:]):
                 if a_.get("img") and not b_.get("img"): b_["cut"] = True   # 寄りの絵から戻る画は、パンせずにそのまま
+            # ズームはゆっくりだけ：同じカットの中の寄り引きは1秒に ZOOM_RATE（既定3%）まで。速い引き・寄りは抑える
+            ZR = sp.get("zoom_rate", .03)
+            for a_, b_ in zip(P["cam"], P["cam"][1:]):
+                if b_.get("cut") or b_.get("img") or a_.get("img"): continue
+                lim = ZR * max(.1, b_["t"] - a_["t"])
+                b_["d"] = min(max(b_["d"], a_["d"] * (1 - lim)), a_["d"] * (1 + lim))
         if "bg2" in pg: P["bg2"] = {"img": prep(pg["bg2"]["img"], cut=False), "t": U(pi, pg["bg2"]["u"]), "dur": pg["bg2"].get("dur", 2)}
         if "light_to" in pg: P["light_to"] = [U(pi, pg["light_to"][0]), pg["light_to"][1]]
         if "rain" in pg: P["rain"] = [U(pi, pg["rain"][0]), U(pi, pg["rain"][1])]
