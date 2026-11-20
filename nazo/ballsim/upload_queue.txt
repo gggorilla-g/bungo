@@ -1,3 +1,5 @@
+dragon1_ja MOSO ja
+dragon1_en KAIDAN en
 rhythm1_ja MOSO ja
 lissatable1_ja MOSO ja
 plotter1_ja MOSO ja

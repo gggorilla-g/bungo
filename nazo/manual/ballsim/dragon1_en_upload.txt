@@ -1,0 +1,16 @@
+【タイトル】
+Fold a Paper Strip in Half 12 Times, Then Open Every Crease to 90° #shorts
+
+【説明】
+Fold a long strip of paper in half 12 times, then open every crease to a right angle, and you get this shape: the dragon curve.
+
+How it works:
+- Unfolding is the same as repeatedly attaching a copy of the current line, rotated 90 degrees around its end point.
+- Each step doubles the segments: 2^12 = 4,096 after 12 folds.
+- Segments can touch at corners, but never cross.
+- Each time a rotation finishes, the pivot flashes and a note plays.
+
+Simulation, sound and animation: original (Python).
+
+【タグ】
+satisfying, dragon curve, fractal, math, paper folding, satisfying sounds, shorts
