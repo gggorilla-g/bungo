@@ -24,7 +24,7 @@ creds = Credentials(None, refresh_token=os.environ["YT_REFRESH_TOKEN"], client_i
 yt = build("youtube", "v3", credentials=creds)
 body = {"snippet": {"title": title[:100], "description": desc, "tags": tags, "categoryId": "27",
                     "defaultLanguage": os.environ.get("VIDEO_LANG", "ja"), "defaultAudioLanguage": os.environ.get("VIDEO_LANG", "ja")},
-        "status": {"selfDeclaredMadeForKids": False, "containsSyntheticMedia": False}}
+        "status": {"selfDeclaredMadeForKids": os.environ.get("MADE_FOR_KIDS", "") == "1", "containsSyntheticMedia": False}}
 body["status"].update({"privacyStatus": "private", "publishAt": publish_at} if publish_at else {"privacyStatus": "public"})
 req = yt.videos().insert(part="snippet,status", body=body,
                          media_body=MediaFileUpload(video, chunksize=8 * 1024 * 1024, resumable=True))
@@ -39,7 +39,7 @@ if thumb:
     except Exception as e:                       # サムネだけ失敗しても投稿は済んでいるので、記録して先へ進む
         thumb_err = str(e)[:300]
         print("::warning::サムネを設定できなかった:", thumb_err)
-out = {"thumb": thumb, "thumb_error": thumb_err, "id": res["id"], "url": "https://youtube.com/shorts/" + res["id"], "requested_publishAt": publish_at,
+out = {"thumb": thumb, "thumb_error": thumb_err, "id": res["id"], "url": "https://youtube.com/watch?v=" + res["id"], "requested_publishAt": publish_at,
        "returned_status": res.get("status", {})}
 print(json.dumps(out, ensure_ascii=False, indent=1))
 open(os.path.join(os.path.dirname(kit), "api_upload_" + os.path.basename(kit).replace("_upload.txt", "") + ".txt"), "w").write(json.dumps(out, ensure_ascii=False, indent=1) + "\n")
