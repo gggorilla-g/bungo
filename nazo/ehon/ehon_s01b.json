@@ -3,16 +3,18 @@
  "title": "はっぱの あまおと",
  "assets": "/mnt/user-data/uploads/Downloads/jump_shisaku/ehon_parts/story01",
  "voice": {
-  "vvm": "10.vvm",
-  "style": 42,
-  "speed": 0.84,
+  "vvm": "6.vvm",
+  "style": 31,
+  "speed": 0.86,
   "vol": 1.5
  },
  "sfx_files": {
   "rain": "assets/sfx/yt_light_rain.mp3",
   "thunder": "assets/sfx_pd/thunder.ogg",
   "drip": "assets/sfx_pd/drip.ogg",
-  "breeze": "assets/sfx_pd/breeze.ogg"
+  "breeze": "assets/sfx_pd/breeze.ogg",
+  "pochan": "assets/sfx_gen/pochan.wav",
+  "pichon": "assets/sfx_gen/pichon.wav"
  },
  "world": {
   "pino": [
@@ -387,11 +389,12 @@
      "gain": 0.45
     },
     {
-     "name": "drip",
-     "from": 3.55,
+     "name": "pichon",
+     "from": 0,
      "dur": 0.45,
-     "gain": 0.7,
-     "lp": 7000,
+     "gain": 0.6,
+     "lp": 9000,
+     "fin": 0,
      "at": "s4.00"
     },
     {
@@ -948,59 +951,66 @@
      "gain": 0.16
     },
     {
-     "name": "drip",
-     "from": 6.5,
-     "dur": 0.7,
-     "gain": 0.9,
-     "lp": 1400,
+     "name": "pochan",
+     "from": 0,
+     "dur": 0.6,
+     "gain": 0.8,
+     "lp": 9000,
+     "fin": 0,
      "at": "L5e+0.6"
     },
     {
-     "name": "drip",
-     "from": 3.55,
+     "name": "pichon",
+     "from": 0,
      "dur": 0.45,
-     "gain": 0.7,
-     "lp": 7000,
+     "gain": 0.6,
+     "lp": 9000,
+     "fin": 0,
      "at": "L7e+0.6"
     },
     {
-     "name": "drip",
-     "from": 6.5,
-     "dur": 0.7,
-     "gain": 0.9,
-     "lp": 1400,
+     "name": "pochan",
+     "from": 0,
+     "dur": 0.6,
+     "gain": 0.8,
+     "lp": 9000,
+     "fin": 0,
      "at": "L14e+0.6"
     },
     {
-     "name": "drip",
-     "from": 3.55,
+     "name": "pichon",
+     "from": 0,
      "dur": 0.45,
-     "gain": 0.7,
-     "lp": 7000,
+     "gain": 0.6,
+     "lp": 9000,
+     "fin": 0,
      "at": "L16e+0.6"
     },
     {
-     "name": "drip",
-     "from": 6.5,
-     "dur": 0.7,
-     "gain": 0.9,
-     "lp": 1400,
+     "name": "pochan",
+     "from": 0,
+     "dur": 0.6,
+     "gain": 0.8,
+     "lp": 9000,
+     "fin": 0,
      "at": "L24e+0.6"
     },
     {
-     "name": "drip",
-     "from": 3.55,
+     "name": "pichon",
+     "from": 0,
      "dur": 0.45,
-     "gain": 0.7,
-     "lp": 7000,
+     "gain": 0.6,
+     "lp": 9000,
+     "fin": 0,
      "at": "L26e+0.6"
     },
     {
-     "name": "drip",
-     "from": 6.5,
-     "dur": 0.7,
-     "gain": 0.9,
-     "lp": 1400,
+     "name": "pochan",
+     "from": 0,
+     "dur": 0.6,
+     "gain": 0.8,
+     "lp": 9000,
+     "fin": 0,
      "at": "L32e+0.6"
     },
     {
@@ -1316,19 +1326,21 @@
      "gain": 0.16
     },
     {
-     "name": "drip",
-     "from": 6.5,
-     "dur": 0.7,
-     "gain": 0.9,
-     "lp": 1400,
+     "name": "pochan",
+     "from": 0,
+     "dur": 0.6,
+     "gain": 0.8,
+     "lp": 9000,
+     "fin": 0,
      "at": "L4e+0.6"
     },
     {
-     "name": "drip",
-     "from": 3.55,
+     "name": "pichon",
+     "from": 0,
      "dur": 0.45,
-     "gain": 0.7,
-     "lp": 7000,
+     "gain": 0.6,
+     "lp": 9000,
+     "fin": 0,
      "at": "L4e+0.6"
     },
     {

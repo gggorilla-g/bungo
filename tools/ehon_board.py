@@ -8,8 +8,8 @@ DARK = ("overcast", "rain", "low_overcast")          # 暗い背景では本文�
 FAM = lambda n: "pino" if n.startswith("mouse") else "lulu" if n.startswith("snail") else "both" if n.startswith("pino_lulu") else n
 POS = {"pino": (-.65, .4), "lulu": (.75, 0), "both": (0, 0), "leaf": (.3, -.3), "drop": (0, 0)}
 WALK = ["mouse_walk_a", "mouse_walk_b", "mouse_walk_c", "mouse_walk_d"]
-BIG = {"name": "drip", "from": 6.5, "dur": .7, "gain": .9, "lp": 1400}
-SMALL = {"name": "drip", "from": 3.55, "dur": .45, "gain": .7, "lp": 7000}
+BIG = {"name": "pochan", "from": 0, "dur": .6, "gain": .8, "lp": 9000, "fin": 0}
+SMALL = {"name": "pichon", "from": 0, "dur": .45, "gain": .6, "lp": 9000, "fin": 0}
 
 
 def plus(at, x):
@@ -117,8 +117,8 @@ def main(board, assets, sid, title=None):
         if not pg["lines"]: pg.setdefault("dur", 4); pg["cam"] = [c for c in pg["cam"] if not isinstance(c["u"], str)] or [{"u": 0, "x": 0, "y": 1.2, "d": 8.6}, {"u": 1, "x": 0, "y": 1.2, "d": 7.8}]
         if not pg["cam"]: pg.pop("cam")
     pages[-1]["tail"] = 6.0
-    sp = {"id": sid, "title": title or "えほん", "assets": assets, "voice": {"vvm": "10.vvm", "style": 42, "speed": .84, "vol": 1.5},
-          "sfx_files": {"rain": "assets/sfx/yt_light_rain.mp3", "thunder": "assets/sfx_pd/thunder.ogg", "drip": "assets/sfx_pd/drip.ogg", "breeze": "assets/sfx_pd/breeze.ogg"},
+    sp = {"id": sid, "title": title or "えほん", "assets": assets, "voice": {"vvm": "6.vvm", "style": 31, "speed": .86, "vol": 1.5},
+          "sfx_files": {"rain": "assets/sfx/yt_light_rain.mp3", "thunder": "assets/sfx_pd/thunder.ogg", "drip": "assets/sfx_pd/drip.ogg", "breeze": "assets/sfx_pd/breeze.ogg", "pochan": "assets/sfx_gen/pochan.wav", "pichon": "assets/sfx_gen/pichon.wav"},
           "world": {"pino": ["head_w", .44], "lulu": ["shell_d", .55], "leaf": ["len", 1.1], "drop": ["h", .09], "flower": ["w", .9]},
           "scale_alias": {"pino_lulu_leaf_smile": "pino_lulu_leaf_sit", "mouse_stop": "mouse_walk"},
           "title_sec": 5.5, "cover": "cover", "logo_rel": "ehon/brand/logo_sil_light.png", "output": {"width": 1920, "height": 1080}, "music_gain": .2, "pages": pages}
