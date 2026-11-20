@@ -69,7 +69,7 @@ function buildText(P){
   const T=P.text||{};const fs=T.size||22,lh=fs*1.75,ink=T.color||'#3b2a22',al=T.align||'start';
   const x0=(T.x!=null?T.x:.06)*W,y0=(T.y!=null?T.y:.12)*H;let row=0;
   // 文字の下に、紙がにじんだような淡い下地（絵の上でも読めるように）
-  if(T.paper!==false){let maxw=0,rows=0;P.lines.forEach(L=>{rows+=L.wrap.length;L.wrap.forEach(s=>{maxw=Math.max(maxw,s.length*fs*1.0)})});
+  if(T.paper!==false&&P.lines.length){let maxw=0,rows=0;P.lines.forEach(L=>{rows+=L.wrap.length;L.wrap.forEach(s=>{maxw=Math.max(maxw,s.length*fs*1.0)})});
     const px=al==='middle'?x0-maxw/2:al==='end'?x0-maxw:x0;
     const r=el('rect',{x:px-fs*.9,y:y0-fs*1.3,width:maxw+fs*1.8,height:rows*lh+fs*.9,rx:fs*.9,fill:T.paper_color||'#fbf6ea',opacity:T.paper_op!=null?T.paper_op:.55},null,textG);r.style.filter='blur(6px)'}
   P.lines.forEach((L,li)=>{L.wrap.forEach(s=>{const e=el('text',{x:x0,y:y0+row*lh,'text-anchor':al,'font-size':fs,'font-weight':T.weight||700,fill:ink,'letter-spacing':fs*.06},s,textG);textEls.push({e,li});row++})});

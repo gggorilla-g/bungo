@@ -71,7 +71,9 @@ def main(path, mode=None, arg=None):
         t0 = t; tl = t + PAD0; L = []
         for li, text in enumerate(pg["lines"]):
             p, d = vo[(pi, li)]; L.append(dict(t=tl, d=d, wrap=wrap(text, pg.get("text", {}).get("wrap", 16)), wav=p)); tl += d + GAP + pg.get("pause", [0] * 9)[li] if isinstance(pg.get("pause"), list) else d + GAP
-        t1 = tl - GAP + PAD1 + pg.get("tail", 0); pages.append((t0, t1, L)); t = t1 + TR
+        t1 = tl - GAP + PAD1 + pg.get("tail", 0)
+        if not pg["lines"]: t1 = t0 + pg.get("dur", 6.0)   # 声の入らないカット（雨雲だけ、など）
+        pages.append((t0, t1, L)); t = t1 + pg.get("trans", TR)
     total = pages[-1][1] + 2.0
     stage = {"title": sp["title"], "pages": [], "title_t": [.3, TC] if TC else [0, 0], "title_card": sp.get("title_card", {}), "fov": sp.get("fov", 24)}
     U = lambda pi, u: pages[pi][0] + u * (pages[pi][1] - pages[pi][0])
