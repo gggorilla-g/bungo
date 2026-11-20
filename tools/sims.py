@@ -823,7 +823,94 @@ def piphase(sp):
     sim.finish(total)
 
 
-KINDS = {"piphase": piphase, "maurer": maurer, "harmono": harmono, "spiro": spiro, "star": star, "throw": throw, "tusi": tusi, "chain": chain, "basket": basket, "koch": koch, "cycloid": cycloid, "pendulums": pendulums, "lissajous": lissajous, "corner": corner, "sunflower": sunflower, "ulam": ulam, "parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2, "picount": picount}
+def pendswing(sp):
+    """振り子の波を横から。ひとつの支点から長さのちがう振り子を吊るし、端で一列にそろえて放す。
+    いちばん長い振り子が T 秒で L0 往復、短くなるごとに1往復ずつ多い（小さい振れ幅の近似）。T 秒でまた一列にそろう。
+    振り子が端で折り返すたびに1音（はじく音）。上に「いちばん下の玉：◯往復のうち◯」"""
+    N, L0, T = sp.get("n", 12), sp.get("laps0", 20), sp.get("T", 40.0); intro, tail = .6, sp.get("tail", 2.0)
+    per = [T / (L0 + i) for i in range(N)]; Lmax = 1.55; Ls = [Lmax * (p_ / per[0]) ** 2 for p_ in per]
+    th0 = math.radians(sp.get("amp", 38)); piv = (0.0, 1.05)
+    sim = Sim(sp, (-1.05, -.75, 1.05, 1.12))
+    for sg in (-1, 1):   # 振れる端を示す V 字（支点から）
+        sim.neon([piv, (piv[0] + sg * 1.75 * math.sin(th0), piv[1] - 1.75 * math.cos(th0))], color=(150, 220, 255), glow=(30, 120, 220), width=3)
+    sim.ring(piv, 6, (160, 200, 240), 3); sim.title()
+    for i in range(N):
+        for j in range(2 * (L0 + i) + 1):   # 両端で折り返すたびに
+            tt = intro + j * per[i] / 2
+            if tt <= intro + T + .01: sim.note(tt, PENTA[i % 16] + (0 if j % 2 == 0 else 0), .42, .5 + (.32 if j % 2 == 0 else -.32), 4.0, "pluck")
+    cols = [hsv(.0 + .78 * i / (N - 1)) for i in range(N)]; total = intro + T + tail
+    def pos(i, u):
+        th = th0 * math.cos(2 * np.pi * u / per[i]); return (piv[0] + Ls[i] * math.sin(th), piv[1] - Ls[i] * math.cos(th))
+    for fi in range(int(total * FPS)):
+        t = fi / FPS; u = min(max(0, t - intro), T); live, dots = [], []
+        P = [pos(i, u) for i in range(N)]
+        for i in range(N):
+            for q in range(10):   # 残像
+                a, b = pos(i, max(0, u - .03 * (q + 1))), pos(i, max(0, u - .03 * q))
+                live.append((a, b, dim(cols[i], .55 * (1 - q / 10)), 9 - q * .6))
+            dots.append((P[i], cols[i], 11 - 5 * i / (N - 1)))
+        for a, b in zip(P, P[1:]): live.append((a, b, (70, 80, 110), 1.2))   # 玉どうしを細い線で
+        ph = [2 * np.pi * u / per[i] for i in range(N)]; R = abs(sum(np.exp(1j * x) for x in ph)) / N
+        R2 = abs(sum(np.exp(2j * x) for x in ph)) / N
+        pat = "一列" if R > .97 else "ふたてに分かれた" if R2 > .97 else "波" if R > .55 else "ばらばら"
+        k = (L0 + N - 1) * u / T - L0 * u / T   # いちばん短い振り子が、いちばん長い振り子より何往復先か
+        sim.frame(t, live, dots, (f"いちばん下の玉：{L0 + N - 1}往復のうち ", f"{int(min(L0 + N - 1, (L0 + N - 1) * u / T))}"),
+                  draw=lambda d, pat=pat: _tag(d, f"いまの形：{pat}"))
+    sim.finish(total)
+
+
+def _tag(d, s):
+    """下の方に、いまの形の札（枠つき）"""
+    from simkit import F, S, W, H
+    f = F(44 * S); w = d.textlength(s, font=f); x, y = W * S / 2 - w / 2, H * S * .785
+    d.rounded_rectangle([x - 34 * S, y - 14 * S, x + w + 34 * S, y + 62 * S], 38 * S, outline=(150, 170, 200), width=3 * S)
+    d.text((x, y), s, font=f, fill=(225, 230, 240))
+
+
+def golden(sp):
+    """黄金比ループ：黄金長方形を正方形に切り続けた図と、その四分円をつないだ黄金らせん。
+    らせんの中心へ向けて、1マスで φ 倍ずつ寄りながら90度回ると、もとの絵とぴったり重なる → 継ぎ目なしでどこまでも続く。
+    小さな光の玉がらせんをたどり、新しいマスに入るたびに1音"""
+    PHI = (1 + 5 ** .5) / 2; steps, per = sp.get("steps", 20), sp.get("per", 2.2); intro, tail = .6, 1.5
+    total = intro + steps * per + tail
+    # 正方形とらせんを、外側から内側へ（各マスは前の φ 分の1、90度ずつ回る）
+    sqs, arcs = [], []; x0, y0, w, h = 0.0, 0.0, PHI, 1.0; d = 0
+    for k in range(steps + 14):
+        s_ = min(w, h)
+        if d == 0: sq = (x0, y0, s_); c = (x0 + s_, y0); a0 = 180; x0 += s_; w -= s_
+        elif d == 1: sq = (x0, y0 + h - s_, s_); c = (x0, y0 + h - s_); a0 = 90; h -= s_
+        elif d == 2: sq = (x0 + w - s_, y0, s_); c = (x0 + w - s_, y0 + s_); a0 = 0; w -= s_
+        else: sq = (x0, y0, s_); c = (x0 + s_, y0 + s_); a0 = 270; y0 += s_; h -= s_
+        sqs.append(sq); arcs.append((c, s_, a0)); d = (d + 1) % 4
+    # らせんの中心（極限点）
+    cx = sum(0 for _ in [0]); cxy = (sqs[-1][0] + sqs[-1][2] / 2, sqs[-1][1] + sqs[-1][2] / 2)
+    sim = Sim(sp, (-1.0, -1.0, 1.0, 1.0)); sim.title()
+    cols = [hsv((.08 + .11 * k) % 1) for k in range(len(sqs))]
+    for k in range(steps):
+        sim.note(intro + k * per, PENTA[(k * 2) % 11 + 2], .5, .5, 3.0, "pluck")
+        for q in range(1, 4): sim.note(intro + k * per + q * per / 4, PENTA[(k * 2 + [0, 2, 4, 1][q]) % 11 + 2], .22, .3 + .4 * (q % 2), 4.0, "pluck")
+    def xf(p, z, rot):   # 中心へ寄せ、z 倍して rot 回す
+        x, y = p[0] - cxy[0], p[1] - cxy[1]; c, s2 = math.cos(rot), math.sin(rot); return ((x * c - y * s2) * z, (x * s2 + y * c) * z)
+    for fi in range(int(total * FPS)):
+        t = fi / FPS; u = max(0, min(steps, (t - intro) / per)); z = sp.get("zoom0", .7) * PHI ** u; rot = math.radians(90) * u * sp.get("turn", 1)
+        live, dots = [], []
+        kmin = max(0, int(u) - 2)
+        for k in range(kmin, min(len(sqs), int(u) + 12)):
+            X, Y, S_ = sqs[k]; pts = [xf(p, z, rot) for p in [(X, Y), (X + S_, Y), (X + S_, Y + S_), (X, Y + S_), (X, Y)]]
+            if max(abs(c) for p in pts for c in p) > 6: continue
+            g = max(.0, min(1, 1.6 - .12 * (k - u)))
+            for a, b in zip(pts, pts[1:]): live.append((a, b, dim(cols[k], .22 * g), 12)); live.append((a, b, dim(cols[k], .8 * g), 3))
+            (c, r, a0) = arcs[k]; A = [xf((c[0] + r * math.cos(math.radians(a0 - 90 * j / 16)), c[1] + r * math.sin(math.radians(a0 - 90 * j / 16))), z, rot) for j in range(17)]
+            for a, b in zip(A, A[1:]): live.append((a, b, dim((255, 200, 90), .25 * g), 16))
+            for a, b in zip(A, A[1:]): live.append((a, b, dim((255, 236, 170), g), 5))
+        # 光の玉：いまのマスの四分円の上を進む
+        k = int(u); f_ = u - k; (c, r, a0) = arcs[k]; ang = math.radians(a0 - 90 * f_)
+        dots.append((xf((c[0] + r * math.cos(ang), c[1] + r * math.sin(ang)), z, rot), (255, 245, 210), 12))
+        sim.frame(t, live, dots, ("拡大 ", f"{PHI ** u:,.0f}倍" if PHI ** u >= 10 else f"{PHI ** u:.1f}倍"))
+    sim.finish(total)
+
+
+KINDS = {"pendswing": pendswing, "golden": golden, "piphase": piphase, "maurer": maurer, "harmono": harmono, "spiro": spiro, "star": star, "throw": throw, "tusi": tusi, "chain": chain, "basket": basket, "koch": koch, "cycloid": cycloid, "pendulums": pendulums, "lissajous": lissajous, "corner": corner, "sunflower": sunflower, "ulam": ulam, "parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2, "picount": picount}
 
 if __name__ == "__main__":
     sp = json.load(open(sys.argv[1], encoding="utf-8")); KINDS[sp["kind"]](sp); kit(sp)
