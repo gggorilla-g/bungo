@@ -46,9 +46,10 @@ def synth(sp, B):
     return out
 
 
-def load_audio(path, sr=SR):
-    """mp3/wav などを ffmpeg でモノラルの浮動小数に"""
-    r = subprocess.run(["ffmpeg", "-v", "error", "-i", path, "-ac", "1", "-ar", str(sr), "-f", "f32le", "-"], capture_output=True, check=True)
+def load_audio(path, sr=SR, lp=None):
+    """mp3/wav などを ffmpeg でモノラルの浮動小数に。lp: 高い音を落とす（サーというかすれを消す）"""
+    af = ["-af", f"lowpass=f={lp},lowpass=f={lp}"] if lp else []
+    r = subprocess.run(["ffmpeg", "-v", "error", "-i", path, *af, "-ac", "1", "-ar", str(sr), "-f", "f32le", "-"], capture_output=True, check=True)
     return np.frombuffer(r.stdout, np.float32).copy()
 
 
@@ -74,8 +75,8 @@ def main(path, mode=None, arg=None):
         t1 = tl - GAP + PAD1 + pg.get("tail", 0)
         if not pg["lines"]: t1 = t0 + pg.get("dur", 6.0)   # 声の入らないカット（雨雲だけ、など）
         pages.append((t0, t1, L)); t = t1 + pg.get("trans", TR)
-    total = pages[-1][1] + 2.0
-    stage = {"title": sp["title"], "pages": [], "title_t": [.3, TC] if TC else [0, 0], "title_card": sp.get("title_card", {}), "fov": sp.get("fov", 24)}
+    END = sp.get("end_sec", 6.0); total = pages[-1][1] + END   # 終わりの余韻：紙色に溶けて「おしまい」、オルゴールが静かに閉じる
+    stage = {"title": sp["title"], "end_t": pages[-1][1], "end_text": sp.get("end_text", "おしまい"), "pages": [], "title_t": [.3, TC] if TC else [0, 0], "title_card": sp.get("title_card", {}), "fov": sp.get("fov", 24)}
     U = lambda pi, u: pages[pi][0] + u * (pages[pi][1] - pages[pi][0])
     for pi, pg in enumerate(sp["pages"]):
         t0, t1, L = pages[pi]; bg = prep(pg["bg"], cut=False)
@@ -111,8 +112,8 @@ def main(path, mode=None, arg=None):
     if mode == "stills":
         subprocess.run(["node", "render.js", "--page", "ehon_stage.html", "--spec", rel, "stills", arg, os.path.abspath(f"{B}/stills")], cwd=KZ, check=True); return
     N = int(total * FPS); fr = os.path.abspath(f"{B}/frames")
-    if not os.environ.get("REUSE_FRAMES"): shutil.rmtree(fr, ignore_errors=True)
-    jobs = int(os.environ.get("JOBS", "2")); cut = [N * i // jobs for i in range(jobs + 1)]
+    if not os.environ.get("REUSE_FRAMES") and not os.environ.get("RENDER_FROM"): shutil.rmtree(fr, ignore_errors=True)
+    jobs = int(os.environ.get("JOBS", "2")); F0 = int(os.environ.get("RENDER_FROM", "0")); cut = [F0 + (N - F0) * i // jobs for i in range(jobs + 1)]
     if not os.environ.get("REUSE_FRAMES"):   # 絵はそのままで音だけ作り直すときは REUSE_FRAMES=1
         ps = [subprocess.Popen(["node", "render.js", "--page", "ehon_stage.html", "--spec", rel, "range", str(cut[i]), str(cut[i + 1]), fr], cwd=KZ) for i in range(jobs)]
         for p in ps: p.wait()
@@ -125,11 +126,11 @@ def main(path, mode=None, arg=None):
         if 0 <= k < n: buf[k:k + len(a)] += a[:n - k] * g
     for (t0, t1, L) in pages:
         for l in L: put(voice, load_audio(l["wav"]), l["t"])
-    for i, (t0, t1, L) in enumerate(pages[:-1]): put(fx, swish(.9, i), t1 + .1, .8)
+    # ページ替えのかすれ音（サー）は耳障りなので鳴らさない（2026-11-20 オーナー指摘）
     sfxlib = sp.get("sfx_files", {})
     for pi, pg in enumerate(sp["pages"]):
         for s in pg.get("sfx", []):
-            a = load_audio(sfxlib[s["name"]]); st = int(s.get("from", 0) * SR); du = int(s.get("dur", 4) * SR); a = a[st:st + du]
+            a = load_audio(sfxlib[s["name"]], lp=s.get("lp", sp.get("sfx_lp", 3200))); st = int(s.get("from", 0) * SR); du = int(s.get("dur", 4) * SR); a = a[st:st + du]
             fade = int(min(.3, s.get("dur", 4) / 5) * SR); a[:fade] *= np.linspace(0, 1, fade); a[-fade:] *= np.linspace(1, 0, fade)
             put(fx, a, U(pi, s["at"]), s.get("gain", .5))
         for it in pg["items"]:   # 跳ねる着地ごとに小さな木琴
@@ -138,7 +139,12 @@ def main(path, mode=None, arg=None):
                     for j in range(1, a["n"] + 1):
                         tt = U(pi, a["t0"]) + (U(pi, a["t1"]) - U(pi, a["t0"])) * j / a["n"]; put(fx, bell(mtof([67, 69, 72, 74, 76][j % 5]), 1.2), tt, .07)
             if "show" in it: [put(fx, bell(mtof(m), 1.5), U(pi, it["show"]) + q * .08, .08) for q, m in enumerate([84, 88, 91])]
-    mb = musicbox(total, sp.get("music_seed", 5))[:n] * sp.get("music_gain", .22); fx *= sp.get("sfx_gain", .7)
+    mb = musicbox(pages[-1][1] + 1.0, sp.get("music_seed", 5))
+    mb = np.pad(mb, (0, max(0, n - len(mb))))[:n]
+    te = pages[-1][1]; k0, k1 = int(te * SR), int((te + 1.2) * SR); env_o = np.ones(n); env_o[k0:k1] = np.linspace(1, 0, k1 - k0); env_o[k1:] = 0; mb *= env_o
+    for q, m in enumerate([72, 76, 79, 84]): put(mb, bell(mtof(m), 3.5) * .5, te + .9 + q * .32)   # 終わりの和音（ゆっくり上がる）
+    put(mb, bell(mtof(60), 4.5) * .35, te + .9)
+    mb = mb * sp.get("music_gain", .22); fx *= sp.get("sfx_gain", .7)
     env = np.convolve((np.abs(voice) > .01).astype(float), np.ones(SR // 4) / (SR // 4), "same"); mb *= 1 - .65 * np.clip(env * 3, 0, 1); fx *= 1 - .45 * np.clip(env * 3, 0, 1)
     voice = np.tanh(voice * 2.2) / np.tanh(2.2)   # 声をそろえて前に出す（軽いコンプ）
     mix = voice * 1.0 + mb + fx; mix = mix / (np.abs(mix).max() + 1e-9) * .9

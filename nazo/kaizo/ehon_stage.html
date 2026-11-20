@@ -63,6 +63,7 @@ const textG=el('g',{});
 const fade=el('rect',{x:0,y:0,width:W,height:H,fill:'#f6f1e6',opacity:0});
 const flash=el('rect',{x:0,y:0,width:W,height:H,fill:'#fff',opacity:0});
 const titleG=el('g',{opacity:0});
+const endT=el('text',{x:W/2,y:H*.52,'text-anchor':'middle','font-size':40,'font-weight':900,fill:'#3b2a22','letter-spacing':6,opacity:0},SPEC.end_text||'おしまい');
 let pageText=-1,textEls=[];
 function buildText(P){
   while(textG.firstChild)textG.removeChild(textG.firstChild);textEls=[];
@@ -108,6 +109,8 @@ window.renderAt=function(t){
   const P=SPEC.pages[cur],nxt=SPEC.pages[cur+1];
   let f=0;if(nxt&&t>P.t1)f=ss(P.t1,nxt.t0,t);if(t<P.t0+.6&&cur>0)f=Math.max(f,1-ss(P.t0,P.t0+.6,t));
   const tc=SPEC.title_t||[0,0];if(cur===0&&tc[1]>0){f=Math.max(f,t<tc[1]?1:1-ss(tc[1],tc[1]+.8,t))}
+  if(SPEC.end_t&&t>SPEC.end_t){f=Math.max(f,ss(SPEC.end_t,SPEC.end_t+2.2,t))}
+  endT.setAttribute('opacity',(SPEC.end_t?ss(SPEC.end_t+1.6,SPEC.end_t+2.8,t):0).toFixed(3));
   fade.setAttribute('opacity',f.toFixed(3));titleG.setAttribute('opacity',(cur===0&&tc[1]>0?ss(tc[0],tc[0]+.6,t)*(1-ss(tc[1]-.5,tc[1],t)):0).toFixed(3));
   // 背景
   const bh=P.bg_h||5.2,ba=P.bg_aspect||1.333;backMat.map=tex(P.bg);backMat.needsUpdate=true;backdrop.scale.set(bh*ba,bh,1);backdrop.position.set(P.bg_x||0,bh/2+(P.bg_y!=null?P.bg_y:-1.6),BACKZ);
