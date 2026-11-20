@@ -136,6 +136,15 @@ class Sim:
             key = (m, round(dec, 1), kind)
             if key not in cache:
                 f = mtof(m); tt = np.arange(int(SR * min(2.0, 7 / dec))) / SR
+                if kind == "pluck":   # マリンバとウクレレの間：弦をはじく合成（カープラス・ストロング法）に、短い木の響き
+                    N = max(2, int(round(SR / f))); rng = np.random.default_rng(int(m)); buf = rng.uniform(-1, 1, N)
+                    buf = np.convolve(buf, np.ones(4) / 4, "same")   # はじきを柔らかく（爪でなく指）
+                    out = np.zeros(len(tt)); ln = .4985
+                    for i in range(len(tt)):
+                        v = buf[i % N]; out[i] = v; buf[i % N] = ln * (v + buf[(i + 1) % N])
+                    wood = np.sin(2 * np.pi * f * tt) * np.exp(-tt * 9) + .35 * np.sin(2 * np.pi * f * 4 * tt) * np.exp(-tt * 30)
+                    s = .8 * out / (np.abs(out).max() + 1e-9) + .55 * wood
+                    cache[key] = s * np.exp(-tt * dec * .5) * np.minimum(1, tt / .002) * (f / 523.25) ** -.25; return cache[key]
                 if kind == "bell": s = np.sin(2 * np.pi * f * tt) + .4 * np.sin(2 * np.pi * f * 2.76 * tt) * np.exp(-tt * 6) + .2 * np.sin(2 * np.pi * f * 5.4 * tt) * np.exp(-tt * 10)
                 else: s = np.sin(2 * np.pi * f * tt) + .28 * np.sin(2 * np.pi * f * 4 * tt) * np.exp(-tt * 20) + .1 * np.sin(2 * np.pi * f * 10 * tt) * np.exp(-tt * 45)
                 cache[key] = s * np.exp(-tt * dec) * np.minimum(1, tt / .003) * (f / 523.25) ** -.25   # 高い音ほど少し小さく
