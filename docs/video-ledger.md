@@ -43,6 +43,7 @@
 - 11/17 23:2x JST 公開（予約 11/18 19:00 から前倒し） dJhA4qdigeU 太陽系の星とベテルギウスを大きさ順に並べてみた【3D大きさ比べ】（planets_long_ja、3:06、サムネ thumb_puzzle 5重ぶち）
 
 - 2026-11-20 オーナー指示：ドライブは続けてよい。それとは別に、3Dの雑学（戦争の戦術・歴史）も上げる
+- 2026-11-21 公開：battle_alesia_ja（アレシアの2重の壁）、IeLLGVQ0tT4 battle_thermo_ja（テルモピュライ）、UxRT2T2EFjg engine_rotary_ja（ロータリーエンジンのしくみ、scene_engine）
 - 2026-11-20 公開：f6n_gS027wM 兵は半分なのに8万人のローマ軍をぐるりと囲んだ作戦（カンナエの戦い。scene_battle：箱庭の戦場で隊形を動かす3DCG、声 ずんだもん、49秒、API で即時公開）
 
 ## 妄想科学 ずんだもんの妄想科学（UCaKNAE4ONm5n2u3SgDjQ3Sw）
