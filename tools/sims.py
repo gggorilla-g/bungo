@@ -1111,6 +1111,12 @@ def rhythm(sp):
             for i, (r_, pos, dd) in enumerate(notes):
                 tt = t0 + lead + (r_ * beats + pos) * spb + k * spb
                 sim.note(tt, PENTA[(i * 3 + r_ * 2 + k * 4) % 12 + 3] + (12 if k else 0), .42 if not k else .3, .35 + .3 * k, 3.6, "glass")
+    if sp.get("beat", True):   # 裏でリズム：拍にやわらかい太鼓、8分の裏にごく小さいシャカ
+        for t0, spb, nb, notes, lead in layout:
+            nbt = rows * beats + (1 if nb > 1 else 0)
+            for b in range(-2, nbt):
+                tt = t0 + lead + b * spb
+                sim.note(tt, 36, .22 if b % 2 == 0 else .16, .5, 6, "kick"); sim.note(tt + spb / 2, 96, .05, .62, 6, "hat")
     for fi in range(int(total * FPS)):
         tf = fi / FPS
         pi_ = max([i for i, L in enumerate(layout) if tf >= L[0] - .01] or [0]); t0, spb, nb, notes, lead = layout[pi_]
