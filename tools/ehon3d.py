@@ -37,7 +37,7 @@ def synth(sp, B):
         for li, text in enumerate(pg["lines"]):
             p = f"{B}/v{pi:02d}_{li:02d}.wav"
             if not os.path.exists(p):
-                say = re.sub(r"[ 　]", "", text)
+                say = re.sub(r"[ 　「」『』…]", "", text)
                 for k, r in sp.get("yomi", {}).items(): say = say.replace(k, r)
                 q = s.create_audio_query(say, v["style"]); q.speed_scale = v.get("speed", .92); q.pre_phoneme_length = .15; q.post_phoneme_length = .4
                 q.intonation_scale = v.get("into", 1.1); q.volume_scale = v.get("vol", 1.5)
