@@ -104,7 +104,7 @@ def main(board, assets, sid, title=None):
           "sfx_files": {"rain": "assets/sfx/yt_light_rain.mp3", "thunder": "assets/sfx_pd/thunder.ogg", "drip": "assets/sfx_pd/drip.ogg", "breeze": "assets/sfx_pd/breeze.ogg"},
           "world": {"pino": ["head_w", .44], "lulu": ["shell_d", .55], "leaf": ["len", 1.1], "drop": ["h", .09], "flower": ["w", .9]},
           "scale_alias": {"pino_lulu_leaf_smile": "pino_lulu_leaf_sit", "mouse_stop": "mouse_walk"},
-          "title_sec": 5.5, "cover": "cover", "logo_rel": "ehon/brand/logo_full.png", "output": {"width": 1920, "height": 1080}, "music_gain": .2, "pages": pages}
+          "title_sec": 5.5, "cover": "cover", "logo_rel": "ehon/brand/logo_sil_light.png", "output": {"width": 1920, "height": 1080}, "music_gain": .2, "pages": pages}
     json.dump(sp, open(f"nazo/ehon/{sid}.json", "w"), ensure_ascii=False, indent=1); print("ページ", len(pages), "ビート", len(B))
 
 

@@ -35,6 +35,11 @@ def synth(sp, B):
     s = Synthesizer(ort, OpenJtalk(f"{A}/open_jtalk_dic_utf_8-1.11"))
     with VoiceModelFile.open(f"{A}/{v['vvm']}") as m: s.load_voice_model(m)
     out = {}
+    p = f"{B}/title.wav"   # 題名の読み上げ（表紙で）
+    if not os.path.exists(p):
+        q = s.create_audio_query(re.sub(r"[ 　]", "", sp["title"]), v["style"]); q.speed_scale = .82; q.pre_phoneme_length = .2; q.post_phoneme_length = .5; q.volume_scale = v.get("vol", 1.5)
+        open(p, "wb").write(s.synthesis(q, v["style"]))
+    out["title"] = p
     for pi, pg in enumerate(sp["pages"]):
         for li, text in enumerate(pg["lines"]):
             p = f"{B}/v{pi:02d}_{li:02d}.wav"
@@ -168,6 +173,7 @@ def main(path, mode=None, arg=None):
     def put(buf, a, t, g=1.0):
         k = int(t * SR)
         if 0 <= k < n: buf[k:k + len(a)] += a[:n - k] * g
+    if TC: put(voice, load_audio(vo["title"]), 1.2)
     for (t0, t1, L) in pages:
         for l in L: put(voice, load_audio(l["wav"]), l["t"])
     # ページ替えのかすれ音（サー）は耳障りなので鳴らさない（2026-11-20 オーナー指摘）

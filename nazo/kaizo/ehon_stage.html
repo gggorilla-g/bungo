@@ -114,7 +114,7 @@ let coverImg=null;
  if(SPEC.cover){coverImg=el('image',{href:SPEC.cover,x:0,y:0,width:W,height:H,preserveAspectRatio:'xMidYMid slice'},null,titleG)}
  const glow=el('text',{x:W/2,y:H*(T.y||.2),'text-anchor':'middle','font-size':fs,'font-weight':900,fill:'#fffaf0',stroke:'#fffaf0','stroke-width':fs*.42,'stroke-linejoin':'round','letter-spacing':fs*.06},SPEC.title,titleG);glow.style.filter='blur(7px)';
  el('text',{x:W/2,y:H*(T.y||.2),'text-anchor':'middle','font-size':fs,'font-weight':900,fill:T.color||'#4e3024',stroke:'#fffbf2','stroke-width':fs*.1,'paint-order':'stroke','letter-spacing':fs*.06},SPEC.title,titleG);
- if(SPEC.logo)el('image',{href:SPEC.logo,x:18,y:14,height:H*.14,width:H*.42,preserveAspectRatio:'xMinYMin meet'},null,titleG);
+ if(SPEC.logo)el('image',{href:SPEC.logo,x:20,y:H*.86,height:H*.1,width:H*.32,preserveAspectRatio:'xMinYMax meet',opacity:.92},null,titleG);
  else{el('rect',{x:20,y:16,width:150,height:34,rx:17,fill:'#7a4a34'},null,titleG);el('text',{x:95,y:39,'text-anchor':'middle','font-size':17,'font-weight':900,fill:'#fffaf0'},SPEC.label||'ほほほブックス',titleG)}
 }
 
