@@ -13,15 +13,10 @@ basket1_ja MOSO ja
 cycloid1_ja MOSO ja
 plates5_ja MOSO ja
 cardioid4_ja MOSO ja
-cardioid4_en KAIDAN en
 cardioid5_ja MOSO ja
-cardioid5_en KAIDAN en
 liss45_ja MOSO ja
-liss45_en KAIDAN en
 liss56_ja MOSO ja
-liss56_en KAIDAN en
 chain1_ja MOSO ja
-chain1_en KAIDAN en
 tusi1_ja MOSO ja
 tusi1_en KAIDAN en
 throw1_ja MOSO ja
@@ -29,4 +24,3 @@ throw1_en KAIDAN en
 star73_ja MOSO ja
 star73_en KAIDAN en
 star94_ja MOSO ja
-star94_en KAIDAN en
