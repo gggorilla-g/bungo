@@ -146,8 +146,8 @@ class Sim:
                     s = .8 * out / (np.abs(out).max() + 1e-9) + .55 * wood
                     cache[key] = s * np.exp(-tt * dec * .5) * np.minimum(1, tt / .002) * (f / 523.25) ** -.25; return cache[key]
                 if kind == "glass":   # ガラスに当たった「カラン」：整数倍からずれた部分音＋短いはじき
-                    s = sum(g_ * np.sin(2 * np.pi * f * r_ * tt + r_) * np.exp(-tt * dec * k_) for r_, g_, k_ in ((1, 1, .5), (2.32, .55, 1.1), (4.25, .3, 2.0), (6.63, .16, 3.4), (9.38, .08, 5)))
-                    s = s + np.random.default_rng(int(m)).normal(0, 1, len(tt)) * np.exp(-tt * 900) * .25
+                    s = sum(g_ * np.sin(2 * np.pi * f * r_ * tt + r_) * np.exp(-tt * dec * k_) for r_, g_, k_ in ((1, 1, .5), (2.0, .32, 1.0), (3.01, .14, 1.8), (4.25, .07, 3.0)))
+                    s = s + np.random.default_rng(int(m)).normal(0, 1, len(tt)) * np.exp(-tt * 1400) * .08
                     cache[key] = s * np.minimum(1, tt / .0015) * (f / 523.25) ** -.3; return cache[key]
                 if kind == "bell": s = np.sin(2 * np.pi * f * tt) + .4 * np.sin(2 * np.pi * f * 2.76 * tt) * np.exp(-tt * 6) + .2 * np.sin(2 * np.pi * f * 5.4 * tt) * np.exp(-tt * 10)
                 else: s = np.sin(2 * np.pi * f * tt) + .28 * np.sin(2 * np.pi * f * 4 * tt) * np.exp(-tt * 20) + .1 * np.sin(2 * np.pi * f * 10 * tt) * np.exp(-tt * 45)
@@ -167,7 +167,7 @@ class Sim:
         if self.stills is not None: print("確認用の絵:", self.stills); return
         self.proc.stdin.close(); self.proc.wait(); wv = f"build_ballsim/{self.id}.wav"; self._audio(total, wv)
         subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", self.raw, "-i", wv, "-map", "0:v", "-map", "1:a", "-c:v", "copy", "-c:a", "aac", "-b:a", "192k",
-                        "-af", "loudnorm=I=-14:TP=-1.5:LRA=11", "-shortest", "-movflags", "+faststart", f"output/{self.id}.mp4"], check=True)
+                        "-af", "loudnorm=I=-19:TP=-3:LRA=11", "-shortest", "-movflags", "+faststart", f"output/{self.id}.mp4"], check=True)
         print(f"書き出し: output/{self.id}.mp4  {total:.1f}秒  音 {len(self.notes)}")
 
 

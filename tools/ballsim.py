@@ -217,7 +217,7 @@ def main(spec_path):
     raw = f"build_ballsim/{sid}_v.mp4"; wv = f"build_ballsim/{sid}.wav"
     render(sp, frames, hue, gold, raw); audio(events, total, wv)
     subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", raw, "-i", wv, "-map", "0:v", "-map", "1:a", "-c:v", "copy", "-c:a", "aac", "-b:a", "192k",
-                    "-af", "loudnorm=I=-14:TP=-1.5:LRA=11", "-shortest", "-movflags", "+faststart", f"output/{sid}.mp4"], check=True)
+                    "-af", "loudnorm=I=-19:TP=-3:LRA=11", "-shortest", "-movflags", "+faststart", f"output/{sid}.mp4"], check=True)
     print("書き出し:", f"output/{sid}.mp4")
 
 

@@ -150,7 +150,7 @@ def main(spec_path):
     with wave.open(wv, "wb") as w_:
         w_.setnchannels(2); w_.setsampwidth(2); w_.setframerate(SR); w_.writeframes((st * 32767).astype(np.int16).tobytes())
     subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", out_raw, "-i", wv, "-map", "0:v", "-map", "1:a", "-c:v", "copy", "-c:a", "aac", "-b:a", "192k",
-                    "-af", "loudnorm=I=-14:TP=-1.5:LRA=11", "-shortest", "-movflags", "+faststart", f"output/{sid}.mp4"], check=True)
+                    "-af", "loudnorm=I=-19:TP=-3:LRA=11", "-shortest", "-movflags", "+faststart", f"output/{sid}.mp4"], check=True)
     print(f"書き出し: output/{sid}.mp4  {total:.1f}秒  勝ち {lanes[winner]['name'] if winner is not None else 'なし'}  ゴール {tf and round(tf, 2)}")
     for li in range(len(lanes)): print(" ", lanes[li]["name"], dmg(li, total), "割れた枚数", int(np.searchsorted(CUMs[li], dmg(li, total), side="right")), "板", PLs[li])
 

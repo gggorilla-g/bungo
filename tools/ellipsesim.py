@@ -26,8 +26,8 @@ def audio_perball(events, total, out_wav):
         if key not in cache:
             f = mtof(m); t = np.arange(int(SR * min(2.2, 8 / dec))) / SR
             if GLASS:   # ガラスに当たった「カラン」：倍音が整数倍からずれた鈴のような部分音＋短いはじき
-                s = sum(g * np.sin(2 * np.pi * f * r * t + r) * np.exp(-t * dec * k) for r, g, k in ((1, 1, .55), (2.32, .55, 1.1), (4.25, .3, 2.0), (6.63, .16, 3.4), (9.38, .08, 5)))
-                cl = np.random.default_rng(m).normal(0, 1, len(t)) * np.exp(-t * 900) * .25
+                s = sum(g * np.sin(2 * np.pi * f * r * t + r) * np.exp(-t * dec * k) for r, g, k in ((1, 1, .55), (2.0, .32, 1.0), (3.01, .14, 1.8), (4.25, .07, 3.0)))
+                cl = np.random.default_rng(m).normal(0, 1, len(t)) * np.exp(-t * 1400) * .08
                 cache[key] = (s + cl) * np.minimum(1, t / .0015)
             else:
                 s = np.sin(2 * np.pi * f * t) + .28 * np.sin(2 * np.pi * f * 4 * t) * np.exp(-t * 20) + .1 * np.sin(2 * np.pi * f * 10 * t) * np.exp(-t * 45)
@@ -216,7 +216,7 @@ def main(spec_path):
     if sp.get("perball", True): audio_perball(events, total, wv)
     else: audio(events, total, wv)
     subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", out_raw, "-i", wv, "-map", "0:v", "-map", "1:a", "-c:v", "copy", "-c:a", "aac", "-b:a", "192k",
-                    "-af", "loudnorm=I=-14:TP=-1.5:LRA=11", "-shortest", "-movflags", "+faststart", f"output/{sid}.mp4"], check=True)
+                    "-af", "loudnorm=I=-19:TP=-3:LRA=11", "-shortest", "-movflags", "+faststart", f"output/{sid}.mp4"], check=True)
     print(f"書き出し: output/{sid}.mp4  {total:.1f}秒  最後のボール {rounds[-1]['n']}")
 
 
