@@ -1,0 +1,15 @@
+【タイトル】
+Even in a Thin Ellipse, Do They ALL Meet at the Other Point? #shorts
+
+【説明】
+Inside a thin ellipse, balls are fired in every direction from one focus. After bouncing, every ball passes through the other focus at the same moment, no matter how stretched the ellipse is. Each time they come back, the ball count grows 1.5x (4 to 72).
+
+How it works:
+- An ellipse reflects any line from one focus through the other focus, thin or round.
+- Focus to wall to focus is the same length in every direction, so at the same speed they all arrive together.
+- Every wall hit plays one note.
+
+Simulation, sound and animation: original (Python).
+
+【タグ】
+satisfying, math, ellipse, physics simulation, bouncing balls, satisfying sounds, shorts
