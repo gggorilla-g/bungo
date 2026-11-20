@@ -1,0 +1,19 @@
+{
+ "id": "ellipse2_en",
+ "title": [
+  "Even in a thin ellipse",
+  "Do they ALL meet at the other point?"
+ ],
+ "count_label": "Balls: ",
+ "a": 1.0,
+ "b": 0.55,
+ "v": 0.9091,
+ "n0": 4,
+ "doubles": 7,
+ "seed": 9,
+ "hold": 0.067,
+ "perball": true,
+ "growth": 1.5,
+ "ball_r": 0.017,
+ "end_label": "Every path is the same length"
+}

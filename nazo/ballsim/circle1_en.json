@@ -1,0 +1,19 @@
+{
+ "id": "circle1_en",
+ "title": [
+  "Fire balls from the center",
+  "Do they ALL come back?"
+ ],
+ "count_label": "Balls: ",
+ "a": 1.0,
+ "b": 1.0,
+ "v": 0.9091,
+ "n0": 4,
+ "doubles": 7,
+ "seed": 4,
+ "hold": 0.067,
+ "perball": true,
+ "growth": 1.5,
+ "ball_r": 0.017,
+ "end_label": "Every path is the same length"
+}

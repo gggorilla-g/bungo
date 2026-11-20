@@ -1,0 +1,15 @@
+【タイトル】
+Fire Balls From the Center. Do They ALL Come Back? #shorts
+
+【説明】
+Balls are fired in every direction from the center of a circle at the same speed. After bouncing, every ball returns to the center at the same moment. Each time they come back, the ball count grows 1.5x (4 to 72).
+
+How it works:
+- Every point on the wall is one radius from the center, so center to wall to center is always two radii.
+- Each ball hits the wall head-on and comes straight back.
+- Every wall hit plays one note.
+
+Simulation, sound and animation: original (Python).
+
+【タグ】
+satisfying, math, circle, physics simulation, bouncing balls, satisfying sounds, shorts
