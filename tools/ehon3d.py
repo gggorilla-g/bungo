@@ -28,7 +28,7 @@ def paper_cut(src, dst, maxh=1100, border=14):
 
 def synth(sp, B):
     from voicevox_core.blocking import Onnxruntime, OpenJtalk, Synthesizer, VoiceModelFile
-    A = "vv_assets"; v = sp.get("voice", {"vvm": "10.vvm", "style": 42, "speed": .92})
+    A = "vv_assets"; v = sp.get("voice", {"vvm": "10.vvm", "style": 42, "speed": .86})
     ort = Onnxruntime.load_once(filename=f"{A}/voicevox_onnxruntime-linux-x64-1.17.3/lib/libvoicevox_onnxruntime.so.1.17.3")
     s = Synthesizer(ort, OpenJtalk(f"{A}/open_jtalk_dic_utf_8-1.11"))
     with VoiceModelFile.open(f"{A}/{v['vvm']}") as m: s.load_voice_model(m)
@@ -40,7 +40,7 @@ def synth(sp, B):
                 say = re.sub(r"[ 　]", "", text)
                 for k, r in sp.get("yomi", {}).items(): say = say.replace(k, r)
                 q = s.create_audio_query(say, v["style"]); q.speed_scale = v.get("speed", .92); q.pre_phoneme_length = .15; q.post_phoneme_length = .4
-                q.intonation_scale = v.get("into", 1.1)
+                q.intonation_scale = v.get("into", 1.1); q.volume_scale = v.get("vol", 1.5)
                 open(p, "wb").write(s.synthesis(q, v["style"]))
             with wave.open(p) as w: out[(pi, li)] = (p, w.getnframes() / w.getframerate())
     return out
@@ -136,9 +136,10 @@ def main(path, mode=None, arg=None):
                     for j in range(1, a["n"] + 1):
                         tt = U(pi, a["t0"]) + (U(pi, a["t1"]) - U(pi, a["t0"])) * j / a["n"]; put(fx, bell(mtof([67, 69, 72, 74, 76][j % 5]), 1.2), tt, .07)
             if "show" in it: [put(fx, bell(mtof(m), 1.5), U(pi, it["show"]) + q * .08, .08) for q, m in enumerate([84, 88, 91])]
-    mb = musicbox(total, sp.get("music_seed", 5))[:n] * sp.get("music_gain", .42)
-    env = np.convolve((np.abs(voice) > .01).astype(float), np.ones(SR // 4) / (SR // 4), "same"); mb *= 1 - .5 * np.clip(env * 3, 0, 1)
-    mix = voice + mb + fx; mix = mix / (np.abs(mix).max() + 1e-9) * .9
+    mb = musicbox(total, sp.get("music_seed", 5))[:n] * sp.get("music_gain", .22); fx *= sp.get("sfx_gain", .7)
+    env = np.convolve((np.abs(voice) > .01).astype(float), np.ones(SR // 4) / (SR // 4), "same"); mb *= 1 - .65 * np.clip(env * 3, 0, 1); fx *= 1 - .45 * np.clip(env * 3, 0, 1)
+    voice = np.tanh(voice * 2.2) / np.tanh(2.2)   # 声をそろえて前に出す（軽いコンプ）
+    mix = voice * 1.0 + mb + fx; mix = mix / (np.abs(mix).max() + 1e-9) * .9
     wv = f"{B}/mix.wav"
     with wave.open(wv, "wb") as w: w.setnchannels(1); w.setsampwidth(2); w.setframerate(SR); w.writeframes((mix * 32767).astype(np.int16).tobytes())
     os.makedirs("output", exist_ok=True)
