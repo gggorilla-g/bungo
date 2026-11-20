@@ -678,7 +678,152 @@ def star(sp):
     sim.finish(total)
 
 
-KINDS = {"star": star, "throw": throw, "tusi": tusi, "chain": chain, "basket": basket, "koch": koch, "cycloid": cycloid, "pendulums": pendulums, "lissajous": lissajous, "corner": corner, "sunflower": sunflower, "ulam": ulam, "parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2, "picount": picount}
+def spiro(sp):
+    """スピログラフ。半径 R の輪の内側を、半径 r の歯車がすべらずに回る。歯車の中心から d の穴にペン。
+    位置 = ((R−r)cos t + d cos(kt+φ), (R−r)sin t − d sin(kt+φ))、k=(R−r)/r。t が 2π×r/gcd(R,r) 進むと閉じ、花びらは R/gcd 枚。
+    ペンは歯車が1周するたびに増え、穴の向き φ を少しずつずらす。どのペンも花びらの先（いちばん外）に来るたびに1音"""
+    Ri, ri = sp.get("R", 96), sp.get("r", 60); g_ = math.gcd(Ri, ri); laps = ri // g_; pet = Ri // g_
+    out = sp.get("outer", False); R, r = 1.0, ri / Ri; d = sp.get("d", .8) * r; C = R + r if out else R - r; kk = C / r; sc = 1 / (C + d) if out else 1.0; Tl = sp.get("lap", 2.2); ms = sp.get("ms", [1, 2, 3, 5, 8]); M = ms[-1]; intro, tail = .3, sp.get("tail", 2.6)
+    sprd = sp.get("spread", .5); offs = sorted(range(M), key=lambda i: int(format(i, f"0{max(1, (M - 1).bit_length())}b")[::-1], 2))
+    sim = Sim(sp, (-1.1, -1.1, 1.1, 1.1)); sim.neon([(sc * math.cos(a), sc * math.sin(a)) for a in np.linspace(0, 2 * np.pi, 241)], closed=True, width=6); sim.title()
+    W_ = 2 * np.pi / Tl; spawn = {}
+    for j, m in enumerate(ms):
+        for i in offs[:m]: spawn.setdefault(i, intro + j * Tl)
+    T = (len(ms) - 1 + laps) * Tl; h0, hw = sp.get("hue", .55), sp.get("hue_w", .45); col = {i: hsv((h0 + hw * i / M) % 1, .65, 1) for i in range(M)}
+    ph = lambda i: 2 * np.pi * (i / M) * sprd / pet
+    def P(i, t):
+        u = W_ * t
+        if out: return (sc * (C * math.cos(u) - d * math.cos(kk * u + ph(i))), sc * (C * math.sin(u) - d * math.sin(kk * u + ph(i))))
+        return (C * math.cos(u) + d * math.cos(kk * u + ph(i)), C * math.sin(u) - d * math.sin(kk * u + ph(i)))
+    end = {i: t0 + laps * Tl for i, t0 in spawn.items()}
+    for i, t0 in spawn.items():   # 花びらの先：cos((1+k)u+φ)=1 → |p| が最大
+        n = 0
+        while True:
+            u = ((2 * n + 1) * np.pi - ph(i)) / (kk - 1) if out else (2 * np.pi * n - ph(i)) / (1 + kk); n += 1
+            if u < 1e-9: continue
+            tt = t0 + u / W_
+            if tt > end[i] + 1e-6: break
+            p = P(i, u / W_); a = (math.atan2(p[1], p[0]) % (2 * np.pi)) / (2 * np.pi); sim.note(tt, PENTA[int(a * 15 + .5)], .36, .5 + .4 * p[0], 5.0)
+    sim.chord(intro + T, [60, 67, 72, 76]); total = intro + T + tail; last = {}
+    for fi in range(int(total * FPS)):
+        tg = fi / FPS; segs = []; balls = []
+        for i, t0 in spawn.items():
+            if tg < t0: continue
+            te = min(tg, end[i]) - t0; a0 = last.get(i, 0.0)
+            if te > a0:
+                nstep = max(1, int((te - a0) * 60)); us = np.linspace(a0, te, nstep + 1)
+                for x0, x1 in zip(us[:-1], us[1:]): segs.append((P(i, x0), P(i, x1), dim(col[i], .7)))
+                last[i] = te
+            if tg <= end[i]: balls.append((P(i, te), (255, 255, 255), 6))
+        sim.commit(segs, width=2.0)
+        live = []
+        if tg <= intro + T:
+            uu = W_ * max(0, tg - intro); c = (sc * C * math.cos(uu), sc * C * math.sin(uu)); rr = sc * r
+            cs = np.linspace(0, 2 * np.pi, 61); live = [((c[0] + rr * math.cos(b0), c[1] + rr * math.sin(b0)), (c[0] + rr * math.cos(b1), c[1] + rr * math.sin(b1)), (70, 95, 130), 2) for b0, b1 in zip(cs[:-1], cs[1:])]
+        n = sum(1 for t0 in spawn.values() if tg >= t0)
+        sim.frame(tg, live, balls, (sp.get("count_label", "ペンの数 "), str(n)))
+    sim.finish(total)
+
+
+def maurer(sp):
+    """モーラーのバラ。バラ曲線 r=sin(nθ) の上の点を、角度 d° ずつ進めて順に直線で結ぶ。
+    点の数は 360/gcd(360,d) 個で、そこで最初の点に戻って閉じる。ボールが1本ずつ線を引き、点に着くたびに1音（中心から遠いほど高い）"""
+    n, dd = sp.get("n", 6), sp.get("d", 58); K = 360 // math.gcd(360, dd); ts = sp.get("seg", 20.0 / K); intro, tail = .3, sp.get("tail", 2.8)
+    sim = Sim(sp, (-1.1, -1.1, 1.1, 1.1)); sim.title()
+    rose = lambda th: (math.sin(n * th) * math.cos(th), math.sin(n * th) * math.sin(th))
+    sim.thin([rose(t) for t in np.linspace(0, 2 * np.pi, 1441)], color=(70, 40, 90), width=2)
+    pts = [rose(math.radians(k * dd)) for k in range(K + 1)]; T = K * ts; h0, hw = sp.get("hue", .5), sp.get("hue_w", .5)
+    for k in range(sp.get("note_every", 2), K + 1, sp.get("note_every", 2)):   # 線が多いので2本ごとに1音（金星と同じ扱い）
+        p = pts[k]; rad = math.hypot(*p); sim.note(intro + k * ts, PENTA[int(rad * 15 + .5)], .3, .5 + .4 * p[0], 6.5)
+    sim.chord(intro + T, [60, 67, 72, 76]); total = intro + T + tail; done = 0
+    for fi in range(int(total * FPS)):
+        t = fi / FPS; u = min(K, max(0, t - intro) / ts); k1 = int(u); segs = []
+        while done < k1: segs.append((pts[done], pts[done + 1], hsv((h0 + hw * done / K) % 1, .7, sp.get("v", .85)))); done += 1
+        sim.commit(segs, width=1.8); live = []; b = pts[min(k1, K)]
+        if k1 < K: f = u - k1; b = lerp(pts[k1], pts[k1 + 1], f); live = [(pts[k1], b, hsv((h0 + hw * k1 / K) % 1, .7, .85), 1.8)]
+        sim.frame(t, live, [(b, (255, 255, 255), 7)], (sp.get("count_label", "線の数 "), str(min(K, k1))))
+    sim.finish(total)
+
+
+def harmono(sp):
+    """ハーモノグラフ。横と縦に、少しずつ揺れが小さくなる振り子をつなぎ、ペンを動かす。
+    x=e^(−au)(A sin(2π f1 u)+B sin(2π f2 u+p1))、y=e^(−au)(A sin(2π f3 u+p2)+B sin(2π f4 u))。周期が少しずれているので、形がゆっくり回りながら内側へ巻いていく。
+    横の振れがいちばん外で折り返すたびに1音（揺れが小さくなるほど音も小さく）"""
+    f1, f2, f3, f4 = sp.get("f", [2.0, 3.0, 2.01, 3.005]); cyc = sp.get("cycles", 26); a = sp.get("damp", 1.5); A, B = sp.get("amp", [.6, .4]); p1, p2 = sp.get("ph", [1.0, .5])
+    T = sp.get("T", 24.0); intro, tail = .3, sp.get("tail", 2.6); h0, hw = sp.get("hue", .5), sp.get("hue_w", .6)
+    sim = Sim(sp, (-1.1, -1.1, 1.1, 1.1)); sim.title()
+    def P(u):
+        w = 2 * np.pi * cyc * u; e = math.exp(-a * u); return (e * (A * math.sin(f1 * w) + B * math.sin(f2 * w + p1)), e * (A * math.sin(f3 * w + p2) + B * math.sin(f4 * w)))
+    steps = 9000; prev = P(0); pp = prev
+    for k in range(1, steps + 1):
+        u = k / steps; p = P(u)
+        if k >= 2 and (p[0] - prev[0]) * (prev[0] - pp[0]) < 0 and abs(prev[0]) > .04:
+            sim.note(intro + u * T, PENTA[int((prev[1] + 1) / 2 * 15 + .5)], .42 * math.exp(-a * u * .6), .5 + .4 * prev[0], 5.5)
+        pp = prev; prev = p
+    sim.chord(intro + T, [60, 67, 72, 76], gain=.25); total = intro + T + tail; done = 0
+    for fi in range(int(total * FPS)):
+        t = fi / FPS; u = min(1, max(0, t - intro) / T); k1 = int(u * steps); segs = []
+        while done < k1: segs.append((P(done / steps), P((done + 1) / steps), hsv((h0 + hw * done / steps) % 1, .7, .8))); done += 1
+        sim.commit(segs, width=1.6)
+        sim.frame(t, (), [(P(u), (255, 255, 255), 7)], (sp.get("count_label", ""), sp.get("time_fmt", "{:.1f}秒").format(max(0, t - intro))))
+    sim.finish(total)
+
+
+def piphase(sp):
+    """ぶつかる箱で円周率（Galperin）を、速さの円で見せる。上：壁・軽い箱（1）・重い箱（M）。下：横＝√1·v（軽い箱）、縦＝√M·V（重い箱）の点。
+    エネルギーが保たれるので点は円の上にあり、箱どうしの衝突は傾き一定の弦、壁は左右の反転。1回ごとに円を角度 2θ（θ=atan(1/√M)）ずつ進むので、
+    半周を超えるまでの回数が π/θ ≒ 円周率の桁になる。段ごとに新しい円に描き、前の段の回数は下に残す"""
+    stages = sp.get("stages", [[1, 1.6], [100, .8], [10000, .7]]); intro, tail = .3, sp.get("tail", 3.0); w1 = .34; XR = 4.6
+    sim = Sim(sp, (-.3, -3.6, 5.3, 3.0)); ly = 1.75; sim.neon([(0, ly), (XR, ly)], width=4); sim.neon([(0, ly), (0, ly + 1.1)], width=6)
+    C, R = (2.5, -.95), 1.5; sim.thin([(C[0] + R * math.cos(a), C[1] + R * math.sin(a)) for a in np.linspace(0, 2 * np.pi, 241)], color=(70, 80, 110), width=2)
+    sim.title(); runs, t0 = [], intro
+    for si, (M, k) in enumerate(stages):
+        a, b, v1, v2, t = .6, 1.7, 0.0, -1.0, 0.0; st = [(0.0, a, b, v1, v2)]; hits = []
+        while True:
+            tw = a / -v1 if v1 < -1e-15 else math.inf; tb = (b - a) / (v1 - v2) if v1 - v2 > 1e-15 else math.inf
+            if not math.isfinite(min(tw, tb)): break
+            dt = min(tw, tb); a += v1 * dt; b += v2 * dt; t += dt
+            if tw < tb: a, v1 = 0.0, -v1; hits.append((t, "w"))
+            else: a = b; v1, v2 = ((1 - M) * v1 + 2 * M * v2) / (1 + M), ((M - 1) * v2 + 2 * v1) / (1 + M); hits.append((t, "b"))
+            st.append((t, a, b, v1, v2))
+        dur = (t + 1.4) / k
+        pts = [(C[0] + R * q[3], C[1] + R * math.sqrt(M) * q[4] / math.sqrt(M)) for q in st]   # 横 v1、縦 √M V2/√M（半径1に正規化）
+        pts = [(C[0] + R * q[3] * 1.0, C[1] + R * q[4]) for q in st]
+        # 正規化：E = v1² + M V2² = M（最初 V2=-1）→ (v1/√M, V2) が単位円
+        pts = [(C[0] + R * q[3] / math.sqrt(M), C[1] + R * q[4]) for q in st]
+        runs.append(dict(M=M, t0=t0, k=k, st=st, stt=np.array([q[0] for q in st]), hits=[(t0 + h / k, c) for h, c in hits], pts=pts, w2=.34 + .18 * math.log10(M), col=hsv(.08 + .14 * si)))
+        prev = -1
+        for h, c in hits:
+            th = t0 + h / k; gap = th - prev; prev = th
+            sim.note(th, 84 if c == "w" else 79, .5 * min(1, gap / .06) ** .5, .3 if c == "w" else .65, 14 if gap > .08 else 40)
+        sim.chord(t0 + dur - .5, [60, 64, 67, 72] if si == len(stages) - 1 else [67, 72], gain=.25)
+        t0 += dur
+    total = t0 + tail; drawn = {}
+    for fi in range(int(total * FPS)):
+        t = fi / FPS; cur = max([i for i, r in enumerate(runs) if t >= r["t0"]] or [0]); run = runs[cur]
+        if drawn.get("stage") != cur:   # 段が替わったら円の中を消す
+            from PIL import Image as _I; sim.acc = _I.new("RGB", sim.acc.size); drawn = {"stage": cur, "n": 0}
+        n = int(np.searchsorted([h for h, _ in run["hits"]], t, side="right")); segs = []
+        while drawn["n"] < n:
+            i = drawn["n"]; segs.append((run["pts"][i], run["pts"][i + 1], hsv(.55 + .45 * i / max(1, len(run["hits"])), .65, min(1, (30 / max(1, len(run["hits"]))) ** .6)))); drawn["n"] += 1
+        sim.commit(segs, width=2.2 if len(run["hits"]) < 100 else 1.2)
+        tau = max(0, (t - run["t0"])) * run["k"]; i = max(0, int(np.searchsorted(run["stt"], tau, side="right")) - 1)
+        _, a, b, v1, v2 = run["st"][i]; dt = tau - run["st"][i][0]; a, b = a + v1 * dt, b + v2 * dt; P = run["pts"][min(i, len(run["pts"]) - 1)]
+        def draw(d, run=run, a=a, b=b, n=n, cur=cur):
+            for x0, w, col, lab in ((a, w1, (120, 220, 255), "1kg"), (b + w1, run["w2"], run["col"], f"{run['M']:,}kg")):
+                if x0 > XR: continue
+                X0, Y0 = sim.to((x0, ly + w)); X1, Y1 = sim.to((min(XR, x0 + w), ly)); d.rectangle([X0, Y0, X1, Y1 - 3 * S], fill=dim(col, .8), outline=col, width=2 * S)
+                f = F(30 * S); tw_ = d.textlength(lab, font=f)
+                if x0 + w <= XR: d.text(((X0 + X1) / 2 - tw_ / 2, Y0 - 44 * S), lab, font=f, fill=(215, 222, 235))
+            f = F(34 * S); y = sim.to((0, -2.75))[1]
+            for j in range(cur + 1):   # 段ごとの結果を下に並べる
+                r = runs[j]; nn = len(r["hits"]) if j < cur else n; s_ = f"{r['M']:,}kg：{nn}回"; tw_ = d.textlength(s_, font=f)
+                d.text((sim.to((2.5, 0))[0] - tw_ / 2, y + j * 46 * S), s_, font=f, fill=(255, 210, 70) if j == cur else (190, 196, 210), stroke_width=4 * S, stroke_fill=(0, 0, 0))
+        sim.frame(t, (), [(P, (255, 255, 255), 7)], (sp.get("count_label", "ぶつかった回数 "), str(n)), draw=draw)
+    sim.finish(total)
+
+
+KINDS = {"piphase": piphase, "maurer": maurer, "harmono": harmono, "spiro": spiro, "star": star, "throw": throw, "tusi": tusi, "chain": chain, "basket": basket, "koch": koch, "cycloid": cycloid, "pendulums": pendulums, "lissajous": lissajous, "corner": corner, "sunflower": sunflower, "ulam": ulam, "parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2, "picount": picount}
 
 if __name__ == "__main__":
     sp = json.load(open(sys.argv[1], encoding="utf-8")); KINDS[sp["kind"]](sp); kit(sp)

@@ -44,9 +44,13 @@ def fetch_one(out, meta, key, title):
         credit = em.get("Credit", {}).get("value", "")
         if "public domain" not in lic.lower() and lic.upper() not in ("PD", "CC0"):
             print("PDではないので保存しない:", title, lic); return False
-        url = ii.get("thumburl") or ii["url"]
+        ext = os.path.splitext(title)[1].lower()
+        if ext in (".ogg", ".oga", ".wav", ".flac", ".mp3", ".opus"):   # 音はそのままの原ファイルを取る
+            url = ii["url"]; fn = f"{key}{ext}"
+        else:
+            url = ii.get("thumburl") or ii["url"]; fn = f"{key}.jpg"
         img = requests.get(url, headers=UA, timeout=120).content
-        open(os.path.join(out, f"{key}.jpg"), "wb").write(img)
+        open(os.path.join(out, fn), "wb").write(img)
         meta[key] = {"title": title, "license": lic, "artist": artist, "credit": credit, "page": ii.get("descriptionurl", "")}
         print("保存:", key, title, lic)
         return True

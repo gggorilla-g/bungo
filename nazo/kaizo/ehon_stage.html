@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8">
+<style>
+@font-face{font-family:"EhonFont";font-weight:400;src:url(fonts_jp/NotoSansCJKjp-Regular.woff2) format("woff2")}
+@font-face{font-family:"EhonFont";font-weight:700;src:url(fonts_jp/NotoSansCJKjp-Bold.woff2) format("woff2")}
+@font-face{font-family:"EhonFont";font-weight:900;src:url(fonts_jp/NotoSansCJKjp-Black.woff2) format("woff2")}
+html,body{margin:0;background:#000}
+#stage{position:relative;overflow:hidden}
+#stage canvas{position:absolute;left:0;top:0}
+#hud{position:absolute;left:0;top:0;font-family:"EhonFont"}
+</style></head>
+<body><div id="stage"><svg id="hud" xmlns="http://www.w3.org/2000/svg"></svg></div>
+<script src="vendor.js"></script>
+<script>
+// 動く絵本（紙人形を立体の絵の中に立て、カメラで寄ったり引いたりする）
+//   決まり：絵を潰さない（縦横の比率は変えない。縮める・伸ばす・平たく倒すはしない）。舞台の幕や額縁は出さない
+//   動き：歩く（全身を描き直した歩きの絵を順に切り替えながら進む）／移動／ホップ（形は変えず上下だけ）／
+//         ポーズ替え（全身を描き直した絵へディゾルブ）／向き替え（左右反転へディゾルブ）／持ち上げる／傾ける（小さく）／落ちる／揺れ（小さく）
+//   カメラ：ページごとのキー（引き・寄り）。寄りは目元や葉っぱなど、見せたい所の座標と距離で書く
+//   文字：本物の絵本のように、そのページの絵の空いている所に、そのページの文をまとめて置く（読み上げに合わせて1文ずつ濃くなる）
+//   ページ替え：紙色にふわっと溶けて替わる（ディップ・トゥ・ホワイト）
+const getJ=u=>{const x=new XMLHttpRequest();x.open('GET',u,false);x.send();if(x.status!==200)throw new Error('読めない: '+u);return JSON.parse(x.responseText)};
+const SPEC=getJ((new URLSearchParams(location.search).get('spec')||'specs/ehon_test.json'));
+const OUT=SPEC.output||{width:1920,height:1080};const W=OUT.width/2,H=OUT.height/2;
+{const st=document.getElementById('stage'),hd=document.getElementById('hud');st.style.width=W+'px';st.style.height=H+'px';hd.style.width=W+'px';hd.style.height=H+'px';hd.setAttribute('viewBox',`0 0 ${W} ${H}`)}
+const clamp=(x,a,b)=>Math.min(b,Math.max(a,x)),lerp=(a,b,k)=>a+(b-a)*k,ss=(a,b,x)=>{const k=clamp((x-a)/(b-a),0,1);return k*k*(3-2*k)};
+function rng(seed){let s=seed>>>0;return()=>{s=(Math.imul(s,1664525)+1013904223)>>>0;return s/4294967296}}
+const renderer=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true});
+renderer.setPixelRatio(window.devicePixelRatio||1);renderer.setSize(W,H);renderer.outputColorSpace=THREE.SRGBColorSpace;
+document.getElementById('stage').prepend(renderer.domElement);
+const scene=new THREE.Scene();scene.background=new THREE.Color(0xf3eee4);
+const camera=new THREE.PerspectiveCamera(SPEC.fov||24,W/H,.05,100);
+const loader=new THREE.TextureLoader();const texCache={};
+function tex(p){if(!texCache[p]){const t=loader.load(p);t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=16;texCache[p]=t}return texCache[p]}
+function canvasTex(w,h,draw){const c=document.createElement('canvas');c.width=w;c.height=h;draw(c.getContext('2d'),w,h);const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;return t}
+const mk=(g,m)=>new THREE.Mesh(g,m);
+const BACKZ=SPEC.back_z||-3.0;
+const backMat=new THREE.MeshBasicMaterial({color:0xffffff});const backdrop=mk(new THREE.PlaneGeometry(1,1),backMat);scene.add(backdrop);
+const back2Mat=new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0});const backdrop2=mk(new THREE.PlaneGeometry(1,1),back2Mat);scene.add(backdrop2);
+// 寄りのカット専用の絵（カメラの前に全面で出す）。キー {img} の区間だけ表示し、ゆっくり寄る
+scene.add(camera);const shotMat=new THREE.MeshBasicMaterial({color:0xffffff,depthTest:false,depthWrite:false,transparent:true});const shot=mk(new THREE.PlaneGeometry(1,1),shotMat);shot.renderOrder=999;shot.position.z=-1;camera.add(shot);shot.visible=false;
+const shadowTex=canvasTex(128,128,(x,w,h)=>{const g=x.createRadialGradient(64,64,4,64,64,62);g.addColorStop(0,'rgba(40,30,30,.42)');g.addColorStop(1,'rgba(40,30,30,0)');x.fillStyle=g;x.fillRect(0,0,w,h)});
+const ASP=SPEC.aspect||{};
+
+// ---- 紙人形（メッシュの縦横比は常に絵の比率どおり）
+function makePuppet(it){
+  const g=new THREE.Group();const geo=new THREE.PlaneGeometry(1,1);geo.translate(0,.5,0);
+  const m1=new THREE.MeshBasicMaterial({map:tex(it.tex),transparent:true,alphaTest:.02,side:THREE.DoubleSide});
+  const m2=new THREE.MeshBasicMaterial({map:tex(it.tex),transparent:true,opacity:0,side:THREE.DoubleSide,depthWrite:false});
+  const a=mk(geo,m1),b=mk(geo,m2);b.position.z=.002;g.add(a,b);
+  const sh=mk(new THREE.PlaneGeometry(1,1),new THREE.MeshBasicMaterial({map:shadowTex,transparent:true,depthWrite:false}));sh.rotation.x=-Math.PI/2;sh.position.y=.003;
+  const root=new THREE.Group();root.add(g,sh);scene.add(root);
+  return {root,g,a,b,m1,m2,sh,it};
+}
+const pages=SPEC.pages.map(pg=>({pg,items:pg.items.map((it,k)=>{const p=makePuppet(it);p.k=k;p.root.visible=false;return p})}));
+const dropT=canvasTex(32,64,(x)=>{x.fillStyle='rgba(170,200,235,.9)';x.beginPath();x.moveTo(16,2);x.quadraticCurveTo(29,42,16,62);x.quadraticCurveTo(3,42,16,2);x.fill()});
+const NR=220;const rainM=new THREE.InstancedMesh(new THREE.PlaneGeometry(.045,.11),new THREE.MeshBasicMaterial({map:dropT,transparent:true,depthWrite:false}),NR);scene.add(rainM);
+const rr=rng(7);const RD=[...Array(NR)].map(()=>({x:(rr()-.5)*7,z:lerp(-1.5,1.2,rr()),ph:rr(),sp:2.4+rr()*.8}));
+const dummy=new THREE.Object3D();
+
+// ---- 文字（絵本の本文）
+const hud=document.getElementById('hud');const NS='http://www.w3.org/2000/svg';
+const el=(n,a,txt,parent)=>{const e=document.createElementNS(NS,n);for(const k in a)e.setAttribute(k,a[k]);if(txt!=null)e.textContent=txt;(parent||hud).appendChild(e);return e};
+const textG=el('g',{});
+const fade=el('rect',{x:0,y:0,width:W,height:H,fill:'#f6f1e6',opacity:0});
+const flash=el('rect',{x:0,y:0,width:W,height:H,fill:'#fff',opacity:0});
+const fxG=el('g',{});   // インサートの動き（波紋・きらめき・光の筋・しずく）
+let fxPage=-1;hud.insertBefore(fxG,fade);
+let curShot=null;
+function drawFx(P,t){
+  while(fxG.firstChild)fxG.removeChild(fxG.firstChild);
+  for(const f of (P.fx||[]).concat(curShot&&curShot.k.fx?curShot.k.fx:[])){
+    if(f.type==='ripple'){for(const t0 of f.at){const d=t-t0;if(d<0||d>3)continue;for(let k=0;k<3;k++){const dd=d-k*.35;if(dd<0)continue;const r=dd*(f.speed||.09)*W,op=Math.max(0,.75*(1-dd/2.6));
+      el('ellipse',{cx:f.x*W,cy:f.y*H,rx:r,ry:r*(f.flat||.32),fill:'none',stroke:'rgba(255,255,255,'+op.toFixed(3)+')','stroke-width':2.2-k*.5},null,fxG)}}}
+    if(f.type==='sparkle'){const R=rng(f.seed||3);for(let i=0;i<(f.n||14);i++){const x=(f.x0+(f.x1-f.x0)*R())*W,y=(f.y0+(f.y1-f.y0)*R())*H,ph=R()*6.28,sp=1.2+R()*1.6;const a=Math.max(0,Math.sin(t*sp+ph));const s=(2+R()*3)*a;
+      if(a<.05)continue;el('path',{d:`M${x-s*2} ${y}L${x+s*2} ${y}M${x} ${y-s*2}L${x} ${y+s*2}`,stroke:'rgba(255,252,235,'+(a*.9).toFixed(3)+')','stroke-width':1.4,'stroke-linecap':'round'},null,fxG);
+      el('circle',{cx:x,cy:y,r:s*.6,fill:'rgba(255,255,240,'+(a*.8).toFixed(3)+')'},null,fxG)}}
+    if(f.type==='rays'){const k=ss(f.t0||P.t0,(f.t0||P.t0)+3,t);for(let i=0;i<(f.n||5);i++){const ang=(f.ang||18)+i*7,sw=Math.sin(t*.6+i)*.5+.5;
+      const g=el('polygon',{points:`${f.x*W},${f.y*H} ${(f.x+Math.sin((ang-3)*Math.PI/180)*1.4)*W},${(f.y+1.4)*H} ${(f.x+Math.sin((ang+3)*Math.PI/180)*1.4)*W},${(f.y+1.4)*H}`,fill:'rgba(255,248,215,'+(k*(.08+.07*sw)).toFixed(3)+')'},null,fxG);g.style.filter='blur(6px)'}}
+    if(f.type==='drop'){const d=t-f.t;if(d<-2||d>1.2)continue;const x=f.x*W;let y=f.y*H,op=1,sc=1;
+      if(d<0){sc=.6+.4*Math.min(1,(d+2)/2);y+=Math.sin(t*5)*1.2}else{y+=d*d*(f.g||1400);op=Math.max(0,1-d/.6)}
+      el('path',{d:`M${x} ${y-9*sc} Q${x+6*sc} ${y} ${x} ${y+5*sc} Q${x-6*sc} ${y} ${x} ${y-9*sc}Z`,fill:'rgba(205,225,245,'+(op*.95).toFixed(3)+')',stroke:'rgba(255,255,255,'+(op*.8).toFixed(3)+')','stroke-width':1},null,fxG)}
+  }
+}
+const titleG=el('g',{opacity:0});
+const endT=el('text',{x:W/2,y:H*.52,'text-anchor':'middle','font-size':40,'font-weight':900,fill:'#3b2a22','letter-spacing':6,opacity:0},SPEC.end_text||'おしまい');
+let pageText='',textEls=[];
+// 画面上で紙人形が占める範囲（文字をよけるため）
+function itemBoxes(){const out=[];if(shot.visible)return out;const v=new THREE.Vector3();camera.updateMatrixWorld(true);
+  for(const pp of pages)for(const p of pp.items){if(!p.root.visible||p.it.shadow===false&&p.it.h<.2)continue;p.root.updateMatrixWorld(true);const g=p.a.geometry;g.computeBoundingBox();const bb=g.boundingBox;let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;
+    for(const cx of [bb.min.x,bb.max.x])for(const cy of [bb.min.y,bb.max.y]){v.set(cx,cy,0).applyMatrix4(p.a.matrixWorld).project(camera);const sx=(v.x+1)/2*W,sy=(1-v.y)/2*H;x0=Math.min(x0,sx);y0=Math.min(y0,sy);x1=Math.max(x1,sx);y1=Math.max(y1,sy)}
+    out.push([x0,y0,x1,y1])}
+  return out}
+// 本文：絵の空いている所を探して置く（紙人形と重ならない候補を選ぶ。手で x,y を書いたページはその場所）
+function buildText(P,grp){
+  while(textG.firstChild)textG.removeChild(textG.firstChild);textEls=[];const T=P.text||{};const N=T.group||2;const LS=P.lines.map((L,li)=>[L,li]).filter(([L,li])=>Math.floor(li/N)===grp);
+  const fs=T.size||22,lh=fs*1.75,ink=(curShot&&curShot.k.ink)||T.color||'#3b2a22';if(!LS.length)return;
+  let rows=0,maxw=0;LS.forEach(([L])=>{rows+=L.wrap.length;L.wrap.forEach(s=>{maxw=Math.max(maxw,s.length*fs*1.06)})});
+  const bw=maxw+fs*1.8,bh=rows*lh+fs*.9;
+  const C=[['start',.05,.11],['end',.95,.11],['start',.05,.62],['end',.95,.62],['middle',.5,.09],['start',.05,.36],['end',.95,.36]];
+  let best=null;
+  const STX=curShot&&curShot.k.text;if(STX){best=[STX.align||'start',STX.x,STX.y]}else if(T.fixed){best=[T.align||'start',T.x,T.y]}else{
+    const boxes=itemBoxes();let bs=1e18;
+    C.forEach((c,ci)=>{const [al,fx,fy]=c;const x=fx*W,y=fy*H;const px=al==='middle'?x-bw/2:al==='end'?x-bw:x;const R=[px-fs*.9,y-fs*1.3,px-fs*.9+bw,y-fs*1.3+bh];
+      let ov=0;for(const b of boxes){const w=Math.min(R[2],b[2])-Math.max(R[0],b[0]),h=Math.min(R[3],b[3])-Math.max(R[1],b[1]);if(w>0&&h>0)ov+=w*h}
+      if(R[3]>H*.97||R[0]<0||R[2]>W)ov+=1e7;const sc=ov+ci*40;if(sc<bs){bs=sc;best=c}})}
+  const [al,fx,fy]=best;const x0=fx*W,y0=fy*H;const px=al==='middle'?x0-maxw/2:al==='end'?x0-maxw:x0;
+  if(T.paper===true){const r=el('rect',{x:px-fs*.9,y:y0-fs*1.3,width:bw,height:bh,rx:fs*.9,fill:T.paper_color||'#fbf6ea',opacity:T.paper_op!=null?T.paper_op:.55},null,textG);r.style.filter='blur(6px)'}
+  let row=0;LS.forEach(([L,li])=>{L.wrap.forEach(s=>{const e=el('text',{x:x0,y:y0+row*lh,'text-anchor':al,'font-size':fs,'font-weight':T.weight||700,fill:ink,'letter-spacing':fs*.06},s,textG);textEls.push({e,li});row++})});
+}
+// 表紙：表紙の絵を全面に、題名とレーベル（ほほほブックス）を載せる。ゆっくり寄る
+let coverImg=null;
+{const T=SPEC.title_card||{};const fs=T.size||58;
+ if(SPEC.cover){coverImg=el('image',{href:SPEC.cover,x:0,y:0,width:W,height:H,preserveAspectRatio:'xMidYMid slice'},null,titleG)}
+ const glow=el('text',{x:W/2,y:H*(T.y||.2),'text-anchor':'middle','font-size':fs,'font-weight':900,fill:'#fffaf0',stroke:'#fffaf0','stroke-width':fs*.42,'stroke-linejoin':'round','letter-spacing':fs*.06},SPEC.title,titleG);glow.style.filter='blur(7px)';
+ el('text',{x:W/2,y:H*(T.y||.2),'text-anchor':'middle','font-size':fs,'font-weight':900,fill:T.color||'#4e3024',stroke:'#fffbf2','stroke-width':fs*.1,'paint-order':'stroke','letter-spacing':fs*.06},SPEC.title,titleG);
+ if(SPEC.logo)el('image',{href:SPEC.logo,x:20,y:H*.86,height:H*.1,width:H*.32,preserveAspectRatio:'xMinYMax meet',opacity:.92},null,titleG);
+ else{el('rect',{x:20,y:16,width:150,height:34,rx:17,fill:'#7a4a34'},null,titleG);el('text',{x:95,y:39,'text-anchor':'middle','font-size':17,'font-weight':900,fill:'#fffaf0'},SPEC.label||'ほほほブックス',titleG)}
+}
+
+// ---- 状態
+function itemState(p,t){
+  const it=p.it;let ry=0,x=it.x,y=0,rz=0,vis=1,alpha=1,pose=it.tex,face=it.face||1,next=null,mix=0,nface=face;
+  if(it.show!=null){if(t<it.show)vis=0;else alpha=ss(it.show,it.show+.5,t)}
+  if(it.hide!=null&&t>it.hide){alpha*=1-ss(it.hide,it.hide+.5,t);if(t>it.hide+.5)vis=0}
+  for(const a of (it.acts||[])){
+    if(a.do==='move'&&t>=a.t0){x=lerp(x,a.x,ss(a.t0,a.t1,t))}
+    if(a.do==='walk'&&t>=a.t0){const k=clamp((t-a.t0)/(a.t1-a.t0),0,1);const x0=x;x=lerp(x0,a.x,k);   // 一定の速さで歩く（端だけ少しゆるめる）
+      if(t<=a.t1){const fr=a.frames;pose=fr[Math.floor((t-a.t0)*(a.fps||6))%fr.length];y+=Math.abs(Math.sin((t-a.t0)*(a.fps||6)*Math.PI/2))*(a.bob||.012)}else if(a.end)pose=a.end}
+    if(a.do==='hop'&&t>=a.t0&&t<=a.t1){const u=(t-a.t0)/(a.t1-a.t0)*a.n;y+=Math.sin(Math.PI*(u%1))*(a.h||.08)}
+    if((a.do==='pose'||a.do==='turn')&&t>=a.t){const k=ss(a.t,a.t+(a.dur||.45),t);const np=a.pose||pose,nf=a.do==='turn'?-face:(a.face||face);
+      if(k>=1){pose=np;face=nf;next=null;mix=0}else{next=np;nface=nf;mix=k}}
+    if(a.do==='lift'&&t>=a.t0){y+=ss(a.t0,a.t1,t)*a.dy}
+    if(a.do==='tilt'&&t>=a.t0){rz+=ss(a.t0,a.t1,t)*a.deg*Math.PI/180}
+    if(a.do==='fall'&&t>=a.t0){const k=clamp((t-a.t0)/(a.t1-a.t0),0,1);y+=lerp(a.y0,a.y1,k*k);if(k>=1){alpha*=1-clamp((t-a.t1)/.18,0,1);if(t>a.t1+.18)vis=0}}
+    if(a.do==='flip'&&t>=a.t){const k=ss(a.t,a.t+(a.dur||.32),t);ry+=k*Math.PI;if(a.pose&&k>=.5)pose=a.pose}   // 紙が裏返って振り向く（ペーパーマリオ式）
+    if(a.do==='sway'){rz+=Math.sin(t*(a.rate||2.0))*(a.deg||2)*Math.PI/180}
+  }
+  return {x,y,rz,ry,vis,alpha,pose,face,next,nface,mix};
+}
+// カメラのキー：{t, x, y, d, tx, ty, cut}。cut:true はそこで画面を切り替える（カット割り）。tx/ty は見る先（省略時は真正面）
+const XF=.35;   // 1枚絵の出入りはディゾルブ
+function shotAt(P,t){const ks=P.cam||[];let k=null,i0=-1;for(let i=0;i<ks.length;i++){if(t>=ks[i].t){k=ks[i];i0=i}}
+  // 次のキーが1枚絵なら、その少し前から重ね始める
+  const nx=ks[i0+1];if(nx&&nx.img&&t>nx.t-XF){const a=ss(nx.t-XF,nx.t,t);return {k:nx,t0:nx.t,t1:(ks[i0+2]?ks[i0+2].t:P.t1+1.5),a,pre:true}}
+  if(!k||!k.img)return null;const t1=nx?nx.t:P.t1+1.5;const a=(nx&&!nx.img)?1-ss(t1-XF,t1,t):1;return {k,t0:k.t,t1,a}}
+function camAt(P,t){
+  const ks=(P.cam||[{t:P.t0,x:0,y:1.0,d:9}]).map(k=>Object.assign({tx:k.x,ty:k.y},k));if(t<=ks[0].t)return ks[0];const b=ks[ks.length-1];if(t>=b.t)return b;
+  for(let i=0;i<ks.length-1;i++){if(t>=ks[i].t&&t<ks[i+1].t){const a=ks[i],c=ks[i+1];if(c.cut)return (a.img&&t>c.t-XF)?c:a;/* 寄りの絵が消えていく間は、もう戻り先の画にしておく */const k=ss(a.t,c.t,t);
+    return {x:lerp(a.x,c.x,k),y:lerp(a.y,c.y,k),d:lerp(a.d,c.d,k),tx:lerp(a.tx,c.tx,k),ty:lerp(a.ty,c.ty,k)}}}
+  return b;
+}
+function stageAt(cur,t){const P=SPEC.pages[cur];
+  // 背景
+  const bh=P.bg_h||5.2,ba=P.bg_aspect||1.333;backMat.map=tex(P.bg);backMat.needsUpdate=true;backdrop.scale.set(bh*ba,bh,1);backdrop.position.set(P.bg_x||0,bh/2+(P.bg_y!=null?P.bg_y:-1.6),BACKZ);
+  let light=P.light!=null?P.light:1;if(P.light_to)light=lerp(light,P.light_to[1],ss(P.light_to[0],P.light_to[0]+2,t));
+  if(P.bg2){const k=ss(P.bg2.t,P.bg2.t+(P.bg2.dur||2),t);back2Mat.map=tex(P.bg2.img);back2Mat.needsUpdate=true;back2Mat.opacity=k;backdrop2.scale.copy(backdrop.scale);backdrop2.position.copy(backdrop.position);backdrop2.position.z+=.01;backdrop2.visible=k>0}else backdrop2.visible=false;
+  backMat.color.setScalar(light);back2Mat.color.setScalar(light);
+  let fl=0;for(const th of (P.thunder||[])){const d=t-th;if(d>=0&&d<.5)fl=Math.max(fl,(d<.06?1:d<.12?.3:d<.18?.8:Math.max(0,1-(d-.18)/.32))*.5)}
+  flash.setAttribute('opacity',fl.toFixed(3));
+  // 紙人形
+  pages.forEach(pp=>pp.items.forEach(p=>{p.root.visible=false}));
+  for(const p of pages[cur].items){const s=itemState(p,t);if(!s.vis)continue;p.root.visible=true;const it=p.it,HW=SPEC.hw||{},h=(it.auto!==false&&HW[s.pose])?HW[s.pose]*(it.k||1):it.h;
+    const asp=ASP[s.pose]||it.aspect;p.a.scale.set(h*asp*s.face,h,1);p.m1.map=tex(s.pose);p.m1.opacity=s.alpha*(1-s.mix);
+    if(s.next){const a2=ASP[s.next]||asp,h2=(it.auto!==false&&HW[s.next])?HW[s.next]*(it.k||1):h;p.b.visible=true;p.b.scale.set(h2*a2*s.nface,h2,1);p.m2.map=tex(s.next);p.m2.opacity=s.alpha*s.mix}else p.b.visible=false;
+    p.m1.needsUpdate=p.m2.needsUpdate=true;p.m1.color.setScalar(light);p.m2.color.setScalar(light);
+    p.g.position.set(0,s.y,0);p.g.rotation.set(0,s.ry,s.rz);p.root.position.set(s.x,it.y0||0,it.z);
+    const sw=h*asp*.8*(1-Math.min(.6,s.y));p.sh.scale.set(sw,sw*.28,1);p.sh.material.opacity=(it.shadow===false?0:1)*s.alpha*Math.max(0,1-s.y*1.2)}
+  let rain=0;if(P.rain)rain=ss(P.rain[0],P.rain[0]+1,t)*(1-ss(P.rain[1]-1,P.rain[1],t));
+  for(let i=0;i<NR;i++){const d=RD[i];const on=i/NR<rain;const yy=3.4-((t*d.sp+d.ph*3.4)%3.4);dummy.position.set(d.x,on?yy:-9,d.z);dummy.updateMatrix();rainM.setMatrixAt(i,dummy.matrix)}rainM.instanceMatrix.needsUpdate=true;
+  const c=camAt(P,t);camera.position.set(c.x,c.y+.04*c.d,c.d);camera.lookAt(c.tx,c.ty,0);
+  const S=shotAt(P,t);if(S){const hh=2*Math.tan(camera.fov*Math.PI/360),ww=hh*camera.aspect;const z=lerp(S.k.z0||1.0,S.k.z1||1.07,ss(S.t0,S.t1,t));
+    shotMat.map=tex(S.k.img);shotMat.needsUpdate=true;shotMat.opacity=S.a;shotMat.color.setScalar(S.k.light||light);shot.scale.set(ww*z,ww*z*(S.k.aspect?1/S.k.aspect:9/16),1);shot.position.x=(S.k.px||0)*ww*(z-1)*.5;shot.position.y=(S.k.py||0)*hh*(z-1)*.5;shot.visible=true}else shot.visible=false;
+  curShot=S&&S.a>.5?S:null;if(S&&S.a>=.999){pages.forEach(pp=>pp.items.forEach(p=>{p.root.visible=false}));rainM.visible=false;backdrop.visible=backdrop2.visible=false}else{rainM.visible=true;backdrop.visible=true}
+}
+const rtA=new THREE.WebGLRenderTarget(W*(window.devicePixelRatio||1),H*(window.devicePixelRatio||1)),rtB=rtA.clone();rtA.texture.colorSpace=rtB.texture.colorSpace=THREE.SRGBColorSpace;
+const mixMat=new THREE.ShaderMaterial({uniforms:{a:{value:rtA.texture},b:{value:rtB.texture},k:{value:0}},vertexShader:'varying vec2 v;void main(){v=uv;gl_Position=vec4(position.xy,0.,1.);}',
+  fragmentShader:'uniform sampler2D a,b;uniform float k;varying vec2 v;void main(){gl_FragColor=mix(texture2D(a,v),texture2D(b,v),k);}',depthTest:false,depthWrite:false});
+const mixScene=new THREE.Scene(),mixCam=new THREE.OrthographicCamera(-1,1,1,-1,0,1);mixScene.add(new THREE.Mesh(new THREE.PlaneGeometry(2,2),mixMat));
+window.renderAt=function(t){
+  let cur=0;for(let i=0;i<SPEC.pages.length;i++){if(t>=SPEC.pages[i].t0-.01)cur=i}
+  const P=SPEC.pages[cur],nxt=SPEC.pages[cur+1];
+  const prv=SPEC.pages[cur-1];let f=0;if(nxt&&t>P.t1&&P.trans_mode==='fade')f=ss(P.t1,nxt.t0,t);if(t<P.t0+.6&&cur>0&&prv&&prv.trans_mode==='fade')f=Math.max(f,1-ss(P.t0,P.t0+.6,t));
+  const tc=SPEC.title_t||[0,0];if(cur===0&&tc[1]>0){f=Math.max(f,t<tc[1]?1:1-ss(tc[1],tc[1]+.8,t))}
+  if(SPEC.end_t&&t>SPEC.end_t){f=Math.max(f,ss(SPEC.end_t,SPEC.end_t+2.2,t))}
+  endT.setAttribute('opacity',(SPEC.end_t?ss(SPEC.end_t+1.6,SPEC.end_t+2.8,t):0).toFixed(3));
+  fade.setAttribute('opacity',f.toFixed(3));titleG.setAttribute('opacity',(cur===0&&tc[1]>0?(SPEC.cover?1:ss(tc[0],tc[0]+.6,t))*(1-ss(tc[1]-.8,tc[1],t)):0).toFixed(3));if(coverImg){const z=1+.05*clamp(t/Math.max(1,tc[1]),0,1);coverImg.setAttribute('transform',`translate(${W/2} ${H/2}) scale(${z}) translate(${-W/2} ${-H/2})`)}
+  stageAt(cur,t);
+  drawFx(P,t);
+  // 本文：ページの文をまとめて置き、読んでいる文と読み終えた文を濃くする
+  // 文が多いページは、本の見開きのように数文ずつ（group）入れ替える
+  {const N=(P.text&&P.text.group)||2;let ci=0;P.lines.forEach((L,i)=>{if(t>=L.t-.35)ci=i});const g=Math.floor(ci/N);let cs=0;(P.cam||[]).forEach((k,i)=>{if(t>=k.t)cs=i});const key=cur+':'+g+':'+cs;if(pageText!==key){buildText(P,g);pageText=key}}
+  const vis=(P.text&&P.text.hide_until)||0;
+  textEls.forEach(({e,li})=>{const L=P.lines[li];const on=ss(L.t-.35,L.t+.05,t);e.setAttribute('opacity',(on*(t<P.t0+vis?0:1)).toFixed(3))});
+  textG.setAttribute('opacity',(1-ss(P.t1-.2,P.t1+.3,t)).toFixed(3));
+  if(nxt&&t>P.t1&&P.trans_mode!=='fade'){   // ディゾルブ：今のページと次のページを描いて、すっと重ねる
+    const k=ss(P.t1,nxt.t0,t);renderer.setRenderTarget(rtA);renderer.render(scene,camera);stageAt(cur+1,t);renderer.setRenderTarget(rtB);renderer.render(scene,camera);renderer.setRenderTarget(null);
+    mixMat.uniforms.k.value=k;renderer.render(mixScene,mixCam);stageAt(cur,t);return}
+  renderer.render(scene,camera);
+};
+const allTex=new Set();SPEC.pages.forEach(p=>{allTex.add(p.bg);(p.cam||[]).forEach(k=>k.img&&allTex.add(k.img));if(p.bg2)allTex.add(p.bg2.img);p.items.forEach(it=>{allTex.add(it.tex);(it.acts||[]).forEach(a=>{a.pose&&allTex.add(a.pose);(a.frames||[]).forEach(f=>allTex.add(f));a.end&&allTex.add(a.end)})})});
+const pend=[...allTex].map(p=>new Promise(r=>{tex(p);const im=new Image();im.onload=r;im.onerror=()=>{console.log('NG tex '+p);r()};im.src=p}));
+Promise.all(pend).then(()=>setTimeout(()=>{window.__fig={ok:1};window.__ready=true},600));
+</script></body></html>
