@@ -94,7 +94,13 @@ class Sim:
     def frame(self, t, live=(), balls=(), label=None, flashes=(), draw=None):
         """live: [(p0, p1, 色, 太さ)] いま描いている途中の線。balls: [(位置, 色, 半径px)]。label: (文字, 数)。flashes: [(位置, 半径px, 色, 太さ)]"""
         if self.stills is not None and not any(abs(t - s) < .5 / FPS for s in self.stills): return
-        im = ImageChops.add(self.bg, self.acc); d = ImageDraw.Draw(im)
+        im = ImageChops.add(self.bg, self.acc)
+        bl = self.sp.get("bloom", .9)
+        if bl:   # 残った軌跡に光のにじみ（ブルーム）。1/4で描いてぼかして戻す
+            q = 4; g = self.acc.resize((W * S // q, H * S // q), Image.BILINEAR).filter(ImageFilter.GaussianBlur(6))
+            if bl != 1: g = Image.eval(g, lambda v: min(255, int(v * bl * 1.6)))
+            im = ImageChops.add(im, g.resize((W * S, H * S), Image.BILINEAR))
+        d = ImageDraw.Draw(im)
         for a, b, c, w in live: d.line([*self.to(a), *self.to(b)], fill=c, width=max(1, int(w * S)))
         if balls:
             q = 8; gl = Image.new("RGB", (W * S // q, H * S // q)); gq = ImageDraw.Draw(gl)
