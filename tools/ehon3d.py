@@ -5,7 +5,7 @@
 #   舞台: nazo/kaizo/ehon_stage.html（three.js）。1コマずつ render.js で描く
 #   声: VOICEVOX:ちび式じい（ホー博士の声）。音楽：オルゴール風の自作。効果音：YouTube オーディオライブラリなどの「ありもの」
 #   使い方: python3 tools/ehon3d.py nazo/ehon/<id>.json [stills 1,5,9]
-import os, sys, re, json, math, wave, subprocess, shutil
+import hashlib, os, sys, re, json, math, wave, subprocess, shutil
 import numpy as np
 from PIL import Image, ImageFilter
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -37,15 +37,23 @@ def synth(sp, B):
     out = {}
     p = f"{B}/title.wav"   # 題名の読み上げ（表紙で）
     if not os.path.exists(p):
-        q = s.create_audio_query(re.sub(r"[ 　]", "", sp["title"]), v["style"]); q.speed_scale = .82; q.pre_phoneme_length = .2; q.post_phoneme_length = .5; q.volume_scale = v.get("vol", 1.5)
+        q = s.create_audio_query(re.sub(r"[ 　]", "", sp.get("title_say") or sp["title"]), v["style"]); q.speed_scale = .82; q.pre_phoneme_length = .2; q.post_phoneme_length = .5; q.volume_scale = v.get("vol", 1.5)
         open(p, "wb").write(s.synthesis(q, v["style"]))
     out["title"] = p
     for pi, pg in enumerate(sp["pages"]):
+        SAY = pg.get("say", {}); SAY = {str(i): x for i, x in enumerate(SAY)} if isinstance(SAY, list) else SAY
         for li, text in enumerate(pg["lines"]):
-            p = f"{B}/v{pi:02d}_{li:02d}.wav"
+            # 読ませる文：字幕はひらがなのまま、声は漢字かな交じりの「say」で読ませる（アクセントと抑揚が安定する）
+            say = SAY.get(str(li)) or text
+            say = re.sub(r"[ 　「」『』…]", "", say).replace("／", "、")
+            for k, r in sp.get("yomi", {}).items(): say = say.replace(k, r)
+            h = hashlib.md5(f"{say}|{v}".encode()).hexdigest()[:8]
+            p = f"{B}/v{pi:02d}_{li:02d}_{h}.wav"
+            if SAY.get(str(li)):   # 読みの照合：漢字の読みが、字幕のひらがなと同じ音になっているか
+                ka = lambda x: "".join(m.text for a in s.create_accent_phrases(x, v["style"]) for m in a.moras)
+                a_, b_ = ka(say), ka(re.sub(r"[ 　「」『』…]", "", text).replace("／", "、"))
+                if a_ != b_: print(f"読みちがい？ p{pi} L{li}: 字幕={b_} 声={a_}  （say={say}）")
             if not os.path.exists(p):
-                say = re.sub(r"[ 　「」『』…]", "", text).replace("／", "、")
-                for k, r in sp.get("yomi", {}).items(): say = say.replace(k, r)
                 q = s.create_audio_query(say, v["style"]); q.speed_scale = v.get("speed", .92); q.pre_phoneme_length = .15; q.post_phoneme_length = .4
                 q.intonation_scale = v.get("into", 1.1); q.volume_scale = v.get("vol", 1.5)
                 open(p, "wb").write(s.synthesis(q, v["style"]))

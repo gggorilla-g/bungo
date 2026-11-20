@@ -1,6 +1,7 @@
 # ehon_board.py — Codex の絵コンテ（ビートの並び）を、ehon3d の演出（nazo/ehon/<id>.json）に組み立てる
 #   1ビート＝読み上げのひとこと＋そのとき映すもの（舞台＝背景と紙人形をカメラで撮る／1枚絵＝寄りの絵を全面に）
 #   同じ背景が続くビートは1ページにまとめ、ビートの頭でカメラを切り替える。紙人形の絵が替わったらポーズ替え（ディゾルブ）
+#   台本の各ビート：text＝字幕（ひらがな）、say＝声で読ませる漢字かな交じりの文（同じ音になること。ehon3d が照合する）
 #   使い方: python3 tools/ehon_board.py 絵コンテ.json 素材フォルダ 出力id [題名]
 import json, sys, os, re
 
@@ -108,6 +109,7 @@ def main(board, assets, sid, title=None):
         if txt:
             if cur["lines"] and not re.search(r"[。」！？!?]$", cur["lines"][-1]) and not cur.get("pause", {}).get(str(len(cur["lines"]) - 1)):
                 cur.setdefault("gaps", {})[str(len(cur["lines"]) - 1)] = .18
+            if b.get("say"): cur.setdefault("say", {})[str(len(cur["lines"]))] = b["say"]   # 声は漢字かな交じりで読ませる
             cur["lines"].append(txt)
         cur["sfx"] += sfx_of(b.get("sfx"), at if at is not None else 0)
     for pg in pages:
@@ -117,7 +119,8 @@ def main(board, assets, sid, title=None):
         if not pg["lines"]: pg.setdefault("dur", 4); pg["cam"] = [c for c in pg["cam"] if not isinstance(c["u"], str)] or [{"u": 0, "x": 0, "y": 1.2, "d": 8.6}, {"u": 1, "x": 0, "y": 1.2, "d": 7.8}]
         if not pg["cam"]: pg.pop("cam")
     pages[-1]["tail"] = 6.0
-    sp = {"id": sid, "title": title or "えほん", "assets": assets, "voice": {"vvm": "6.vvm", "style": 31, "speed": .86, "vol": 1.5},
+    bd = json.load(open(board))
+    sp = {"id": sid, "title": title or "えほん", "title_say": bd.get("title_say", ""), "assets": assets, "voice": {"vvm": "6.vvm", "style": 31, "speed": .86, "vol": 1.5},
           "sfx_files": {"rain": "assets/sfx/yt_light_rain.mp3", "thunder": "assets/sfx_pd/thunder.ogg", "drip": "assets/sfx_pd/drip.ogg", "breeze": "assets/sfx_pd/breeze.ogg", "pochan": "assets/sfx_gen/pochan.wav", "pichon": "assets/sfx_gen/pichon.wav"},
           "world": {"pino": ["head_w", .44], "lulu": ["shell_d", .55], "leaf": ["len", 1.1], "drop": ["h", .09], "flower": ["w", .9]},
           "scale_alias": {"pino_lulu_leaf_smile": "pino_lulu_leaf_sit", "mouse_stop": "mouse_walk"},
