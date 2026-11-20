@@ -517,7 +517,50 @@ def basket(sp):
     sim.finish(total)
 
 
-KINDS = {"basket": basket, "koch": koch, "cycloid": cycloid, "pendulums": pendulums, "lissajous": lissajous, "corner": corner, "sunflower": sunflower, "ulam": ulam, "parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2, "picount": picount}
+def chain(sp):
+    """同じ重さの球が、止まっている2球に±45度で同時に当たると、当てた球はぴたりと止まり、2球が速さ 1/√2 で90度に開いて飛ぶ
+    （運動量とエネルギーの保存）。飛んだ球がまた次の2球に当たる…をくり返す。道のりも 1/√2 ずつ短くするので、1世代の時間は同じ"""
+    G, Tg, L0 = sp.get("gens", 9), sp.get("T", 2.4), sp.get("L0", .62); intro, tail = .5, sp.get("tail", 2.0); r = 1 / math.sqrt(2)
+    sim = Sim(sp, (-1.15, -.05, 1.15, 2.05)); sim.title()
+    segs = []   # (世代, 始点, 終点, 色)
+    def grow(p, d, k, hue):
+        L = L0 * r ** k; q = (p[0] + d[0] * L, p[1] + d[1] * L); segs.append((k, p, q, hue))
+        if k + 1 < G:
+            for sgn in (1, -1):
+                c, s_ = math.cos(sgn * math.pi / 4), math.sin(sgn * math.pi / 4); nd = (d[0] * c - d[1] * s_, d[0] * s_ + d[1] * c)
+                grow(q, nd, k + 1, (hue + sgn * .5 ** (k + 2)) % 1)
+    grow((0, 0), (0, 1), 0, .55)
+    byk = [[sg for sg in segs if sg[0] == k] for k in range(G)]
+    for k in range(G):   # ぶつかるたびに1音（世代が進むと高く、同時に鳴る数が多いほど1つは小さく）
+        if k == 0: continue
+        n = len(byk[k - 1])
+        for sg in byk[k - 1]: sim.note(intro + k * Tg, PENTA[min(15, 3 + k)], .9 / math.sqrt(n), .5 + .35 * sg[2][0], 4 + 3 * math.sqrt(n / 5))
+    total = intro + G * Tg + tail; done = set(); rb = sp.get("ball", 4.5)
+    for fi in range(int(total * FPS)):
+        t = fi / FPS; u = (t - intro) / Tg; kc = int(math.floor(u)) if u >= 0 else -1; f = u - kc
+        add = []
+        for k in range(min(kc, G)):
+            if k not in done: add += [(sg[1], sg[2], dim(hsv(sg[3], .75, 1), .8)) for sg in byk[k]]; done.add(k)
+        sim.commit(add, width=max(1.6, 3.0 * r ** (len(done) / 2)))
+        live, dots = [], []
+        if 0 <= kc < G:
+            for sg in byk[kc]:
+                p = lerp(sg[1], sg[2], f); live.append((sg[1], p, dim(hsv(sg[3], .75, 1), .8), 2)); dots.append((p, hsv(sg[3], .7, 1), rb))
+                # これから当たる2球（止まっている）
+                if kc + 1 < G:
+                    for sg2 in byk[kc + 1]:
+                        pass
+            if kc + 1 < G:
+                for sg2 in byk[kc + 1]: dots.append((sg2[1], (200, 205, 220), rb * .8))
+        elif u < 0: dots = [((0, 0), hsv(.55, .7, 1), rb)] + [(sg[1], (200, 205, 220), rb * .8) for sg in byk[0][:0]]
+        else:
+            for sg in byk[G - 1]: dots.append((sg[2], hsv(sg[3], .7, 1), rb))
+        n_hit = sum(len(byk[k]) for k in range(min(max(kc, 0), G)))
+        sim.frame(t, live, dots, (sp.get("count_label", "動いている球："), f"{len(byk[min(max(kc, 0), G - 1)]) if kc < G else len(byk[G - 1])}"))
+    sim.finish(total)
+
+
+KINDS = {"chain": chain, "basket": basket, "koch": koch, "cycloid": cycloid, "pendulums": pendulums, "lissajous": lissajous, "corner": corner, "sunflower": sunflower, "ulam": ulam, "parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2, "picount": picount}
 
 if __name__ == "__main__":
     sp = json.load(open(sys.argv[1], encoding="utf-8")); KINDS[sp["kind"]](sp); kit(sp)

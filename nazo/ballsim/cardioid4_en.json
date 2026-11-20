@@ -1,0 +1,23 @@
+{
+ "kind": "cardioid",
+ "mult": 4,
+ "title": [
+  "Multiply each number by 4.",
+  "How many cusps appear?"
+ ],
+ "yt": {
+  "title": "Multiply Each Number by 4. How Many Cusps Appear? #shorts #math",
+  "desc": "Put 100 numbered points (0 to 99) on a circle. From each point, send one ball to the point with 4 times its number (subtract 100 until it fits). The lines pile up into a flower-like curve with three cusps.\n\nHow it works:\n- Every line from point n to point 4n is tangent to the same curve (an epicycloid). Draw enough lines and the curve appears.\n- Multiplying by m gives m - 1 cusps (1 for a cardioid at m = 2, 2 for a nephroid at m = 3, 3 at m = 4).\n- Points that map to themselves are skipped.\n- Every ball plays one note when it lands. Longer lines play lower notes.\n\nSimulation, sound and animation: original (Python).",
+  "tags": [
+   "math",
+   "epicycloid",
+   "cardioid",
+   "times table",
+   "geometry",
+   "simulation",
+   "satisfying",
+   "shorts"
+  ]
+ },
+ "id": "cardioid4_en"
+}

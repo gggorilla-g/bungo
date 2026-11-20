@@ -1,0 +1,16 @@
+【タイトル】
+One Ball Hits Two at Once. How Far Does It Spread? #shorts #physics #math
+
+【説明】
+A ball hits two identical resting balls at the same moment, one at 45 degrees on each side. The incoming ball stops dead, and the two fly off at a right angle to each other. Each of them then hits its own pair, and so on: 1, 2, 4 ... 256 balls, and their trails grow into a branching tree.
+
+How it works:
+- In a perfectly elastic collision between equal masses, this symmetric hit stops the incoming ball, and each target leaves at about 71% (1/sqrt(2)) of its speed. Momentum and energy are both the same before and after.
+- The distance to the next pair is also shortened to about 71% each time. Since the speed drops by the same factor, every generation takes the same time.
+- This is a thought experiment: no air or friction, and each ball only hits its own pair.
+- Every collision plays one note. Later generations play higher notes.
+
+Simulation, sound and animation: original (Python).
+
+【タグ】
+physics, collision, momentum, fractal, simulation, satisfying, shorts
