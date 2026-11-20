@@ -1,0 +1,559 @@
+{
+ "id": "ehon_s01_short",
+ "title": "はっぱの あまおと",
+ "title_say": "",
+ "assets": "/mnt/user-data/uploads/Downloads/jump_shisaku/ehon_parts/story01",
+ "voice": {
+  "vvm": "6.vvm",
+  "style": 31,
+  "speed": 1.0,
+  "vol": 1.5
+ },
+ "sfx_files": {
+  "rain": "assets/sfx/yt_light_rain.mp3",
+  "thunder": "assets/sfx_pd/thunder.ogg",
+  "drip": "assets/sfx_pd/drip.ogg",
+  "breeze": "assets/sfx_pd/breeze.ogg",
+  "pochan": "assets/sfx_gen/pochan.wav",
+  "pichon": "assets/sfx_gen/pichon.wav"
+ },
+ "world": {
+  "pino": [
+   "head_w",
+   0.44
+  ],
+  "lulu": [
+   "shell_d",
+   0.55
+  ],
+  "leaf": [
+   "len",
+   1.1
+  ],
+  "drop": [
+   "h",
+   0.09
+  ],
+  "flower": [
+   "w",
+   0.9
+  ]
+ },
+ "scale_alias": {
+  "pino_lulu_leaf_smile": "pino_lulu_leaf_sit",
+  "mouse_stop": "mouse_walk"
+ },
+ "title_sec": 2.0,
+ "min_shot": 2.4,
+ "cover": "cover",
+ "logo_rel": "ehon/brand/logo_sil_light.png",
+ "output": {
+  "width": 1080,
+  "height": 1920
+ },
+ "music_gain": 0.2,
+ "pages": [
+  {
+   "bg": "bg_path",
+   "lines": [
+    "こねずみの ピノは、",
+    "うちへ かえる ところです。",
+    "まがりかどで、",
+    "ちいさな こえが しました。",
+    "かたつむりの ルルです。"
+   ],
+   "items": [
+    {
+     "img": "mouse_walk",
+     "x": -0.65,
+     "z": 0.4,
+     "acts": [
+      {
+       "do": "walk",
+       "t0": "L0",
+       "t1": "L0e+0.3",
+       "x": -0.09999999999999998,
+       "frames": [
+        "mouse_walk_a",
+        "mouse_walk_b",
+        "mouse_walk_c",
+        "mouse_walk_d"
+       ],
+       "fps": 5,
+       "end": "mouse_walk"
+      },
+      {
+       "do": "walk",
+       "t0": "L1",
+       "t1": "L1e+0.3",
+       "x": 0.45000000000000007,
+       "frames": [
+        "mouse_walk_a",
+        "mouse_walk_b",
+        "mouse_walk_c",
+        "mouse_walk_d"
+       ],
+       "fps": 5,
+       "end": "mouse_walk"
+      }
+     ]
+    },
+    {
+     "img": "snail",
+     "x": 0.75,
+     "z": 0,
+     "acts": [],
+     "face": -1,
+     "show": "L2"
+    },
+    {
+     "img": "leaf",
+     "x": 0.3,
+     "z": -0.3,
+     "acts": [],
+     "h": 0.34,
+     "auto": false,
+     "show": "L2"
+    }
+   ],
+   "cam": [
+    {
+     "u": "L0",
+     "x": -0.26,
+     "y": 1.15,
+     "d": 6.56,
+     "cut": false
+    },
+    {
+     "u": "L0e+0.4",
+     "x": -0.26,
+     "y": 1.17,
+     "d": 6.231999999999999
+    },
+    {
+     "u": "L1",
+     "x": -0.09999999999999998,
+     "y": 0.85,
+     "d": 3.7719999999999994,
+     "cut": true
+    },
+    {
+     "u": "L1e+0.4",
+     "x": -0.09999999999999998,
+     "y": 0.87,
+     "d": 3.5833999999999993
+    },
+    {
+     "u": "L2",
+     "x": 0.0,
+     "y": 1.15,
+     "d": 6.56,
+     "cut": true
+    },
+    {
+     "u": "L2e+0.4",
+     "x": 0.0,
+     "y": 1.17,
+     "d": 6.231999999999999
+    },
+    {
+     "u": "L3",
+     "x": 0,
+     "y": 1,
+     "d": 9,
+     "img": "close/c02_lulu_call",
+     "fx": []
+    }
+   ],
+   "sfx": [
+    {
+     "name": "breeze",
+     "at": "L0",
+     "from": 4,
+     "dur": 12,
+     "gain": 0.12
+    }
+   ],
+   "gap": 0.3,
+   "bg_h": 7.8,
+   "bg_y": -2.7,
+   "text": {
+    "size": 46,
+    "group": 2,
+    "wrap": 9
+   },
+   "gaps": {
+    "0": 0.18,
+    "2": 0.18
+   },
+   "pad0": 0.5,
+   "trans": 0.8
+  },
+  {
+   "bg": "bg_overcast",
+   "lines": [
+    "「ルル、あめだ」",
+    "ルルが はっぱを かさに しました。",
+    "「おおきい つぶが、さき」",
+    "ポトン。"
+   ],
+   "items": [
+    {
+     "img": "mouse_stop",
+     "x": -0.65,
+     "z": 0.4,
+     "acts": [
+      {
+       "do": "pose",
+       "t": "L0",
+       "pose": "mouse_flinch",
+       "dur": 0.45
+      }
+     ],
+     "hide": "L1"
+    },
+    {
+     "img": "snail",
+     "x": 0.75,
+     "z": 0,
+     "acts": [],
+     "face": -1,
+     "hide": "L1"
+    },
+    {
+     "img": "leaf",
+     "x": 0.3,
+     "z": -0.3,
+     "acts": [],
+     "h": 0.34,
+     "auto": false
+    },
+    {
+     "img": "pino_lulu_leaf",
+     "x": 0,
+     "z": 0,
+     "acts": [],
+     "show": "L1"
+    }
+   ],
+   "cam": [
+    {
+     "u": "s0.00",
+     "x": 0.0,
+     "y": 1.15,
+     "d": 6.56,
+     "cut": false
+    },
+    {
+     "u": "L1e+0.4",
+     "x": 0.0,
+     "y": 1.17,
+     "d": 6.231999999999999
+    },
+    {
+     "u": "L2",
+     "x": 0,
+     "y": 1,
+     "d": 9,
+     "img": "close/c05_leaf_mid",
+     "fx": [
+      {
+       "type": "ripple",
+       "x": 0.5066,
+       "y": 0.438,
+       "at": [
+        "L2+0.4"
+       ],
+       "speed": 0.07,
+       "flat": 0.5
+      },
+      {
+       "type": "ripple",
+       "x": 0.5066,
+       "y": 0.438,
+       "at": [
+        "L2e+0.6+0.4"
+       ],
+       "speed": 0.07,
+       "flat": 0.5
+      }
+     ]
+    }
+   ],
+   "sfx": [
+    {
+     "name": "thunder",
+     "at": "s0.00",
+     "from": 6.2,
+     "dur": 6,
+     "gain": 0.45
+    },
+    {
+     "name": "rain",
+     "at": "L0",
+     "from": 5,
+     "dur": 20,
+     "gain": 0.18
+    },
+    {
+     "name": "pochan",
+     "from": 0,
+     "dur": 0.6,
+     "gain": 0.8,
+     "lp": 9000,
+     "fin": 0,
+     "at": "L2e+0.6"
+    }
+   ],
+   "gap": 0.3,
+   "bg_h": 7.8,
+   "bg_y": -2.7,
+   "text": {
+    "size": 46,
+    "group": 2,
+    "wrap": 9
+   },
+   "light": 0.9,
+   "dur": 2.2,
+   "pad0": 1.4,
+   "pause": {
+    "2": 1.6
+   },
+   "trans": 0.8
+  },
+  {
+   "bg": "bg_low_rain",
+   "lines": [
+    "「ちいさい つぶが、あと」",
+    "「……いた」"
+   ],
+   "items": [
+    {
+     "img": "pino_lulu_leaf_catch",
+     "x": 0,
+     "z": 0,
+     "acts": []
+    }
+   ],
+   "cam": [
+    {
+     "u": "L0",
+     "x": 0,
+     "y": 0.85,
+     "d": 2.7059999999999995,
+     "cut": false
+    },
+    {
+     "u": "L0e+0.4",
+     "x": 0,
+     "y": 0.87,
+     "d": 2.5706999999999995
+    },
+    {
+     "u": "L0e+0.6",
+     "x": 0,
+     "y": 1,
+     "d": 9,
+     "img": "ins_paw_drop",
+     "fx": []
+    }
+   ],
+   "sfx": [
+    {
+     "name": "rain",
+     "at": 0,
+     "from": 30,
+     "dur": 90,
+     "gain": 0.16
+    },
+    {
+     "name": "rain",
+     "at": "L0e+0.6",
+     "from": 5,
+     "dur": 20,
+     "gain": 0.18
+    }
+   ],
+   "gap": 0.3,
+   "bg_h": 7.8,
+   "bg_y": -2.7,
+   "text": {
+    "size": 46,
+    "group": 2,
+    "wrap": 9
+   },
+   "rain": [
+    -0.1,
+    1.2
+   ],
+   "pause": {
+    "0": 1.6
+   },
+   "pad0": 0.5,
+   "trans": 0.8
+  },
+  {
+   "bg": "bg_low_clear",
+   "lines": [],
+   "items": [],
+   "cam": [
+    {
+     "u": 0,
+     "x": 0,
+     "y": 1.2,
+     "d": 7.052
+    },
+    {
+     "u": 1,
+     "x": 0,
+     "y": 1.2,
+     "d": 6.396
+    }
+   ],
+   "sfx": [
+    {
+     "name": "rain",
+     "at": "s0.00",
+     "from": 5,
+     "dur": 20,
+     "gain": 0.18
+    }
+   ],
+   "gap": 0.3,
+   "bg_h": 7.8,
+   "bg_y": -2.7,
+   "text": {
+    "size": 46,
+    "group": 2,
+    "wrap": 9
+   },
+   "dur": 2.2,
+   "pad0": 1.4,
+   "trans": 0.8
+  },
+  {
+   "bg": "bg_low_clear_rainbow",
+   "lines": [
+    "「ピノ、そらにも」",
+    "おおきな にじと、ちいさな にじ。",
+    "「ルル。あしたも、ここで あおうね」",
+    "ポトン、ピチ、",
+    "／ルル、また あした。"
+   ],
+   "items": [
+    {
+     "img": "pino_lulu_leaf_sit",
+     "x": 0,
+     "z": 0,
+     "acts": [
+      {
+       "do": "pose",
+       "t": "L4",
+       "pose": "pino_lulu_leaf_smile",
+       "dur": 0.45
+      }
+     ]
+    }
+   ],
+   "cam": [
+    {
+     "u": "L0",
+     "x": 0.0,
+     "y": 1.15,
+     "d": 6.56,
+     "cut": false
+    },
+    {
+     "u": "L1e+0.4",
+     "x": 0.0,
+     "y": 1.17,
+     "d": 6.231999999999999
+    },
+    {
+     "u": "L2",
+     "x": 0,
+     "y": 0.85,
+     "d": 3.7719999999999994,
+     "cut": true
+    },
+    {
+     "u": "L2e+0.4",
+     "x": 0,
+     "y": 0.87,
+     "d": 3.5833999999999993
+    },
+    {
+     "u": "L3",
+     "x": 0,
+     "y": 1,
+     "d": 9,
+     "img": "close/c13_puddle_small",
+     "fx": [
+      {
+       "type": "ripple",
+       "x": 0.5054,
+       "y": 0.5207,
+       "at": [
+        "L3+0.4"
+       ],
+       "speed": 0.07,
+       "flat": 0.5
+      }
+     ]
+    },
+    {
+     "u": "L4",
+     "x": 0.0,
+     "y": 1.15,
+     "d": 6.56,
+     "cut": true
+    },
+    {
+     "u": "L4e+0.4",
+     "x": 0.0,
+     "y": 1.17,
+     "d": 6.231999999999999
+    }
+   ],
+   "sfx": [
+    {
+     "name": "rain",
+     "at": 0,
+     "from": 30,
+     "dur": 90,
+     "gain": 0.16
+    },
+    {
+     "name": "breeze",
+     "at": "L4e+0.6",
+     "from": 4,
+     "dur": 12,
+     "gain": 0.12
+    }
+   ],
+   "gap": 0.3,
+   "bg_h": 7.8,
+   "bg_y": -2.7,
+   "text": {
+    "size": 46,
+    "group": 2,
+    "wrap": 9
+   },
+   "rain": [
+    -0.1,
+    1.2
+   ],
+   "gaps": {
+    "3": 0.18
+   },
+   "pause": {
+    "4": 1.6
+   },
+   "tail": 1.5,
+   "pad0": 0.5,
+   "trans": 0.8
+  }
+ ],
+ "fov": 34,
+ "end_sec": 3.5
+}

@@ -170,7 +170,7 @@ function stageAt(cur,t){const P=SPEC.pages[cur];
   for(let i=0;i<NR;i++){const d=RD[i];const on=i/NR<rain;const yy=3.4-((t*d.sp+d.ph*3.4)%3.4);dummy.position.set(d.x,on?yy:-9,d.z);dummy.updateMatrix();rainM.setMatrixAt(i,dummy.matrix)}rainM.instanceMatrix.needsUpdate=true;
   const c=camAt(P,t);camera.position.set(c.x,c.y+.04*c.d,c.d);camera.lookAt(c.tx,c.ty,0);
   const S=shotAt(P,t);if(S){const hh=2*Math.tan(camera.fov*Math.PI/360),ww=hh*camera.aspect;const z=lerp(S.k.z0||1.0,S.k.z1||1.07,ss(S.t0,S.t1,t));
-    shotMat.map=tex(S.k.img);shotMat.needsUpdate=true;shotMat.opacity=S.a;shotMat.color.setScalar(S.k.light||light);shot.scale.set(ww*z,ww*z*(S.k.aspect?1/S.k.aspect:9/16),1);shot.position.x=(S.k.px||0)*ww*(z-1)*.5;shot.position.y=(S.k.py||0)*hh*(z-1)*.5;shot.visible=true}else shot.visible=false;
+    shotMat.map=tex(S.k.img);shotMat.needsUpdate=true;shotMat.opacity=S.a;shotMat.color.setScalar(S.k.light||light);const sa=S.k.aspect||16/9,sw=Math.max(ww,hh*sa);shot.scale.set(sw*z,sw*z/sa,1);/* 縦長の画面では、高さに合わせて左右を切る */shot.position.x=(S.k.px||0)*ww*(z-1)*.5;shot.position.y=(S.k.py||0)*hh*(z-1)*.5;shot.visible=true}else shot.visible=false;
   curShot=S&&S.a>.5?S:null;if(S&&S.a>=.999){pages.forEach(pp=>pp.items.forEach(p=>{p.root.visible=false}));rainM.visible=false;backdrop.visible=backdrop2.visible=false}else{rainM.visible=true;backdrop.visible=true}
 }
 const rtA=new THREE.WebGLRenderTarget(W*(window.devicePixelRatio||1),H*(window.devicePixelRatio||1)),rtB=rtA.clone();rtA.texture.colorSpace=rtB.texture.colorSpace=THREE.SRGBColorSpace;
