@@ -1025,7 +1025,148 @@ def plotter(sp):
     sim.finish(total)
 
 
-KINDS = {"plotter": plotter, "threebody": threebody, "pendswing": pendswing, "golden": golden, "piphase": piphase, "maurer": maurer, "harmono": harmono, "spiro": spiro, "star": star, "throw": throw, "tusi": tusi, "chain": chain, "basket": basket, "koch": koch, "cycloid": cycloid, "pendulums": pendulums, "lissajous": lissajous, "corner": corner, "sunflower": sunflower, "ulam": ulam, "parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2, "picount": picount}
+def lissatable(sp):
+    """リサージュの表：上の列の円（速さ1〜N倍）と、左の列の円（速さ1〜N倍）の組み合わせで、全部のマスの曲線を同時に描く。
+    はじめは1周で全部が閉じた形になる（予想どおり）。そのあと1列だけ速さがほんの少しずれて形が回りはじめ（ズレ）、
+    やがて全部の列と行がずれて、表全体が別の模様に変わっていく。円の点がてっぺんを通るたびにガラスの音（速さの比で重なったりずれたりする）"""
+    N = sp.get("n", 7); dur, intro, tail = sp.get("dur", 50.0), .6, sp.get("tail", 2.0)
+    TA, TB, TC = sp.get("t_draw", 12.0), sp.get("t_hold", 6.0), sp.get("t_one", 9.0)   # 描く・そのまま・1列だけずれる
+    w0 = 2 * np.pi / TA; cell = 1.0; r = .38
+    sim = Sim(sp, (-.5, -N - .5, N + .5, .5), area=(.04, .20, .96, .80)); sim.title()
+    h0 = sp.get("hue0", 0.0); cols = [hsv((h0 + i / N * .85) % 1, .8, 1) for i in range(N)]
+    one = sp.get("one", N // 2)   # 最初にずれる列（0始まり）
+    def det(k, t, row=False):   # 速さのずれ（時刻とともに少しずつ）
+        u = t - TA - TB
+        if u <= 0: return 0.0
+        d = 0.0
+        if not row and k == one: d += .035 * min(1, u / 3)
+        if u > TC: d += .012 * (k - (N - 1) / 2) / ((N - 1) / 2) * min(1, (u - TC) / 6) * (1.3 if row else 1)
+        return d
+    # 位相（ずれを時間で積分）を前もって数える
+    total = intro + dur + tail; dt = 1 / (FPS * 4); TT = np.arange(0, total + 1, dt)
+    def phase_arr(k, row):
+        f = np.array([(k + 1) + det(k, max(0, t - intro), row) for t in TT]); ph = np.concatenate([[0], np.cumsum(f[:-1] * w0 * dt)]); ph[TT < intro] = 0; return ph
+    PC = [phase_arr(k, False) for k in range(N)]; PR = [phase_arr(k, True) for k in range(N)]
+    at = lambda arr, t: np.interp(t, TT, arr)
+    # 音：上の円・左の円の点がてっぺん（位相が2πの倍数）を通るたび
+    for k in range(N):
+        for arr, oct_, pan in ((PC[k], 12, .2 + .6 * k / (N - 1)), (PR[k], 0, .5)):
+            n_ = np.floor(arr / (2 * np.pi)); idx = np.where(np.diff(n_) > 0)[0]
+            for i in idx: sim.note(TT[i], PENTA[(k * 2) % 15] + oct_, .32 if oct_ else .26, pan, 3.4, "glass")
+    WIN = 2 * np.pi   # 曲線として見せる長さ（いちばん遅い円の1周ぶん）
+    for fi in range(int(total * FPS)):
+        t = fi / FPS; live, balls = [], []
+        span = min(t - intro, TA) if t < intro + TA else TA   # 描いている途中は伸びていく
+        ts = np.linspace(max(0, t - max(.01, span)), t, 90)
+        for c in range(N):   # 上の円
+            cx, cy = c + 1, 0; th = at(PC[c], t)
+            pts = [(cx + r * np.cos(a - np.pi / 2), cy - r * np.sin(a - np.pi / 2)) for a in np.linspace(0, 2 * np.pi, 40)]
+            live += [(a, b, dim(cols[c], .5), 2.0) for a, b in zip(pts, pts[1:])]
+            balls.append(((cx + r * np.sin(th), cy + r * np.cos(th)), (255, 255, 255), 4))
+        for rr in range(N):   # 左の円
+            cx, cy = 0, -(rr + 1); th = at(PR[rr], t)
+            pts = [(cx + r * np.cos(a), cy + r * np.sin(a)) for a in np.linspace(0, 2 * np.pi, 40)]
+            live += [(a, b, dim(cols[rr], .5), 2.0) for a, b in zip(pts, pts[1:])]
+            balls.append(((cx + r * np.sin(th), cy + r * np.cos(th)), (255, 255, 255), 4))
+        if t > intro:
+            for c in range(N):
+                xs_ = r * np.sin(at(PC[c], ts))
+                for rr in range(N):
+                    ys_ = r * np.cos(at(PR[rr], ts)); cx, cy = c + 1, -(rr + 1)
+                    mix = tuple(int((a + b) / 2) for a, b in zip(cols[c], cols[rr]))
+                    P = list(zip(cx + xs_, cy + ys_)); m_ = len(P)
+                    live += [(P[i], P[i + 1], dim(mix, .3 + .7 * i / m_), 1.4 + 1.2 * i / m_) for i in range(m_ - 1)]
+                    balls.append((P[-1], mix, 2.6))
+        sim.frame(t, live, balls)
+    sim.finish(total)
+
+
+def rhythm(sp):
+    """リズム譜を、光る玉が跳ねながら読んでいく。玉が音符に着くたびに、その音符が光って1音。
+    ページごとに速くなり、最後のページで玉が2つに分かれ、1拍ずらして同じ譜を追いかける（輪唱）。重なったりずれたりする"""
+    from simkit import S as S_, W as W_, H as H_, F
+    rng = np.random.default_rng(sp.get("seed", 3))
+    PAT = [[1], [.5, .5], [.25, .25, .25, .25], [.75, .25], [.5, .25, .25], [.25, .25, .5], [.25, .5, .25]]
+    pages = sp.get("pages", [[75, 1], [100, 1], [120, 2]])   # [テンポ, 玉の数]
+    rows, beats = 4, 4
+    sim = Sim(sp, (0, 0, 1, 1)); sim.title()
+    x0, x1 = .08 * W_ * S_, .92 * W_ * S_; ytop = .32 * H_ * S_; dy = .125 * H_ * S_; Z = 1.55
+    bw = (x1 - x0) / beats
+    t = .8; layout = []   # (開始時刻, テンポ, 玉数, 音符の並び)
+    for bpm, nb in pages:
+        notes = []   # (行, 拍内の位置(拍), 長さ)
+        for r_ in range(rows):
+            for b in range(beats):
+                pat = PAT[rng.integers(0, len(PAT))] if (r_ + b) else [1]
+                pos = 0.0
+                for dd in pat: notes.append((r_, b + pos, dd)); pos += dd
+        spb = 60 / bpm; lead = 1.2
+        layout.append((t, spb, nb, notes, lead)); t += lead + rows * beats * spb + (spb if nb > 1 else 0) + .8
+    total = t + sp.get("tail", 1.5)
+    hue0 = sp.get("hue0", .55)
+    def xy(r_, pos): return (x0 + (pos + .18) * bw * .92, ytop + r_ * dy)
+    # 音
+    for pi_, (t0, spb, nb, notes, lead) in enumerate(layout):
+        for k in range(nb):
+            for i, (r_, pos, dd) in enumerate(notes):
+                tt = t0 + lead + (r_ * beats + pos) * spb + k * spb
+                sim.note(tt, PENTA[(i * 3 + r_ * 2 + k * 4) % 12 + 3] + (12 if k else 0), .42 if not k else .3, .35 + .3 * k, 3.6, "glass")
+    for fi in range(int(total * FPS)):
+        tf = fi / FPS
+        pi_ = max([i for i, L in enumerate(layout) if tf >= L[0] - .01] or [0]); t0, spb, nb, notes, lead = layout[pi_]
+        hue = (hue0 + pi_ * .23) % 1
+        def dr(d, t0=t0, spb=spb, nb=nb, notes=notes, lead=lead, hue=hue, pi_=pi_):
+            fade = min(1, (tf - t0) / .4)
+            for r_ in range(rows):   # 線
+                y = ytop + r_ * dy + 14 * Z * S_; d.line([x0, y, x1, y], fill=dim((120, 150, 190), .6 * fade), width=2 * S_)
+            # 拍ごとに旗をつなぐ
+            groups = {}
+            for i, n_ in enumerate(notes): groups.setdefault((n_[0], int(n_[1])), []).append(i)
+            stem = 46 * Z * S_
+            for (r_, b), idx in groups.items():
+                xs_ = []
+                for i in idx:
+                    rr, pos, dd = notes[i]; x, y = xy(rr, pos)
+                    th = t0 + lead + (rr * beats + pos) * spb; age = min([tf - (th + k * spb) for k in range(nb) if tf >= th + k * spb] or [9])
+                    glow = max(0, 1 - age / .45)
+                    col = tuple(min(255, int(220 * fade + 35 + glow * (c_ - 160))) for c_ in hsv(hue, .7, 1)) if glow > 0 else dim((230, 236, 245), fade)
+                    if glow > 0:
+                        rg = (14 + 20 * glow) * Z * S_; d.ellipse([x - rg, y - rg * .8, x + rg, y + rg * .8], fill=dim(hsv(hue, .8, 1), .35 * glow))
+                    d.ellipse([x - 11 * Z * S_, y - 8 * Z * S_, x + 11 * Z * S_, y + 8 * Z * S_], fill=col)
+                    d.line([x + 10 * Z * S_, y, x + 10 * Z * S_, y - stem], fill=col, width=int(3 * Z * S_)); xs_.append((x + 10 * Z * S_, dd))
+                    if dd == .75: d.ellipse([x + 18 * Z * S_, y - 3 * Z * S_, x + 24 * Z * S_, y + 3 * Z * S_], fill=col)
+                if len(idx) > 1:
+                    yb = ytop + r_ * dy - stem; c0 = dim((230, 236, 245), fade)
+                    d.line([xs_[0][0], yb, xs_[-1][0], yb], fill=c0, width=int(6 * Z * S_))
+                    for (xa, da), (xb, db) in zip(xs_, xs_[1:]):
+                        if da == .25 and db == .25: d.line([xa, yb + 11 * Z * S_, xb, yb + 11 * Z * S_], fill=c0, width=int(6 * Z * S_))
+                        elif da == .25 or db == .25:
+                            xx = xa if da == .25 else xb; d.line([xx - (0 if da == .25 else 16 * Z * S_), yb + 11 * Z * S_, xx + (16 * Z * S_ if da == .25 else 0), yb + 11 * Z * S_], fill=c0, width=int(6 * Z * S_))
+            # テンポの表示（小さく）
+            fS = F(36 * S_); lab = f"\u2669 = {int(round(60 / spb))}"; d.text((x0, ytop - 120 * S_), lab, font=fS, fill=dim((200, 210, 225), .8 * fade))
+            # 玉：音符から音符へ放物線で跳ぶ
+            seq = [(t0 + lead + (n_[0] * beats + n_[1]) * spb, xy(n_[0], n_[1])) for n_ in notes]
+            for k in range(nb):
+                tt = tf - k * spb
+                if tt < seq[0][0] - .6: p0 = (seq[0][1][0] - bw * .5, seq[0][1][1] - 120 * S_); a = None
+                j = max([i for i, (ts, _) in enumerate(seq) if ts <= tt] or [-1])
+                if j < 0:
+                    u = min(1, max(0, (tt - (seq[0][0] - .6)) / .6)); A = (seq[0][1][0] - bw * .6, seq[0][1][1] - 140 * S_); B = seq[0][1]
+                elif j >= len(seq) - 1:
+                    u = min(1, (tt - seq[-1][0]) / .6); A = seq[-1][1]; B = (A[0] + bw * .6, A[1] - 140 * S_)
+                else:
+                    (ta, A), (tb, B) = seq[j], seq[j + 1]; u = (tt - ta) / (tb - ta)
+                h = (40 + 0.35 * abs(B[0] - A[0]) / S_ + (60 if abs(B[1] - A[1]) > 1 else 0)) * S_
+                x = A[0] + (B[0] - A[0]) * u; y = A[1] + (B[1] - A[1]) * u - 4 * h * u * (1 - u) - 16 * Z * S_
+                c = hsv((hue + .12 * k) % 1, .55, 1)
+                for q_, rr_ in ((26, .25), (16, .45)):
+                    d.ellipse([x - q_ * S_, y - q_ * S_, x + q_ * S_, y + q_ * S_], fill=dim(c, rr_))
+                d.ellipse([x - 9 * S_, y - 9 * S_, x + 9 * S_, y + 9 * S_], fill=c); d.ellipse([x - 5 * S_, y - 6 * S_, x - 1 * S_, y - 2 * S_], fill=(255, 255, 255))
+        sim.frame(tf, [], [], None, draw=dr)
+    sim.finish(total)
+
+
+KINDS = {"rhythm": rhythm, "lissatable": lissatable, "plotter": plotter, "threebody": threebody, "pendswing": pendswing, "golden": golden, "piphase": piphase, "maurer": maurer, "harmono": harmono, "spiro": spiro, "star": star, "throw": throw, "tusi": tusi, "chain": chain, "basket": basket, "koch": koch, "cycloid": cycloid, "pendulums": pendulums, "lissajous": lissajous, "corner": corner, "sunflower": sunflower, "ulam": ulam, "parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2, "picount": picount}
 
 if __name__ == "__main__":
     sp = json.load(open(sys.argv[1], encoding="utf-8")); KINDS[sp["kind"]](sp); kit(sp)

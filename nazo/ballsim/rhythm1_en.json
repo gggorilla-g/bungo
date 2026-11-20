@@ -1,0 +1,11 @@
+{
+ "kind": "rhythm",
+ "id": "rhythm1_en",
+ "title": [
+  "Can you tap along",
+  "with the glowing ball?"
+ ],
+ "seed": 8,
+ "bloom": 0.5,
+ "hue0": 0.9
+}

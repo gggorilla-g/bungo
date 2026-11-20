@@ -1,3 +1,5 @@
+rhythm1_ja MOSO ja
+lissatable1_ja MOSO ja
 plotter1_ja MOSO ja
 threebody1_ja MOSO ja
 burst1_ja MOSO ja
