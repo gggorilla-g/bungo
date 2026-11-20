@@ -1,0 +1,337 @@
+{
+ "id": "ehon_s01",
+ "title": "はっぱの あまおと",
+ "assets": "/mnt/user-data/uploads/Downloads/jump_shisaku/ehon_parts/story01",
+ "voice": {
+  "vvm": "10.vvm",
+  "style": 42,
+  "speed": 0.9
+ },
+ "sfx_files": {
+  "rain": "assets/sfx/yt_light_rain.mp3"
+ },
+ "pages": [
+  {
+   "bg": "bg_path",
+   "floor": "#8fa872",
+   "items": [
+    {
+     "img": "leaf",
+     "x": 0.252,
+     "z": -0.4,
+     "h": 0.34,
+     "shadow": true
+    },
+    {
+     "img": "snail",
+     "x": 0.684,
+     "z": 0.05,
+     "h": 0.61,
+     "face": -1,
+     "breath": true
+    },
+    {
+     "img": "mouse_walk",
+     "x": -0.972,
+     "z": 0.35,
+     "h": 0.952,
+     "breath": true,
+     "acts": [
+      {
+       "do": "move",
+       "t0": 0.05,
+       "t1": 0.55,
+       "x": -0.252
+      },
+      {
+       "do": "hop",
+       "t0": 0.05,
+       "t1": 0.55,
+       "n": 6,
+       "h": 0.06
+      }
+     ]
+    }
+   ],
+   "lines": [
+    "こねずみの ピノが、くさの みちを あるいていました。",
+    "はっぱの そばに、かたつむりの ルルが いました。"
+   ]
+  },
+  {
+   "bg": "bg_overcast",
+   "floor": "#6f8662",
+   "light": 0.92,
+   "thunder": [
+    0.18
+   ],
+   "items": [
+    {
+     "img": "leaf",
+     "x": 0.252,
+     "z": -0.4,
+     "h": 0.34
+    },
+    {
+     "img": "snail",
+     "x": 0.684,
+     "z": 0.05,
+     "h": 0.61,
+     "face": -1,
+     "breath": true
+    },
+    {
+     "img": "mouse_walk",
+     "x": -0.252,
+     "z": 0.35,
+     "h": 0.952,
+     "breath": true,
+     "acts": [
+      {
+       "do": "pose",
+       "t": 0.2,
+       "pose": "mouse_flinch"
+      },
+      {
+       "do": "shrink",
+       "t": 0.22,
+       "dur": 1.0
+      }
+     ]
+    },
+    {
+     "img": "drop",
+     "x": 0.252,
+     "z": -0.38,
+     "h": 0.12,
+     "pop": false,
+     "shadow": false,
+     "show": 0.6,
+     "acts": [
+      {
+       "do": "fall",
+       "t0": 0.6,
+       "t1": 0.72,
+       "y0": 1.9,
+       "y1": 0.1
+      }
+     ]
+    }
+   ],
+   "lines": [
+    "ゴロロ、と とおくで なって、ピノは みみを すくめました。",
+    "あめが ひとつ、はっぱに おちました。"
+   ]
+  },
+  {
+   "bg": "bg_overcast",
+   "floor": "#6f8662",
+   "light": 0.88,
+   "rain": [
+    0,
+    1.2
+   ],
+   "items": [
+    {
+     "img": "snail",
+     "x": 0.432,
+     "z": 0.0,
+     "h": 0.61,
+     "face": -1,
+     "acts": [
+      {
+       "do": "pose",
+       "t": 0.12,
+       "pose": "snail_leaf"
+      }
+     ]
+    },
+    {
+     "img": "leaf",
+     "x": 0.252,
+     "z": -0.4,
+     "h": 0.34,
+     "hide": 0.12
+    },
+    {
+     "img": "mouse_flinch",
+     "x": -0.288,
+     "z": 0.35,
+     "h": 0.732,
+     "acts": [
+      {
+       "do": "pose",
+       "t": 0.35,
+       "pose": "mouse_walk"
+      },
+      {
+       "do": "move",
+       "t0": 0.42,
+       "t1": 0.7,
+       "x": -0.28
+      },
+      {
+       "do": "hop",
+       "t0": 0.42,
+       "t1": 0.7,
+       "n": 3,
+       "h": 0.06
+      }
+     ]
+    }
+   ],
+   "sfx": [
+    {
+     "name": "rain",
+     "at": 0,
+     "dur": 14,
+     "from": 5,
+     "gain": 0.35
+    }
+   ],
+   "lines": [
+    "ルルが はっぱを もちあげて、ピノも したに はいりました。",
+    "おおきな つぶは ポトン、ちいさな つぶは ピチ。"
+   ]
+  },
+  {
+   "bg": "bg_overcast",
+   "floor": "#6f8662",
+   "light": 0.88,
+   "rain": [
+    -0.2,
+    1.2
+   ],
+   "items": [
+    {
+     "img": "snail_leaf",
+     "x": 0.432,
+     "z": 0.0,
+     "h": 0.756,
+     "face": -1,
+     "breath": true
+    },
+    {
+     "img": "mouse_walk",
+     "x": -0.28,
+     "z": 0.35,
+     "h": 0.952,
+     "acts": [
+      {
+       "do": "pose",
+       "t": 0.08,
+       "pose": "mouse_lookup"
+      },
+      {
+       "do": "tilt",
+       "t0": 0.12,
+       "t1": 0.3,
+       "deg": 4
+      }
+     ]
+    },
+    {
+     "img": "drop",
+     "x": 0.302,
+     "z": 0.02,
+     "h": 0.1,
+     "pop": false,
+     "shadow": false,
+     "show": 0.55,
+     "acts": [
+      {
+       "do": "fall",
+       "t0": 0.55,
+       "t1": 0.64,
+       "y0": 1.6,
+       "y1": 0.68
+      }
+     ]
+    }
+   ],
+   "sfx": [
+    {
+     "name": "rain",
+     "at": 0,
+     "dur": 14,
+     "from": 20,
+     "gain": 0.35
+    }
+   ],
+   "lines": [
+    "ピノは みみを そっと たてました。",
+    "つぎは どっちの おとかな、と はっぱを みあげました。"
+   ]
+  },
+  {
+   "bg": "bg_clearing",
+   "floor": "#86a070",
+   "light": 0.9,
+   "light_to": [
+    0.1,
+    1.05
+   ],
+   "rain": [
+    -0.2,
+    0.35
+   ],
+   "items": [
+    {
+     "img": "snail_leaf",
+     "x": 0.396,
+     "z": 0.0,
+     "h": 0.756,
+     "face": -1,
+     "breath": true
+    },
+    {
+     "img": "mouse_lookup",
+     "x": -0.28,
+     "z": 0.35,
+     "h": 0.952,
+     "breath": true,
+     "acts": [
+      {
+       "do": "move",
+       "t0": 0.6,
+       "t1": 0.8,
+       "x": -0.15
+      }
+     ]
+    },
+    {
+     "img": "drop",
+     "x": 0.274,
+     "z": 0.02,
+     "h": 0.1,
+     "pop": false,
+     "shadow": false,
+     "show": 0.3,
+     "acts": [
+      {
+       "do": "fall",
+       "t0": 0.3,
+       "t1": 0.4,
+       "y0": 1.6,
+       "y1": 0.68
+      }
+     ]
+    }
+   ],
+   "sfx": [
+    {
+     "name": "rain",
+     "at": 0,
+     "dur": 5,
+     "from": 40,
+     "gain": 0.25
+    }
+   ],
+   "tail": 1.0,
+   "lines": [
+    "そらが あかるく なって、さいごの しずくが ポトン。",
+    "ピノと ルルは、もう すこしだけ はっぱの したに いました。"
+   ]
+  }
+ ]
+}
