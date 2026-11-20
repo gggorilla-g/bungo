@@ -910,7 +910,66 @@ def golden(sp):
     sim.finish(total)
 
 
-KINDS = {"pendswing": pendswing, "golden": golden, "piphase": piphase, "maurer": maurer, "harmono": harmono, "spiro": spiro, "star": star, "throw": throw, "tusi": tusi, "chain": chain, "basket": basket, "koch": koch, "cycloid": cycloid, "pendulums": pendulums, "lissajous": lissajous, "corner": corner, "sunflower": sunflower, "ulam": ulam, "parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2, "picount": picount}
+def threebody(sp):
+    """ピタゴラスの三体問題：質量3・4・5の星を、辺3・4・5の直角三角形の頂点に止めて置き、重力だけで動かす。
+    近づいては離れをくり返し、最後に1つが飛ばされる（決まった初期値なのに先が読めない＝カオス）。
+    近づいた瞬間（距離が最小）にガラスの音、数を数える。線は最近の軌跡を明るく、古い軌跡はうすく残す"""
+    from scipy.integrate import solve_ivp
+    m = np.array(sp.get("m", [3., 4., 5.])); x0 = np.array(sp.get("x0", [[1, 3], [-2, -1], [1, -1]]), float)
+    T1, dur, intro, tail = sp.get("T", 66.0), sp.get("dur", 44.0), .8, sp.get("tail", 2.5)
+    def f(t, y):
+        p = y[:6].reshape(3, 2); a = np.zeros((3, 2))
+        for i in range(3):
+            for j in range(3):
+                if i != j: r = p[j] - p[i]; a[i] += m[j] * r / np.linalg.norm(r) ** 3
+        return np.concatenate([y[6:], a.ravel()])
+    sol = solve_ivp(f, (0, T1), np.concatenate([x0.ravel(), np.zeros(6)]), rtol=1e-11, atol=1e-12, dense_output=True, method="DOP853")
+    k = T1 / dur; total = intro + dur + tail
+    P = lambda tt: sol.sol(min(T1, max(0, tt)))[:6].reshape(3, 2)
+    sim = Sim(sp, tuple(sp.get("box", (-4.6, -4.2, 4.6, 5.2)))); sim.title()
+    cols = [(255, 214, 90), (90, 170, 255), (255, 110, 80)]
+    # 近づいた瞬間
+    TT = np.linspace(0, T1, int(T1 * 400)); PP = sol.sol(TT)[:6].T.reshape(-1, 3, 2); calls = []
+    for pi_, (i, j) in enumerate(((0, 1), (0, 2), (1, 2))):
+        dd = np.linalg.norm(PP[:, i] - PP[:, j], axis=1); mn = np.where((dd[1:-1] < dd[:-2]) & (dd[1:-1] < dd[2:]) & (dd[1:-1] < sp.get("close", .45)))[0] + 1
+        for q in mn: calls.append((TT[q], i, j, dd[q]))
+    calls.sort()
+    for n_, (tc, i, j, dd) in enumerate(calls):
+        x = PP[int(tc * 400 / T1 * T1 / T1)][i][0] if False else P(tc)[i][0]
+        sim.note(intro + tc / k, PENTA[(3 * i + 5 * j + n_ * 2) % 13 + 3], .55 + .3 * (1 - dd / .45), .5 + .08 * x, 3.2, "glass")
+    com = lambda p: (p * m[:, None]).sum(0) / m.sum()
+    ej = None
+    for tt in np.linspace(0, T1, 2000):
+        p = P(tt); r = np.linalg.norm(p - com(p), axis=1)
+        if r.max() > 7: ej = tt; break
+    trail = sp.get("trail", 3.0)   # 明るく見せる最近の軌跡（シミュレーション内の時間）
+    last = 0.0
+    for fi in range(int(total * FPS)):
+        t = fi / FPS; u = min(T1, max(0, (t - intro) * k))
+        # 古い軌跡をうすく残す（u-trail までを確定）
+        upto = max(0, u - trail)
+        if upto > last:
+            segs = []; ts_ = np.linspace(last, upto, max(2, int((upto - last) * 60)))
+            for i in range(3):
+                pts = [P(x)[i] for x in ts_]; segs += [(a, b, dim(cols[i], .22)) for a, b in zip(pts, pts[1:])]
+            sim.commit(segs, width=2.2); last = upto
+        live = []
+        ts_ = np.linspace(max(0, u - trail), u, 90)
+        for i in range(3):
+            pts = [P(x)[i] for x in ts_]
+            for q, (a, b) in enumerate(zip(pts, pts[1:])): live.append((a, b, dim(cols[i], .25 + .75 * q / len(pts)), 2.2 + 2.6 * q / len(pts)))
+        p = P(u); balls = [(p[i], cols[i], 6 + 1.6 * m[i]) for i in range(3)]
+        n_c = sum(1 for c in calls if c[0] <= u)
+        def dr(d, done=ej is not None and u >= ej + 1.5):
+            if done and sp.get("end_label", "1つ、飛ばされた"):
+                from simkit import F, W as W_, S as S_, H as H_
+                msg = sp.get("end_label", "1つ、飛ばされた"); fB = F(70 * S_); w = d.textlength(msg, font=fB)
+                d.text((W_ * S_ / 2 - w / 2, H_ * S_ * .80), msg, font=fB, fill=(255, 255, 255), stroke_width=8 * S_, stroke_fill=(30, 60, 140))
+        sim.frame(t, live, balls, (sp.get("count_label", "ニアミス："), (f"{n_c}" if sp.get("lang")=="en" or sp["id"].endswith("_en") else f"{n_c}回")), draw=dr)
+    sim.finish(total)
+
+
+KINDS = {"threebody": threebody, "pendswing": pendswing, "golden": golden, "piphase": piphase, "maurer": maurer, "harmono": harmono, "spiro": spiro, "star": star, "throw": throw, "tusi": tusi, "chain": chain, "basket": basket, "koch": koch, "cycloid": cycloid, "pendulums": pendulums, "lissajous": lissajous, "corner": corner, "sunflower": sunflower, "ulam": ulam, "parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2, "picount": picount}
 
 if __name__ == "__main__":
     sp = json.load(open(sys.argv[1], encoding="utf-8")); KINDS[sp["kind"]](sp); kit(sp)

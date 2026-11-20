@@ -1,0 +1,16 @@
+【タイトル】
+Three Stars Released From Rest. What Happens? #shorts
+
+【説明】
+Three stars with masses 3, 4 and 5 start at rest on the corners of a 3-4-5 right triangle. Only gravity acts. They swing past each other again and again, until one gets thrown out.
+
+How it works:
+- This setup is the classic "Pythagorean three-body problem". The start is fixed, yet the motion can't be predicted far ahead (chaos).
+- The stars only pull on each other: no air, no collisions.
+- Each time two stars reach their closest point, one glass-like note plays.
+- Bright lines are the recent paths, faint lines are older ones.
+
+Simulation, sound and animation: original (Python).
+
+【タグ】
+satisfying, three body problem, gravity, chaos, physics simulation, satisfying sounds, shorts

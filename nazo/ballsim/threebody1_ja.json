@@ -1,0 +1,17 @@
+{
+ "kind": "threebody",
+ "id": "threebody1_ja",
+ "title": [
+  "3つの星を止めた状態から放すと",
+  "どうなる？"
+ ],
+ "count_label": "ニアミス：",
+ "end_label": "",
+ "box": [
+  -3.4,
+  -3.4,
+  3.4,
+  4.2
+ ],
+ "dur": 52.0
+}

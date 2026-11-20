@@ -145,6 +145,10 @@ class Sim:
                     wood = np.sin(2 * np.pi * f * tt) * np.exp(-tt * 9) + .35 * np.sin(2 * np.pi * f * 4 * tt) * np.exp(-tt * 30)
                     s = .8 * out / (np.abs(out).max() + 1e-9) + .55 * wood
                     cache[key] = s * np.exp(-tt * dec * .5) * np.minimum(1, tt / .002) * (f / 523.25) ** -.25; return cache[key]
+                if kind == "glass":   # ガラスに当たった「カラン」：整数倍からずれた部分音＋短いはじき
+                    s = sum(g_ * np.sin(2 * np.pi * f * r_ * tt + r_) * np.exp(-tt * dec * k_) for r_, g_, k_ in ((1, 1, .5), (2.32, .55, 1.1), (4.25, .3, 2.0), (6.63, .16, 3.4), (9.38, .08, 5)))
+                    s = s + np.random.default_rng(int(m)).normal(0, 1, len(tt)) * np.exp(-tt * 900) * .25
+                    cache[key] = s * np.minimum(1, tt / .0015) * (f / 523.25) ** -.3; return cache[key]
                 if kind == "bell": s = np.sin(2 * np.pi * f * tt) + .4 * np.sin(2 * np.pi * f * 2.76 * tt) * np.exp(-tt * 6) + .2 * np.sin(2 * np.pi * f * 5.4 * tt) * np.exp(-tt * 10)
                 else: s = np.sin(2 * np.pi * f * tt) + .28 * np.sin(2 * np.pi * f * 4 * tt) * np.exp(-tt * 20) + .1 * np.sin(2 * np.pi * f * 10 * tt) * np.exp(-tt * 45)
                 cache[key] = s * np.exp(-tt * dec) * np.minimum(1, tt / .003) * (f / 523.25) ** -.25   # 高い音ほど少し小さく
