@@ -62,9 +62,9 @@ const ARM=(LAB.armies||[]).map((a,ai)=>{
   return {a,n,cav,body,top,shield,jit,keys}});
 const lineOf=fx=>LINES.find(x=>x.fx===fx);
 const lineAt=t=>LINES.find(x=>t>=x.t0-.02&&t<x.t1+.12)||LINES.filter(x=>x.t0<=t).pop()||LINES[0];
-const PK=['cx','cz','w','d','bend','rot','alive'];
+const PK=['cx','cz','w','d','bend','rot','alive','y'];
 function stateAt(A,t,full){   // full=true なら、その時点までの鍵をすべて終わった形
-  const s=Object.assign({cx:0,cz:0,w:10,d:4,bend:0,rot:0,alive:1},A.a.base);let moving=0;
+  const s=Object.assign({cx:0,cz:0,w:10,d:4,bend:0,rot:0,alive:1,y:0},A.a.base);let moving=0;
   for(const k of A.keys){const l=lineOf(k.fx);if(!l)continue;const t0=l.t0+(k.at||0)*l.voice,t1=t0+(k.dur||2.0);
     if(t<t0)continue;const u=full?1:sstep(t0,t1,t);if(u>0&&u<1)moving=1;for(const p of PK)if(k[p]!=null)s[p]=lerp(s[p],k[p],u)}
   s.moving=moving;return s}
@@ -76,7 +76,7 @@ function placeArmy(A,t){const s=stateFor(A,t),n=A.n,asp=Math.max(.2,s.w/Math.max
     const u=(C>1?c/(C-1):.5)-.5,v=(R>1?r/(R-1):.5)-.5;
     let lx=u*s.w+j[0]*.35,lz=-v*s.d+j[1]*.35+s.bend*(1-4*u*u);
     const x=s.cx+lx*cs+lz*sn,z=s.cz-lx*sn+lz*cs;
-    const dead=j[3]>s.alive;const bob=s.moving?.06*Math.abs(Math.sin(t*9+j[2])):0;const sink=dead?-1.2:0;
+    const dead=j[3]>s.alive;const bob=(s.moving?.06*Math.abs(Math.sin(t*9+j[2])):0)+(s.y||0);const sink=dead?-1.2:0;
     const sc=dead?0.0001:U;
     dummy.rotation.set(0,ro,0);
     if(A.cav){dummy.position.set(x,.55*U+bob+sink,z);dummy.scale.setScalar(sc);dummy.updateMatrix();A.body.setMatrixAt(i,dummy.matrix);
@@ -85,6 +85,16 @@ function placeArmy(A,t){const s=stateFor(A,t),n=A.n,asp=Math.max(.2,s.w/Math.max
       dummy.position.set(x,.88*U+bob+sink,z);dummy.updateMatrix();A.top.setMatrixAt(i,dummy.matrix);
       dummy.position.set(x+.2*U*sn,.5*U+bob+sink,z+.2*U*cs);dummy.updateMatrix();A.shield.setMatrixAt(i,dummy.matrix)}}
   [A.body,A.top,A.shield].forEach(m=>{if(m)m.instanceMatrix.needsUpdate=true});return s}
+// ---- 輪の壁（杭の柵＋外側の堀）と、丘の上の町。walls: [{r, h, color, fx, at, dur}]、town: {r, h}
+const WALLS=(LAB.walls||[]).map(wl=>{const n=Math.round(2*Math.PI*wl.r/.42),geo=new THREE.BoxGeometry(.16,1,.16),m=new THREE.InstancedMesh(geo,S(wl.color||0x8a5a32),n);m.castShadow=true;scene.add(m);
+  const ditch=new THREE.Mesh(new THREE.RingGeometry(wl.r+.35,wl.r+1.1,128),S(0x5b4a32,{flatShading:false}));ditch.rotation.x=-Math.PI/2;ditch.position.y=.3;scene.add(ditch);return {wl,n,m,ditch}});
+function placeWalls(t){const l=lineAt(t);for(const W_ of WALLS){const L=lineOf(W_.wl.fx);let u=0;
+  if(l.fx==='hook'&&LAB.hook_as)u=1;else if(L){const t0=L.t0+(W_.wl.at||.1)*L.voice;u=sstep(t0,t0+(W_.wl.dur||2.5),t)}
+  const h=(W_.wl.h||1.6)*Math.max(.0001,u);for(let i=0;i<W_.n;i++){const a=i/W_.n*Math.PI*2,k=clamp(u*1.15-(i/W_.n)*.15,0,1);dummy.position.set(Math.cos(a)*W_.wl.r,.3+h*k/2,Math.sin(a)*W_.wl.r);dummy.rotation.set(0,-a,0);dummy.scale.set(1,Math.max(.0001,h*k),1);dummy.updateMatrix();W_.m.setMatrixAt(i,dummy.matrix)}
+  W_.m.instanceMatrix.needsUpdate=true;W_.ditch.visible=u>.02;W_.ditch.scale.setScalar(.97+.03*u)}}
+if(LAB.town){const T_=LAB.town;const hill=new THREE.Mesh(new THREE.CylinderGeometry(T_.r*.75,T_.r*1.15,T_.h,40),S(0x7d8f55));hill.position.y=T_.h/2;hill.receiveShadow=true;scene.add(hill);
+  const rng=(s=>()=>(s=(s*16807)%2147483647)/2147483647)(5);for(let i=0;i<T_.houses;i++){const a=rng()*6.28,r=T_.r*(.62+.12*rng());const hs=new THREE.Mesh(new THREE.BoxGeometry(.9,.7,.9),S(0xd8c39a));hs.position.set(Math.cos(a)*r,T_.h+.35,Math.sin(a)*r);hs.castShadow=true;scene.add(hs);
+    const rf=new THREE.Mesh(new THREE.ConeGeometry(.75,.6,4),S(0x8b5a3c));rf.position.set(hs.position.x,T_.h+1.0,hs.position.z);rf.rotation.y=Math.PI/4;scene.add(rf)}}
 // ---- 地面の矢印（曲線のリボン＋矢じり）
 const ARROWS=[];
 for(const fx in (LAB.arrows||{}))for(const ar of LAB.arrows[fx]){
@@ -117,7 +127,7 @@ function drawHud(t,ST){hud.innerHTML='';const l=lineAt(t),a=clamp((t-l.t0)/.12,0
   let y=l.cap.length>1?690:712;l.cap.forEach((c,i)=>{const size=Math.min(48,480/tw(c,1));T(270,y+(1-a)*6,size,c,{a:'middle',sw:9,op:(.3+.7*a).toFixed(2),fill:i===l.cap.length-1?'#ffd23f':'#fff'});y+=size+12});
   for(const tg of ((LAB.tags||{})[l.fx]||[])){const A=ARM.find(o=>o.a.id===tg.army);if(!A)continue;const s=ST[tg.army];const op=sstep(l.t0+(tg.at||.1)*l.voice,l.t0+(tg.at||.1)*l.voice+.3,t);
     tag(new THREE.Vector3(s.cx,(tg.dy||3),s.cz),tg.text,op,tg.col||(A.a.tagcol||'#1f2937'))}}
-window.renderAt=function(t){const ST={};ARM.forEach(A=>{ST[A.a.id]=placeArmy(A,t)});
+window.renderAt=function(t){placeWalls(t);const ST={};ARM.forEach(A=>{ST[A.a.id]=placeArmy(A,t)});
   const l=lineAt(t);ARROWS.forEach(r=>{const L=lineOf(r.fx);let op=0;if(L&&l===L){op=sstep(L.t0+r.at*L.voice,L.t0+r.at*L.voice+.35,t)*.92}r.m.opacity=op;r.me.visible=op>.01});
   const[p,q]=camAt(t);cam.position.copy(p);cam.lookAt(q);cam.updateProjectionMatrix();sun.position.set(q.x+20,q.y+40,q.z+18);sun.target.position.copy(q);
   renderer.render(scene,cam);drawHud(t,ST);return{t}};
