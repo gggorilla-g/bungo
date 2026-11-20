@@ -1,0 +1,15 @@
+【タイトル】
+A Printer Prints It Line by Line. What Picture Appears? #shorts
+
+【説明】
+A print head sweeps back and forth, printing one line at a time. The picture is the Mandelbrot set.
+
+How it works:
+- For each point c on the plane, z is replaced by z*z + c over and over. Points that never escape are dark; points that escape are colored by how many steps it took.
+- Points near the edge take longer to escape, so they glow brightest.
+- Each time the head turns around, one note plays; crossing the edge of the set adds a softer note.
+
+Simulation, sound and animation: original (Python).
+
+【タグ】
+satisfying, mandelbrot set, fractal, math, printer, satisfying sounds, shorts
