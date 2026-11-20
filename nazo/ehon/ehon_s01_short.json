@@ -311,7 +311,8 @@
    "text": {
     "size": 46,
     "group": 2,
-    "wrap": 9
+    "wrap": 9,
+    "color": "#fffaf0"
    },
    "light": 0.9,
    "dur": 2.2,
@@ -355,7 +356,8 @@
      "y": 1,
      "d": 9,
      "img": "ins_paw_drop",
-     "fx": []
+     "fx": [],
+     "ink": "#fffaf0"
     }
    ],
    "sfx": [
@@ -380,7 +382,8 @@
    "text": {
     "size": 46,
     "group": 2,
-    "wrap": 9
+    "wrap": 9,
+    "color": "#fffaf0"
    },
    "rain": [
     -0.1,
@@ -499,7 +502,8 @@
        "speed": 0.07,
        "flat": 0.5
       }
-     ]
+     ],
+     "ink": "#fffaf0"
     },
     {
      "u": "L4",
@@ -537,7 +541,8 @@
    "text": {
     "size": 46,
     "group": 2,
-    "wrap": 9
+    "wrap": 9,
+    "color": "#fffaf0"
    },
    "rain": [
     -0.1,

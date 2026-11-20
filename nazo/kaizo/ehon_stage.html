@@ -94,8 +94,10 @@ function itemBoxes(){const out=[];if(shot.visible)return out;const v=new THREE.V
 // 本文：絵の空いている所を探して置く（紙人形と重ならない候補を選ぶ。手で x,y を書いたページはその場所）
 function buildText(P,grp){
   while(textG.firstChild)textG.removeChild(textG.firstChild);textEls=[];const T=P.text||{};const N=T.group||2;const LS=P.lines.map((L,li)=>[L,li]).filter(([L,li])=>Math.floor(li/N)===grp);
-  const fs=T.size||22,lh=fs*1.75,ink=(curShot&&curShot.k.ink)||T.color||'#3b2a22';if(!LS.length)return;
+  let fs=T.size||22;const ink=(curShot&&curShot.k.ink)||T.color||'#3b2a22';if(!LS.length)return;
   let rows=0,maxw=0;LS.forEach(([L])=>{rows+=L.wrap.length;L.wrap.forEach(s=>{maxw=Math.max(maxw,s.length*fs*1.06)})});
+  if(maxw+fs*1.8>W*.92){const k=W*.92/(maxw+fs*1.8);fs*=k;maxw*=k}   /* 長い行は画面からはみ出さないよう文字を小さく */
+  const lh=fs*1.75;
   const bw=maxw+fs*1.8,bh=rows*lh+fs*.9;
   const C=[['start',.05,.11],['end',.95,.11],['start',.05,.62],['end',.95,.62],['middle',.5,.09],['start',.05,.36],['end',.95,.36]];
   let best=null;
