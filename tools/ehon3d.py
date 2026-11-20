@@ -39,7 +39,7 @@ def synth(sp, B):
         for li, text in enumerate(pg["lines"]):
             p = f"{B}/v{pi:02d}_{li:02d}.wav"
             if not os.path.exists(p):
-                say = re.sub(r"[ 　「」『』…]", "", text)
+                say = re.sub(r"[ 　「」『』…]", "", text).replace("／", "、")
                 for k, r in sp.get("yomi", {}).items(): say = say.replace(k, r)
                 q = s.create_audio_query(say, v["style"]); q.speed_scale = v.get("speed", .92); q.pre_phoneme_length = .15; q.post_phoneme_length = .4
                 q.intonation_scale = v.get("into", 1.1); q.volume_scale = v.get("vol", 1.5)
@@ -75,7 +75,7 @@ def main(path, mode=None, arg=None):
     for pi, pg in enumerate(sp["pages"]):
         t0 = t; tl = t + pg.get("pad0", PAD0); L = []; G = pg.get("gap", sp.get("gap", GAP))
         for li, text in enumerate(pg["lines"]):
-            p, d = vo[(pi, li)]; L.append(dict(t=tl, d=d, wrap=wrap(text, pg.get("text", {}).get("wrap", 16)), wav=p)); tl += d + G + (pg.get("pause", {}).get(str(li), 0) if isinstance(pg.get("pause"), dict) else 0)
+            p, d = vo[(pi, li)]; L.append(dict(t=tl, d=d, wrap=sum([wrap(x, pg.get("text", {}).get("wrap", 16)) for x in text.split("／")], []), wav=p)); tl += d + G + (pg.get("pause", {}).get(str(li), 0) if isinstance(pg.get("pause"), dict) else 0)
         t1 = tl - G + PAD1 + pg.get("tail", 0)
         if not pg["lines"]: t1 = t0 + pg.get("dur", 6.0)   # 声の入らないカット（雨雲だけ、など）
         pages.append((t0, t1, L)); t = t1 + pg.get("trans", TR)
@@ -84,6 +84,7 @@ def main(path, mode=None, arg=None):
     stage = {"cover": cover, "logo": sp.get("logo_rel"), "label": sp.get("label", "ほほほブックス"), "title": sp["title"], "end_t": pages[-1][1], "end_text": sp.get("end_text", "おしまい"), "pages": [], "title_t": [.3, TC] if TC else [0, 0], "title_card": sp.get("title_card", {}), "fov": sp.get("fov", 24)}
     def U(pi, u):
         """ページ内の時刻。数なら割合、"L2" なら2番目の文の読み始め、"L2e" なら読み終わり、"L2+0.5" のように秒をずらせる"""
+        if isinstance(u, str) and u.startswith("s"): return pages[pi][0] + float(u[1:])   # "s2.4" ならページの頭から2.4秒
         if isinstance(u, str):
             m = re.match(r"L(\d+)(e?)([+-][\d.]+)?$", u); l = pages[pi][2][int(m.group(1))]
             return l["t"] + (l["d"] if m.group(2) else 0) + float(m.group(3) or 0)

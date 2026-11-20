@@ -2,7 +2,7 @@
 #   表紙の絵（Codex の1枚絵。上3分の1を空けて描く）に、毎回同じ形で載せる：
 #     左上＝レーベル「ほほほブックス」／上部＝題名／右下の帯＝「よみきかせ」「◯ふん」
 #   使い方: python3 tools/ehon_thumb.py 表紙の絵.png "題名" 出力.jpg 分数
-import sys
+import sys, os
 from PIL import Image, ImageDraw, ImageFilter
 sys.path.insert(0, "tools")
 from ballsim import font
@@ -32,7 +32,12 @@ def main(src, title, out, minutes=""):
     im.alpha_composite(glow.filter(ImageFilter.GaussianBlur(11)))
     d = ImageDraw.Draw(im); d.text((x, y), title, font=f, fill=INK, stroke_width=7, stroke_fill=PAPER)
     # レーベル（左上）
-    badge(im, (34, 28), LABEL, 34, (122, 74, 52), PAPER, pad=(24, 12))
+    lp = "nazo/kaizo/ehon/brand/logo_full.png"
+    if os.path.exists(lp):   # レーベルのロゴ（フクロウと本）。読めるよう、うしろに淡い紙色のにじみ
+        lg = Image.open(lp).convert("RGBA"); lg.thumbnail((330, 110)); pad = Image.new("RGBA", im.size, (0, 0, 0, 0))
+        ImageDraw.Draw(pad).rounded_rectangle([20, 16, 20 + lg.width + 28, 16 + lg.height + 20], 30, fill=PAPER + (215,)); im.alpha_composite(pad.filter(ImageFilter.GaussianBlur(4)))
+        im.alpha_composite(lg, (34, 26))
+    else: badge(im, (34, 28), LABEL, 34, (122, 74, 52), PAPER, pad=(24, 12))
     # 帯（右下）：よみきかせ／◯ふん
     tag = "よみきかせ" + (f"  {minutes}ふん" if minutes else "")
     f2 = font(40); w2 = ImageDraw.Draw(im).textlength(tag, font=f2)
