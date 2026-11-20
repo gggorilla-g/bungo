@@ -1025,7 +1025,63 @@ def plotter(sp):
     sim.finish(total)
 
 
-KINDS = {"plotter": plotter, "threebody": threebody, "pendswing": pendswing, "golden": golden, "piphase": piphase, "maurer": maurer, "harmono": harmono, "spiro": spiro, "star": star, "throw": throw, "tusi": tusi, "chain": chain, "basket": basket, "koch": koch, "cycloid": cycloid, "pendulums": pendulums, "lissajous": lissajous, "corner": corner, "sunflower": sunflower, "ulam": ulam, "parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2, "picount": picount}
+def lissatable(sp):
+    """リサージュの表：上の列の円（速さ1〜N倍）と、左の列の円（速さ1〜N倍）の組み合わせで、全部のマスの曲線を同時に描く。
+    はじめは1周で全部が閉じた形になる（予想どおり）。そのあと1列だけ速さがほんの少しずれて形が回りはじめ（ズレ）、
+    やがて全部の列と行がずれて、表全体が別の模様に変わっていく。円の点がてっぺんを通るたびにガラスの音（速さの比で重なったりずれたりする）"""
+    N = sp.get("n", 7); dur, intro, tail = sp.get("dur", 50.0), .6, sp.get("tail", 2.0)
+    TA, TB, TC = sp.get("t_draw", 12.0), sp.get("t_hold", 6.0), sp.get("t_one", 9.0)   # 描く・そのまま・1列だけずれる
+    w0 = 2 * np.pi / TA; cell = 1.0; r = .38
+    sim = Sim(sp, (-.5, -N - .5, N + .5, .5), area=(.04, .20, .96, .80)); sim.title()
+    h0 = sp.get("hue0", 0.0); cols = [hsv((h0 + i / N * .85) % 1, .8, 1) for i in range(N)]
+    one = sp.get("one", N // 2)   # 最初にずれる列（0始まり）
+    def det(k, t, row=False):   # 速さのずれ（時刻とともに少しずつ）
+        u = t - TA - TB
+        if u <= 0: return 0.0
+        d = 0.0
+        if not row and k == one: d += .035 * min(1, u / 3)
+        if u > TC: d += .012 * (k - (N - 1) / 2) / ((N - 1) / 2) * min(1, (u - TC) / 6) * (1.3 if row else 1)
+        return d
+    # 位相（ずれを時間で積分）を前もって数える
+    total = intro + dur + tail; dt = 1 / (FPS * 4); TT = np.arange(0, total + 1, dt)
+    def phase_arr(k, row):
+        f = np.array([(k + 1) + det(k, max(0, t - intro), row) for t in TT]); ph = np.concatenate([[0], np.cumsum(f[:-1] * w0 * dt)]); ph[TT < intro] = 0; return ph
+    PC = [phase_arr(k, False) for k in range(N)]; PR = [phase_arr(k, True) for k in range(N)]
+    at = lambda arr, t: np.interp(t, TT, arr)
+    # 音：上の円・左の円の点がてっぺん（位相が2πの倍数）を通るたび
+    for k in range(N):
+        for arr, oct_, pan in ((PC[k], 12, .2 + .6 * k / (N - 1)), (PR[k], 0, .5)):
+            n_ = np.floor(arr / (2 * np.pi)); idx = np.where(np.diff(n_) > 0)[0]
+            for i in idx: sim.note(TT[i], PENTA[(k * 2) % 15] + oct_, .32 if oct_ else .26, pan, 3.4, "glass")
+    WIN = 2 * np.pi   # 曲線として見せる長さ（いちばん遅い円の1周ぶん）
+    for fi in range(int(total * FPS)):
+        t = fi / FPS; live, balls = [], []
+        span = min(t - intro, TA) if t < intro + TA else TA   # 描いている途中は伸びていく
+        ts = np.linspace(max(0, t - max(.01, span)), t, 90)
+        for c in range(N):   # 上の円
+            cx, cy = c + 1, 0; th = at(PC[c], t)
+            pts = [(cx + r * np.cos(a - np.pi / 2), cy - r * np.sin(a - np.pi / 2)) for a in np.linspace(0, 2 * np.pi, 40)]
+            live += [(a, b, dim(cols[c], .5), 2.0) for a, b in zip(pts, pts[1:])]
+            balls.append(((cx + r * np.sin(th), cy + r * np.cos(th)), (255, 255, 255), 4))
+        for rr in range(N):   # 左の円
+            cx, cy = 0, -(rr + 1); th = at(PR[rr], t)
+            pts = [(cx + r * np.cos(a), cy + r * np.sin(a)) for a in np.linspace(0, 2 * np.pi, 40)]
+            live += [(a, b, dim(cols[rr], .5), 2.0) for a, b in zip(pts, pts[1:])]
+            balls.append(((cx + r * np.sin(th), cy + r * np.cos(th)), (255, 255, 255), 4))
+        if t > intro:
+            for c in range(N):
+                xs_ = r * np.sin(at(PC[c], ts))
+                for rr in range(N):
+                    ys_ = r * np.cos(at(PR[rr], ts)); cx, cy = c + 1, -(rr + 1)
+                    mix = tuple(int((a + b) / 2) for a, b in zip(cols[c], cols[rr]))
+                    P = list(zip(cx + xs_, cy + ys_)); m_ = len(P)
+                    live += [(P[i], P[i + 1], dim(mix, .3 + .7 * i / m_), 1.4 + 1.2 * i / m_) for i in range(m_ - 1)]
+                    balls.append((P[-1], mix, 2.6))
+        sim.frame(t, live, balls)
+    sim.finish(total)
+
+
+KINDS = {"lissatable": lissatable, "plotter": plotter, "threebody": threebody, "pendswing": pendswing, "golden": golden, "piphase": piphase, "maurer": maurer, "harmono": harmono, "spiro": spiro, "star": star, "throw": throw, "tusi": tusi, "chain": chain, "basket": basket, "koch": koch, "cycloid": cycloid, "pendulums": pendulums, "lissajous": lissajous, "corner": corner, "sunflower": sunflower, "ulam": ulam, "parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2, "picount": picount}
 
 if __name__ == "__main__":
     sp = json.load(open(sys.argv[1], encoding="utf-8")); KINDS[sp["kind"]](sp); kit(sp)

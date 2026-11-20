@@ -1,0 +1,15 @@
+【タイトル】
+Combine Circles at 7 Speeds. What Shapes Appear? #shorts
+
+【説明】
+The circles along the top spin at 1x to 7x speed, and so do the circles down the left. Each cell's dot takes its horizontal position from the top circle and its vertical position from the left circle (Lissajous figures).
+
+How it works:
+- While the speeds are exact whole-number ratios, every curve closes after one lap.
+- Partway through, the speeds are nudged very slightly. The curves stop closing and slowly turn and morph.
+- A note plays each time a top or left circle's dot passes the top, so the rhythms overlap and drift apart.
+
+Simulation, sound and animation: original (Python).
+
+【タグ】
+satisfying, lissajous, math, geometry, frequency, satisfying sounds, shorts

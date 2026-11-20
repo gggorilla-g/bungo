@@ -1,0 +1,12 @@
+{
+ "kind": "lissatable",
+ "id": "lissatable1_en",
+ "title": [
+  "Combine circles at 7 speeds",
+  "What shapes appear?"
+ ],
+ "n": 7,
+ "dur": 50.0,
+ "bloom": 0.7,
+ "hue0": 0.5
+}
