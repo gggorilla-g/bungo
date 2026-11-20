@@ -1,13 +1,3 @@
-pendswing1_ja MOSO ja
-golden1_ja MOSO ja
-venus1_ja MOSO ja
-cardioid2_ja MOSO ja
-rings1_ja MOSO ja
-pi1_ja MOSO ja
-sunflower1_ja MOSO ja
-ulam1_ja MOSO ja
-cardioid3_ja MOSO ja
-corner1_ja MOSO ja
 pend1_ja MOSO ja
 liss1_ja MOSO ja
 koch1_ja MOSO ja
