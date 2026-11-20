@@ -81,16 +81,16 @@ function drawFx(P,t){
 }
 const titleG=el('g',{opacity:0});
 const endT=el('text',{x:W/2,y:H*.52,'text-anchor':'middle','font-size':40,'font-weight':900,fill:'#3b2a22','letter-spacing':6,opacity:0},SPEC.end_text||'おしまい');
-let pageText=-1,textEls=[];
-function buildText(P){
-  while(textG.firstChild)textG.removeChild(textG.firstChild);textEls=[];
+let pageText='',textEls=[];
+function buildText(P,grp){
+  while(textG.firstChild)textG.removeChild(textG.firstChild);textEls=[];const N=(P.text&&P.text.group)||3;const LS=P.lines.map((L,li)=>[L,li]).filter(([L,li])=>Math.floor(li/N)===grp);
   const T=P.text||{};const fs=T.size||22,lh=fs*1.75,ink=T.color||'#3b2a22',al=T.align||'start';
   const x0=(T.x!=null?T.x:.06)*W,y0=(T.y!=null?T.y:.12)*H;let row=0;
   // 文字の下に、紙がにじんだような淡い下地（絵の上でも読めるように）
-  if(T.paper!==false&&P.lines.length){let maxw=0,rows=0;P.lines.forEach(L=>{rows+=L.wrap.length;L.wrap.forEach(s=>{maxw=Math.max(maxw,s.length*fs*1.0)})});
+  if(T.paper!==false&&LS.length){let maxw=0,rows=0;LS.forEach(([L])=>{rows+=L.wrap.length;L.wrap.forEach(s=>{maxw=Math.max(maxw,s.length*fs*1.0)})});
     const px=al==='middle'?x0-maxw/2:al==='end'?x0-maxw:x0;
     const r=el('rect',{x:px-fs*.9,y:y0-fs*1.3,width:maxw+fs*1.8,height:rows*lh+fs*.9,rx:fs*.9,fill:T.paper_color||'#fbf6ea',opacity:T.paper_op!=null?T.paper_op:.55},null,textG);r.style.filter='blur(6px)'}
-  P.lines.forEach((L,li)=>{L.wrap.forEach(s=>{const e=el('text',{x:x0,y:y0+row*lh,'text-anchor':al,'font-size':fs,'font-weight':T.weight||700,fill:ink,'letter-spacing':fs*.06},s,textG);textEls.push({e,li});row++})});
+  LS.forEach(([L,li])=>{L.wrap.forEach(s=>{const e=el('text',{x:x0,y:y0+row*lh,'text-anchor':al,'font-size':fs,'font-weight':T.weight||700,fill:ink,'letter-spacing':fs*.06},s,textG);textEls.push({e,li});row++})});
 }
 {const T=SPEC.title_card||{};const fs=T.size||48;el('text',{x:W/2,y:H*(T.y||.42),'text-anchor':'middle','font-size':fs,'font-weight':900,fill:T.color||'#3b2a22','letter-spacing':fs*.08},SPEC.title,titleG)}
 
@@ -142,14 +142,15 @@ window.renderAt=function(t){
     const asp=ASP[s.pose]||it.aspect;p.a.scale.set(h*asp*s.face,h,1);p.m1.map=tex(s.pose);p.m1.opacity=s.alpha*(1-s.mix);
     if(s.next){const a2=ASP[s.next]||asp;p.b.visible=true;p.b.scale.set(h*a2*s.nface,h,1);p.m2.map=tex(s.next);p.m2.opacity=s.alpha*s.mix}else p.b.visible=false;
     p.m1.needsUpdate=p.m2.needsUpdate=true;p.m1.color.setScalar(light);p.m2.color.setScalar(light);
-    p.g.position.set(0,s.y,0);p.g.rotation.set(0,s.ry,s.rz);p.root.position.set(s.x,0,it.z);
+    p.g.position.set(0,s.y,0);p.g.rotation.set(0,s.ry,s.rz);p.root.position.set(s.x,it.y0||0,it.z);
     const sw=h*asp*.8*(1-Math.min(.6,s.y));p.sh.scale.set(sw,sw*.28,1);p.sh.material.opacity=(it.shadow===false?0:1)*s.alpha*Math.max(0,1-s.y*1.2)}
   let rain=0;if(P.rain)rain=ss(P.rain[0],P.rain[0]+1,t)*(1-ss(P.rain[1]-1,P.rain[1],t));
   for(let i=0;i<NR;i++){const d=RD[i];const on=i/NR<rain;const yy=3.4-((t*d.sp+d.ph*3.4)%3.4);dummy.position.set(d.x,on?yy:-9,d.z);dummy.updateMatrix();rainM.setMatrixAt(i,dummy.matrix)}rainM.instanceMatrix.needsUpdate=true;
   const c=camAt(P,t);camera.position.set(c.x,c.y+.04*c.d,c.d);camera.lookAt(c.tx,c.ty,0);
   drawFx(P,t);
   // 本文：ページの文をまとめて置き、読んでいる文と読み終えた文を濃くする
-  if(pageText!==cur){buildText(P);pageText=cur}
+  // 文が多いページは、本の見開きのように数文ずつ（group）入れ替える
+  {const N=(P.text&&P.text.group)||3;let ci=0;P.lines.forEach((L,i)=>{if(t>=L.t-.35)ci=i});const g=Math.floor(ci/N),key=cur+':'+g;if(pageText!==key){buildText(P,g);pageText=key}}
   const vis=(P.text&&P.text.hide_until)||0;
   textEls.forEach(({e,li})=>{const L=P.lines[li];const on=ss(L.t-.35,L.t+.05,t);e.setAttribute('opacity',(on*(t<P.t0+vis?0:1)).toFixed(3))});
   textG.setAttribute('opacity',(1-ss(P.t1-.2,P.t1+.3,t)).toFixed(3));

@@ -15,7 +15,7 @@ from ballsim import mtof
 KZ = "nazo/kaizo"; FPS = 30
 
 
-def paper_cut(src, dst, maxh=1100, border=14):
+def paper_cut(src, dst, maxh=1600, border=16):
     """透明PNGを切り詰め、白い紙のふちを付ける"""
     im = Image.open(src).convert("RGBA"); im = im.crop(im.getbbox())
     if im.height > maxh: im = im.resize((int(im.width * maxh / im.height), maxh), Image.LANCZOS)
@@ -69,15 +69,20 @@ def main(path, mode=None, arg=None):
     GAP, PAD0, PAD1, TR = .55, 1.4, 1.4, 1.2
     TC = sp.get("title_sec", 3.5); t = TC + .6 if TC else .9; pages = []
     for pi, pg in enumerate(sp["pages"]):
-        t0 = t; tl = t + PAD0; L = []
+        t0 = t; tl = t + pg.get("pad0", PAD0); L = []; G = pg.get("gap", sp.get("gap", GAP))
         for li, text in enumerate(pg["lines"]):
-            p, d = vo[(pi, li)]; L.append(dict(t=tl, d=d, wrap=wrap(text, pg.get("text", {}).get("wrap", 16)), wav=p)); tl += d + GAP + pg.get("pause", [0] * 9)[li] if isinstance(pg.get("pause"), list) else d + GAP
-        t1 = tl - GAP + PAD1 + pg.get("tail", 0)
+            p, d = vo[(pi, li)]; L.append(dict(t=tl, d=d, wrap=wrap(text, pg.get("text", {}).get("wrap", 16)), wav=p)); tl += d + G + (pg.get("pause", {}).get(str(li), 0) if isinstance(pg.get("pause"), dict) else 0)
+        t1 = tl - G + PAD1 + pg.get("tail", 0)
         if not pg["lines"]: t1 = t0 + pg.get("dur", 6.0)   # 声の入らないカット（雨雲だけ、など）
         pages.append((t0, t1, L)); t = t1 + pg.get("trans", TR)
     END = sp.get("end_sec", 6.0); total = pages[-1][1] + END   # 終わりの余韻：紙色に溶けて「おしまい」、オルゴールが静かに閉じる
     stage = {"title": sp["title"], "end_t": pages[-1][1], "end_text": sp.get("end_text", "おしまい"), "pages": [], "title_t": [.3, TC] if TC else [0, 0], "title_card": sp.get("title_card", {}), "fov": sp.get("fov", 24)}
-    U = lambda pi, u: pages[pi][0] + u * (pages[pi][1] - pages[pi][0])
+    def U(pi, u):
+        """ページ内の時刻。数なら割合、"L2" なら2番目の文の読み始め、"L2e" なら読み終わり、"L2+0.5" のように秒をずらせる"""
+        if isinstance(u, str):
+            m = re.match(r"L(\d+)(e?)([+-][\d.]+)?$", u); l = pages[pi][2][int(m.group(1))]
+            return l["t"] + (l["d"] if m.group(2) else 0) + float(m.group(3) or 0)
+        return pages[pi][0] + u * (pages[pi][1] - pages[pi][0])
     for pi, pg in enumerate(sp["pages"]):
         t0, t1, L = pages[pi]; bg = prep(pg["bg"], cut=False)
         P = {"t0": t0, "t1": t1, "bg": bg, "bg_aspect": aspect[pg["bg"]], "floor": pg.get("floor", "#7f9a6a"), "light": pg.get("light", 1.0),
@@ -92,7 +97,7 @@ def main(path, mode=None, arg=None):
         if "thunder" in pg: P["thunder"] = [U(pi, u) for u in pg["thunder"]]
         for it in pg["items"]:
             q = {"tex": prep(it["img"]), "aspect": aspect[it["img"]], "x": it.get("x", 0), "z": it.get("z", 0), "h": it.get("h", .8), "face": it.get("face", 1),
-                 "pop": it.get("pop", True), "breath": it.get("breath", False), "shadow": it.get("shadow", True), "acts": []}
+                 "pop": it.get("pop", True), "breath": it.get("breath", False), "shadow": it.get("shadow", True), "y0": it.get("y0", 0), "acts": []}
             if "show" in it: q["show"] = U(pi, it["show"])
             if "hide" in it: q["hide"] = U(pi, it["hide"])
             for a in it.get("acts", []):
