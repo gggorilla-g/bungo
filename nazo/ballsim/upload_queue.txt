@@ -22,3 +22,5 @@ liss56_ja MOSO ja
 liss56_en KAIDAN en
 chain1_ja MOSO ja
 chain1_en KAIDAN en
+tusi1_ja MOSO ja
+tusi1_en KAIDAN en

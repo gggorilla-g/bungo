@@ -1,0 +1,16 @@
+【タイトル】
+Roll a half-size circle inside a circle. What path do the dots draw? #Shorts #math
+
+【説明】
+A circle with exactly half the radius rolls without slipping inside a bigger circle. Every dot on its rim looks like it is circling, but each one only moves back and forth along a straight diameter of the big circle (the Tusi couple).
+
+How it works:
+- When the small circle's center goes around by angle θ, the small circle itself turns back by θ. Together, a rim dot stays on one straight line.
+- Any rim dot gives a straight line; a different dot gives a different direction.
+- With many dots moving at once, the group looks like a rotating circle.
+- Each dot plays one note when it reaches the big circle.
+
+Simulation, sound and animation: original (made with Python)
+
+【タグ】
+math, Tusi couple, circle, geometry, simulation, satisfying, shorts

@@ -560,7 +560,48 @@ def chain(sp):
     sim.finish(total)
 
 
-KINDS = {"chain": chain, "basket": basket, "koch": koch, "cycloid": cycloid, "pendulums": pendulums, "lissajous": lissajous, "corner": corner, "sunflower": sunflower, "ulam": ulam, "parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2, "picount": picount}
+def tusi(sp):
+    """半径1の円の内側を、半径1/2の円がすべらずに転がる（トゥースィーの対円）。小さい円のふちの点は、どれも大きい円の直径の上を
+    まっすぐ往復する。ふちの位相 φ の点の位置 = cos(θ−φ/2)·(cos(φ/2), sin(φ/2))（θ は小さい円の中心が回った角度）。
+    ボールは半周（θ が π 進む）ごとに増える。どのボールも半周に1回、大きい円のふちに届く → そのとき1音"""
+    M = sp.get("M", 32); ns = sp.get("ns", [1, 2, 3, 4, 6, 8, 12, 16, 24, 32]); Th = sp.get("half", 2.3); intro, tail = .3, sp.get("tail", 2.6)
+    order = sorted(range(M), key=lambda i: int(format(i, f"0{M.bit_length() - 1}b")[::-1], 2))   # 均等に埋まる順（ビット反転）
+    sim = Sim(sp, (-1.1, -1.1, 1.1, 1.1)); sim.neon([(math.cos(a), math.sin(a)) for a in np.linspace(0, 2 * np.pi, 241)], closed=True, width=6); sim.title()
+    T = Th * len(ns); W_ = np.pi / Th   # θ の速さ
+    th = lambda t: W_ * max(0, t - intro) + np.pi / 2 * 0
+    spawn = {}
+    for r, n in enumerate(ns):
+        for i in order[:n]: spawn.setdefault(i, intro + r * Th)
+    col = {i: hsv(i / M, .7, 1) for i in range(M)}
+    def pos(i, t): a = np.pi * i / M; s = math.cos(th(t) - a); return (s * math.cos(a), s * math.sin(a)), s
+    for i, t0 in spawn.items():   # ふちに届く時刻 θ = a + kπ
+        a = np.pi * i / M; k = math.ceil((W_ * (t0 - intro) - a) / np.pi - 1e-9)
+        while True:
+            tt = intro + (a + k * np.pi) / W_
+            if tt > intro + T: break
+            if tt >= t0: x = math.cos(a) * (1 if k % 2 == 0 else -1); sim.note(tt, PENTA[(i * 5) % 16], .4, .5 + .4 * x, 6.0)
+            k += 1
+    sim.chord(intro + T, [60, 67, 72, 76]); total = intro + T + tail; cov = {}
+    for fi in range(int(total * FPS)):
+        t = min(fi / FPS, intro + T); segs = []; balls = []; fl = []
+        for i, t0 in spawn.items():
+            if fi / FPS < t0: continue
+            (p, s) = pos(i, t); a = np.pi * i / M; d = (math.cos(a), math.sin(a))
+            if i not in cov: cov[i] = [s, s]; fl.append((p, 16, col[i], 2))
+            lo, hi = cov[i]
+            if s > hi: segs.append(((d[0] * hi, d[1] * hi), p, dim(col[i], .75))); cov[i][1] = s
+            if s < lo: segs.append(((d[0] * lo, d[1] * lo), p, dim(col[i], .75))); cov[i][0] = s
+            balls.append((p, (255, 255, 255), 7))
+        sim.commit(segs, width=2.6)
+        c = (.5 * math.cos(th(t)), .5 * math.sin(th(t)))
+        live = [((c[0] + .5 * math.cos(b0), c[1] + .5 * math.sin(b0)), (c[0] + .5 * math.cos(b1), c[1] + .5 * math.sin(b1)), (90, 120, 160), 2)
+                for b0, b1 in zip(np.linspace(0, 2 * np.pi, 73)[:-1], np.linspace(0, 2 * np.pi, 73)[1:])]
+        n = sum(1 for t0 in spawn.values() if fi / FPS >= t0)
+        sim.frame(fi / FPS, live, balls, (sp.get("count_label", "点の数 "), str(n)), fl)
+    sim.finish(total)
+
+
+KINDS = {"tusi": tusi, "chain": chain, "basket": basket, "koch": koch, "cycloid": cycloid, "pendulums": pendulums, "lissajous": lissajous, "corner": corner, "sunflower": sunflower, "ulam": ulam, "parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2, "picount": picount}
 
 if __name__ == "__main__":
     sp = json.load(open(sys.argv[1], encoding="utf-8")); KINDS[sp["kind"]](sp); kit(sp)
