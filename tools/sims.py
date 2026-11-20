@@ -683,21 +683,23 @@ def spiro(sp):
     位置 = ((R−r)cos t + d cos(kt+φ), (R−r)sin t − d sin(kt+φ))、k=(R−r)/r。t が 2π×r/gcd(R,r) 進むと閉じ、花びらは R/gcd 枚。
     ペンは歯車が1周するたびに増え、穴の向き φ を少しずつずらす。どのペンも花びらの先（いちばん外）に来るたびに1音"""
     Ri, ri = sp.get("R", 96), sp.get("r", 60); g_ = math.gcd(Ri, ri); laps = ri // g_; pet = Ri // g_
-    R, r = 1.0, ri / Ri; d = sp.get("d", .8) * r; kk = (R - r) / r; Tl = sp.get("lap", 2.2); ms = sp.get("ms", [1, 2, 3, 5, 8]); M = ms[-1]; intro, tail = .3, sp.get("tail", 2.6)
+    out = sp.get("outer", False); R, r = 1.0, ri / Ri; d = sp.get("d", .8) * r; C = R + r if out else R - r; kk = C / r; sc = 1 / (C + d) if out else 1.0; Tl = sp.get("lap", 2.2); ms = sp.get("ms", [1, 2, 3, 5, 8]); M = ms[-1]; intro, tail = .3, sp.get("tail", 2.6)
     sprd = sp.get("spread", .5); offs = sorted(range(M), key=lambda i: int(format(i, f"0{max(1, (M - 1).bit_length())}b")[::-1], 2))
-    ext = (R - r) + d; sim = Sim(sp, (-1.1, -1.1, 1.1, 1.1)); sim.neon([(math.cos(a), math.sin(a)) for a in np.linspace(0, 2 * np.pi, 241)], closed=True, width=6); sim.title()
+    sim = Sim(sp, (-1.1, -1.1, 1.1, 1.1)); sim.neon([(sc * math.cos(a), sc * math.sin(a)) for a in np.linspace(0, 2 * np.pi, 241)], closed=True, width=6); sim.title()
     W_ = 2 * np.pi / Tl; spawn = {}
     for j, m in enumerate(ms):
         for i in offs[:m]: spawn.setdefault(i, intro + j * Tl)
     T = (len(ms) - 1 + laps) * Tl; h0, hw = sp.get("hue", .55), sp.get("hue_w", .45); col = {i: hsv((h0 + hw * i / M) % 1, .65, 1) for i in range(M)}
     ph = lambda i: 2 * np.pi * (i / M) * sprd / pet
     def P(i, t):
-        u = W_ * t; return ((R - r) * math.cos(u) + d * math.cos(kk * u + ph(i)), (R - r) * math.sin(u) - d * math.sin(kk * u + ph(i)))
+        u = W_ * t
+        if out: return (sc * (C * math.cos(u) - d * math.cos(kk * u + ph(i))), sc * (C * math.sin(u) - d * math.sin(kk * u + ph(i))))
+        return (C * math.cos(u) + d * math.cos(kk * u + ph(i)), C * math.sin(u) - d * math.sin(kk * u + ph(i)))
     end = {i: t0 + laps * Tl for i, t0 in spawn.items()}
     for i, t0 in spawn.items():   # 花びらの先：cos((1+k)u+φ)=1 → |p| が最大
         n = 0
         while True:
-            u = (2 * np.pi * n - ph(i)) / (1 + kk); n += 1
+            u = ((2 * n + 1) * np.pi - ph(i)) / (kk - 1) if out else (2 * np.pi * n - ph(i)) / (1 + kk); n += 1
             if u < 1e-9: continue
             tt = t0 + u / W_
             if tt > end[i] + 1e-6: break
@@ -716,14 +718,58 @@ def spiro(sp):
         sim.commit(segs, width=2.0)
         live = []
         if tg <= intro + T:
-            uu = W_ * max(0, tg - intro); c = ((R - r) * math.cos(uu), (R - r) * math.sin(uu))
-            cs = np.linspace(0, 2 * np.pi, 61); live = [((c[0] + r * math.cos(b0), c[1] + r * math.sin(b0)), (c[0] + r * math.cos(b1), c[1] + r * math.sin(b1)), (70, 95, 130), 2) for b0, b1 in zip(cs[:-1], cs[1:])]
+            uu = W_ * max(0, tg - intro); c = (sc * C * math.cos(uu), sc * C * math.sin(uu)); rr = sc * r
+            cs = np.linspace(0, 2 * np.pi, 61); live = [((c[0] + rr * math.cos(b0), c[1] + rr * math.sin(b0)), (c[0] + rr * math.cos(b1), c[1] + rr * math.sin(b1)), (70, 95, 130), 2) for b0, b1 in zip(cs[:-1], cs[1:])]
         n = sum(1 for t0 in spawn.values() if tg >= t0)
         sim.frame(tg, live, balls, (sp.get("count_label", "ペンの数 "), str(n)))
     sim.finish(total)
 
 
-KINDS = {"spiro": spiro, "star": star, "throw": throw, "tusi": tusi, "chain": chain, "basket": basket, "koch": koch, "cycloid": cycloid, "pendulums": pendulums, "lissajous": lissajous, "corner": corner, "sunflower": sunflower, "ulam": ulam, "parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2, "picount": picount}
+def maurer(sp):
+    """モーラーのバラ。バラ曲線 r=sin(nθ) の上の点を、角度 d° ずつ進めて順に直線で結ぶ。
+    点の数は 360/gcd(360,d) 個で、そこで最初の点に戻って閉じる。ボールが1本ずつ線を引き、点に着くたびに1音（中心から遠いほど高い）"""
+    n, dd = sp.get("n", 6), sp.get("d", 58); K = 360 // math.gcd(360, dd); ts = sp.get("seg", 20.0 / K); intro, tail = .3, sp.get("tail", 2.8)
+    sim = Sim(sp, (-1.1, -1.1, 1.1, 1.1)); sim.title()
+    rose = lambda th: (math.sin(n * th) * math.cos(th), math.sin(n * th) * math.sin(th))
+    sim.thin([rose(t) for t in np.linspace(0, 2 * np.pi, 1441)], color=(70, 40, 90), width=2)
+    pts = [rose(math.radians(k * dd)) for k in range(K + 1)]; T = K * ts; h0, hw = sp.get("hue", .5), sp.get("hue_w", .5)
+    for k in range(sp.get("note_every", 2), K + 1, sp.get("note_every", 2)):   # 線が多いので2本ごとに1音（金星と同じ扱い）
+        p = pts[k]; rad = math.hypot(*p); sim.note(intro + k * ts, PENTA[int(rad * 15 + .5)], .3, .5 + .4 * p[0], 6.5)
+    sim.chord(intro + T, [60, 67, 72, 76]); total = intro + T + tail; done = 0
+    for fi in range(int(total * FPS)):
+        t = fi / FPS; u = min(K, max(0, t - intro) / ts); k1 = int(u); segs = []
+        while done < k1: segs.append((pts[done], pts[done + 1], hsv((h0 + hw * done / K) % 1, .7, sp.get("v", .85)))); done += 1
+        sim.commit(segs, width=1.8); live = []; b = pts[min(k1, K)]
+        if k1 < K: f = u - k1; b = lerp(pts[k1], pts[k1 + 1], f); live = [(pts[k1], b, hsv((h0 + hw * k1 / K) % 1, .7, .85), 1.8)]
+        sim.frame(t, live, [(b, (255, 255, 255), 7)], (sp.get("count_label", "線の数 "), str(min(K, k1))))
+    sim.finish(total)
+
+
+def harmono(sp):
+    """ハーモノグラフ。横と縦に、少しずつ揺れが小さくなる振り子をつなぎ、ペンを動かす。
+    x=e^(−au)(A sin(2π f1 u)+B sin(2π f2 u+p1))、y=e^(−au)(A sin(2π f3 u+p2)+B sin(2π f4 u))。周期が少しずれているので、形がゆっくり回りながら内側へ巻いていく。
+    横の振れがいちばん外で折り返すたびに1音（揺れが小さくなるほど音も小さく）"""
+    f1, f2, f3, f4 = sp.get("f", [2.0, 3.0, 2.01, 3.005]); cyc = sp.get("cycles", 26); a = sp.get("damp", 1.5); A, B = sp.get("amp", [.6, .4]); p1, p2 = sp.get("ph", [1.0, .5])
+    T = sp.get("T", 24.0); intro, tail = .3, sp.get("tail", 2.6); h0, hw = sp.get("hue", .5), sp.get("hue_w", .6)
+    sim = Sim(sp, (-1.1, -1.1, 1.1, 1.1)); sim.title()
+    def P(u):
+        w = 2 * np.pi * cyc * u; e = math.exp(-a * u); return (e * (A * math.sin(f1 * w) + B * math.sin(f2 * w + p1)), e * (A * math.sin(f3 * w + p2) + B * math.sin(f4 * w)))
+    steps = 9000; prev = P(0); pp = prev
+    for k in range(1, steps + 1):
+        u = k / steps; p = P(u)
+        if k >= 2 and (p[0] - prev[0]) * (prev[0] - pp[0]) < 0 and abs(prev[0]) > .04:
+            sim.note(intro + u * T, PENTA[int((prev[1] + 1) / 2 * 15 + .5)], .42 * math.exp(-a * u * .6), .5 + .4 * prev[0], 5.5)
+        pp = prev; prev = p
+    sim.chord(intro + T, [60, 67, 72, 76], gain=.25); total = intro + T + tail; done = 0
+    for fi in range(int(total * FPS)):
+        t = fi / FPS; u = min(1, max(0, t - intro) / T); k1 = int(u * steps); segs = []
+        while done < k1: segs.append((P(done / steps), P((done + 1) / steps), hsv((h0 + hw * done / steps) % 1, .7, .8))); done += 1
+        sim.commit(segs, width=1.6)
+        sim.frame(t, (), [(P(u), (255, 255, 255), 7)], (sp.get("count_label", ""), sp.get("time_fmt", "{:.1f}秒").format(max(0, t - intro))))
+    sim.finish(total)
+
+
+KINDS = {"maurer": maurer, "harmono": harmono, "spiro": spiro, "star": star, "throw": throw, "tusi": tusi, "chain": chain, "basket": basket, "koch": koch, "cycloid": cycloid, "pendulums": pendulums, "lissajous": lissajous, "corner": corner, "sunflower": sunflower, "ulam": ulam, "parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2, "picount": picount}
 
 if __name__ == "__main__":
     sp = json.load(open(sys.argv[1], encoding="utf-8")); KINDS[sp["kind"]](sp); kit(sp)

@@ -24,3 +24,10 @@ star94_ja MOSO ja
 spiro1_ja MOSO ja
 spiro2_ja MOSO ja
 spiro3_ja MOSO ja
+maurer1_ja MOSO ja
+maurer2_ja MOSO ja
+maurer3_ja MOSO ja
+epi1_ja MOSO ja
+epi2_ja MOSO ja
+harmono1_ja MOSO ja
+harmono2_ja MOSO ja
