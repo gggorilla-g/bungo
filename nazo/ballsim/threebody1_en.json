@@ -1,0 +1,16 @@
+{
+ "kind": "threebody",
+ "id": "threebody1_en",
+ "title": [
+  "Three stars released from rest",
+  "What happens?"
+ ],
+ "count_label": "Close calls: ",
+ "end_label": "One gets thrown out",
+ "box": [
+  -3.4,
+  -3.4,
+  3.4,
+  4.2
+ ]
+}

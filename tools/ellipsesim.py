@@ -13,6 +13,7 @@ SUB = 6
 
 
 PENTA = [m for o in (60, 72, 84) for m in (o, o + 2, o + 4, o + 7, o + 9)] + [96]
+GLASS = False
 
 
 def audio_perball(events, total, out_wav):
@@ -23,9 +24,14 @@ def audio_perball(events, total, out_wav):
     def mar(m, dec):
         key = (m, round(dec, 2))
         if key not in cache:
-            f = mtof(m); t = np.arange(int(SR * min(1.6, 6 / dec))) / SR
-            s = np.sin(2 * np.pi * f * t) + .28 * np.sin(2 * np.pi * f * 4 * t) * np.exp(-t * 20) + .1 * np.sin(2 * np.pi * f * 10 * t) * np.exp(-t * 45)
-            cache[key] = s * np.exp(-t * dec) * np.minimum(1, t / .003)
+            f = mtof(m); t = np.arange(int(SR * min(2.2, 8 / dec))) / SR
+            if GLASS:   # ガラスに当たった「カラン」：倍音が整数倍からずれた鈴のような部分音＋短いはじき
+                s = sum(g * np.sin(2 * np.pi * f * r * t + r) * np.exp(-t * dec * k) for r, g, k in ((1, 1, .55), (2.32, .55, 1.1), (4.25, .3, 2.0), (6.63, .16, 3.4), (9.38, .08, 5)))
+                cl = np.random.default_rng(m).normal(0, 1, len(t)) * np.exp(-t * 900) * .25
+                cache[key] = (s + cl) * np.minimum(1, t / .0015)
+            else:
+                s = np.sin(2 * np.pi * f * t) + .28 * np.sin(2 * np.pi * f * 4 * t) * np.exp(-t * 20) + .1 * np.sin(2 * np.pi * f * 10 * t) * np.exp(-t * 45)
+                cache[key] = s * np.exp(-t * dec) * np.minimum(1, t / .003)
         return cache[key]
     for t, kind, a, cnt in events:
         i = int(t * SR)
@@ -33,6 +39,7 @@ def audio_perball(events, total, out_wav):
             dec = 4 + 3 * math.sqrt(cnt / 5)            # 5個: 減衰ゆっくり、640個: とても短い
             snd = mar(a, dec) * .9 / math.sqrt(cnt); pan = .5 + .35 * ((a - 78) / 18)
         elif kind == "arrive":
+            if GLASS: continue   # 集まる瞬間の和音は鳴らさない（同じ間隔で鳴ると単調になる）
             snd = sum(mar(m, 3.0) for m in ([72, 79, 84] if a == 0 else [60, 67, 72])) * .35; pan = .5
         else:
             continue
@@ -49,6 +56,7 @@ def audio_perball(events, total, out_wav):
 def main(spec_path):
     sp = json.load(open(spec_path, encoding="utf-8"))
     sid = sp["id"]; os.makedirs("build_ballsim", exist_ok=True)
+    global GLASS; V2 = sp.get("style", 1) >= 2; GLASS = V2
     a, b, v = sp.get("a", 1.0), sp.get("b", .8), sp.get("v", 1.5)
     c = math.sqrt(a * a - b * b); F1, F2 = np.array([0, c]), np.array([0, -c])  # 縦長：焦点は上下
     rng = np.random.default_rng(sp.get("seed", 1))
@@ -92,8 +100,10 @@ def main(spec_path):
             ls = rd["l1"] if leg == 0 else 2 * a - rd["l1"]  # 戻りは F2→壁 の長さ = 2a - l1（同じ壁の点で反射）
             if sp.get("perball", True):  # ボール1個ごとに、壁に当たった瞬間に1音。先に当たった順に低→高（帰りは高→低）
                 order = np.argsort(np.argsort(ls)); frac = order / max(1, rd["n"] - 1)
+                if GLASS:   # 壁のどこに当たったかで音の高さを決める → 数がふえるたびに並びが変わり、重なったりずれたりする
+                    ang = (np.arctan2(rd["hit"][:, 1], rd["hit"][:, 0]) / (2 * np.pi)) % 1; frac = ang
                 for i in range(rd["n"]):
-                    events.append((ts + ls[i] / v, "pb", PENTA[int(frac[i] * (len(PENTA) - 1) + .5)], rd["n"]))
+                    events.append((ts + ls[i] / v, "pb", PENTA[int(frac[i] * (len(PENTA) - 1) + .5)] + (12 if GLASS else 0), rd["n"]))
                 events.append((ts + T_half, "arrive", leg, rd["n"]))
             elif melodic:  # 1区間に目立つ反射3回まで、時刻順に ド・ミ・ソ（120ms以上あける）、到着の直前120msは空ける
                 tl = np.sort(ls / v); picks, last = [], -1
@@ -161,13 +171,18 @@ def main(spec_path):
             pos[i] = (xp, yp)
         q = r * px * (1 if n <= 80 else .7)
         for i in range(n):
-            xp, yp = pos[i]; col = cols[i]; d.ellipse([xp - q, yp - q, xp + q, yp + q], fill=col)
+            xp, yp = pos[i]; col = cols[i]
+            if V2:   # 質感：暗めの縁→本体→左上の光
+                d.ellipse([xp - q, yp - q, xp + q, yp + q], fill=tuple(int(c_ * .45) for c_ in col))
+                d.ellipse([xp - q * .82, yp - q * .9, xp + q * .7, yp + q * .62], fill=col)
+                h_ = q * .32; d.ellipse([xp - q * .5 - h_, yp - q * .5 - h_, xp - q * .5 + h_, yp - q * .5 + h_], fill=(255, 255, 255))
+            else: d.ellipse([xp - q, yp - q, xp + q, yp + q], fill=col)
         # 集まった瞬間に光る
         ta = None  # いちばん最近の到着から0.22秒だけ光らせる
         if s >= 2 * a - 1e-6: ta, AF = 0.0, A1
         elif t >= intro and (u - (T_half if leg == 1 else -hold)) < .22 + hold and not (leg == 0 and k == 0):
             ta, AF = (u - T_half - hold) if leg == 1 else (u + hold), A0
-        if ta is not None and ta < .22:
+        if ta is not None and ta < .22 and not V2:
             x, y = to(AF); qq = .12 * px * (1 + ta * 1.5); al = 1 - ta / .22; d.ellipse([x - qq, y - qq, x + qq, y + qq], outline=tuple(int(c_ * al + 10) for c_ in (255, 245, 200)), width=6 * S)
         for kk, line in enumerate(sp["title"]):
             w = d.textlength(line, font=fT); d.text((W * S / 2 - w / 2, 150 * S + kk * 80 * S), line, font=fT, fill=(255, 255, 255) if kk == 0 else (255, 196, 60), stroke_width=6 * S, stroke_fill=(0, 0, 0))
@@ -176,6 +191,9 @@ def main(spec_path):
         d.text((x0, yb + 8 * S), lab, font=fC, fill=(235, 235, 240), stroke_width=5 * S, stroke_fill=(0, 0, 0)); d.text((x0 + w1, yb), num, font=fN, fill=(255, 210, 70), stroke_width=6 * S, stroke_fill=(0, 0, 0))
         if t > intro + (doubles + 1) * cycle - hold and sp.get("end_label"):
             fB = font(76 * S); msg = sp["end_label"]; wb = d.textlength(msg, font=fB); d.text((W * S / 2 - wb / 2, cy - 40 * S), msg, font=fB, fill=(255, 255, 255), stroke_width=9 * S, stroke_fill=(30, 90, 200))
+        if V2:   # 軽いネオン：小さくして滲ませ、足し戻す
+            sm = im.resize((W * S // 6, H * S // 6), Image.BILINEAR).filter(ImageFilter.GaussianBlur(5)).resize((W * S, H * S), Image.BILINEAR)
+            im = ImageChops.add(im, Image.eval(sm, lambda x: int(x * .55)))
         p.stdin.write(im.resize((W, H), Image.LANCZOS).tobytes())
     p.stdin.close(); p.wait()
     wv = f"build_ballsim/{sid}.wav"
