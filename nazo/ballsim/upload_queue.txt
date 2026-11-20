@@ -1,5 +1,4 @@
 lissatable1_ja MOSO ja
-lissatable1_en KAIDAN en
 plotter1_ja MOSO ja
 threebody1_ja MOSO ja
 burst1_ja MOSO ja
