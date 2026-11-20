@@ -58,8 +58,8 @@
     "x": 0.06,
     "y": 0.13,
     "size": 25,
-    "group": 3,
-    "wrap": 20
+    "group": 2,
+    "wrap": 14
    },
    "gap": 1.0,
    "items": [
@@ -249,8 +249,8 @@
     "x": 0.06,
     "y": 0.13,
     "size": 25,
-    "group": 3,
-    "wrap": 20
+    "group": 2,
+    "wrap": 14
    },
    "gap": 1.0,
    "light": 0.85,
@@ -491,8 +491,8 @@
     "y": 0.13,
     "size": 25,
     "align": "end",
-    "group": 3,
-    "wrap": 20
+    "group": 2,
+    "wrap": 14
    },
    "gap": 1.0,
    "light": 0.92,
@@ -692,8 +692,8 @@
     "y": 0.13,
     "size": 25,
     "align": "end",
-    "group": 3,
-    "wrap": 20
+    "group": 2,
+    "wrap": 14
    },
    "gap": 1.0,
    "light": 0.92,
@@ -844,8 +844,8 @@
     "y": 0.13,
     "size": 25,
     "align": "end",
-    "group": 3,
-    "wrap": 20
+    "group": 2,
+    "wrap": 14
    },
    "gap": 1.0,
    "light": 0.92,
@@ -1030,8 +1030,8 @@
     "y": 0.13,
     "size": 25,
     "align": "end",
-    "group": 3,
-    "wrap": 20
+    "group": 2,
+    "wrap": 14
    },
    "gap": 1.0,
    "light": 0.92,
@@ -1133,8 +1133,9 @@
     "y": 0.14,
     "size": 27,
     "align": "end",
-    "group": 3,
-    "wrap": 20
+    "group": 2,
+    "wrap": 14,
+    "fixed": true
    },
    "pad0": 2.6,
    "lines": [
@@ -1194,8 +1195,10 @@
     "x": 0.06,
     "y": 0.13,
     "size": 25,
-    "group": 3,
-    "wrap": 20
+    "group": 2,
+    "wrap": 14,
+    "fixed": true,
+    "align": "start"
    },
    "gap": 1.2,
    "lines": [
@@ -1304,8 +1307,8 @@
     "x": 0.06,
     "y": 0.13,
     "size": 25,
-    "group": 3,
-    "wrap": 20
+    "group": 2,
+    "wrap": 14
    },
    "gap": 1.1,
    "light": 1.05,

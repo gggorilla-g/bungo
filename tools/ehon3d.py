@@ -136,7 +136,9 @@ def main(path, mode=None, arg=None):
     sfxlib = sp.get("sfx_files", {})
     for pi, pg in enumerate(sp["pages"]):
         for s in pg.get("sfx", []):
-            a = load_audio(sfxlib[s["name"]], lp=s.get("lp", sp.get("sfx_lp", 3200))); st = int(s.get("from", 0) * SR); du = int(s.get("dur", 4) * SR); a = a[st:st + du]
+            a = load_audio(sfxlib[s["name"]], lp=s.get("lp", sp.get("sfx_lp", 3200))); du = int(s.get("dur", 4) * SR); st = int(s.get("from", 0) * SR) % max(1, len(a) - min(du, len(a) - 1))
+            a = np.tile(a, 1 + du // max(1, len(a)))[st:st + du] if len(a) else a   # 素材より長く使うときはくり返す
+            if len(a) < 10: continue
             fade = int(min(.3, s.get("dur", 4) / 5) * SR); a[:fade] *= np.linspace(0, 1, fade); a[-fade:] *= np.linspace(1, 0, fade)
             put(fx, a, U(pi, s["at"]), s.get("gain", .5))
         for it in pg["items"]:   # 跳ねる着地ごとに小さな木琴
