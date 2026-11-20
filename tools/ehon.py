@@ -102,6 +102,32 @@ def shadowed(sprite, off=(8, 10), r=7, op=.35):
     base.paste(Image.new("RGBA", base.size, (40, 30, 50, 255)), (0, 0), sh); base.alpha_composite(sprite, (pad, pad)); return base, pad
 
 
+def img_sprite(s, scale):
+    """生成画像の部品。白い無地の背景は抜き、白い紙のふちを付けて紙人形にする。s: {img, w(世界での幅px)}"""
+    im = Image.open(s["img"]).convert("RGBA"); a = np.asarray(im).astype(np.float32) / 255
+    if a[..., 3].min() > .99:   # 透明でなければ、ふちから続く白を抜く
+        white = (a[..., :3].min(2) > .93).astype(np.uint8)
+        from scipy import ndimage
+        lab, _ = ndimage.label(white); edge = set(np.unique(np.concatenate([lab[0], lab[-1], lab[:, 0], lab[:, -1]]))) - {0}
+        bgm = np.isin(lab, list(edge)); alpha = 1 - bgm.astype(np.float32)
+        alpha = np.asarray(Image.fromarray((alpha * 255).astype(np.uint8)).filter(ImageFilter.MinFilter(3)).filter(ImageFilter.GaussianBlur(1.2)), np.float32) / 255
+        a[..., 3] = alpha
+    bb = Image.fromarray((a * 255).astype(np.uint8), "RGBA"); bb = bb.crop(bb.getbbox())
+    w = int(s.get("w", 300) * scale); h = int(bb.height * w / bb.width); bb = bb.resize((w, h), Image.LANCZOS)
+    if not s.get("cut", True): return bb
+    pad = int(14 * scale) + 6; base = Image.new("RGBA", (w + 2 * pad, h + 2 * pad), (0, 0, 0, 0)); base.alpha_composite(bb, (pad, pad))
+    al = np.asarray(base.split()[3], np.float32) / 255; border = np.clip((blur(al, 7 * scale) * 3 - .25) * 4, 0, 1)
+    paperc = (np.ones((base.height, base.width, 3)) * paper(base.height, base.width)[..., None] * np.array([.99, .97, .93]))
+    pim = Image.fromarray((np.concatenate([paperc, border[..., None]], 2) * 255).astype(np.uint8), "RGBA"); pim.alpha_composite(base); return pim
+
+
+def bg_image(bg):
+    """生成画像の背景を、世界の大きさ（WORLD x FH）に合わせて敷く"""
+    im = Image.open(bg["img"]).convert("RGB"); r = max(WORLD / im.width, FH / im.height)
+    im = im.resize((int(im.width * r) + 1, int(im.height * r) + 1), Image.LANCZOS)
+    x0, y0 = (im.width - WORLD) // 2, (im.height - FH) // 2; return im.crop((x0, y0, x0 + WORLD, y0 + FH)).convert("RGBA")
+
+
 # ---------------- 部品の図形（座標は部品の箱の中の px） ----------------
 SPRITES = {
     "rabbit": {"size": [150, 210], "parts": [
@@ -243,10 +269,12 @@ def main(path):
     def sprite(name, scale, seed):
         key = (name, round(scale, 3), seed)
         if key not in cache:
-            s = spr[name]; im = paint(s["parts"], s["size"], seed, cut=s.get("cut", True), scale=scale)
+            s = spr[name]
+            if "img" in s: im = img_sprite(s, scale)
+            else: im = paint(s["parts"], s["size"], seed, cut=s.get("cut", True), scale=scale)
             cache[key] = shadowed(im) if s.get("cut", True) else (im, 0)
         return cache[key]
-    bgs = [backdrop(pg["bg"], 100 + i) for i, pg in enumerate(sp["pages"])]
+    bgs = [bg_image(pg["bg"]) if "img" in pg["bg"] else backdrop(pg["bg"], 100 + i) for i, pg in enumerate(sp["pages"])]
     frame = frame_overlay(); outside = outside_bg()
     fT, fS = font(64), font(54)
 
