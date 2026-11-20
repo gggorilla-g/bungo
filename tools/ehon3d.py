@@ -103,10 +103,12 @@ def main(path, mode=None, arg=None):
     rel = f"specs/{sid}.json"
     if mode == "stills":
         subprocess.run(["node", "render.js", "--page", "ehon_stage.html", "--spec", rel, "stills", arg, os.path.abspath(f"{B}/stills")], cwd=KZ, check=True); return
-    N = int(total * FPS); fr = os.path.abspath(f"{B}/frames"); shutil.rmtree(fr, ignore_errors=True)
+    N = int(total * FPS); fr = os.path.abspath(f"{B}/frames")
+    if not os.environ.get("REUSE_FRAMES"): shutil.rmtree(fr, ignore_errors=True)
     jobs = int(os.environ.get("JOBS", "2")); cut = [N * i // jobs for i in range(jobs + 1)]
-    ps = [subprocess.Popen(["node", "render.js", "--page", "ehon_stage.html", "--spec", rel, "range", str(cut[i]), str(cut[i + 1]), fr], cwd=KZ) for i in range(jobs)]
-    for p in ps: p.wait()
+    if not os.environ.get("REUSE_FRAMES"):   # 絵はそのままで音だけ作り直すときは REUSE_FRAMES=1
+        ps = [subprocess.Popen(["node", "render.js", "--page", "ehon_stage.html", "--spec", rel, "range", str(cut[i]), str(cut[i + 1]), fr], cwd=KZ) for i in range(jobs)]
+        for p in ps: p.wait()
     raw = f"{B}/v.mp4"
     subprocess.run(["ffmpeg", "-v", "error", "-y", "-framerate", str(FPS), "-i", f"{fr}/f%04d.jpg", "-c:v", "libx264", "-preset", "veryfast", "-crf", "18", "-pix_fmt", "yuv420p", raw], check=True)
     # 音
@@ -121,7 +123,7 @@ def main(path, mode=None, arg=None):
     for pi, pg in enumerate(sp["pages"]):
         for s in pg.get("sfx", []):
             a = load_audio(sfxlib[s["name"]]); st = int(s.get("from", 0) * SR); du = int(s.get("dur", 4) * SR); a = a[st:st + du]
-            fade = int(.3 * SR); a[:fade] *= np.linspace(0, 1, fade); a[-fade:] *= np.linspace(1, 0, fade)
+            fade = int(min(.3, s.get("dur", 4) / 5) * SR); a[:fade] *= np.linspace(0, 1, fade); a[-fade:] *= np.linspace(1, 0, fade)
             put(fx, a, U(pi, s["at"]), s.get("gain", .5))
         for it in pg["items"]:   # 跳ねる着地ごとに小さな木琴
             for a in it.get("acts", []):

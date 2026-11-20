@@ -8,7 +8,10 @@
   "speed": 0.9
  },
  "sfx_files": {
-  "rain": "assets/sfx/yt_light_rain.mp3"
+  "rain": "assets/sfx/yt_light_rain.mp3",
+  "thunder": "assets/sfx_pd/thunder.ogg",
+  "drip": "assets/sfx_pd/drip.ogg",
+  "breeze": "assets/sfx_pd/breeze.ogg"
  },
  "pages": [
   {
@@ -56,6 +59,15 @@
    "lines": [
     "こねずみの ピノが、くさの みちを あるいていました。",
     "はっぱの そばに、かたつむりの ルルが いました。"
+   ],
+   "sfx": [
+    {
+     "name": "breeze",
+     "at": 0,
+     "from": 3,
+     "dur": 12,
+     "gain": 0.35
+    }
    ]
   },
   {
@@ -121,6 +133,22 @@
    "lines": [
     "ゴロロ、と とおくで なって、ピノは みみを すくめました。",
     "あめが ひとつ、はっぱに おちました。"
+   ],
+   "sfx": [
+    {
+     "name": "thunder",
+     "at": 0.18,
+     "from": 6.2,
+     "dur": 6.5,
+     "gain": 0.9
+    },
+    {
+     "name": "drip",
+     "at": 0.72,
+     "from": 6.5,
+     "dur": 0.6,
+     "gain": 0.7
+    }
    ]
   },
   {
@@ -256,6 +284,13 @@
      "dur": 14,
      "from": 20,
      "gain": 0.35
+    },
+    {
+     "name": "drip",
+     "at": 0.64,
+     "from": 6.5,
+     "dur": 0.6,
+     "gain": 0.7
     }
    ],
    "lines": [
@@ -325,6 +360,20 @@
      "dur": 5,
      "from": 40,
      "gain": 0.25
+    },
+    {
+     "name": "drip",
+     "at": 0.4,
+     "from": 6.5,
+     "dur": 0.6,
+     "gain": 0.7
+    },
+    {
+     "name": "breeze",
+     "at": 0.45,
+     "from": 15,
+     "dur": 9,
+     "gain": 0.3
     }
    ],
    "tail": 1.0,
