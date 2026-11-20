@@ -146,7 +146,7 @@ function shotAt(P,t){const ks=P.cam||[];let k=null,i0=-1;for(let i=0;i<ks.length
   if(!k||!k.img)return null;const t1=nx?nx.t:P.t1+1.5;const a=(nx&&!nx.img)?1-ss(t1-XF,t1,t):1;return {k,t0:k.t,t1,a}}
 function camAt(P,t){
   const ks=(P.cam||[{t:P.t0,x:0,y:1.0,d:9}]).map(k=>Object.assign({tx:k.x,ty:k.y},k));if(t<=ks[0].t)return ks[0];const b=ks[ks.length-1];if(t>=b.t)return b;
-  for(let i=0;i<ks.length-1;i++){if(t>=ks[i].t&&t<ks[i+1].t){const a=ks[i],c=ks[i+1];if(c.cut)return a;const k=ss(a.t,c.t,t);
+  for(let i=0;i<ks.length-1;i++){if(t>=ks[i].t&&t<ks[i+1].t){const a=ks[i],c=ks[i+1];if(c.cut)return (a.img&&t>c.t-XF)?c:a;/* 寄りの絵が消えていく間は、もう戻り先の画にしておく */const k=ss(a.t,c.t,t);
     return {x:lerp(a.x,c.x,k),y:lerp(a.y,c.y,k),d:lerp(a.d,c.d,k),tx:lerp(a.tx,c.tx,k),ty:lerp(a.ty,c.ty,k)}}}
   return b;
 }

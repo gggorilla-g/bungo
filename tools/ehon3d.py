@@ -110,23 +110,37 @@ def main(path, mode=None, arg=None):
                 k = dict(c, t=U(pi, c["u"]))
                 if "img" in k: k["img"] = prep(k["img"], cut=False); k["aspect"] = aspect[c["img"]]; k.setdefault("ink", "#fffaf0" if lum[c["img"]] < .45 else "#3b2a22")
                 if "fx" in k: k["fx"] = [dict(f, **({"at": [U(pi, u) for u in f["at"]]} if "at" in f else {}), **({"t": U(pi, f["t"])} if "t" in f else {}), **({"t0": U(pi, f["t0"])} if "t0" in f else {})) for f in k["fx"]]
+                k["_own"] = len(P["cam"]) if (k.get("cut") or k.get("img") or not P["cam"]) else P["cam"][-1]["_own"]
                 P["cam"].append(k)
+            # 寄り引きの続き（カットのない鍵）は、次のカットより後ろにずらさない。
+            # ずれると次のカットの直後に元の画へ戻ってしまい、一瞬だけ別の画が挟まる（サブリミナルのちらつき）
+            heads = [i for i, c in enumerate(P["cam"]) if c["_own"] == i]
+            for i, c in enumerate(P["cam"]):
+                if c["_own"] == i: continue
+                nxt = [P["cam"][h]["t"] for h in heads if h > c["_own"]]
+                if nxt and c["t"] > nxt[0] - .05: c["t"] = nxt[0] - .05
+                if c["t"] <= P["cam"][c["_own"]]["t"]: c["_drop"] = True
+            P["cam"] = [c for c in P["cam"] if not c.get("_drop")]
             # カットの長さをそろえる：短すぎるカット（サブリミナルのようにちらつく）を作らない。
             # 1枚絵から舞台に戻るときは、入る前と同じ画にしない（少し引くか寄る）
-            MIN = sp.get("min_shot", 2.4); ks = sorted(P["cam"], key=lambda c: c["t"]); out = []
+            MIN = sp.get("min_shot", 2.4); ks = sorted(P["cam"], key=lambda c: c["t"]); out = []; dropped = set()
             for k in ks:
                 cut = k.get("cut") or k.get("img") or (out and out[-1].get("img"))
                 if cut and out:
                     lastcut = max([c["t"] for c in out if c.get("cut") or c.get("img")] + [out[0]["t"]])
                     if k["t"] - lastcut < MIN:
                         if k.get("img") and not any(c.get("img") for c in out if c["t"] == lastcut): k["t"] = lastcut + MIN
-                        else: continue
+                        else: dropped.add(k["_own"]); continue
+                if k["_own"] in dropped: continue   # 落としたカットの寄り引きの続きも落とす
                 out.append(k)
             for i in range(2, len(out)):
                 a_, b_, c_ = out[i - 2], out[i - 1], out[i]
                 if b_.get("img") and not a_.get("img") and not c_.get("img") and abs(c_.get("d", 0) - a_.get("d", 0)) < .6 and abs(c_.get("x", 0) - a_.get("x", 0)) < .3:
                     c_["d"] = a_["d"] * (1.35 if a_["d"] < 6 else .7)
             P["cam"] = sorted(out, key=lambda c: c["t"])
+            for c in P["cam"]: c.pop("_own", None)
+            for a_, b_ in zip(P["cam"], P["cam"][1:]):
+                if a_.get("img") and not b_.get("img"): b_["cut"] = True   # 寄りの絵から戻る画は、パンせずにそのまま
         if "bg2" in pg: P["bg2"] = {"img": prep(pg["bg2"]["img"], cut=False), "t": U(pi, pg["bg2"]["u"]), "dur": pg["bg2"].get("dur", 2)}
         if "light_to" in pg: P["light_to"] = [U(pi, pg["light_to"][0]), pg["light_to"][1]]
         if "rain" in pg: P["rain"] = [U(pi, pg["rain"][0]), U(pi, pg["rain"][1])]
@@ -144,6 +158,24 @@ def main(path, mode=None, arg=None):
                 if "frames" in b: b["frames"] = [prep(f) for f in b["frames"]]
                 if "end" in b: b["end"] = prep(b["end"])
                 q["acts"].append(b)
+            # ちらつき防止：出たとたんのポーズ替えは、最初からその絵で出す／歩きは次の動きと重ねない
+            if "show" in q:
+                for b in [b for b in q["acts"] if b["do"] == "pose" and b["t"] <= q["show"] + .3]:
+                    nm = b["pose"].split(f"ehon/{sid}/", 1)[1][:-4]; q["tex"] = b["pose"]; q["aspect"] = aspect[nm]; q["acts"].remove(b)
+            q["acts"].sort(key=lambda b: b.get("t", b.get("t0", 0)))
+            for b, c in zip(q["acts"], q["acts"][1:]):
+                if b["do"] == "walk" and b["t1"] > c.get("t", c.get("t0")) - .05: b["t1"] = c.get("t", c.get("t0")) - .05
+            # 1枚絵（寄り）を見せている間に済む入れ替えは、寄りが消える前に済ませる（戻ったとたんに絵が替わるちらつきを防ぐ）
+            ks = P.get("cam", [])
+            spans = [(c["t"], ks[i + 1]["t"]) for i, c in enumerate(ks) if c.get("img") and i + 1 < len(ks) and not ks[i + 1].get("img")]
+            def tuck(T):
+                for a_, b_ in spans:
+                    if a_ < T <= b_ + .6: return max(a_ + .4, b_ - .35 - .6)
+                return T
+            for kk in ("show", "hide"):
+                if kk in q: q[kk] = tuck(q[kk])
+            for b in q["acts"]:
+                if b["do"] == "pose": b["t"] = tuck(b["t"])
             P["items"].append(q)
         stage["pages"].append(P)
     stage["output"] = sp.get("output", {"width": 1920, "height": 1080})

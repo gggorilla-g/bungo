@@ -43,6 +43,7 @@
   "mouse_stop": "mouse_walk"
  },
  "title_sec": 5.5,
+ "min_shot": 3.0,
  "cover": "cover",
  "logo_rel": "ehon/brand/logo_sil_light.png",
  "output": {
