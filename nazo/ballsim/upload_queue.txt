@@ -1,9 +1,6 @@
 burst1_ja MOSO ja
 circle1_ja MOSO ja
 ellipse2_ja MOSO ja
-ellipse1d_en KAIDAN en
-circle1_en KAIDAN en
-ellipse2_en KAIDAN en
 pend1_ja MOSO ja
 liss1_ja MOSO ja
 koch1_ja MOSO ja
