@@ -1,0 +1,22 @@
+{
+ "kind": "chain",
+ "title": [
+  "One ball hits two at once.",
+  "How far does it spread?"
+ ],
+ "count_label": "moving balls: ",
+ "yt": {
+  "title": "One Ball Hits Two at Once. How Far Does It Spread? #shorts #physics #math",
+  "desc": "A ball hits two identical resting balls at the same moment, one at 45 degrees on each side. The incoming ball stops dead, and the two fly off at a right angle to each other. Each of them then hits its own pair, and so on: 1, 2, 4 ... 256 balls, and their trails grow into a branching tree.\n\nHow it works:\n- In a perfectly elastic collision between equal masses, this symmetric hit stops the incoming ball, and each target leaves at about 71% (1/sqrt(2)) of its speed. Momentum and energy are both the same before and after.\n- The distance to the next pair is also shortened to about 71% each time. Since the speed drops by the same factor, every generation takes the same time.\n- This is a thought experiment: no air or friction, and each ball only hits its own pair.\n- Every collision plays one note. Later generations play higher notes.\n\nSimulation, sound and animation: original (Python).",
+  "tags": [
+   "physics",
+   "collision",
+   "momentum",
+   "fractal",
+   "simulation",
+   "satisfying",
+   "shorts"
+  ]
+ },
+ "id": "chain1_en"
+}

@@ -1,0 +1,25 @@
+{
+ "kind": "star",
+ "n": 7,
+ "k": 3,
+ "id": "star73_en",
+ "title": [
+  "Bounce 154.3° around the circle each time",
+  "Does it come back?"
+ ],
+ "count_label": "Balls ",
+ "yt": {
+  "title": "Bounce inside a circle, moving 154.3° each time. Does it come back? #Shorts #math",
+  "desc": "A ball bounces perfectly inside a circle. Each bounce moves it 154.3° around the rim (3/7 of a turn).\n\nHow it works:\n- 7 steps of 3/7 make exactly 3 turns, so after 7 bounces the ball is back where it started and the star closes.\n- A perfect bounce off a circle leaves at the same angle it came in, so every step covers the same angle.\n- A new ball joins after each lap, starting a little further around.\n- Each bounce plays one note; the pitch depends on where it hits.\n\nSimulation, sound and animation: original (made with Python)",
+  "tags": [
+   "math",
+   "star polygon",
+   "circle",
+   "billiards",
+   "geometry",
+   "simulation",
+   "satisfying",
+   "shorts"
+  ]
+ }
+}

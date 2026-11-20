@@ -1,0 +1,17 @@
+【タイトル】
+Same height, different sideways speeds. Which ball lands first? #Shorts #physics
+
+【説明】
+Balls are thrown from the same height with different sideways speeds (the middle one is simply dropped). The fast ones and the dropped one hit the floor at exactly the same moment.
+
+How it works:
+- Only gravity sets how fast a ball falls; sideways speed does not change it. Every ball has the same up-and-down motion.
+- Bounces off the floor and walls are perfectly elastic, so all balls rise back to the same height together.
+- A new ball joins each time they reach the top.
+- Each ball plays one note when it hits the floor or a wall.
+- Air resistance is ignored.
+
+Simulation, sound and animation: original (made with Python)
+
+【タグ】
+physics, projectile motion, gravity, simulation, satisfying, shorts

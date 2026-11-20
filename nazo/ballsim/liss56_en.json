@@ -1,0 +1,26 @@
+{
+ "kind": "lissajous",
+ "a": 5,
+ "b": 6,
+ "T": 24.0,
+ "title": [
+  "5 swings across, 6 swings up.",
+  "Will the line close?"
+ ],
+ "time_fmt": "{:.1f} s",
+ "yt": {
+  "title": "5 Swings Across, 6 Swings Up. Will the Line Close? #shorts #math",
+  "desc": "One ball swings 5 times side to side and 6 times up and down in 24 seconds. Leave its trail on screen and the line closes exactly at 24 seconds, back where it started.\n\nHow it works:\n- The two swing counts are a whole-number ratio (5 : 6), so both motions return to the start together after 24 seconds and the curve closes. This shape is called a Lissajous curve.\n- If the ratio is not a ratio of whole numbers, the line never closes.\n- The vertical motion starts a tenth of a cycle ahead of the horizontal one.\n- The ball plays one note every time it crosses a center line and every time it turns around at an edge.\n\nSimulation, sound and animation: original (Python).",
+  "tags": [
+   "math",
+   "lissajous",
+   "geometry",
+   "oscillation",
+   "simulation",
+   "satisfying",
+   "shorts"
+  ]
+ },
+ "id": "liss56_en",
+ "phase": 0.1
+}
