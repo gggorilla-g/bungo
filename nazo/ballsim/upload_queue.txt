@@ -1,5 +1,4 @@
 threebody1_ja MOSO ja
-threebody1_en KAIDAN en
 burst1_ja MOSO ja
 circle1_ja MOSO ja
 ellipse2_ja MOSO ja

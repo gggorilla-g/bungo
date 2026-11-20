@@ -169,6 +169,22 @@ def main(spec_path):
                 f = min(1, (s - la[i]) / (2 * a - la[i])); pt = hit[i] + (A1 - hit[i]) * f; xp, yp = to(pt)
                 d.line([x0, y0, xh, yh], fill=tuple(int(c_ * .55) for c_ in col), width=lw); d.line([xh, yh, xp, yp], fill=tuple(int(c_ * .7) for c_ in col), width=lw)
             pos[i] = (xp, yp)
+        if V2:   # 壁に当たった点が一瞬光る（当たった直後0.35秒で消える）
+            gl_ = Image.new("RGB", (W * S // 4, H * S // 4)); gq = ImageDraw.Draw(gl_)
+            for i in range(n):
+                dt_ = (s - la[i]) / v
+                if 0 <= dt_ < .35:
+                    xh, yh = to(hit[i]); al = 1 - dt_ / .35; rr = (10 + 26 * al) * S / 4; c_ = tuple(int(x * al) for x in cols[i])
+                    gq.ellipse([xh / 4 - rr, yh / 4 - rr, xh / 4 + rr, yh / 4 + rr], fill=c_)
+                    d.ellipse([xh - 5 * S, yh - 5 * S, xh + 5 * S, yh + 5 * S], fill=tuple(min(255, int(x * al + 255 * al * .5)) for x in cols[i]))
+            im = ImageChops.add(im, gl_.filter(ImageFilter.GaussianBlur(4)).resize((W * S, H * S), Image.BILINEAR)); d = ImageDraw.Draw(im)
+            # 枠も「ポーン」と軽く光る：直近に当たった数に応じて枠を明るく
+            hits_ = sum(max(0, 1 - ((s - la[i]) / v) / .3) for i in range(n) if s >= la[i])
+            pw = min(1, hits_ / max(2, n ** .5) * 1.2)
+            if pw > .02:
+                fr = Image.new("RGB", (W * S // 4, H * S // 4)); ImageDraw.Draw(fr).ellipse([x_ / 4 for x_ in box], outline=tuple(int(c_ * pw) for c_ in (120, 230, 255)), width=max(2, 5 * S // 4))
+                im = ImageChops.add(im, fr.filter(ImageFilter.GaussianBlur(3)).resize((W * S, H * S), Image.BILINEAR)); d = ImageDraw.Draw(im)
+                d.ellipse(box, outline=tuple(min(255, int(150 + 105 * pw)) for _ in range(3)), width=int((9 + 4 * pw) * S))
         q = r * px * (1 if n <= 80 else .7)
         for i in range(n):
             xp, yp = pos[i]; col = cols[i]

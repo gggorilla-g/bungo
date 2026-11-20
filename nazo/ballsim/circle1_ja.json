@@ -7,7 +7,7 @@
  "count_label": "ボール：",
  "a": 1.0,
  "b": 1.0,
- "v": 0.9091,
+ "v": 0.62,
  "n0": 4,
  "doubles": 7,
  "seed": 4,
@@ -15,7 +15,6 @@
  "perball": true,
  "growth": 1.5,
  "ball_r": 0.01,
- "end_label": "どの道も長さは同じ",
  "style": 2,
  "trail_gain": 0.42
 }

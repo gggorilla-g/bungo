@@ -961,7 +961,7 @@ def threebody(sp):
         p = P(u); balls = [(p[i], cols[i], 6 + 1.6 * m[i]) for i in range(3)]
         n_c = sum(1 for c in calls if c[0] <= u)
         def dr(d, done=ej is not None and u >= ej + 1.5):
-            if done:
+            if done and sp.get("end_label", "1つ、飛ばされた"):
                 from simkit import F, W as W_, S as S_, H as H_
                 msg = sp.get("end_label", "1つ、飛ばされた"); fB = F(70 * S_); w = d.textlength(msg, font=fB)
                 d.text((W_ * S_ / 2 - w / 2, H_ * S_ * .80), msg, font=fB, fill=(255, 255, 255), stroke_width=8 * S_, stroke_fill=(30, 60, 140))
