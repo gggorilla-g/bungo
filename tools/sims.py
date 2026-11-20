@@ -1111,6 +1111,12 @@ def rhythm(sp):
             for i, (r_, pos, dd) in enumerate(notes):
                 tt = t0 + lead + (r_ * beats + pos) * spb + k * spb
                 sim.note(tt, PENTA[(i * 3 + r_ * 2 + k * 4) % 12 + 3] + (12 if k else 0), .42 if not k else .3, .35 + .3 * k, 3.6, "glass")
+    if sp.get("beat", True):   # 裏でリズム：拍にやわらかい太鼓、8分の裏にごく小さいシャカ
+        for t0, spb, nb, notes, lead in layout:
+            nbt = rows * beats + (1 if nb > 1 else 0)
+            for b in range(-2, nbt):
+                tt = t0 + lead + b * spb
+                sim.note(tt, 36, .22 if b % 2 == 0 else .16, .5, 6, "kick"); sim.note(tt + spb / 2, 96, .05, .62, 6, "hat")
     for fi in range(int(total * FPS)):
         tf = fi / FPS
         pi_ = max([i for i, L in enumerate(layout) if tf >= L[0] - .01] or [0]); t0, spb, nb, notes, lead = layout[pi_]
@@ -1166,7 +1172,47 @@ def rhythm(sp):
     sim.finish(total)
 
 
-KINDS = {"rhythm": rhythm, "lissatable": lissatable, "plotter": plotter, "threebody": threebody, "pendswing": pendswing, "golden": golden, "piphase": piphase, "maurer": maurer, "harmono": harmono, "spiro": spiro, "star": star, "throw": throw, "tusi": tusi, "chain": chain, "basket": basket, "koch": koch, "cycloid": cycloid, "pendulums": pendulums, "lissajous": lissajous, "corner": corner, "sunflower": sunflower, "ulam": ulam, "parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2, "picount": picount}
+def dragon(sp):
+    """ドラゴン曲線：紙のテープを半分に折ることを n 回くり返し、折り目を全部直角に開くと出てくる形。
+    開き方：いまの線を、終わりの点を中心に90度回したコピーを足す（これを1段ずつ）。回る途中もそのまま見せる。
+    1段ごとに線の数は2倍。段が終わって回りきった瞬間に、中心の点が光って音が鳴る。画面はだんだん引いていく"""
+    L, per, intro, tail = sp.get("levels", 12), sp.get("per", 3.2), .8, sp.get("tail", 3.0)
+    P = [np.array([0., 0.]), np.array([1., 0.])]; levels = [np.array(P)]
+    for k in range(L):
+        Q = levels[-1]; piv = Q[-1]; R = Q[:-1][::-1] - piv; R = np.stack([-R[:, 1], R[:, 0]], 1) + piv   # 90度回す
+        levels.append(np.concatenate([Q, R]))
+    boxes = [(lv.min(0), lv.max(0)) for lv in levels]
+    total = intro + L * per + tail
+    sim = Sim(sp, (-1, -1, 1, 1)); sim.title()
+    h0 = sp.get("hue0", .58)
+    for k in range(L):   # 回りきった瞬間：中心が光る、和音のように2音
+        tt = intro + (k + 1) * per; base = PENTA[(k * 2) % 10 + 2]
+        sim.note(tt, base + 12, .45, .5, 3.0, "glass"); sim.note(tt + .06, base + 19, .25, .62, 3.6, "glass")
+        for q in range(3): sim.note(tt - per * (.75 - .2 * q), PENTA[(k * 2 + q * 3) % 12 + 3] + 12, .14, .3 + .2 * q, 4.5, "glass")
+    ease = lambda u: u * u * (3 - 2 * u)
+    for fi in range(int(total * FPS)):
+        t = fi / FPS; u = max(0, (t - intro) / per); k = min(L - 1, int(u)); f = 1.0 if u >= L else ease(min(1, max(0, (u - k - .08) / .7)))
+        Q = levels[k]; piv = Q[-1]; th = f * np.pi / 2
+        R = Q[:-1][::-1] - piv; c_, s_ = np.cos(th), np.sin(th); R = np.stack([R[:, 0] * c_ - R[:, 1] * s_, R[:, 0] * s_ + R[:, 1] * c_], 1) + piv
+        pts = np.concatenate([Q, R])
+        # 画面合わせ：この段の始めと終わりの範囲を、回り具合で混ぜる
+        (a0, b0), (a1, b1) = boxes[k], boxes[k + 1]; lo = a0 + (a1 - a0) * f; hi = b0 + (b1 - b0) * f
+        cen = (lo + hi) / 2; sc = 1.8 / max(hi - lo).max() if np.ndim(hi - lo) else 1.8 / (hi - lo)
+        sc = 1.8 / max(hi[0] - lo[0], (hi[1] - lo[1]) * .85, 1e-6)
+        M = (pts - cen) * sc; n = len(M); wdt = max(1.2, 4.2 - .3 * k)
+        live = []
+        for i in range(n - 1):
+            col = hsv((h0 + .55 * i / n) % 1, .55, 1)
+            live.append((tuple(M[i]), tuple(M[i + 1]), dim(col, .95 if i >= len(Q) - 1 else .75), wdt))
+        balls = []
+        glow = max(0, 1 - (u - (k + 1)) / .5) if u >= k + .78 and u < L + .5 else 0
+        pv = tuple((piv - cen) * sc)
+        if 0 < f < 1 or glow > 0: balls.append((pv, (255, 245, 210), 5 + 10 * glow))
+        sim.frame(t, live, balls, (sp["count_label"], f"{2 ** (k + 1):,}") if sp.get("count_label") else None)
+    sim.finish(total)
+
+
+KINDS = {"dragon": dragon, "rhythm": rhythm, "lissatable": lissatable, "plotter": plotter, "threebody": threebody, "pendswing": pendswing, "golden": golden, "piphase": piphase, "maurer": maurer, "harmono": harmono, "spiro": spiro, "star": star, "throw": throw, "tusi": tusi, "chain": chain, "basket": basket, "koch": koch, "cycloid": cycloid, "pendulums": pendulums, "lissajous": lissajous, "corner": corner, "sunflower": sunflower, "ulam": ulam, "parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2, "picount": picount}
 
 if __name__ == "__main__":
     sp = json.load(open(sys.argv[1], encoding="utf-8")); KINDS[sp["kind"]](sp); kit(sp)

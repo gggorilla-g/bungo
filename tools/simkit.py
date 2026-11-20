@@ -145,6 +145,12 @@ class Sim:
                     wood = np.sin(2 * np.pi * f * tt) * np.exp(-tt * 9) + .35 * np.sin(2 * np.pi * f * 4 * tt) * np.exp(-tt * 30)
                     s = .8 * out / (np.abs(out).max() + 1e-9) + .55 * wood
                     cache[key] = s * np.exp(-tt * dec * .5) * np.minimum(1, tt / .002) * (f / 523.25) ** -.25; return cache[key]
+                if kind == "kick":   # 裏のリズム：やわらかい低い太鼓（音の高さが下がる正弦波）
+                    tt2 = np.arange(int(SR * .35)) / SR; ph = 2 * np.pi * np.cumsum(55 + 70 * np.exp(-tt2 * 30)) / SR
+                    cache[key] = np.sin(ph) * np.exp(-tt2 * 9) * np.minimum(1, tt2 / .002); return cache[key]
+                if kind == "hat":    # 裏のリズム：ごく小さいシャカ（高い帯域を丸めたノイズ）
+                    tt2 = np.arange(int(SR * .06)) / SR; nz = np.random.default_rng(7).normal(0, 1, len(tt2)); nz = nz - np.convolve(nz, np.ones(6) / 6, "same")
+                    cache[key] = np.convolve(nz, np.ones(3) / 3, "same") * np.exp(-tt2 * 70) * .5; return cache[key]
                 if kind == "glass":   # ガラスに当たった「カラン」：整数倍からずれた部分音＋短いはじき
                     s = sum(g_ * np.sin(2 * np.pi * f * r_ * tt + r_) * np.exp(-tt * dec * k_) for r_, g_, k_ in ((1, 1, .5), (2.0, .32, 1.0), (3.01, .14, 1.8), (4.25, .07, 3.0)))
                     s = s + np.random.default_rng(int(m)).normal(0, 1, len(tt)) * np.exp(-tt * 1400) * .08

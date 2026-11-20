@@ -1,0 +1,13 @@
+{
+ "kind": "dragon",
+ "id": "dragon1_en",
+ "title": [
+  "Fold a paper strip in half 12 times",
+  "then open every crease to 90 degrees"
+ ],
+ "levels": 12,
+ "per": 3.3,
+ "bloom": 0.6,
+ "count_label": "segments: ",
+ "hue0": 0.05
+}
