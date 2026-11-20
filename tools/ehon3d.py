@@ -81,9 +81,10 @@ def main(path, mode=None, arg=None):
     for pi, pg in enumerate(sp["pages"]):
         t0 = t; tl = t + pg.get("pad0", PAD0); L = []; G = pg.get("gap", sp.get("gap", GAP))
         for li, text in enumerate(pg["lines"]):
-            p, d = vo[(pi, li)]; L.append(dict(t=tl, d=d, wrap=sum([wrap(x, pg.get("text", {}).get("wrap", 16)) for x in text.split("／")], []), wav=p)); tl += d + G + (pg.get("pause", {}).get(str(li), 0) if isinstance(pg.get("pause"), dict) else 0)
+            p, d = vo[(pi, li)]; L.append(dict(t=tl, d=d, wrap=sum([wrap(x, pg.get("text", {}).get("wrap", 16)) for x in text.split("／")], []), wav=p)); tl += d + pg.get("gaps", {}).get(str(li), G) + (pg.get("pause", {}).get(str(li), 0) if isinstance(pg.get("pause"), dict) else 0)
         t1 = tl - G + PAD1 + pg.get("tail", 0)
-        if not pg["lines"]: t1 = t0 + pg.get("dur", 6.0)   # 声の入らないカット（雨雲だけ、など）
+        if not pg["lines"]: t1 = t0 + pg.get("dur", 6.0)
+        elif pg.get("dur") and t1 < t0 + pg["dur"]: t1 = t0 + pg["dur"]   # 声の入らないカット（雨雲だけ、など）
         pages.append((t0, t1, L)); t = t1 + pg.get("trans", TR)
     END = sp.get("end_sec", 6.0); total = pages[-1][1] + END   # 終わりの余韻：紙色に溶けて「おしまい」、オルゴールが静かに閉じる
     cover = prep(sp["cover"], cut=False) if sp.get("cover") else None
@@ -92,8 +93,8 @@ def main(path, mode=None, arg=None):
         """ページ内の時刻。数なら割合、"L2" なら2番目の文の読み始め、"L2e" なら読み終わり、"L2+0.5" のように秒をずらせる"""
         if isinstance(u, str) and u.startswith("s"): return pages[pi][0] + float(u[1:])   # "s2.4" ならページの頭から2.4秒
         if isinstance(u, str):
-            m = re.match(r"L(\d+)(e?)([+-][\d.]+)?$", u); l = pages[pi][2][int(m.group(1))]
-            return l["t"] + (l["d"] if m.group(2) else 0) + float(m.group(3) or 0)
+            m = re.match(r"L(\d+)(e?)((?:[+-][\d.]+)*)$", u); l = pages[pi][2][int(m.group(1))]
+            return l["t"] + (l["d"] if m.group(2) else 0) + sum(float(x) for x in re.findall(r"[+-][\d.]+", m.group(3)))
         return pages[pi][0] + u * (pages[pi][1] - pages[pi][0])
     for pi, pg in enumerate(sp["pages"]):
         t0, t1, L = pages[pi]; bg = prep(pg["bg"], cut=False)

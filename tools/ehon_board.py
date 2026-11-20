@@ -12,6 +12,12 @@ BIG = {"name": "drip", "from": 6.5, "dur": .7, "gain": .9, "lp": 1400}
 SMALL = {"name": "drip", "from": 3.55, "dur": .45, "gain": .7, "lp": 7000}
 
 
+def plus(at, x):
+    if isinstance(at, str) and at.startswith("s"): return f"s{float(at[1:]) + x:.2f}"
+    if isinstance(at, str): return f"{at}+{x}"
+    return at
+
+
 def sfx_of(names, at):
     out = []
     for n in names or []:
@@ -47,12 +53,14 @@ def main(board, assets, sid, title=None):
         if "overcast" in bg: pg["light"] = .9
         pages.append(pg); return pg
     for i, b in enumerate(B):
-        sh = b["shot"]; txt = b.get("text", "").strip()
+        sh = b["shot"]; txt = b.get("text", "").strip(); walking = False
+        if sh["kind"] == "stage" and any(n.startswith("mouse_walk_") for n in sh.get("items", [])):
+            sh = dict(sh, items=["mouse_walk"] + [n for n in sh["items"] if not n.startswith("mouse_walk")]); walking = True
         if sh["kind"] == "stage":
             if cur is None or cur["_image"] or cur["bg"] != sh["bg"]: cur = new_page(sh["bg"])
             at = f"L{len(cur['lines'])}" if txt else None
             if not txt:   # 声なしビート：前の文のあとに間を置き、その間にカメラを替える
-                if not cur["lines"]: cur["dur"] = cur.get("dur", 0) + b.get("dur", 3); at = 0 if not cur["cam"] else .5
+                if not cur["lines"]: at = f"s{cur.get('_t', 0):.2f}"; cur["_t"] = cur.get("_t", 0) + b.get("dur", 3); cur["dur"] = cur["_t"]; cur["pad0"] = cur["_t"] + .6
                 else: li = len(cur["lines"]) - 1; cur.setdefault("pause", {})[str(li)] = cur.get("pause", {}).get(str(li), 0) + b.get("dur", 3); at = f"L{li}e+0.6"
             # 紙人形：家族（ピノ・ルル・ふたり）ごとに今の絵を追う
             xs = {}
@@ -70,12 +78,16 @@ def main(board, assets, sid, title=None):
                 if fam == "both":   # ふたりの絵が出たら、ひとりずつの絵は消す
                     for f2 in ("pino", "lulu"):
                         if f2 in cur["_fam"] and "hide" not in cur["_fam"][f2]: cur["_fam"][f2]["hide"] = at
-                xs[fam] = (it["x"], 0)
-                if "歩" in sh.get("action", "") and fam == "pino" and txt:
-                    it["acts"].append({"do": "walk", "t0": at, "t1": f"L{len(cur['lines'])}e", "x": it["x"] + .9, "frames": WALK, "fps": 5, "end": "mouse_walk"}); it["x"] = it["x"]
+                xs[fam] = (it.get("_x", it["x"]), 0)
+                if walking and fam == "pino" and txt:
+                    nx = it.get("_x", it["x"]) + .55; it["acts"].append({"do": "walk", "t0": at, "t1": f"L{len(cur['lines'])}e+0.3", "x": nx, "frames": WALK, "fps": 5, "end": "mouse_walk"}); it["_x"] = nx
             if "leaf" in [FAM(n) for n in sh.get("items", [])]: xs["leaf"] = POS["leaf"]
             x, y, d = cam_of(sh, xs); key = {"u": at, "x": x, "y": y, "d": d, "cut": bool(cur["cam"])}
-            cur["cam"].append(key); cur["cam"].append({"u": f"L{len(cur['lines'])}e+0.4" if txt else (at if isinstance(at, str) else .9), "x": x, "y": y + .02, "d": d * .95})
+            sig = (sh.get("frame"), sh.get("focus"))
+            if cur.get("_sig") == sig and cur["cam"] and not cur["cam"][-1].get("img"):
+                cur["cam"][-1]["u"] = f"L{len(cur['lines'])}e+0.4" if txt else cur["cam"][-1]["u"]; cur["cam"][-1].update(x=x, y=y + .02); key = None
+            cur["_sig"] = sig
+            if key: cur["cam"].append(key); cur["cam"].append({"u": f"L{len(cur['lines'])}e+0.4" if txt else (at if isinstance(at, str) else .9), "x": x, "y": y + .02, "d": d * .95})
         else:   # 1枚絵
             img = sh["img"]; nm = img.split("/")[-1]
             if cur is None or (not cur["lines"] and not cur["cam"]) or cur["_image"]:
@@ -84,14 +96,19 @@ def main(board, assets, sid, title=None):
                 at = f"L{len(cur['lines'])}" if txt else 0; fxk = cur.setdefault("fx", [])
             else:
                 at = f"L{len(cur['lines'])}" if txt else None
-                if not txt: li = len(cur["lines"]) - 1; cur.setdefault("pause", {})[str(li)] = cur.get("pause", {}).get(str(li), 0) + b.get("dur", 3); at = f"L{li}e+0.6"
-                key = {"u": at, "x": 0, "y": 1, "d": 9, "img": img, "fx": []}; cur["cam"].append(key); fxk = key["fx"]
+                if not txt and not cur["lines"]: at = f"s{cur.get('_t', 0):.2f}"; cur["_t"] = cur.get("_t", 0) + b.get("dur", 3); cur["dur"] = cur["_t"]; cur["pad0"] = cur["_t"] + .6
+                elif not txt: li = len(cur["lines"]) - 1; cur.setdefault("pause", {})[str(li)] = cur.get("pause", {}).get(str(li), 0) + b.get("dur", 3); at = f"L{li}e+0.6"
+                if cur["cam"] and cur["cam"][-1].get("img") == img: fxk = cur["cam"][-1]["fx"]   # 同じ寄りが続くなら切らない
+                else: key = {"u": at, "x": 0, "y": 1, "d": 9, "img": img, "fx": []}; cur["cam"].append(key); fxk = key["fx"]; cur["_sig"] = None
             p = PT.get(nm)
             act = sh.get("action", "")
             if p and any(k in act for k in ("落ち", "落と", "粒", "しずく", "輪")):
-                fxk.append({"type": "ripple", "x": p["x"], "y": p["y"], "at": [f"{at}+0.4" if isinstance(at, str) else .3], "speed": .07, "flat": .5} if ("まんなか" in nm or "mid" in nm or "puddle" in nm) else {"type": "drop", "x": p["x"], "y": p["y"] + .02, "t": f"{at}+0.3" if isinstance(at, str) else .4, "g": 1500})
+                fxk.append({"type": "ripple", "x": p["x"], "y": p["y"], "at": [plus(at, .4)], "speed": .07, "flat": .5} if ("まんなか" in nm or "mid" in nm or "puddle" in nm) else {"type": "drop", "x": p["x"], "y": p["y"] + .02, "t": plus(at, .3), "g": 1500})
             if p and any(k in act for k in ("光", "にじ", "きら")): fxk.append({"type": "sparkle", "n": 6, "x0": p["x"] - .05, "x1": p["x"] + .05, "y0": p["y"] - .05, "y1": p["y"] + .05, "seed": i})
-        if txt: cur["lines"].append(txt)
+        if txt:
+            if cur["lines"] and not re.search(r"[。」！？!?]$", cur["lines"][-1]) and not cur.get("pause", {}).get(str(len(cur["lines"]) - 1)):
+                cur.setdefault("gaps", {})[str(len(cur["lines"]) - 1)] = .18
+            cur["lines"].append(txt)
         cur["sfx"] += sfx_of(b.get("sfx"), at if at is not None else 0)
     for pg in pages:
         for k in [k for k in pg if k.startswith("_")]: pg.pop(k)
