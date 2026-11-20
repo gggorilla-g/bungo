@@ -95,6 +95,11 @@ function placeWalls(t){const l=lineAt(t);for(const W_ of WALLS){const L=lineOf(W
 if(LAB.town){const T_=LAB.town;const hill=new THREE.Mesh(new THREE.CylinderGeometry(T_.r*.75,T_.r*1.15,T_.h,40),S(0x7d8f55));hill.position.y=T_.h/2;hill.receiveShadow=true;scene.add(hill);
   const rng=(s=>()=>(s=(s*16807)%2147483647)/2147483647)(5);for(let i=0;i<T_.houses;i++){const a=rng()*6.28,r=T_.r*(.62+.12*rng());const hs=new THREE.Mesh(new THREE.BoxGeometry(.9,.7,.9),S(0xd8c39a));hs.position.set(Math.cos(a)*r,T_.h+.35,Math.sin(a)*r);hs.castShadow=true;scene.add(hs);
     const rf=new THREE.Mesh(new THREE.ConeGeometry(.75,.6,4),S(0x8b5a3c));rf.position.set(hs.position.x,T_.h+1.0,hs.position.z);rf.rotation.y=Math.PI/4;scene.add(rf)}}
+// ---- 置き物：崖や山（blocks: [{x,z,w,d,h,color}]）と、海や湖（water: [{x,z,w,d}]）
+for(const b of (LAB.blocks||[])){const g=new THREE.BoxGeometry(b.w,b.h,b.d,Math.max(1,Math.round(b.w/2)),2,Math.max(1,Math.round(b.d/2)));const p=g.attributes.position;
+  for(let i=0;i<p.count;i++){if(p.getY(i)>0){p.setY(i,p.getY(i)*(.7+.6*Math.abs(Math.sin(p.getX(i)*1.3+p.getZ(i)*.7))));p.setX(i,p.getX(i)+.4*Math.sin(p.getZ(i)*.9))}}
+  g.computeVertexNormals();const m=new THREE.Mesh(g,S(b.color||0x8c8270));m.position.set(b.x,b.h/2,b.z);m.castShadow=true;m.receiveShadow=true;scene.add(m)}
+for(const w of (LAB.water||[])){const m=new THREE.Mesh(new THREE.PlaneGeometry(w.w,w.d,1,1),S(0x3f7fb5,{roughness:.2,metalness:.15,flatShading:false}));m.rotation.x=-Math.PI/2;m.position.set(w.x,.36,w.z);scene.add(m)}
 // ---- 地面の矢印（曲線のリボン＋矢じり）
 const ARROWS=[];
 for(const fx in (LAB.arrows||{}))for(const ar of LAB.arrows[fx]){
