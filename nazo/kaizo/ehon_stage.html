@@ -155,9 +155,9 @@ window.renderAt=function(t){
   flash.setAttribute('opacity',fl.toFixed(3));
   // 紙人形
   pages.forEach(pp=>pp.items.forEach(p=>{p.root.visible=false}));
-  for(const p of pages[cur].items){const s=itemState(p,t);if(!s.vis)continue;p.root.visible=true;const it=p.it,h=it.h;
+  for(const p of pages[cur].items){const s=itemState(p,t);if(!s.vis)continue;p.root.visible=true;const it=p.it,HW=SPEC.hw||{},h=(it.auto!==false&&HW[s.pose])?HW[s.pose]*(it.k||1):it.h;
     const asp=ASP[s.pose]||it.aspect;p.a.scale.set(h*asp*s.face,h,1);p.m1.map=tex(s.pose);p.m1.opacity=s.alpha*(1-s.mix);
-    if(s.next){const a2=ASP[s.next]||asp;p.b.visible=true;p.b.scale.set(h*a2*s.nface,h,1);p.m2.map=tex(s.next);p.m2.opacity=s.alpha*s.mix}else p.b.visible=false;
+    if(s.next){const a2=ASP[s.next]||asp,h2=(it.auto!==false&&HW[s.next])?HW[s.next]*(it.k||1):h;p.b.visible=true;p.b.scale.set(h2*a2*s.nface,h2,1);p.m2.map=tex(s.next);p.m2.opacity=s.alpha*s.mix}else p.b.visible=false;
     p.m1.needsUpdate=p.m2.needsUpdate=true;p.m1.color.setScalar(light);p.m2.color.setScalar(light);
     p.g.position.set(0,s.y,0);p.g.rotation.set(0,s.ry,s.rz);p.root.position.set(s.x,it.y0||0,it.z);
     const sw=h*asp*.8*(1-Math.min(.6,s.y));p.sh.scale.set(sw,sw*.28,1);p.sh.material.opacity=(it.shadow===false?0:1)*s.alpha*Math.max(0,1-s.y*1.2)}

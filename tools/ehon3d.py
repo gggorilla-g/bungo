@@ -17,13 +17,15 @@ KZ = "nazo/kaizo"; FPS = 30
 
 def paper_cut(src, dst, maxh=1600, border=16):
     """透明PNGを切り詰め、白い紙のふちを付ける"""
-    im = Image.open(src).convert("RGBA"); im = im.crop(im.getbbox())
-    if im.height > maxh: im = im.resize((int(im.width * maxh / im.height), maxh), Image.LANCZOS)
+    im = Image.open(src).convert("RGBA"); im = im.crop(im.getbbox()); r_ = 1.0
+    if im.height > maxh: r_ = maxh / im.height; im = im.resize((int(im.width * r_), maxh), Image.LANCZOS)
     pad = border * 2; base = Image.new("RGBA", (im.width + 2 * pad, im.height + 2 * pad), (0, 0, 0, 0)); base.alpha_composite(im, (pad, pad))
     a = base.split()[3].point(lambda v: 255 if v > 40 else 0)
     ring = a.filter(ImageFilter.MaxFilter(border * 2 + 1)).filter(ImageFilter.GaussianBlur(1.5))
     paper = Image.new("RGBA", base.size, (247, 243, 234, 255)); paper.putalpha(ring)
-    paper.alpha_composite(base); paper.save(dst); return paper.width / paper.height
+    paper.alpha_composite(base); paper.save(dst)
+    paper_cut.hpx = (paper.height) / r_   # 元の絵の px に直した、切り抜き後の高さ
+    return paper.width / paper.height
 
 
 def synth(sp, B):
@@ -57,11 +59,13 @@ def main(path, mode=None, arg=None):
     sp = json.load(open(path, encoding="utf-8")); sid = sp["id"]; B = f"build_ehon/{sid}"; os.makedirs(B, exist_ok=True)
     A = sp["assets"]; OUT = f"{KZ}/ehon/{sid}"; os.makedirs(OUT, exist_ok=True)
     # 絵を紙人形に
-    aspect = {}
+    aspect = {}; hpx = {}
+    SC = json.load(open(f"{A}/scale.json")) if os.path.exists(f"{A}/scale.json") else {}
+    WR = sp.get("world", {"pino": ["head_w", .44], "lulu": ["shell_d", .5], "leaf": ["len", 1.6], "drop": ["h", .09], "flower": ["w", 1.2]})
     def prep(name, cut=True):
         if name in aspect: return f"ehon/{sid}/{name}.png"
         src = f"{A}/{name}.png"; os.makedirs(os.path.dirname(f"{OUT}/{name}.png"), exist_ok=True)
-        if cut: aspect[name] = paper_cut(src, f"{OUT}/{name}.png")
+        if cut: aspect[name] = paper_cut(src, f"{OUT}/{name}.png"); hpx[name] = paper_cut.hpx
         else:
             im = Image.open(src).convert("RGB"); im.thumbnail((1800, 1800)); im.save(f"{OUT}/{name}.png"); aspect[name] = im.width / im.height
         return f"ehon/{sid}/{name}.png"
@@ -118,6 +122,14 @@ def main(path, mode=None, arg=None):
         stage["pages"].append(P)
     stage["output"] = sp.get("output", {"width": 1920, "height": 1080})
     stage["aspect"] = {f"ehon/{sid}/{k}.png": v for k, v in aspect.items()}
+    # 絵ごとの大きさのムラをそろえる：scale.json の実測（頭の幅・殻の直径・葉の長さ）から、世界での高さを決める
+    HW = {}
+    for k, hp in hpx.items():
+        e = SC.get(k.split("/")[-1], {})
+        for key, (field, world) in WR.items():
+            if key in e and field in e[key] and e[key][field]:
+                HW[f"ehon/{sid}/{k}.png"] = hp * world / e[key][field]; break
+    stage["hw"] = HW; print("大きさをそろえた絵:", len(HW))
     json.dump(stage, open(f"{KZ}/specs/{sid}.json", "w"), ensure_ascii=False)
     print("長さ", round(total, 1), "秒")
     rel = f"specs/{sid}.json"
