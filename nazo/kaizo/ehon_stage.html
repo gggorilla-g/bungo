@@ -78,7 +78,7 @@ function buildText(P){
 
 // ---- 状態
 function itemState(p,t){
-  const it=p.it;let x=it.x,y=0,rz=0,vis=1,alpha=1,pose=it.tex,face=it.face||1,next=null,mix=0,nface=face;
+  const it=p.it;let ry=0,x=it.x,y=0,rz=0,vis=1,alpha=1,pose=it.tex,face=it.face||1,next=null,mix=0,nface=face;
   if(it.show!=null){if(t<it.show)vis=0;else alpha=ss(it.show,it.show+.5,t)}
   if(it.hide!=null&&t>it.hide){alpha*=1-ss(it.hide,it.hide+.5,t);if(t>it.hide+.5)vis=0}
   for(const a of (it.acts||[])){
@@ -91,13 +91,16 @@ function itemState(p,t){
     if(a.do==='lift'&&t>=a.t0){y+=ss(a.t0,a.t1,t)*a.dy}
     if(a.do==='tilt'&&t>=a.t0){rz+=ss(a.t0,a.t1,t)*a.deg*Math.PI/180}
     if(a.do==='fall'&&t>=a.t0){const k=clamp((t-a.t0)/(a.t1-a.t0),0,1);y+=lerp(a.y0,a.y1,k*k);if(k>=1){alpha*=1-clamp((t-a.t1)/.18,0,1);if(t>a.t1+.18)vis=0}}
+    if(a.do==='flip'&&t>=a.t){const k=ss(a.t,a.t+(a.dur||.32),t);ry+=k*Math.PI;if(a.pose&&k>=.5)pose=a.pose}   // 紙が裏返って振り向く（ペーパーマリオ式）
     if(a.do==='sway'){rz+=Math.sin(t*(a.rate||2.0))*(a.deg||2)*Math.PI/180}
   }
-  return {x,y,rz,vis,alpha,pose,face,next,nface,mix};
+  return {x,y,rz,ry,vis,alpha,pose,face,next,nface,mix};
 }
+// カメラのキー：{t, x, y, d, tx, ty, cut}。cut:true はそこで画面を切り替える（カット割り）。tx/ty は見る先（省略時は真正面）
 function camAt(P,t){
-  const ks=P.cam||[{t:P.t0,x:0,y:1.0,d:9}];if(t<=ks[0].t)return ks[0];const b=ks[ks.length-1];if(t>=b.t)return b;
-  for(let i=0;i<ks.length-1;i++){if(t>=ks[i].t&&t<=ks[i+1].t){const a=ks[i],c=ks[i+1],k=ss(a.t,c.t,t);return {x:lerp(a.x,c.x,k),y:lerp(a.y,c.y,k),d:lerp(a.d,c.d,k)}}}
+  const ks=(P.cam||[{t:P.t0,x:0,y:1.0,d:9}]).map(k=>Object.assign({tx:k.x,ty:k.y},k));if(t<=ks[0].t)return ks[0];const b=ks[ks.length-1];if(t>=b.t)return b;
+  for(let i=0;i<ks.length-1;i++){if(t>=ks[i].t&&t<ks[i+1].t){const a=ks[i],c=ks[i+1];if(c.cut)return a;const k=ss(a.t,c.t,t);
+    return {x:lerp(a.x,c.x,k),y:lerp(a.y,c.y,k),d:lerp(a.d,c.d,k),tx:lerp(a.tx,c.tx,k),ty:lerp(a.ty,c.ty,k)}}}
   return b;
 }
 window.renderAt=function(t){
@@ -119,11 +122,11 @@ window.renderAt=function(t){
     const asp=ASP[s.pose]||it.aspect;p.a.scale.set(h*asp*s.face,h,1);p.m1.map=tex(s.pose);p.m1.opacity=s.alpha*(1-s.mix);
     if(s.next){const a2=ASP[s.next]||asp;p.b.visible=true;p.b.scale.set(h*a2*s.nface,h,1);p.m2.map=tex(s.next);p.m2.opacity=s.alpha*s.mix}else p.b.visible=false;
     p.m1.needsUpdate=p.m2.needsUpdate=true;p.m1.color.setScalar(light);p.m2.color.setScalar(light);
-    p.g.position.set(0,s.y,0);p.g.rotation.set(0,0,s.rz);p.root.position.set(s.x,0,it.z);
+    p.g.position.set(0,s.y,0);p.g.rotation.set(0,s.ry,s.rz);p.root.position.set(s.x,0,it.z);
     const sw=h*asp*.8*(1-Math.min(.6,s.y));p.sh.scale.set(sw,sw*.28,1);p.sh.material.opacity=(it.shadow===false?0:1)*s.alpha*Math.max(0,1-s.y*1.2)}
   let rain=0;if(P.rain)rain=ss(P.rain[0],P.rain[0]+1,t)*(1-ss(P.rain[1]-1,P.rain[1],t));
   for(let i=0;i<NR;i++){const d=RD[i];const on=i/NR<rain;const yy=3.4-((t*d.sp+d.ph*3.4)%3.4);dummy.position.set(d.x,on?yy:-9,d.z);dummy.updateMatrix();rainM.setMatrixAt(i,dummy.matrix)}rainM.instanceMatrix.needsUpdate=true;
-  const c=camAt(P,t);camera.position.set(c.x,c.y+.04*c.d,c.d);camera.lookAt(c.x,c.y,0);
+  const c=camAt(P,t);camera.position.set(c.x,c.y+.04*c.d,c.d);camera.lookAt(c.tx,c.ty,0);
   // 本文：ページの文をまとめて置き、読んでいる文と読み終えた文を濃くする
   if(pageText!==cur){buildText(P);pageText=cur}
   const vis=(P.text&&P.text.hide_until)||0;
