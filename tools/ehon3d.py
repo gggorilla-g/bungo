@@ -65,22 +65,24 @@ def main(path, mode=None, arg=None):
             im = Image.open(src).convert("RGB"); im.thumbnail((1800, 1800)); im.save(f"{OUT}/{name}.png"); aspect[name] = im.width / im.height
         return f"ehon/{sid}/{name}.png"
     vo = synth(sp, B)
-    GAP, PAD0, PAD1, TR = .5, 1.3, 1.2, 1.4
-    t = .9; pages = []
+    GAP, PAD0, PAD1, TR = .55, 1.4, 1.4, 1.2
+    TC = sp.get("title_sec", 3.5); t = TC + .6 if TC else .9; pages = []
     for pi, pg in enumerate(sp["pages"]):
         t0 = t; tl = t + PAD0; L = []
         for li, text in enumerate(pg["lines"]):
-            p, d = vo[(pi, li)]; L.append(dict(t=tl, d=d, wrap=wrap(text, 17), wav=p)); tl += d + GAP + pg.get("pause", [0] * 9)[li] if isinstance(pg.get("pause"), list) else d + GAP
+            p, d = vo[(pi, li)]; L.append(dict(t=tl, d=d, wrap=wrap(text, pg.get("text", {}).get("wrap", 16)), wav=p)); tl += d + GAP + pg.get("pause", [0] * 9)[li] if isinstance(pg.get("pause"), list) else d + GAP
         t1 = tl - GAP + PAD1 + pg.get("tail", 0); pages.append((t0, t1, L)); t = t1 + TR
     total = pages[-1][1] + 2.0
-    stage = {"title": sp["title"], "stage": sp.get("stage", {}), "pages": []}
+    stage = {"title": sp["title"], "pages": [], "title_t": [.3, TC] if TC else [0, 0], "title_card": sp.get("title_card", {}), "fov": sp.get("fov", 24)}
     U = lambda pi, u: pages[pi][0] + u * (pages[pi][1] - pages[pi][0])
     for pi, pg in enumerate(sp["pages"]):
         t0, t1, L = pages[pi]; bg = prep(pg["bg"], cut=False)
         P = {"t0": t0, "t1": t1, "bg": bg, "bg_aspect": aspect[pg["bg"]], "floor": pg.get("floor", "#7f9a6a"), "light": pg.get("light", 1.0),
              "lines": [{"t": l["t"], "d": l["d"], "wrap": l["wrap"]} for l in L], "items": []}
-        for k in ("bg_h", "bg_y", "cam_z0", "cam_z1", "cam_x0", "cam_x1"):
+        for k in ("bg_h", "bg_y", "bg_x", "text"):
             if k in pg: P[k] = pg[k]
+        if "cam" in pg: P["cam"] = [dict(c, t=U(pi, c["u"])) for c in pg["cam"]]
+        if "bg2" in pg: P["bg2"] = {"img": prep(pg["bg2"]["img"], cut=False), "t": U(pi, pg["bg2"]["u"]), "dur": pg["bg2"].get("dur", 2)}
         if "light_to" in pg: P["light_to"] = [U(pi, pg["light_to"][0]), pg["light_to"][1]]
         if "rain" in pg: P["rain"] = [U(pi, pg["rain"][0]), U(pi, pg["rain"][1])]
         if "thunder" in pg: P["thunder"] = [U(pi, u) for u in pg["thunder"]]
@@ -93,11 +95,14 @@ def main(path, mode=None, arg=None):
                 b = dict(a)
                 for kk in ("t", "t0", "t1"):
                     if kk in b: b[kk] = U(pi, b[kk])
-                if "pose" in b: b["pose"] = prep(b["pose"]);
+                if "pose" in b: b["pose"] = prep(b["pose"])
+                if "frames" in b: b["frames"] = [prep(f) for f in b["frames"]]
+                if "end" in b: b["end"] = prep(b["end"])
                 q["acts"].append(b)
             P["items"].append(q)
         stage["pages"].append(P)
-    stage["output"] = {"width": 1080, "height": 1920}
+    stage["output"] = sp.get("output", {"width": 1920, "height": 1080})
+    stage["aspect"] = {f"ehon/{sid}/{k}.png": v for k, v in aspect.items()}
     json.dump(stage, open(f"{KZ}/specs/{sid}.json", "w"), ensure_ascii=False)
     print("長さ", round(total, 1), "秒")
     rel = f"specs/{sid}.json"
