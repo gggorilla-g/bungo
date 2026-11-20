@@ -1,0 +1,17 @@
+【タイトル】
+Fold the Edge Every Lap. Finite Area, Infinite Edge? #shorts #math
+
+【説明】
+A ball runs around a triangle. After each lap, the middle third of every side gets folded outward into a smaller triangle. Each step makes the edge 4/3 times longer (3, 4, 5.33, 7.11 ... about 16.9 after 6 steps).
+
+How it works:
+- This shape is the Koch curve (Koch snowflake).
+- The edge length is multiplied by 4/3 every step, so it grows without limit.
+- The added triangles shrink fast, so the area never goes past 1.6 (8/5) times the original triangle.
+- The video stops after 6 steps, but the rule can go on forever.
+- The ball plays one note at every corner (rising through each lap).
+
+Simulation, sound and animation: original (Python).
+
+【タグ】
+math, fractal, koch snowflake, infinity, simulation, satisfying, shorts

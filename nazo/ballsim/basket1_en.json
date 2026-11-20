@@ -1,0 +1,22 @@
+{
+ "kind": "basket",
+ "title": [
+  "Drop them from one height.",
+  "One bounce. Will every ball go in?"
+ ],
+ "count_fmt": "in {a} / {b}   ",
+ "yt": {
+  "title": "Drop Them From One Height. One Bounce. Will Every Ball Go In? #shorts #physics #math",
+  "desc": "Balls are dropped straight down from the top line. Each one bounces once off the floor and lands in the basket. Volleys of 1, 2, 3, 5, 8, 13, 21 and 34 balls: 87 out of 87.\n\nHow it works:\n- The floor looks flat but is slightly curved. Its shape was computed point by point (numerically) so that a ball bouncing anywhere on it passes through the center of the basket from above.\n- The drop height sets each ball's speed at the floor. At that speed there are two directions that reach the basket; the higher arc is used.\n- This assumes no air resistance and perfectly elastic bounces.\n- Every ball plays one note when it hits the floor and another when it goes in.\n\nSimulation, sound and animation: original (Python).",
+  "tags": [
+   "physics",
+   "math",
+   "projectile motion",
+   "reflection",
+   "simulation",
+   "satisfying",
+   "shorts"
+  ]
+ },
+ "id": "basket1_en"
+}

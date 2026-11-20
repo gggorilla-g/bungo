@@ -1,0 +1,17 @@
+【タイトル】
+15 Pendulums of Different Lengths. When Do They Line Up Again? #shorts #physics #satisfying
+
+【説明】
+Fifteen pendulums of different lengths are released together. Seen from above: the top row swings 26 times in 36 seconds, and each row below swings once more, up to 40 times. They form waves and swirls, then line up again at 36 seconds.
+
+How it works:
+- A pendulum's period grows with the square root of its length (for small swings). The lengths are chosen so each pendulum does exactly one more swing than its neighbor.
+- 36 seconds is a common multiple of all the periods, so every pendulum is back at its start after 36 seconds.
+- At 18 seconds, pendulums with an even swing count and those with an odd count line up on opposite sides.
+- The motion uses the small-angle formula (simple harmonic motion). Real pendulums drift slightly at large swings.
+- Every pendulum plays one note each time it returns to the side it started from. Lower rows play higher notes.
+
+Simulation, sound and animation: original (Python).
+
+【タグ】
+physics, pendulum, pendulum wave, least common multiple, simulation, satisfying, shorts

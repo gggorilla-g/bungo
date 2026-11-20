@@ -372,3 +372,5 @@
 - 公開（MIW）：板レース旧 JRk_yCvr9BY、放物線 hoN_D9F5g8o、2枚の鏡 oQqaE3dGxX8、金星 IaO9iDnnSaI、カージオイド rKRFvb43uQs、輪 D0uMIKjEWD0、円周率 X-JSx8NofyY、ヒマワリ WR1N68wSv0A、素数 4D_msDJE4Ko、3倍（ネフロイド）XAG9Se2KxQI、直角の鏡 wmy0z6RcLT4
 - ミス：輪・円周率の英語が重複（i3XNNGec4K0・1tSJlBKdRoY）→ 非公開に。up.sh を動画IDで実行を確かめる形に修正
 - 板レースは「順位なし・全レーン同時に最後の板」版（plates4t）に作り直し。上がったら旧版を非公開にする
+- 11/20 朝：妄想科学 放物線 392回/1時間19分、板レース旧 358回/1時間27分。板レース旧にコメント「もう2波乱ほしい」→ 旧版は非公開にせず残す。逆転の多い板レース5（(n−6)²・偶数回・1000・3回毎2ⁿ、最後の1回で6枚まとめて割る、全レーン同時に抜ける）を作成
+- MIW 追加：コッホ O_Brpai6am8、かご d1HbVuf5jc0、サイクロイド rKVJeCW5KNw、板レース同時 lpmp0CaFfoA（旧 JRk_yCvr9BY は非公開）、振り子 qkDf6ABU_Os、リサージュ jjVcJGhuKo0

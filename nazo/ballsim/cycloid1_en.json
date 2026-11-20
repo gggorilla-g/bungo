@@ -1,0 +1,22 @@
+{
+ "kind": "cycloid",
+ "title": [
+  "Release them from any height.",
+  "Will they all reach the bottom together?"
+ ],
+ "count_label": "balls: ",
+ "yt": {
+  "title": "Release Them From Any Height. Will They All Reach the Bottom Together? #shorts #physics #math",
+  "desc": "Balls are released at the same moment from different heights on a cycloid-shaped track. The higher balls have farther to go, yet every ball reaches the bottom at the same instant.\n\nHow it works:\n- A cycloid is the curve traced by a point on the rim of a rolling wheel. Turned upside down as a track, it has a special property: the time to reach the bottom is the same from any starting point (the tautochrone, shown by Huygens in 1673).\n- Higher balls start on steeper ground and speed up faster, which exactly makes up for the longer path.\n- This assumes no friction, no air resistance and sliding (not rolling) balls. Each time they swing back, they meet again at the bottom.\n- More balls are added each wave (3, 5, 8, 13). A chord plays every time they all pass the bottom together.\n\nSimulation, sound and animation: original (Python).",
+  "tags": [
+   "physics",
+   "math",
+   "cycloid",
+   "tautochrone",
+   "simulation",
+   "satisfying",
+   "shorts"
+  ]
+ },
+ "id": "cycloid1_en"
+}

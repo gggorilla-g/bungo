@@ -1,0 +1,16 @@
+【タイトル】
+Release Them From Any Height. Will They All Reach the Bottom Together? #shorts #physics #math
+
+【説明】
+Balls are released at the same moment from different heights on a cycloid-shaped track. The higher balls have farther to go, yet every ball reaches the bottom at the same instant.
+
+How it works:
+- A cycloid is the curve traced by a point on the rim of a rolling wheel. Turned upside down as a track, it has a special property: the time to reach the bottom is the same from any starting point (the tautochrone, shown by Huygens in 1673).
+- Higher balls start on steeper ground and speed up faster, which exactly makes up for the longer path.
+- This assumes no friction, no air resistance and sliding (not rolling) balls. Each time they swing back, they meet again at the bottom.
+- More balls are added each wave (3, 5, 8, 13). A chord plays every time they all pass the bottom together.
+
+Simulation, sound and animation: original (Python).
+
+【タグ】
+physics, math, cycloid, tautochrone, simulation, satisfying, shorts

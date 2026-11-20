@@ -1,0 +1,49 @@
+{
+ "title": "Which one breaks 10 plates first?",
+ "plates": [
+  300,
+  600,
+  1000,
+  1500,
+  2200,
+  3000,
+  4000,
+  5000,
+  5900,
+  6500
+ ],
+ "rounds": 12,
+ "round_sec": 2.8,
+ "seed": 7,
+ "tie_at": 33.2,
+ "lanes": [
+  {
+   "name": "1000 each",
+   "formula": "1000",
+   "rule": "py:(1000,1)",
+   "color": "#4fd6ff"
+  },
+  {
+   "name": "even rounds",
+   "formula": "even",
+   "rule": "py:(2000 if n%2==0 else 0,1)",
+   "color": "#c07bff"
+  },
+  {
+   "name": "(n−6)²",
+   "formula": "(n-6)^2",
+   "rule": "py:(10*(n-6)**2,8)",
+   "color": "#ffe14d"
+  },
+  {
+   "name": "2ⁿ every 3rd",
+   "formula": "3rd: 2^n",
+   "rule": "py:(2**n if n%3==0 else 0,3)",
+   "color": "#ff7a59"
+  }
+ ],
+ "id": "plates5_en",
+ "lab_balls": "BALLS",
+ "lab_power": "POWER",
+ "finish_label": "FINISH"
+}

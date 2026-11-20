@@ -339,26 +339,25 @@ def corner(sp):
 
 
 def pendulums(sp):
-    """長さの違う振り子を並べる。いちばん左は T 秒で L0 往復、右へ1つ進むごとに1往復多い（長さは周期の2乗に比例）。
-    最初は一直線、すぐに波・うず・ばらばらに見えて、T 秒でまた一直線にそろう（小さい振れ幅の近似）"""
-    N, L0, T, A = sp.get("n", 15), sp.get("laps0", 26), sp.get("T", 36.0), sp.get("amp", .5); intro, tail = .3, sp.get("tail", 1.5)
-    per = [T / (L0 + i) for i in range(N)]; Lmax = 1.0; Ls = [Lmax * (p_ / per[0]) ** 2 for p_ in per]
-    xs = [(-.85 + 1.7 * i / (N - 1)) for i in range(N)]; top = 1.0
-    sim = Sim(sp, (-1.0, .02, 1.0, 1.03)); sim.neon([(-.95, top), (.95, top)], width=5); sim.title()
-    for i in range(N):   # 真下を通るたびに1音（右ほど高い）
-        for j in range(2 * (L0 + i) + 1):
-            tt = intro + per[i] / 4 + j * per[i] / 2
-            if tt <= intro + T + .01: sim.note(tt, PENTA[i % 16], .42, .5 + .35 * xs[i], 5.0)
+    """振り子の波を真上から見た形。上の段は T 秒で L0 往復、下の段へ1つ進むごとに1往復多い。
+    最初は縦一列、すぐにへび・波・ばらばらに見えて、T 秒でまた一列にそろう（小さい振れ幅の近似）"""
+    N, L0, T = sp.get("n", 15), sp.get("laps0", 26), sp.get("T", 36.0); intro, tail = .3, sp.get("tail", 1.5)
+    per = [T / (L0 + i) for i in range(N)]; ys = [1.0 - 1.6 * i / (N - 1) for i in range(N)]; A = .82
+    sim = Sim(sp, (-1.0, -.7, 1.0, 1.1))
+    for y in ys: sim.thin([(-A, y), (A, y)], color=(40, 56, 80), width=1.2)
+    sim.thin([(A, 1.06), (A, -.66)], color=(150, 120, 40), width=2); sim.title()
+    for i in range(N):   # 右の端（出発点）に戻るたびに1音（下の段ほど高い）
+        for j in range(L0 + i + 1):
+            tt = intro + j * per[i]
+            if tt <= intro + T + .01: sim.note(tt, PENTA[i % 16], .42, .8, 5.0)
     cols = [hsv(i / N) for i in range(N)]; total = intro + T + tail
     for fi in range(int(total * FPS)):
         t = fi / FPS; u = max(0, t - intro); live, dots = [], []
         for i in range(N):
-            th = A * math.cos(2 * np.pi * u / per[i]); L = Ls[i] * .92; p = (xs[i] + L * math.sin(th), top - L * math.cos(th))
-            live.append(((xs[i], top), p, (90, 104, 128), 1.4))
-            for q in range(8):   # 尾
-                t0_, t1_ = max(0, u - .04 * (q + 1)), max(0, u - .04 * q)
-                a0, a1 = A * math.cos(2 * np.pi * t0_ / per[i]), A * math.cos(2 * np.pi * t1_ / per[i])
-                live.append(((xs[i] + L * math.sin(a0), top - L * math.cos(a0)), (xs[i] + L * math.sin(a1), top - L * math.cos(a1)), dim(cols[i], .6 * (1 - q / 8)), 4))
+            x = A * math.cos(2 * np.pi * u / per[i]); p = (x, ys[i])
+            for q in range(8):
+                t0_, t1_ = max(0, u - .035 * (q + 1)), max(0, u - .035 * q)
+                live.append(((A * math.cos(2 * np.pi * t0_ / per[i]), ys[i]), (A * math.cos(2 * np.pi * t1_ / per[i]), ys[i]), dim(cols[i], .6 * (1 - q / 8)), 5))
             dots.append((p, cols[i], 9))
         sim.frame(t, live, dots, (sp.get("count_label", ""), sp.get("time_fmt", "{:.1f}秒").format(u)))
     sim.finish(total)
@@ -366,15 +365,18 @@ def pendulums(sp):
 
 def lissajous(sp):
     """1個のボールが、横は a 回・縦は b 回ゆれる（リサージュ曲線）。軌跡を残すと、T 秒でちょうど閉じる"""
-    a, b, ph, T = sp.get("a", 3), sp.get("b", 5), sp.get("phase", .25), sp.get("T", 32.0); intro, tail = .3, sp.get("tail", 2.0)
+    a, b, ph, T = sp.get("a", 3), sp.get("b", 5), sp.get("phase", .25), sp.get("T", 24.0); intro, tail = .3, sp.get("tail", 2.0)
     sim = Sim(sp, (-1.08, -1.08, 1.08, 1.08)); sim.thin([(-1.05, 0), (1.05, 0)], color=(44, 58, 80)); sim.thin([(0, -1.05), (0, 1.05)], color=(44, 58, 80)); sim.title()
     P = lambda u: (math.sin(2 * np.pi * a * u), math.sin(2 * np.pi * (b * u + ph)))
-    steps = 4000; prev = P(0)
+    steps = 4000; prev = P(0); pp = prev
     for k in range(1, steps + 1):   # 縦の線・横の線をまたぐたびに1音（場所で高さが変わる）
         u = k / steps; p = P(u)
         if (p[0] >= 0) != (prev[0] >= 0): sim.note(intro + u * T, PENTA[int((p[1] + 1) / 2 * 15 + .5)], .45, .5, 5.0)
         if (p[1] >= 0) != (prev[1] >= 0): sim.note(intro + u * T, PENTA[int((p[0] + 1) / 2 * 15 + .5)], .45, .5 + .3 * p[0], 5.0)
-        prev = p
+        if k >= 2:   # 端で折り返すたびにも1音（横の端は低め、縦の端は高め）
+            if (p[0] - prev[0]) * (prev[0] - pp[0]) < 0: sim.note(intro + u * T, PENTA[2 if p[0] < 0 else 4], .38, .5 + .4 * p[0], 6.0)
+            if (p[1] - prev[1]) * (prev[1] - pp[1]) < 0: sim.note(intro + u * T, PENTA[11 if p[1] < 0 else 14], .38, .5 + .3 * p[0], 6.0)
+        pp = prev; prev = p
     sim.chord(intro + T, [60, 67, 72, 76]); total = intro + T + tail; done = 0
     for fi in range(int(total * FPS)):
         t = fi / FPS; u = min(1, max(0, t - intro) / T); k1 = int(u * steps); segs = []
@@ -384,7 +386,138 @@ def lissajous(sp):
     sim.finish(total)
 
 
-KINDS = {"pendulums": pendulums, "lissajous": lissajous, "corner": corner, "sunflower": sunflower, "ulam": ulam, "parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2, "picount": picount}
+def koch(sp):
+    """三角形のふちをボールが1周するたびに、通った辺の真ん中1/3を外へ折り曲げて、ふちを4/3倍にする（コッホ曲線）。
+    6段まで。ふちの長さは 3, 4, 5.33, 7.11 … と増え続けるが、面積は最初の三角形の1.6倍を超えない"""
+    steps, T = sp.get("steps", 6), sp.get("lap", [3.0, 3.6, 4.2, 4.8, 5.4, 6.0, 6.6]); intro, tail = .3, sp.get("tail", 2.0)
+    R = 1.0; tri = [(R * math.sin(2 * np.pi * k / 3), R * math.cos(2 * np.pi * k / 3)) for k in range(3)]
+    def refine(P):
+        out = []
+        for i in range(len(P)):
+            a, b = np.array(P[i]), np.array(P[(i + 1) % len(P)]); d = b - a; p1, p2 = a + d / 3, a + 2 * d / 3
+            n = np.array([-d[1], d[0]]) * (math.sqrt(3) / 6); out += [tuple(a), tuple(p1), tuple((a + b) / 2 + n), tuple(p2)]
+        return out
+    levels = [tri]
+    for _ in range(steps): levels.append(refine(levels[-1]))
+    sim = Sim(sp, (-1.25, -1.25, 1.25, 1.25)); sim.title()
+    side0 = math.dist(tri[0], tri[1]); t0 = intro; laps = []
+    for lv in range(steps + 1):
+        P = levels[lv]; n = len(P); dur = T[min(lv, len(T) - 1)]; laps.append((t0, dur, P))
+        for k in range(n):   # 角を曲がるたびに1音（同じ段の中では1周で音が上がっていく）。角が多いほど小さく短く
+            if n <= 800 or k % max(1, n // 800) == 0:
+                sim.note(t0 + dur * k / n, PENTA[int(k / n * 15 + .5)], .5 * min(1, 24 / n) ** .35, .5 + .3 * P[k][0], 5 + 6 * math.sqrt(n / 48))
+        t0 += dur
+    total = t0 + tail; colsL = [hsv(.55 + .07 * i) for i in range(steps + 1)]
+    for fi in range(int(total * FPS)):
+        t = fi / FPS; lv = 0
+        for i, (a_, d_, P) in enumerate(laps):
+            if t >= a_: lv = i
+        a_, d_, P = laps[lv]; n = len(P); u = min(1, max(0, (t - a_) / d_)); m = u * n; k = int(m)
+        live = []
+        prevP = laps[lv - 1][2] if lv > 0 else None
+        if prevP is not None:   # まだ折り曲げていないところは前の段の形
+            for i in range(len(prevP)):
+                if i * 4 >= k: live.append((prevP[i], prevP[(i + 1) % len(prevP)], dim(colsL[lv - 1], .9), 3))
+        for i in range(min(k, n)): live.append((P[i], P[(i + 1) % n], colsL[lv], 4))
+        cur = lerp(P[k % n], P[(k + 1) % n], m - k) if k < n else P[0]
+        if k < n: live.append((P[k % n], cur, colsL[lv], 3))
+        L = side0 * 3 * (4 / 3) ** lv
+        sim.frame(t, live, [(cur, (255, 255, 255), 7)], (sp.get("len_fmt", "ふちの長さ {L:.2f}　段 {s}　").format(L=L / side0, s=lv), ""))
+    sim.finish(total)
+
+
+def cycloid(sp):
+    """逆さのサイクロイドの坂。どの高さから転がしても（摩擦なし）、同じ時間で底に着く（等時性）。
+    波ごとに数を増やして同時に放す"""
+    r = 1.0; T = sp.get("T", 2.6); ms = sp.get("rounds", [3, 5, 8, 13]); intro, tail = .3, sp.get("tail", 1.4)
+    X = lambda th: r * (th - math.sin(th)) - r * math.pi; Y = lambda th: r * (1 + math.cos(th))   # th∈[0,2π]、底は th=π（y=0）
+    sim = Sim(sp, (-math.pi - .1, -.15, math.pi + .1, 2.15)); sim.neon([(X(th), Y(th)) for th in np.linspace(0, 2 * np.pi, 300)]); sim.ring((0, 0), 12); sim.title()
+    # 底からの道のり s で単振動：s(t)=s0 cos(πt/(2T))。s と th の関係： s = 4r cos(th/2) ... 底(th=π)で0
+    s_of = lambda th: 4 * r * math.cos(th / 2)
+    th_of = lambda s_: 2 * math.acos(max(-1, min(1, s_ / (4 * r))))
+    waves = []; t0 = intro
+    for w, m in enumerate(ms):
+        side = 1 if w % 2 == 0 else -1; balls = []
+        for j in range(m):
+            th0 = .25 + (math.pi - .45) * (j + .5) / m   # 左の坂の上から底近くまで
+            if side < 0: th0 = 2 * np.pi - th0
+            balls.append(dict(s0=s_of(th0), col=hsv((j + .5) / m * .8 + .1 * w), tr=[]))
+        waves.append((t0, balls)); n = m
+        for b in balls: sim.note(t0, PENTA[3 + int(abs(b["s0"]) / 4 * 10)], .3 / math.sqrt(n), .5, 6)
+        sim.chord(t0 + T, [72, 79, 84], .45); sim.chord(t0 + 3 * T, [67, 74, 79], .35)
+        t0 += 4 * T
+    total = t0 + tail
+    for fi in range(int(total * FPS)):
+        t = fi / FPS; dots, segs, fl = [], [], []
+        for i, (a_, balls) in enumerate(waves):
+            if t < a_ or (i + 1 < len(waves) and t >= waves[i + 1][0]): continue
+            u = t - a_
+            for b in balls:
+                s_ = b["s0"] * math.cos(math.pi * u / (2 * T)); p = (X(th_of(s_)), Y(th_of(s_)))
+                if b["tr"]: segs.append((b["tr"][-1], p, dim(b["col"], .35)))
+                b["tr"].append(p); dots.append((p, b["col"], 10))
+            e = (u - T) % (2 * T)
+            if e < .22: fl.append(((0, 0), 18 + e * 60, dim((255, 245, 200), 1 - e / .22), 4))
+        sim.commit(segs, width=1.4)
+        n = len([1 for a_, bs in waves if a_ <= t]) and len(next(bs for a_, bs in reversed(waves) if a_ <= t))
+        sim.frame(t, (), dots, (sp.get("count_label", "ボール："), f"{n}"), fl)
+    sim.finish(total)
+
+
+def basket(sp):
+    """同じ高さから真下に落としたボールが、床で1回跳ねて、全部かごに入る。床の形は「どの位置で跳ねてもかごの中心を
+    上から通る」ように、反射の向きを1点ずつ計算してつないだ曲線（数値計算）。数は 1,2,3,5,8,13,21,34"""
+    g, H, Tg = sp.get("g", 4.0), sp.get("H", 7.0), tuple(sp.get("target", [-2.2, 4.2])); xa, xb = sp.get("xa", .3), sp.get("xb", 4.2)
+    vols, gap = sp.get("volleys", [1, 2, 3, 5, 8, 13, 21, 34]), sp.get("gap", 3.0); intro, tail = .3, sp.get("tail", 1.6)
+    def outdir(x, y):
+        v2 = 2 * g * (H - y); dx, dy = Tg[0] - x, Tg[1] - y; A = g * dx * dx / (2 * v2); u = (dx - math.sqrt(dx * dx - 4 * A * (A + dy))) / (2 * A)
+        ox, oy = math.copysign(1, dx), u * math.copysign(1, dx); L = math.hypot(ox, oy); return ox / L, oy / L
+    def slope(x, y): o = outdir(x, y); return -o[0] / (o[1] + 1)
+    xs = np.linspace(xa, xb, 2001); y = 0.0; ys = [y]
+    for i in range(len(xs) - 1):
+        h = xs[i + 1] - xs[i]; k1 = slope(xs[i], y); k2 = slope(xs[i] + h / 2, y + h / 2 * k1); k3 = slope(xs[i] + h / 2, y + h / 2 * k2); k4 = slope(xs[i + 1], y + h * k3)
+        y += h * (k1 + 2 * k2 + 2 * k3 + k4) / 6; ys.append(y)
+    ys = np.array(ys)
+    sim = Sim(sp, (Tg[0] - .9, -.4, xb + .2, H + .2))
+    sim.neon(list(zip(xs[::20], ys[::20])) + [(xs[-1], ys[-1])]); sim.neon([(xa - .1, H), (xb + .1, H)], width=4)
+    rim = .38; sim.neon([(Tg[0] - rim, Tg[1]), (Tg[0] + rim, Tg[1])], color=(255, 170, 70), glow=(255, 120, 30), width=6)
+    sim.neon([(Tg[0] - rim - .05, Tg[1] - .1), (Tg[0] - rim - .05, Tg[1] + 1.2)], width=5)
+    for k in range(5): sim.thin([(Tg[0] - rim + k * rim / 2, Tg[1]), (Tg[0] - rim * .6 + k * rim * .3, Tg[1] - .7)], color=(150, 150, 165), width=1.2)
+    sim.title()
+    balls, t0 = [], intro; scored_t = []
+    for w, m in enumerate(vols):
+        for j in range(m):
+            x0 = xa + .15 + (xb - xa - .3) * ((j + .5) / m); i = int(np.searchsorted(xs, x0)); yf = float(np.interp(x0, xs, ys))
+            sl = (ys[min(i + 1, len(xs) - 1)] - ys[max(i - 1, 0)]) / (xs[min(i + 1, len(xs) - 1)] - xs[max(i - 1, 0)]); nrm = np.array([-sl, 1.0]); nrm /= np.linalg.norm(nrm)
+            v = math.sqrt(2 * g * (H - yf)); vin = np.array([0, -v]); vo = vin - 2 * np.dot(vin, nrm) * nrm; t1 = math.sqrt(2 * (H - yf) / g); tT = (Tg[0] - x0) / vo[0]
+            b = dict(x0=x0, yf=yf, vo=vo, t0=t0, t1=t1, tT=tT, col=hsv((j + .5) / m * .85 + .07 * w), last=None, m=m)
+            balls.append(b); scored_t.append(t0 + t1 + tT)
+            g_ = .9 / math.sqrt(m); rank = j / max(1, m - 1)
+            sim.note(t0 + t1, PENTA[int(rank * 15 + .5)], g_, .5 + .3 * x0 / xb, 4 + 3 * math.sqrt(m / 5))
+            sim.note(t0 + t1 + tT, PENTA[min(15, 10 + int(rank * 5 + .5))], .7 * g_, .3, 5 + 3 * math.sqrt(m / 5), "bell")
+        t0 += gap
+    total = max(scored_t) + tail; scored_t.sort(); tot = sum(vols)
+    def pos(b, t):
+        u = t - b["t0"]
+        if u < 0: return None
+        if u < b["t1"]: return (b["x0"], H - g * u * u / 2)
+        u -= b["t1"]; x = b["x0"] + b["vo"][0] * u; y = b["yf"] + b["vo"][1] * u - g * u * u / 2
+        if u > b["tT"]: x = Tg[0] + (x - Tg[0]) * .15   # かごの中はまっすぐ下へ
+        return (x, y) if y > Tg[1] - 1.1 else None
+    for fi in range(int(total * FPS)):
+        t = fi / FPS; dots, segs = [], []
+        for b in balls:
+            p = pos(b, t)
+            if p is None: continue
+            if b["last"] is not None and t - b["t0"] < b["t1"] + b["tT"]: segs.append((b["last"], p, dim(b["col"], .28)))
+            b["last"] = p; dots.append((p, b["col"], 5))
+        sim.commit(segs, width=1.3)
+        n_in = int(np.searchsorted(scored_t, t, side="right")); n_out = sum(1 for b in balls if b["t0"] <= t)
+        sim.frame(t, (), dots, (sp.get("count_fmt", "入った {a} / {b}　").format(a=n_in, b=n_out), ""))
+    sim.finish(total)
+
+
+KINDS = {"basket": basket, "koch": koch, "cycloid": cycloid, "pendulums": pendulums, "lissajous": lissajous, "corner": corner, "sunflower": sunflower, "ulam": ulam, "parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2, "picount": picount}
 
 if __name__ == "__main__":
     sp = json.load(open(sys.argv[1], encoding="utf-8")); KINDS[sp["kind"]](sp); kit(sp)
