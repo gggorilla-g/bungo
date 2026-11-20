@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8">
+<style>
+@font-face{font-family:"JumpSans";font-weight:400;src:url(fonts_jp/NotoSansCJKjp-Regular.woff2) format("woff2")}
+@font-face{font-family:"JumpSans";font-weight:700;src:url(fonts_jp/NotoSansCJKjp-Bold.woff2) format("woff2")}
+@font-face{font-family:"JumpSans";font-weight:900;src:url(fonts_jp/NotoSansCJKjp-Black.woff2) format("woff2")}
+html,body{margin:0;background:#000}
+#stage{position:relative;width:540px;height:960px;overflow:hidden}
+#stage canvas{position:absolute;left:0;top:0}
+#hud{position:absolute;left:0;top:0;width:540px;height:960px;font-family:"JumpSans"}
+#hud text{paint-order:stroke;stroke:#101010;stroke-linejoin:round;fill:#fff}
+</style></head>
+<body><div id="stage"><svg id="hud" viewBox="0 0 540 960" xmlns="http://www.w3.org/2000/svg"></svg></div>
+<script src="vendor.js"></script>
+<script>
+// 戦術の雑学：箱庭の戦場に、小さな兵（インスタンス）を隊形ごとに並べ、セリフに合わせて隊形を動かす
+// SPEC.labels:
+//   field: {w, d, river:{x, w}}             戦場の大きさと川
+//   armies: [{id, name, color, n, kind:"inf"|"cav", base:{cx,cz,w,d,bend,rot,alive}, keys:[{fx, at, dur, ...変える値}]}]
+//      bend>0 で隊形の真ん中が前（向いている方）へふくらむ。rot は度（0＝+z を向く）。alive は残る割合
+//   hook_as: "ring"                         冒頭（fx=hook）の行は、この fx の終わりの形を見せる
+//   tags: {fx: [{army, text, dy}]}          隊の上に札
+//   arrows: {fx: [{pts:[[x,z],...], color, at}]}  地面の矢印（曲線）
+//   cams: {fx: [[px,py,pz],[tx,ty,tz]]}
+//   head: 上に出す見出し（setup 以降）
+const getJ=u=>{const x=new XMLHttpRequest();x.open('GET',u,false);x.send();if(x.status!==200)throw new Error('読めない: '+u);return JSON.parse(x.responseText)};
+const ID=(new URLSearchParams(location.search).get('spec')||'battle_ja').replace(/^.*\//,'').replace(/\.json$/,'');
+const SPEC=getJ('specs/'+ID+'.json'),TL=getJ('specs/'+ID+'_timeline.json');
+const W=540,H=960,DUR=TL.total;
+const clamp=(x,a,b)=>Math.min(b,Math.max(a,x)),lerp=(a,b,k)=>a+(b-a)*k,sstep=(a,b,x)=>{const k=clamp((x-a)/(b-a),0,1);return k*k*(3-2*k)};
+const LINES=SPEC.lines.map((l,i)=>Object.assign({},l,TL.beats[i]));
+const LAB=SPEC.labels||{};const F=LAB.field||{w:80,d:60};const FOV=LAB.fov||40,U=LAB.unit||.8;
+const renderer=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true});
+renderer.setPixelRatio(window.devicePixelRatio||1);renderer.setSize(W,H);renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.05;
+renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+document.getElementById('stage').prepend(renderer.domElement);
+const S=(c,o)=>new THREE.MeshStandardMaterial(Object.assign({color:c,roughness:.75,metalness:0,flatShading:true},o||{}));
+const scene=new THREE.Scene();scene.background=new THREE.Color(0x9cc3de);scene.fog=new THREE.Fog(0x9cc3de,70,190);
+scene.add(new THREE.HemisphereLight(0xf2f6ff,0x56603a,1.15));
+const sun=new THREE.DirectionalLight(0xfff0d6,2.4);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);{const c=sun.shadow.camera;c.left=-45;c.right=45;c.top=45;c.bottom=-45;c.near=1;c.far=160;sun.shadow.bias=-.0004}scene.add(sun);scene.add(sun.target);
+// 地面（ゆるい起伏のある草地）と川
+{const g=new THREE.PlaneGeometry(F.w*2.2,F.d*2.2,80,60);const p=g.attributes.position;const col=[];
+  for(let i=0;i<p.count;i++){const x=p.getX(i),y=p.getY(i);const r=Math.hypot(x,y);let h=.25*Math.sin(x*.11)*Math.cos(y*.09)+.15*Math.sin(x*.31+y*.2);if(r>F.w*.75)h+=(r-F.w*.75)*.12;p.setZ(i,h);
+    const k=.5+.5*Math.sin(x*.07+y*.05);col.push(.42+.08*k,.58+.06*k,.28)}
+  g.setAttribute('color',new THREE.Float32BufferAttribute(col,3));g.computeVertexNormals();
+  const m=new THREE.Mesh(g,new THREE.MeshStandardMaterial({vertexColors:true,roughness:.95,flatShading:true}));m.rotation.x=-Math.PI/2;m.receiveShadow=true;scene.add(m)}
+if(F.river){const rv=new THREE.Mesh(new THREE.PlaneGeometry(F.river.w,F.d*2.2,1,40),S(0x4f8fc0,{roughness:.25,metalness:.1,flatShading:false}));rv.rotation.x=-Math.PI/2;rv.position.set(F.river.x,.32,0);scene.add(rv)}
+// 遠くの丘と木
+{const rng=(s=>()=>(s=(s*16807)%2147483647)/2147483647)(7);
+  for(let i=0;i<46;i++){const a=rng()*Math.PI*2,r=F.w*.85+rng()*30;const tr=new THREE.Group();const tk=new THREE.Mesh(new THREE.CylinderGeometry(.18,.25,1.2,6),S(0x6b4a2b));tk.position.y=.6;tr.add(tk);
+    const lf=new THREE.Mesh(new THREE.ConeGeometry(1.2+rng(),2.6+rng()*1.5,7),S(0x3f6f3a));lf.position.y=2.2;tr.add(lf);tr.position.set(Math.cos(a)*r,0,Math.sin(a)*r);tr.traverse(o=>{o.castShadow=true});scene.add(tr)}}
+// ---- 兵（隊ごとにインスタンス）
+const ARM=(LAB.armies||[]).map((a,ai)=>{
+  const n=a.n||300,cav=a.kind==='cav';const col=new THREE.Color(a.color||0xc0392b);
+  const body=new THREE.InstancedMesh(cav?new THREE.BoxGeometry(.36,.42,.95):new THREE.CylinderGeometry(.17,.22,.62,7),S(cav?0x7a5636:col),n);
+  const top=new THREE.InstancedMesh(cav?new THREE.CylinderGeometry(.15,.18,.5,7):new THREE.SphereGeometry(.15,8,6),S(cav?col:0xe9c9a3),n);
+  const shield=cav?null:new THREE.InstancedMesh(new THREE.BoxGeometry(.38,.46,.06),S(col.clone().multiplyScalar(.75)),n);
+  [body,top,shield].forEach(m=>{if(m){m.castShadow=true;m.receiveShadow=true;scene.add(m)}});
+  const rng=(s=>()=>(s=(s*16807)%2147483647)/2147483647)(31+ai*97);
+  const jit=[...Array(n)].map(()=>[rng()-.5,rng()-.5,rng()*6.28,rng()]);
+  const keys=(a.keys||[]).map(k=>Object.assign({},k));
+  return {a,n,cav,body,top,shield,jit,keys}});
+const lineOf=fx=>LINES.find(x=>x.fx===fx);
+const lineAt=t=>LINES.find(x=>t>=x.t0-.02&&t<x.t1+.12)||LINES.filter(x=>x.t0<=t).pop()||LINES[0];
+const PK=['cx','cz','w','d','bend','rot','alive'];
+function stateAt(A,t,full){   // full=true なら、その時点までの鍵をすべて終わった形
+  const s=Object.assign({cx:0,cz:0,w:10,d:4,bend:0,rot:0,alive:1},A.a.base);let moving=0;
+  for(const k of A.keys){const l=lineOf(k.fx);if(!l)continue;const t0=l.t0+(k.at||0)*l.voice,t1=t0+(k.dur||2.0);
+    if(t<t0)continue;const u=full?1:sstep(t0,t1,t);if(u>0&&u<1)moving=1;for(const p of PK)if(k[p]!=null)s[p]=lerp(s[p],k[p],u)}
+  s.moving=moving;return s}
+function stateFor(A,t){const l=lineAt(t);if(l.fx==='hook'&&LAB.hook_as){const r=lineOf(LAB.hook_as);return stateAt(A,r.t1,true)}return stateAt(A,t,false)}
+const dummy=new THREE.Object3D();
+function placeArmy(A,t){const s=stateFor(A,t),n=A.n,asp=Math.max(.2,s.w/Math.max(.5,s.d));const C=Math.max(1,Math.round(Math.sqrt(n*asp))),R=Math.ceil(n/C);
+  const ro=s.rot*Math.PI/180,cs=Math.cos(ro),sn=Math.sin(ro);
+  for(let i=0;i<n;i++){const r=Math.floor(i/C),c=i%C,j=A.jit[i];
+    const u=(C>1?c/(C-1):.5)-.5,v=(R>1?r/(R-1):.5)-.5;
+    let lx=u*s.w+j[0]*.35,lz=-v*s.d+j[1]*.35+s.bend*(1-4*u*u);
+    const x=s.cx+lx*cs+lz*sn,z=s.cz-lx*sn+lz*cs;
+    const dead=j[3]>s.alive;const bob=s.moving?.06*Math.abs(Math.sin(t*9+j[2])):0;const sink=dead?-1.2:0;
+    const sc=dead?0.0001:U;
+    dummy.rotation.set(0,ro,0);
+    if(A.cav){dummy.position.set(x,.55*U+bob+sink,z);dummy.scale.setScalar(sc);dummy.updateMatrix();A.body.setMatrixAt(i,dummy.matrix);
+      dummy.position.set(x,1.0*U+bob+sink,z-.05);dummy.updateMatrix();A.top.setMatrixAt(i,dummy.matrix)}
+    else{dummy.position.set(x,.45*U+bob+sink,z);dummy.scale.setScalar(sc);dummy.updateMatrix();A.body.setMatrixAt(i,dummy.matrix);
+      dummy.position.set(x,.88*U+bob+sink,z);dummy.updateMatrix();A.top.setMatrixAt(i,dummy.matrix);
+      dummy.position.set(x+.2*U*sn,.5*U+bob+sink,z+.2*U*cs);dummy.updateMatrix();A.shield.setMatrixAt(i,dummy.matrix)}}
+  [A.body,A.top,A.shield].forEach(m=>{if(m)m.instanceMatrix.needsUpdate=true});return s}
+// ---- 地面の矢印（曲線のリボン＋矢じり）
+const ARROWS=[];
+for(const fx in (LAB.arrows||{}))for(const ar of LAB.arrows[fx]){
+  const P=ar.pts.map(p=>new THREE.Vector3(p[0],.38,p[1]));const curve=P.length>2?new THREE.CatmullRomCurve3(P):new THREE.LineCurve3(P[0],P[1]);
+  const N=40,wd=ar.w||.9,pos=[],idx=[];const pts=curve.getSpacedPoints(N);const L=curve.getLength(),head=Math.min(2.4,L*.35);
+  const body=pts.filter((p,i)=>i/N*L<=L-head);
+  body.forEach((p,i)=>{const q=pts[Math.min(N,i+1)],d=new THREE.Vector3().subVectors(q,p).normalize(),nx=-d.z,nz=d.x;pos.push(p.x+nx*wd/2,p.y,p.z+nz*wd/2,p.x-nx*wd/2,p.y,p.z-nz*wd/2);if(i>0){const b=i*2;idx.push(b-2,b-1,b,b-1,b+1,b)}});
+  const tip=pts[N],bs=body[body.length-1],d=new THREE.Vector3().subVectors(tip,bs).normalize(),nx=-d.z,nz=d.x,b=pos.length/3;
+  pos.push(bs.x+nx*wd*1.3,bs.y,bs.z+nz*wd*1.3,bs.x-nx*wd*1.3,bs.y,bs.z-nz*wd*1.3,tip.x,tip.y,tip.z);idx.push(b,b+1,b+2);
+  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));g.setIndex(idx);g.computeVertexNormals();
+  const m=new THREE.MeshBasicMaterial({color:ar.color||0xffd23f,transparent:true,opacity:0,side:THREE.DoubleSide,depthWrite:false});const me=new THREE.Mesh(g,m);scene.add(me);
+  ARROWS.push({fx,me,m,at:ar.at||0,nb:body.length})}
+// ---- カメラ
+const cam=new THREE.PerspectiveCamera(FOV,W/H,.05,500);
+const CAMS=LAB.cams||{};
+const shotFor=fx=>CAMS[fx]||CAMS.default||[[0,40,48],[0,0,0]];
+function camAt(t){const l=lineAt(t),i=LINES.indexOf(l),cur=shotFor(l.fx),prev=i>0?shotFor(LINES[i-1].fx):cur,k=sstep(l.t0-.15,l.t0+1.0,t);
+  const p=new THREE.Vector3().fromArray(prev[0]).lerp(new THREE.Vector3().fromArray(cur[0]),k),q=new THREE.Vector3().fromArray(prev[1]).lerp(new THREE.Vector3().fromArray(cur[1]),k);
+  const dr=(t-l.t0)*.012;p.lerp(q,Math.min(.08,dr));p.x+=.25*Math.sin(t*.4);return[p,q]}   // ゆっくり寄る
+// ---- HUD
+const NS='http://www.w3.org/2000/svg',hud=document.getElementById('hud');
+function el(tag,a,txt){const e=document.createElementNS(NS,tag);for(const k in a)e.setAttribute(k,a[k]);if(txt!=null)e.textContent=txt;hud.appendChild(e);return e}
+const tw=(s,size)=>{let w=0;for(const ch of String(s))w+=ch.charCodeAt(0)<256?.58:1;return w*size};
+function T(x,y,size,txt,o={}){const a={x,y,'font-size':size,'font-weight':o.w||900,'text-anchor':o.a||'start','stroke-width':o.sw!=null?o.sw:Math.max(3,size*.2)};let st='';if(o.fill)st+='fill:'+o.fill+';';if(o.op!=null)st+='opacity:'+o.op+';';if(st)a.style=st;return el('text',a,txt)}
+const proj=v=>{const p=v.clone().project(cam);return[(p.x+1)/2*W,(1-p.y)/2*H,p.z]};
+function tag(v,txt,op,col){if(op<=.02)return;const[x,y,z]=proj(v);if(z>1)return;const size=24,w=tw(txt,size)+22,h=size+14;const cx=clamp(x,w/2+6,W-w/2-6),cy=clamp(y,250,H-330);
+  el('rect',{x:cx-w/2,y:cy-h,width:w,height:h,rx:8,fill:col||'#1f2937',style:'opacity:'+(op*.9).toFixed(2)});T(cx,cy-9,size,txt,{a:'middle',sw:0,op:op.toFixed(2)})}
+function drawHud(t,ST){hud.innerHTML='';const l=lineAt(t),a=clamp((t-l.t0)/.12,0,1);
+  if(LAB.head&&l.fx!=='hook')T(270,110,30,LAB.head,{a:'middle',sw:8,op:(sstep(lineOf('setup')?lineOf('setup').t0:0,(lineOf('setup')?lineOf('setup').t0:0)+.4,t)).toFixed(2)});
+  let y=l.cap.length>1?690:712;l.cap.forEach((c,i)=>{const size=Math.min(48,480/tw(c,1));T(270,y+(1-a)*6,size,c,{a:'middle',sw:9,op:(.3+.7*a).toFixed(2),fill:i===l.cap.length-1?'#ffd23f':'#fff'});y+=size+12});
+  for(const tg of ((LAB.tags||{})[l.fx]||[])){const A=ARM.find(o=>o.a.id===tg.army);if(!A)continue;const s=ST[tg.army];const op=sstep(l.t0+(tg.at||.1)*l.voice,l.t0+(tg.at||.1)*l.voice+.3,t);
+    tag(new THREE.Vector3(s.cx,(tg.dy||3),s.cz),tg.text,op,tg.col||(A.a.tagcol||'#1f2937'))}}
+window.renderAt=function(t){const ST={};ARM.forEach(A=>{ST[A.a.id]=placeArmy(A,t)});
+  const l=lineAt(t);ARROWS.forEach(r=>{const L=lineOf(r.fx);let op=0;if(L&&l===L){op=sstep(L.t0+r.at*L.voice,L.t0+r.at*L.voice+.35,t)*.92}r.m.opacity=op;r.me.visible=op>.01});
+  const[p,q]=camAt(t);cam.position.copy(p);cam.lookAt(q);cam.updateProjectionMatrix();sun.position.set(q.x+20,q.y+40,q.z+18);sun.target.position.copy(q);
+  renderer.render(scene,cam);drawHud(t,ST);return{t}};
+window.__info={total:DUR};
+Promise.all([400,700,900].map(w=>document.fonts.load(w+' 20px JumpSans','あ0'))).then(()=>{window.__fig={kind:'none'};window.__ready=true},e=>console.log('load error: '+e.message));
+</script></body></html>
