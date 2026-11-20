@@ -9,3 +9,9 @@ corner1_ja MOSO ja
 plates4t_ja MOSO ja
 pend1_ja MOSO ja
 liss1_ja MOSO ja
+koch1_ja MOSO ja
+koch1_en KAIDAN en
+basket1_ja MOSO ja
+basket1_en KAIDAN en
+cycloid1_ja MOSO ja
+cycloid1_en KAIDAN en
