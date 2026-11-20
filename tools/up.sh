@@ -1,16 +1,19 @@
 #!/bin/bash
 # up.sh — ここで作った mp4 を up-<id> ブランチに置いて、upload_file.yml で YouTube に上げる
 #   tools/up.sh <id> <キットのパス> <YT_REFRESH_TOKEN_MOSO|_KAIDAN|_NAZO> <ja|en> [no_voice=1] [publish_at(UTC)]
+#   環境変数 KIDS=1（子ども向け）、THUMB=<リポジトリ内のサムネ>
 #   キットは先に kaizo3d-fridge へ push しておくこと。結果の動画IDを最後に出す
 set -e
 ID="$1"; KIT="$2"; TOKEN="$3"; LANGC="${4:-ja}"; NOVOICE="${5:-1}"; PUB="${6:-}"
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"; URL="$(git -C "$ROOT" remote get-url origin)"
 T="$(mktemp -d)"; cp "$ROOT/output/$ID.mp4" "$T/"
-( cd "$T" && git init -q && git checkout -q -b "up-$ID" && git add "$ID.mp4" && git -c user.name=bot -c user.email=bot@example.com commit -qm up && git remote add origin "$URL" && git push -q -f origin "up-$ID" 2>&1 | grep -v -e "^remote:" -e "negotiation" || true )
+# GitHub は1ファイル100MBまで。超えるときは 90MB ずつに分けて置く（upload_file.yml がつなぎ直す）
+[ "$(stat -c %s "$T/$ID.mp4")" -gt 95000000 ] && ( cd "$T" && split -b 90000000 -d "$ID.mp4" "$ID.mp4.part" && rm "$ID.mp4" )
+( cd "$T" && git init -q && git checkout -q -b "up-$ID" && git add . && git -c user.name=bot -c user.email=bot@example.com commit -qm up && git remote add origin "$URL" && git push -q -f origin "up-$ID" 2>&1 | grep -v -e "^remote:" -e "negotiation" || true )
 git -C "$ROOT" ls-remote origin "up-$ID" | grep -q . || { echo "ブランチの push に失敗: up-$ID"; exit 1; }
 cd "$ROOT"
 SEEN="$(gh run list --workflow upload_file.yml -L 20 --json databaseId -q '.[].databaseId' | sort)"
-gh workflow run upload_file.yml --ref kaizo3d-fridge -f id="$ID" -f kit="$KIT" -f token="$TOKEN" -f publish_at="$PUB" -f lang="$LANGC" -f no_voice="$NOVOICE" >/dev/null
+gh workflow run upload_file.yml --ref kaizo3d-fridge -f id="$ID" -f kit="$KIT" -f token="$TOKEN" -f publish_at="$PUB" -f lang="$LANGC" -f no_voice="$NOVOICE" -f kids="${KIDS:-}" -f thumb="${THUMB:-}" >/dev/null
 R=""   # 新しく出てきた実行のうち、ログにこの動画IDがあるものを選ぶ
 for i in $(seq 1 60); do
   sleep 5

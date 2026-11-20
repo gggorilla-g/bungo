@@ -9,6 +9,8 @@ on:
       publish_at: { description: "公開日時 UTC（空ならすぐ公開）", default: "" }
       lang: { description: "ja / en", default: "ja" }
       no_voice: { description: "声なしの動画なら 1", default: "" }
+      kids: { description: "子ども向けなら 1", default: "" }
+      thumb: { description: "サムネのパス（リポジトリ内、空ならなし）", default: "" }
 permissions:
   contents: write
 jobs:
@@ -20,7 +22,11 @@ jobs:
         with: { python-version: "3.12" }
       - run: |
           pip install -q google-api-python-client google-auth
-          git fetch -q origin "up-${{ inputs.id }}" && git show "origin/up-${{ inputs.id }}:${{ inputs.id }}.mp4" > "/tmp/${{ inputs.id }}.mp4" && ls -la /tmp/*.mp4
+          git fetch -q origin "up-${{ inputs.id }}"
+          B="origin/up-${{ inputs.id }}"; F="${{ inputs.id }}.mp4"
+          if git cat-file -e "$B:$F" 2>/dev/null; then git show "$B:$F" > "/tmp/$F"
+          else : > "/tmp/$F"; for p in $(git ls-tree --name-only "$B" | grep "^$F.part" | sort); do git show "$B:$p" >> "/tmp/$F"; done; fi   # 100MBを超える動画は分けて置いてある
+          ls -la /tmp/*.mp4
       - env:
           PUBLISH_AT: ${{ inputs.publish_at }}
           YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
@@ -28,6 +34,8 @@ jobs:
           YT_REFRESH_TOKEN: ${{ secrets[inputs.token] }}
           VIDEO_LANG: ${{ inputs.lang }}
           NO_VOICE: ${{ inputs.no_voice }}
+          MADE_FOR_KIDS: ${{ inputs.kids }}
+          THUMB: ${{ inputs.thumb }}
         run: |
           python3 tools/short_upload.py "/tmp/${{ inputs.id }}.mp4" "${{ inputs.kit }}"
           git config user.name "bungo-bot"; git config user.email "bot@users.noreply.github.com"
