@@ -62,6 +62,23 @@ const el=(n,a,txt,parent)=>{const e=document.createElementNS(NS,n);for(const k i
 const textG=el('g',{});
 const fade=el('rect',{x:0,y:0,width:W,height:H,fill:'#f6f1e6',opacity:0});
 const flash=el('rect',{x:0,y:0,width:W,height:H,fill:'#fff',opacity:0});
+const fxG=el('g',{});   // インサートの動き（波紋・きらめき・光の筋・しずく）
+let fxPage=-1;hud.insertBefore(fxG,fade);
+function drawFx(P,t){
+  while(fxG.firstChild)fxG.removeChild(fxG.firstChild);
+  for(const f of (P.fx||[])){
+    if(f.type==='ripple'){for(const t0 of f.at){const d=t-t0;if(d<0||d>3)continue;for(let k=0;k<3;k++){const dd=d-k*.35;if(dd<0)continue;const r=dd*(f.speed||.09)*W,op=Math.max(0,.75*(1-dd/2.6));
+      el('ellipse',{cx:f.x*W,cy:f.y*H,rx:r,ry:r*(f.flat||.32),fill:'none',stroke:'rgba(255,255,255,'+op.toFixed(3)+')','stroke-width':2.2-k*.5},null,fxG)}}}
+    if(f.type==='sparkle'){const R=rng(f.seed||3);for(let i=0;i<(f.n||14);i++){const x=(f.x0+(f.x1-f.x0)*R())*W,y=(f.y0+(f.y1-f.y0)*R())*H,ph=R()*6.28,sp=1.2+R()*1.6;const a=Math.max(0,Math.sin(t*sp+ph));const s=(2+R()*3)*a;
+      if(a<.05)continue;el('path',{d:`M${x-s*2} ${y}L${x+s*2} ${y}M${x} ${y-s*2}L${x} ${y+s*2}`,stroke:'rgba(255,252,235,'+(a*.9).toFixed(3)+')','stroke-width':1.4,'stroke-linecap':'round'},null,fxG);
+      el('circle',{cx:x,cy:y,r:s*.6,fill:'rgba(255,255,240,'+(a*.8).toFixed(3)+')'},null,fxG)}}
+    if(f.type==='rays'){const k=ss(f.t0||P.t0,(f.t0||P.t0)+3,t);for(let i=0;i<(f.n||5);i++){const ang=(f.ang||18)+i*7,sw=Math.sin(t*.6+i)*.5+.5;
+      const g=el('polygon',{points:`${f.x*W},${f.y*H} ${(f.x+Math.sin((ang-3)*Math.PI/180)*1.4)*W},${(f.y+1.4)*H} ${(f.x+Math.sin((ang+3)*Math.PI/180)*1.4)*W},${(f.y+1.4)*H}`,fill:'rgba(255,248,215,'+(k*(.08+.07*sw)).toFixed(3)+')'},null,fxG);g.style.filter='blur(6px)'}}
+    if(f.type==='drop'){const d=t-f.t;if(d<-2||d>1.2)continue;const x=f.x*W;let y=f.y*H,op=1,sc=1;
+      if(d<0){sc=.6+.4*Math.min(1,(d+2)/2);y+=Math.sin(t*5)*1.2}else{y+=d*d*(f.g||1400);op=Math.max(0,1-d/.6)}
+      el('path',{d:`M${x} ${y-9*sc} Q${x+6*sc} ${y} ${x} ${y+5*sc} Q${x-6*sc} ${y} ${x} ${y-9*sc}Z`,fill:'rgba(205,225,245,'+(op*.95).toFixed(3)+')',stroke:'rgba(255,255,255,'+(op*.8).toFixed(3)+')','stroke-width':1},null,fxG)}
+  }
+}
 const titleG=el('g',{opacity:0});
 const endT=el('text',{x:W/2,y:H*.52,'text-anchor':'middle','font-size':40,'font-weight':900,fill:'#3b2a22','letter-spacing':6,opacity:0},SPEC.end_text||'おしまい');
 let pageText=-1,textEls=[];
@@ -130,6 +147,7 @@ window.renderAt=function(t){
   let rain=0;if(P.rain)rain=ss(P.rain[0],P.rain[0]+1,t)*(1-ss(P.rain[1]-1,P.rain[1],t));
   for(let i=0;i<NR;i++){const d=RD[i];const on=i/NR<rain;const yy=3.4-((t*d.sp+d.ph*3.4)%3.4);dummy.position.set(d.x,on?yy:-9,d.z);dummy.updateMatrix();rainM.setMatrixAt(i,dummy.matrix)}rainM.instanceMatrix.needsUpdate=true;
   const c=camAt(P,t);camera.position.set(c.x,c.y+.04*c.d,c.d);camera.lookAt(c.tx,c.ty,0);
+  drawFx(P,t);
   // 本文：ページの文をまとめて置き、読んでいる文と読み終えた文を濃くする
   if(pageText!==cur){buildText(P);pageText=cur}
   const vis=(P.text&&P.text.hide_until)||0;

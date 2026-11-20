@@ -82,6 +82,7 @@ def main(path, mode=None, arg=None):
         t0, t1, L = pages[pi]; bg = prep(pg["bg"], cut=False)
         P = {"t0": t0, "t1": t1, "bg": bg, "bg_aspect": aspect[pg["bg"]], "floor": pg.get("floor", "#7f9a6a"), "light": pg.get("light", 1.0),
              "lines": [{"t": l["t"], "d": l["d"], "wrap": l["wrap"]} for l in L], "items": []}
+        if "fx" in pg: P["fx"] = [dict(f, **({"at": [U(pi, u) for u in f["at"]]} if "at" in f else {}), **({"t": U(pi, f["t"])} if "t" in f else {}), **({"t0": U(pi, f["t0"])} if "t0" in f else {})) for f in pg["fx"]]
         for k in ("bg_h", "bg_y", "bg_x", "text"):
             if k in pg: P[k] = pg[k]
         if "cam" in pg: P["cam"] = [dict(c, t=U(pi, c["u"])) for c in pg["cam"]]
