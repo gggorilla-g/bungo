@@ -127,7 +127,7 @@ def main(path, mode=None, arg=None):
     # 絵ごとの大きさのムラをそろえる：scale.json の実測（頭の幅・殻の直径・葉の長さ）から、世界での高さを決める
     HW = {}
     for k, hp in hpx.items():
-        e = SC.get(k.split("/")[-1], {})
+        nm = k.split("/")[-1]; e = SC.get(nm) or SC.get(sp.get("scale_alias", {}).get(nm, ""), {})
         for key, (field, world) in WR.items():
             if key in e and field in e[key] and e[key][field]:
                 HW[f"ehon/{sid}/{k}.png"] = hp * world / e[key][field]; break

@@ -99,7 +99,7 @@ function buildText(P,grp){
   const bw=maxw+fs*1.8,bh=rows*lh+fs*.9;
   const C=[['start',.05,.11],['end',.95,.11],['start',.05,.62],['end',.95,.62],['middle',.5,.09],['start',.05,.36],['end',.95,.36]];
   let best=null;
-  if(T.fixed){best=[T.align||'start',T.x,T.y]}else{
+  const STX=curShot&&curShot.k.text;if(STX){best=[STX.align||'start',STX.x,STX.y]}else if(T.fixed){best=[T.align||'start',T.x,T.y]}else{
     const boxes=itemBoxes();let bs=1e18;
     C.forEach((c,ci)=>{const [al,fx,fy]=c;const x=fx*W,y=fy*H;const px=al==='middle'?x-bw/2:al==='end'?x-bw:x;const R=[px-fs*.9,y-fs*1.3,px-fs*.9+bw,y-fs*1.3+bh];
       let ov=0;for(const b of boxes){const w=Math.min(R[2],b[2])-Math.max(R[0],b[0]),h=Math.min(R[3],b[3])-Math.max(R[1],b[1]);if(w>0&&h>0)ov+=w*h}
@@ -167,7 +167,7 @@ function stageAt(cur,t){const P=SPEC.pages[cur];
   const c=camAt(P,t);camera.position.set(c.x,c.y+.04*c.d,c.d);camera.lookAt(c.tx,c.ty,0);
   const S=shotAt(P,t);if(S){const hh=2*Math.tan(camera.fov*Math.PI/360),ww=hh*camera.aspect;const z=lerp(S.k.z0||1.0,S.k.z1||1.07,ss(S.t0,S.t1,t));
     shotMat.map=tex(S.k.img);shotMat.needsUpdate=true;shotMat.color.setScalar(S.k.light||light);shot.scale.set(ww*z,ww*z*(S.k.aspect?1/S.k.aspect:9/16),1);shot.position.x=(S.k.px||0)*ww*(z-1)*.5;shot.position.y=(S.k.py||0)*hh*(z-1)*.5;shot.visible=true}else shot.visible=false;
-  curShot=S;
+  curShot=S;if(S){pages.forEach(pp=>pp.items.forEach(p=>{p.root.visible=false}));rainM.visible=false;backdrop.visible=backdrop2.visible=false}else{rainM.visible=true;backdrop.visible=true}
 }
 const rtA=new THREE.WebGLRenderTarget(W*(window.devicePixelRatio||1),H*(window.devicePixelRatio||1)),rtB=rtA.clone();rtA.texture.colorSpace=rtB.texture.colorSpace=THREE.SRGBColorSpace;
 const mixMat=new THREE.ShaderMaterial({uniforms:{a:{value:rtA.texture},b:{value:rtB.texture},k:{value:0}},vertexShader:'varying vec2 v;void main(){v=uv;gl_Position=vec4(position.xy,0.,1.);}',

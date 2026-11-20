@@ -103,7 +103,9 @@
     {
      "img": "leaf",
      "x": 0.6,
-     "z": -0.3
+     "z": -0.3,
+     "h": 0.34,
+     "auto": false
     },
     {
      "img": "snail",
@@ -152,7 +154,12 @@
      "y": 1,
      "d": 9,
      "img": "close/c01_pino_feet_stop",
-     "fx": []
+     "fx": [],
+     "text": {
+      "align": "end",
+      "x": 0.95,
+      "y": 0.11
+     }
     },
     {
      "u": "L2",
@@ -167,7 +174,12 @@
      "y": 1,
      "d": 9,
      "img": "close/c02_lulu_call",
-     "fx": []
+     "fx": [],
+     "text": {
+      "align": "end",
+      "x": 0.95,
+      "y": 0.11
+     }
     },
     {
      "u": "L4",
@@ -291,7 +303,9 @@
      "img": "leaf",
      "x": 0.6,
      "z": -0.3,
-     "hide": "L3"
+     "hide": "L3",
+     "h": 0.34,
+     "auto": false
     },
     {
      "img": "snail",
@@ -350,7 +364,12 @@
      "y": 1,
      "d": 9,
      "img": "close/c03_pino_flinch_face",
-     "fx": []
+     "fx": [],
+     "text": {
+      "align": "end",
+      "x": 0.95,
+      "y": 0.11
+     }
     },
     {
      "u": "L1",
@@ -365,7 +384,12 @@
      "y": 1,
      "d": 9,
      "img": "close/c04_lulu_umbrella",
-     "fx": []
+     "fx": [],
+     "text": {
+      "align": "start",
+      "x": 0.05,
+      "y": 0.11
+     }
     },
     {
      "u": "L3",
@@ -776,7 +800,12 @@
        "y1": 0.1522,
        "seed": 3
       }
-     ]
+     ],
+     "text": {
+      "align": "end",
+      "x": 0.95,
+      "y": 0.11
+     }
     },
     {
      "u": "L8",
@@ -913,7 +942,12 @@
        "y1": 0.5,
        "seed": 9
       }
-     ]
+     ],
+     "text": {
+      "align": "start",
+      "x": 0.05,
+      "y": 0.11
+     }
     },
     {
      "u": "L7",
@@ -1040,7 +1074,12 @@
        "y1": 0.5785,
        "seed": 3
       }
-     ]
+     ],
+     "text": {
+      "align": "end",
+      "x": 0.95,
+      "y": 0.8
+     }
     }
    ],
    "sfx": [
@@ -1350,7 +1389,12 @@
        "y1": 0.5,
        "seed": 14
       }
-     ]
+     ],
+     "text": {
+      "align": "start",
+      "x": 0.05,
+      "y": 0.11
+     }
     },
     {
      "u": "L5",
@@ -1358,7 +1402,12 @@
      "y": 1,
      "d": 9,
      "img": "close/c10_shoulders",
-     "fx": []
+     "fx": [],
+     "text": {
+      "align": "middle",
+      "x": 0.5,
+      "y": 0.08
+     }
     },
     {
      "u": "L6",
@@ -1439,8 +1488,8 @@
      "fx": [
       {
        "type": "ripple",
-       "x": 0.5,
-       "y": 0.55,
+       "x": 0.5054,
+       "y": 0.5207,
        "at": [
         "s3.3"
        ],
@@ -1496,5 +1545,9 @@
    "bg_y": -2.7
   }
  ],
- "logo_rel": "ehon/brand/logo_full.png"
+ "logo_rel": "ehon/brand/logo_full.png",
+ "scale_alias": {
+  "pino_lulu_leaf_smile": "pino_lulu_leaf_sit",
+  "mouse_stop": "mouse_walk"
+ }
 }
