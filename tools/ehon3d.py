@@ -59,7 +59,7 @@ def main(path, mode=None, arg=None):
     sp = json.load(open(path, encoding="utf-8")); sid = sp["id"]; B = f"build_ehon/{sid}"; os.makedirs(B, exist_ok=True)
     A = sp["assets"]; OUT = f"{KZ}/ehon/{sid}"; os.makedirs(OUT, exist_ok=True)
     # 絵を紙人形に
-    aspect = {}; hpx = {}
+    aspect = {}; hpx = {}; lum = {}
     SC = json.load(open(f"{A}/scale.json")) if os.path.exists(f"{A}/scale.json") else {}
     WR = sp.get("world", {"pino": ["head_w", .44], "lulu": ["shell_d", .5], "leaf": ["len", 1.6], "drop": ["h", .09], "flower": ["w", 1.2]})
     def prep(name, cut=True):
@@ -68,6 +68,7 @@ def main(path, mode=None, arg=None):
         if cut: aspect[name] = paper_cut(src, f"{OUT}/{name}.png"); hpx[name] = paper_cut.hpx
         else:
             im = Image.open(src).convert("RGB"); im.thumbnail((1800, 1800)); im.save(f"{OUT}/{name}.png"); aspect[name] = im.width / im.height
+            top = im.crop((0, 0, im.width, int(im.height * .35))).convert("L").resize((32, 8)); lum[name] = sum(top.getdata()) / 256 / 255   # 文字を置く上の方の明るさ
         return f"ehon/{sid}/{name}.png"
     vo = synth(sp, B)
     GAP, PAD0, PAD1, TR = .55, 1.4, 1.4, 1.2
@@ -94,13 +95,14 @@ def main(path, mode=None, arg=None):
         P = {"t0": t0, "t1": t1, "bg": bg, "bg_aspect": aspect[pg["bg"]], "floor": pg.get("floor", "#7f9a6a"), "light": pg.get("light", 1.0),
              "lines": [{"t": l["t"], "d": l["d"], "wrap": l["wrap"]} for l in L], "items": []}
         if "fx" in pg: P["fx"] = [dict(f, **({"at": [U(pi, u) for u in f["at"]]} if "at" in f else {}), **({"t": U(pi, f["t"])} if "t" in f else {}), **({"t0": U(pi, f["t0"])} if "t0" in f else {})) for f in pg["fx"]]
-        for k in ("bg_h", "bg_y", "bg_x", "text"):
+        P["text"] = dict(pg.get("text", {})); P["text"].setdefault("color", "#fffaf0" if lum.get(pg["bg"], 1) < .45 else "#3b2a22")
+        for k in ("bg_h", "bg_y", "bg_x"):
             if k in pg: P[k] = pg[k]
         if "cam" in pg:
             P["cam"] = []
             for c in pg["cam"]:
                 k = dict(c, t=U(pi, c["u"]))
-                if "img" in k: k["img"] = prep(k["img"], cut=False); k["aspect"] = aspect[c["img"]]
+                if "img" in k: k["img"] = prep(k["img"], cut=False); k["aspect"] = aspect[c["img"]]; k.setdefault("ink", "#fffaf0" if lum[c["img"]] < .45 else "#3b2a22")
                 if "fx" in k: k["fx"] = [dict(f, **({"at": [U(pi, u) for u in f["at"]]} if "at" in f else {}), **({"t": U(pi, f["t"])} if "t" in f else {}), **({"t0": U(pi, f["t0"])} if "t0" in f else {})) for f in k["fx"]]
                 P["cam"].append(k)
         if "bg2" in pg: P["bg2"] = {"img": prep(pg["bg2"]["img"], cut=False), "t": U(pi, pg["bg2"]["u"]), "dur": pg["bg2"].get("dur", 2)}

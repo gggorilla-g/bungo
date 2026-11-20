@@ -94,7 +94,7 @@ function itemBoxes(){const out=[];if(shot.visible)return out;const v=new THREE.V
 // 本文：絵の空いている所を探して置く（紙人形と重ならない候補を選ぶ。手で x,y を書いたページはその場所）
 function buildText(P,grp){
   while(textG.firstChild)textG.removeChild(textG.firstChild);textEls=[];const T=P.text||{};const N=T.group||2;const LS=P.lines.map((L,li)=>[L,li]).filter(([L,li])=>Math.floor(li/N)===grp);
-  const fs=T.size||22,lh=fs*1.75,ink=T.color||'#3b2a22';if(!LS.length)return;
+  const fs=T.size||22,lh=fs*1.75,ink=(curShot&&curShot.k.ink)||T.color||'#3b2a22';if(!LS.length)return;
   let rows=0,maxw=0;LS.forEach(([L])=>{rows+=L.wrap.length;L.wrap.forEach(s=>{maxw=Math.max(maxw,s.length*fs*1.06)})});
   const bw=maxw+fs*1.8,bh=rows*lh+fs*.9;
   const C=[['start',.05,.11],['end',.95,.11],['start',.05,.62],['end',.95,.62],['middle',.5,.09],['start',.05,.36],['end',.95,.36]];
@@ -105,7 +105,7 @@ function buildText(P,grp){
       let ov=0;for(const b of boxes){const w=Math.min(R[2],b[2])-Math.max(R[0],b[0]),h=Math.min(R[3],b[3])-Math.max(R[1],b[1]);if(w>0&&h>0)ov+=w*h}
       if(R[3]>H*.97||R[0]<0||R[2]>W)ov+=1e7;const sc=ov+ci*40;if(sc<bs){bs=sc;best=c}})}
   const [al,fx,fy]=best;const x0=fx*W,y0=fy*H;const px=al==='middle'?x0-maxw/2:al==='end'?x0-maxw:x0;
-  if(T.paper!==false){const r=el('rect',{x:px-fs*.9,y:y0-fs*1.3,width:bw,height:bh,rx:fs*.9,fill:T.paper_color||'#fbf6ea',opacity:T.paper_op!=null?T.paper_op:.55},null,textG);r.style.filter='blur(6px)'}
+  if(T.paper===true){const r=el('rect',{x:px-fs*.9,y:y0-fs*1.3,width:bw,height:bh,rx:fs*.9,fill:T.paper_color||'#fbf6ea',opacity:T.paper_op!=null?T.paper_op:.55},null,textG);r.style.filter='blur(6px)'}
   let row=0;LS.forEach(([L,li])=>{L.wrap.forEach(s=>{const e=el('text',{x:x0,y:y0+row*lh,'text-anchor':al,'font-size':fs,'font-weight':T.weight||700,fill:ink,'letter-spacing':fs*.06},s,textG);textEls.push({e,li});row++})});
 }
 // 表紙：表紙の絵を全面に、題名とレーベル（ほほほブックス）を載せる。ゆっくり寄る
