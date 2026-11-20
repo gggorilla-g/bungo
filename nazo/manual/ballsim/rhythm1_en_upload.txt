@@ -1,0 +1,13 @@
+【タイトル】
+Can You Tap Along With the Glowing Ball? #shorts
+
+【説明】
+A glowing ball bounces from note to note and reads the rhythm. Each note lights up and plays as the ball lands on it. Every page gets faster (75, 100, then 120 BPM), and on the last page the ball splits in two, chasing the same rhythm one beat apart (a round).
+
+- The rhythms are random mixes of quarter, eighth, sixteenth and dotted-eighth notes.
+- The moment the ball lands is the moment the note plays.
+
+Animation and sound: original (Python).
+
+【タグ】
+satisfying, rhythm, music, rhythm practice, tap along, satisfying sounds, shorts
