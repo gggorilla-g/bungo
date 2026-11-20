@@ -1,0 +1,11 @@
+{
+ "kind": "plotter",
+ "id": "plotter1_en",
+ "title": [
+  "A printer prints it line by line",
+  "What picture appears?"
+ ],
+ "rows": 140,
+ "dur": 48.0,
+ "hue0": 0.95
+}

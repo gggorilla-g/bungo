@@ -969,7 +969,63 @@ def threebody(sp):
     sim.finish(total)
 
 
-KINDS = {"threebody": threebody, "pendswing": pendswing, "golden": golden, "piphase": piphase, "maurer": maurer, "harmono": harmono, "spiro": spiro, "star": star, "throw": throw, "tusi": tusi, "chain": chain, "basket": basket, "koch": koch, "cycloid": cycloid, "pendulums": pendulums, "lissajous": lissajous, "corner": corner, "sunflower": sunflower, "ulam": ulam, "parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2, "picount": picount}
+def plotter(sp):
+    """プリンター：印刷ヘッドが左右に往復して、1行ずつ絵を刷っていく。何の絵かは刷り終わるまでわからない。
+    絵はマンデルブロ集合（z→z²+c をくり返して、外へ飛び出すまでの回数で色をつける）。行の端で折り返すたびにガラスの音。
+    ヘッドは光る小さな台車、レールも軽く光る。刷ったばかりの行は少し明るく、すぐ落ち着く"""
+    from simkit import S as S_, W as W_, H as H_
+    from PIL import Image
+    rows, dur, intro, tail = sp.get("rows", 96), sp.get("dur", 46.0), .8, sp.get("tail", 3.0)
+    cx0, cy0, sc = sp.get("center", [-.6, 0.0]) + [sp.get("scale", 2.6)]
+    x0p, x1p = int(.07 * W_ * S_), int(.93 * W_ * S_); wpx = x1p - x0p; hpx = int(wpx * sp.get("aspect", 1.25)); y0p = int(.245 * H_ * S_)
+    cols_n = wpx // 3
+    # 絵を作る（cols_n × rows）
+    xs = cx0 + (np.arange(cols_n) / cols_n - .5) * sc; ys = cy0 + (np.arange(rows) / rows - .5) * sc * hpx / wpx
+    C = xs[None, :] + 1j * ys[::-1, None]; Z = np.zeros_like(C); it = np.zeros(C.shape); alive = np.ones(C.shape, bool); MX = sp.get("iters", 90)
+    for k in range(MX):
+        Z[alive] = Z[alive] ** 2 + C[alive]; esc = alive & (np.abs(Z) > 2); it[esc] = k + 1 - np.log2(np.log2(np.abs(Z[esc]) + 1e-9) + 1e-9); alive &= ~esc
+    h0 = sp.get("hue0", .62)
+    img = np.zeros(C.shape + (3,), np.uint8)
+    for r_ in range(rows):
+        for c_ in range(cols_n):
+            if alive[r_, c_]: img[r_, c_] = (8, 10, 22)
+            else:
+                v = it[r_, c_] / MX; img[r_, c_] = hsv((h0 + v * 3.0) % 1, .8, min(1, (v * 5) ** .8))
+    rh = hpx / rows
+    sim = Sim(sp, (-1, -1, 1, 1)); sim.title()
+    per = dur / rows   # 1行の時間
+    for r_ in range(rows):   # 折り返しの音：その行の明るさで高さを決める（毎回ずれる）
+        br = img[r_].mean() / 255; sim.note(intro + (r_ + 1) * per, PENTA[int(br * 12 + r_ % 3 * 2) % 16] + 12, .5, .25 if r_ % 2 == 0 else .75, 3.0, "glass")
+        if (~alive[r_]).any() and alive[r_].any():   # 集合のふちを通るときに小さな音
+            edges = np.where(np.diff(alive[r_].astype(int)) != 0)[0]
+            for e in edges[:3]:
+                fx = (e / cols_n) if r_ % 2 == 0 else 1 - e / cols_n
+                sim.note(intro + (r_ + fx) * per, PENTA[(r_ + int(e)) % 10 + 5] + 12, .22, .2 + .6 * (e / cols_n), 5.0, "glass")
+    total = intro + dur + tail; printed = 0
+    for fi in range(int(total * FPS)):
+        t = fi / FPS; u = max(0, (t - intro) / per); r_ = min(rows - 1, int(u)); fx = u - int(u) if u < rows else 1
+        # 行を刷る：終わった行は acc へ確定
+        while printed < min(rows, int(u)):
+            row = Image.fromarray(img[printed][None, :, :]).resize((wpx, max(1, int(rh) + 1)), Image.NEAREST)
+            sim.acc.paste(row, (x0p, y0p + int(printed * rh))); printed += 1
+        live = []; ttl = None
+        def dr(d, r_=r_, fx=fx, done=u >= rows):
+            if not done:
+                frac = fx if r_ % 2 == 0 else 1 - fx; cc = int(frac * cols_n)
+                if cc > 0:
+                    part = img[r_, :cc] if r_ % 2 == 0 else img[r_, cols_n - cc:]
+                    row = Image.fromarray(np.clip(part.astype(int) * 1.35 + 20, 0, 255).astype(np.uint8)[None]).resize((max(1, int(cc * wpx / cols_n)), max(1, int(rh) + 1)), Image.NEAREST)
+                    d._image.paste(row, (x0p if r_ % 2 == 0 else x1p - row.width, y0p + int(r_ * rh)))
+                y = y0p + (r_ + .5) * rh; xh = x0p + frac * wpx
+                d.line([x0p - 20 * S_, y, x1p + 20 * S_, y], fill=(70, 140, 190), width=3 * S_)          # レール
+                d.rounded_rectangle([xh - 26 * S_, y - 14 * S_, xh + 26 * S_, y + 14 * S_], 6 * S_, fill=(30, 40, 60), outline=(150, 235, 255), width=3 * S_)  # ヘッド
+                d.ellipse([xh - 5 * S_, y - 5 * S_, xh + 5 * S_, y + 5 * S_], fill=(255, 245, 210))
+            d.rectangle([x0p - 4 * S_, y0p - 4 * S_, x1p + 4 * S_, y0p + hpx + 4 * S_], outline=(90, 170, 220), width=3 * S_)   # 紙のふち
+        sim.frame(t, live, [], None, draw=dr)
+    sim.finish(total)
+
+
+KINDS = {"plotter": plotter, "threebody": threebody, "pendswing": pendswing, "golden": golden, "piphase": piphase, "maurer": maurer, "harmono": harmono, "spiro": spiro, "star": star, "throw": throw, "tusi": tusi, "chain": chain, "basket": basket, "koch": koch, "cycloid": cycloid, "pendulums": pendulums, "lissajous": lissajous, "corner": corner, "sunflower": sunflower, "ulam": ulam, "parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2, "picount": picount}
 
 if __name__ == "__main__":
     sp = json.load(open(sys.argv[1], encoding="utf-8")); KINDS[sp["kind"]](sp); kit(sp)
