@@ -376,4 +376,4 @@
 - MIW 追加：コッホ O_Brpai6am8、かご d1HbVuf5jc0、サイクロイド rKVJeCW5KNw、板レース同時 lpmp0CaFfoA（旧 JRk_yCvr9BY は非公開）、振り子 qkDf6ABU_Os、リサージュ jjVcJGhuKo0
 - MIW 追加：4倍 -qcuorVpUeg、4:5リサージュ fpxwlejA_p0、連鎖 Nr-FFh5Jkzo。似すぎのため非公開（削除はしない）：5倍 hmzqcP64Tts（4倍とほぼ同じ見た目）、5:6リサージュ _FTuVipkcJk（4:5とほぼ同じ）。英語の星形は star73 のみ出し、star94_en は出さない
 - MIW 追加：転がる円 NuYj1prWnyQ、投げても同時 zpBv2ZU7378、星形7 eLxePYT5ZTo
-- 2026-11-20 オーナー指示で投稿を一旦停止（様子見）。妄想科学の順番待ち23本は nazo/ballsim/upload_queue.txt に残したまま、再挑戦の予約は削除
+- 2026-11-20 オーナー指示で英語（MIW）のシミュ投稿を一旦停止（様子見）。日本語（妄想科学）の順番待ちは予定どおり再挑戦を続ける
