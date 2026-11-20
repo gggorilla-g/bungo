@@ -1,0 +1,26 @@
+【タイトル】
+Which One Breaks 10 Plates First? The Last Round Changes Everything #shorts #math
+
+【説明】
+Four rules drop balls onto 10 plates. The lead changes several times.
+
+Rules (balls dropped in round n):
+- 1000: 1,000 balls every round, power 1 each
+- even: 2,000 balls on even rounds only, power 1 each (none on odd rounds)
+- (n−6)²: 10 x (n−6)² balls, power 8 each (many at first, zero in round 6, then growing again)
+- 3rd: 2ⁿ: 2ⁿ balls every third round only, power 3 each (8 in round 3, 64 in round 6, 512 in round 9, 4,096 in round 12)
+
+How it plays out (calculated):
+- (n−6)² leads in rounds 1 to 4. From round 5, "1000" leads, and "even" catches up on every even round.
+- "3rd: 2ⁿ" drops about 88% of its total in round 12 alone. From last place it breaks six plates in the final round.
+
+Plate strength:
+- Plates get harder from top to bottom (ratio 300 : 600 : 1000 : 1500 : 2200 : 3000 : 4000 : 5000 : 5900 : 6500).
+- Each lane's plates are scaled slightly so that all four break their last plate at the same moment in round 12 (totals at 33.2 s: 11,991 / 11,988 / 11,680 / 13,947).
+
+Sound: every ball plays one note when it hits a plate. Deeper plates play higher notes.
+
+Simulation, sound and animation: original (Python).
+
+【タグ】
+math, functions, exponential growth, comeback, simulation, satisfying, function race, shorts
