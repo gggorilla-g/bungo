@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8">
+<style>
+@font-face{font-family:"JumpSans";font-weight:400;src:url(fonts_jp/NotoSansCJKjp-Regular.woff2) format("woff2")}
+@font-face{font-family:"JumpSans";font-weight:700;src:url(fonts_jp/NotoSansCJKjp-Bold.woff2) format("woff2")}
+@font-face{font-family:"JumpSans";font-weight:900;src:url(fonts_jp/NotoSansCJKjp-Black.woff2) format("woff2")}
+html,body{margin:0;background:#000}
+#stage{position:relative;width:540px;height:960px;overflow:hidden}
+#stage canvas{position:absolute;left:0;top:0}
+#hud{position:absolute;left:0;top:0;width:540px;height:960px;font-family:"JumpSans"}
+#hud text{paint-order:stroke;stroke:#101010;stroke-linejoin:round;fill:#fff}
+</style></head>
+<body><div id="stage"><svg id="hud" viewBox="0 0 540 960" xmlns="http://www.w3.org/2000/svg"></svg></div>
+<script src="vendor.js"></script>
+<script>
+// エンジンのしくみ：ロータリーエンジン（ヴァンケル式）。まゆ形の部屋（ペリトロコイド）の中で、おむすび形のローターが回る。
+// ローターの中心は軸のまわりを半径 e で回り、ローター自身はその 1/3 の速さで回る。3つの角は常に壁にふれる。
+// 3つの部屋を、吸う（青）・縮める（緑）・燃える（橙、点火で光る）・吐く（灰）で色分けする。
+// SPEC.labels: speed（軸の回転／秒）, cams {fx:[[px,py,pz],[tx,ty,tz]]}, slow {fx: 速さの倍率}, focus {fx: 強調する行程}
+const getJ=u=>{const x=new XMLHttpRequest();x.open('GET',u,false);x.send();if(x.status!==200)throw new Error('読めない: '+u);return JSON.parse(x.responseText)};
+const ID=(new URLSearchParams(location.search).get('spec')||'engine_ja').replace(/^.*\//,'').replace(/\.json$/,'');
+const SPEC=getJ('specs/'+ID+'.json'),TL=getJ('specs/'+ID+'_timeline.json');
+const W=540,H=960,DUR=TL.total;
+const clamp=(x,a,b)=>Math.min(b,Math.max(a,x)),lerp=(a,b,k)=>a+(b-a)*k,sstep=(a,b,x)=>{const k=clamp((x-a)/(b-a),0,1);return k*k*(3-2*k)};
+const LINES=SPEC.lines.map((l,i)=>Object.assign({},l,TL.beats[i]));const LAB=SPEC.labels||{};
+const lineOf=fx=>LINES.find(x=>x.fx===fx);
+const lineAt=t=>LINES.find(x=>t>=x.t0-.02&&t<x.t1+.12)||LINES.filter(x=>x.t0<=t).pop()||LINES[0];
+const renderer=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true});
+renderer.setPixelRatio(window.devicePixelRatio||1);renderer.setSize(W,H);renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.1;
+document.getElementById('stage').prepend(renderer.domElement);
+const scene=new THREE.Scene();scene.background=new THREE.Color(0x0b1020);
+scene.add(new THREE.HemisphereLight(0xdfe8ff,0x1a1d28,1.0));
+const key=new THREE.DirectionalLight(0xffffff,2.2);key.position.set(4,6,9);scene.add(key);
+const rim=new THREE.DirectionalLight(0x88aaff,1.2);rim.position.set(-6,-3,-4);scene.add(rim);
+const M=(c,o)=>new THREE.MeshStandardMaterial(Object.assign({color:c,roughness:.38,metalness:.75},o||{}));
+// ---- 形
+const R=2.0,E=.30,TH=.9;   // ローターの大きさ・軸からのずれ・厚み
+const houseXY=th=>[E*Math.cos(3*th)+R*Math.cos(th),E*Math.sin(3*th)+R*Math.sin(th)];
+const NH=240;const HP=[...Array(NH)].map((_,i)=>houseXY(i/NH*Math.PI*2));
+// 外枠（壁の厚みのある輪）
+{const outer=new THREE.Shape();HP.forEach((p,i)=>{const k=1.32,q=[p[0]*k*.98,p[1]*k];i?outer.lineTo(q[0],q[1]):outer.moveTo(q[0],q[1])});
+  const hole=new THREE.Path();HP.slice().reverse().forEach((p,i)=>{const q=[p[0]*1.012,p[1]*1.012];i?hole.lineTo(q[0],q[1]):hole.moveTo(q[0],q[1])});outer.holes.push(hole);
+  const g=new THREE.ExtrudeGeometry(outer,{depth:TH,bevelEnabled:true,bevelSize:.05,bevelThickness:.05,bevelSegments:2,curveSegments:8});g.translate(0,0,-TH/2);
+  scene.add(new THREE.Mesh(g,M(0x59606e,{roughness:.55,metalness:.6})));
+  const back=new THREE.Mesh(new THREE.ShapeGeometry(new THREE.Shape(HP.map(p=>new THREE.Vector2(p[0]*1.02,p[1]*1.02)))),M(0x262b36,{roughness:.8,metalness:.3}));back.position.z=-TH/2+.01;scene.add(back)}
+// 吸気口・排気口（左側）と点火プラグ（右側）
+const port=(y,c)=>{const m=new THREE.Mesh(new THREE.BoxGeometry(1.1,.42,TH*.8),M(c,{metalness:.2,roughness:.6}));m.position.set(-2.75,y,0);scene.add(m);return m};
+const PIN=port(-.95,0x2e6fd8),POUT=port(.95,0x6b6f78);
+const plug=new THREE.Mesh(new THREE.CylinderGeometry(.13,.13,.9,12),M(0xd8d8d8));plug.rotation.z=Math.PI/2;plug.position.set(2.62,-.15,0);scene.add(plug);
+const sparkL=new THREE.PointLight(0xffb040,0,6,2);sparkL.position.set(2.0,-.15,.6);scene.add(sparkL);
+const spark=new THREE.Mesh(new THREE.SphereGeometry(.16,16,12),new THREE.MeshBasicMaterial({color:0xffe6a0,transparent:true,opacity:0}));spark.position.set(2.08,-.15,.2);scene.add(spark);
+// ローター（3つの角をむすぶ、少しふくらんだ三角）
+const flank=(a,b,n=24,bul=.17)=>{const out=[];for(let i=0;i<=n;i++){const u=i/n,x=lerp(a[0],b[0],u),y=lerp(a[1],b[1],u);const nx=-(b[1]-a[1]),ny=b[0]-a[0],L=Math.hypot(nx,ny);const k=bul*Math.sin(Math.PI*u);out.push([x+nx/L*k,y+ny/L*k])}return out};
+{const A=[0,1,2].map(k=>[R*Math.cos(k*2*Math.PI/3+Math.PI/2),R*Math.sin(k*2*Math.PI/3+Math.PI/2)]);const pts=[];for(let k=0;k<3;k++){const f=flank(A[(k+1)%3],A[k]);pts.push(...f.slice(0,-1))}
+  var rotorShape=new THREE.Shape(pts.map(p=>new THREE.Vector2(p[0]*.985,p[1]*.985)));
+  const g=new THREE.ExtrudeGeometry(rotorShape,{depth:TH*.92,bevelEnabled:true,bevelSize:.03,bevelThickness:.03,bevelSegments:2});g.translate(0,0,-TH*.46);
+  var rotor=new THREE.Mesh(g,M(0xc9ced8,{roughness:.28,metalness:.85}));scene.add(rotor);
+  const gear=new THREE.Mesh(new THREE.CylinderGeometry(.62,.62,TH+.06,32),M(0x9aa1ad));gear.rotation.x=Math.PI/2;rotor.add(gear);
+  var shaft=new THREE.Mesh(new THREE.CylinderGeometry(.28,.28,TH+.5,24),M(0x7d8490));shaft.rotation.x=Math.PI/2;scene.add(shaft);
+  var cam_=new THREE.Mesh(new THREE.CylinderGeometry(.42,.42,TH+.2,24),M(0xb08a52,{metalness:.7}));cam_.rotation.x=Math.PI/2;scene.add(cam_)}
+// 3つの部屋（毎フレーム形を作り直す、光る色の面）
+const PH={in:[0x3d8bff,'吸う'],co:[0x3fd28a,'縮める'],pw:[0xff8a2a,'燃える'],ex:[0x9aa0aa,'吐く']};
+const rooms=[0,1,2].map(()=>{const m=new THREE.Mesh(new THREE.BufferGeometry(),new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:.55,side:THREE.DoubleSide,depthWrite:false}));m.position.z=TH/2+.02;scene.add(m);return m});
+const phaseOf=a=>{a=((a%360)+360)%360;if(a>=150&&a<235)return'in';if(a>=235&&a<350)return'co';if(a>=350||a<95)return'pw';return'ex'};   // 部屋の真ん中の向き（度）で行程を決める（左回り）
+// ---- 時間→軸の角度（行ごとに速さを変えられる：slow）
+const SPD=(LAB.speed||.5)*Math.PI*2;
+const TT=[];{let ph=0;for(let t=0;t<=DUR+1;t+=1/120){const l=lineAt(t);const k=(LAB.slow||{})[l.fx]??1;TT.push(ph);ph+=SPD*k/120}}
+const shaftAng=t=>{const i=clamp(t*120,0,TT.length-1),a=Math.floor(i),b=Math.min(TT.length-1,a+1);return lerp(TT[a],TT[b],i-a)};
+function pose(t){const phi=shaftAng(t),c=[E*Math.cos(phi),E*Math.sin(phi)],rot=phi/3;return{phi,c,rot,A:[0,1,2].map(k=>{const th=rot+k*2*Math.PI/3+Math.PI/2;return houseXY(th)})}}
+// ---- カメラ
+const cam=new THREE.PerspectiveCamera(32,W/H,.05,200);const CAMS=LAB.cams||{};
+const shotFor=fx=>CAMS[fx]||CAMS.default||[[0,-1.2,15],[0,-.6,0]];
+function camAt(t){const l=lineAt(t),i=LINES.indexOf(l),cur=shotFor(l.fx),prev=i>0?shotFor(LINES[i-1].fx):cur,k=sstep(l.t0-.15,l.t0+1.0,t);
+  const p=new THREE.Vector3().fromArray(prev[0]).lerp(new THREE.Vector3().fromArray(cur[0]),k),q=new THREE.Vector3().fromArray(prev[1]).lerp(new THREE.Vector3().fromArray(cur[1]),k);
+  const sw=.6*Math.sin(t*.25);p.x+=sw;return[p,q]}
+// ---- HUD
+const NS='http://www.w3.org/2000/svg',hud=document.getElementById('hud');
+function el(tag,a,txt){const e=document.createElementNS(NS,tag);for(const k in a)e.setAttribute(k,a[k]);if(txt!=null)e.textContent=txt;hud.appendChild(e);return e}
+const tw=(s,size)=>{let w=0;for(const ch of String(s))w+=ch.charCodeAt(0)<256?.58:1;return w*size};
+function T(x,y,size,txt,o={}){const a={x,y,'font-size':size,'font-weight':o.w||900,'text-anchor':o.a||'start','stroke-width':o.sw!=null?o.sw:Math.max(3,size*.2)};let st='';if(o.fill)st+='fill:'+o.fill+';';if(o.op!=null)st+='opacity:'+o.op+';';if(st)a.style=st;return el('text',a,txt)}
+const proj=v=>{const p=v.clone().project(cam);return[(p.x+1)/2*W,(1-p.y)/2*H,p.z]};
+function drawHud(t,roomInfo){hud.innerHTML='';const l=lineAt(t),a=clamp((t-l.t0)/.12,0,1);
+  if(LAB.head&&l.fx!=='hook')T(270,108,30,LAB.head,{a:'middle',sw:8,op:'.95'});
+  let y=l.cap.length>1?700:722;l.cap.forEach((c,i)=>{const size=Math.min(48,480/tw(c,1));T(270,y+(1-a)*6,size,c,{a:'middle',sw:9,op:(.3+.7*a).toFixed(2),fill:i===l.cap.length-1?'#ffd23f':'#fff'});y+=size+12});
+  const show=(LAB.room_labels||[]).includes(l.fx);if(show)for(const r of roomInfo){const[x,yy,z]=proj(new THREE.Vector3(r.x,r.y,TH/2));const op=sstep(l.t0+.2,l.t0+.5,t);if(op<.02)continue;
+    const txt=PH[r.ph][1],size=22,w=tw(txt,size)+18;el('rect',{x:x-w/2,y:yy-size-4,width:w,height:size+12,rx:7,fill:'#'+PH[r.ph][0].toString(16).padStart(6,'0'),style:'opacity:'+(op*.92).toFixed(2)});T(x,yy+2,size,txt,{a:'middle',sw:0,op:op.toFixed(2)})}}
+window.renderAt=function(t){const P=pose(t);rotor.position.set(P.c[0],P.c[1],0);rotor.rotation.z=P.rot;cam_.position.set(P.c[0]*.5,P.c[1]*.5,0);
+  const l=lineAt(t);const roomInfo=[];let fire=0;
+  for(let k=0;k<3;k++){const a=P.A[k],b=P.A[(k+1)%3];const ta=Math.atan2(a[1],a[0]),tb0=Math.atan2(b[1],b[0]);let tb=tb0;while(tb<ta)tb+=Math.PI*2;
+    const wall=[];const n=40;for(let i=0;i<=n;i++){const th=lerp(ta,tb,i/n);wall.push(houseXY(th))}
+    // 部屋の境：ローターの辺（中心側へふくらむ）
+    const rc=P.c;const fl=flank(b,a,24,.17*.985).map(p=>p);   // b→a
+    const pts=wall.concat(fl.slice(1,-1));
+    const shape=new THREE.Shape(pts.map(p=>new THREE.Vector2(p[0],p[1])));rooms[k].geometry.dispose();rooms[k].geometry=new THREE.ShapeGeometry(shape);
+    const mid=houseXY((ta+tb)/2),ang=Math.atan2(mid[1],mid[0])*180/Math.PI,ph=phaseOf(ang);
+    let op=.42;const fo=(LAB.focus||{})[l.fx];if(fo){op=ph===fo?.78:.16}
+    if(ph==='pw'){const aa=((ang%360)+360)%360,since=aa>=350?aa-350:aa+10;const fl_=Math.max(0,1-since/45);fire=Math.max(fire,fl_);op=Math.min(.95,op+.4*fl_)}
+    rooms[k].material.color.setHex(PH[ph][0]);rooms[k].material.opacity=op;roomInfo.push({x:mid[0]*.72+rc[0]*.28,y:mid[1]*.72+rc[1]*.28,ph})}
+  sparkL.intensity=fire*28;spark.material.opacity=fire;spark.scale.setScalar(.6+fire*1.4);
+  PIN.material.emissive=new THREE.Color(0x1d4fb0);PIN.material.emissiveIntensity=.3;
+  const[p,q]=camAt(t);cam.position.copy(p);cam.lookAt(q);cam.updateProjectionMatrix();renderer.render(scene,cam);drawHud(t,roomInfo);return{t}};
+window.__info={total:DUR};
+Promise.all([400,700,900].map(w=>document.fonts.load(w+' 20px JumpSans','あ0'))).then(()=>{window.__fig={kind:'none'};window.__ready=true},e=>console.log('load error: '+e.message));
+</script></body></html>
