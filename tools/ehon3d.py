@@ -105,6 +105,22 @@ def main(path, mode=None, arg=None):
                 if "img" in k: k["img"] = prep(k["img"], cut=False); k["aspect"] = aspect[c["img"]]; k.setdefault("ink", "#fffaf0" if lum[c["img"]] < .45 else "#3b2a22")
                 if "fx" in k: k["fx"] = [dict(f, **({"at": [U(pi, u) for u in f["at"]]} if "at" in f else {}), **({"t": U(pi, f["t"])} if "t" in f else {}), **({"t0": U(pi, f["t0"])} if "t0" in f else {})) for f in k["fx"]]
                 P["cam"].append(k)
+            # カットの長さをそろえる：短すぎるカット（サブリミナルのようにちらつく）を作らない。
+            # 1枚絵から舞台に戻るときは、入る前と同じ画にしない（少し引くか寄る）
+            MIN = sp.get("min_shot", 2.4); ks = sorted(P["cam"], key=lambda c: c["t"]); out = []
+            for k in ks:
+                cut = k.get("cut") or k.get("img") or (out and out[-1].get("img"))
+                if cut and out:
+                    lastcut = max([c["t"] for c in out if c.get("cut") or c.get("img")] + [out[0]["t"]])
+                    if k["t"] - lastcut < MIN:
+                        if k.get("img") and not any(c.get("img") for c in out if c["t"] == lastcut): k["t"] = lastcut + MIN
+                        else: continue
+                out.append(k)
+            for i in range(2, len(out)):
+                a_, b_, c_ = out[i - 2], out[i - 1], out[i]
+                if b_.get("img") and not a_.get("img") and not c_.get("img") and abs(c_.get("d", 0) - a_.get("d", 0)) < .6 and abs(c_.get("x", 0) - a_.get("x", 0)) < .3:
+                    c_["d"] = a_["d"] * (1.35 if a_["d"] < 6 else .7)
+            P["cam"] = sorted(out, key=lambda c: c["t"])
         if "bg2" in pg: P["bg2"] = {"img": prep(pg["bg2"]["img"], cut=False), "t": U(pi, pg["bg2"]["u"]), "dur": pg["bg2"].get("dur", 2)}
         if "light_to" in pg: P["light_to"] = [U(pi, pg["light_to"][0]), pg["light_to"][1]]
         if "rain" in pg: P["rain"] = [U(pi, pg["rain"][0]), U(pi, pg["rain"][1])]

@@ -38,7 +38,7 @@ const BACKZ=SPEC.back_z||-3.0;
 const backMat=new THREE.MeshBasicMaterial({color:0xffffff});const backdrop=mk(new THREE.PlaneGeometry(1,1),backMat);scene.add(backdrop);
 const back2Mat=new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0});const backdrop2=mk(new THREE.PlaneGeometry(1,1),back2Mat);scene.add(backdrop2);
 // 寄りのカット専用の絵（カメラの前に全面で出す）。キー {img} の区間だけ表示し、ゆっくり寄る
-scene.add(camera);const shotMat=new THREE.MeshBasicMaterial({color:0xffffff,depthTest:false,depthWrite:false});const shot=mk(new THREE.PlaneGeometry(1,1),shotMat);shot.renderOrder=999;shot.position.z=-1;camera.add(shot);shot.visible=false;
+scene.add(camera);const shotMat=new THREE.MeshBasicMaterial({color:0xffffff,depthTest:false,depthWrite:false,transparent:true});const shot=mk(new THREE.PlaneGeometry(1,1),shotMat);shot.renderOrder=999;shot.position.z=-1;camera.add(shot);shot.visible=false;
 const shadowTex=canvasTex(128,128,(x,w,h)=>{const g=x.createRadialGradient(64,64,4,64,64,62);g.addColorStop(0,'rgba(40,30,30,.42)');g.addColorStop(1,'rgba(40,30,30,0)');x.fillStyle=g;x.fillRect(0,0,w,h)});
 const ASP=SPEC.aspect||{};
 
@@ -139,7 +139,11 @@ function itemState(p,t){
   return {x,y,rz,ry,vis,alpha,pose,face,next,nface,mix};
 }
 // カメラのキー：{t, x, y, d, tx, ty, cut}。cut:true はそこで画面を切り替える（カット割り）。tx/ty は見る先（省略時は真正面）
-function shotAt(P,t){const ks=P.cam||[];let k=null,i0=-1;for(let i=0;i<ks.length;i++){if(t>=ks[i].t){k=ks[i];i0=i}}if(!k||!k.img)return null;const nx=ks[i0+1];return {k,t0:k.t,t1:nx?nx.t:P.t1+1.5}}
+const XF=.35;   // 1枚絵の出入りはディゾルブ
+function shotAt(P,t){const ks=P.cam||[];let k=null,i0=-1;for(let i=0;i<ks.length;i++){if(t>=ks[i].t){k=ks[i];i0=i}}
+  // 次のキーが1枚絵なら、その少し前から重ね始める
+  const nx=ks[i0+1];if(nx&&nx.img&&t>nx.t-XF){const a=ss(nx.t-XF,nx.t,t);return {k:nx,t0:nx.t,t1:(ks[i0+2]?ks[i0+2].t:P.t1+1.5),a,pre:true}}
+  if(!k||!k.img)return null;const t1=nx?nx.t:P.t1+1.5;const a=(nx&&!nx.img)?1-ss(t1-XF,t1,t):1;return {k,t0:k.t,t1,a}}
 function camAt(P,t){
   const ks=(P.cam||[{t:P.t0,x:0,y:1.0,d:9}]).map(k=>Object.assign({tx:k.x,ty:k.y},k));if(t<=ks[0].t)return ks[0];const b=ks[ks.length-1];if(t>=b.t)return b;
   for(let i=0;i<ks.length-1;i++){if(t>=ks[i].t&&t<ks[i+1].t){const a=ks[i],c=ks[i+1];if(c.cut)return a;const k=ss(a.t,c.t,t);
@@ -166,8 +170,8 @@ function stageAt(cur,t){const P=SPEC.pages[cur];
   for(let i=0;i<NR;i++){const d=RD[i];const on=i/NR<rain;const yy=3.4-((t*d.sp+d.ph*3.4)%3.4);dummy.position.set(d.x,on?yy:-9,d.z);dummy.updateMatrix();rainM.setMatrixAt(i,dummy.matrix)}rainM.instanceMatrix.needsUpdate=true;
   const c=camAt(P,t);camera.position.set(c.x,c.y+.04*c.d,c.d);camera.lookAt(c.tx,c.ty,0);
   const S=shotAt(P,t);if(S){const hh=2*Math.tan(camera.fov*Math.PI/360),ww=hh*camera.aspect;const z=lerp(S.k.z0||1.0,S.k.z1||1.07,ss(S.t0,S.t1,t));
-    shotMat.map=tex(S.k.img);shotMat.needsUpdate=true;shotMat.color.setScalar(S.k.light||light);shot.scale.set(ww*z,ww*z*(S.k.aspect?1/S.k.aspect:9/16),1);shot.position.x=(S.k.px||0)*ww*(z-1)*.5;shot.position.y=(S.k.py||0)*hh*(z-1)*.5;shot.visible=true}else shot.visible=false;
-  curShot=S;if(S){pages.forEach(pp=>pp.items.forEach(p=>{p.root.visible=false}));rainM.visible=false;backdrop.visible=backdrop2.visible=false}else{rainM.visible=true;backdrop.visible=true}
+    shotMat.map=tex(S.k.img);shotMat.needsUpdate=true;shotMat.opacity=S.a;shotMat.color.setScalar(S.k.light||light);shot.scale.set(ww*z,ww*z*(S.k.aspect?1/S.k.aspect:9/16),1);shot.position.x=(S.k.px||0)*ww*(z-1)*.5;shot.position.y=(S.k.py||0)*hh*(z-1)*.5;shot.visible=true}else shot.visible=false;
+  curShot=S&&S.a>.5?S:null;if(S&&S.a>=.999){pages.forEach(pp=>pp.items.forEach(p=>{p.root.visible=false}));rainM.visible=false;backdrop.visible=backdrop2.visible=false}else{rainM.visible=true;backdrop.visible=true}
 }
 const rtA=new THREE.WebGLRenderTarget(W*(window.devicePixelRatio||1),H*(window.devicePixelRatio||1)),rtB=rtA.clone();rtA.texture.colorSpace=rtB.texture.colorSpace=THREE.SRGBColorSpace;
 const mixMat=new THREE.ShaderMaterial({uniforms:{a:{value:rtA.texture},b:{value:rtB.texture},k:{value:0}},vertexShader:'varying vec2 v;void main(){v=uv;gl_Position=vec4(position.xy,0.,1.);}',
