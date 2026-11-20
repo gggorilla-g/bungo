@@ -60,7 +60,7 @@ def main(path, mode=None, arg=None):
     aspect = {}
     def prep(name, cut=True):
         if name in aspect: return f"ehon/{sid}/{name}.png"
-        src = f"{A}/{name}.png"
+        src = f"{A}/{name}.png"; os.makedirs(os.path.dirname(f"{OUT}/{name}.png"), exist_ok=True)
         if cut: aspect[name] = paper_cut(src, f"{OUT}/{name}.png")
         else:
             im = Image.open(src).convert("RGB"); im.thumbnail((1800, 1800)); im.save(f"{OUT}/{name}.png"); aspect[name] = im.width / im.height
@@ -90,7 +90,13 @@ def main(path, mode=None, arg=None):
         if "fx" in pg: P["fx"] = [dict(f, **({"at": [U(pi, u) for u in f["at"]]} if "at" in f else {}), **({"t": U(pi, f["t"])} if "t" in f else {}), **({"t0": U(pi, f["t0"])} if "t0" in f else {})) for f in pg["fx"]]
         for k in ("bg_h", "bg_y", "bg_x", "text"):
             if k in pg: P[k] = pg[k]
-        if "cam" in pg: P["cam"] = [dict(c, t=U(pi, c["u"])) for c in pg["cam"]]
+        if "cam" in pg:
+            P["cam"] = []
+            for c in pg["cam"]:
+                k = dict(c, t=U(pi, c["u"]))
+                if "img" in k: k["img"] = prep(k["img"], cut=False); k["aspect"] = aspect[c["img"]]
+                if "fx" in k: k["fx"] = [dict(f, **({"at": [U(pi, u) for u in f["at"]]} if "at" in f else {}), **({"t": U(pi, f["t"])} if "t" in f else {}), **({"t0": U(pi, f["t0"])} if "t0" in f else {})) for f in k["fx"]]
+                P["cam"].append(k)
         if "bg2" in pg: P["bg2"] = {"img": prep(pg["bg2"]["img"], cut=False), "t": U(pi, pg["bg2"]["u"]), "dur": pg["bg2"].get("dur", 2)}
         if "light_to" in pg: P["light_to"] = [U(pi, pg["light_to"][0]), pg["light_to"][1]]
         if "rain" in pg: P["rain"] = [U(pi, pg["rain"][0]), U(pi, pg["rain"][1])]

@@ -37,6 +37,8 @@ const mk=(g,m)=>new THREE.Mesh(g,m);
 const BACKZ=SPEC.back_z||-3.0;
 const backMat=new THREE.MeshBasicMaterial({color:0xffffff});const backdrop=mk(new THREE.PlaneGeometry(1,1),backMat);scene.add(backdrop);
 const back2Mat=new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0});const backdrop2=mk(new THREE.PlaneGeometry(1,1),back2Mat);scene.add(backdrop2);
+// 寄りのカット専用の絵（カメラの前に全面で出す）。キー {img} の区間だけ表示し、ゆっくり寄る
+scene.add(camera);const shotMat=new THREE.MeshBasicMaterial({color:0xffffff,depthTest:false,depthWrite:false});const shot=mk(new THREE.PlaneGeometry(1,1),shotMat);shot.renderOrder=999;shot.position.z=-1;camera.add(shot);shot.visible=false;
 const shadowTex=canvasTex(128,128,(x,w,h)=>{const g=x.createRadialGradient(64,64,4,64,64,62);g.addColorStop(0,'rgba(40,30,30,.42)');g.addColorStop(1,'rgba(40,30,30,0)');x.fillStyle=g;x.fillRect(0,0,w,h)});
 const ASP=SPEC.aspect||{};
 
@@ -64,9 +66,10 @@ const fade=el('rect',{x:0,y:0,width:W,height:H,fill:'#f6f1e6',opacity:0});
 const flash=el('rect',{x:0,y:0,width:W,height:H,fill:'#fff',opacity:0});
 const fxG=el('g',{});   // インサートの動き（波紋・きらめき・光の筋・しずく）
 let fxPage=-1;hud.insertBefore(fxG,fade);
+let curShot=null;
 function drawFx(P,t){
   while(fxG.firstChild)fxG.removeChild(fxG.firstChild);
-  for(const f of (P.fx||[])){
+  for(const f of (P.fx||[]).concat(curShot&&curShot.k.fx?curShot.k.fx:[])){
     if(f.type==='ripple'){for(const t0 of f.at){const d=t-t0;if(d<0||d>3)continue;for(let k=0;k<3;k++){const dd=d-k*.35;if(dd<0)continue;const r=dd*(f.speed||.09)*W,op=Math.max(0,.75*(1-dd/2.6));
       el('ellipse',{cx:f.x*W,cy:f.y*H,rx:r,ry:r*(f.flat||.32),fill:'none',stroke:'rgba(255,255,255,'+op.toFixed(3)+')','stroke-width':2.2-k*.5},null,fxG)}}}
     if(f.type==='sparkle'){const R=rng(f.seed||3);for(let i=0;i<(f.n||14);i++){const x=(f.x0+(f.x1-f.x0)*R())*W,y=(f.y0+(f.y1-f.y0)*R())*H,ph=R()*6.28,sp=1.2+R()*1.6;const a=Math.max(0,Math.sin(t*sp+ph));const s=(2+R()*3)*a;
@@ -83,7 +86,7 @@ const titleG=el('g',{opacity:0});
 const endT=el('text',{x:W/2,y:H*.52,'text-anchor':'middle','font-size':40,'font-weight':900,fill:'#3b2a22','letter-spacing':6,opacity:0},SPEC.end_text||'おしまい');
 let pageText='',textEls=[];
 // 画面上で紙人形が占める範囲（文字をよけるため）
-function itemBoxes(){const out=[];const v=new THREE.Vector3();camera.updateMatrixWorld(true);
+function itemBoxes(){const out=[];if(shot.visible)return out;const v=new THREE.Vector3();camera.updateMatrixWorld(true);
   for(const pp of pages)for(const p of pp.items){if(!p.root.visible||p.it.shadow===false&&p.it.h<.2)continue;p.root.updateMatrixWorld(true);const g=p.a.geometry;g.computeBoundingBox();const bb=g.boundingBox;let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;
     for(const cx of [bb.min.x,bb.max.x])for(const cy of [bb.min.y,bb.max.y]){v.set(cx,cy,0).applyMatrix4(p.a.matrixWorld).project(camera);const sx=(v.x+1)/2*W,sy=(1-v.y)/2*H;x0=Math.min(x0,sx);y0=Math.min(y0,sy);x1=Math.max(x1,sx);y1=Math.max(y1,sy)}
     out.push([x0,y0,x1,y1])}
@@ -128,6 +131,7 @@ function itemState(p,t){
   return {x,y,rz,ry,vis,alpha,pose,face,next,nface,mix};
 }
 // カメラのキー：{t, x, y, d, tx, ty, cut}。cut:true はそこで画面を切り替える（カット割り）。tx/ty は見る先（省略時は真正面）
+function shotAt(P,t){const ks=P.cam||[];let k=null,i0=-1;for(let i=0;i<ks.length;i++){if(t>=ks[i].t){k=ks[i];i0=i}}if(!k||!k.img)return null;const nx=ks[i0+1];return {k,t0:k.t,t1:nx?nx.t:P.t1+1.5}}
 function camAt(P,t){
   const ks=(P.cam||[{t:P.t0,x:0,y:1.0,d:9}]).map(k=>Object.assign({tx:k.x,ty:k.y},k));if(t<=ks[0].t)return ks[0];const b=ks[ks.length-1];if(t>=b.t)return b;
   for(let i=0;i<ks.length-1;i++){if(t>=ks[i].t&&t<ks[i+1].t){const a=ks[i],c=ks[i+1];if(c.cut)return a;const k=ss(a.t,c.t,t);
@@ -160,6 +164,9 @@ window.renderAt=function(t){
   let rain=0;if(P.rain)rain=ss(P.rain[0],P.rain[0]+1,t)*(1-ss(P.rain[1]-1,P.rain[1],t));
   for(let i=0;i<NR;i++){const d=RD[i];const on=i/NR<rain;const yy=3.4-((t*d.sp+d.ph*3.4)%3.4);dummy.position.set(d.x,on?yy:-9,d.z);dummy.updateMatrix();rainM.setMatrixAt(i,dummy.matrix)}rainM.instanceMatrix.needsUpdate=true;
   const c=camAt(P,t);camera.position.set(c.x,c.y+.04*c.d,c.d);camera.lookAt(c.tx,c.ty,0);
+  const S=shotAt(P,t);if(S){const hh=2*Math.tan(camera.fov*Math.PI/360),ww=hh*camera.aspect;const z=lerp(S.k.z0||1.0,S.k.z1||1.07,ss(S.t0,S.t1,t));
+    shotMat.map=tex(S.k.img);shotMat.needsUpdate=true;shotMat.color.setScalar(S.k.light||light);shot.scale.set(ww*z,ww*z*(S.k.aspect?1/S.k.aspect:9/16),1);shot.position.x=(S.k.px||0)*ww*(z-1)*.5;shot.position.y=(S.k.py||0)*hh*(z-1)*.5;shot.visible=true}else shot.visible=false;
+  curShot=S;
   drawFx(P,t);
   // 本文：ページの文をまとめて置き、読んでいる文と読み終えた文を濃くする
   // 文が多いページは、本の見開きのように数文ずつ（group）入れ替える
@@ -169,7 +176,7 @@ window.renderAt=function(t){
   textG.setAttribute('opacity',(1-ss(P.t1-.2,P.t1+.3,t)).toFixed(3));
   renderer.render(scene,camera);
 };
-const allTex=new Set();SPEC.pages.forEach(p=>{allTex.add(p.bg);if(p.bg2)allTex.add(p.bg2.img);p.items.forEach(it=>{allTex.add(it.tex);(it.acts||[]).forEach(a=>{a.pose&&allTex.add(a.pose);(a.frames||[]).forEach(f=>allTex.add(f));a.end&&allTex.add(a.end)})})});
+const allTex=new Set();SPEC.pages.forEach(p=>{allTex.add(p.bg);(p.cam||[]).forEach(k=>k.img&&allTex.add(k.img));if(p.bg2)allTex.add(p.bg2.img);p.items.forEach(it=>{allTex.add(it.tex);(it.acts||[]).forEach(a=>{a.pose&&allTex.add(a.pose);(a.frames||[]).forEach(f=>allTex.add(f));a.end&&allTex.add(a.end)})})});
 const pend=[...allTex].map(p=>new Promise(r=>{tex(p);const im=new Image();im.onload=r;im.onerror=()=>{console.log('NG tex '+p);r()};im.src=p}));
 Promise.all(pend).then(()=>setTimeout(()=>{window.__fig={ok:1};window.__ready=true},600));
 </script></body></html>
