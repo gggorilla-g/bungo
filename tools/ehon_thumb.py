@@ -1,7 +1,7 @@
 # ehon_thumb.py — 「ほほほブックス」の表紙サムネ（1280x720）
 #   表紙の絵（Codex の1枚絵。上3分の1を空けて描く）に、毎回同じ形で載せる：
-#     左上＝レーベル「ほほほブックス」／上部＝題名／右下の帯＝「よみきかせ」「◯ふん」
-#   使い方: python3 tools/ehon_thumb.py 表紙の絵.png "題名" 出力.jpg 分数
+#     左上＝レーベル「ほほほブックス」／上部＝題名／右下の少し上の帯＝「よみきかせ」
+#   使い方: python3 tools/ehon_thumb.py 表紙の絵.png "題名" 出力.jpg
 import sys, os
 from PIL import Image, ImageDraw, ImageFilter
 sys.path.insert(0, "tools")
@@ -40,9 +40,10 @@ def main(src, title, out, minutes=""):
         im.alpha_composite(lg, (34, H - lg.height - 36))
     else: badge(im, (34, 28), LABEL, 34, (122, 74, 52), PAPER, pad=(24, 12))
     # 帯（右下）：よみきかせ／◯ふん
-    tag = "よみきかせ" + (f"  {minutes}ふん" if minutes else "")
+    # 右下の角は YouTube の再生時間が重なるので、帯は少し上に置き、分数は入れない（再生時間は YouTube が出す）
+    tag = "よみきかせ"
     f2 = font(40); w2 = ImageDraw.Draw(im).textlength(tag, font=f2)
-    badge(im, (W - w2 - 26 * 2 - 30, H - 40 - 14 * 2 - 30), tag, 40, PAPER, INK, pad=(26, 14))
+    badge(im, (W - w2 - 26 * 2 - 30, H - 40 - 14 * 2 - 120), tag, 40, PAPER, INK, pad=(26, 14))
     im.convert("RGB").save(out, quality=92); print("サムネ:", out)
 
 
