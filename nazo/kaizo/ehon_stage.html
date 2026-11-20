@@ -108,7 +108,15 @@ function buildText(P,grp){
   if(T.paper!==false){const r=el('rect',{x:px-fs*.9,y:y0-fs*1.3,width:bw,height:bh,rx:fs*.9,fill:T.paper_color||'#fbf6ea',opacity:T.paper_op!=null?T.paper_op:.55},null,textG);r.style.filter='blur(6px)'}
   let row=0;LS.forEach(([L,li])=>{L.wrap.forEach(s=>{const e=el('text',{x:x0,y:y0+row*lh,'text-anchor':al,'font-size':fs,'font-weight':T.weight||700,fill:ink,'letter-spacing':fs*.06},s,textG);textEls.push({e,li});row++})});
 }
-{const T=SPEC.title_card||{};const fs=T.size||48;el('text',{x:W/2,y:H*(T.y||.42),'text-anchor':'middle','font-size':fs,'font-weight':900,fill:T.color||'#3b2a22','letter-spacing':fs*.08},SPEC.title,titleG)}
+// 表紙：表紙の絵を全面に、題名とレーベル（ほほほブックス）を載せる。ゆっくり寄る
+let coverImg=null;
+{const T=SPEC.title_card||{};const fs=T.size||58;
+ if(SPEC.cover){coverImg=el('image',{href:SPEC.cover,x:0,y:0,width:W,height:H,preserveAspectRatio:'xMidYMid slice'},null,titleG)}
+ const glow=el('text',{x:W/2,y:H*(T.y||.2),'text-anchor':'middle','font-size':fs,'font-weight':900,fill:'#fffaf0',stroke:'#fffaf0','stroke-width':fs*.42,'stroke-linejoin':'round','letter-spacing':fs*.06},SPEC.title,titleG);glow.style.filter='blur(7px)';
+ el('text',{x:W/2,y:H*(T.y||.2),'text-anchor':'middle','font-size':fs,'font-weight':900,fill:T.color||'#4e3024',stroke:'#fffbf2','stroke-width':fs*.1,'paint-order':'stroke','letter-spacing':fs*.06},SPEC.title,titleG);
+ if(SPEC.logo)el('image',{href:SPEC.logo,x:18,y:14,height:H*.14,width:H*.42,preserveAspectRatio:'xMinYMin meet'},null,titleG);
+ else{el('rect',{x:20,y:16,width:150,height:34,rx:17,fill:'#7a4a34'},null,titleG);el('text',{x:95,y:39,'text-anchor':'middle','font-size':17,'font-weight':900,fill:'#fffaf0'},SPEC.label||'ほほほブックス',titleG)}
+}
 
 // ---- 状態
 function itemState(p,t){
@@ -138,14 +146,7 @@ function camAt(P,t){
     return {x:lerp(a.x,c.x,k),y:lerp(a.y,c.y,k),d:lerp(a.d,c.d,k),tx:lerp(a.tx,c.tx,k),ty:lerp(a.ty,c.ty,k)}}}
   return b;
 }
-window.renderAt=function(t){
-  let cur=0;for(let i=0;i<SPEC.pages.length;i++){if(t>=SPEC.pages[i].t0-.01)cur=i}
-  const P=SPEC.pages[cur],nxt=SPEC.pages[cur+1];
-  let f=0;if(nxt&&t>P.t1)f=ss(P.t1,nxt.t0,t);if(t<P.t0+.6&&cur>0)f=Math.max(f,1-ss(P.t0,P.t0+.6,t));
-  const tc=SPEC.title_t||[0,0];if(cur===0&&tc[1]>0){f=Math.max(f,t<tc[1]?1:1-ss(tc[1],tc[1]+.8,t))}
-  if(SPEC.end_t&&t>SPEC.end_t){f=Math.max(f,ss(SPEC.end_t,SPEC.end_t+2.2,t))}
-  endT.setAttribute('opacity',(SPEC.end_t?ss(SPEC.end_t+1.6,SPEC.end_t+2.8,t):0).toFixed(3));
-  fade.setAttribute('opacity',f.toFixed(3));titleG.setAttribute('opacity',(cur===0&&tc[1]>0?ss(tc[0],tc[0]+.6,t)*(1-ss(tc[1]-.5,tc[1],t)):0).toFixed(3));
+function stageAt(cur,t){const P=SPEC.pages[cur];
   // 背景
   const bh=P.bg_h||5.2,ba=P.bg_aspect||1.333;backMat.map=tex(P.bg);backMat.needsUpdate=true;backdrop.scale.set(bh*ba,bh,1);backdrop.position.set(P.bg_x||0,bh/2+(P.bg_y!=null?P.bg_y:-1.6),BACKZ);
   let light=P.light!=null?P.light:1;if(P.light_to)light=lerp(light,P.light_to[1],ss(P.light_to[0],P.light_to[0]+2,t));
@@ -167,6 +168,20 @@ window.renderAt=function(t){
   const S=shotAt(P,t);if(S){const hh=2*Math.tan(camera.fov*Math.PI/360),ww=hh*camera.aspect;const z=lerp(S.k.z0||1.0,S.k.z1||1.07,ss(S.t0,S.t1,t));
     shotMat.map=tex(S.k.img);shotMat.needsUpdate=true;shotMat.color.setScalar(S.k.light||light);shot.scale.set(ww*z,ww*z*(S.k.aspect?1/S.k.aspect:9/16),1);shot.position.x=(S.k.px||0)*ww*(z-1)*.5;shot.position.y=(S.k.py||0)*hh*(z-1)*.5;shot.visible=true}else shot.visible=false;
   curShot=S;
+}
+const rtA=new THREE.WebGLRenderTarget(W*(window.devicePixelRatio||1),H*(window.devicePixelRatio||1)),rtB=rtA.clone();rtA.texture.colorSpace=rtB.texture.colorSpace=THREE.SRGBColorSpace;
+const mixMat=new THREE.ShaderMaterial({uniforms:{a:{value:rtA.texture},b:{value:rtB.texture},k:{value:0}},vertexShader:'varying vec2 v;void main(){v=uv;gl_Position=vec4(position.xy,0.,1.);}',
+  fragmentShader:'uniform sampler2D a,b;uniform float k;varying vec2 v;void main(){gl_FragColor=mix(texture2D(a,v),texture2D(b,v),k);}',depthTest:false,depthWrite:false});
+const mixScene=new THREE.Scene(),mixCam=new THREE.OrthographicCamera(-1,1,1,-1,0,1);mixScene.add(new THREE.Mesh(new THREE.PlaneGeometry(2,2),mixMat));
+window.renderAt=function(t){
+  let cur=0;for(let i=0;i<SPEC.pages.length;i++){if(t>=SPEC.pages[i].t0-.01)cur=i}
+  const P=SPEC.pages[cur],nxt=SPEC.pages[cur+1];
+  const prv=SPEC.pages[cur-1];let f=0;if(nxt&&t>P.t1&&P.trans_mode==='fade')f=ss(P.t1,nxt.t0,t);if(t<P.t0+.6&&cur>0&&prv&&prv.trans_mode==='fade')f=Math.max(f,1-ss(P.t0,P.t0+.6,t));
+  const tc=SPEC.title_t||[0,0];if(cur===0&&tc[1]>0){f=Math.max(f,t<tc[1]?1:1-ss(tc[1],tc[1]+.8,t))}
+  if(SPEC.end_t&&t>SPEC.end_t){f=Math.max(f,ss(SPEC.end_t,SPEC.end_t+2.2,t))}
+  endT.setAttribute('opacity',(SPEC.end_t?ss(SPEC.end_t+1.6,SPEC.end_t+2.8,t):0).toFixed(3));
+  fade.setAttribute('opacity',f.toFixed(3));titleG.setAttribute('opacity',(cur===0&&tc[1]>0?(SPEC.cover?1:ss(tc[0],tc[0]+.6,t))*(1-ss(tc[1]-.8,tc[1],t)):0).toFixed(3));if(coverImg){const z=1+.05*clamp(t/Math.max(1,tc[1]),0,1);coverImg.setAttribute('transform',`translate(${W/2} ${H/2}) scale(${z}) translate(${-W/2} ${-H/2})`)}
+  stageAt(cur,t);
   drawFx(P,t);
   // 本文：ページの文をまとめて置き、読んでいる文と読み終えた文を濃くする
   // 文が多いページは、本の見開きのように数文ずつ（group）入れ替える
@@ -174,6 +189,9 @@ window.renderAt=function(t){
   const vis=(P.text&&P.text.hide_until)||0;
   textEls.forEach(({e,li})=>{const L=P.lines[li];const on=ss(L.t-.35,L.t+.05,t);e.setAttribute('opacity',(on*(t<P.t0+vis?0:1)).toFixed(3))});
   textG.setAttribute('opacity',(1-ss(P.t1-.2,P.t1+.3,t)).toFixed(3));
+  if(nxt&&t>P.t1&&P.trans_mode!=='fade'){   // ディゾルブ：今のページと次のページを描いて、すっと重ねる
+    const k=ss(P.t1,nxt.t0,t);renderer.setRenderTarget(rtA);renderer.render(scene,camera);stageAt(cur+1,t);renderer.setRenderTarget(rtB);renderer.render(scene,camera);renderer.setRenderTarget(null);
+    mixMat.uniforms.k.value=k;renderer.render(mixScene,mixCam);stageAt(cur,t);return}
   renderer.render(scene,camera);
 };
 const allTex=new Set();SPEC.pages.forEach(p=>{allTex.add(p.bg);(p.cam||[]).forEach(k=>k.img&&allTex.add(k.img));if(p.bg2)allTex.add(p.bg2.img);p.items.forEach(it=>{allTex.add(it.tex);(it.acts||[]).forEach(a=>{a.pose&&allTex.add(a.pose);(a.frames||[]).forEach(f=>allTex.add(f));a.end&&allTex.add(a.end)})})});

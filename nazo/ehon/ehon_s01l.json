@@ -14,7 +14,7 @@
   "drip": "assets/sfx_pd/drip.ogg",
   "breeze": "assets/sfx_pd/breeze.ogg"
  },
- "title_sec": 4.5,
+ "title_sec": 5.5,
  "output": {
   "width": 1920,
   "height": 1080
@@ -1484,5 +1484,6 @@
    "bg_h": 7.8,
    "bg_y": -2.7
   }
- ]
+ ],
+ "cover": "cover"
 }

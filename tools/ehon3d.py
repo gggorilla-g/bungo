@@ -80,7 +80,8 @@ def main(path, mode=None, arg=None):
         if not pg["lines"]: t1 = t0 + pg.get("dur", 6.0)   # 声の入らないカット（雨雲だけ、など）
         pages.append((t0, t1, L)); t = t1 + pg.get("trans", TR)
     END = sp.get("end_sec", 6.0); total = pages[-1][1] + END   # 終わりの余韻：紙色に溶けて「おしまい」、オルゴールが静かに閉じる
-    stage = {"title": sp["title"], "end_t": pages[-1][1], "end_text": sp.get("end_text", "おしまい"), "pages": [], "title_t": [.3, TC] if TC else [0, 0], "title_card": sp.get("title_card", {}), "fov": sp.get("fov", 24)}
+    cover = prep(sp["cover"], cut=False) if sp.get("cover") else None
+    stage = {"cover": cover, "logo": sp.get("logo_rel"), "label": sp.get("label", "ほほほブックス"), "title": sp["title"], "end_t": pages[-1][1], "end_text": sp.get("end_text", "おしまい"), "pages": [], "title_t": [.3, TC] if TC else [0, 0], "title_card": sp.get("title_card", {}), "fov": sp.get("fov", 24)}
     def U(pi, u):
         """ページ内の時刻。数なら割合、"L2" なら2番目の文の読み始め、"L2e" なら読み終わり、"L2+0.5" のように秒をずらせる"""
         if isinstance(u, str):
