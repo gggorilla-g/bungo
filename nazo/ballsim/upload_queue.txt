@@ -1,5 +1,4 @@
 plotter1_ja MOSO ja
-plotter1_en KAIDAN en
 threebody1_ja MOSO ja
 burst1_ja MOSO ja
 circle1_ja MOSO ja
