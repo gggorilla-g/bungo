@@ -601,7 +601,47 @@ def tusi(sp):
     sim.finish(total)
 
 
-KINDS = {"tusi": tusi, "chain": chain, "basket": basket, "koch": koch, "cycloid": cycloid, "pendulums": pendulums, "lissajous": lissajous, "corner": corner, "sunflower": sunflower, "ulam": ulam, "parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2, "picount": picount}
+def throw(sp):
+    """同じ高さから、横の速さだけ変えて投げる（0 はただ落とす）。縦の動きは横の速さと関係ないので、全部が同時に床に着き、
+    完全に弾んで同時に同じ高さまで戻る。左右の壁でも完全に弾む。ボールは頂点に戻るたびに増える。床に着くたび・壁に当たるたびに1音"""
+    Hh, Tb = sp.get("H", 1.5), sp.get("bounce", 2.2); g = 8 * Hh / Tb ** 2; ns = sp.get("ns", [1, 2, 3, 5, 7, 10, 14, 20, 28]); intro, tail = .3, sp.get("tail", 2.6)
+    X = 1.0; sim = Sim(sp, (-1.05, -.1, 1.05, Hh + .15)); sim.neon([(-X, Hh + .1), (-X, 0), (X, 0), (X, Hh + .1)], width=6); sim.title()
+    vs = [0.0] + [s * (.22 + .19 * k) for k in range(40) for s in (1, -1)]   # 0, ±… の順
+    T = Tb * len(ns); spawn = {}
+    for r, n in enumerate(ns):
+        for i in range(n): spawn.setdefault(i, intro + r * Tb)
+    def y_of(t):   # 頂点 (t=0) から始まる弾み。周期 Tb
+        m = t % Tb; return Hh - .5 * g * min(m, Tb - m) ** 2
+    def x_of(i, t):
+        s = vs[i] * t; m = (s + X) % (4 * X); return (m if m <= 2 * X else 4 * X - m) - X
+    col = {i: hsv(i * .137 % 1, .7, 1) for i in range(len(vs))}
+    for i, t0 in spawn.items():
+        k = 0
+        while True:   # 床：頂点から Tb/2 後、以後 Tb ごと
+            tt = t0 + Tb / 2 + k * Tb
+            if tt > intro + T: break
+            x = x_of(i, tt - t0); sim.note(tt, PENTA[int((x + 1) / 2 * 15 + .5)], .32, .5 + .4 * x, 5.0); k += 1
+        if vs[i]:
+            w = 2 * X / abs(vs[i]); tt = t0 + X / abs(vs[i])   # 壁：最初は X、以後 2X ごと
+            while tt <= intro + T: sim.note(tt, PENTA[13 if (x_of(i, tt - t0 - 1e-4) > 0) else 10], .2, .5 + .45 * (1 if x_of(i, tt - t0 - 1e-4) > 0 else -1), 7.0); tt += w
+    sim.chord(intro + T, [60, 67, 72, 76]); total = intro + T + tail; last = {}
+    for fi in range(int(total * FPS)):
+        t = min(fi / FPS, intro + T); segs = []; balls = []; fl = []
+        for i, t0 in spawn.items():
+            if fi / FPS < t0: continue
+            p = (x_of(i, t - t0), y_of(t - t0))
+            if i in last:
+                q = last[i]
+                if abs(p[0] - q[0]) < .5: segs.append((q, p, dim(col[i], .42)))
+            else: fl.append((p, 16, col[i], 2))
+            last[i] = p; balls.append((p, (255, 255, 255), 7))
+        sim.commit(segs, width=2.4)
+        n = sum(1 for t0 in spawn.values() if fi / FPS >= t0)
+        sim.frame(fi / FPS, (), balls, (sp.get("count_label", "ボールの数 "), str(n)), fl)
+    sim.finish(total)
+
+
+KINDS = {"throw": throw, "tusi": tusi, "chain": chain, "basket": basket, "koch": koch, "cycloid": cycloid, "pendulums": pendulums, "lissajous": lissajous, "corner": corner, "sunflower": sunflower, "ulam": ulam, "parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2, "picount": picount}
 
 if __name__ == "__main__":
     sp = json.load(open(sys.argv[1], encoding="utf-8")); KINDS[sp["kind"]](sp); kit(sp)

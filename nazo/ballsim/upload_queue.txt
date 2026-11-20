@@ -24,3 +24,5 @@ chain1_ja MOSO ja
 chain1_en KAIDAN en
 tusi1_ja MOSO ja
 tusi1_en KAIDAN en
+throw1_ja MOSO ja
+throw1_en KAIDAN en

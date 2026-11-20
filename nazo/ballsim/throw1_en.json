@@ -1,0 +1,32 @@
+{
+ "kind": "throw",
+ "id": "throw1_en",
+ "title": [
+  "Throw them sideways at different speeds",
+  "Which one lands first?"
+ ],
+ "count_label": "Balls ",
+ "yt": {
+  "title": "Same height, different sideways speeds. Which ball lands first? #Shorts #physics",
+  "desc": "Balls are thrown from the same height with different sideways speeds (the middle one is simply dropped). The fast ones and the dropped one hit the floor at exactly the same moment.\n\nHow it works:\n- Only gravity sets how fast a ball falls; sideways speed does not change it. Every ball has the same up-and-down motion.\n- Bounces off the floor and walls are perfectly elastic, so all balls rise back to the same height together.\n- A new ball joins each time they reach the top.\n- Each ball plays one note when it hits the floor or a wall.\n- Air resistance is ignored.\n\nSimulation, sound and animation: original (made with Python)",
+  "tags": [
+   "physics",
+   "projectile motion",
+   "gravity",
+   "simulation",
+   "satisfying",
+   "shorts"
+  ]
+ },
+ "H": 2.0,
+ "ns": [
+  1,
+  2,
+  3,
+  4,
+  6,
+  8,
+  11,
+  15
+ ]
+}
