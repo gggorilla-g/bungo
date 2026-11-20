@@ -1,0 +1,16 @@
+【タイトル】
+Bounce inside a circle, moving 160° each time. Does it come back? #Shorts #math
+
+【説明】
+A ball bounces perfectly inside a circle. Each bounce moves it 160° around the rim (4/9 of a turn).
+
+How it works:
+- 9 steps of 4/9 make exactly 4 turns, so after 9 bounces the ball is back where it started and the star closes.
+- A perfect bounce off a circle leaves at the same angle it came in, so every step covers the same angle.
+- A new ball joins after each lap, starting a little further around.
+- Each bounce plays one note; the pitch depends on where it hits.
+
+Simulation, sound and animation: original (made with Python)
+
+【タグ】
+math, star polygon, circle, billiards, geometry, simulation, satisfying, shorts

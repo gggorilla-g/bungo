@@ -641,7 +641,44 @@ def throw(sp):
     sim.finish(total)
 
 
-KINDS = {"throw": throw, "tusi": tusi, "chain": chain, "basket": basket, "koch": koch, "cycloid": cycloid, "pendulums": pendulums, "lissajous": lissajous, "corner": corner, "sunflower": sunflower, "ulam": ulam, "parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2, "picount": picount}
+def star(sp):
+    """円の中を、壁で完全に弾みながら進むボール。弾むたびに円周上を 360°×k/n ずつ進むので、n 回でちょうど元の点に戻り、
+    星形 {n/k} を描く。ボールは1周（n 回弾む）ごとに増え、出発点を少しずつずらす。弾むたびに1音（当たった場所で高さが変わる）"""
+    n, k = sp.get("n", 7), sp.get("k", 3); tc = sp.get("tc", .45); ms = sp.get("ms", [1, 2, 3, 5, 8]); M = ms[-1]; intro, tail = .3, sp.get("tail", 2.6)
+    offs = sorted(range(M), key=lambda i: int(format(i, f"0{max(1, (M - 1).bit_length())}b")[::-1], 2))
+    sim = Sim(sp, (-1.1, -1.1, 1.1, 1.1)); sim.neon([(math.cos(a), math.sin(a)) for a in np.linspace(0, 2 * np.pi, 241)], closed=True, width=6); sim.title()
+    lap = n * tc; T = lap * len(ms); spawn = {}
+    for r, m in enumerate(ms):
+        for j in offs[:m]: spawn.setdefault(j, intro + r * lap)
+    col = {j: hsv(j / M, .7, 1) for j in range(M)}
+    sprd = sp.get("spread", .3)
+    A = lambda j, q: np.pi / 2 + 2 * np.pi * (j / M) * sprd / n + 2 * np.pi * k * q / n
+    V = lambda j, q: (math.cos(A(j, q)), math.sin(A(j, q)))
+    def pos(j, s):   # s: 出発からの時間
+        q = int(s // tc); u = (s % tc) / tc; return lerp(V(j, q), V(j, q + 1), u), q
+    for j, t0 in spawn.items():
+        q = 1
+        while t0 + q * tc <= intro + T:
+            p = V(j, q); ang = (A(j, q) % (2 * np.pi)) / (2 * np.pi); sim.note(t0 + q * tc, PENTA[int(ang * 15 + .5)], .4, .5 + .4 * p[0], 5.0); q += 1
+    sim.chord(intro + T, [60, 67, 72, 76]); total = intro + T + tail; last = {}
+    for fi in range(int(total * FPS)):
+        t = min(fi / FPS, intro + T); segs = []; balls = []; fl = []
+        for j, t0 in spawn.items():
+            if fi / FPS < t0: continue
+            p, q = pos(j, t - t0)
+            if j in last:
+                lp, lq = last[j]
+                if lq != q: segs.append((lp, V(j, q), dim(col[j], .8))); lp = V(j, q); fl.append((lp, 14, col[j], 2))
+                segs.append((lp, p, dim(col[j], .8)))
+            else: fl.append((p, 16, col[j], 2))
+            last[j] = (p, q); balls.append((p, (255, 255, 255), 7))
+        sim.commit(segs, width=2.6)
+        c = sum(1 for t0 in spawn.values() if fi / FPS >= t0)
+        sim.frame(fi / FPS, (), balls, (sp.get("count_label", "ボールの数 "), str(c)), fl)
+    sim.finish(total)
+
+
+KINDS = {"star": star, "throw": throw, "tusi": tusi, "chain": chain, "basket": basket, "koch": koch, "cycloid": cycloid, "pendulums": pendulums, "lissajous": lissajous, "corner": corner, "sunflower": sunflower, "ulam": ulam, "parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2, "picount": picount}
 
 if __name__ == "__main__":
     sp = json.load(open(sys.argv[1], encoding="utf-8")); KINDS[sp["kind"]](sp); kit(sp)
