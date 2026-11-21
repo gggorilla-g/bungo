@@ -1,0 +1,16 @@
+【タイトル】
+64 Balls Start Together in a D-Shaped Room #shorts
+
+【説明】
+64 balls leave the middle of the flat wall together, fanned out like a rainbow.
+
+How it works:
+- A circle is a calm room: paths repeat in neat patterns.
+- Cut the circle with one straight wall and it becomes a D shape. Now neighboring paths drift apart after each bounce off the flat wall.
+- The tidy fan spreads out until the balls fill the whole room.
+- Every wall hit lights up and plays a note.
+
+Simulation, sound and animation: original (Python).
+
+【タグ】
+satisfying, D-shaped billiard, chaos, math, physics simulation, satisfying sounds, shorts

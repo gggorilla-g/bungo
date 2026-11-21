@@ -1,0 +1,17 @@
+【タイトル】
+30 Balls in a Mushroom-Shaped Room. Some Can Never Leave the Cap #shorts
+
+【説明】
+30 balls start from one point inside the cap of a mushroom-shaped room and bounce forever.
+
+How it works:
+- In a round cap, a ball keeps the same closest distance to the cap's center on every bounce, even when it hits the flat floor of the cap.
+- If that distance is larger than half the stem's width, the ball can never line up with the stem opening. It stays in the cap forever.
+- Balls aimed closer to the center can drop into the stem, and from then on their paths turn chaotic.
+- This is a known shape in math called the "mushroom billiard": order and chaos in one room.
+- Every wall hit lights up and plays a note.
+
+Simulation, sound and animation: original (Python).
+
+【タグ】
+satisfying, mushroom billiard, chaos, math, physics simulation, satisfying sounds, shorts

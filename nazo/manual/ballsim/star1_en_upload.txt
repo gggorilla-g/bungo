@@ -1,0 +1,16 @@
+【タイトル】
+5 Balls Move in Perfect Symmetry Inside a Star, Until One Turns by 0.1° #shorts
+
+【説明】
+5 balls leave the center of a star-shaped room at the same speed, spaced exactly 72° apart, so every path is a rotated copy of the others.
+
+How it works:
+- Because the room and the start are both 5-fold symmetric, the 5 paths stay perfect copies of each other.
+- At 16 seconds, one ball is turned by about 0.1°.
+- The star's inward corners split nearby paths apart, so that tiny turn grows on every bounce until the symmetry is gone.
+- Every wall hit lights up and plays a note.
+
+Simulation, sound and animation: original (Python).
+
+【タグ】
+satisfying, symmetry, chaos, billiards, math, physics simulation, satisfying sounds, shorts
