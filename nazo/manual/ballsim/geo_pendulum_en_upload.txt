@@ -1,0 +1,17 @@
+【タイトル】
+15 Pendulums, Only the Length Changes. Watch Them Line Up Again #shorts
+
+【説明】
+15 pendulums with slightly different lengths, released together from the same angle. They drift into waves, look random for a while, then all line up again.
+
+How it works:
+- For small swings, a pendulum's period is about T = 2π√(L/g). Mass is not in the formula.
+- 4x the length means 2x the period.
+- Here the lengths are chosen so that in one cycle the first pendulum swings 26 times, the next 27, and so on. After that cycle, they all meet again.
+- Galileo noticed the swing time barely depends on the swing size; Huygens built the first pendulum clock in 1656.
+- Every time a pendulum reaches the right end, it plays a soft note.
+
+Animation and sound: original (code).
+
+【タグ】
+pendulum wave, physics, satisfying, math, relaxing, pendulum, shorts

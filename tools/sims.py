@@ -28,6 +28,9 @@ def parabola(sp):
         for side in (1, -1):
             for j, x1 in enumerate(xr):
                 x1 = side * x1; y1 = x1 * x1 / (4 * f); x2 = -4 * f * f / x1; y2 = x2 * x2 / (4 * f)
+                if sp.get("from_focus"):   # 焦点から打つ：壁で跳ね返ると全部まっすぐ上へ、平行に、同時に上の線へ（道の長さ y1+f + Y-y1 = Y+f）
+                    balls.append(dict(pts=[(0, f), (x1, y1), (x1, Y), (x1, y1), (0, f)], cum=[0, y1 + f, Y + f, Y + f + (Y - y1), 2 * (Y + f)],
+                                      col=hsv(((j + .5) / m * .5 + (0 if side > 0 else .5)) % 1), done=0)); continue
                 balls.append(dict(pts=[(x1, Y), (x1, y1), (0, f), (x2, y2), (x2, Y)], cum=[0, Y - y1, Y + f, Y + 2 * f + y2, 2 * (Y + f)],
                                   col=hsv(((j + .5) / m * .5 + (0 if side > 0 else .5)) % 1), done=0))
         n = len(balls); h1 = np.array([b["cum"][1] for b in balls]); h2 = np.array([b["cum"][3] for b in balls])
@@ -55,7 +58,9 @@ def parabola(sp):
             if k < 4: live.append((pts[k], p, dim(b["col"], .7), lw))
             dots.append((p, b["col"], 5 if n <= 32 else 4))
         sim.commit(segs, width=lw)
-        e = t - (t0 + T); fl = [((0, f), 22 + e * 60, dim((255, 245, 200), 1 - e / .22), 5)] if 0 <= e < .22 else []
+        e = t - (t0 + T); fl = [((0, f), 22 + e * 60, dim((255, 245, 200), 1 - e / .22), 5)] if 0 <= e < .22 and not sp.get("from_focus") else []
+        if sp.get("from_focus"):
+            e2 = t - t0; fl = [((0, f), 22 + e2 * 60, dim((255, 245, 200), 1 - e2 / .22), 5)] if 0 <= e2 < .22 else []
         sim.frame(t, live, dots, (sp.get("count_label", "ボール："), f"{n:,}"), fl)
     sim.finish(total)
 

@@ -1,0 +1,113 @@
+{
+ "title": [
+  "",
+  ""
+ ],
+ "parts": {},
+ "labels": {
+  "kind": "pendwave",
+  "n": 15,
+  "N0": 26,
+  "amp": 22,
+  "lmax": 560,
+  "root": 62,
+  "cap_y": 800,
+  "hue0": 0.08,
+  "hue_span": 0.55,
+  "hook_off": 0.43,
+  "end_pad": 1.4
+ },
+ "params": {},
+ "lines": [
+  {
+   "id": "b0",
+   "cap": [
+    "15 pendulums.",
+    "Only the lengths differ."
+   ],
+   "fx": "hook",
+   "text": "15 pendulums. Only the lengths differ."
+  },
+  {
+   "id": "b1",
+   "cap": [
+    "Same angle.",
+    "Released together."
+   ],
+   "fx": "setup",
+   "text": "Same angle. Released together."
+  },
+  {
+   "id": "b2",
+   "cap": [
+    "One straight line...",
+    "then they drift."
+   ],
+   "fx": "start",
+   "text": "One straight line... then they drift."
+  },
+  {
+   "id": "b3",
+   "cap": [
+    "Waves.",
+    "Then chaos. Then waves."
+   ],
+   "fx": "wave",
+   "text": "Waves. Then chaos. Then waves."
+  },
+  {
+   "id": "b4",
+   "cap": [
+    "The weight",
+    "doesn't change the timing."
+   ],
+   "fx": "mass",
+   "text": "The weight doesn't change the timing."
+  },
+  {
+   "id": "b5",
+   "cap": [
+    "Neither does the swing size",
+    "(if it's small)."
+   ],
+   "fx": "amp",
+   "text": "Neither does the swing size (if it's small)."
+  },
+  {
+   "id": "b6",
+   "cap": [
+    "Only length matters.",
+    "4x longer = 2x slower."
+   ],
+   "fx": "len",
+   "text": "Only length matters. 4x longer = 2x slower."
+  },
+  {
+   "id": "b7",
+   "cap": [
+    "That's how",
+    "pendulum clocks keep time."
+   ],
+   "fx": "clock",
+   "text": "That's how pendulum clocks keep time."
+  },
+  {
+   "id": "b8",
+   "cap": [
+    "Each one",
+    "keeps its own rhythm."
+   ],
+   "fx": "wait",
+   "text": "Each one keeps its own rhythm."
+  },
+  {
+   "id": "b9",
+   "cap": [
+    "Until...",
+    "they line up again."
+   ],
+   "fx": "end",
+   "text": "Until... they line up again."
+  }
+ ]
+}

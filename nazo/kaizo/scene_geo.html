@@ -41,7 +41,7 @@ function drawPend(t){const P=PW,px=270,py=150;const hook=t<P.hk1+.15,fadeIn=hook
   // 冒頭から本編へ：一度暗くして、そろった形から始め直す
   const vis=hook?fadeIn*(1-sstep(P.hk1-.25,P.hk1+.15,t)):fadeIn;
   glowLine([[px-60,py],[px+60,py]],'rgba(160,190,255,.9)',3,8,vis);
-  for(let k=P.n-1;k>=0;k--){const h=.52+.36*k/(P.n-1),col=hsl(h,.85,.66),L=P.Ls[k];
+  for(let k=P.n-1;k>=0;k--){const h=(LAB.hue0!=null?LAB.hue0:.52)+(LAB.hue_span!=null?LAB.hue_span:.36)*k/(P.n-1),col=hsl(h,.85,.66),L=P.Ls[k];
     // 軌跡（少し前までの位置）
     const tr=[];for(let j=24;j>=0;j--){const tt=t-j*.025;const a=P.ang(k,tt);tr.push([px+L*Math.sin(a),py+L*Math.cos(a)])}
     for(let j=1;j<tr.length;j++)glowLine([tr[j-1],tr[j]],col,2.2,6,vis*.55*j/tr.length);

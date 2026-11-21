@@ -1,0 +1,143 @@
+{
+ "main": "zatsugaku",
+ "label": "脳がとける雑学",
+ "builder": "nazo/kaizo3d.py",
+ "gap": 0.15,
+ "tail": 1.0,
+ "scene_title": [
+  "",
+  ""
+ ],
+ "parts": {},
+ "voice": {
+  "engine": "none"
+ },
+ "voice_name": "none",
+ "scene_page": "scene_geo.html",
+ "labels": {
+  "kind": "pendwave",
+  "n": 15,
+  "N0": 26,
+  "amp": 22,
+  "lmax": 560,
+  "root": 62,
+  "cap_y": 800,
+  "hue0": 0.08,
+  "hue_span": 0.55,
+  "hook_off": 0.43,
+  "end_pad": 1.4
+ },
+ "lines": [
+  {
+   "id": "b0",
+   "fx": "hook",
+   "cap": [
+    "15 pendulums.",
+    "Only the lengths differ."
+   ],
+   "dur": 3.2,
+   "say": "15 pendulums. Only the lengths differ."
+  },
+  {
+   "id": "b1",
+   "fx": "setup",
+   "cap": [
+    "Same angle.",
+    "Released together."
+   ],
+   "dur": 3.0,
+   "say": "Same angle. Released together."
+  },
+  {
+   "id": "b2",
+   "fx": "start",
+   "cap": [
+    "One straight line...",
+    "then they drift."
+   ],
+   "dur": 4.0,
+   "say": "One straight line... then they drift."
+  },
+  {
+   "id": "b3",
+   "fx": "wave",
+   "cap": [
+    "Waves.",
+    "Then chaos. Then waves."
+   ],
+   "dur": 6.5,
+   "say": "Waves. Then chaos. Then waves."
+  },
+  {
+   "id": "b4",
+   "fx": "mass",
+   "cap": [
+    "The weight",
+    "doesn't change the timing."
+   ],
+   "dur": 4.0,
+   "say": "The weight doesn't change the timing."
+  },
+  {
+   "id": "b5",
+   "fx": "amp",
+   "cap": [
+    "Neither does the swing size",
+    "(if it's small)."
+   ],
+   "dur": 4.0,
+   "say": "Neither does the swing size (if it's small)."
+  },
+  {
+   "id": "b6",
+   "fx": "len",
+   "cap": [
+    "Only length matters.",
+    "4x longer = 2x slower."
+   ],
+   "dur": 5.0,
+   "say": "Only length matters. 4x longer = 2x slower."
+  },
+  {
+   "id": "b7",
+   "fx": "clock",
+   "cap": [
+    "That's how",
+    "pendulum clocks keep time."
+   ],
+   "dur": 4.0,
+   "say": "That's how pendulum clocks keep time."
+  },
+  {
+   "id": "b8",
+   "fx": "wait",
+   "cap": [
+    "Each one",
+    "keeps its own rhythm."
+   ],
+   "dur": 7.0,
+   "say": "Each one keeps its own rhythm."
+  },
+  {
+   "id": "b9",
+   "fx": "end",
+   "cap": [
+    "Until...",
+    "they line up again."
+   ],
+   "dur": 4.5,
+   "say": "Until... they line up again."
+  }
+ ],
+ "title": "15 Pendulums, Only the Length Changes. Watch Them Line Up Again #shorts",
+ "desc": "15 pendulums with slightly different lengths, released together from the same angle. They drift into waves, look random for a while, then all line up again.\n\nHow it works:\n- For small swings, a pendulum's period is about T = 2π√(L/g). Mass is not in the formula.\n- 4x the length means 2x the period.\n- Here the lengths are chosen so that in one cycle the first pendulum swings 26 times, the next 27, and so on. After that cycle, they all meet again.\n- Galileo noticed the swing time barely depends on the swing size; Huygens built the first pendulum clock in 1656.\n- Every time a pendulum reaches the right end, it plays a soft note.\n\nAnimation and sound: original (code).",
+ "tags": [
+  "pendulum wave",
+  "physics",
+  "satisfying",
+  "math",
+  "relaxing",
+  "pendulum",
+  "shorts"
+ ]
+}

@@ -11,9 +11,11 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from ballsim import W, H, FPS, hsv, font, SR, mtof
 
 S = int(os.environ.get("SIM_S", "2"))  # 2倍で描いて縮める（長尺は1で速く）
-BALL_K = float(os.environ.get("SIM_BALL_K", ".55"))   # 玉の大きさの倍率
-BALL_MAX = 4.0   # 玉の半径の上限px。大きいと線や交点（見せたい所）を隠す
-MAX_MIDI = int(os.environ.get("SIM_MAX_MIDI", "81"))   # 音の高さの上限（A5 = 880Hz）
+BALL_K = float(os.environ.get("SIM_BALL_K", "1"))   # 玉の大きさの倍率（11/22 オーナー：伸びた放物線・楕円の大きさを基準に戻す）
+BALL_MAX = float(os.environ.get("SIM_BALL_MAX", "99"))   # 玉の半径の上限px（指定したときだけ効く）
+MAX_MIDI = int(os.environ.get("SIM_MAX_MIDI", "127"))   # 音の高さの上限（指定したときだけ。81 = A5）
+SOFT_LP = os.environ.get("SIM_SOFT_LP", "0") == "1"   # 高音をやわらげるローパス（指定したときだけ）
+FLASH_MAX = float(os.environ.get("SIM_FLASH_MAX", "999"))
 PENTA = [m for o in (60, 72, 84) for m in (o, o + 2, o + 4, o + 7, o + 9)] + [96]  # ド レ ミ ソ ラ を3オクターブ（16音）
 
 
@@ -114,7 +116,7 @@ class Sim:
             im = ImageChops.add(im, gl.filter(ImageFilter.GaussianBlur(1.6)).resize((W * S, H * S), Image.BILINEAR)); d = ImageDraw.Draw(im)
             for p, c, r in balls:
                 x, y = self.to(p); rr = r * S; d.ellipse([x - rr, y - rr, x + rr, y + rr], fill=c)
-        flashes = [(p, min(r, 22), col, wd) for p, r, col, wd in flashes]   # 光の輪も大きくしすぎない
+        flashes = [(p, min(r, FLASH_MAX), col, wd) for p, r, col, wd in flashes]
         for p, r, col, wd in flashes:
             x, y = self.to(p); d.ellipse([x - r * S, y - r * S, x + r * S, y + r * S], outline=col, width=max(1, int(wd * S)))
         if draw: draw(d)
@@ -174,7 +176,7 @@ class Sim:
         for dly, g in [(.031, .3), (.067, .24), (.113, .18), (.171, .13), (.257, .09)]:
             o = int(SR * dly); L[o:] += R[:-o] * g; R[o:] += L[:-o] * g
         a_ = math.exp(-2 * math.pi * 5000 / SR)   # 1次ローパス約5kHz。キンキンする成分を少し落とす
-        for X in (L, R):
+        for X in (L, R) if SOFT_LP else ():
             from scipy.signal import lfilter; X[:] = lfilter([1 - a_], [1, -a_], X)
         st = np.stack([L, R], 1); st = st / (np.abs(st).max() + 1e-9) * .85
         with wave.open(path, "wb") as w:
