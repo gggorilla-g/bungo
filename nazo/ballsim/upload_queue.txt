@@ -1,13 +1,3 @@
-dragon1_ja MOSO ja
-rhythm1_ja MOSO ja
-lissatable1_ja MOSO ja
-plotter1_ja MOSO ja
-threebody1_ja MOSO ja
-burst1_ja MOSO ja
-circle1_ja MOSO ja
-ellipse2_ja MOSO ja
-pend1_ja MOSO ja
-liss1_ja MOSO ja
 koch1_ja MOSO ja
 basket1_ja MOSO ja
 cycloid1_ja MOSO ja
