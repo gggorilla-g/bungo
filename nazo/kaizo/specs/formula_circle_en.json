@@ -1,0 +1,90 @@
+{
+ "title": [
+  "",
+  ""
+ ],
+ "parts": {},
+ "labels": {
+  "n": 30,
+  "R": 3.2,
+  "hues": [
+   0.05,
+   0.62
+  ]
+ },
+ "params": {},
+ "lines": [
+  {
+   "id": "b0",
+   "cap": [
+    "Why is a circle's area",
+    "πr²?"
+   ],
+   "fx": "hook",
+   "text": "Why is a circle's area πr²?"
+  },
+  {
+   "id": "b1",
+   "cap": [
+    "Slice it into",
+    "thin rings."
+   ],
+   "fx": "rings",
+   "text": "Slice it into thin rings."
+  },
+  {
+   "id": "b2",
+   "cap": [
+    "Cut each ring",
+    "and let it uncurl."
+   ],
+   "fx": "cut",
+   "text": "Cut each ring and let it uncurl."
+  },
+  {
+   "id": "b3",
+   "cap": [
+    "Outer rings are longer.",
+    "Stacked up: a triangle."
+   ],
+   "fx": "stack",
+   "text": "Outer rings are longer. Stacked up: a triangle."
+  },
+  {
+   "id": "b4",
+   "cap": [
+    "The long side",
+    "is the circumference: 2πr"
+   ],
+   "fx": "long",
+   "text": "The long side is the circumference: 2πr"
+  },
+  {
+   "id": "b5",
+   "cap": [
+    "The short side",
+    "is the radius: r"
+   ],
+   "fx": "short",
+   "text": "The short side is the radius: r"
+  },
+  {
+   "id": "b6",
+   "cap": [
+    "2πr × r ÷ 2",
+    "= πr²"
+   ],
+   "fx": "area",
+   "text": "2πr × r ÷ 2 = πr²"
+  },
+  {
+   "id": "b7",
+   "cap": [
+    "πr² is just",
+    "an unrolled triangle."
+   ],
+   "fx": "end",
+   "text": "πr² is just an unrolled triangle."
+  }
+ ]
+}

@@ -1,0 +1,118 @@
+{
+ "main": "zatsugaku",
+ "label": "脳がとける雑学",
+ "builder": "nazo/kaizo3d.py",
+ "tail": 1.0,
+ "scene_title": [
+  "",
+  ""
+ ],
+ "parts": {},
+ "voice": {
+  "engine": "none"
+ },
+ "voice_name": "none",
+ "scene_page": "scene_unroll.html",
+ "gap": 0.15,
+ "labels": {
+  "n": 30,
+  "R": 3.2,
+  "hues": [
+   0.05,
+   0.62
+  ]
+ },
+ "lines": [
+  {
+   "id": "b0",
+   "fx": "hook",
+   "cap": [
+    "Why is a circle's area",
+    "πr²?"
+   ],
+   "dur": 3.0,
+   "say": "Why is a circle's area πr²?"
+  },
+  {
+   "id": "b1",
+   "fx": "rings",
+   "cap": [
+    "Slice it into",
+    "thin rings."
+   ],
+   "dur": 3.2,
+   "say": "Slice it into thin rings."
+  },
+  {
+   "id": "b2",
+   "fx": "cut",
+   "cap": [
+    "Cut each ring",
+    "and let it uncurl."
+   ],
+   "dur": 3.6,
+   "say": "Cut each ring and let it uncurl."
+  },
+  {
+   "id": "b3",
+   "fx": "stack",
+   "cap": [
+    "Outer rings are longer.",
+    "Stacked up: a triangle."
+   ],
+   "dur": 5.5,
+   "say": "Outer rings are longer. Stacked up: a triangle."
+  },
+  {
+   "id": "b4",
+   "fx": "long",
+   "cap": [
+    "The long side",
+    "is the circumference: 2πr"
+   ],
+   "dur": 3.6,
+   "say": "The long side is the circumference: 2πr"
+  },
+  {
+   "id": "b5",
+   "fx": "short",
+   "cap": [
+    "The short side",
+    "is the radius: r"
+   ],
+   "dur": 3.2,
+   "say": "The short side is the radius: r"
+  },
+  {
+   "id": "b6",
+   "fx": "area",
+   "cap": [
+    "2πr × r ÷ 2",
+    "= πr²"
+   ],
+   "dur": 3.8,
+   "say": "2πr × r ÷ 2 = πr²"
+  },
+  {
+   "id": "b7",
+   "fx": "end",
+   "cap": [
+    "πr² is just",
+    "an unrolled triangle."
+   ],
+   "dur": 3.6,
+   "say": "πr² is just an unrolled triangle."
+  }
+ ],
+ "title": "Why Is a Circle's Area πr²? Unroll It Into a Triangle #shorts",
+ "desc": "A circle sliced into 30 thin rings. Each ring is cut and straightened, and the stack turns into a triangle.\n\nHow it works:\n- Each ring, straightened, is as long as its own circumference (2π times its radius).\n- From the outermost ring to the innermost, the lengths shrink evenly, so the stack makes a right triangle.\n- Its long side is the full circumference 2πr; its short side is the radius r.\n- Triangle area = 2πr × r ÷ 2 = πr². Thinner rings make the triangle exact.\n\nAnimation and sound: original (code).",
+ "tags": [
+  "math",
+  "circle area",
+  "pi",
+  "geometry",
+  "satisfying",
+  "relaxing",
+  "shorts"
+ ]
+}

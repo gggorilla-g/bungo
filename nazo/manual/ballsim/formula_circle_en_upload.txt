@@ -1,0 +1,16 @@
+【タイトル】
+Why Is a Circle's Area πr²? Unroll It Into a Triangle #shorts
+
+【説明】
+A circle sliced into 30 thin rings. Each ring is cut and straightened, and the stack turns into a triangle.
+
+How it works:
+- Each ring, straightened, is as long as its own circumference (2π times its radius).
+- From the outermost ring to the innermost, the lengths shrink evenly, so the stack makes a right triangle.
+- Its long side is the full circumference 2πr; its short side is the radius r.
+- Triangle area = 2πr × r ÷ 2 = πr². Thinner rings make the triangle exact.
+
+Animation and sound: original (code).
+
+【タグ】
+math, circle area, pi, geometry, satisfying, relaxing, shorts
