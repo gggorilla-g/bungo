@@ -402,6 +402,10 @@
 - 紙テープを10回折って開く（ドラゴン曲線、14万高評価）。MIW で既出（dragon1_en）、妄想科学は順番待ち
 - Google などの入社試験に出た難問
 
+### 11/21 22:41〜23:01 JST 妄想科学 順番待ちから10本（定期の再挑戦）
+- TCuK7s_RRD4 dragon1_ja、SLo_VNV_Mbs rhythm1_ja、E8bLHJj6KKo lissatable1_ja、uBvzElBbZQ8 plotter1_ja、UbZldgCpEuM threebody1_ja、JGbk-jveNcY burst1_ja、EOsdkZcqLwU circle1_ja、wsVF_TluqHQ ellipse2_ja、ZmnyvksedgY pend1_ja、lyEVwSPB5wk liss1_ja
+- 11本目 koch1_ja で上限。残り24本。次の再挑戦は 11/22 14:05 UTC（1日の上限はおよそ10本）
+
 ### 11/21 英語は焼き直し禁止
 - オーナー観測：妄想科学と同じ動画を英語にしただけの MIW の回は、YouTube がおすすめに配らない（公開はされるが届かない）っぽい。以後、英語版は別の映像として作る（形・動き・色・音・構成を変える）。同じ動画の英訳は上げない
 
