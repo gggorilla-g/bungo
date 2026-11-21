@@ -1,8 +1,141 @@
-{"id": "long_rooms_en", "xfade": 2.5, "chapters": [
- {"shape": "circle", "label": "01  Circle", "n": 1, "start_angles": [0.62], "origin": [0.0, -0.35], "speed": 0.55, "hue": 0.55, "fade": 0.996, "nudge_t": 55, "nudge": 0.01, "sound": "glass", "scale": "maj", "root": 62, "dur": 100},
- {"shape": "ellipse", "label": "02  Ellipse", "a": 1.0, "b": 0.62, "origin": [-0.785, 0], "n": 16, "speed": 0.42, "checkpoint": [0.785, 0, 0.03], "mult": 2, "split_angle": 0.03, "cap": 360, "hue": 0.85, "fade": 0.975, "sound": "pluck", "scale": "maj", "root": 60, "dur": 100},
- {"shape": "square", "label": "03  Square", "start_angles": [0.4636, 0.5880, 0.6155], "origin": [-0.4, -0.6], "speed": 0.5, "hue": 0.12, "hue_span": 0.5, "fade": 0.998, "sound": "glass", "scale": "lyd", "root": 64, "dur": 100},
- {"shape": "poly3", "label": "04  Triangle", "n": 6, "origin": [0, 0], "speed": 0.45, "hue": 0.33, "hue_span": 0.6, "fade": 0.993, "sound": "bell", "scale": "maj", "root": 57, "dur": 100},
- {"shape": "poly6", "label": "05  Hexagon", "n": 48, "origin": [0, -0.86], "arc": [0.35, 2.79], "speed": 0.42, "hue": 0.62, "hue_span": 0.8, "fade": 0.98, "sound": "pluck", "scale": "min", "root": 62, "dur": 100},
- {"shape": "stadium", "label": "06  Stadium", "twin": 1e-6, "origin": [0.1, 0.05], "angle": 0.9, "speed": 0.6, "hue": 0.0, "hue_span": 0.6, "fade": 0.997, "sound": "glass", "scale": "min", "root": 60, "dur": 110}
-]}
+{
+ "id": "long_rooms_en",
+ "xfade": 2.5,
+ "chapters": [
+  {
+   "shape": "circle",
+   "label": "01  Circle",
+   "n": 1,
+   "start_angles": [
+    0.62,
+    1.21,
+    1.83,
+    2.47,
+    3.05,
+    3.71,
+    4.4
+   ],
+   "origin": [
+    0.0,
+    -0.35
+   ],
+   "speed": 0.8,
+   "hue": 0.55,
+   "fade": 0.9985,
+   "nudge_t": 50,
+   "nudge": 0.006,
+   "sound": "glass",
+   "scale": "maj",
+   "root": 62,
+   "dur": 100,
+   "line_gain": 0.85,
+   "hue_span": 0.5
+  },
+  {
+   "shape": "ellipse",
+   "label": "02  Ellipse",
+   "a": 1.0,
+   "b": 0.62,
+   "origin": [
+    -0.785,
+    0
+   ],
+   "n": 16,
+   "speed": 0.42,
+   "checkpoint": [
+    0.785,
+    0,
+    0.03
+   ],
+   "mult": 2,
+   "split_angle": 0.03,
+   "cap": 360,
+   "hue": 0.85,
+   "fade": 0.975,
+   "sound": "pluck",
+   "scale": "maj",
+   "root": 60,
+   "dur": 100
+  },
+  {
+   "shape": "square",
+   "label": "03  Square",
+   "start_angles": [
+    0.4636,
+    0.588,
+    0.6155
+   ],
+   "origin": [
+    -0.4,
+    -0.6
+   ],
+   "speed": 0.9,
+   "hue": 0.12,
+   "hue_span": 0.5,
+   "fade": 0.9996,
+   "sound": "glass",
+   "scale": "lyd",
+   "root": 64,
+   "dur": 100,
+   "line_gain": 0.85
+  },
+  {
+   "shape": "poly3",
+   "label": "04  Triangle",
+   "n": 6,
+   "origin": [
+    0,
+    0
+   ],
+   "speed": 0.6,
+   "hue": 0.33,
+   "hue_span": 0.6,
+   "fade": 0.999,
+   "sound": "bell",
+   "scale": "maj",
+   "root": 57,
+   "dur": 100,
+   "line_gain": 0.8
+  },
+  {
+   "shape": "poly6",
+   "label": "05  Hexagon",
+   "n": 48,
+   "origin": [
+    0,
+    -0.86
+   ],
+   "arc": [
+    0.35,
+    2.79
+   ],
+   "speed": 0.42,
+   "hue": 0.62,
+   "hue_span": 0.8,
+   "fade": 0.98,
+   "sound": "pluck",
+   "scale": "min",
+   "root": 62,
+   "dur": 100
+  },
+  {
+   "shape": "stadium",
+   "label": "06  Stadium",
+   "twin": 1e-06,
+   "origin": [
+    0.1,
+    0.05
+   ],
+   "angle": 0.9,
+   "speed": 1.0,
+   "hue": 0.0,
+   "hue_span": 0.6,
+   "fade": 0.9994,
+   "sound": "glass",
+   "scale": "min",
+   "root": 60,
+   "dur": 110,
+   "line_gain": 0.85
+  }
+ ]
+}
