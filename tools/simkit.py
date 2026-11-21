@@ -10,6 +10,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from ballsim import W, H, FPS, hsv, font, SR, mtof
 
 S = int(os.environ.get("SIM_S", "2"))  # 2倍で描いて縮める（長尺は1で速く）
+BALL_K = float(os.environ.get("SIM_BALL_K", ".55"))   # 玉の大きさの倍率
 PENTA = [m for o in (60, 72, 84) for m in (o, o + 2, o + 4, o + 7, o + 9)] + [96]  # ド レ ミ ソ ラ を3オクターブ（16音）
 
 
@@ -102,7 +103,8 @@ class Sim:
             im = ImageChops.add(im, g.resize((W * S, H * S), Image.BILINEAR))
         d = ImageDraw.Draw(im)
         for a, b, c, w in live: d.line([*self.to(a), *self.to(b)], fill=c, width=max(1, int(w * S)))
-        if balls:
+        if balls:   # 玉は点くらい小さく（オーナー 11/21「このくらい小さくてもいい」）。半径を 0.55 倍、最小 1.6px
+            balls = [(p, c, max(1.6, r * BALL_K)) for p, c, r in balls]
             q = 8; gl = Image.new("RGB", (W * S // q, H * S // q)); gq = ImageDraw.Draw(gl)
             for p, c, r in balls:
                 x, y = self.to(p); rr = r * S * 2.4 / q; gq.ellipse([x / q - rr, y / q - rr, x / q + rr, y / q + rr], fill=dim(c, .6))
