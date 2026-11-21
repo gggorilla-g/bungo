@@ -13,7 +13,7 @@ from ballsim import W, H, FPS, hsv, font, audio
 SUB = 6
 
 
-PENTA = [m for o in (60, 72, 84) for m in (o, o + 2, o + 4, o + 7, o + 9)] + [96]
+PENTA = [m for o in (60, 72) for m in (o, o + 2, o + 4, o + 5, o + 7, o + 9, o + 11)] + [84, 86]  # ドレミファソラシド（2オクターブ＋2音、16音。名前は互換のため PENTA のまま）
 GLASS = False
 
 

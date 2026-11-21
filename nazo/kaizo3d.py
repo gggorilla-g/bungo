@@ -146,7 +146,7 @@ def geo_notes(sp, tl, sr, add):
         return 1e9
     mf = lambda m: 440 * 2 ** ((m - 69) / 12)
     root = L.get("root", 57)
-    deg = lambda i: root + 12 * (i // 5) + PENTA_STEPS[i % 5]
+    deg = lambda i: (60 if root >= 60 else 48) + 12 * (i // 7) + (0, 2, 4, 5, 7, 9, 11)[i % 7]   # ドレミファソラシド
     import harmony as _h
     _add = add
     class _T:   # まだ鳴らしていない音（番号・音量・長さ）。add の時刻で、カノン進行の和音にして鳴らす

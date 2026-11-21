@@ -17,7 +17,7 @@ BALL_MAX = float(os.environ.get("SIM_BALL_MAX", "99"))   # 玉の半径の上限
 MAX_MIDI = int(os.environ.get("SIM_MAX_MIDI", "127"))   # 音の高さの上限（指定したときだけ。81 = A5）
 SOFT_LP = os.environ.get("SIM_SOFT_LP", "0") == "1"   # 高音をやわらげるローパス（指定したときだけ）
 FLASH_MAX = float(os.environ.get("SIM_FLASH_MAX", "999"))
-PENTA = [m for o in (60, 72, 84) for m in (o, o + 2, o + 4, o + 7, o + 9)] + [96]  # ド レ ミ ソ ラ を3オクターブ（16音）
+PENTA = [m for o in (60, 72) for m in (o, o + 2, o + 4, o + 5, o + 7, o + 9, o + 11)] + [84, 86]  # ドレミファソラシド（2オクターブ＋2音、16音。名前は互換のため PENTA のまま）
 
 
 def dim(c, g): return tuple(int(v * g) for v in c)
