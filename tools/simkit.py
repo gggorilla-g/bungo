@@ -1,3 +1,4 @@
+import math
 # simkit.py — シミュレーション・ショートの共通部品
 #   背景・光る線・軌跡の重ね描き（消さない）・小さいボール・問いのタイトルと数だけの文字・1個ずつ鳴る音・書き出し
 #   ハウスルール（オーナーの指摘）: ボールは小さく／速すぎない／途中で止めない／増え方はゆっくり／
@@ -11,6 +12,8 @@ from ballsim import W, H, FPS, hsv, font, SR, mtof
 
 S = int(os.environ.get("SIM_S", "2"))  # 2倍で描いて縮める（長尺は1で速く）
 BALL_K = float(os.environ.get("SIM_BALL_K", ".55"))   # 玉の大きさの倍率
+BALL_MAX = 4.0   # 玉の半径の上限px。大きいと線や交点（見せたい所）を隠す
+MAX_MIDI = int(os.environ.get("SIM_MAX_MIDI", "81"))   # 音の高さの上限（A5 = 880Hz）
 PENTA = [m for o in (60, 72, 84) for m in (o, o + 2, o + 4, o + 7, o + 9)] + [96]  # ド レ ミ ソ ラ を3オクターブ（16音）
 
 
@@ -104,13 +107,14 @@ class Sim:
         d = ImageDraw.Draw(im)
         for a, b, c, w in live: d.line([*self.to(a), *self.to(b)], fill=c, width=max(1, int(w * S)))
         if balls:   # 玉は点くらい小さく（オーナー 11/21「このくらい小さくてもいい」）。半径を 0.55 倍、最小 1.6px
-            balls = [(p, c, max(1.6, r * BALL_K)) for p, c, r in balls]
+            balls = [(p, c, min(BALL_MAX, max(1.6, r * BALL_K))) for p, c, r in balls]
             q = 8; gl = Image.new("RGB", (W * S // q, H * S // q)); gq = ImageDraw.Draw(gl)
             for p, c, r in balls:
                 x, y = self.to(p); rr = r * S * 2.4 / q; gq.ellipse([x / q - rr, y / q - rr, x / q + rr, y / q + rr], fill=dim(c, .6))
             im = ImageChops.add(im, gl.filter(ImageFilter.GaussianBlur(1.6)).resize((W * S, H * S), Image.BILINEAR)); d = ImageDraw.Draw(im)
             for p, c, r in balls:
                 x, y = self.to(p); rr = r * S; d.ellipse([x - rr, y - rr, x + rr, y + rr], fill=c)
+        flashes = [(p, min(r, 22), col, wd) for p, r, col, wd in flashes]   # 光の輪も大きくしすぎない
         for p, r, col, wd in flashes:
             x, y = self.to(p); d.ellipse([x - r * S, y - r * S, x + r * S, y + r * S], outline=col, width=max(1, int(wd * S)))
         if draw: draw(d)
@@ -127,7 +131,9 @@ class Sim:
         self.proc.stdin.write(out.tobytes())
 
     # ---- 音（1個ずつ足す）
-    def note(self, t, midi, gain=1.0, pan=.5, dec=6.0, kind="mar"): self.notes.append((t, midi, gain, min(1, max(0, pan)), dec, kind))
+    def note(self, t, midi, gain=1.0, pan=.5, dec=6.0, kind="mar"):
+        while midi > MAX_MIDI: midi -= 12   # 高すぎる音はオクターブ下げる（オーナー 11/21「ハイキーは気持ち悪い」）
+        self.notes.append((t, midi, gain, min(1, max(0, pan)), dec, kind))
 
     def chord(self, t, midis, gain=.35, dec=3.0, kind="mar"):
         for m in midis: self.note(t, m, gain, .5, dec, kind)
@@ -167,6 +173,9 @@ class Sim:
             L[i:i + k] += s[:k] * g * (1 - pan) * 1.414; R[i:i + k] += s[:k] * g * pan * 1.414
         for dly, g in [(.031, .3), (.067, .24), (.113, .18), (.171, .13), (.257, .09)]:
             o = int(SR * dly); L[o:] += R[:-o] * g; R[o:] += L[:-o] * g
+        a_ = math.exp(-2 * math.pi * 5000 / SR)   # 1次ローパス約5kHz。キンキンする成分を少し落とす
+        for X in (L, R):
+            from scipy.signal import lfilter; X[:] = lfilter([1 - a_], [1, -a_], X)
         st = np.stack([L, R], 1); st = st / (np.abs(st).max() + 1e-9) * .85
         with wave.open(path, "wb") as w:
             w.setnchannels(2); w.setsampwidth(2); w.setframerate(SR); w.writeframes((st * 32767).astype(np.int16).tobytes())
