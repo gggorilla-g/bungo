@@ -378,6 +378,11 @@
 - 作成：妄想科学 burst1_ja（金の点で1個ふえる）・circle1_ja（真ん中に戻る）・ellipse2_ja（細長い楕円）を順番待ちの先頭へ
 - 公開（MIW、英語再開）：ellipse1d_en gU2G4WAm24U、circle1_en PfiXfuhstUk、ellipse2_en -_hfsLi5gU0
 
+### 11/21 英語長尺 1本目（MIW）
+- 公開：TwXigV7UfoI "6 Rooms, 6 Ways to Bounce: Light Trails in Circle, Ellipse, Square, Triangle, Hexagon and Stadium"（long_rooms_en、横長 9:57、6章、tools/longbill.py、即時公開・API、サムネ a）
+- A/B テスト：Studio の「A/B テスト」（サムネのみ）で a・b・c の3案を実行中（11/21 設定、オーナー許可済み）。サムネは nazo/manual/long/thumb_a/b/c.png（Codex がコードで線を描いたもの）
+- コメ返（妄想科学、オーナー依頼）：@出見（楕円の焦点）・@ジェット_本人（パラボラ）に返信済み
+
 ### 11/20 シミュレーション量産（tools/sims.py・simkit.py・platesim.py、順番待ち upload_queue.txt / upq.sh）
 - 調査：MathCarlooo（9/29開設・69本・登録2.42万・30日+6,500）。上位は「全部戻ってくる？」152万・「2枚の鏡」62万・「全部入る？」52万・「13:8の軌道」39万。raymathquiz（関数レース）は登録83・中央値1,230回
 - 公開（妄想科学）：板レース旧 WI1TLb76b-Y、放物線 L7x7RVcgMSw、2枚の鏡 X2cVfGFhT-s。その後1日の上限に到達（venus1_ja 以降は順番待ち）
