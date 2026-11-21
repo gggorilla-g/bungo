@@ -10,6 +10,7 @@ from scipy.spatial import cKDTree
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
 
 W, H, FPS, SUB = 1080, 1920, 30, 8
+if os.environ.get("SIM_LANDSCAPE"): W, H = 1920, 1080   # 長尺（横長）用
 SR = 44100
 FONT = "/usr/share/fonts/opentype/noto/NotoSansCJK-Black.ttc"
 

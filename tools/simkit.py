@@ -9,7 +9,7 @@ from PIL import Image, ImageDraw, ImageFilter, ImageChops
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from ballsim import W, H, FPS, hsv, font, SR, mtof
 
-S = 2  # 2倍で描いて縮める
+S = int(os.environ.get("SIM_S", "2"))  # 2倍で描いて縮める（長尺は1で速く）
 PENTA = [m for o in (60, 72, 84) for m in (o, o + 2, o + 4, o + 7, o + 9)] + [96]  # ド レ ミ ソ ラ を3オクターブ（16音）
 
 
