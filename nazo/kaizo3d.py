@@ -137,7 +137,7 @@ def _glass(f, sr, dur=2.4):
 def geo_notes(sp, tl, sr, add):
     """scene_geo.html と同じ時刻の式で、心地よい音を置く"""
     L = sp.get("labels", {}); kind = L.get("kind")
-    if kind not in ("pendwave", "pythag", "deg360", "piroll", "oddsq", "gauss"): return
+    if kind not in ("pendwave", "pythag", "deg360", "piroll", "oddsq", "gauss", "pizza", "halves", "binom"): return
     bt = {b["id"]: b for b in tl["beats"]}; lines = [dict(l, **bt[l["id"]]) for l in sp["lines"]]
     def T0(fx, a=0):
         for l in lines:
@@ -181,6 +181,18 @@ def geo_notes(sp, tl, sr, add):
     elif kind == "gauss":
         for i in range(10): add(T0("stairs", .1) + i * .26 + .4, _glass(mf(deg(i)), sr) * .11)
         add(T0("fit", .1) + 1.6, sum(_glass(mf(deg(i)), sr, 3.2) for i in (5, 7, 9)) * .08)
+    elif kind == "pizza":
+        for i in range(16): add(T0("line", .1) + (i / 15) * 1.6 + 1.0, _glass(mf(deg(i % 10 + 2)), sr) * .09)
+        add(T0("more", .15) + .8, sum(_glass(mf(deg(i)), sr, 3.2) for i in (5, 7, 9)) * .07)
+        add(T0("formula", .6), _glass(mf(deg(9)), sr, 3.0) * .12)
+    elif kind == "halves":
+        tt = [T0("half", .1), T0("quarter", .1)] + [T0("eighth", .05) + (k - 2) * .38 for k in range(2, 12)]
+        for k, t in enumerate(tt): add(t + .1, _glass(mf(deg(k + 2)), sr) * (.13 * .9 ** k))
+        add(T0("formula", .55), sum(_glass(mf(deg(i)), sr, 3.2) for i in (5, 7, 9)) * .08)
+    elif kind == "binom":
+        pl = [l for l in lines if l.get("fx") == "pieces"][0]
+        for k, d in [(.05, 4), (.3, 7), (.6, 9)]: add(pl["t0"] + k * pl["voice"], _glass(mf(deg(d)), sr) * .12)
+        add(T0("formula", .7), sum(_glass(mf(deg(i)), sr, 3.2) for i in (5, 7, 9)) * .07)
     elif kind == "deg360":
         ns = L.get("ns", [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]); step = L.get("step", .95)
         for i, n in enumerate(ns):

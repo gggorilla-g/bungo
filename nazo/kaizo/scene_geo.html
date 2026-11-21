@@ -198,6 +198,78 @@ function drawGauss(t){const P=GS,s0=LINES[0].t0,hk=LINES[0].t1,b=P.b;
   if(kf>.02){const fl=lineOf('formula'),q=k=>sstep(fl.t0+k*fl.voice,fl.t0+k*fl.voice+.5,t);
     const pos=termRow([{s:'n',col:'#ffd23f',k:q(.05)},{s:'×'},{s:'(n+1)',col:'#ffd23f',k:q(.25)},{s:'÷'},{s:'2',col:'#7fe3ff',k:q(.45)}],200,44,kf);
     link(pos[0],[P.x0+P.n*b/2,P.gy],'#ffd23f',q(.05)*kf);link(pos[2],[P.x0+P.n*b,P.gy-(P.n+1)*b/2],'#ffd23f',q(.25)*kf)}}
+
+// ---------- 円をピザに切って並べる（πr² のもう1つの見方） ----------
+const PZ={cx:270,cy:420,r:136};
+function pzRow(n,i){const D=2*Math.PI/n,w=2*PZ.r*Math.sin(D/2),tot=n/2*w,x0=270-tot/2-w/4,yt=320;const k=Math.floor(i/2);
+  return i%2===0?{ax:x0+(k+.5)*w,ay:yt,ang:Math.PI/2}:{ax:x0+(k+1)*w,ay:yt+PZ.r*Math.cos(D/2),ang:-Math.PI/2}}
+function pzStag(n,i){return (i/(n-1))*1.6}
+function drawSectors(n,u,alpha,tStart,t){const D=2*Math.PI/n,r=PZ.r;
+  for(let i=0;i<n;i++){const a0=-Math.PI/2+i*D,bis=a0+D/2;const T=pzRow(n,i);
+    const k=tStart==null?u:sstep(tStart+pzStag(n,i),tStart+pzStag(n,i)+1.0,t)*u+(tStart==null?0:0);
+    const sep=8*(1-k)*sstep(T0('cut',.1),T0('cut',.1)+.6,t);
+    const ax=lerp(PZ.cx+sep*Math.cos(bis),T.ax,k),ay=lerp(PZ.cy+sep*Math.sin(bis),T.ay,k);
+    let da=T.ang-bis;while(da>Math.PI)da-=2*Math.PI;while(da<-Math.PI)da+=2*Math.PI;const ang=bis+da*k;
+    const pts=[[ax,ay]];for(let j=0;j<=10;j++){const a=ang-D/2+D*j/10;pts.push([ax+r*Math.cos(a),ay+r*Math.sin(a)])}pts.push([ax,ay]);
+    const col=i%2?hsl(.52,.8,.62):hsl(.9,.75,.68);g.save();g.globalAlpha=alpha*.22;g.fillStyle=col;g.beginPath();pts.forEach((p,j)=>j?g.lineTo(p[0],p[1]):g.moveTo(p[0],p[1]));g.fill();g.restore();
+    glowLine(pts,col,1.6,8,alpha)}}
+function drawPizza(t){const s0=LINES[0].t0,hk=LINES[0].t1;
+  const back=T0('end',.4),m0=T0('more',.15);
+  let u16=0,ts=null;
+  if(t<hk){u16=.25*Math.sin(Math.PI*clamp((t-s0-.5)/1.8,0,1))}else{ts=T0('line',.1);u16=1}
+  const a16=sstep(s0,s0+.5,t)*(1-sstep(m0,m0+.8,t));
+  if(a16>.01)drawSectors(16,u16,a16,t<hk?null:ts,t);
+  const a48=sstep(m0,m0+.8,t);
+  if(a48>.01){const ub=t>back?1-sstep(back,back+2.2,t):1;drawSectors(48,ub,a48,null,t)}
+  // 辺の長さ
+  const D=2*Math.PI/48,w=2*PZ.r*Math.sin(D/2),tot=24*w,x0=270-tot/2-w/4+w/2,yt=320,yb=yt+PZ.r;
+  const kw=sstep(T0('width',.1),T0('width',.1)+.5,t)*(1-sstep(back,back+.4,t)),kh=sstep(T0('height',.1),T0('height',.1)+.5,t)*(1-sstep(back,back+.4,t));
+  if(kw>.02){glowLine([[x0,yb+22],[x0+tot,yb+22]],'#ffd23f',3,12,kw);g.save();g.font='900 36px JumpSans';g.textAlign='center';g.fillStyle='#ffd23f';g.shadowColor='#ffd23f';g.shadowBlur=12;g.globalAlpha=kw;g.fillText('πr',270,yb+66);g.restore()}
+  if(kh>.02){glowLine([[x0-20,yt],[x0-20,yb]],'#7fe3ff',3,12,kh);g.save();g.font='900 36px JumpSans';g.textAlign='center';g.fillStyle='#7fe3ff';g.shadowColor='#7fe3ff';g.shadowBlur=12;g.globalAlpha=kh;g.fillText('r',x0-46,(yt+yb)/2+12);g.restore()}
+  const kf=sstep(T0('formula',.05),T0('formula',.05)+.4,t)*(1-sstep(back,back+.4,t));
+  if(kf>.02){const fl=lineOf('formula'),q=k=>sstep(fl.t0+k*fl.voice,fl.t0+k*fl.voice+.5,t);
+    const pos=termRow([{s:'r',col:'#7fe3ff',k:q(.05)},{s:'×'},{s:'πr',col:'#ffd23f',k:q(.25)},{s:'='},{s:'πr²',col:'#ff8cd2',k:q(.6)}],200,46,kf);
+    link(pos[0],[x0-20,(yt+yb)/2],'#7fe3ff',q(.05)*kf);link(pos[2],[270,yb+22],'#ffd23f',q(.25)*kf)}}
+// ---------- 半分、その半分… ----------
+const HV={x:95,y:270,s:350,N:12};
+function hvRects(){let x=HV.x,y=HV.y,w=HV.s,h=HV.s;const out=[];for(let k=0;k<HV.N;k++){if(k%2===0){out.push([x,y,w/2,h]);x+=w/2;w/=2}else{out.push([x,y,w,h/2]);y+=h/2;h/=2}}return out}
+const HV_R=KIND==='halves'?hvRects():[];
+function hvT(k){return k===0?T0('half',.1):k===1?T0('quarter',.1):T0('eighth',.05)+(k-2)*.38}
+function drawHalves(t){const s0=LINES[0].t0,hk=LINES[0].t1,back=T0('end',.45);
+  const ko=sstep(s0,s0+.5,t);glowLine([[HV.x,HV.y],[HV.x+HV.s,HV.y],[HV.x+HV.s,HV.y+HV.s],[HV.x,HV.y+HV.s],[HV.x,HV.y]],'rgba(200,215,255,.9)',2,10,ko);
+  HV_R.forEach((r,k)=>{let a;if(t<hk)a=sstep(s0+.5+k*.06,s0+.8+k*.06,t)*(1-sstep(hk-.4,hk,t));else a=sstep(hvT(k),hvT(k)+.5,t);
+    if(t>back)a*=1-sstep(back+(HV.N-k)*.05,back+(HV.N-k)*.05+.6,t);if(a<.01)return;
+    const col=hsl(.5+k*.045,.8,.64),[x,y,w,h]=r;g.save();g.globalAlpha=a*.28;g.fillStyle=col;g.fillRect(x+1.5,y+1.5,w-3,h-3);g.restore();
+    glowLine([[x+1.5,y+1.5],[x+w-1.5,y+1.5],[x+w-1.5,y+h-1.5],[x+1.5,y+h-1.5],[x+1.5,y+1.5]],col,1.8,10,a);
+    if(k<5){g.save();g.font='900 '+[40,32,24,18,14][k]+'px JumpSans';g.textAlign='center';g.fillStyle=col;g.shadowColor=col;g.shadowBlur=8;g.globalAlpha=a;g.fillText('1/'+(2**(k+1)),x+w/2,y+h/2+[14,11,8,6,5][k]);g.restore()}
+    const dd=t-hvT(k);if(t>=hk&&dd>0&&dd<.5)ring(x+w/2,y+h/2,6+dd*40,col,1.4,(1-dd/.5)*.7)});
+  // 残りのすき間（never〜fill）
+  const kg=sstep(T0('never',.2),T0('never',.2)+.5,t)*(1-sstep(T0('formula',0),T0('formula',.3),t));if(kg>.02){const r=HV_R[HV.N-1];ring(r[0]+r[2]*1.5,r[1]+r[3]*1.5,14+4*Math.sin(t*3),'#ffd23f',2,kg)}
+  const kf=sstep(T0('formula',.05),T0('formula',.05)+.4,t)*(1-sstep(back,back+.4,t));
+  if(kf>.02){const fl=lineOf('formula'),q=k=>sstep(fl.t0+k*fl.voice,fl.t0+k*fl.voice+.5,t);
+    const pos=termRow([{s:'1/2',col:hsl(.5,.8,.64),k:q(.05)},{s:'+'},{s:'1/4',col:hsl(.545,.8,.64),k:q(.15)},{s:'+'},{s:'1/8',col:hsl(.59,.8,.64),k:q(.25)},{s:'+ … ='},{s:'1',col:'#ffd23f',k:q(.55)}],200,40,kf);
+    [0,1,2].forEach(k=>{const r=HV_R[k];link(pos[2*k],[r[0]+r[2]/2,r[1]+r[3]/2],hsl(.5+k*.045,.8,.64),q(.05+k*.1)*kf)});
+    const k1=q(.55);if(k1>.02)glowLine([[HV.x,HV.y],[HV.x+HV.s,HV.y],[HV.x+HV.s,HV.y+HV.s],[HV.x,HV.y+HV.s],[HV.x,HV.y]],'#ffd23f',3,16,k1*kf)}}
+// ---------- (a+b)² ----------
+const BN={x:130,y:290,u:50,a:3.4,b:2.2};
+function drawBinom(t){const P=BN,s0=LINES[0].t0,hk=LINES[0].t1,back=T0('end',.4);const A=P.a*P.u,B=P.b*P.u,S=A+B;
+  const k0=sstep(s0,s0+.6,t);glowLine([[P.x,P.y],[P.x+S,P.y],[P.x+S,P.y+S],[P.x,P.y+S],[P.x,P.y]],'rgba(220,230,255,.95)',2.6,12,k0);
+  const ks=sstep(T0('side',.1),T0('side',.1)+.5,t)*(1-sstep(back,back+.4,t));
+  if(ks>.02){g.save();g.font='900 26px JumpSans';g.textAlign='center';g.globalAlpha=ks;g.fillStyle='#7fe3ff';g.shadowColor='#7fe3ff';g.shadowBlur=8;g.fillText('a',P.x+A/2,P.y-14);g.fillStyle='#ff8cd2';g.shadowColor='#ff8cd2';g.fillText('b',P.x+A+B/2,P.y-14);g.restore()}
+  const kc=t<hk?sstep(s0+.7,s0+1.2,t)*(1-sstep(hk-.4,hk,t)):sstep(T0('cut',.15),T0('cut',.15)+.8,t);
+  if(kc>.02){glowLine([[P.x+A,P.y],[P.x+A,P.y+S*kc]],'rgba(255,255,255,.8)',1.6,8,1);glowLine([[P.x,P.y+A],[P.x+S*kc,P.y+A]],'rgba(255,255,255,.8)',1.6,8,1)}
+  const pl=lineOf('pieces'),pk=k=>sstep(pl.t0+k*pl.voice,pl.t0+k*pl.voice+.5,t);
+  const sp=sstep(pl.t0,pl.t0+.8,t)*(1-sstep(T0('formula',.2),T0('formula',.2)+1,t))*14;
+  const pc=[{r:[0,0,A,A],c:'#7fe3ff',k:pk(.05),s:'a²',d:[-1,-1]},{r:[A,A,B,B],c:'#ff8cd2',k:pk(.3),s:'b²',d:[1,1]},{r:[A,0,B,A],c:'#ffd23f',k:pk(.6),s:'ab',d:[1,-1]},{r:[0,A,A,B],c:'#ffd23f',k:pk(.6),s:'ab',d:[-1,1]}];
+  const kb=1-sstep(back,back+.5,t);
+  pc.forEach(p=>{const a=Math.max(p.k,t>=T0('formula',0)?1:0)*kb;if(a<.02)return;const[x,y,w,h]=p.r,X=P.x+x+p.d[0]*sp,Y=P.y+y+p.d[1]*sp;
+    g.save();g.globalAlpha=a*.25;g.fillStyle=p.c;g.fillRect(X+2,Y+2,w-4,h-4);g.restore();glowLine([[X+2,Y+2],[X+w-2,Y+2],[X+w-2,Y+h-2],[X+2,Y+h-2],[X+2,Y+2]],p.c,2,12,a);
+    g.save();g.font='900 30px JumpSans';g.textAlign='center';g.fillStyle=p.c;g.shadowColor=p.c;g.shadowBlur=10;g.globalAlpha=a;g.fillText(p.s,X+w/2,Y+h/2+11);g.restore();p.cx=X+w/2;p.cy=Y+h/2});
+  const kf=sstep(T0('formula',.05),T0('formula',.05)+.4,t)*kb;
+  if(kf>.02){const fl=lineOf('formula'),q=k=>sstep(fl.t0+k*fl.voice,fl.t0+k*fl.voice+.5,t);
+    const pos=termRow([{s:'a²',col:'#7fe3ff',k:q(.05)},{s:'+'},{s:'2ab',col:'#ffd23f',k:q(.35)},{s:'+'},{s:'b²',col:'#ff8cd2',k:q(.7)}],200,44,kf);
+    if(pc[0].cx)link(pos[0],[pc[0].cx,pc[0].cy],'#7fe3ff',q(.05)*kf);if(pc[2].cx){link(pos[2],[pc[2].cx,pc[2].cy],'#ffd23f',q(.35)*kf);link(pos[2],[pc[3].cx,pc[3].cy],'#ffd23f',q(.35)*kf)}if(pc[1].cx)link(pos[4],[pc[1].cx,pc[1].cy],'#ff8cd2',q(.7)*kf)}
+  const kg=sstep(T0('forget',.3),T0('forget',.3)+.4,t)*kb;if(kg>.02){[2,3].forEach(i=>{const p=pc[i];if(p.cx)ring(p.cx,p.cy,30+6*Math.sin(t*3),'#ffd23f',2,kg)})}}
 // ---------- 式の項と図をつなぐ（静かに光る点線） ----------
 function termRow(terms,y,size,k){g.save();g.font='900 '+size+'px JumpSans';let w=0;terms.forEach(tm=>w+=g.measureText(tm.s).width+6);let x=270-w/2;const pos=[];
   terms.forEach(tm=>{const tw_=g.measureText(tm.s).width;const on=tm.k==null?1:tm.k;g.globalAlpha=k*(.45+.55*on);g.fillStyle=tm.col||'#e8eeff';g.shadowColor=g.fillStyle;g.shadowBlur=on>.5?14:4;g.fillText(tm.s,x,y);pos.push([x+tw_/2,y+8]);x+=tw_+6});g.restore();return pos}
@@ -210,7 +282,7 @@ const tw=(s,size)=>{let w=0;for(const ch of String(s))w+=ch.charCodeAt(0)<256?.5
 function T(x,y,size,txt,o={}){const a={x,y,'font-size':size,'font-weight':o.w||900,'text-anchor':o.a||'start','stroke-width':o.sw!=null?o.sw:Math.max(3,size*.2)};let st='';if(o.fill)st+='fill:'+o.fill+';';if(o.op!=null)st+='opacity:'+o.op+';';if(st)a.style=st;return el('text',a,txt)}
 function drawHud(t){hud.innerHTML='';const l=lineAt(t),a=clamp((t-l.t0)/.12,0,1);
   let y=l.cap.length>1?(LAB.cap_y||760):(LAB.cap_y||760)+22;l.cap.forEach((c,i)=>{const size=Math.min(44,400/tw(c,1));T(270,y+(1-a)*6,size,c,{a:'middle',sw:9,op:(.3+.7*a).toFixed(2),fill:i===l.cap.length-1?'#ffd23f':'#fff'});y+=size+12})}
-window.renderAt=function(t){bg();if(KIND==='pendwave')drawPend(t);else if(KIND==='pythag')drawPythag(t);else if(KIND==='deg360')drawDeg(t);else if(KIND==='piroll')drawPiroll(t);else if(KIND==='oddsq')drawOdd(t);else if(KIND==='gauss')drawGauss(t);drawHud(t);return{t}};
+window.renderAt=function(t){bg();if(KIND==='pendwave')drawPend(t);else if(KIND==='pythag')drawPythag(t);else if(KIND==='deg360')drawDeg(t);else if(KIND==='piroll')drawPiroll(t);else if(KIND==='oddsq')drawOdd(t);else if(KIND==='gauss')drawGauss(t);else if(KIND==='pizza')drawPizza(t);else if(KIND==='halves')drawHalves(t);else if(KIND==='binom')drawBinom(t);drawHud(t);return{t}};
 window.__info={total:DUR};
 Promise.all([400,700,900].map(w=>document.fonts.load(w+' 20px JumpSans','あ0'))).then(()=>{window.__fig={kind:'none'};window.__ready=true},e=>console.log('load error: '+e.message));
 </script></body></html>
