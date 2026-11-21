@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8">
+<style>
+@font-face{font-family:"JumpSans";font-weight:400;src:url(fonts_jp/NotoSansCJKjp-Regular.woff2) format("woff2")}
+@font-face{font-family:"JumpSans";font-weight:700;src:url(fonts_jp/NotoSansCJKjp-Bold.woff2) format("woff2")}
+@font-face{font-family:"JumpSans";font-weight:900;src:url(fonts_jp/NotoSansCJKjp-Black.woff2) format("woff2")}
+html,body{margin:0;background:#000}
+#stage{position:relative;width:540px;height:960px;overflow:hidden}
+#stage canvas{position:absolute;left:0;top:0}
+#hud{position:absolute;left:0;top:0;width:540px;height:960px;font-family:"JumpSans"}
+#hud text{paint-order:stroke;stroke:#0b1020;stroke-linejoin:round;fill:#fff}
+</style></head>
+<body><div id="stage"><svg id="hud" viewBox="0 0 540 960" xmlns="http://www.w3.org/2000/svg"></svg></div>
+<script src="vendor.js"></script>
+<script>
+// 円をほどく：円を細い輪に分け、輪を1本ずつまっすぐにのばすと直角三角形になる（πr² の中身）
+// 行の fx：hook（円。1秒で少しほどけて戻る）/ rings（輪に分かれる）/ cut（ほどき始め）/ stack（全部ほどける）/ long（長い辺＝2πr）/ short（短い辺＝r）/ area / end（円に戻る）
+// SPEC.labels: {n: 輪の数, R: 半径, hues:[a,b]}
+const getJ=u=>{const x=new XMLHttpRequest();x.open('GET',u,false);x.send();if(x.status!==200)throw new Error('読めない: '+u);return JSON.parse(x.responseText)};
+const ID=(new URLSearchParams(location.search).get('spec')||'unroll_ja').replace(/^.*\//,'').replace(/\.json$/,'');
+const SPEC=getJ('specs/'+ID+'.json'),TL=getJ('specs/'+ID+'_timeline.json');
+const W=540,H=960,DUR=TL.total;
+const clamp=(x,a,b)=>Math.min(b,Math.max(a,x)),lerp=(a,b,k)=>a+(b-a)*k,sstep=(a,b,x)=>{const k=clamp((x-a)/(b-a),0,1);return k*k*(3-2*k)};
+const LINES=SPEC.lines.map((l,i)=>Object.assign({},l,TL.beats[i]));
+const LAB=SPEC.labels||{};const N=LAB.n||22,R=LAB.R||3.2,M=220;
+const lineOf=fx=>LINES.find(x=>x.fx===fx);
+const lineAt=t=>LINES.find(x=>t>=x.t0-.02&&t<x.t1+.12)||LINES.filter(x=>x.t0<=t).pop()||LINES[0];
+const T0=(fx,a)=>{const l=lineOf(fx);return l?l.t0+(a||0)*l.voice:1e9};
+const renderer=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true});
+renderer.setPixelRatio(window.devicePixelRatio||1);renderer.setSize(W,H);
+document.getElementById('stage').prepend(renderer.domElement);
+const scene=new THREE.Scene();scene.background=new THREE.Color(0x0b1020);
+// うっすらした方眼（奥）
+{const g=new THREE.PlaneGeometry(80,80,40,40);const m=new THREE.Mesh(g,new THREE.MeshBasicMaterial({color:0x1b2440,wireframe:true,transparent:true,opacity:.35}));m.position.z=-3;scene.add(m)}
+const grp=new THREE.Group();scene.add(grp);grp.rotation.z=Math.PI/2;   // 長い辺がたてになるよう回す
+const hsl=(h,s,l)=>new THREE.Color().setHSL(h,s,l);
+const RINGS=[...Array(N)].map((_,i)=>{const r=(i+.5)/N*R,th=R/N*.78;const pos=new Float32Array((M+1)*2*3);const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.BufferAttribute(pos,3));
+  const idx=[];for(let k=0;k<M;k++){const a=2*k,b=2*k+1,c=2*k+2,d=2*k+3;idx.push(a,b,c,b,d,c)}geo.setIndex(idx);
+  const h=(LAB.hues?lerp(LAB.hues[0],LAB.hues[1],i/(N-1)):.52+.25*i/(N-1))%1;const mat=new THREE.MeshBasicMaterial({color:hsl(h,.75,.62),side:THREE.DoubleSide,transparent:true,opacity:.95});
+  const m=new THREE.Mesh(geo,mat);grp.add(m);
+  const glow=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({color:hsl(h,.9,.7),side:THREE.DoubleSide,transparent:true,opacity:0,blending:THREE.AdditiveBlending,depthWrite:false}));glow.scale.set(1,1,1);grp.add(glow);
+  return {i,r,th,geo,pos,m,glow,mat}});
+// 輪 i の形：アンカー（下の点）を固定し、曲率 s/r でのばす（s=1 で円、s→0 でまっすぐ）。gap は輪どうしのすき間
+function shape(R_,s,gap){const p=R_.pos,L=2*Math.PI*R_.r,rho=R_.r/Math.max(s,1e-4),ay=-R_.r*(1+gap);
+  for(let k=0;k<=M;k++){const sg=k/M*L*(s>.999?.997:1);const ph=sg/rho;let x,y,nx,ny;
+    if(s<1e-3){x=sg;y=0;nx=0;ny=1}else{x=rho*Math.sin(ph);y=rho*(1-Math.cos(ph));nx=-Math.sin(ph);ny=Math.cos(ph)}
+    const h=R_.th/2;p.set([x-nx*h,ay+y-ny*h,0,x+nx*h,ay+y+ny*h,0],k*6)}R_.geo.attributes.position.needsUpdate=true;R_.geo.computeBoundingSphere()}
+// 時刻ごとの、輪 i のほどけ具合 s と すき間
+function sOf(i,t){const w=(N-1-i)/(N-1);   // 外の輪から先にほどく
+  let s=1;
+  const h0=T0('hook',0)+0.9;s=Math.min(s,1-.35*sstep(h0,h0+.5,t)*(1-sstep(h0+.9,h0+1.5,t)));   // 1秒で少しほどけて戻る（形の変化）
+  const c0=T0('cut',.15),k0=T0('stack',.05);s=Math.min(s,lerp(1,.82,sstep(c0+w*.6,c0+w*.6+1.2,t)));
+  if(t>=k0){const a=k0+w*2.2;s=Math.min(s,lerp(.82,0,sstep(a,a+1.8,t)))}
+  const e0=T0('end',.05);if(t>=e0){const a=e0+(1-w)*1.2;s=lerp(s,1,sstep(a,a+1.8,t))}
+  return s}
+function gapOf(t){const g0=T0('rings',.1);let g=.0;g=lerp(0,.06,sstep(g0,g0+1.2,t));const e0=T0('end',.4);g=lerp(g,0,sstep(e0+1.2,e0+2.6,t));return g}
+// 辺の光る線と目印
+const lineMat=c=>new THREE.LineBasicMaterial({color:c,transparent:true,opacity:0});
+const longL=new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,-R-.05,0),new THREE.Vector3(2*Math.PI*R,-R-.05,0)]),lineMat(0xffd23f));grp.add(longL);
+const shortL=new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(-.05,-R,0),new THREE.Vector3(-.05,0,0)]),lineMat(0x7fe3ff));grp.add(shortL);
+const tri=new THREE.Mesh(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,-R,0),new THREE.Vector3(2*Math.PI*R,-R,0),new THREE.Vector3(0,0,0)]),new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0,side:THREE.DoubleSide,depthWrite:false,blending:THREE.AdditiveBlending}));tri.position.z=.01;grp.add(tri);
+// カメラ：円のときは円に寄り、三角形になったら全体を見る
+const cam=new THREE.PerspectiveCamera(36,W/H,.1,200);
+function camAt(t){const k=sstep(T0('stack',.1),T0('stack',.1)+3,t)*(1-sstep(T0('end',.2),T0('end',.2)+3,t));
+  const y=lerp(-1.6,4.2,k),z=lerp(24,54,k),x=lerp(0,R/2,k);const dr=.25*Math.sin(t*.3);return [new THREE.Vector3(x+dr,y,z),new THREE.Vector3(x,y,0)]}
+// HUD
+const NS='http://www.w3.org/2000/svg',hud=document.getElementById('hud');
+function el(tag,a,txt){const e=document.createElementNS(NS,tag);for(const k in a)e.setAttribute(k,a[k]);if(txt!=null)e.textContent=txt;hud.appendChild(e);return e}
+const tw=(s,size)=>{let w=0;for(const ch of String(s))w+=ch.charCodeAt(0)<256?.58:1;return w*size};
+function T(x,y,size,txt,o={}){const a={x,y,'font-size':size,'font-weight':o.w||900,'text-anchor':o.a||'start','stroke-width':o.sw!=null?o.sw:Math.max(3,size*.2)};let st='';if(o.fill)st+='fill:'+o.fill+';';if(o.op!=null)st+='opacity:'+o.op+';';if(st)a.style=st;return el('text',a,txt)}
+const proj=v=>{const p=v.clone().project(cam);return[(p.x+1)/2*W,(1-p.y)/2*H,p.z]};
+function wp(x,y){return new THREE.Vector3(x,y,0).applyMatrix4(grp.matrixWorld)}
+function drawHud(t){hud.innerHTML='';const l=lineAt(t),a=clamp((t-l.t0)/.12,0,1);
+  const kl=sstep(T0('long',.1),T0('long',.1)+.5,t)*(1-sstep(T0('end',0),T0('end',.6),t)),ks=sstep(T0('short',.1),T0('short',.1)+.5,t)*(1-sstep(T0('end',0),T0('end',.6),t));
+  if(kl>.02){const[x,y]=proj(wp(Math.PI*R,-R-.05));T(clamp(x+54,0,500),y,40,'2πr',{a:'middle',sw:8,op:kl.toFixed(2),fill:'#ffd23f'})}
+  if(ks>.02){const[x,y]=proj(wp(-.05,-R/2));T(x,y+44,40,'r',{a:'middle',sw:8,op:ks.toFixed(2),fill:'#7fe3ff'})}
+  let y=l.cap.length>1?720:742;l.cap.forEach((c,i)=>{const size=Math.min(48,480/tw(c,1));T(270,y+(1-a)*6,size,c,{a:'middle',sw:9,op:(.3+.7*a).toFixed(2),fill:i===l.cap.length-1?'#ffd23f':'#fff'});y+=size+12})}
+window.renderAt=function(t){const g=gapOf(t);
+  for(const R_ of RINGS){const s=sOf(R_.i,t);shape(R_,s,g);
+    // 伸びきった瞬間にほんのり光る
+    const w=(N-1-R_.i)/(N-1),k0=T0('stack',.05),a=k0+w*2.2+1.8;R_.glow.material.opacity=.55*Math.exp(-Math.pow((t-a)/.25,2))}
+  longL.material.opacity=.95*sstep(T0('long',.1),T0('long',.1)+.4,t)*(1-sstep(T0('end',0),T0('end',.5),t));
+  shortL.material.opacity=.95*sstep(T0('short',.1),T0('short',.1)+.4,t)*(1-sstep(T0('end',0),T0('end',.5),t));
+  tri.material.opacity=.16*sstep(T0('area',.2),T0('area',.2)+.6,t)*(1-sstep(T0('end',0),T0('end',.5),t));
+  grp.updateMatrixWorld(true);
+  const[p,q]=camAt(t);cam.position.copy(p);cam.lookAt(q);cam.updateProjectionMatrix();renderer.render(scene,cam);drawHud(t);return{t}};
+window.__info={total:DUR};
+Promise.all([400,700,900].map(w=>document.fonts.load(w+' 20px JumpSans','あ0'))).then(()=>{window.__fig={kind:'none'};window.__ready=true},e=>console.log('load error: '+e.message));
+</script></body></html>
