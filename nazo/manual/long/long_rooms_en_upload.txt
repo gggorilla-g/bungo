@@ -1,0 +1,24 @@
+【タイトル】
+6 Rooms, 6 Ways to Bounce: Light Trails in Circle, Ellipse, Square, Triangle, Hexagon and Stadium
+
+【説明】
+Small balls of light bounce inside six differently shaped rooms. Every wall hit plays one note and flashes where it lands, and each path leaves a slowly fading trail.
+
+Chapters
+0:00 Circle: seven paths draw star shapes, then a tiny nudge makes them drift into rosettes
+1:37 Ellipse: balls fired from one focus all pass through the other focus, and split every time they do
+3:15 Square: two paths close into loops, one never repeats and slowly fills the room
+4:52 Triangle: six balls from the center fold into a kaleidoscope
+6:30 Hexagon: a fan of 48 balls from one corner spreads like a wave
+8:07 Stadium: two balls that start almost exactly the same drift apart into completely different paths
+
+How it works
+- Every reflection follows the mirror rule: the angle in equals the angle out.
+- An ellipse sends any line from one focus through the other focus.
+- In a square, a path closes only when its slope is a fraction; otherwise it never repeats.
+- The stadium shape is chaotic: a difference of one millionth of a radian grows until the two paths share nothing.
+
+Simulation, sound and animation: original (Python). No AI-generated footage.
+
+【タグ】
+satisfying, physics simulation, billiards, light trails, geometry, bouncing balls, chaos, ellipse, math visualization, satisfying sounds
