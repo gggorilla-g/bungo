@@ -16,7 +16,8 @@ def parabola(sp):
     """放物線 y=x²/4f。上の線からまっすぐ落とすと、どのボールも道の長さ Y+f で焦点を通る（同時）。
     焦点を過ぎて反対側の壁で跳ね返ると、まっすぐ上に戻る（道の長さはまた Y+f）。1往復ごとにボールを増やす"""
     f, X, Y, v = 1.0, sp.get("X", 6.0), sp.get("Y", 14.0), sp.get("v", 6.4)
-    a = 4 * f * f / X; T = (Y + f) / v          # a: 戻ってこられるいちばん内側の x。T: 上の線→焦点の時間
+    ST = sp.get("stagger", 0.0)   # ボールごとに速さを変えて、着く時刻をずらす（オーナー 11/22）
+    a = 4 * f * f / X; T = (Y + f) / (v * (1 - ST))          # a: 戻ってこられるいちばん内側の x。T: 上の線→焦点の時間（いちばん遅いボールに合わせる）
     ms = sp.get("rounds", [2, 3, 5, 7, 11, 16]) + [sp.get("last", 24)]; intro, tail = .3, sp.get("tail", 1.2)
     sim = Sim(sp, (-X - .15, -.15, X + .15, Y + .15))
     sim.neon([(x, x * x / (4 * f)) for x in np.linspace(-X, X, 241)])
@@ -33,7 +34,9 @@ def parabola(sp):
                                       col=hsv(((j + .5) / m * .5 + (0 if side > 0 else .5)) % 1), done=0)); continue
                 balls.append(dict(pts=[(x1, Y), (x1, y1), (0, f), (x2, y2), (x2, Y)], cum=[0, Y - y1, Y + f, Y + 2 * f + y2, 2 * (Y + f)],
                                   col=hsv(((j + .5) / m * .5 + (0 if side > 0 else .5)) % 1), done=0))
-        n = len(balls); h1 = np.array([b["cum"][1] for b in balls]); h2 = np.array([b["cum"][3] for b in balls])
+        n = len(balls)
+        for i, b in enumerate(balls): b["spd"] = 1 - ST * ((i * .618 + r * .29) % 1)
+        h1 = np.array([b["cum"][1] / b["spd"] for b in balls]); h2 = np.array([b["cum"][3] / b["spd"] for b in balls])
         o1 = np.argsort(np.argsort(h1, kind="stable")); o2 = np.argsort(np.argsort(h2, kind="stable"))
         dec, g = 4 + 3 * math.sqrt(n / 5), .9 / math.sqrt(n)
         sim.chord(t0, [60, 67, 72])
@@ -52,7 +55,7 @@ def parabola(sp):
                 while b["done"] < 4: segs.append((b["pts"][b["done"]], b["pts"][b["done"] + 1], dim(b["col"], .30))); b["done"] += 1
         live, dots = [], []
         for b in balls:
-            cum, pts = b["cum"], b["pts"]; sc = min(s, cum[-1])
+            cum, pts = b["cum"], b["pts"]; sc = min(s * b.get("spd", 1), cum[-1])
             while b["done"] < 4 and cum[b["done"] + 1] <= sc: segs.append((pts[b["done"]], pts[b["done"] + 1], dim(b["col"], .30))); b["done"] += 1
             k = b["done"]; p = pts[4] if k >= 4 else lerp(pts[k], pts[k + 1], (sc - cum[k]) / (cum[k + 1] - cum[k]))
             if k < 4: live.append((pts[k], p, dim(b["col"], .7), lw))

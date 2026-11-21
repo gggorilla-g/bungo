@@ -67,7 +67,8 @@ def main(spec_path):
     c = math.sqrt(a * a - b * b); F1, F2 = np.array([0, c]), np.array([0, -c])  # 縦長：焦点は上下
     rng = np.random.default_rng(sp.get("seed", 1))
     n0, doubles = sp.get("n0", 5), sp.get("doubles", 8)
-    T_half = 2 * a / v                     # F1→壁→F2 の時間
+    ST = sp.get("stagger", 0.0)           # ボールごとに速さを少しずつ変えて、着く時刻をずらす（オーナー 11/22「全部同じタイミングはつまらない」）
+    T_half = 2 * a / (v * (1 - ST))        # F1→壁→F2 の時間（いちばん遅いボールに合わせる）
     hold = sp.get("hold", .08)             # 集まった瞬間に止める秒数
     # 時間割：各周 = F1→F2（T_half）＋止め＋F2→F1（T_half）＋止め
     cycle = 2 * (T_half + hold)
@@ -95,7 +96,7 @@ def main(spec_path):
     for k in range(doubles + 1):
         dirs = launch(n, rng.uniform(0, 2 * np.pi))
         hit1, l1 = path(dirs, F1)            # F1→壁
-        rounds.append(dict(n=n, hit=hit1, l1=l1, hue=np.array([(i / n + k * .13) % 1 for i in range(n)])))
+        rounds.append(dict(n=n, hit=hit1, l1=l1, hue=np.array([(i / n + k * .13) % 1 for i in range(n)]), spd=1 - ST * ((np.arange(n) / n + .37 * k) % 1)))
         n = int(round(n * sp.get("growth", 2)))
     # 音の出来事
     melodic = sp.get("melodic", True)
@@ -109,7 +110,7 @@ def main(spec_path):
                 if GLASS:   # 壁のどこに当たったかで音の高さを決める → 数がふえるたびに並びが変わり、重なったりずれたりする
                     ang = (np.arctan2(rd["hit"][:, 1], rd["hit"][:, 0]) / (2 * np.pi)) % 1; frac = ang
                 for i in range(rd["n"]):
-                    events.append((ts + ls[i] / v, "pb", PENTA[int(frac[i] * (len(PENTA) - 1) + .5)] + (12 if GLASS else 0), rd["n"]))
+                    events.append((ts + ls[i] / (v * rd["spd"][i]), "pb", PENTA[int(frac[i] * (len(PENTA) - 1) + .5)] + (12 if GLASS else 0), rd["n"]))
                 events.append((ts + T_half, "arrive", leg, rd["n"]))
             elif melodic:  # 1区間に目立つ反射3回まで、時刻順に ド・ミ・ソ（120ms以上あける）、到着の直前120msは空ける
                 tl = np.sort(ls / v); picks, last = [], -1
@@ -155,13 +156,14 @@ def main(spec_path):
                     acc = ImageChops.add(acc, tmp)
         im = ImageChops.add(bg, acc) if keep else bg.copy(); d = ImageDraw.Draw(im)
         k = int(max(0, t - intro) // cycle); k = min(k, doubles); rd = rounds[k]; u = t - intro - k * cycle
-        n = rd["n"]; hit = rd["hit"]; l1 = rd["l1"]
+        n = rd["n"]; hit = rd["hit"]; l1 = rd["l1"]; spd = rd["spd"]
         if t < intro: s, leg = 0, 0
         elif u < T_half: s, leg = u * v, 0
         elif u < T_half + hold: s, leg = 2 * a, 0
         elif u < 2 * T_half + hold: s, leg = (u - T_half - hold) * v, 1
         else: s, leg = 2 * a, 1
-        if t > intro + (doubles + 1) * cycle - hold: k, rd, s, leg = doubles, rounds[doubles], 2 * a, 1; n, hit, l1 = rd["n"], rd["hit"], rd["l1"]
+        if t > intro + (doubles + 1) * cycle - hold: k, rd, s, leg = doubles, rounds[doubles], 2 * a, 1; n, hit, l1, spd = rd["n"], rd["hit"], rd["l1"], rd["spd"]
+        S_ = np.minimum(2 * a, s * spd) if s < 2 * a else np.full(n, 2 * a)   # ボールごとの進んだ道のり
         A0, A1 = (F1, F2) if leg == 0 else (F2, F1)
         la = l1 if leg == 0 else 2 * a - l1
         cols = [hsv(h) for h in rd["hue"]]
@@ -169,23 +171,24 @@ def main(spec_path):
         pos = np.zeros((n, 2))
         for i in range(n):
             x0, y0 = to(A0); xh, yh = to(hit[i]); col = cols[i]
-            if s <= la[i]:
-                f = s / la[i]; pt = A0 + (hit[i] - A0) * f; xp, yp = to(pt); d.line([x0, y0, xp, yp], fill=tuple(int(c_ * .7) for c_ in col), width=lw)
+            si = S_[i]
+            if si <= la[i]:
+                f = si / la[i]; pt = A0 + (hit[i] - A0) * f; xp, yp = to(pt); d.line([x0, y0, xp, yp], fill=tuple(int(c_ * .7) for c_ in col), width=lw)
             else:
-                f = min(1, (s - la[i]) / (2 * a - la[i])); pt = hit[i] + (A1 - hit[i]) * f; xp, yp = to(pt)
+                f = min(1, (si - la[i]) / (2 * a - la[i])); pt = hit[i] + (A1 - hit[i]) * f; xp, yp = to(pt)
                 d.line([x0, y0, xh, yh], fill=tuple(int(c_ * .55) for c_ in col), width=lw); d.line([xh, yh, xp, yp], fill=tuple(int(c_ * .7) for c_ in col), width=lw)
             pos[i] = (xp, yp)
         if V2:   # 壁に当たった点が一瞬光る（当たった直後0.35秒で消える）
             gl_ = Image.new("RGB", (W * S // 4, H * S // 4)); gq = ImageDraw.Draw(gl_)
             for i in range(n):
-                dt_ = (s - la[i]) / v
+                dt_ = (S_[i] - la[i]) / (v * spd[i])
                 if 0 <= dt_ < .35:
                     xh, yh = to(hit[i]); al = 1 - dt_ / .35; rr = (10 + 26 * al) * S / 4; c_ = tuple(int(x * al) for x in cols[i])
                     gq.ellipse([xh / 4 - rr, yh / 4 - rr, xh / 4 + rr, yh / 4 + rr], fill=c_)
                     d.ellipse([xh - 5 * S, yh - 5 * S, xh + 5 * S, yh + 5 * S], fill=tuple(min(255, int(x * al + 255 * al * .5)) for x in cols[i]))
             im = ImageChops.add(im, gl_.filter(ImageFilter.GaussianBlur(4)).resize((W * S, H * S), Image.BILINEAR)); d = ImageDraw.Draw(im)
             # 枠も「ポーン」と軽く光る：直近に当たった数に応じて枠を明るく
-            hits_ = sum(max(0, 1 - ((s - la[i]) / v) / .3) for i in range(n) if s >= la[i])
+            hits_ = sum(max(0, 1 - ((S_[i] - la[i]) / (v * spd[i])) / .3) for i in range(n) if S_[i] >= la[i])
             pw = min(1, hits_ / max(2, n ** .5) * 1.2)
             if pw > .02:
                 fr = Image.new("RGB", (W * S // 4, H * S // 4)); ImageDraw.Draw(fr).ellipse([x_ / 4 for x_ in box], outline=tuple(int(c_ * pw) for c_ in (120, 230, 255)), width=max(2, 5 * S // 4))
