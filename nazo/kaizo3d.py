@@ -137,7 +137,7 @@ def _glass(f, sr, dur=2.4):
 def geo_notes(sp, tl, sr, add):
     """scene_geo.html と同じ時刻の式で、心地よい音を置く"""
     L = sp.get("labels", {}); kind = L.get("kind")
-    if kind not in ("pendwave", "pythag", "deg360"): return
+    if kind not in ("pendwave", "pythag", "deg360", "piroll", "oddsq", "gauss"): return
     bt = {b["id"]: b for b in tl["beats"]}; lines = [dict(l, **bt[l["id"]]) for l in sp["lines"]]
     def T0(fx, a=0):
         for l in lines:
@@ -167,6 +167,20 @@ def geo_notes(sp, tl, sr, add):
         for r in range(n):
             add(arr0 + r * .16 + 1.0, _glass(mf(deg(r % 10 + 3)), sr) * .13)
         add(T0("fill", .15), sum(_glass(mf(deg(i)), sr, 3.2) for i in (5, 7, 9)) * .09)
+    elif kind == "piroll":
+        rs = T0("roll", .05)
+        for i in range(5): add(rs + 3.6 * i / 4 * (1 - .15 * (i % 2)), _glass(mf(deg(i + 2)), sr) * .11)
+        for i in range(3): add(T0("measure", .15) + .25 + i * .7 + .65, _glass(mf(deg(5 + i * 2)), sr) * .12)
+        add(T0("three", .4), _glass(mf(deg(9)) * 2 ** (1 / 12), sr) * .07)
+        add(T0("pi", .2), sum(_glass(mf(deg(i)), sr, 3.2) for i in (5, 7, 9)) * .08)
+    elif kind == "oddsq":
+        Ls = ["one", "three", "five", "seven", "seven"]
+        for k in range(5):
+            t0 = T0(Ls[k], .12) if k < 4 else T0("seven", .55)
+            for m in range(2 * k + 1): add(t0 + m * .12 + .6, _glass(mf(deg(k + m % 3 + 1)), sr) * (.10 / (1 + k * .15)))
+    elif kind == "gauss":
+        for i in range(10): add(T0("stairs", .1) + i * .26 + .4, _glass(mf(deg(i)), sr) * .11)
+        add(T0("fit", .1) + 1.6, sum(_glass(mf(deg(i)), sr, 3.2) for i in (5, 7, 9)) * .08)
     elif kind == "deg360":
         ns = L.get("ns", [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]); step = L.get("step", .95)
         for i, n in enumerate(ns):
