@@ -119,7 +119,63 @@ def sfx_track(sid, sp, tl, sr):
             add(at, (np.sin(2 * np.pi * 1850 * t) + .5 * np.sin(2 * np.pi * 2900 * t)) * np.exp(-t * 12) * .35)
         if fx == "fire":                                                # 的に当たる「コン」だけ
             knock(at + .55, 1200, .4)
+    geo_notes(sp, tl, sr, add)
     return out
+
+
+PENTA_STEPS = [0, 2, 4, 7, 9]
+
+
+def _glass(f, sr, dur=2.4):
+    """やわらかいガラスの音（高い音ほど小さく、上限 A5）"""
+    while f > 880: f /= 2
+    t = np.arange(int(sr * dur)) / sr
+    s = np.sin(2 * np.pi * f * t) + .32 * np.sin(2 * np.pi * f * 2.0 * t) * np.exp(-t * 3) + .12 * np.sin(2 * np.pi * f * 3.01 * t) * np.exp(-t * 5)
+    return (s * np.exp(-t * 2.2) * np.minimum(1, t / .006) * (f / 440) ** -.35).astype(np.float32)
+
+
+def geo_notes(sp, tl, sr, add):
+    """scene_geo.html と同じ時刻の式で、心地よい音を置く"""
+    L = sp.get("labels", {}); kind = L.get("kind")
+    if kind not in ("pendwave", "pythag", "deg360"): return
+    bt = {b["id"]: b for b in tl["beats"]}; lines = [dict(l, **bt[l["id"]]) for l in sp["lines"]]
+    def T0(fx, a=0):
+        for l in lines:
+            if l.get("fx") == fx: return l["t0"] + a * l["voice"]
+        return 1e9
+    mf = lambda m: 440 * 2 ** ((m - 69) / 12)
+    root = L.get("root", 57)
+    deg = lambda i: root + 12 * (i // 5) + PENTA_STEPS[i % 5]
+    if kind == "pendwave":
+        n, N0 = L.get("n", 12), L.get("N0", 20)
+        ts = T0("start", .1); te = T0("end", .05) + L.get("end_pad", 1.0); Tc = te - ts
+        hk0, hk1 = lines[0]["t0"], lines[0]["t1"]; off = Tc * L.get("hook_off", .31)
+        for k in range(n):
+            T = Tc / (N0 + k); tone = _glass(mf(deg(k)), sr) * .10
+            # 冒頭（シミュ時間 = t - hk0 + off）
+            m = int(np.ceil(off / T))
+            while True:
+                t = hk0 + m * T - off
+                if t > hk1 - .2: break
+                if t >= hk0 + .05: add(t, tone * .8)
+                m += 1
+            m = 0
+            while ts + m * T <= tl["total"] - .3:
+                add(ts + m * T, tone * (1.6 if abs(ts + m * T - te) < .05 else 1)); m += 1
+    elif kind == "pythag":
+        arr0 = T0("move", .35); n = 25
+        for r in range(n):
+            add(arr0 + r * .16 + 1.0, _glass(mf(deg(r % 10 + 3)), sr) * .13)
+        add(T0("fill", .15), sum(_glass(mf(deg(i)), sr, 3.2) for i in (5, 7, 9)) * .09)
+    elif kind == "deg360":
+        ns = L.get("ns", [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]); step = L.get("step", .95)
+        for i, n in enumerate(ns):
+            t = T0("divide", .25) + i * step
+            if 360 % n == 0: add(t, _glass(mf(deg(i + 2)), sr) * .14)
+            else: add(t, _glass(mf(deg(i + 2)) * 2 ** (1 / 12), sr) * .07)   # 割り切れない数は小さく、少しずれた音
+        add(T0("seven", .05), _glass(mf(deg(5)) * 2 ** (1 / 12), sr) * .07); add(T0("seven", .5), _glass(mf(deg(8)) * 2 ** (1 / 12), sr) * .07)
+        add(T0("hundred", .1), _glass(mf(deg(3)) * 2 ** (1 / 12), sr) * .07)
+        for i in range(24): add(T0("count", .15) + i * 1.2 / 24, _glass(mf(deg(i % 10 + 4)), sr, 1.2) * .06)
 
 
 def build(sid, bgm=None, gpu=False, jobs=2, audio_only=False):

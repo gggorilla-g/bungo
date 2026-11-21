@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8">
+<style>
+@font-face{font-family:"JumpSans";font-weight:400;src:url(fonts_jp/NotoSansCJKjp-Regular.woff2) format("woff2")}
+@font-face{font-family:"JumpSans";font-weight:700;src:url(fonts_jp/NotoSansCJKjp-Bold.woff2) format("woff2")}
+@font-face{font-family:"JumpSans";font-weight:900;src:url(fonts_jp/NotoSansCJKjp-Black.woff2) format("woff2")}
+html,body{margin:0;background:#070a16}
+#stage{position:relative;width:540px;height:960px;overflow:hidden;background:#070a16}
+#cv{position:absolute;left:0;top:0;width:540px;height:960px}
+#hud{position:absolute;left:0;top:0;width:540px;height:960px;font-family:"JumpSans"}
+#hud text{paint-order:stroke;stroke:#070a16;stroke-linejoin:round;fill:#fff}
+</style></head>
+<body><div id="stage"><canvas id="cv"></canvas><svg id="hud" viewBox="0 0 540 960" xmlns="http://www.w3.org/2000/svg"></svg></div>
+<script>
+// 幾何の雑学（2D ネオン、ヒーリング寄り）。labels.kind: pendwave（振り子の波）/ pythag（三平方）/ deg360（円はなぜ360度）
+// 音は kaizo3d.py の geo_notes が、このページと同じ時刻の式で鳴らす（式を変えたら両方直す）
+const getJ=u=>{const x=new XMLHttpRequest();x.open('GET',u,false);x.send();if(x.status!==200)throw new Error('読めない: '+u);return JSON.parse(x.responseText)};
+const ID=(new URLSearchParams(location.search).get('spec')||'geo_ja').replace(/^.*\//,'').replace(/\.json$/,'');
+const SPEC=getJ('specs/'+ID+'.json'),TL=getJ('specs/'+ID+'_timeline.json');
+const W=540,H=960,DUR=TL.total,LAB=SPEC.labels||{},KIND=LAB.kind;
+const clamp=(x,a,b)=>Math.min(b,Math.max(a,x)),lerp=(a,b,k)=>a+(b-a)*k,sstep=(a,b,x)=>{const k=clamp((x-a)/(b-a),0,1);return k*k*(3-2*k)};
+const LINES=SPEC.lines.map((l,i)=>Object.assign({},l,TL.beats[i]));
+const lineOf=fx=>LINES.find(x=>x.fx===fx);
+const lineAt=t=>LINES.find(x=>t>=x.t0-.02&&t<x.t1+.12)||LINES.filter(x=>x.t0<=t).pop()||LINES[0];
+const T0=(fx,a)=>{const l=lineOf(fx);return l?l.t0+(a||0)*l.voice:1e9};
+const cv=document.getElementById('cv'),DPR=window.devicePixelRatio||1;cv.width=W*DPR;cv.height=H*DPR;const g=cv.getContext('2d');g.scale(DPR,DPR);
+const hsl=(h,s,l,a)=>`hsla(${(h*360)%360},${s*100}%,${l*100}%,${a==null?1:a})`;
+function glowLine(pts,col,w,blur,alpha){g.save();g.globalAlpha=alpha==null?1:alpha;g.strokeStyle=col;g.lineWidth=w;g.lineCap='round';g.lineJoin='round';g.shadowColor=col;g.shadowBlur=blur;g.beginPath();pts.forEach((p,i)=>i?g.lineTo(p[0],p[1]):g.moveTo(p[0],p[1]));g.stroke();g.restore()}
+function dot(x,y,r,col,blur,alpha){g.save();g.globalAlpha=alpha==null?1:alpha;g.fillStyle=col;g.shadowColor=col;g.shadowBlur=blur;g.beginPath();g.arc(x,y,r,0,7);g.fill();g.restore()}
+function ring(x,y,r,col,w,alpha){g.save();g.globalAlpha=alpha;g.strokeStyle=col;g.lineWidth=w;g.shadowColor=col;g.shadowBlur=10;g.beginPath();g.arc(x,y,r,0,7);g.stroke();g.restore()}
+function bg(){g.fillStyle='#070a16';g.fillRect(0,0,W,H);const r=g.createRadialGradient(270,430,40,270,430,520);r.addColorStop(0,'rgba(40,60,120,.22)');r.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=r;g.fillRect(0,0,W,H)}
+// ---------- 振り子の波 ----------
+const PW=(()=>{if(KIND!=='pendwave')return null;const n=LAB.n||12,N0=LAB.N0||20,A=(LAB.amp||24)*Math.PI/180;
+  const ts=T0('start',.1),te=T0('end',.05)+(LAB.end_pad||1.0),Tc=te-ts,hk0=LINES[0].t0,hk1=LINES[0].t1,off=Tc*(LAB.hook_off||.31);
+  const T=[...Array(n)].map((_,k)=>Tc/(N0+k)),Lmax=LAB.lmax||560,Ls=T.map(x=>Lmax*Math.pow(x/T[0],2));
+  // 時刻 t のシミュ時間（null は右端で止まって待つ）
+  const sim=t=>t<hk1+.15?(t-hk0+off):(t<ts?null:t-ts);
+  const ang=(k,t)=>{const s=sim(t);return s==null?A:A*Math.cos(2*Math.PI*s/T[k])};
+  return {n,A,T,Ls,ang,sim,ts,te,hk1}})();
+function drawPend(t){const P=PW,px=270,py=150;const hook=t<P.hk1+.15,fadeIn=hook?sstep(LINES[0].t0,LINES[0].t0+.6,t):sstep(P.hk1+.15,P.hk1+.9,t);
+  // 冒頭から本編へ：一度暗くして、そろった形から始め直す
+  const vis=hook?fadeIn*(1-sstep(P.hk1-.25,P.hk1+.15,t)):fadeIn;
+  glowLine([[px-60,py],[px+60,py]],'rgba(160,190,255,.9)',3,8,vis);
+  for(let k=P.n-1;k>=0;k--){const h=.52+.36*k/(P.n-1),col=hsl(h,.85,.66),L=P.Ls[k];
+    // 軌跡（少し前までの位置）
+    const tr=[];for(let j=24;j>=0;j--){const tt=t-j*.025;const a=P.ang(k,tt);tr.push([px+L*Math.sin(a),py+L*Math.cos(a)])}
+    for(let j=1;j<tr.length;j++)glowLine([tr[j-1],tr[j]],col,2.2,6,vis*.55*j/tr.length);
+    const a=P.ang(k,t),x=px+L*Math.sin(a),y=py+L*Math.cos(a);
+    glowLine([[px,py],[x,y]],hsl(h,.4,.75,.35),1,0,vis);
+    dot(x,y,4.2,col,14,vis);
+    // 右端に来た瞬間にほんのり光る
+    const s=P.sim(t);if(s!=null){const ph=(s/P.T[k])%1,d=Math.min(ph,1-ph)*P.T[k];if(d<.22)ring(x,y,6+d*40,col,1.6,vis*(1-d/.22)*.8)}}
+  // 長さの比べ（len の行）
+  const kl=sstep(T0('len',.15),T0('len',.15)+.5,t)*(1-sstep(T0('clock',0),T0('clock',.3),t));
+  if(kl>.02){const k1=P.n-1;const L1=P.Ls[k1],L0=P.Ls[0];glowLine([[60,py],[60,py+L0]],'rgba(255,210,63,.9)',3,10,kl);glowLine([[86,py],[86,py+L1]],'rgba(127,227,255,.9)',3,10,kl)}}
+// ---------- 三平方 ----------
+const PY=(()=>{if(KIND!=='pythag')return null;const u=LAB.u||40,a=3,b=4;
+  // 直角の頂点 O、たての辺（長さ3）を上へ、よこの辺（長さ4）を右へ
+  const O=[150,600],A=[150,600-a*u],B=[150+b*u,600];
+  const src=[];for(let i=0;i<a;i++)for(let j=0;j<a;j++)src.push([O[0]-(j+.5)*u,O[1]-(i+.5)*u,0]);
+  for(let i=0;i<b;i++)for(let j=0;j<b;j++)src.push([O[0]+(j+.5)*u,O[1]+(i+.5)*u,1]);
+  // 斜辺の正方形（外向き）。斜辺 A→B、外向きの法線
+  const dx=(B[0]-A[0])/5,dy=(B[1]-A[1])/5,nx=dy,ny=-dx;   // 長さ u の方向ベクトルと外向き法線
+  const dst=[];for(let i=0;i<5;i++)for(let j=0;j<5;j++)dst.push([A[0]+dx*(j+.5)+nx*(i+.5),A[1]+dy*(j+.5)+ny*(i+.5)]);
+  // 近い順に割り当てる（見た目の流れを自然に）
+  const order=src.map((p,i)=>i).sort((i,j)=>(src[i][1]-src[j][1])||(src[i][0]-src[j][0]));
+  const dorder=dst.map((p,i)=>i).sort((i,j)=>(dst[i][1]-dst[j][1])||(dst[i][0]-dst[j][0]));
+  const map={};order.forEach((si,r)=>map[si]=dorder[r]);
+  return {u,O,A,B,src,dst,map,order,dx,dy,nx,ny}})();
+const PY_GAP=.16,PY_FLY=1.0;
+function pyArr(r){return T0('move',.35)+r*PY_GAP+PY_FLY}
+function drawPythag(t){const P=PY;const s0=LINES[0].t0;
+  const kt=sstep(s0,s0+.7,t),ks=sstep(s0+.7,s0+1.3,t);
+  glowLine([P.O,P.A,P.B,P.O],'rgba(235,240,255,.95)',3,12,kt);
+  const sq=(p,col,k)=>{glowLine([...p,p[0]],col,2.4,14,k)};
+  const u=P.u,O=P.O;
+  sq([[O[0],O[1]],[O[0]-3*u,O[1]],[O[0]-3*u,O[1]-3*u],[O[0],O[1]-3*u]],'rgba(127,227,255,.9)',ks);
+  sq([[O[0],O[1]],[O[0]+4*u,O[1]],[O[0]+4*u,O[1]+4*u],[O[0],O[1]+4*u]],'rgba(255,140,210,.9)',ks);
+  const C=[P.A,P.B,[P.B[0]+P.nx*5,P.B[1]+P.ny*5],[P.A[0]+P.nx*5,P.A[1]+P.ny*5]];sq(C,'rgba(255,210,63,.9)',ks);
+  const kd=sstep(T0('show',.1),T0('show',.1)+.8,t);
+  P.order.forEach((si,r)=>{const s=P.src[si],d=P.dst[P.map[si]],col=s[2]?hsl(.9,.8,.72):hsl(.52,.85,.7);
+    const t1=pyArr(r),t0=t1-PY_FLY;let x=s[0],y=s[1];
+    if(t>=t0){const k=sstep(t0,t1,t),arc=Math.sin(k*Math.PI)*26;x=lerp(s[0],d[0],k);y=lerp(s[1],d[1],k)-arc}
+    const back=T0('end',.4);if(t>back){const k=sstep(back+r*.03,back+r*.03+1.2,t);x=lerp(d[0],s[0],k);y=lerp(d[1],s[1],k)}
+    dot(x,y,4.6,col,12,kd);
+    const dd=t-t1;if(dd>0&&dd<.5&&t<back)ring(d[0],d[1],5+dd*30,'rgba(255,210,63,1)',1.4,(1-dd/.5)*.8)});
+  // 文字 a² b² c²
+  const kf=sstep(T0('formula',.1),T0('formula',.1)+.4,t)*(1-sstep(T0('end',0),T0('end',.4),t));
+  if(kf>.02){g.save();g.globalAlpha=kf;g.font='900 30px JumpSans';g.fillStyle='#7fe3ff';g.shadowColor='#7fe3ff';g.shadowBlur=10;g.textAlign='center';g.fillText('a²',O[0]-1.5*u,O[1]-1.5*u+10);
+    g.fillStyle='#ff8cd2';g.shadowColor='#ff8cd2';g.fillText('b²',O[0]+2*u,O[1]+2*u+10);const cc=[(C[0][0]+C[2][0])/2,(C[0][1]+C[2][1])/2];g.fillStyle='#ffd23f';g.shadowColor='#ffd23f';g.fillText('c²',cc[0],cc[1]+10);g.restore()}}
+// ---------- 360度 ----------
+const DG=(()=>{if(KIND!=='deg360')return null;const ns=LAB.ns||[2,3,4,5,6,7,8,9,10,11,12],step=LAB.step||.95;return {ns,step}})();
+function dgStart(i){return T0('divide',.25)+i*DG.step}
+function drawDeg(t){const cx=270,cy=420,R=190;const s0=LINES[0].t0;
+  const k0=sstep(s0,s0+.6,t);
+  // 冒頭：円が描かれ、1秒で360本の細い目盛りが回り込む
+  const kc=sstep(s0,s0+1.0,t);const pts=[];for(let i=0;i<=120*kc;i++){const a=-Math.PI/2+i/120*2*Math.PI;pts.push([cx+R*Math.cos(a),cy+R*Math.sin(a)])}
+  if(pts.length>1)glowLine(pts,'rgba(150,200,255,.95)',3,14,1);
+  const kt=sstep(s0+.9,s0+1.6,t)*(1-sstep(T0('divide',0),T0('divide',.2),t));
+  if(kt>.02){g.save();g.globalAlpha=kt*.55;g.strokeStyle='#9fc3ff';g.lineWidth=1;for(let i=0;i<360;i++){const a=i/360*2*Math.PI,r1=R-(i%10?6:12);g.beginPath();g.moveTo(cx+r1*Math.cos(a),cy+r1*Math.sin(a));g.lineTo(cx+R*Math.cos(a),cy+R*Math.sin(a));g.stroke()}g.restore()}
+  // 分割（いまの n）
+  let cur=-1;DG.ns.forEach((n,i)=>{if(t>=dgStart(i))cur=i});
+  const hold=t>=T0('count',0);if(hold&&t<T0('hundred',0))cur=DG.ns.indexOf(12);
+  let n=cur>=0?DG.ns[cur]:0,ok=n&&360%n===0;
+  const sev=t>=T0('seven',.05)&&t<T0('count',0),sv2=t>=T0('seven',.5);if(sev){n=sv2?11:7;ok=false}
+  const hun=t>=T0('hundred',.1)&&t<T0('origin',0);if(hun){n=3;ok=false}
+  if(n&&t<T0('end',.3)){const ts=hun?T0('hundred',.1):sev?(sv2?T0('seven',.5):T0('seven',.05)):(hold?T0('count',0):dgStart(cur)),k=sstep(ts,ts+.45,t);
+    const col=ok?'rgba(127,227,255,.95)':'rgba(255,120,140,.95)';
+    for(let i=0;i<n;i++){const a=-Math.PI/2+i/n*2*Math.PI;glowLine([[cx,cy],[cx+R*k*Math.cos(a),cy+R*k*Math.sin(a)]],col,2.2,10,1)}
+    dot(cx,cy,4,col,10,1);
+    const v=hun?100/3:360/n,txt=(hun?'100':'360')+' ÷ '+n+' = '+(Number.isInteger(v)?v:v.toFixed(2)+'…');
+    g.save();g.font='900 34px JumpSans';g.textAlign='center';g.fillStyle=ok?'#7fe3ff':'#ff8a9c';g.shadowColor=g.fillStyle;g.shadowBlur=12;g.globalAlpha=k;g.fillText(txt,cx,cy+R+78);g.restore();
+    const dd=t-ts;if(dd>0&&dd<.6)ring(cx,cy,R+dd*30,ok?'rgba(127,227,255,1)':'rgba(255,120,140,1)',2,(1-dd/.6)*.6)}
+  // 約数24個（count の行）：外周に24個の点
+  const kd=sstep(T0('count',.15),T0('count',.15)+1.2,t)*(1-sstep(T0('hundred',0),T0('hundred',.3),t));
+  if(kd>.02){const dv=[];for(let i=1;i<=360;i++)if(360%i===0)dv.push(i);dv.forEach((d,i)=>{const a=-Math.PI/2+i/24*2*Math.PI,kk=clamp(kd*24-i,0,1);dot(cx+(R+26)*Math.cos(a),cy+(R+26)*Math.sin(a),3.6,'#ffd23f',10,kk)})}}
+// ---------- 字幕 ----------
+const NS='http://www.w3.org/2000/svg',hud=document.getElementById('hud');
+function el(tag,a,txt){const e=document.createElementNS(NS,tag);for(const k in a)e.setAttribute(k,a[k]);if(txt!=null)e.textContent=txt;hud.appendChild(e);return e}
+const tw=(s,size)=>{let w=0;for(const ch of String(s))w+=ch.charCodeAt(0)<256?.58:1;return w*size};
+function T(x,y,size,txt,o={}){const a={x,y,'font-size':size,'font-weight':o.w||900,'text-anchor':o.a||'start','stroke-width':o.sw!=null?o.sw:Math.max(3,size*.2)};let st='';if(o.fill)st+='fill:'+o.fill+';';if(o.op!=null)st+='opacity:'+o.op+';';if(st)a.style=st;return el('text',a,txt)}
+function drawHud(t){hud.innerHTML='';const l=lineAt(t),a=clamp((t-l.t0)/.12,0,1);
+  let y=l.cap.length>1?(LAB.cap_y||760):(LAB.cap_y||760)+22;l.cap.forEach((c,i)=>{const size=Math.min(44,400/tw(c,1));T(270,y+(1-a)*6,size,c,{a:'middle',sw:9,op:(.3+.7*a).toFixed(2),fill:i===l.cap.length-1?'#ffd23f':'#fff'});y+=size+12})}
+window.renderAt=function(t){bg();if(KIND==='pendwave')drawPend(t);else if(KIND==='pythag')drawPythag(t);else if(KIND==='deg360')drawDeg(t);drawHud(t);return{t}};
+window.__info={total:DUR};
+Promise.all([400,700,900].map(w=>document.fonts.load(w+' 20px JumpSans','あ0'))).then(()=>{window.__fig={kind:'none'};window.__ready=true},e=>console.log('load error: '+e.message));
+</script></body></html>
