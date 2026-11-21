@@ -411,7 +411,8 @@
 - コンセプト：世の中のUIの裏にある本当のしくみ。いちばん面白かったのは πr²（円をほどく）
 - 数字・式の項が、図のどこに対応するかを、ヒーリング的な静かな動きで見せる（項から図へ点線がのび、着いた所がほんのり光る）
 - 実際の振り子・物理・数学の幾何やパターンを題材に、シンプルな画と心地よい音（scene_geo、geo_notes で画と同じ時刻にガラスの音）
-- 作成：geo_pendulum_ja（振り子の波）、geo_pythag_ja（三平方）、geo_deg360_ja（360度）、geo_pi_ja（円周率）、geo_odd_ja（奇数の和）、geo_gauss_ja（1から10の和）
+- 公開（11/21夜、即時・API）：twVOHQ-jA_s geo_pendulum_ja（振り子の波）、L_KEhxz36PM geo_pythag_ja（三平方）、PtOTMvf2eFg geo_deg360_ja（360度）、fbMypSYheM4 geo_pi_ja（円周率）、WuBlpvjcfVM geo_odd_ja（奇数の和）、iUrqYgorWGY geo_gauss_ja（1から10の和）
+- コメ返（11/21夜）：妄想科学2件（揃う瞬間／パラボラ）、雑学1件（消費税、どちらにも寄らない返し）、MIW2件
 - 音：上限 A5、やわらかいローパス。玉は点くらい、光の輪も小さく（視認性）
 
 ### 11/21 英語は焼き直し禁止
