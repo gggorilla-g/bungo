@@ -10,6 +10,7 @@ import json, os, re, subprocess, sys, wave
 import numpy as np
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "src"))
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "tools"))
 import render, moso3d
 
 KZ = "nazo/kaizo"
