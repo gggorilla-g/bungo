@@ -380,6 +380,12 @@
 - 政治・制度は、国の説明と主な批判を両方入れ、どちらにも寄らない。出典を説明欄に書く
 - 作成：civic_tax_ja（消費税のはじまり、scene_civic）、formula_circle_ja（円の面積、scene_unroll）
 
+### 11/21 公開（どんどん作る分）
+- 雑学（即時公開・API）：ealI1hEINVI battle_nagashino_ja（長篠・柵と鉄砲）、H_Fdmqma8HA battle_okehazama_ja（桶狭間・雨）、8Eh8L9hqC1A battle_sekigahara_ja（関ヶ原・寝返り）、1f0GpCmpZJU civic_tax_ja（消費税のはじまり、scene_civic）、FXVYDryPm54 formula_circle_ja（円の面積 πr²、scene_unroll）
+- MIW（英語専用、日本語版なし）：nR9oCqEIu9A mushroom1_en（キノコ形の部屋）、brrS7Um7ZG0 star1_en（星形、0.1度のずれ）、KLI90Jf0zv4 dshape1_en（D形）。tools/longbill.py の縦版
+- scene_battle に柵（fences）・一斉射撃（volleys）・雨（rain）を追加
+- コメ返（オーナー依頼「いいねのみしてるコメントにも返信」）：ハートだけ付けていた13件（妄想科学8・雑学5）に返信。途中で一覧の並びが変わり2件を取りちがえたが、返信の編集で直した（削除なし）
+
 ### 11/21 英語は焼き直し禁止
 - オーナー観測：妄想科学と同じ動画を英語にしただけの MIW の回は、YouTube がおすすめに配らない（公開はされるが届かない）っぽい。以後、英語版は別の映像として作る（形・動き・色・音・構成を変える）。同じ動画の英訳は上げない
 
