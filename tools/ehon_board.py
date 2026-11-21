@@ -6,8 +6,8 @@
 import json, sys, os, re
 
 DARK = ("overcast", "rain", "low_overcast")          # 暗い背景では本文を明るい色に
-FAM = lambda n: "pino" if n.startswith("mouse") else "lulu" if n.startswith("snail") else "both" if n.startswith("pino_lulu") else n
-POS = {"pino": (-.65, .4), "lulu": (.75, 0), "both": (0, 0), "leaf": (.3, -.3), "drop": (0, 0)}
+FAM = lambda n: "pino" if n.startswith("mouse") else "lulu" if n.startswith("snail") else "both" if n.startswith("pino_lulu") else "leaf" if n.startswith("leaf") else "petal" if n.startswith("petal") else n
+POS = {"pino": (-.65, .4), "lulu": (.75, 0), "both": (0, 0), "leaf": (.3, -.3), "drop": (0, 0), "petal": (.55, .05)}
 WALK = ["mouse_walk_a", "mouse_walk_b", "mouse_walk_c", "mouse_walk_d"]
 BIG = {"name": "pochan", "from": 0, "dur": .6, "gain": .8, "lp": 9000, "fin": 0}
 SMALL = {"name": "pichon", "from": 0, "dur": .45, "gain": .6, "lp": 9000, "fin": 0}
@@ -69,7 +69,7 @@ def main(board, assets, sid, title=None):
                 fam = FAM(n); base = POS.get(fam, (0, 0))
                 if fam not in cur["_fam"]:
                     it = {"img": n, "x": base[0], "z": base[1], "_fam": fam, "acts": []}
-                    if n == "leaf": it.update(h=.34, auto=False)
+                    if n.startswith("leaf"): it.update(h=.34, auto=False)
                     if n.startswith("snail"): it["face"] = -1
                     if cur["lines"] or cur["cam"]: it["show"] = at
                     cur["items"].append(it); cur["_fam"][fam] = it
@@ -122,7 +122,7 @@ def main(board, assets, sid, title=None):
     bd = json.load(open(board))
     sp = {"id": sid, "title": title or "えほん", "title_say": bd.get("title_say", ""), "assets": assets, "voice": {"vvm": "6.vvm", "style": 31, "speed": .86, "vol": 1.5},
           "sfx_files": {"rain": "assets/sfx/yt_light_rain.mp3", "thunder": "assets/sfx_pd/thunder.ogg", "drip": "assets/sfx_pd/drip.ogg", "breeze": "assets/sfx_pd/breeze.ogg", "pochan": "assets/sfx_gen/pochan.wav", "pichon": "assets/sfx_gen/pichon.wav"},
-          "world": {"pino": ["head_w", .44], "lulu": ["shell_d", .55], "leaf": ["len", 1.1], "drop": ["h", .09], "flower": ["w", .9]},
+          "world": {"pino": ["head_w", .44], "lulu": ["shell_d", .55], "leaf": ["len", 1.1], "drop": ["h", .09], "flower": ["w", .9], "petal": ["w", .3]},
           "scale_alias": {"pino_lulu_leaf_smile": "pino_lulu_leaf_sit", "mouse_stop": "mouse_walk"},
           "title_sec": 5.5, "min_shot": 3.0, "cover": "cover", "logo_rel": "ehon/brand/logo_sil_light.png", "output": {"width": 1920, "height": 1080}, "music_gain": .2, "pages": pages}
     json.dump(sp, open(f"nazo/ehon/{sid}.json", "w"), ensure_ascii=False, indent=1); print("ページ", len(pages), "ビート", len(B))

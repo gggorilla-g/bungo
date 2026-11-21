@@ -1,0 +1,383 @@
+{
+ "title_say": "みずたまりの、おさら",
+ "beats": [
+  {
+   "text": "あめあがりの のはらに、",
+   "shot": {
+    "kind": "stage",
+    "bg": "bg_puddle",
+    "frame": "wide",
+    "focus": "both",
+    "items": [
+     "mouse_stand",
+     "snail"
+    ],
+    "action": ""
+   },
+   "say": "雨上がりの野原に、",
+   "sfx": [
+    "草を渡る風"
+   ]
+  },
+  {
+   "text": "ちいさな みずたまりが できました。",
+   "shot": {
+    "kind": "stage",
+    "bg": "bg_puddle",
+    "frame": "wide",
+    "focus": "both",
+    "items": [
+     "mouse_stand",
+     "snail"
+    ],
+    "action": ""
+   },
+   "say": "小さな水たまりが、できました。"
+  },
+  {
+   "text": "こねずみの ピノが のぞきこむと、",
+   "shot": {
+    "kind": "stage",
+    "bg": "bg_puddle",
+    "frame": "mid",
+    "focus": "pino",
+    "items": [
+     "mouse_stand"
+    ],
+    "action": ""
+   },
+   "say": "子ねずみのピノが、のぞきこむと、"
+  },
+  {
+   "text": "そらが うつって いました。",
+   "shot": {
+    "kind": "stage",
+    "bg": "bg_puddle",
+    "frame": "mid",
+    "focus": "pino",
+    "items": [
+     "mouse_stand"
+    ],
+    "action": ""
+   },
+   "say": "空が、うつっていました。"
+  },
+  {
+   "text": "かたつむりの ルルも、やって きました。",
+   "shot": {
+    "kind": "stage",
+    "bg": "bg_puddle",
+    "frame": "wide",
+    "focus": "both",
+    "items": [
+     "mouse_stand",
+     "snail"
+    ],
+    "action": ""
+   },
+   "say": "かたつむりのルルも、やってきました。"
+  },
+  {
+   "text": "",
+   "shot": {
+    "kind": "stage",
+    "bg": "bg_puddle",
+    "frame": "wide",
+    "focus": "both",
+    "items": [
+     "mouse_stand",
+     "snail"
+    ],
+    "action": ""
+   },
+   "dur": 3
+  },
+  {
+   "text": "ピノは はっぱを いちまい、そっと みずに うかべました。",
+   "shot": {
+    "kind": "image",
+    "img": "close/c01_leaf_push",
+    "action": ""
+   },
+   "say": "ピノは葉っぱを一枚、そっと水に浮かべました。",
+   "sfx": [
+    "小粒"
+   ]
+  },
+  {
+   "text": "はっぱは ぷかりと うきました。",
+   "shot": {
+    "kind": "image",
+    "img": "close/c01_leaf_push",
+    "action": ""
+   },
+   "say": "葉っぱは、ぷかりと浮きました。"
+  },
+  {
+   "text": "「ちいさな おさら みたい」",
+   "shot": {
+    "kind": "stage",
+    "bg": "bg_puddle",
+    "frame": "mid",
+    "focus": "pino",
+    "items": [
+     "mouse_push",
+     "leaf_float"
+    ],
+    "action": ""
+   },
+   "say": "「小さなお皿みたい」"
+  },
+  {
+   "text": "ルルは、ももいろの はなびらを ひろいました。",
+   "shot": {
+    "kind": "image",
+    "img": "close/c02_petal_pick",
+    "action": ""
+   },
+   "say": "ルルは、桃色の花びらを拾いました。"
+  },
+  {
+   "text": "「この おさらに、のせて みたいな」",
+   "shot": {
+    "kind": "image",
+    "img": "close/c02_petal_pick",
+    "action": ""
+   },
+   "say": "「このお皿に、のせてみたいな」"
+  },
+  {
+   "text": "ルルは きしまで、ゆっくり すすみます。",
+   "shot": {
+    "kind": "stage",
+    "bg": "bg_puddle",
+    "frame": "mid",
+    "focus": "lulu",
+    "items": [
+     "snail",
+     "petal"
+    ],
+    "action": ""
+   },
+   "say": "ルルは岸まで、ゆっくり進みます。"
+  },
+  {
+   "text": "",
+   "shot": {
+    "kind": "stage",
+    "bg": "bg_puddle",
+    "frame": "wide",
+    "focus": "both",
+    "items": [
+     "mouse_stand",
+     "snail",
+     "leaf_float"
+    ],
+    "action": ""
+   },
+   "dur": 3
+  },
+  {
+   "text": "そのとき、かぜが ふきました。",
+   "shot": {
+    "kind": "stage",
+    "bg": "bg_puddle_wind",
+    "frame": "wide",
+    "focus": "both",
+    "items": [
+     "mouse_stand",
+     "snail_reach",
+     "leaf_float"
+    ],
+    "action": ""
+   },
+   "say": "そのとき、風が吹きました。",
+   "sfx": [
+    "そよ風"
+   ]
+  },
+  {
+   "text": "おさらは するりと、みずの まんなかへ。",
+   "shot": {
+    "kind": "image",
+    "img": "close/c03_wind_leaf",
+    "action": ""
+   },
+   "say": "お皿はするりと、水の真ん中へ。"
+  },
+  {
+   "text": "ルルが のびても、とどきません。",
+   "shot": {
+    "kind": "stage",
+    "bg": "bg_puddle_wind",
+    "frame": "mid",
+    "focus": "lulu",
+    "items": [
+     "mouse_stand",
+     "snail_reach"
+    ],
+    "action": ""
+   },
+   "say": "ルルが伸びても、届きません。"
+  },
+  {
+   "text": "「だいじょうぶ。かぜを まとう」",
+   "shot": {
+    "kind": "stage",
+    "bg": "bg_puddle_wind",
+    "frame": "mid",
+    "focus": "pino",
+    "items": [
+     "mouse_stand",
+     "snail_reach"
+    ],
+    "action": ""
+   },
+   "say": "「大丈夫。風を待とう」"
+  },
+  {
+   "text": "",
+   "shot": {
+    "kind": "stage",
+    "bg": "bg_puddle_wind",
+    "frame": "wide",
+    "focus": "both",
+    "items": [
+     "mouse_stand",
+     "snail_reach",
+     "leaf_float"
+    ],
+    "action": ""
+   },
+   "dur": 4
+  },
+  {
+   "text": "かぜが やむと、",
+   "shot": {
+    "kind": "stage",
+    "bg": "bg_puddle",
+    "frame": "wide",
+    "focus": "both",
+    "items": [
+     "mouse_watch",
+     "snail_watch",
+     "leaf_float"
+    ],
+    "action": ""
+   },
+   "say": "風がやむと、"
+  },
+  {
+   "text": "おさらは ゆっくり まわって、ルルの そばに もどって きました。",
+   "shot": {
+    "kind": "stage",
+    "bg": "bg_puddle",
+    "frame": "wide",
+    "focus": "both",
+    "items": [
+     "mouse_watch",
+     "snail_watch",
+     "leaf_float"
+    ],
+    "action": ""
+   },
+   "say": "お皿はゆっくり回って、ルルのそばに戻ってきました。"
+  },
+  {
+   "text": "ルルは はなびらを、そっと のせました。",
+   "shot": {
+    "kind": "image",
+    "img": "close/c04_petal_on",
+    "action": ""
+   },
+   "say": "ルルは花びらを、そっとのせました。",
+   "sfx": [
+    "小粒"
+   ]
+  },
+  {
+   "text": "おさらが ちょっとだけ、ゆれました。",
+   "shot": {
+    "kind": "image",
+    "img": "close/c04_petal_on",
+    "action": ""
+   },
+   "say": "お皿が、ちょっとだけ揺れました。"
+  },
+  {
+   "text": "ももいろを のせた おさらは、",
+   "shot": {
+    "kind": "stage",
+    "bg": "bg_puddle_evening",
+    "frame": "wide",
+    "focus": "both",
+    "items": [
+     "mouse_watch",
+     "snail_watch",
+     "leaf_petal"
+    ],
+    "action": ""
+   },
+   "say": "桃色をのせたお皿は、"
+  },
+  {
+   "text": "ゆらり ゆらりと、ただよいます。",
+   "shot": {
+    "kind": "stage",
+    "bg": "bg_puddle_evening",
+    "frame": "mid",
+    "focus": "leaf",
+    "items": [
+     "mouse_watch",
+     "snail_watch",
+     "leaf_petal"
+    ],
+    "action": ""
+   },
+   "say": "ゆらり、ゆらりと漂います。"
+  },
+  {
+   "text": "ふたりは ならんで、ながめました。",
+   "shot": {
+    "kind": "image",
+    "img": "close/c05_two_watch",
+    "action": ""
+   },
+   "say": "ふたりは並んで、ながめました。"
+  },
+  {
+   "text": "みずたまりの そらに、ももいろが ひとつ。",
+   "shot": {
+    "kind": "image",
+    "img": "close/c05_two_watch",
+    "action": ""
+   },
+   "say": "水たまりの空に、桃色がひとつ。"
+  },
+  {
+   "text": "",
+   "shot": {
+    "kind": "image",
+    "img": "close/c05_two_watch",
+    "action": ""
+   },
+   "dur": 4
+  },
+  {
+   "text": "おしまい",
+   "shot": {
+    "kind": "stage",
+    "bg": "bg_puddle_evening",
+    "frame": "wide",
+    "focus": "both",
+    "items": [
+     "mouse_watch",
+     "snail_watch",
+     "leaf_petal"
+    ],
+    "action": ""
+   },
+   "say": "おしまい"
+  }
+ ]
+}
