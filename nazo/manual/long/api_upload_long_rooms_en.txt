@@ -1,0 +1,16 @@
+{
+ "thumb": "nazo/manual/long/thumb_a.png",
+ "thumb_error": "",
+ "id": "TwXigV7UfoI",
+ "url": "https://youtube.com/watch?v=TwXigV7UfoI",
+ "requested_publishAt": "",
+ "returned_status": {
+  "uploadStatus": "uploaded",
+  "privacyStatus": "public",
+  "license": "youtube",
+  "embeddable": true,
+  "publicStatsViewable": true,
+  "selfDeclaredMadeForKids": false,
+  "containsSyntheticMedia": false
+ }
+}
