@@ -40,7 +40,9 @@ def audio_perball(events, total, out_wav):
             dec = 4 + 3 * math.sqrt(cnt / 5)            # 5個: 減衰ゆっくり、640個: とても短い
             pan = .5 + .35 * ((a - 78) / 18)
             if harmony.ON:   # カノン進行の和音に寄せて、残り2音を小さく重ねる
-                a = harmony.snap(int(a), t); snd = (mar(a, dec) + sum(mar(o, dec * 1.1) * .3 for o in harmony.others(a, t))) * .9 / math.sqrt(cnt)
+                a = harmony.snap(int(a), t); snd = mar(a, dec).copy()
+                for o in harmony.others(a, t): x = mar(o, dec) * .3; k = min(len(x), len(snd)); snd[:k] += x[:k]
+                snd = snd * .9 / math.sqrt(cnt)
             else: snd = mar(a, dec) * .9 / math.sqrt(cnt)
         elif kind == "arrive":
             if GLASS: continue   # 集まる瞬間の和音は鳴らさない（同じ間隔で鳴ると単調になる）
