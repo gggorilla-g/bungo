@@ -81,7 +81,7 @@ function T(x,y,size,txt,o={}){const a={x,y,'font-size':size,'font-weight':o.w||9
 const proj=v=>{const p=v.clone().project(cam);return[(p.x+1)/2*W,(1-p.y)/2*H,p.z]};
 function drawHud(t,roomInfo){hud.innerHTML='';const l=lineAt(t),a=clamp((t-l.t0)/.12,0,1);
   if(LAB.head&&l.fx!=='hook')T(270,108,30,LAB.head,{a:'middle',sw:8,op:'.95'});
-  let y=l.cap.length>1?700:722;l.cap.forEach((c,i)=>{const size=Math.min(48,480/tw(c,1));T(270,y+(1-a)*6,size,c,{a:'middle',sw:9,op:(.3+.7*a).toFixed(2),fill:i===l.cap.length-1?'#ffd23f':'#fff'});y+=size+12});
+  let y=l.cap.length>1?700:722;l.cap.forEach((c,i)=>{const size=Math.min(46,400/tw(c,1));T(270,y+(1-a)*6,size,c,{a:'middle',sw:9,op:(.3+.7*a).toFixed(2),fill:i===l.cap.length-1?'#ffd23f':'#fff'});y+=size+12});
   const show=(LAB.room_labels||[]).includes(l.fx);if(show)for(const r of roomInfo){const[x,yy,z]=proj(new THREE.Vector3(r.x,r.y,TH/2));const op=sstep(l.t0+.2,l.t0+.5,t);if(op<.02)continue;
     const txt=PH[r.ph][1],size=22,w=tw(txt,size)+18;el('rect',{x:x-w/2,y:yy-size-4,width:w,height:size+12,rx:7,fill:'#'+PH[r.ph][0].toString(16).padStart(6,'0'),style:'opacity:'+(op*.92).toFixed(2)});T(x,yy+2,size,txt,{a:'middle',sw:0,op:op.toFixed(2)})}}
 window.renderAt=function(t){const P=pose(t);rotor.position.set(P.c[0],P.c[1],0);rotor.rotation.z=P.rot;cam_.position.set(P.c[0]*.5,P.c[1]*.5,0);

@@ -74,7 +74,7 @@ function drawHud(t){hud.innerHTML='';const l=lineAt(t),a=clamp((t-l.t0)/.12,0,1)
   const kl=sstep(T0('long',.1),T0('long',.1)+.5,t)*(1-sstep(T0('end',0),T0('end',.6),t)),ks=sstep(T0('short',.1),T0('short',.1)+.5,t)*(1-sstep(T0('end',0),T0('end',.6),t));
   if(kl>.02){const[x,y]=proj(wp(Math.PI*R,-R-.05));T(clamp(x+54,0,500),y,40,'2πr',{a:'middle',sw:8,op:kl.toFixed(2),fill:'#ffd23f'})}
   if(ks>.02){const[x,y]=proj(wp(-.05,-R/2));T(x,y+44,40,'r',{a:'middle',sw:8,op:ks.toFixed(2),fill:'#7fe3ff'})}
-  let y=l.cap.length>1?720:742;l.cap.forEach((c,i)=>{const size=Math.min(48,480/tw(c,1));T(270,y+(1-a)*6,size,c,{a:'middle',sw:9,op:(.3+.7*a).toFixed(2),fill:i===l.cap.length-1?'#ffd23f':'#fff'});y+=size+12})}
+  let y=l.cap.length>1?720:742;l.cap.forEach((c,i)=>{const size=Math.min(46,400/tw(c,1));T(270,y+(1-a)*6,size,c,{a:'middle',sw:9,op:(.3+.7*a).toFixed(2),fill:i===l.cap.length-1?'#ffd23f':'#fff'});y+=size+12})}
 window.renderAt=function(t){const g=gapOf(t);
   for(const R_ of RINGS){const s=sOf(R_.i,t);shape(R_,s,g);
     // 伸びきった瞬間にほんのり光る

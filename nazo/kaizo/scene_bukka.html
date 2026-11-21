@@ -85,10 +85,10 @@ const tw=(s,size)=>{let w=0;for(const ch of String(s))w+=ch.charCodeAt(0)<256?.5
 function T(x,y,size,txt,o={}){const a={x,y,'font-size':size,'font-weight':o.w||900,'text-anchor':o.a||'start','stroke-width':o.sw!=null?o.sw:Math.max(3,size*.2)};let st='';if(o.fill)st+='fill:'+o.fill+';';if(o.op!=null)st+='opacity:'+o.op+';';if(st)a.style=st;return el('text',a,txt)}
 const proj=v=>{const p=v.clone().project(cam);return[(p.x+1)/2*W,(1-p.y)/2*H,p.z]};
 function tag(v,lines,op,col,size){if(op<=.02)return;const[x,y,z]=proj(v);if(z>1||y<-40||y>H+40)return;const w=Math.max(...lines.map(s=>tw(s,size)))+20,hgt=lines.length*(size+6)+10;
-  const cx=clamp(x,w/2+6,W-w/2-6),cy=clamp(y,hgt+70,H-300);el('rect',{x:cx-w/2,y:cy-hgt,width:w,height:hgt,rx:8,fill:col,style:'opacity:'+(op*.92).toFixed(2)});
+  const cx=clamp(x,w/2+64,W-w/2-64),cy=clamp(y,hgt+70,H-300);el('rect',{x:cx-w/2,y:cy-hgt,width:w,height:hgt,rx:8,fill:col,style:'opacity:'+(op*.92).toFixed(2)});
   lines.forEach((s,i)=>T(cx,cy-hgt+size+3+i*(size+6),size,s,{a:'middle',sw:0,op:op.toFixed(2)}))}
 function drawHud(t){hud.innerHTML='';const l=lineAt(t),a=clamp((t-l.t0)/.12,0,1);
-  let y=l.cap.length>1?690:712;l.cap.forEach((c,i)=>{const size=Math.min(48,480/tw(c,1));T(270,y+(1-a)*6,size,c,{a:'middle',sw:9,op:(.3+.7*a).toFixed(2),fill:i===l.cap.length-1?'#ffd23f':'#fff'});y+=size+12});
+  let y=l.cap.length>1?690:712;l.cap.forEach((c,i)=>{const size=Math.min(46,400/tw(c,1));T(270,y+(1-a)*6,size,c,{a:'middle',sw:9,op:(.3+.7*a).toFixed(2),fill:i===l.cap.length-1?'#ffd23f':'#fff'});y+=size+12});
   const it=IT.find(o=>o.k===l.fx);
   if(it){const g=grow(it,t),h1=CH*lerp(1,it.r,g),op=sstep(l.t0+.15,l.t0+.4,t);
     tag(new THREE.Vector3(it.x-.75,.3+CH+.15,-.45),[LAB.y0||'1970年',yen(it.p0)],op,'#4b5563',28);
