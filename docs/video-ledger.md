@@ -406,6 +406,14 @@
 - TCuK7s_RRD4 dragon1_ja、SLo_VNV_Mbs rhythm1_ja、E8bLHJj6KKo lissatable1_ja、uBvzElBbZQ8 plotter1_ja、UbZldgCpEuM threebody1_ja、JGbk-jveNcY burst1_ja、EOsdkZcqLwU circle1_ja、wsVF_TluqHQ ellipse2_ja、ZmnyvksedgY pend1_ja、lyEVwSPB5wk liss1_ja
 - 11本目 koch1_ja で上限。残り24本。次の再挑戦は 11/22 14:05 UTC（1日の上限はおよそ10本）
 
+### 11/21 夜 雑学の型さがし（オーナー）
+- 「型がわかるまで、どんどん上げる」。戦術ものは一旦なし（3Dの質が低く見応えが少ない）
+- コンセプト：世の中のUIの裏にある本当のしくみ。いちばん面白かったのは πr²（円をほどく）
+- 数字・式の項が、図のどこに対応するかを、ヒーリング的な静かな動きで見せる（項から図へ点線がのび、着いた所がほんのり光る）
+- 実際の振り子・物理・数学の幾何やパターンを題材に、シンプルな画と心地よい音（scene_geo、geo_notes で画と同じ時刻にガラスの音）
+- 作成：geo_pendulum_ja（振り子の波）、geo_pythag_ja（三平方）、geo_deg360_ja（360度）、geo_pi_ja（円周率）、geo_odd_ja（奇数の和）、geo_gauss_ja（1から10の和）
+- 音：上限 A5、やわらかいローパス。玉は点くらい、光の輪も小さく（視認性）
+
 ### 11/21 英語は焼き直し禁止
 - オーナー観測：妄想科学と同じ動画を英語にしただけの MIW の回は、YouTube がおすすめに配らない（公開はされるが届かない）っぽい。以後、英語版は別の映像として作る（形・動き・色・音・構成を変える）。同じ動画の英訳は上げない
 
