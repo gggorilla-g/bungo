@@ -1,0 +1,16 @@
+{
+ "thumb": "nazo/manual/ehon/ehon_s02_thumb.jpg",
+ "thumb_error": "",
+ "id": "iGfXlVyBdlg",
+ "url": "https://youtube.com/watch?v=iGfXlVyBdlg",
+ "requested_publishAt": "",
+ "returned_status": {
+  "uploadStatus": "uploaded",
+  "privacyStatus": "public",
+  "license": "youtube",
+  "embeddable": true,
+  "publicStatsViewable": true,
+  "selfDeclaredMadeForKids": true,
+  "containsSyntheticMedia": false
+ }
+}
