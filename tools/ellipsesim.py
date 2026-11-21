@@ -69,7 +69,7 @@ def main(spec_path):
     total = intro + cycle * (doubles + 1) + 2.5
     dt = 1 / (FPS * SUB)
     events = []
-    S = 2; px = W * S * .40 / b; cx, cy = W * S / 2, H * S * .55
+    S = 2; px = min(W * S * .40 / b, H * S * .30 / a); cx, cy = W * S / 2, H * S * .55   # 細長い楕円でもはみ出さない
     to = lambda p: (cx + p[0] * px, cy - p[1] * px)
 
     def launch(n, off):

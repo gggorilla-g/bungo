@@ -1,3 +1,8 @@
+parabola2_ja MOSO ja
+ellipse3_ja MOSO ja
+mirrors1_ja MOSO ja
+parabola3_ja MOSO ja
+ellipse4_ja MOSO ja
 koch1_ja MOSO ja
 basket1_ja MOSO ja
 cycloid1_ja MOSO ja
