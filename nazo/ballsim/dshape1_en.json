@@ -1,0 +1,28 @@
+{
+ "id": "dshape1_en",
+ "chapters": [
+  {
+   "shape": "dshape",
+   "label": "D-shaped room",
+   "cut": 0.45,
+   "origin": [
+    0,
+    -0.44
+   ],
+   "n": 64,
+   "arc": [
+    0.25,
+    2.89
+   ],
+   "speed": 0.38,
+   "hue": 0.75,
+   "hue_span": 0.7,
+   "fade": 0.975,
+   "sound": "pluck",
+   "scale": "min",
+   "root": 60,
+   "dur": 48,
+   "gain": 0.28
+  }
+ ]
+}

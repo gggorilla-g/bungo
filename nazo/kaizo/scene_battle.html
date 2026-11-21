@@ -95,6 +95,31 @@ function placeWalls(t){const l=lineAt(t);for(const W_ of WALLS){const L=lineOf(W
 if(LAB.town){const T_=LAB.town;const hill=new THREE.Mesh(new THREE.CylinderGeometry(T_.r*.75,T_.r*1.15,T_.h,40),S(0x7d8f55));hill.position.y=T_.h/2;hill.receiveShadow=true;scene.add(hill);
   const rng=(s=>()=>(s=(s*16807)%2147483647)/2147483647)(5);for(let i=0;i<T_.houses;i++){const a=rng()*6.28,r=T_.r*(.62+.12*rng());const hs=new THREE.Mesh(new THREE.BoxGeometry(.9,.7,.9),S(0xd8c39a));hs.position.set(Math.cos(a)*r,T_.h+.35,Math.sin(a)*r);hs.castShadow=true;scene.add(hs);
     const rf=new THREE.Mesh(new THREE.ConeGeometry(.75,.6,4),S(0x8b5a3c));rf.position.set(hs.position.x,T_.h+1.0,hs.position.z);rf.rotation.y=Math.PI/4;scene.add(rf)}}
+// ---- まっすぐな柵（fences: [{x1,z1,x2,z2,h,color,fx,at,dur}]）。hook と fx 以降は立ったまま
+const FENCES=(LAB.fences||[]).map(f=>{const len=Math.hypot(f.x2-f.x1,f.z2-f.z1),n=Math.max(2,Math.round(len/.45));const m=new THREE.InstancedMesh(new THREE.BoxGeometry(.14,1,.14),S(f.color||0x8a5a32),n+Math.ceil(n/3));m.castShadow=true;scene.add(m);return {f,n,m,len}});
+function placeFences(t){const l=lineAt(t);for(const F_ of FENCES){const L=lineOf(F_.f.fx);let u=0;
+  if(l.fx==='hook'&&LAB.hook_as)u=1;else if(L){const t0=L.t0+(F_.f.at||.1)*L.voice;u=sstep(t0,t0+(F_.f.dur||2.0),t)}
+  const h=(F_.f.h||1.3),dx=(F_.f.x2-F_.f.x1),dz=(F_.f.z2-F_.f.z1),ang=Math.atan2(dx,dz);let j=0;
+  for(let i=0;i<F_.n;i++){const k=clamp(u*1.2-(i/F_.n)*.2,0,1),x=F_.f.x1+dx*i/(F_.n-1),z=F_.f.z1+dz*i/(F_.n-1);dummy.position.set(x,.3+h*k/2,z);dummy.rotation.set(0,0,0);dummy.scale.set(1,Math.max(.0001,h*k),1);dummy.updateMatrix();F_.m.setMatrixAt(j++,dummy.matrix)}
+  for(let i=0;i<F_.n;i+=3){const k=clamp(u*1.2-(i/F_.n)*.2,0,1),x=F_.f.x1+dx*(i+1.5)/(F_.n-1),z=F_.f.z1+dz*(i+1.5)/(F_.n-1);dummy.position.set(x,.3+h*.7*k,z);dummy.rotation.set(0,ang,0);dummy.scale.set(.6,.09*Math.max(.0001,k),3.4);dummy.updateMatrix();F_.m.setMatrixAt(j++,dummy.matrix)}
+  F_.m.count=j;F_.m.instanceMatrix.needsUpdate=true}}
+// ---- 鉄砲の一斉射撃（volleys: [{x1,z1,x2,z2,fx:[..], every, n}]）。光と白い煙が線の上に出る
+const VOL=(LAB.volleys||[]).map(v=>{const n=v.n||40;const fl=new THREE.InstancedMesh(new THREE.SphereGeometry(.22,6,4),new THREE.MeshBasicMaterial({color:0xffd27a}),n);const sm=new THREE.InstancedMesh(new THREE.SphereGeometry(.28,7,5),new THREE.MeshStandardMaterial({color:0xf2f2ee,transparent:true,opacity:.4,roughness:1,depthWrite:false}),n);scene.add(fl);scene.add(sm);
+  const rng=(s=>()=>(s=(s*16807)%2147483647)/2147483647)(11);return {v,n,fl,sm,ph:[...Array(n)].map(()=>rng())}});
+function placeVolleys(t){const l=lineAt(t);for(const V of VOL){const on=(V.v.fx||[]).includes(l.fx)&&l.fx!=='hook'||(l.fx==='hook'&&(V.v.fx||[]).includes(LAB.hook_as));const ev=V.v.every||1.1;
+  for(let i=0;i<V.n;i++){const u=i/(V.n-1),x=V.v.x1+(V.v.x2-V.v.x1)*u,z=V.v.z1+(V.v.z2-V.v.z1)*u;const ph=((t/ev)+V.ph[i]*.35+(i%3)/3)%1;
+    const f=on&&ph<.08?1:0;dummy.rotation.set(0,0,0);dummy.position.set(x,.9,z+(V.v.dz||-.4));dummy.scale.setScalar(Math.max(.0001,f*(1.2-ph*8)));dummy.updateMatrix();V.fl.setMatrixAt(i,dummy.matrix);
+    const s=on?clamp(ph*2.2,0,1):0;dummy.position.set(x+ph*.6,.9+ph*1.4,z+(V.v.dz||-.4)-ph*1.2);dummy.scale.setScalar(Math.max(.0001,s*(.5+ph*1.1)*(1-ph*.5)));dummy.updateMatrix();V.sm.setMatrixAt(i,dummy.matrix)}
+  V.fl.instanceMatrix.needsUpdate=true;V.sm.instanceMatrix.needsUpdate=true}}
+// ---- 雨（rain: {fx:[..], n}）。降っている間は空を暗くする
+const RAIN=LAB.rain?(()=>{const n=LAB.rain.n||2600;const m=new THREE.InstancedMesh(new THREE.BoxGeometry(.05,1.6,.05),new THREE.MeshBasicMaterial({color:0xe6eef6,transparent:true,opacity:.7}),n);scene.add(m);const rng=(s=>()=>(s=(s*16807)%2147483647)/2147483647)(23);return {n,m,p:[...Array(n)].map(()=>[rng(),rng(),rng()])}})():null;
+const SKY0=new THREE.Color(0x9cc3de),SKY1=new THREE.Color(0x5d6670);
+function placeRain(t,q){if(!RAIN)return;const l=lineAt(t);const fxs=LAB.rain.fx||[];let k=0;const L=fxs.map(lineOf).filter(Boolean);
+  for(const x of L){k=Math.max(k,sstep(x.t0-.3,x.t0+.4,t)*(1-sstep(x.t1-.2,x.t1+.5,t)))}
+  if(l.fx==='hook'&&fxs.includes(LAB.hook_as))k=1;
+  scene.background.copy(SKY0).lerp(SKY1,k*.8);scene.fog.color.copy(scene.background);renderer.toneMappingExposure=1.05*(1-.42*k);
+  for(let i=0;i<RAIN.n;i++){const p=RAIN.p[i],y=(1-((t*1.7+p[2])%1))*13;dummy.rotation.set(0,0,.18);dummy.position.set(q.x+(p[0]-.5)*34,y,q.z+(p[1]-.5)*34);dummy.scale.setScalar(k>.02?1:.0001);dummy.updateMatrix();RAIN.m.setMatrixAt(i,dummy.matrix)}
+  RAIN.m.instanceMatrix.needsUpdate=true;RAIN.m.material.opacity=.7*k}
 // ---- 置き物：崖や山（blocks: [{x,z,w,d,h,color}]）と、海や湖（water: [{x,z,w,d}]）
 for(const b of (LAB.blocks||[])){const g=new THREE.BoxGeometry(b.w,b.h,b.d,Math.max(1,Math.round(b.w/2)),2,Math.max(1,Math.round(b.d/2)));const p=g.attributes.position;
   for(let i=0;i<p.count;i++){if(p.getY(i)>0){p.setY(i,p.getY(i)*(.7+.6*Math.abs(Math.sin(p.getX(i)*1.3+p.getZ(i)*.7))));p.setX(i,p.getX(i)+.4*Math.sin(p.getZ(i)*.9))}}
@@ -132,9 +157,9 @@ function drawHud(t,ST){hud.innerHTML='';const l=lineAt(t),a=clamp((t-l.t0)/.12,0
   let y=l.cap.length>1?690:712;l.cap.forEach((c,i)=>{const size=Math.min(48,480/tw(c,1));T(270,y+(1-a)*6,size,c,{a:'middle',sw:9,op:(.3+.7*a).toFixed(2),fill:i===l.cap.length-1?'#ffd23f':'#fff'});y+=size+12});
   for(const tg of ((LAB.tags||{})[l.fx]||[])){const A=ARM.find(o=>o.a.id===tg.army);if(!A)continue;const s=ST[tg.army];const op=sstep(l.t0+(tg.at||.1)*l.voice,l.t0+(tg.at||.1)*l.voice+.3,t);
     tag(new THREE.Vector3(s.cx,(tg.dy||3),s.cz),tg.text,op,tg.col||(A.a.tagcol||'#1f2937'))}}
-window.renderAt=function(t){placeWalls(t);const ST={};ARM.forEach(A=>{ST[A.a.id]=placeArmy(A,t)});
+window.renderAt=function(t){placeWalls(t);placeFences(t);placeVolleys(t);const ST={};ARM.forEach(A=>{ST[A.a.id]=placeArmy(A,t)});
   const l=lineAt(t);ARROWS.forEach(r=>{const L=lineOf(r.fx);let op=0;if(L&&l===L){op=sstep(L.t0+r.at*L.voice,L.t0+r.at*L.voice+.35,t)*.92}r.m.opacity=op;r.me.visible=op>.01});
-  const[p,q]=camAt(t);cam.position.copy(p);cam.lookAt(q);cam.updateProjectionMatrix();sun.position.set(q.x+20,q.y+40,q.z+18);sun.target.position.copy(q);
+  const[p,q]=camAt(t);cam.position.copy(p);cam.lookAt(q);cam.updateProjectionMatrix();sun.position.set(q.x+20,q.y+40,q.z+18);sun.target.position.copy(q);placeRain(t,q);
   renderer.render(scene,cam);drawHud(t,ST);return{t}};
 window.__info={total:DUR};
 Promise.all([400,700,900].map(w=>document.fonts.load(w+' 20px JumpSans','あ0'))).then(()=>{window.__fig={kind:'none'};window.__ready=true},e=>console.log('load error: '+e.message));

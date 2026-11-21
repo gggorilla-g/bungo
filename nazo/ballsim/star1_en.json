@@ -1,0 +1,32 @@
+{
+ "id": "star1_en",
+ "chapters": [
+  {
+   "shape": "star5",
+   "label": "star room",
+   "inner": 0.45,
+   "origin": [
+    0,
+    0
+   ],
+   "start_angles": [
+    1.7207999999999999,
+    2.9774,
+    4.234,
+    5.490600000000001,
+    6.7472
+   ],
+   "speed": 0.55,
+   "hue": 0.55,
+   "hue_span": 0.6,
+   "fade": 0.996,
+   "sound": "glass",
+   "scale": "lyd",
+   "root": 62,
+   "dur": 48,
+   "nudge_t": 16,
+   "nudge": 0.002,
+   "line_gain": 0.85
+  }
+ ]
+}

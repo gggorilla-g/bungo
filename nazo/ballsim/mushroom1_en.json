@@ -1,0 +1,30 @@
+{
+ "id": "mushroom1_en",
+ "chapters": [
+  {
+   "shape": "mushroom",
+   "label": "mushroom room",
+   "origin": [
+    0.6,
+    0.62
+   ],
+   "n": 30,
+   "arc": [
+    0,
+    6.2832
+   ],
+   "speed": 0.42,
+   "hue": 0.08,
+   "hue_span": 0.55,
+   "fade": 0.992,
+   "sound": "glass",
+   "scale": "maj",
+   "root": 64,
+   "dur": 48,
+   "line_gain": 0.8,
+   "stem_w": 0.3,
+   "stem_l": 1.2,
+   "gain": 0.3
+  }
+ ]
+}

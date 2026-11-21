@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8">
+<style>
+@font-face{font-family:"JumpSans";font-weight:400;src:url(fonts_jp/NotoSansCJKjp-Regular.woff2) format("woff2")}
+@font-face{font-family:"JumpSans";font-weight:700;src:url(fonts_jp/NotoSansCJKjp-Bold.woff2) format("woff2")}
+@font-face{font-family:"JumpSans";font-weight:900;src:url(fonts_jp/NotoSansCJKjp-Black.woff2) format("woff2")}
+html,body{margin:0;background:#000}
+#stage{position:relative;width:540px;height:960px;overflow:hidden}
+#stage canvas{position:absolute;left:0;top:0}
+#hud{position:absolute;left:0;top:0;width:540px;height:960px;font-family:"JumpSans"}
+#hud text{paint-order:stroke;stroke:#101010;stroke-linejoin:round;fill:#fff}
+</style></head>
+<body><div id="stage"><svg id="hud" viewBox="0 0 540 960" xmlns="http://www.w3.org/2000/svg"></svg></div>
+<script src="vendor.js"></script>
+<script>
+// しくみの雑学（政治・制度）：机の上の箱庭に、コインの塔・箱・人の群れ・バツ印を置き、セリフに合わせて出したり変えたりする
+// SPEC.labels:
+//   items: [{id, type:"coins"|"block"|"people"|"cross", x, z, color, base:{n,h,w,d,y,x,z}, show:"fx", hide:"fx", at, keys:[{fx, at, dur, n,h,w,d,x,z,y}], label:{text,dy,col}}]
+//      coins: n 枚のコイン（1枚ずつ積まれる）＋ガラスの筒。block: 箱（h が高さ）。people: n 人のこま。cross: 赤いバツ
+//   flows: [{from, to, fx, n, at}]   コインが箱から箱へ飛ぶ
+//   tags: {fx: [{item, text, dy, col, at}]}   その行のあいだだけ出る札
+//   cams: {fx: [[px,py,pz],[tx,ty,tz]]}、hook_as: 冒頭で見せる状態の fx、head: 見出し
+const getJ=u=>{const x=new XMLHttpRequest();x.open('GET',u,false);x.send();if(x.status!==200)throw new Error('読めない: '+u);return JSON.parse(x.responseText)};
+const ID=(new URLSearchParams(location.search).get('spec')||'civic_ja').replace(/^.*\//,'').replace(/\.json$/,'');
+const SPEC=getJ('specs/'+ID+'.json'),TL=getJ('specs/'+ID+'_timeline.json');
+const W=540,H=960,DUR=TL.total;
+const clamp=(x,a,b)=>Math.min(b,Math.max(a,x)),lerp=(a,b,k)=>a+(b-a)*k,sstep=(a,b,x)=>{const k=clamp((x-a)/(b-a),0,1);return k*k*(3-2*k)};
+const back=x=>{x=clamp(x,0,1);const c=1.7;return 1+(c+1)*Math.pow(x-1,3)+c*Math.pow(x-1,2)};
+const LINES=SPEC.lines.map((l,i)=>Object.assign({},l,TL.beats[i]));
+const LAB=SPEC.labels||{};const FOV=LAB.fov||38;
+const renderer=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true});
+renderer.setPixelRatio(window.devicePixelRatio||1);renderer.setSize(W,H);renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.08;
+renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+document.getElementById('stage').prepend(renderer.domElement);
+const S=(c,o)=>new THREE.MeshStandardMaterial(Object.assign({color:c,roughness:.6,metalness:0},o||{}));
+const scene=new THREE.Scene();const BG=new THREE.Color(LAB.bg||0xe9e2d4);scene.background=BG;scene.fog=new THREE.Fog(BG,60,140);
+scene.add(new THREE.HemisphereLight(0xfffaf0,0x8a7a62,1.05));
+const sun=new THREE.DirectionalLight(0xfff3df,2.2);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);{const c=sun.shadow.camera;c.left=-30;c.right=30;c.top=30;c.bottom=-30;c.near=1;c.far=120;sun.shadow.bias=-.0004;sun.shadow.radius=4}scene.add(sun);scene.add(sun.target);
+// 机（木目っぽい板）
+{const g=new THREE.PlaneGeometry(160,160,1,1);const m=new THREE.Mesh(g,S(LAB.table||0xcdb48f,{roughness:.85}));m.rotation.x=-Math.PI/2;m.receiveShadow=true;scene.add(m);
+  const lines=new THREE.InstancedMesh(new THREE.BoxGeometry(160,.002,.05),new THREE.MeshBasicMaterial({color:0xbca07a}),60);for(let i=0;i<60;i++){const d=new THREE.Object3D();d.position.set(0,.002,-60+i*2+Math.sin(i*1.7)*.6);d.updateMatrix();lines.setMatrixAt(i,d.matrix)}scene.add(lines)}
+const lineOf=fx=>LINES.find(x=>x.fx===fx);
+const lineAt=t=>LINES.find(x=>t>=x.t0-.02&&t<x.t1+.12)||LINES.filter(x=>x.t0<=t).pop()||LINES[0];
+const PK=['n','h','w','d','x','z','y'];
+function tOf(fx,at){const l=lineOf(fx);return l?l.t0+(at||0)*l.voice:null}
+// 冒頭（hook）は hook_as の行の終わりの状態を見せる
+function effT(t){const l=lineAt(t);if(l.fx==='hook'&&LAB.hook_as){const r=lineOf(LAB.hook_as);return {t:r.t1+.01,full:true}}return {t,full:false}}
+function stateAt(it,t,full){const s=Object.assign({n:1,h:1,w:1,d:1,x:it.x||0,z:it.z||0,y:0},it.base||{});
+  for(const k of it.keys||[]){const t0=tOf(k.fx,k.at);if(t0==null||t<t0)continue;const u=full?1:sstep(t0,t0+(k.dur||1.6),t);for(const p of PK)if(k[p]!=null)s[p]=lerp(s[p],k[p],u)}
+  let vis=1;if(it.show){const t0=tOf(it.show,it.at||.1);vis=t0==null?1:(full?(t>=t0?1:0):back((t-t0)/.55))}
+  if(it.hide){const t0=tOf(it.hide,it.hide_at||.1);if(t0!=null&&t>=t0)vis*=full?0:1-sstep(t0,t0+.5,t)}
+  s.vis=vis;return s}
+const dummy=new THREE.Object3D();
+const COIN_H=.22,COIN_R=.62;
+const ITEMS=(LAB.items||[]).map(it=>{const o={it};const col=new THREE.Color(it.color||0x5b8bd0);
+  if(it.type==='coins'){const max=it.max||12;o.m=new THREE.InstancedMesh(new THREE.CylinderGeometry(COIN_R,COIN_R,COIN_H*.86,28),S(0xe2b43a,{metalness:.55,roughness:.32}),max);o.max=max;
+    o.tube=new THREE.Mesh(new THREE.CylinderGeometry(COIN_R+.16,COIN_R+.16,1,32,1,true),new THREE.MeshStandardMaterial({color:0xdfefff,transparent:true,opacity:.22,roughness:.1,side:THREE.DoubleSide,depthWrite:false}));
+    o.base=new THREE.Mesh(new THREE.CylinderGeometry(COIN_R+.4,COIN_R+.5,.16,32),S(col));[o.m,o.base].forEach(m=>{m.castShadow=true;m.receiveShadow=true;scene.add(m)});scene.add(o.tube)}
+  else if(it.type==='block'){o.m=new THREE.Mesh(new THREE.BoxGeometry(1,1,1),S(col,{roughness:.55}));o.m.castShadow=true;o.m.receiveShadow=true;scene.add(o.m)}
+  else if(it.type==='people'){const max=it.max||40;o.max=max;o.body=new THREE.InstancedMesh(new THREE.CapsuleGeometry?new THREE.CapsuleGeometry(.2,.42,4,8):new THREE.CylinderGeometry(.2,.24,.8,8),S(col),max);o.head=new THREE.InstancedMesh(new THREE.SphereGeometry(.17,10,8),S(0xf1d2b0),max);[o.body,o.head].forEach(m=>{m.castShadow=true;scene.add(m)})}
+  else if(it.type==='cross'){o.g=new THREE.Group();for(const a of [1,-1]){const b=new THREE.Mesh(new THREE.BoxGeometry(2.6,.38,.38),S(0xd13a2f,{roughness:.4}));b.rotation.y=a*Math.PI/4;b.castShadow=true;o.g.add(b)}scene.add(o.g)}
+  return o});
+function place(o,t,full){const it=o.it,s=stateAt(it,t,full),v=Math.max(0,s.vis);o.s=s;
+  if(it.type==='coins'){const n=Math.round(clamp(s.n,0,o.max)*Math.min(1,v>0?1:0));for(let i=0;i<o.max;i++){const on=i<n;const drop=on?0:0;dummy.position.set(s.x,.16+COIN_H*(i+.5)+s.y+drop,s.z);dummy.rotation.set(0,i*.7,0);dummy.scale.setScalar(on?Math.max(.0001,v):.0001);dummy.updateMatrix();o.m.setMatrixAt(i,dummy.matrix)}o.m.instanceMatrix.needsUpdate=true;
+    const th=Math.max(COIN_H*(it.tube||o.max)+.3,.5);o.tube.scale.set(v||.0001,th,v||.0001);o.tube.position.set(s.x,.16+th/2+s.y,s.z);o.tube.visible=v>.02&&it.tube!==0;o.base.position.set(s.x,.08+s.y,s.z);o.base.scale.setScalar(Math.max(.0001,v));o.top=.3+COIN_H*Math.max(n,1)+s.y}
+  else if(it.type==='block'){o.m.scale.set(Math.max(.0001,s.w*v),Math.max(.0001,s.h*v),Math.max(.0001,s.d*v));o.m.position.set(s.x,s.y+s.h*v/2,s.z);o.top=s.y+s.h*v}
+  else if(it.type==='people'){const n=Math.round(clamp(s.n,0,o.max)),cols=it.cols||8,sp=it.sp||.62;for(let i=0;i<o.max;i++){const r=Math.floor(i/cols),c=i%cols;const on=i<n&&v>0;const x=s.x+(c-(Math.min(n,cols)-1)/2)*sp,z=s.z+r*sp*.9;
+      const bob=.03*Math.sin(t*3+i);dummy.rotation.set(0,0,0);dummy.position.set(x,s.y+.42+bob,z);dummy.scale.setScalar(on?Math.max(.0001,v):.0001);dummy.updateMatrix();o.body.setMatrixAt(i,dummy.matrix);
+      dummy.position.set(x,s.y+.95+bob,z);dummy.updateMatrix();o.head.setMatrixAt(i,dummy.matrix)}o.body.instanceMatrix.needsUpdate=true;o.head.instanceMatrix.needsUpdate=true;o.top=s.y+1.3+Math.floor(Math.max(n-1,0)/cols)*0}
+  else if(it.type==='cross'){o.g.position.set(s.x,s.y+1.4,s.z);o.g.scale.setScalar(Math.max(.0001,v));o.g.rotation.z=0;o.top=s.y+2.4}}
+// コインの流れ（箱から箱へ放物線）
+const FLOWS=(LAB.flows||[]).map(f=>{const n=f.n||14;const m=new THREE.InstancedMesh(new THREE.CylinderGeometry(COIN_R*.6,COIN_R*.6,COIN_H*.7,20),S(0xe2b43a,{metalness:.55,roughness:.32}),n);m.castShadow=true;scene.add(m);return {f,n,m}});
+function placeFlows(t){const l=lineAt(t);for(const F_ of FLOWS){const A=ITEMS.find(o=>o.it.id===F_.f.from),B=ITEMS.find(o=>o.it.id===F_.f.to);const on=l.fx===F_.f.fx&&A&&B&&A.s&&B.s;const t0=on?tOf(F_.f.fx,F_.f.at||.15):0;
+  for(let i=0;i<F_.n;i++){let sc=.0001,x=0,y=0,z=0;if(on){const u=(t-t0-i*.12)/.9;if(u>0&&u<1){x=lerp(A.s.x,B.s.x,u);z=lerp(A.s.z,B.s.z,u);y=lerp(A.top||1,B.top||1,u)+3.2*u*(1-u)*2;sc=1}}
+    dummy.position.set(x,y,z);dummy.rotation.set(t*3+i,0,t*2);dummy.scale.setScalar(sc);dummy.updateMatrix();F_.m.setMatrixAt(i,dummy.matrix)}F_.m.instanceMatrix.needsUpdate=true}}
+// カメラ
+const cam=new THREE.PerspectiveCamera(FOV,W/H,.05,400);const CAMS=LAB.cams||{};
+const shotFor=fx=>CAMS[fx]||CAMS.default||[[0,14,22],[0,1,0]];
+function camAt(t){const l=lineAt(t),i=LINES.indexOf(l),cur=shotFor(l.fx),prev=i>0?shotFor(LINES[i-1].fx):cur,k=sstep(l.t0-.15,l.t0+1.0,t);
+  const p=new THREE.Vector3().fromArray(prev[0]).lerp(new THREE.Vector3().fromArray(cur[0]),k),q=new THREE.Vector3().fromArray(prev[1]).lerp(new THREE.Vector3().fromArray(cur[1]),k);
+  const dr=(t-l.t0)*.012;p.lerp(q,Math.min(.07,dr));p.x+=.18*Math.sin(t*.4);return[p,q]}
+// HUD
+const NS='http://www.w3.org/2000/svg',hud=document.getElementById('hud');
+function el(tag,a,txt){const e=document.createElementNS(NS,tag);for(const k in a)e.setAttribute(k,a[k]);if(txt!=null)e.textContent=txt;hud.appendChild(e);return e}
+const tw=(s,size)=>{let w=0;for(const ch of String(s))w+=ch.charCodeAt(0)<256?.58:1;return w*size};
+function T(x,y,size,txt,o={}){const a={x,y,'font-size':size,'font-weight':o.w||900,'text-anchor':o.a||'start','stroke-width':o.sw!=null?o.sw:Math.max(3,size*.2)};let st='';if(o.fill)st+='fill:'+o.fill+';';if(o.op!=null)st+='opacity:'+o.op+';';if(st)a.style=st;return el('text',a,txt)}
+const proj=v=>{const p=v.clone().project(cam);return[(p.x+1)/2*W,(1-p.y)/2*H,p.z]};
+function tag(v,txt,op,col,size){if(op<=.02)return;const[x,y,z]=proj(v);if(z>1)return;size=size||24;const w=tw(txt,size)+22,h=size+14;const cx=clamp(x,w/2+6,W-w/2-6),cy=clamp(y,180,H-330);
+  el('rect',{x:cx-w/2,y:cy-h,width:w,height:h,rx:8,fill:col||'#1f2937',style:'opacity:'+(op*.9).toFixed(2)});T(cx,cy-9,size,txt,{a:'middle',sw:0,op:op.toFixed(2)})}
+function drawHud(t){hud.innerHTML='';const l=lineAt(t),a=clamp((t-l.t0)/.12,0,1);
+  if(LAB.head&&l.fx!=='hook'){const s0=LINES[1]?LINES[1].t0:0;T(270,110,30,LAB.head,{a:'middle',sw:8,op:sstep(s0,s0+.4,t).toFixed(2)})}
+  for(const o of ITEMS){if(!o.it.label||!o.s||o.s.vis<.3)continue;const L=o.it.label;tag(new THREE.Vector3(o.s.x,(o.top||1)+(L.dy||.6),o.s.z),L.text,clamp(o.s.vis,0,1),L.col,L.size)}
+  for(const tg of ((LAB.tags||{})[l.fx]||[])){const o=ITEMS.find(x=>x.it.id===tg.item);if(!o||!o.s)continue;const t0=l.t0+(tg.at||.1)*l.voice;tag(new THREE.Vector3(o.s.x+(tg.dx||0),(o.top||1)+(tg.dy||1.4),o.s.z),tg.text,sstep(t0,t0+.3,t),tg.col||'#8a4b00',tg.size)}
+  let y=l.cap.length>1?690:712;l.cap.forEach((c,i)=>{const size=Math.min(48,480/tw(c,1));T(270,y+(1-a)*6,size,c,{a:'middle',sw:9,op:(.3+.7*a).toFixed(2),fill:i===l.cap.length-1?'#ffd23f':'#fff'});y+=size+12})}
+window.renderAt=function(t){const e=effT(t);ITEMS.forEach(o=>place(o,e.t,e.full));placeFlows(t);
+  const[p,q]=camAt(t);cam.position.copy(p);cam.lookAt(q);cam.updateProjectionMatrix();sun.position.set(q.x+12,q.y+26,q.z+14);sun.target.position.copy(q);
+  renderer.render(scene,cam);drawHud(t);return{t}};
+window.__info={total:DUR};
+Promise.all([400,700,900].map(w=>document.fonts.load(w+' 20px JumpSans','あ0'))).then(()=>{window.__fig={kind:'none'};window.__ready=true},e=>console.log('load error: '+e.message));
+</script></body></html>

@@ -13,6 +13,10 @@ from PIL import Image, ImageDraw, ImageFilter, ImageChops
 SCALES = {"maj": [0, 2, 4, 7, 9], "min": [0, 3, 5, 7, 10], "lyd": [0, 2, 4, 6, 7, 9, 11]}
 
 
+_CH = {}
+ch_get = lambda k, d: _CH.get(k, d)
+
+
 def shape_pts(kind, n=240, a=1.0, b=.62):
     if kind == "circle": th = np.linspace(0, 2 * np.pi, n, endpoint=False); return np.c_[np.cos(th), np.sin(th)]
     if kind == "ellipse": th = np.linspace(0, 2 * np.pi, n, endpoint=False); return np.c_[a * np.cos(th), b * np.sin(th)]
@@ -24,6 +28,18 @@ def shape_pts(kind, n=240, a=1.0, b=.62):
         for th in np.linspace(-np.pi / 2, np.pi / 2, n // 2): pts.append([L + r * np.cos(th), r * np.sin(th)])
         for th in np.linspace(np.pi / 2, 3 * np.pi / 2, n // 2): pts.append([-L + r * np.cos(th), r * np.sin(th)])
         return np.array(pts)
+    if kind == "mushroom":   # キノコ形（半円のかさ＋細い柄）。かさの中に閉じこめられる玉と、さまよう玉が分かれる
+        sw, sl = ch_get("stem_w", .32), ch_get("stem_l", 1.15); pts = []
+        for th in np.linspace(0, np.pi, n): pts.append([np.cos(th), .35 + np.sin(th)])
+        pts += [[-sw, .35], [-sw, .35 - sl], [sw, .35 - sl], [sw, .35]]
+        return np.array(pts)
+    if kind.startswith("star"):   # star5 など。へこんだ星形
+        k = int(kind[4:]); r2 = ch_get("inner", .45); pts = []
+        for i in range(2 * k):
+            th = np.pi / 2 + i * np.pi / k; r = 1 if i % 2 == 0 else r2; pts.append([r * np.cos(th), r * np.sin(th)])
+        return np.array(pts)
+    if kind == "dshape":   # 円を弦で切ったD形
+        c = ch_get("cut", .45); a0 = np.arcsin(c); th = np.linspace(np.pi - a0, 2 * np.pi + a0, n); return np.c_[np.cos(th), np.sin(th)]
     raise ValueError(kind)
 
 
@@ -31,7 +47,8 @@ class Table:
     def __init__(self, P):
         self.P = P; self.A = P; self.B = np.roll(P, -1, 0); E = self.B - self.A
         self.E = E; N = np.c_[E[:, 1], -E[:, 0]]; N /= np.linalg.norm(N, axis=1)[:, None]
-        c = P.mean(0); s = np.sign(((c - self.A) * N).sum(1)); self.N = N * s[:, None]   # 内向き
+        area = .5 * np.sum(P[:, 0] * np.roll(P[:, 1], -1) - np.roll(P[:, 0], -1) * P[:, 1])
+        self.N = N * (-1 if area > 0 else 1)   # 内向き（向きで決める。へこんだ形でも正しい）
 
     def hit(self, p, v):
         """p,v: (m,2)。最初に当たる辺までの時間と辺の番号"""
@@ -47,6 +64,7 @@ class Table:
 def run_chapter(sp, ci):
     ch = sp["chapters"][ci]; cid = f'{sp["id"]}_c{ci}'
     rng = np.random.default_rng(ch.get("seed", ci + 1))
+    _CH.clear(); _CH.update(ch)
     P = shape_pts(ch["shape"], a=ch.get("a", 1.0), b=ch.get("b", .62)); T = Table(P)
     dur = ch.get("dur", 100.0); total = dur
     mn, mx = P.min(0), P.max(0); pad = .1 * (mx - mn).max(); box = (mn[0] - pad, mn[1] - pad, mx[0] + pad, mx[1] + pad)
