@@ -5,6 +5,7 @@
 #   F1に戻るたびにボールを2倍にする。音: 壁は和音の音、F2・F1に集まる瞬間は和音全体
 import json, os, sys, math, subprocess
 import numpy as np
+import harmony
 from PIL import Image, ImageDraw, ImageFilter
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from ballsim import W, H, FPS, hsv, font, audio
@@ -37,7 +38,10 @@ def audio_perball(events, total, out_wav):
         i = int(t * SR)
         if kind == "pb":
             dec = 4 + 3 * math.sqrt(cnt / 5)            # 5個: 減衰ゆっくり、640個: とても短い
-            snd = mar(a, dec) * .9 / math.sqrt(cnt); pan = .5 + .35 * ((a - 78) / 18)
+            pan = .5 + .35 * ((a - 78) / 18)
+            if harmony.ON:   # カノン進行の和音に寄せて、残り2音を小さく重ねる
+                a = harmony.snap(int(a), t); snd = (mar(a, dec) + sum(mar(o, dec * 1.1) * .3 for o in harmony.others(a, t))) * .9 / math.sqrt(cnt)
+            else: snd = mar(a, dec) * .9 / math.sqrt(cnt)
         elif kind == "arrive":
             if GLASS: continue   # 集まる瞬間の和音は鳴らさない（同じ間隔で鳴ると単調になる）
             snd = sum(mar(m, 3.0) for m in ([72, 79, 84] if a == 0 else [60, 67, 72])) * .35; pan = .5

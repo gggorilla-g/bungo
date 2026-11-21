@@ -146,12 +146,28 @@ def geo_notes(sp, tl, sr, add):
     mf = lambda m: 440 * 2 ** ((m - 69) / 12)
     root = L.get("root", 57)
     deg = lambda i: root + 12 * (i // 5) + PENTA_STEPS[i % 5]
+    import harmony as _h
+    _add = add
+    class _T:   # まだ鳴らしていない音（番号・音量・長さ）。add の時刻で、カノン進行の和音にして鳴らす
+        def __init__(s, items): s.items = items
+        def __mul__(s, g): return _T([(i, a * g, d) for i, a, d in s.items])
+        def __add__(s, o): return _T(s.items + (o.items if isinstance(o, _T) else []))
+        __radd__ = __add__
+    _T1 = lambda i, dur=2.4: _T([(i, 1.0, dur)])
+    def add(t, w):
+        if not isinstance(w, _T): return _add(t, w)
+        for i, a, d in w.items:
+            m = _h.snap(int(deg(i)), t); _add(t, _glass(mf(m), sr, d) * a)
+            for o in _h.others(m, t): _add(t, _glass(mf(o), sr, d) * a * .32)
+    def cg(t, i, g, dur=2.4):   # i 番目の音をカノン進行の和音に寄せ、和音で鳴らす
+        m = _h.snap(int(deg(i)), t); _add(t, _glass(mf(m), sr, dur) * g)
+        for o in _h.others(m, t): _add(t, _glass(mf(o), sr, dur) * g * .32)
     if kind == "pendwave":
         n, N0 = L.get("n", 12), L.get("N0", 20)
         ts = T0("start", .1); te = T0("end", .05) + L.get("end_pad", 1.0); Tc = te - ts
         hk0, hk1 = lines[0]["t0"], lines[0]["t1"]; off = Tc * L.get("hook_off", .31)
         for k in range(n):
-            T = Tc / (N0 + k); tone = _glass(mf(deg(k)), sr) * .10
+            T = Tc / (N0 + k); tone = _T1(k) * .10
             # 冒頭（シミュ時間 = t - hk0 + off）
             m = int(np.ceil(off / T))
             while True:
@@ -165,54 +181,54 @@ def geo_notes(sp, tl, sr, add):
     elif kind == "pythag":
         arr0 = T0("move", .35); n = 25
         for r in range(n):
-            add(arr0 + r * .16 + 1.0, _glass(mf(deg(r % 10 + 3)), sr) * .13)
-        add(T0("fill", .15), sum(_glass(mf(deg(i)), sr, 3.2) for i in (5, 7, 9)) * .09)
+            cg(arr0 + r * .16 + 1.0, r % 10 + 3, .13)
+        add(T0("fill", .15), sum(_T1(i, 3.2) for i in (5, 7, 9)) * .09)
     elif kind == "piroll":
         rs = T0("roll", .05)
-        for i in range(5): add(rs + 3.6 * i / 4 * (1 - .15 * (i % 2)), _glass(mf(deg(i + 2)), sr) * .11)
-        for i in range(3): add(T0("measure", .15) + .25 + i * .7 + .65, _glass(mf(deg(5 + i * 2)), sr) * .12)
+        for i in range(5): cg(rs + 3.6 * i / 4 * (1 - .15 * (i % 2)), i + 2, .11)
+        for i in range(3): add(T0("measure", .15) + .25 + i * .7 + .65, _T1(5 + i * 2) * .12)
         add(T0("three", .4), _glass(mf(deg(9)) * 2 ** (1 / 12), sr) * .07)
-        add(T0("pi", .2), sum(_glass(mf(deg(i)), sr, 3.2) for i in (5, 7, 9)) * .08)
+        add(T0("pi", .2), sum(_T1(i, 3.2) for i in (5, 7, 9)) * .08)
     elif kind == "oddsq":
         Ls = ["one", "three", "five", "seven", "seven"]
         for k in range(5):
             t0 = T0(Ls[k], .12) if k < 4 else T0("seven", .55)
-            for m in range(2 * k + 1): add(t0 + m * .12 + .6, _glass(mf(deg(k + m % 3 + 1)), sr) * (.10 / (1 + k * .15)))
+            for m in range(2 * k + 1): add(t0 + m * .12 + .6, _T1(k + m % 3 + 1) * (.10 / (1 + k * .15)))
     elif kind == "gauss":
-        for i in range(10): add(T0("stairs", .1) + i * .26 + .4, _glass(mf(deg(i)), sr) * .11)
-        add(T0("fit", .1) + 1.6, sum(_glass(mf(deg(i)), sr, 3.2) for i in (5, 7, 9)) * .08)
+        for i in range(10): add(T0("stairs", .1) + i * .26 + .4, _T1(i) * .11)
+        add(T0("fit", .1) + 1.6, sum(_T1(i, 3.2) for i in (5, 7, 9)) * .08)
     elif kind == "pizza":
-        for i in range(16): add(T0("line", .1) + (i / 15) * 1.6 + 1.0, _glass(mf(deg(i % 10 + 2)), sr) * .09)
-        add(T0("more", .15) + .8, sum(_glass(mf(deg(i)), sr, 3.2) for i in (5, 7, 9)) * .07)
-        add(T0("formula", .6), _glass(mf(deg(9)), sr, 3.0) * .12)
+        for i in range(16): add(T0("line", .1) + (i / 15) * 1.6 + 1.0, _T1(i % 10 + 2) * .09)
+        add(T0("more", .15) + .8, sum(_T1(i, 3.2) for i in (5, 7, 9)) * .07)
+        add(T0("formula", .6), _T1(9, 3.0) * .12)
     elif kind == "halves":
         tt = [T0("half", .1), T0("quarter", .1)] + [T0("eighth", .05) + (k - 2) * .38 for k in range(2, 12)]
-        for k, t in enumerate(tt): add(t + .1, _glass(mf(deg(k + 2)), sr) * (.13 * .9 ** k))
-        add(T0("formula", .55), sum(_glass(mf(deg(i)), sr, 3.2) for i in (5, 7, 9)) * .08)
+        for k, t in enumerate(tt): add(t + .1, _T1(k + 2) * (.13 * .9 ** k))
+        add(T0("formula", .55), sum(_T1(i, 3.2) for i in (5, 7, 9)) * .08)
     elif kind == "binom":
         pl = [l for l in lines if l.get("fx") == "pieces"][0]
-        for k, d in [(.05, 4), (.3, 7), (.6, 9)]: add(pl["t0"] + k * pl["voice"], _glass(mf(deg(d)), sr) * .12)
-        add(T0("formula", .7), sum(_glass(mf(deg(i)), sr, 3.2) for i in (5, 7, 9)) * .07)
+        for k, d in [(.05, 4), (.3, 7), (.6, 9)]: cg(pl["t0"] + k * pl["voice"], d, .12)
+        add(T0("formula", .7), sum(_T1(i, 3.2) for i in (5, 7, 9)) * .07)
     elif kind == "tri":
-        add(T0("rect", .1), _glass(mf(deg(4)), sr) * .1); add(T0("split", .35), _glass(mf(deg(6)), sr) * .1)
-        ml = [l for l in lines if l.get("fx") == "match"][0]; add(ml["t0"] + .1 * ml["voice"] + 1.4, sum(_glass(mf(deg(i)), sr, 3.0) for i in (5, 7)) * .08)
-        add(T0("half", .2), sum(_glass(mf(deg(i)), sr, 3.2) for i in (5, 7, 9)) * .08)
+        add(T0("rect", .1), _T1(4) * .1); add(T0("split", .35), _T1(6) * .1)
+        ml = [l for l in lines if l.get("fx") == "match"][0]; add(ml["t0"] + .1 * ml["voice"] + 1.4, sum(_T1(i, 3.0) for i in (5, 7)) * .08)
+        add(T0("half", .2), sum(_T1(i, 3.2) for i in (5, 7, 9)) * .08)
     elif kind == "trap":
-        add(T0("copy", .15) + 1.8, sum(_glass(mf(deg(i)), sr, 3.0) for i in (5, 7)) * .08); add(T0("join", .3), _glass(mf(deg(9)), sr) * .1)
-        add(T0("formula", .7), sum(_glass(mf(deg(i)), sr, 3.2) for i in (5, 7, 9)) * .07)
+        add(T0("copy", .15) + 1.8, sum(_T1(i, 3.0) for i in (5, 7)) * .08); add(T0("join", .3), _T1(9) * .1)
+        add(T0("formula", .7), sum(_T1(i, 3.2) for i in (5, 7, 9)) * .07)
     elif kind == "speed":
         d0, d1 = T0("drive", .15), T0("total", .3)
-        for h in range(1, 5): add(d0 + (d1 - d0) * h / 4, _glass(mf(deg(h + 3)), sr) * .11)
-        add(T0("total", .4), sum(_glass(mf(deg(i)), sr, 3.2) for i in (5, 7, 9)) * .07)
+        for h in range(1, 5): cg(d0 + (d1 - d0) * h / 4, h + 3, .11)
+        add(T0("total", .4), sum(_T1(i, 3.2) for i in (5, 7, 9)) * .07)
     elif kind == "deg360":
         ns = L.get("ns", [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]); step = L.get("step", .95)
         for i, n in enumerate(ns):
             t = T0("divide", .25) + i * step
-            if 360 % n == 0: add(t, _glass(mf(deg(i + 2)), sr) * .14)
+            if 360 % n == 0: cg(t, i + 2, .14)
             else: add(t, _glass(mf(deg(i + 2)) * 2 ** (1 / 12), sr) * .07)   # 割り切れない数は小さく、少しずれた音
         add(T0("seven", .05), _glass(mf(deg(5)) * 2 ** (1 / 12), sr) * .07); add(T0("seven", .5), _glass(mf(deg(8)) * 2 ** (1 / 12), sr) * .07)
         add(T0("hundred", .1), _glass(mf(deg(3)) * 2 ** (1 / 12), sr) * .07)
-        for i in range(24): add(T0("count", .15) + i * 1.2 / 24, _glass(mf(deg(i % 10 + 4)), sr, 1.2) * .06)
+        for i in range(24): add(T0("count", .15) + i * 1.2 / 24, _T1(i % 10 + 4, 1.2) * .06)
 
 
 def build(sid, bgm=None, gpu=False, jobs=2, audio_only=False):

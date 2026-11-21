@@ -6,6 +6,7 @@ import math
 #   確認用: STILLS="3,12.5,30" を付けて実行すると、その時刻の絵だけ build_ballsim/<id>_<秒>.jpg に出す（動画と音は作らない）
 import os, sys, math, json, subprocess, wave
 import numpy as np
+import harmony
 from PIL import Image, ImageDraw, ImageFilter, ImageChops
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from ballsim import W, H, FPS, hsv, font, SR, mtof
@@ -135,6 +136,9 @@ class Sim:
     # ---- 音（1個ずつ足す）
     def note(self, t, midi, gain=1.0, pan=.5, dec=6.0, kind="mar"):
         while midi > MAX_MIDI: midi -= 12   # 高すぎる音はオクターブ下げる（オーナー 11/21「ハイキーは気持ち悪い」）
+        if harmony.ON and kind not in ("kick", "hat"):   # 当たった音を今の和音（カノン進行）に寄せ、残りの2音を小さく重ねる
+            midi = harmony.snap(int(round(midi)), t)
+            for o in harmony.others(midi, t): self.notes.append((t, o, gain * .3, min(1, max(0, pan)), dec * 1.1, kind))
         self.notes.append((t, midi, gain, min(1, max(0, pan)), dec, kind))
 
     def chord(self, t, midis, gain=.35, dec=3.0, kind="mar"):
