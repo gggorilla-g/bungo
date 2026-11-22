@@ -1,0 +1,16 @@
+【タイトル】
+Fire Balls Every Way From One Point. Do They All Reach the Other One? #shorts
+
+【説明】
+Inside an ellipse, balls leave one glowing point (a focus) in every direction. After bouncing off the wall, every single one passes through the other focus. Each time they come back, there are more of them.
+
+How it works:
+- An ellipse reflects any line from one focus through the other focus.
+- The path focus, wall, focus always has the same total length (the long diameter of the ellipse).
+- Here each ball has a slightly different speed, so they arrive one after another instead of all at once (at equal speeds they would arrive together).
+- Each wall hit plays a note on a C major scale over a gentle chord progression and beat.
+
+Simulation, sound and animation: original (Python).
+
+【タグ】
+ellipse, focus, physics, math, satisfying, relaxing, simulation, shorts

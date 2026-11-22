@@ -1,0 +1,19 @@
+{
+ "id": "ellipse1d_en2",
+ "title": [
+  "Fire every way from one point.",
+  "Do they all reach the other?"
+ ],
+ "count_label": "Balls: ",
+ "a": 1.0,
+ "b": 0.72,
+ "v": 1.1818,
+ "n0": 4,
+ "doubles": 6,
+ "seed": 21,
+ "hold": 0.067,
+ "perball": true,
+ "growth": 1.6,
+ "ball_r": 0.017,
+ "stagger": 0.3
+}

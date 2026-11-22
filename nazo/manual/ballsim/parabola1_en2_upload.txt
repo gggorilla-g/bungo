@@ -1,0 +1,16 @@
+【タイトル】
+Drop Balls Straight Down Into a Bowl. Do They All Cross One Point? #shorts
+
+【説明】
+Balls fall straight down into a parabola-shaped wall. After one bounce, every ball passes through the same point (the focus), then bounces again and heads straight back up.
+
+How it works:
+- A parabola reflects any line parallel to its axis through its focus. Satellite dishes and reflecting telescopes use the same idea.
+- Here each ball has a slightly different speed, so they reach the focus one after another instead of all at once (at equal speeds they would arrive together).
+- No gravity: the balls move like light and pass through each other. The top line is a mirror.
+- More balls every round trip. Each wall hit plays a note on a C major scale over a gentle chord progression and beat.
+
+Simulation, sound and animation: original (Python).
+
+【タグ】
+parabola, focus, physics, math, satisfying, relaxing, simulation, shorts
