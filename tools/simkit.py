@@ -4,7 +4,7 @@ import math
 #   ハウスルール（オーナーの指摘）: ボールは小さく／速すぎない／途中で止めない／増え方はゆっくり／
 #     ボール1個ごとに音／軌跡は残す／余計な文字は入れない／低い衝撃音は使わない
 #   確認用: STILLS="3,12.5,30" を付けて実行すると、その時刻の絵だけ build_ballsim/<id>_<秒>.jpg に出す（動画と音は作らない）
-import os, sys, math, json, subprocess, wave
+import re, os, sys, math, json, subprocess, wave
 import numpy as np
 import harmony
 from PIL import Image, ImageDraw, ImageFilter, ImageChops
@@ -71,6 +71,18 @@ class Sim:
 
     def title(self):
         d = ImageDraw.Draw(self.bg)
+        if self.sp.get("style") == "big":   # 参考スクショ（オーナー 11/22）にならう：字を大きく、白地に、要の言葉だけ色を付ける。{…}＝黄、[…]＝水色
+            y = 118 * S
+            for line in self.sp["title"]:
+                parts = [(m.group(1) or m.group(2) or m.group(3), (255, 205, 60) if m.group(1) else (90, 220, 255) if m.group(2) else (255, 255, 255)) for m in re.finditer(r"\{([^}]*)\}|\[([^\]]*)\]|([^{\[]+)", line)]
+                plain = "".join(t for t, _ in parts); sz = 76 * S; f = font(sz); w = d.textlength(plain, font=f)
+                if w > W * S * .94: sz = int(sz * W * S * .94 / w); f = font(sz); w = d.textlength(plain, font=f)
+                x = W * S / 2 - w / 2
+                for t, c in parts: d.text((x, y), t, font=f, fill=c, stroke_width=7 * S, stroke_fill=(0, 0, 0)); x += d.textlength(t, font=f)
+                y += 100 * S
+            self.label_y = y / S + 6
+            if self.sp.get("mark"): f = font(30 * S); w = d.textlength(self.sp["mark"], font=f); d.text((W * S / 2 - w / 2, H * S * .905), self.sp["mark"], font=f, fill=(120, 130, 160))
+            return
         for i, line in enumerate(self.sp["title"]):
             f = font(58 * S); w = d.textlength(line, font=f)
             if w > W * S * .93: f = font(int(58 * S * W * S * .93 / w)); w = d.textlength(line, font=f)
@@ -124,7 +136,7 @@ class Sim:
             x, y = self.to(p); d.ellipse([x - r * S, y - r * S, x + r * S, y + r * S], outline=col, width=max(1, int(wd * S)))
         if draw: draw(d)
         if label:
-            lab, num = label; fC, fN = F(50 * S), F(62 * S); w1, w2 = d.textlength(lab, font=fC), d.textlength(num, font=fN); x0 = W * S / 2 - (w1 + w2) / 2; y = 318 * S
+            lab, num = label; fC, fN = F(50 * S), F(62 * S); w1, w2 = d.textlength(lab, font=fC), d.textlength(num, font=fN); x0 = W * S / 2 - (w1 + w2) / 2; y = getattr(self, "label_y", 318) * S
             d.text((x0, y + 8 * S), lab, font=fC, fill=(235, 235, 240), stroke_width=5 * S, stroke_fill=(0, 0, 0))
             d.text((x0 + w1, y), num, font=fN, fill=(255, 210, 70), stroke_width=6 * S, stroke_fill=(0, 0, 0))
         out = im.resize((W, H), Image.LANCZOS)
