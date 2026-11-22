@@ -1,3 +1,4 @@
+helio1_ja MOSO ja
 parabola2_ja MOSO ja
 ellipse3_ja MOSO ja
 mirrors1_ja MOSO ja

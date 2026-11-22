@@ -1220,7 +1220,66 @@ def dragon(sp):
     sim.finish(total)
 
 
-KINDS = {"dragon": dragon, "rhythm": rhythm, "lissatable": lissatable, "plotter": plotter, "threebody": threebody, "pendswing": pendswing, "golden": golden, "piphase": piphase, "maurer": maurer, "harmono": harmono, "spiro": spiro, "star": star, "throw": throw, "tusi": tusi, "chain": chain, "basket": basket, "koch": koch, "cycloid": cycloid, "pendulums": pendulums, "lissajous": lissajous, "corner": corner, "sunflower": sunflower, "ulam": ulam, "parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2, "picount": picount}
+
+
+def heliostat(sp):
+    """たくさんの鏡（ヘリオスタット）。上からまっすぐ来た光を、地面の鏡で塔の上の1点へ。
+    鏡までの距離がちがうので、着く時刻は自然にずれる。回ごとに鏡を増やす。塔の点は集まった光の量で明るくなる"""
+    X, Y, v = sp.get("X", 6.0), sp.get("Y", 14.0), sp.get("v", 7.0); T = np.array([0.0, sp.get("tower", 6.5)])
+    ms = sp.get("rounds", [2, 3, 5, 8, 12, 18]) + [sp.get("last", 26)]; intro, tail = .4, sp.get("tail", 1.6)
+    sim = Sim(sp, (-X - .3, -.6, X + .3, Y + .15))
+    sim.neon([(-X - .2, -.05), (X + .2, -.05)], width=4)
+    sim.neon([(0, -.05), (0, T[1] - .35)], width=3, color=(120, 140, 180), glow=(40, 60, 110))
+    sim.neon([(-X, Y), (X, Y)], width=4)
+    sim.ring(tuple(T), 13); sim.title()
+    maxL = Y + math.hypot(X, T[1]); P = maxL / v + .5
+    rounds = []
+    for r, m in enumerate(ms):
+        t0 = intro + r * P; xs = []
+        for j in range(m):   # 左右に m 枚ずつ、内側から外側へ（外ほど間をあける）
+            u = (j + .5) / m; x = .8 + (X - .8) * u ** .85; xs += [x, -x]
+        balls = []
+        for i, x in enumerate(xs):
+            M = np.array([x, 0.0]); d2 = T - M; L2 = float(np.hypot(*d2)); nrm = (np.array([0, 1.0]) + d2 / L2); nrm /= np.hypot(*nrm)
+            tang = np.array([nrm[1], -nrm[0]]) * .28
+            hue = ((abs(x) / X) * .55 + (0 if x > 0 else .5) + r * .07) % 1
+            balls.append(dict(M=M, L1=Y, L2=L2, tang=tang, col=hsv(hue), x=x, done=0))
+        n = len(balls); dec, g = 4 + 3 * math.sqrt(n / 5), .9 / math.sqrt(n)
+        order = np.argsort(np.argsort([abs(b["x"]) for b in balls], kind="stable"))
+        for i, b in enumerate(balls):
+            frac = order[i] / max(1, n - 1)
+            sim.note(t0 + b["L1"] / v, PENTA[int(frac * 9 + .5)], g, .5 + .35 * b["x"] / X, dec)
+            sim.note(t0 + (b["L1"] + b["L2"]) / v, PENTA[int(6 + frac * 9 + .5)], g * .8, .5, dec * 1.2)
+        rounds.append((t0, balls))
+    total = intro + len(ms) * P + tail
+    sim.notes = [nt for nt in sim.notes if nt[0] < total - .02]
+    energy = 0.0
+    for fi in range(int(total * FPS)):
+        t = fi / FPS; r = min(len(rounds) - 1, max(0, int((t - intro) // P))); t0, balls = rounds[r]; s = max(0, t - t0) * v
+        n = len(balls); lw = max(1.0, 2.0 * min(1, 10 / math.sqrt(n))); segs, live, dots, fl = [], [], [], []
+        if r > 0:
+            for b in rounds[r - 1][1]:
+                if b["done"] < 2: segs.append(((b["x"], Y), tuple(b["M"]), dim(b["col"], .22))); segs.append((tuple(b["M"]), tuple(T), dim(b["col"], .22))); b["done"] = 2
+        for b in balls:
+            M = b["M"]; p0 = M - b["tang"]; p1 = M + b["tang"]; live.append((tuple(p0), tuple(p1), (200, 225, 255), 3))   # 鏡
+            if s < b["L1"]: p = (b["x"], Y - s); live.append(((b["x"], Y), p, dim(b["col"], .7), lw)); dots.append((p, b["col"], 5 if n <= 32 else 4))
+            elif s < b["L1"] + b["L2"]:
+                if b["done"] < 1: segs.append(((b["x"], Y), tuple(M), dim(b["col"], .22))); b["done"] = 1
+                k = (s - b["L1"]) / b["L2"]; p = tuple(M + (T - M) * k); live.append((tuple(M), p, dim(b["col"], .7), lw)); dots.append((p, b["col"], 5 if n <= 32 else 4))
+                e = (s - b["L1"]) / v
+                if e < .3: fl.append((tuple(M), 10 + e * 50, dim(b["col"], 1 - e / .3), 3))
+            else:
+                if b["done"] < 2:
+                    if b["done"] < 1: segs.append(((b["x"], Y), tuple(M), dim(b["col"], .22)))
+                    segs.append((tuple(M), tuple(T), dim(b["col"], .22))); b["done"] = 2; energy += 1
+        sim.commit(segs, width=lw)
+        energy *= .985
+        glow = min(1, energy / 14)
+        fl.append((tuple(T), 14 + 26 * glow, dim((255, 240, 190), .35 + .65 * glow), 4))
+        sim.frame(t, live, dots, (sp.get("count_label", "鏡："), f"{n:,}"), fl)
+    sim.finish(total)
+
+KINDS = {"heliostat": heliostat, "dragon": dragon, "rhythm": rhythm, "lissatable": lissatable, "plotter": plotter, "threebody": threebody, "pendswing": pendswing, "golden": golden, "piphase": piphase, "maurer": maurer, "harmono": harmono, "spiro": spiro, "star": star, "throw": throw, "tusi": tusi, "chain": chain, "basket": basket, "koch": koch, "cycloid": cycloid, "pendulums": pendulums, "lissajous": lissajous, "corner": corner, "sunflower": sunflower, "ulam": ulam, "parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2, "picount": picount}
 
 if __name__ == "__main__":
     sp = json.load(open(sys.argv[1], encoding="utf-8")); KINDS[sp["kind"]](sp); kit(sp)
