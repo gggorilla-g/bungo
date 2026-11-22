@@ -1,0 +1,16 @@
+【タイトル】
+Slightly Squashed. Do They All Meet at the Other Point? #shorts #physics #math
+
+【説明】
+Inside an slightly squashed ellipse, balls leave one glowing point (a focus) in every direction. After one bounce off the wall, every single one passes through the other focus. More balls each round.
+
+How it works:
+- Any ellipse reflects a line from one focus through the other focus, however round or thin it is.
+- The path focus, wall, focus always has the same total length (the long diameter), so at equal speeds they would all arrive together.
+- Here the speed changes smoothly with the launch direction, so the balls arrive in a wave, one after another.
+- Each wall hit plays a note on a C major scale over a gentle chord progression and beat.
+
+Simulation, sound and animation: original (Python).
+
+【タグ】
+ellipse, focus, physics, math, satisfying, relaxing, simulation, shorts

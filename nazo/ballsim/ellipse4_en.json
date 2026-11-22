@@ -1,0 +1,19 @@
+{
+ "id": "ellipse4_en",
+ "title": [
+  "Make the ellipse almost a circle.",
+  "Do they ALL meet?"
+ ],
+ "count_label": "Balls: ",
+ "a": 1.0,
+ "b": 0.94,
+ "v": 1.1818,
+ "n0": 4,
+ "doubles": 7,
+ "seed": 13,
+ "hold": 0.067,
+ "perball": true,
+ "growth": 1.5,
+ "ball_r": 0.017,
+ "stagger": 0.3
+}

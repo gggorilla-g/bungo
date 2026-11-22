@@ -1,0 +1,19 @@
+{
+ "id": "ellipse5_en",
+ "title": [
+  "A slightly squashed ellipse.",
+  "Do they ALL meet?"
+ ],
+ "count_label": "Balls: ",
+ "a": 1.0,
+ "b": 0.75,
+ "v": 1.1818,
+ "n0": 4,
+ "doubles": 7,
+ "seed": 17,
+ "hold": 0.067,
+ "perball": true,
+ "growth": 1.5,
+ "ball_r": 0.017,
+ "stagger": 0.3
+}
