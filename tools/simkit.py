@@ -33,6 +33,7 @@ def F(sz):
 
 class Sim:
     def __init__(self, sp, box, area=(.06, .225, .94, .80)):
+        self.mel = [] if sp.get("melody") else None   # "melody": "canon" = 当たるたびにカノンの旋律が1音進む
         """box: 図の範囲 (xmin, ymin, xmax, ymax)。area: 画面のどこに収めるか（左・上・右・下の割合）。数は上、図は中央（下2割は投稿画面の文字とかぶるので空ける）"""
         self.sp, self.id = sp, sp["id"]
         l, t, r, b = area; x0, y0, x1, y1 = box
@@ -136,6 +137,7 @@ class Sim:
 
     # ---- 音（1個ずつ足す）
     def note(self, t, midi, gain=1.0, pan=.5, dec=6.0, kind="mar"):
+        if self.mel is not None and kind == "mar": self.mel.append((t, gain, pan, dec, "n")); return
         while midi > MAX_MIDI: midi -= 12   # 高すぎる音はオクターブ下げる（オーナー 11/21「ハイキーは気持ち悪い」）
         if harmony.ON and kind not in ("kick", "hat"):   # 当たった音を今の和音（カノン進行）に寄せ、残りの2音を小さく重ねる
             midi = harmony.snap(int(round(midi)), t)
@@ -143,6 +145,7 @@ class Sim:
         self.notes.append((t, midi, gain, min(1, max(0, pan)), dec, kind))
 
     def chord(self, t, midis, gain=.35, dec=3.0, kind="mar"):
+        if self.mel is not None: self.mel.append((t, gain, .5, dec * 2, "ch")); return   # 節目（全部そろう瞬間）は、今の和音をベルで鳴らす
         for m in midis: self.note(t, m, gain, .5, dec, kind)
 
     def _audio(self, total, path):
@@ -188,6 +191,24 @@ class Sim:
             w.setnchannels(2); w.setsampwidth(2); w.setframerate(SR); w.writeframes((st * 32767).astype(np.int16).tobytes())
 
     def finish(self, total):
+        if self.mel:   # 旋律モード：当たった順に、パッヘルベルのカノン（著作権切れ）の旋律を1音ずつ進める。和音も音の歩みに合わせて進む
+            P1 = [76, 74, 72, 71, 69, 67, 69, 71]; P2 = [72, 76, 79, 77, 76, 72, 76, 74, 72, 69, 72, 79, 77, 81, 79, 77]
+            seq = [(m, i) for i, m in enumerate(P1)] + [(m, i // 2) for i, m in enumerate(P2)]   # (音, 何番目の和音)
+            ev = sorted(e for e in self.mel if e[0] < total - .02); k = -1; last = -9
+            for t, gain, pan, dec, tag in ev:
+                if tag == "ch":
+                    r, q = harmony.CANON[seq[max(k, 0) % len(seq)][1]]
+                    for x in q: self.notes.append((t, 60 + (r + x) % 12, gain * .8, .5, dec, "bell"))
+                    continue
+                if t - last > .045: k += 1; last = t; new = True   # ほぼ同時の当たりは1歩にまとめる
+                else: new = False
+                m, ci = seq[k % len(seq)]; r, q = harmony.CANON[ci]; pc = [(r + x) % 12 for x in q]
+                self.notes.append((t, m, gain, pan, dec, "mar"))
+                if new:
+                    lo = [x for x in range(m - 3, m - 15, -1) if x % 12 in pc and x % 12 != m % 12][:2]
+                    for x in lo: self.notes.append((t, x, gain * .32, pan, dec * 1.1, "mar"))
+                    if k % len(seq) in (0, 8) or (k % len(seq) > 8 and (k % len(seq)) % 2 == 0) or k % len(seq) < 8:
+                        self.notes.append((t, 36 + r if r >= 4 else 48 + r, gain * .5, .5, dec * 1.6, "mar"))   # 低い根音で土台
         if self.stills is not None: print("確認用の絵:", self.stills); return
         self.proc.stdin.close(); self.proc.wait(); wv = f"build_ballsim/{self.id}.wav"; self._audio(total, wv)
         subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", self.raw, "-i", wv, "-map", "0:v", "-map", "1:a", "-c:v", "copy", "-c:a", "aac", "-b:a", "192k",

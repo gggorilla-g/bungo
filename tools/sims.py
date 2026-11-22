@@ -27,9 +27,9 @@ def parabola(sp):
     sim.ring((0, f), 13); sim.title()
     rounds = []
     for r, m in enumerate(ms):
-        t0 = intro + r * 2 * T; xr = [a * (X / a) ** ((j + .5) / m) for j in range(m)]; balls = []
+        t0 = intro + r * 2 * T; IL = .25 if sp.get("interleave") else 0; balls = []   # interleave：左右の落とす位置を半分ずらす（当たる時刻が1個ずつになる）
         for side in (1, -1):
-            for j, x1 in enumerate(xr):
+            for j, x1 in enumerate([a * (X / a) ** ((j + .5 + side * IL) / m) for j in range(m)]):
                 x1 = side * x1; y1 = x1 * x1 / (4 * f); x2 = -4 * f * f / x1; y2 = x2 * x2 / (4 * f)
                 if sp.get("from_focus"):   # 焦点から打つ：壁で跳ね返ると全部まっすぐ上へ、平行に、同時に上の線へ（道の長さ y1+f + Y-y1 = Y+f）
                     balls.append(dict(pts=[(0, f), (x1, y1), (x1, Y), (x1, y1), (0, f)], cum=[0, y1 + f, Y + f, Y + f + (Y - y1), 2 * (Y + f)],

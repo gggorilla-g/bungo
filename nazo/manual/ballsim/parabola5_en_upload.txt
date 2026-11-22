@@ -1,0 +1,16 @@
+【タイトル】
+Every Ball Crosses One Point. Every Bounce Plays the Next Note (Wait for 64 Balls) #shorts #physics #satisfying
+
+【説明】
+Balls fall straight down into a parabola-shaped wall. After one bounce, every ball passes through the same point (the focus). Each wall hit plays the next note of Pachelbel's Canon. The ball count doubles every round (4, 8, 16, 32, 64), so the tune keeps getting faster.
+
+How it works:
+- A parabola reflects every line parallel to its axis through its focus. Satellite dishes use this.
+- Every path from the top line to the focus has the same length, so they all reach the focus together.
+- The wall is higher toward the sides, so the wall hits are naturally spread out in time. That spread is the rhythm you hear; nothing is delayed by hand.
+- No gravity here (it moves like light).
+
+Simulation, sound and animation: original (Python). Melody: Pachelbel's Canon (public domain).
+
+【タグ】
+parabola, focus, canon, physics, math, satisfying, relaxing, simulation, shorts
