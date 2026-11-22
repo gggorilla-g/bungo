@@ -35,7 +35,8 @@ def parabola(sp):
                 balls.append(dict(pts=[(x1, Y), (x1, y1), (0, f), (x2, y2), (x2, Y)], cum=[0, Y - y1, Y + f, Y + 2 * f + y2, 2 * (Y + f)],
                                   col=hsv(((j + .5) / m * .5 + (0 if side > 0 else .5)) % 1), done=0))
         n = len(balls)
-        for i, b in enumerate(balls): b["spd"] = 1 - ST * ((i * .618 + r * .29) % 1)
+        for i, b in enumerate(balls):   # ばらつきはランダムでなく波：横の位置にそって順に着く。回ごとに向きを左右入れかえる（オーナー 11/22）
+            u = (b["pts"][1][0] / X + 1) / 2; b["spd"] = 1 - ST * (u if r % 2 == 0 else 1 - u)
         h1 = np.array([b["cum"][1] / b["spd"] for b in balls]); h2 = np.array([b["cum"][3] / b["spd"] for b in balls])
         o1 = np.argsort(np.argsort(h1, kind="stable")); o2 = np.argsort(np.argsort(h2, kind="stable"))
         dec, g = 4 + 3 * math.sqrt(n / 5), .9 / math.sqrt(n)

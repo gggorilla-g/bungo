@@ -96,7 +96,7 @@ def main(spec_path):
     for k in range(doubles + 1):
         dirs = launch(n, rng.uniform(0, 2 * np.pi))
         hit1, l1 = path(dirs, F1)            # F1→壁
-        rounds.append(dict(n=n, hit=hit1, l1=l1, hue=np.array([(i / n + k * .13) % 1 for i in range(n)]), spd=1 - ST * ((np.arange(n) / n + .37 * k) % 1)))
+        rounds.append(dict(n=n, hit=hit1, l1=l1, hue=np.array([(i / n + k * .13) % 1 for i in range(n)]), spd=1 - ST * (.5 - .5 * np.cos(2 * np.pi * np.arange(n) / n - 2.1 * k))))   # ばらつきはランダムでなく波：ある向きのボールから先に着き、両隣へ順に伝わる（オーナー 11/22）
         n = int(round(n * sp.get("growth", 2)))
     # 音の出来事
     melodic = sp.get("melodic", True)
