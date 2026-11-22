@@ -1,0 +1,15 @@
+【タイトル】
+Roll a Gear Inside a Ring. What Flower Does It Draw? (Wait for the End) #shorts #satisfying #math
+
+【説明】
+A 41-tooth gear rolls inside a 96-tooth ring. A pen in one of the gear's holes draws a flower. Every petal tip plays a stone-chime note.
+
+How it works:
+- 96 and 41 share no common factor bigger than 1, so the flower gets 96 petals and the line only closes after 41 laps.
+- Change the tooth ratio and both the petal count and the number of laps change. The curve is a hypotrochoid.
+- The hole you put the pen in (its distance from the gear's center) sets how fat the petals are.
+
+Simulation, sound and animation: original (Python).
+
+【タグ】
+spirograph, gears, hypotrochoid, geometry, math, satisfying, relaxing, shorts

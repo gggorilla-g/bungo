@@ -1759,7 +1759,48 @@ def koch(sp):
         sim.frame(t, live, dots, (sp.get("count_label", "まわりの長さ "), f"{peri:.2f}"), fl, draw)
     sim.finish(total)
 
-KINDS = {"lens": lens, "koch": koch, "pendwave": pendwave, "orbits": orbits, "phyllo": phyllo, "zoomsalt": zoomsalt, "layers": layers, "pixels": pixels, "sortviz": sortviz, "polyfocus": polyfocus, "heliostat": heliostat, "dragon": dragon, "rhythm": rhythm, "lissatable": lissatable, "plotter": plotter, "threebody": threebody, "pendswing": pendswing, "golden": golden, "piphase": piphase, "maurer": maurer, "harmono": harmono, "spiro": spiro, "star": star, "throw": throw, "tusi": tusi, "chain": chain, "basket": basket, "koch": koch, "cycloid": cycloid, "pendulums": pendulums, "lissajous": lissajous, "corner": corner, "sunflower": sunflower, "ulam": ulam, "parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2, "picount": picount}
+
+
+def spiro(sp):
+    """スピログラフ（オーナー参考 11/22、いいね52万）。歯数 Rt の大きな輪の内側を、歯数 rt の小さな歯車が転がり、穴に差したペンが線を描く。
+    歯数の比で、花びらの数と、何周で閉じるかが決まる（花びら＝Rt/gcd、周回＝rt/gcd）。花びらの先を通るたびに1音。だんだん速く"""
+    Rt, rt, hole = sp.get("R", 96), sp.get("r", 60), sp.get("hole", .8); g = math.gcd(Rt, rt); petals, laps = Rt // g, rt // g
+    R = 1.0; r = R * rt / Rt; d = r * hole; D, intro, tail = sp.get("dur", 22.0), .5, 2.6; total = intro + D + tail
+    th_end = 2 * math.pi * laps; th_at = lambda t: th_end * min(1, max(0, (t - intro) / D)) ** 1.6
+    pen = lambda th: ((R - r) * math.cos(th) + d * math.cos((R - r) / r * th), (R - r) * math.sin(th) - d * math.sin((R - r) / r * th))
+    sim = Sim(sp, (-1.15, -1.15, 1.15, 1.15)); sim.neon([(R * math.cos(a), R * math.sin(a)) for a in np.linspace(0, 2 * math.pi, 241)], width=4); sim.title()
+    # 花びらの先（中心からいちばん遠い点）を通る時刻に音
+    N = 6000; ths = np.linspace(0, th_end, N); rad = np.array([math.hypot(*pen(t_)) for t_ in ths]); last = -9; tips = 0
+    inv = lambda th: intro + D * (th / th_end) ** (1 / 1.6)
+    for i in range(1, N - 1):
+        if rad[i] >= rad[i - 1] and rad[i] > rad[i + 1]:
+            tt = inv(ths[i])
+            if tt - last > .07: sim.note(tt, PENTA[[0, 2, 4, 7, 9, 12, 9, 7, 4, 2][tips % 10]], .5, .5 + .35 * pen(ths[i])[0], 5); last = tt
+            tips += 1
+    b = 0.0
+    while b < D: sim.note(intro + b, 36, .45, .5, 9, "kick"); b += .5
+    sim.chord(intro + D + .1, [60, 64, 67, 72], gain=.55, dec=5)
+    prev = 0.0
+    for fi in range(int(total * FPS)):
+        t = fi / FPS; th = th_at(t); segs = []
+        n = max(1, int((th - prev) / .01))
+        for k in range(n):
+            a0, a1 = prev + (th - prev) * k / n, prev + (th - prev) * (k + 1) / n
+            segs.append((pen(a0), pen(a1), dim(hsv((.62 + .3 * a1 / th_end) % 1), .85)))
+        if th > prev: sim.commit(segs, width=1.6)
+        prev = th; c = ((R - r) * math.cos(th), (R - r) * math.sin(th)); p_ = pen(th); live = []
+        live += [((c[0] + r * math.cos(a), c[1] + r * math.sin(a)), (c[0] + r * math.cos(a + .1), c[1] + r * math.sin(a + .1)), (120, 140, 190), 2.4) for a in np.arange(0, 2 * math.pi, .1)]
+        spin = -(R - r) / r * th
+        for k in range(rt // 4):   # 歯車の歯（回転が見えるように）
+            a = spin + 2 * math.pi * k / (rt // 4); live.append(((c[0] + r * .93 * math.cos(a), c[1] + r * .93 * math.sin(a)), (c[0] + r * math.cos(a), c[1] + r * math.sin(a)), (150, 170, 215), 2))
+        live.append((c, p_, (200, 210, 240), 1.4))
+        fl = [(p_, 10 + 4 * math.sin(t * 12), (255, 240, 200), 2)] if t < intro + D else []
+        e = t - intro - D
+        if 0 <= e < .7: fl.append(((0, 0), 30 + e * 500, dim((255, 245, 210), 1 - e / .7), 4))
+        sim.frame(t, live, [(p_, (255, 250, 235), 6)], (sp.get("count_label", "花びら "), f"{petals}"), fl)
+    sim.finish(total)
+
+KINDS = {"spiro": spiro, "lens": lens, "koch": koch, "pendwave": pendwave, "orbits": orbits, "phyllo": phyllo, "zoomsalt": zoomsalt, "layers": layers, "pixels": pixels, "sortviz": sortviz, "polyfocus": polyfocus, "heliostat": heliostat, "dragon": dragon, "rhythm": rhythm, "lissatable": lissatable, "plotter": plotter, "threebody": threebody, "pendswing": pendswing, "golden": golden, "piphase": piphase, "maurer": maurer, "harmono": harmono, "spiro": spiro, "star": star, "throw": throw, "tusi": tusi, "chain": chain, "basket": basket, "koch": koch, "cycloid": cycloid, "pendulums": pendulums, "lissajous": lissajous, "corner": corner, "sunflower": sunflower, "ulam": ulam, "parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2, "picount": picount}
 
 if __name__ == "__main__":
     sp = json.load(open(sys.argv[1], encoding="utf-8")); KINDS[sp["kind"]](sp); kit(sp)
