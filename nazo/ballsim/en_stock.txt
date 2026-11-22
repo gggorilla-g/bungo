@@ -4,3 +4,4 @@ hearts1_en
 pendwave3d_en
 bricks1_en
 merge1_en
+dots2_en

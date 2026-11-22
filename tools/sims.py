@@ -1691,7 +1691,9 @@ def lens(sp):
             th = 2 * math.pi * (i + .5) / m + .37 * r; c = math.cos(th); rr = 2 * f / (1 + abs(c)); p1 = (rr * c, rr * math.sin(th)); p2 = (-p1[0], p1[1])
             spd = 1 - ST * (.5 - .5 * math.cos(th - 1.3 * r)); balls.append(dict(pts=[(0, 0), p1, p2, (0, 0)], cum=[0, rr, rr + 2 * abs(p1[0]), 4 * f], spd=spd, col=hsv((i / m + .08 * r) % 1), done=0))
         n = len(balls); g = .9 / math.sqrt(n); dec = 4 + 3 * math.sqrt(n / 5)
-        for b in balls:
+        stp = max(1, n // 48)   # 音は1回に48個まで
+        for bi_, b in enumerate(balls):
+            if bi_ % stp: continue
             for q in (1, 2): sim.note(t0 + b["cum"][q] / (v * b["spd"]), PENTA[int((b["pts"][q][1] / (2 * f) * .5 + .5) * 15 + .5)], g, .5 + .4 * b["pts"][q][0], dec)
         sim.chord(t0, [60, 67, 72]); rounds.append((t0, balls))
     total = intro + len(ms) * T + tail; sim.chord(intro + len(ms) * T, [60, 64, 67, 72], gain=.5, dec=5)
@@ -1700,16 +1702,16 @@ def lens(sp):
         t = fi / FPS; r = min(len(rounds) - 1, max(0, int((t - intro) // T))); t0, balls = rounds[r]; s = max(0, t - t0) * v; segs = []; n = len(balls); lw = max(1.0, 2.0 * min(1, 10 / math.sqrt(n)))
         if r > 0:
             for b in rounds[r - 1][1]:
-                while b["done"] < 3: segs.append((b["pts"][b["done"]], b["pts"][b["done"] + 1], dim(b["col"], .28))); b["done"] += 1
+                while b["done"] < 3: segs.append((b["pts"][b["done"]], b["pts"][b["done"] + 1], dim(b["col"], .28 * min(1, 5 / math.sqrt(len(rounds[r - 1][1])))))); b["done"] += 1
         live, dots, fl = [], [], []; arrived = 0
         for b in balls:
             cum, pts = b["cum"], b["pts"]; sc = min(s * b["spd"], cum[-1])
-            while b["done"] < 3 and cum[b["done"] + 1] <= sc: segs.append((pts[b["done"]], pts[b["done"] + 1], dim(b["col"], .28))); b["done"] += 1
+            while b["done"] < 3 and cum[b["done"] + 1] <= sc: segs.append((pts[b["done"]], pts[b["done"] + 1], dim(b["col"], .28 * min(1, 5 / math.sqrt(n))))); b["done"] += 1
             k = b["done"]
             if k >= 3: arrived += 1; continue
-            pnt = lerp(pts[k], pts[k + 1], (sc - cum[k]) / (cum[k + 1] - cum[k])); live.append((pts[k], pnt, dim(b["col"], .75), lw)); dots.append((pnt, b["col"], 5 if n <= 32 else 4))
+            pnt = lerp(pts[k], pts[k + 1], (sc - cum[k]) / (cum[k + 1] - cum[k])); live.append((pts[k], pnt, dim(b["col"], .75 * min(1, 8 / math.sqrt(n))), lw)); dots.append((pnt, b["col"], 5 if n <= 32 else 4 if n <= 256 else 2.6))
             e = (sc - cum[k]) / (v * b["spd"])
-            if k in (1, 2) and e < .2: fl.append((pts[k], 8 + e * 70, dim(b["col"], 1 - e / .2), 2))
+            if k in (1, 2) and e < .2 and n <= 128: fl.append((pts[k], 8 + e * 70, dim(b["col"], 1 - e / .2), 2))
         sim.commit(segs, width=lw)
         gl = arrived / n if s > 0 else 0; bt = (t * 2) % 1
         fl.append(((0, 0), 14 + 30 * gl + 6 * (1 - bt), dim((255, 240, 190), .3 + .7 * gl), 4))

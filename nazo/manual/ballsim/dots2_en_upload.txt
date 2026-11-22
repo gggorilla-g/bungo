@@ -1,0 +1,15 @@
+【タイトル】
+Every Hit on the Dot Makes 2 Balls. Can 2,048 Balls All Come Back to It? #shorts #satisfying #physics
+
+【説明】
+Two facing mirrors share one glowing dot. Every ball that passes the dot splits into two. They fly out, bounce twice, and every single one comes back to the same dot. 1, 2, 4 ... 2,048.
+
+How it works:
+- Both mirrors are parabolas with the same focus (the dot). A line from the focus bounces off the first mirror parallel, then off the second mirror straight back to the focus.
+- The path dot, mirror, mirror, dot has the same length in every direction, so at equal speeds every ball would return together. Here the speed changes smoothly with direction, so they come back in a wave.
+- No gravity here (it moves like light). Each mirror hit plays a stone-chime note.
+
+Simulation, sound and animation: original (Python).
+
+【タグ】
+parabola, focus, doubling, physics, math, satisfying, relaxing, shorts

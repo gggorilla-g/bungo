@@ -1,0 +1,42 @@
+{
+ "kind": "lens",
+ "tone": "stone",
+ "style": "big",
+ "mark": "@makeitwork3d",
+ "bloom": 1.15,
+ "title": [
+  "Every hit on the dot = [2 balls]",
+  "Will they ALL come back to it?"
+ ],
+ "count_label": "Balls: ",
+ "yt": {
+  "title": "Every Hit on the Dot Makes 2 Balls. Can 2,048 Balls All Come Back to It? #shorts #satisfying #physics",
+  "desc": "Two facing mirrors share one glowing dot. Every ball that passes the dot splits into two. They fly out, bounce twice, and every single one comes back to the same dot. 1, 2, 4 ... 2,048.\n\nHow it works:\n- Both mirrors are parabolas with the same focus (the dot). A line from the focus bounces off the first mirror parallel, then off the second mirror straight back to the focus.\n- The path dot, mirror, mirror, dot has the same length in every direction, so at equal speeds every ball would return together. Here the speed changes smoothly with direction, so they come back in a wave.\n- No gravity here (it moves like light). Each mirror hit plays a stone-chime note.\n\nSimulation, sound and animation: original (Python).",
+  "tags": [
+   "parabola",
+   "focus",
+   "doubling",
+   "physics",
+   "math",
+   "satisfying",
+   "relaxing",
+   "shorts"
+  ]
+ },
+ "id": "dots2_en",
+ "rounds": [
+  1,
+  2,
+  4,
+  8,
+  16,
+  32,
+  64,
+  128,
+  256,
+  512,
+  1024
+ ],
+ "last": 2048,
+ "v": 3.4
+}
