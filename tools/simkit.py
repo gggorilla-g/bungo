@@ -171,6 +171,10 @@ class Sim:
                     tt = np.arange(int(SR * 2.6)) / SR
                     s = sum((1 / h ** 1.25) * np.sin(2 * np.pi * f * h * (1 + .0004 * h * h) * tt) * np.exp(-tt * (1.1 + .55 * h)) for h in range(1, 8))
                     cache[key] = s * np.minimum(1, tt / .006) * (f / 261.6) ** -.35; return cache[key]
+                if kind == "karo":   # 「カロッ」：ガラスとマリンバの中間（オーナー 11/22）。木の胴＋少しずれた澄んだ倍音、短く切れる
+                    s = np.sin(2 * np.pi * f * tt) * np.exp(-tt * 3) + .30 * np.sin(2 * np.pi * f * 4 * tt) * np.exp(-tt * 18) + .26 * np.sin(2 * np.pi * f * 2.76 * tt + 1) * np.exp(-tt * 9) + .10 * np.sin(2 * np.pi * f * 5.4 * tt) * np.exp(-tt * 16)
+                    s = s + np.random.default_rng(int(m)).normal(0, 1, len(tt)) * np.exp(-tt * 1100) * .10
+                    cache[key] = s * np.exp(-tt * max(6.0, dec * 1.3)) * np.minimum(1, tt / .0012) * (f / 523.25) ** -.28; return cache[key]
                 if kind == "kick":   # 裏のリズム：やわらかい低い太鼓（音の高さが下がる正弦波）
                     tt2 = np.arange(int(SR * .35)) / SR; ph = 2 * np.pi * np.cumsum(55 + 70 * np.exp(-tt2 * 30)) / SR
                     cache[key] = np.sin(ph) * np.exp(-tt2 * 9) * np.minimum(1, tt2 / .002); return cache[key]
@@ -226,6 +230,7 @@ class Sim:
                     for x in lo: self.notes.append((t, x, gain * .32, pan, dec * 1.1, "mar"))
                     if (r, q) != prev: self.notes.append((t, 36 + r if r >= 4 else 48 + r, gain * .5, .5, dec * 1.6, "mar")); prev = (r, q)   # 和音が変わるところで低い根音
         if self.stills is not None: print("確認用の絵:", self.stills); return
+        if self.sp.get("tone") == "karo": self.notes = [(t, m, g, pan, dec, "karo" if kind == "mar" else kind) for t, m, g, pan, dec, kind in self.notes]
         if self.sp.get("tone") == "edm":   # 当たる音を EDM マリンバに。付点8分（0.375秒）のこだまを左右に振る
             ns = []
             for t, m, g, pan, dec, kind in self.notes:
