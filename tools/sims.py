@@ -479,9 +479,10 @@ def basket(sp):
     """同じ高さから真下に落としたボールが、床で1回跳ねて、全部かごに入る。床の形は「どの位置で跳ねてもかごの中心を
     上から通る」ように、反射の向きを1点ずつ計算してつないだ曲線（数値計算）。数は 1,2,3,5,8,13,21,34"""
     g, H, Tg = sp.get("g", 4.0), sp.get("H", 7.0), tuple(sp.get("target", [-2.2, 4.2])); xa, xb = sp.get("xa", .3), sp.get("xb", 4.2)
+    TL = sp.get("tilt", 0.0); Hx = lambda x: H + TL * (x - xa) / (xb - xa)   # 落とす線を傾けると、落ちる時間が自然にずれる（コロコロ）
     vols, gap = sp.get("volleys", [1, 2, 3, 5, 8, 13, 21, 34]), sp.get("gap", 3.0); intro, tail = .3, sp.get("tail", 1.6)
     def outdir(x, y):
-        v2 = 2 * g * (H - y); dx, dy = Tg[0] - x, Tg[1] - y; A = g * dx * dx / (2 * v2); u = (dx - math.sqrt(dx * dx - 4 * A * (A + dy))) / (2 * A)
+        v2 = 2 * g * (Hx(x) - y); dx, dy = Tg[0] - x, Tg[1] - y; A = g * dx * dx / (2 * v2); u = (dx - math.sqrt(dx * dx - 4 * A * (A + dy))) / (2 * A)
         ox, oy = math.copysign(1, dx), u * math.copysign(1, dx); L = math.hypot(ox, oy); return ox / L, oy / L
     def slope(x, y): o = outdir(x, y); return -o[0] / (o[1] + 1)
     xs = np.linspace(xa, xb, 2001); y = 0.0; ys = [y]
@@ -489,8 +490,8 @@ def basket(sp):
         h = xs[i + 1] - xs[i]; k1 = slope(xs[i], y); k2 = slope(xs[i] + h / 2, y + h / 2 * k1); k3 = slope(xs[i] + h / 2, y + h / 2 * k2); k4 = slope(xs[i + 1], y + h * k3)
         y += h * (k1 + 2 * k2 + 2 * k3 + k4) / 6; ys.append(y)
     ys = np.array(ys)
-    sim = Sim(sp, (Tg[0] - .9, -.4, xb + .2, H + .2))
-    sim.neon(list(zip(xs[::20], ys[::20])) + [(xs[-1], ys[-1])]); sim.neon([(xa - .1, H), (xb + .1, H)], width=4)
+    sim = Sim(sp, (Tg[0] - .9, -.4, xb + .2, max(H, Hx(xb)) + .2))
+    sim.neon(list(zip(xs[::20], ys[::20])) + [(xs[-1], ys[-1])]); sim.neon([(xa - .1, Hx(xa - .1)), (xb + .1, Hx(xb + .1))], width=4)
     rim = .38; sim.neon([(Tg[0] - rim, Tg[1]), (Tg[0] + rim, Tg[1])], color=(255, 170, 70), glow=(255, 120, 30), width=6)
     sim.neon([(Tg[0] - rim - .05, Tg[1] - .1), (Tg[0] - rim - .05, Tg[1] + 1.2)], width=5)
     for k in range(5): sim.thin([(Tg[0] - rim + k * rim / 2, Tg[1]), (Tg[0] - rim * .6 + k * rim * .3, Tg[1] - .7)], color=(150, 150, 165), width=1.2)
@@ -500,7 +501,7 @@ def basket(sp):
         for j in range(m):
             x0 = xa + .15 + (xb - xa - .3) * ((j + .5) / m); i = int(np.searchsorted(xs, x0)); yf = float(np.interp(x0, xs, ys))
             sl = (ys[min(i + 1, len(xs) - 1)] - ys[max(i - 1, 0)]) / (xs[min(i + 1, len(xs) - 1)] - xs[max(i - 1, 0)]); nrm = np.array([-sl, 1.0]); nrm /= np.linalg.norm(nrm)
-            v = math.sqrt(2 * g * (H - yf)); vin = np.array([0, -v]); vo = vin - 2 * np.dot(vin, nrm) * nrm; t1 = math.sqrt(2 * (H - yf) / g); tT = (Tg[0] - x0) / vo[0]
+            v = math.sqrt(2 * g * (Hx(x0) - yf)); vin = np.array([0, -v]); vo = vin - 2 * np.dot(vin, nrm) * nrm; t1 = math.sqrt(2 * (Hx(x0) - yf) / g); tT = (Tg[0] - x0) / vo[0]
             rank = j / max(1, m - 1)
             td = t0 + WV * (rank if w % 2 == 0 else 1 - rank) * min(1, (m - 1) / 4)   # wave：端から順に落とす（波のズレ。回ごとに向きを入れかえる）
             b = dict(x0=x0, yf=yf, vo=vo, t0=td, t1=t1, tT=tT, col=hsv(((j + .5) / m * .85 + .07 * w + HUE0) % 1), last=None, m=m)
@@ -508,12 +509,14 @@ def basket(sp):
             g_ = .9 / math.sqrt(m)
             sim.note(td + t1, PENTA[int(rank * 15 + .5)], g_, .5 + .3 * x0 / xb, 4 + 3 * math.sqrt(m / 5))
             sim.note(td + t1 + tT, PENTA[min(15, 10 + int(rank * 5 + .5))], .7 * g_, .3, 5 + 3 * math.sqrt(m / 5), "bell")
+        if sp.get("finale", True) and m > 1:   # 最後の1個が入ったら「コロン」：今の和音の根音を高めのベルで鳴らす（和音つき）
+            import harmony as _hm; tl = max(scored_t[-m:]) + .12; sim.note(tl, 72 + _hm.pcs(tl)[0], .55, .5, 6, "bell")
         t0 += gap
     total = max(scored_t) + tail; scored_t.sort(); tot = sum(vols)
     def pos(b, t):
         u = t - b["t0"]
         if u < 0: return None
-        if u < b["t1"]: return (b["x0"], H - g * u * u / 2)
+        if u < b["t1"]: return (b["x0"], Hx(b["x0"]) - g * u * u / 2)
         u -= b["t1"]; x = b["x0"] + b["vo"][0] * u; y = b["yf"] + b["vo"][1] * u - g * u * u / 2
         if u > b["tT"]: x = Tg[0] + (x - Tg[0]) * .15   # かごの中はまっすぐ下へ
         return (x, y) if (u <= b["tT"] or y > Tg[1] - 1.1) else None   # 消すのは、かごに入って下に抜けたときだけ（跳ねた直後は必ず見せる）
