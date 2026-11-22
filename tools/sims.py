@@ -1620,14 +1620,29 @@ def orbits(sp):
     b = 0.0
     while b < intro + D: sim.note(intro + b, 36, .5, .5, 9, "kick"); sim.note(intro + b + .25, 80, .09, .5, 9, "hat"); b += .5
     sim.chord(intro + D + .1, [60, 64, 67, 72], gain=.5, dec=5)
-    total = intro + D + tail; done = 0
+    total = intro + D + tail; done = 0; allp = [pos(k * every) for k in range(N + 1)]; rnd_ = np.random.default_rng(3); stars = rnd_.uniform(-1.08, 1.08, (70, 2)); sph = rnd_.uniform(0, 6.28, 70)
     for fi in range(int(total * FPS)):
         t = fi / FPS; d = day_at(t); segs = []
         while done <= N and done * every <= d:
-            e, v = pos(done * every); segs.append((e, v, dim(hsv((.55 + .45 * done / N) % 1), .5))); done += 1
+            e, v = allp[done]; segs.append((e, v, dim(hsv((.55 + .45 * done / N) % 1), .5))); done += 1
         if segs: sim.commit(segs, width=1.3)
-        e, v = pos(d)
-        sim.frame(t, [(e, v, (255, 255, 255), 2)], [((0, 0), (255, 220, 120), 11), (e, (110, 180, 255), 8), (v, (255, 200, 120), 7)], (sp.get("count_label", "たった時間 "), f"{d / TE:.1f}" + sp.get("unit", "年")))
+        e, v = pos(d); live = []; dots = []; fl = []
+        for q in range(max(0, done - 16), done):   # 引いたばかりの線は明るく、だんだん落ち着く（光が走った跡）
+            a_ = (q - (done - 16)) / 16; live.append((allp[q][0], allp[q][1], dim((235, 240, 255), .12 + .6 * a_ * a_), 1 + 1.6 * a_))
+        for q in range(done):   # きらめき：もう引いた線の上を、光が順番に流れ続ける（止まって見えないように）
+            ph = (q * 7 - t * 140) % 211
+            if ph < 3: live.append((allp[q][0], allp[q][1], dim(hsv((.55 + .45 * q / N) % 1), 1.0 - ph * .22), 2.2))
+        for (R_, T_, col) in ((1.0, TE, (110, 180, 255)), (RV, TV, (255, 200, 120))):   # 星のうしろに尾
+            for q in range(14):
+                d0, d1 = d - (q + 1) * T_ * .012, d - q * T_ * .012
+                p0 = (R_ * math.cos(2 * math.pi * d0 / T_ + 1.57), R_ * math.sin(2 * math.pi * d0 / T_ + 1.57)); p1 = (R_ * math.cos(2 * math.pi * d1 / T_ + 1.57), R_ * math.sin(2 * math.pi * d1 / T_ + 1.57))
+                live.append((p0, p1, dim(col, .9 * (1 - q / 14) ** 1.5), 4.5 * (1 - q / 14) + 1))
+        live.append((e, v, (255, 255, 255), 2.4))
+        for i_ in range(70): tw = .5 + .5 * math.sin(t * 2.2 + sph[i_]); dots.append(((float(stars[i_][0]), float(stars[i_][1]) * 1.0), dim((170, 190, 255), .10 + .35 * tw), 1.6))
+        bt = ((t - intro) % .5) / .5 if t > intro else 1   # 太陽は拍に合わせて脈を打つ
+        fl.append(((0, 0), 16 + bt * 46, dim((255, 220, 130), (1 - bt) * .8), 3)); fl.append(((e[0], e[1]), 12 + bt * 16, dim((110, 180, 255), (1 - bt) * .6), 2)); fl.append(((v[0], v[1]), 11 + bt * 14, dim((255, 200, 120), (1 - bt) * .6), 2))
+        dots += [((0, 0), (255, 226, 140), 13 + 3 * (1 - bt)), (e, (130, 195, 255), 9), (v, (255, 208, 130), 8)]
+        sim.frame(t, live, dots, (sp.get("count_label", "たった時間 "), f"{d / TE:.1f}" + sp.get("unit", "年")), fl)
     sim.finish(total)
 
 KINDS = {"orbits": orbits, "phyllo": phyllo, "zoomsalt": zoomsalt, "layers": layers, "pixels": pixels, "sortviz": sortviz, "polyfocus": polyfocus, "heliostat": heliostat, "dragon": dragon, "rhythm": rhythm, "lissatable": lissatable, "plotter": plotter, "threebody": threebody, "pendswing": pendswing, "golden": golden, "piphase": piphase, "maurer": maurer, "harmono": harmono, "spiro": spiro, "star": star, "throw": throw, "tusi": tusi, "chain": chain, "basket": basket, "koch": koch, "cycloid": cycloid, "pendulums": pendulums, "lissajous": lissajous, "corner": corner, "sunflower": sunflower, "ulam": ulam, "parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2, "picount": picount}

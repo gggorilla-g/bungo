@@ -1,0 +1,18 @@
+【タイトル】
+Connect Earth and Venus With a Line for 8 Years. What Appears? (Wait for the End) #shorts #satisfying #space
+
+【説明】
+Earth and Venus circle the Sun. Every 4 days, draw one line between them. After 8 years a five-petal flower appears.
+
+How it works:
+- Earth takes about 365.26 days per orbit, Venus about 224.70. While Earth goes around 8 times, Venus goes around almost exactly 13 times (8 : 13).
+- In that time Venus overtakes Earth on the inside 13 - 8 = 5 times, so the flower has 5 petals.
+- 5, 8 and 13 are Fibonacci numbers, and 13 / 8 = 1.625 is close to the golden ratio (about 1.618).
+- The closer the two planets, the higher the note. Time speeds up as it goes.
+
+Note: both orbits are drawn as circles (the real ones are very slightly oval), and the planets are drawn larger than scale.
+
+Simulation, sound and animation: original (Python).
+
+【タグ】
+venus, earth, solar system, orbit, golden ratio, fibonacci, satisfying, shorts
