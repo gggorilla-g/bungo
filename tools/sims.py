@@ -1645,7 +1645,38 @@ def orbits(sp):
         sim.frame(t, live, dots, (sp.get("count_label", "たった時間 "), f"{d / TE:.1f}" + sp.get("unit", "年")), fl)
     sim.finish(total)
 
-KINDS = {"orbits": orbits, "phyllo": phyllo, "zoomsalt": zoomsalt, "layers": layers, "pixels": pixels, "sortviz": sortviz, "polyfocus": polyfocus, "heliostat": heliostat, "dragon": dragon, "rhythm": rhythm, "lissatable": lissatable, "plotter": plotter, "threebody": threebody, "pendswing": pendswing, "golden": golden, "piphase": piphase, "maurer": maurer, "harmono": harmono, "spiro": spiro, "star": star, "throw": throw, "tusi": tusi, "chain": chain, "basket": basket, "koch": koch, "cycloid": cycloid, "pendulums": pendulums, "lissajous": lissajous, "corner": corner, "sunflower": sunflower, "ulam": ulam, "parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2, "picount": picount}
+
+
+def pendwave(sp):
+    """振り子の波（派生の土台。オーナー 11/22「振り子は相性がいい」）。長さだけちがう N 本。P 秒のあいだに k0, k0+1, … 回ゆれるので、P 秒後にまたそろう。
+    まん中を通るたびに、その振り子の音（石の音色を想定）。玉には光の尾、まん中を通る瞬間に光の輪"""
+    N, P, k0, A = sp.get("n", 15), sp.get("period", 24.0), sp.get("k0", 20), math.radians(sp.get("amp", 26)); intro, tail = .6, 2.4; total = intro + P + tail
+    Ls = [1.0 * (k0 / (k0 + i)) ** 2 for i in range(N)]; top = 1.12
+    sim = Sim(sp, (-.47, -.03, .47, top + .03), area=(.04, .215, .96, .90)); sim.neon([(-.44, top), (.44, top)], width=5); sim.title()
+    cols = [hsv(.02 + .8 * i / N) for i in range(N)]
+    for i in range(N):
+        per = P / (k0 + i)
+        for j in range(2 * (k0 + i)):
+            tc = intro + (j + .5) * per / 2
+            if tc < intro + P: sim.note(tc, PENTA[int(i / (N - 1) * 15 + .5)], .42, .5, 5)
+    sim.chord(intro, [60, 67, 72]); sim.chord(intro + P, [60, 64, 67, 72], gain=.55, dec=5)
+    hist = [[] for _ in range(N)]
+    for fi in range(int(total * FPS)):
+        t = fi / FPS; u = min(max(0, t - intro), P); live, dots, fl = [], [], []
+        for i in range(N):
+            per = P / (k0 + i); th = A * math.cos(2 * math.pi * u / per); L = Ls[i]; pz = (L * math.sin(th), top - L * math.cos(th))
+            live.append(((0, top), pz, dim(cols[i], .22), 1.2)); h = hist[i]; h.append(pz); del h[:-9]
+            for q in range(len(h) - 1): live.append((h[q], h[q + 1], dim(cols[i], .12 + .7 * (q + 1) / len(h)), 1 + 4 * (q + 1) / len(h)))
+            dots.append((pz, cols[i], 9))
+            e = (u - per / 4) % (per / 2) if u > per / 4 else 9
+            if e < .16 and u < P: fl.append(((0, top - L), 10 + e * 150, dim(cols[i], 1 - e / .16), 2.5))
+        e = t - (intro + P)
+        if 0 <= e < .6:
+            for i in range(N): fl.append(((A * Ls[i] * 0 + Ls[i] * math.sin(A), top - Ls[i] * math.cos(A)), 12 + e * 120, dim((255, 245, 210), 1 - e / .6), 3))
+        sim.frame(t, live, dots, (sp.get("count_label", "そろうまで "), f"{max(0, math.ceil(P - u))}"), fl)
+    sim.finish(total)
+
+KINDS = {"pendwave": pendwave, "orbits": orbits, "phyllo": phyllo, "zoomsalt": zoomsalt, "layers": layers, "pixels": pixels, "sortviz": sortviz, "polyfocus": polyfocus, "heliostat": heliostat, "dragon": dragon, "rhythm": rhythm, "lissatable": lissatable, "plotter": plotter, "threebody": threebody, "pendswing": pendswing, "golden": golden, "piphase": piphase, "maurer": maurer, "harmono": harmono, "spiro": spiro, "star": star, "throw": throw, "tusi": tusi, "chain": chain, "basket": basket, "koch": koch, "cycloid": cycloid, "pendulums": pendulums, "lissajous": lissajous, "corner": corner, "sunflower": sunflower, "ulam": ulam, "parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2, "picount": picount}
 
 if __name__ == "__main__":
     sp = json.load(open(sys.argv[1], encoding="utf-8")); KINDS[sp["kind"]](sp); kit(sp)

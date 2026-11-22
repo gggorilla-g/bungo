@@ -1,0 +1,17 @@
+【タイトル】
+15 Pendulums, Stone Chimes. When Do They All Line Up Again? (Wait for the End) #shorts #satisfying #physics
+
+【説明】
+15 pendulums with slightly different lengths, released together from the same angle. They drift into waves, scatter, and line up again exactly 24 seconds later. Each one plays its own note every time it passes the middle.
+
+How it works:
+- For small swings, a pendulum's period depends almost only on its length: T = 2π√(L/g). Mass is not in the formula.
+- The lengths are chosen so that in 24 seconds the longest swings 20 times, the next 21, and so on up to 34. That is why they meet again at 24 seconds.
+- Rhythms with different beat counts overlap, so the sound drifts apart and comes back together too.
+
+Note: the swing angle is drawn larger than a real small swing (26 degrees) so it is easy to see.
+
+Simulation, sound and animation: original (Python).
+
+【タグ】
+pendulum, pendulum wave, polyrhythm, physics, math, satisfying, relaxing, shorts
