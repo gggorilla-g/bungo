@@ -1,13 +1,3 @@
-spiro1_ja MOSO ja
-koch1_ja MOSO ja
-lens1_ja MOSO ja
-orbits1_ja MOSO ja
-pendwave1_ja MOSO ja
-phyllo1_ja MOSO ja
-layers1_ja MOSO ja
-song1_ja MOSO ja
-parabola5_ja MOSO ja
-polyfocus1_ja MOSO ja
 sort1_ja MOSO ja
 pixels1_ja MOSO ja
 helio1_ja MOSO ja

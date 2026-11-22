@@ -555,3 +555,4 @@
 - 2026-11-22 13:00 UTC 雑学 zoom_salt_ja 6qElYxtaQOo 公開（上限が解けた）。geo_trap_ja・geo_speed_ja は 11/23 朝の再挑戦で
 - 2026-11-22 13:05 UTC 雑学 公開：geo_trap_ja eTEsFulzx6I、geo_speed_ja 5_Ab_q0FMi8（上限が解けた）。11/23 朝の再挑戦の予約は塩・台形・速さが済んだので不要
 - オーナー参考：スピログラフ（DIYStuffandCraft、いいね52万）。→ 新 kind spiro（歯数96の輪の中を歯数41の歯車が転がる。共通の約数がないので花びら96枚、41周で閉じる。花びらの先で石の音、だんだん速く）。spiro1_ja 妄想キュー先頭、spiro1_en は英語の作り溜め（nazo/ballsim/en_stock.txt）
+- 2026-11-22 14:06 UTC 妄想 再挑戦（定時）：10本公開（spiro1_ja QVklsjCuffc、koch1_ja ABa10zU4kSE、lens1_ja GoRfUlmnBqE、orbits1_ja E2Mzrw1Nq6U、pendwave1_ja pJS9BSh37_Q、phyllo1_ja GnNL3xTmX8Y、layers1_ja dO_1vPW9Uy0、song1_ja Yx11QiSxrOY、parabola5_ja 4VPVqJxpzIs、polyfocus1_ja OPnGIO5MSUI）。その後上限。次は 11/23 14:10 UTC ごろ。※英語で見た「大量投稿のあとは配信されない」が妄想でも起きるか、この10本で確かめる（2〜3時間ごとに1本ずつ出すほうがいいかもしれない）
