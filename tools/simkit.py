@@ -175,6 +175,11 @@ class Sim:
                     s = np.sin(2 * np.pi * f * tt) * np.exp(-tt * 3) + .30 * np.sin(2 * np.pi * f * 4 * tt) * np.exp(-tt * 18) + .26 * np.sin(2 * np.pi * f * 2.76 * tt + 1) * np.exp(-tt * 9) + .10 * np.sin(2 * np.pi * f * 5.4 * tt) * np.exp(-tt * 16)
                     s = s + np.random.default_rng(int(m)).normal(0, 1, len(tt)) * np.exp(-tt * 1100) * .10
                     cache[key] = s * np.exp(-tt * max(6.0, dec * 1.3)) * np.minimum(1, tt / .0012) * (f / 523.25) ** -.28; return cache[key]
+                if kind == "stone":   # 石を叩く音（石琴・サヌカイトふう。オーナー 11/22）：棒の振動の倍音比 1 : 2.76 : 5.4 : 8.9、澄んだ余韻＋短い「コッ」
+                    s = (np.sin(2 * np.pi * f * tt) + .5 * np.sin(2 * np.pi * f * 1.003 * tt)) * np.exp(-tt * 2.6) + .34 * np.sin(2 * np.pi * f * 2.76 * tt + .7) * np.exp(-tt * 7) \
+                        + .15 * np.sin(2 * np.pi * f * 5.4 * tt + 1.3) * np.exp(-tt * 15) + .06 * np.sin(2 * np.pi * f * 8.9 * tt) * np.exp(-tt * 28)
+                    nz = np.random.default_rng(int(m)).normal(0, 1, len(tt)); nz = np.convolve(nz, np.ones(5) / 5, "same") * np.exp(-tt * 700) * .22
+                    cache[key] = (s + nz) * np.exp(-tt * max(2.5, dec * .6)) * np.minimum(1, tt / .0008) * (f / 523.25) ** -.3; return cache[key]
                 if kind == "kick":   # 裏のリズム：やわらかい低い太鼓（音の高さが下がる正弦波）
                     tt2 = np.arange(int(SR * .35)) / SR; ph = 2 * np.pi * np.cumsum(55 + 70 * np.exp(-tt2 * 30)) / SR
                     cache[key] = np.sin(ph) * np.exp(-tt2 * 9) * np.minimum(1, tt2 / .002); return cache[key]
@@ -230,7 +235,7 @@ class Sim:
                     for x in lo: self.notes.append((t, x, gain * .32, pan, dec * 1.1, "mar"))
                     if (r, q) != prev: self.notes.append((t, 36 + r if r >= 4 else 48 + r, gain * .5, .5, dec * 1.6, "mar")); prev = (r, q)   # 和音が変わるところで低い根音
         if self.stills is not None: print("確認用の絵:", self.stills); return
-        if self.sp.get("tone") == "karo": self.notes = [(t, m, g, pan, dec, "karo" if kind == "mar" else kind) for t, m, g, pan, dec, kind in self.notes]
+        if self.sp.get("tone") in ("karo", "stone"): tn = self.sp["tone"]; self.notes = [(t, m, g, pan, dec, tn if kind == "mar" else kind) for t, m, g, pan, dec, kind in self.notes]
         if self.sp.get("tone") == "edm":   # 当たる音を EDM マリンバに。付点8分（0.375秒）のこだまを左右に振る
             ns = []
             for t, m, g, pan, dec, kind in self.notes:

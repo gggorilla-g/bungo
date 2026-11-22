@@ -1599,7 +1599,35 @@ def phyllo(sp):
         sim.frame(t, (), dots, (sp.get("count_label", "回す角度 "), f"{ang:g}°"), fl)
     sim.finish(total)
 
-KINDS = {"phyllo": phyllo, "zoomsalt": zoomsalt, "layers": layers, "pixels": pixels, "sortviz": sortviz, "polyfocus": polyfocus, "heliostat": heliostat, "dragon": dragon, "rhythm": rhythm, "lissatable": lissatable, "plotter": plotter, "threebody": threebody, "pendswing": pendswing, "golden": golden, "piphase": piphase, "maurer": maurer, "harmono": harmono, "spiro": spiro, "star": star, "throw": throw, "tusi": tusi, "chain": chain, "basket": basket, "koch": koch, "cycloid": cycloid, "pendulums": pendulums, "lissajous": lissajous, "corner": corner, "sunflower": sunflower, "ulam": ulam, "parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2, "picount": picount}
+
+
+def orbits(sp):
+    """太陽系（オーナー 11/22）。地球と金星を、数日ごとに線で結び続ける。8年（金星はほぼ13周）で、5枚の花びらの模様になる。
+    事実：公転周期 地球365.26日・金星224.70日、軌道の半径 1 と 0.723 天文単位（どちらもほぼ円として描く）"""
+    Y, D = sp.get("years", 8.0), sp.get("dur", 21.0); TE, TV, RV = 365.26, 224.70, .723; every = sp.get("every", 4.0); intro, tail = .5, 2.6
+    sim = Sim(sp, (-1.1, -1.1, 1.1, 1.1))
+    for R_, c_ in ((1.0, (70, 110, 170)), (RV, (150, 120, 70))): sim.thin([(R_ * math.cos(a), R_ * math.sin(a)) for a in np.linspace(0, 2 * math.pi, 181)], color=c_, width=1.4)
+    sim.title()
+    pos = lambda d: ((math.cos(2 * math.pi * d / TE + 1.57), math.sin(2 * math.pi * d / TE + 1.57)), (RV * math.cos(2 * math.pi * d / TV + 1.57), RV * math.sin(2 * math.pi * d / TV + 1.57)))
+    day_at = lambda t: Y * TE * min(1, max(0, (t - intro) / D)) ** 1.5   # だんだん速く
+    N = int(Y * TE / every); tl = [intro + D * ((k * every) / (Y * TE)) ** (1 / 1.5) for k in range(N + 1)]; lastn = -9
+    for k, tk in enumerate(tl):
+        if tk - lastn >= .085:   # 音は毎秒12個まで。2つの星が近いほど高い音
+            e, v = pos(k * every); dist = math.hypot(e[0] - v[0], e[1] - v[1]); sim.note(tk, PENTA[int((1 - (dist - .277) / 1.446) * 15 + .5)], .45, .5 + .3 * e[0], 5); lastn = tk
+    b = 0.0
+    while b < intro + D: sim.note(intro + b, 36, .5, .5, 9, "kick"); sim.note(intro + b + .25, 80, .09, .5, 9, "hat"); b += .5
+    sim.chord(intro + D + .1, [60, 64, 67, 72], gain=.5, dec=5)
+    total = intro + D + tail; done = 0
+    for fi in range(int(total * FPS)):
+        t = fi / FPS; d = day_at(t); segs = []
+        while done <= N and done * every <= d:
+            e, v = pos(done * every); segs.append((e, v, dim(hsv((.55 + .45 * done / N) % 1), .5))); done += 1
+        if segs: sim.commit(segs, width=1.3)
+        e, v = pos(d)
+        sim.frame(t, [(e, v, (255, 255, 255), 2)], [((0, 0), (255, 220, 120), 11), (e, (110, 180, 255), 8), (v, (255, 200, 120), 7)], (sp.get("count_label", "たった時間 "), f"{d / TE:.1f}" + sp.get("unit", "年")))
+    sim.finish(total)
+
+KINDS = {"orbits": orbits, "phyllo": phyllo, "zoomsalt": zoomsalt, "layers": layers, "pixels": pixels, "sortviz": sortviz, "polyfocus": polyfocus, "heliostat": heliostat, "dragon": dragon, "rhythm": rhythm, "lissatable": lissatable, "plotter": plotter, "threebody": threebody, "pendswing": pendswing, "golden": golden, "piphase": piphase, "maurer": maurer, "harmono": harmono, "spiro": spiro, "star": star, "throw": throw, "tusi": tusi, "chain": chain, "basket": basket, "koch": koch, "cycloid": cycloid, "pendulums": pendulums, "lissajous": lissajous, "corner": corner, "sunflower": sunflower, "ulam": ulam, "parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2, "picount": picount}
 
 if __name__ == "__main__":
     sp = json.load(open(sys.argv[1], encoding="utf-8")); KINDS[sp["kind"]](sp); kit(sp)
