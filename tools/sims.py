@@ -1291,7 +1291,49 @@ def heliostat(sp):
         sim.frame(t, live, dots, (sp.get("count_label", "鏡："), f"{n:,}"), fl)
     sim.finish(total)
 
-KINDS = {"heliostat": heliostat, "dragon": dragon, "rhythm": rhythm, "lissatable": lissatable, "plotter": plotter, "threebody": threebody, "pendswing": pendswing, "golden": golden, "piphase": piphase, "maurer": maurer, "harmono": harmono, "spiro": spiro, "star": star, "throw": throw, "tusi": tusi, "chain": chain, "basket": basket, "koch": koch, "cycloid": cycloid, "pendulums": pendulums, "lissajous": lissajous, "corner": corner, "sunflower": sunflower, "ulam": ulam, "parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2, "picount": picount}
+
+
+def polyfocus(sp):
+    """ポリリズム × 放物線（オーナー 11/22「ポリリズム意識して」）。ボールごとに速さが整数比（k0, k0+1, ...）。
+    上の線→壁→焦点→壁→上の線の道の長さはどのボールも同じ 2(Y+f) なので、ボール k は P 秒のあいだに焦点を k 回通る。
+    焦点を通るたびに自分の音が鳴り、拍の数がちがうリズムが重なる。P 秒後に全部が同時に上の線にそろう"""
+    f, X, Y = 1.0, sp.get("X", 6.0), sp.get("Y", 14.0); P, k0, nb = sp.get("period", 24.0), sp.get("k0", 6), sp.get("balls", 8)
+    Lp = 2 * (Y + f); a = 4 * f * f / X; intro, tail = .3, sp.get("tail", 2.2)
+    sim = Sim(sp, (-X - .15, -.15, X + .15, Y + .15))
+    sim.neon([(x, x * x / (4 * f)) for x in np.linspace(-X, X, 241)]); sim.neon([(-X, Y), (X, Y)], width=5)
+    sim.ring((0, f), 13); sim.title()
+    balls = []
+    for i in range(nb):
+        side = 1 if i % 2 == 0 else -1; x1 = side * a * (X / a) ** ((i + .5) / nb); y1 = x1 * x1 / (4 * f); x2 = -4 * f * f / x1; y2 = x2 * x2 / (4 * f)
+        k = k0 + i; pts = [(x1, Y), (x1, y1), (0, f), (x2, y2), (x2, Y)]; cum = [0, Y - y1, Y + f, Y + 2 * f + y2, Lp]
+        balls.append(dict(pts=pts, cum=cum, k=k, v=k * Lp / P, col=hsv(i / nb * .85), midi=PENTA[int(i / max(1, nb - 1) * 12 + .5)]))
+    sim.commit([(b["pts"][j], b["pts"][j + 1], dim(b["col"], .16)) for b in balls for j in range(4)], width=1.4)
+    for b in balls:   # 焦点を通るたびに自分の音、上の線に着くたびに1オクターブ下を小さく
+        for j in range(b["k"]):
+            sim.note(intro + (j + .5) * P / b["k"], b["midi"], .55, .5 + .3 * b["pts"][0][0] / X, 5)
+            if j: sim.note(intro + j * P / b["k"], b["midi"] - 12, .22, .5, 4)
+    sim.chord(intro, [60, 67, 72]); sim.chord(intro + P, [60, 64, 67, 72], gain=.5, dec=5)
+    total = intro + P + tail
+    for fi in range(int(total * FPS)):
+        t = fi / FPS; u = min(max(0, t - intro), P); live, dots, fl = [], [], []
+        for b in balls:
+            s = u * b["v"]; q = int(s // Lp); sc = s - q * Lp
+            if q % 2: sc = Lp - sc
+            if u >= P: sc = Lp if b["k"] % 2 else 0
+            cum, pts = b["cum"], b["pts"]; j = min(3, int(np.searchsorted(cum, sc, side="right")) - 1); pnt = lerp(pts[j], pts[j + 1], (sc - cum[j]) / (cum[j + 1] - cum[j]))
+            back = max(0, sc - 1.6) if q % 2 == 0 else min(Lp, sc + 1.6); jb = min(3, int(np.searchsorted(cum, back, side="right")) - 1); pb = lerp(pts[jb], pts[jb + 1], (back - cum[jb]) / (cum[jb + 1] - cum[jb]))
+            if jb == j: live.append((pb, pnt, dim(b["col"], .8), 2.2))
+            else:
+                vtx = pts[max(j, jb)]; live.append((pb, vtx, dim(b["col"], .5), 2.2)); live.append((vtx, pnt, dim(b["col"], .8), 2.2))
+            dots.append((pnt, b["col"], 7))
+            e = ((u - .5 * P / b["k"]) % (P / b["k"])) if u > .5 * P / b["k"] else 9
+            if e < .25 and u < P: fl.append(((0, f), 14 + e * 70, dim(b["col"], 1 - e / .25), 3))
+        e = t - (intro + P)
+        if 0 <= e < .5: fl.append(((0, Y), 20 + e * 220, dim((255, 245, 200), 1 - e / .5), 5))
+        sim.frame(t, live, dots, (sp.get("count_label", "そろうまで "), f"{max(0, math.ceil(P - u))}"), fl)
+    sim.finish(total)
+
+KINDS = {"polyfocus": polyfocus, "heliostat": heliostat, "dragon": dragon, "rhythm": rhythm, "lissatable": lissatable, "plotter": plotter, "threebody": threebody, "pendswing": pendswing, "golden": golden, "piphase": piphase, "maurer": maurer, "harmono": harmono, "spiro": spiro, "star": star, "throw": throw, "tusi": tusi, "chain": chain, "basket": basket, "koch": koch, "cycloid": cycloid, "pendulums": pendulums, "lissajous": lissajous, "corner": corner, "sunflower": sunflower, "ulam": ulam, "parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2, "picount": picount}
 
 if __name__ == "__main__":
     sp = json.load(open(sys.argv[1], encoding="utf-8")); KINDS[sp["kind"]](sp); kit(sp)

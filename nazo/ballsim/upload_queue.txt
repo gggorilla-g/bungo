@@ -1,6 +1,5 @@
 parabola5_ja MOSO ja
-basket4_ja MOSO ja
-basket3_ja MOSO ja
+polyfocus1_ja MOSO ja
 helio1_ja MOSO ja
 parabola2_ja MOSO ja
 ellipse3_ja MOSO ja
@@ -8,7 +7,6 @@ mirrors1_ja MOSO ja
 parabola3_ja MOSO ja
 ellipse4_ja MOSO ja
 koch1_ja MOSO ja
-basket1_ja MOSO ja
 cycloid1_ja MOSO ja
 plates5_ja MOSO ja
 cardioid4_ja MOSO ja

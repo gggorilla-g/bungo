@@ -1,0 +1,24 @@
+{
+ "kind": "polyfocus",
+ "id": "polyfocus1_en",
+ "title": [
+  "8 speeds. Every ball crosses ONE point.",
+  "When do they all line up again?"
+ ],
+ "count_label": "Line-up in ",
+ "yt": {
+  "title": "8 Speeds, One Point. When Do They All Line Up Again? (Polyrhythm) #shorts #physics #satisfying",
+  "desc": "Eight balls travel inside a parabola-shaped wall at eight different speeds. Every one of them keeps passing through the same point (the focus). Each ball plays its own note every time it crosses the focus, so rhythms with different beat counts overlap (a polyrhythm). After 24 seconds they all reach the top line at the same moment.\n\nHow it works:\n- A parabola reflects every line parallel to its axis through its focus. The path top line, wall, focus, wall, top line has the same length for every ball.\n- The speeds are in whole-number ratios 6 : 7 : 8 : ... : 13. In 24 seconds the slowest ball crosses the focus 6 times and the fastest 13 times.\n- They drift apart along the way, then line up exactly at 24 seconds.\n- No gravity here (it moves like light).\n\nSimulation, sound and animation: original (Python).",
+  "tags": [
+   "polyrhythm",
+   "parabola",
+   "focus",
+   "physics",
+   "math",
+   "satisfying",
+   "relaxing",
+   "simulation",
+   "shorts"
+  ]
+ }
+}
