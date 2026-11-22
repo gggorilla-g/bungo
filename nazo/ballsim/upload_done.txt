@@ -68,3 +68,6 @@ threebody1_ja success UbZldgCpEuM (run 44910778933)
 2026-11-22T12:07:50Z orbits1_en success rPM365C-7OY (石の音色)
 2026-11-22T12:15:47Z orbits2_en success -Symoi_zVkw (光の演出版。旧 rPM365C-7OY は公開のまま)
 2026-11-22T12:24:54Z pendwave1_en success Y7qjnAna0E0 (振り子の波・石の音色)
+2026-11-22T12:51:41Z lens1_en success zOrYnZo6zTA
+2026-11-22T12:51:41Z koch1_en success KojR9prnrww
+2026-11-22T12:51:41Z ehon_s02_short success YUoigBTQllA (ほほほブックス、子ども向け)

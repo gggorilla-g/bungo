@@ -545,3 +545,5 @@
 - 11/22 新 kind pendwave（振り子15本の波、石の音色、光の尾と輪）。pendwave1_ja キュー2番目、pendwave1_en MIW。オーナー案：積み上げたキューブにプロジェクションマッピング（立体に光の模様を映す。3D の題材候補）
 - 2026-11-22 12:31 UTC 雑学 再挑戦（定時）：geo_trap_ja・geo_speed_ja・zoom_salt_ja とも uploadLimitExceeded。前回の雑学の公開は 11/21 の連投（約18本）。次は 11/23 朝に再挑戦
 - 2026-11-22 絵本：ehon_s02_short（みずたまりの おさら、1分の縦型。11行に縮め、寄りの絵5枚を使用、題名は縦用に46px）。Codex に第3話（story03）の部品を依頼中
+- 2026-11-22 公開：MIW lens1_en zOrYnZo6zTA（2枚の鏡）、koch1_en KojR9prnrww（コッホ。初回は三角の向きが逆で雪片にならなかった→修正してから公開）。ほほほブックス ehon_s02_short YUoigBTQllA（79秒、子ども向け）。lens1_ja・koch1_ja は妄想キュー先頭
+- オーナー：「とにかく作る。PDCA を回す」。回し方：作る→静止画で確認→上げる→翌日 Studio で表示回数・見続けた割合・再生数を読む→伸びた型を派生、伸びない型は止める

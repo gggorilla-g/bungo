@@ -1722,7 +1722,7 @@ def koch(sp):
     光の玉がふちを1周なぞる。角を曲がるたびに1音"""
     stages = sp.get("stages", 5); per = sp.get("per", 4.4); intro, tail = .5, 2.2; R = 1.0
     def poly(n):
-        pts = [(R * math.cos(math.radians(90 + 120 * k)), R * math.sin(math.radians(90 + 120 * k))) for k in range(3)][::-1]
+        pts = [(R * math.cos(math.radians(90 + 120 * k)), R * math.sin(math.radians(90 + 120 * k))) for k in range(3)]
         for _ in range(n):
             out = []
             for i in range(len(pts)):
@@ -1745,8 +1745,8 @@ def koch(sp):
         cols = lambda q: hsv(.55 + .25 * q / m); k = int(u * m); live = []
         for i in range(m):
             a, b = pts[i], pts[(i + 1) % m]
-            if i < k: live.append((a, b, dim(cols(i), .95), 3.2 if m < 400 else 2.2))
-            else: live.append((a, b, dim((120, 140, 190), .35), 1.6))
+            if i < k: live.append((a, b, dim(cols(i), 1.0), 4.2 if m < 400 else 3.0))
+            else: live.append((a, b, dim((140, 160, 215), .55), 2.0))
         dots = []; fl = []
         if u < 1:
             a, b = pts[k % m], pts[(k + 1) % m]; fr = u * m - k; pz = lerp(a, b, fr); dots.append((pz, (235, 248, 255), 9)); fl.append((pz, 16, (160, 220, 255), 2))
