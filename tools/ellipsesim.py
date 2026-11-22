@@ -8,7 +8,9 @@ import numpy as np
 import harmony
 from PIL import Image, ImageDraw, ImageFilter
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from ballsim import W, H, FPS, hsv, font, audio
+if len(sys.argv) > 1 and sys.argv[1].endswith(".json"):   # spec の "palette" を色の決まりとして先に渡す
+    os.environ.setdefault("SIM_PALETTE", json.load(open(sys.argv[1])).get("palette", ""))
+from ballsim import WALL, WALL_GLOW, W, H, FPS, hsv, font, audio
 
 SUB = 6
 
@@ -130,9 +132,9 @@ def main(spec_path):
         cc = int(6 + 10 * (k / (H * S))); dg.rectangle([0, k, W * S, k + 8], fill=(cc // 2, cc // 2 + 2, cc + 10))
     glow = Image.new("RGB", (W * S, H * S)); gd = ImageDraw.Draw(glow)
     box = [cx - b * px, cy - a * px, cx + b * px, cy + a * px]
-    gd.ellipse(box, outline=(40, 200, 255), width=26 * S); glow = glow.filter(ImageFilter.GaussianBlur(28 * S))
+    gd.ellipse(box, outline=WALL_GLOW, width=26 * S); glow = glow.filter(ImageFilter.GaussianBlur(28 * S))
     bg = Image.fromarray(np.clip(np.asarray(bg, np.int16) + np.asarray(glow, np.int16), 0, 255).astype(np.uint8)); dg = ImageDraw.Draw(bg)
-    dg.ellipse(box, outline=(150, 235, 255), width=9 * S)
+    dg.ellipse(box, outline=WALL, width=9 * S)
     for F in (F1, F2):
         x, y = to(F); q = .06 * px; dg.ellipse([x - q, y - q, x + q, y + q], outline=(255, 200, 60), width=5 * S)
     fT, fC, fN = font(58 * S), font(54 * S), font(66 * S)

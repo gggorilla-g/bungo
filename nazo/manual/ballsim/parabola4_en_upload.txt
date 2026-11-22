@@ -1,0 +1,16 @@
+【タイトル】
+Drop Them Into a Golden Bowl. Do They All Cross One Point? #shorts #physics #math
+
+【説明】
+Balls fall straight down into a deep parabola-shaped bowl. After one bounce, every ball passes through the same point (the focus), then goes back up along a mirrored path. More balls each round.
+
+How it works:
+- A parabola reflects every line parallel to its axis through its focus. Satellite dishes and flashlight reflectors use this.
+- Every path from the top line to the focus has the same length, so at equal speeds they would all arrive together.
+- Here the speed changes smoothly from one side to the other, so the balls arrive in a wave, one after another.
+- No gravity here (it moves like light). Each wall hit plays a note on a C major scale over a gentle chord progression and beat.
+
+Simulation, sound and animation: original (Python).
+
+【タグ】
+parabola, focus, physics, math, satisfying, relaxing, simulation, shorts

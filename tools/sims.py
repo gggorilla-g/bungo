@@ -6,6 +6,8 @@
 import json, sys, os, math
 import numpy as np
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+if len(sys.argv) > 1 and sys.argv[1].endswith(".json"):   # spec の "palette" を色の決まりとして先に渡す
+    os.environ.setdefault("SIM_PALETTE", json.load(open(sys.argv[1])).get("palette", ""))
 from simkit import Sim, PENTA, FPS, S, F, hsv, dim, kit
 
 

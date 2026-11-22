@@ -15,7 +15,13 @@ SR = 44100
 FONT = "/usr/share/fonts/opentype/noto/NotoSansCJK-Black.ttc"
 
 
+PALETTE = os.environ.get("SIM_PALETTE", "")   # "" = 虹色ネオン（標準）／ "amber" = オレンジ系の同系色でまとめる
+WALL, WALL_GLOW = ((255, 214, 160), (255, 120, 30)) if PALETTE == "amber" else ((150, 235, 255), (40, 200, 255))
+
+
 def hsv(h, s=.85, v=1.0):
+    if PALETTE == "amber":   # 色相を赤橙〜琥珀（0.0〜0.13）の幅に寄せ、明るさで差をつける
+        k = .5 - .5 * math.cos(2 * math.pi * (h % 1)); h, s, v = .012 + .115 * k, .78 + .12 * (1 - k), v * (.82 + .18 * k)
     i = int(h * 6) % 6; f = h * 6 - int(h * 6); p, q, t = v * (1 - s), v * (1 - s * f), v * (1 - s * (1 - f))
     r, g, b = [(v, t, p), (q, v, p), (p, v, t), (p, q, v), (t, p, v), (v, p, q)][i]
     return int(r * 255), int(g * 255), int(b * 255)

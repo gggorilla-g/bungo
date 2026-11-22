@@ -1,0 +1,28 @@
+{
+ "kind": "parabola",
+ "title": [
+  "Drop them into a golden bowl.",
+  "Do they all cross ONE point?"
+ ],
+ "count_label": "Balls: ",
+ "yt": {
+  "title": "Drop Them Into a Golden Bowl. Do They All Cross One Point? #shorts #physics #math",
+  "desc": "Balls fall straight down into a deep parabola-shaped bowl. After one bounce, every ball passes through the same point (the focus), then goes back up along a mirrored path. More balls each round.\n\nHow it works:\n- A parabola reflects every line parallel to its axis through its focus. Satellite dishes and flashlight reflectors use this.\n- Every path from the top line to the focus has the same length, so at equal speeds they would all arrive together.\n- Here the speed changes smoothly from one side to the other, so the balls arrive in a wave, one after another.\n- No gravity here (it moves like light). Each wall hit plays a note on a C major scale over a gentle chord progression and beat.\n\nSimulation, sound and animation: original (Python).",
+  "tags": [
+   "parabola",
+   "focus",
+   "physics",
+   "math",
+   "satisfying",
+   "relaxing",
+   "simulation",
+   "shorts"
+  ]
+ },
+ "id": "parabola4_en",
+ "X": 3.6,
+ "Y": 11.0,
+ "v": 6.76,
+ "stagger": 0.3,
+ "palette": "amber"
+}

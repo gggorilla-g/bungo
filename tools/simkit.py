@@ -9,7 +9,7 @@ import numpy as np
 import harmony
 from PIL import Image, ImageDraw, ImageFilter, ImageChops
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from ballsim import W, H, FPS, hsv, font, SR, mtof
+from ballsim import WALL, WALL_GLOW, W, H, FPS, hsv, font, SR, mtof
 
 S = int(os.environ.get("SIM_S", "2"))  # 2倍で描いて縮める（長尺は1で速く）
 BALL_K = float(os.environ.get("SIM_BALL_K", "1"))   # 玉の大きさの倍率（11/22 オーナー：伸びた放物線・楕円の大きさを基準に戻す）
@@ -48,7 +48,8 @@ class Sim:
     def to(self, p): return (self.cx + (p[0] - self.mx) * self.k, self.cy - (p[1] - self.my) * self.k)
 
     # ---- 動かない絵（背景に焼く）
-    def neon(self, pts, closed=False, color=(150, 235, 255), glow=(40, 200, 255), width=9):
+    def neon(self, pts, closed=False, color=None, glow=None, width=9):
+        color, glow = color or WALL, glow or WALL_GLOW
         P = [self.to(p) for p in pts]
         if closed: P = P + [P[0]]
         q = 4; g = Image.new("RGB", (W * S // q, H * S // q)); gd = ImageDraw.Draw(g)
