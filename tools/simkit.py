@@ -163,6 +163,10 @@ class Sim:
                     wood = np.sin(2 * np.pi * f * tt) * np.exp(-tt * 9) + .35 * np.sin(2 * np.pi * f * 4 * tt) * np.exp(-tt * 30)
                     s = .8 * out / (np.abs(out).max() + 1e-9) + .55 * wood
                     cache[key] = s * np.exp(-tt * dec * .5) * np.minimum(1, tt / .002) * (f / 523.25) ** -.25; return cache[key]
+                if kind == "edm":   # EDM ふうのマリンバ（オーナー 11/22）：短くはじける木の音＋1オクターブ下の丸い胴。余韻はディレイで作る
+                    s = np.sin(2 * np.pi * f * tt) + .5 * np.sin(2 * np.pi * 2 * f * tt) * np.exp(-tt * 14) + .22 * np.sin(2 * np.pi * 3 * f * tt) * np.exp(-tt * 28) + .4 * np.sin(2 * np.pi * f / 2 * tt) * np.exp(-tt * 6)
+                    s = s + np.random.default_rng(int(m)).normal(0, 1, len(tt)) * np.exp(-tt * 900) * .12
+                    cache[key] = s * np.exp(-tt * max(7.0, dec * 1.6)) * np.minimum(1, tt / .0012) * (f / 523.25) ** -.3; return cache[key]
                 if kind == "kick":   # 裏のリズム：やわらかい低い太鼓（音の高さが下がる正弦波）
                     tt2 = np.arange(int(SR * .35)) / SR; ph = 2 * np.pi * np.cumsum(55 + 70 * np.exp(-tt2 * 30)) / SR
                     cache[key] = np.sin(ph) * np.exp(-tt2 * 9) * np.minimum(1, tt2 / .002); return cache[key]
@@ -191,25 +195,40 @@ class Sim:
             w.setnchannels(2); w.setsampwidth(2); w.setframerate(SR); w.writeframes((st * 32767).astype(np.int16).tobytes())
 
     def finish(self, total):
-        if self.mel:   # 旋律モード：当たった順に、パッヘルベルのカノン（著作権切れ）の旋律を1音ずつ進める。和音も音の歩みに合わせて進む
+        if self.mel:   # 旋律モード：当たった順に、著作権の切れた曲の旋律を1音ずつ進める。和音も音の歩みに合わせて進む
+            MJ, MN = (0, 4, 7), (0, 3, 7); C_, G_, F_ = (0, MJ), (7, MJ), (5, MJ)
             P1 = [76, 74, 72, 71, 69, 67, 69, 71]; P2 = [72, 76, 79, 77, 76, 72, 76, 74, 72, 69, 72, 79, 77, 81, 79, 77]
-            seq = [(m, i) for i, m in enumerate(P1)] + [(m, i // 2) for i, m in enumerate(P2)]   # (音, 何番目の和音)
-            ev = sorted(e for e in self.mel if e[0] < total - .02); k = -1; last = -9
+            MELS = {
+                "canon": [(m, harmony.CANON[i]) for i, m in enumerate(P1)] + [(m, harmony.CANON[i // 2]) for i, m in enumerate(P2)],   # パッヘルベル「カノン」
+                "ode": [(m, c) for ms, c in (([76, 76, 77, 79], C_), ([79, 77, 76, 74], G_), ([72, 72, 74, 76], C_), ([76, 74, 74], G_),   # ベートーヴェン「歓喜の歌」
+                                             ([76, 76, 77, 79], C_), ([79, 77, 76, 74], G_), ([72, 72, 74, 76], C_), ([74, 72, 72], C_)) for m in ms],
+                "twinkle": [(m, c) for ms, c in (([72, 72, 79, 79], C_), ([81, 81, 79], F_), ([77, 77, 76, 76], C_), ([74, 74, 72], G_),   # きらきら星（フランス民謡）
+                                                 ([79, 79, 77, 77], C_), ([76, 76, 74], G_), ([79, 79, 77, 77], C_), ([76, 76, 74], G_),
+                                                 ([72, 72, 79, 79], C_), ([81, 81, 79], F_), ([77, 77, 76, 76], C_), ([74, 74, 72], C_)) for m in ms],
+            }
+            seq = MELS[self.sp.get("melody") if self.sp.get("melody") in MELS else "canon"]
+            ev = sorted(e for e in self.mel if e[0] < total - .02); k = -1; last = -9; prev = None
             for t, gain, pan, dec, tag in ev:
                 if tag == "ch":
-                    r, q = harmony.CANON[seq[max(k, 0) % len(seq)][1]]
+                    r, q = seq[max(k, 0) % len(seq)][1]
                     for x in q: self.notes.append((t, 60 + (r + x) % 12, gain * .8, .5, dec, "bell"))
                     continue
                 if t - last > .045: k += 1; last = t; new = True   # ほぼ同時の当たりは1歩にまとめる
                 else: new = False
-                m, ci = seq[k % len(seq)]; r, q = harmony.CANON[ci]; pc = [(r + x) % 12 for x in q]
+                m, (r, q) = seq[k % len(seq)]; pc = [(r + x) % 12 for x in q]
                 self.notes.append((t, m, gain, pan, dec, "mar"))
                 if new:
                     lo = [x for x in range(m - 3, m - 15, -1) if x % 12 in pc and x % 12 != m % 12][:2]
                     for x in lo: self.notes.append((t, x, gain * .32, pan, dec * 1.1, "mar"))
-                    if k % len(seq) in (0, 8) or (k % len(seq) > 8 and (k % len(seq)) % 2 == 0) or k % len(seq) < 8:
-                        self.notes.append((t, 36 + r if r >= 4 else 48 + r, gain * .5, .5, dec * 1.6, "mar"))   # 低い根音で土台
+                    if (r, q) != prev: self.notes.append((t, 36 + r if r >= 4 else 48 + r, gain * .5, .5, dec * 1.6, "mar")); prev = (r, q)   # 和音が変わるところで低い根音
         if self.stills is not None: print("確認用の絵:", self.stills); return
+        if self.sp.get("tone") == "edm":   # 当たる音を EDM マリンバに。付点8分（0.375秒）のこだまを左右に振る
+            ns = []
+            for t, m, g, pan, dec, kind in self.notes:
+                if kind != "mar": ns.append((t, m, g, pan, dec, kind)); continue
+                ns.append((t, m, g, pan, dec, "edm"))
+                if g > .12: ns.append((t + .375, m, g * .26, 1 - pan, dec, "edm")); ns.append((t + .75, m, g * .11, pan, dec, "edm"))
+            self.notes = ns
         self.proc.stdin.close(); self.proc.wait(); wv = f"build_ballsim/{self.id}.wav"; self._audio(total, wv)
         subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", self.raw, "-i", wv, "-map", "0:v", "-map", "1:a", "-c:v", "copy", "-c:a", "aac", "-b:a", "192k",
                         "-af", "loudnorm=I=-19:TP=-3:LRA=11", "-shortest", "-movflags", "+faststart", f"output/{self.id}.mp4"], check=True)

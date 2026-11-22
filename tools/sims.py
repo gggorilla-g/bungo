@@ -1410,11 +1410,13 @@ def pixels(sp):
     def img(n):
         x = np.linspace(cx - R, cx + R, n, endpoint=False) + R / n; y = np.linspace(cy - R, cy + R, n, endpoint=False) + R / n
         c = x[None, :] + 1j * y[:, None]; z = np.zeros_like(c); k = np.zeros(c.shape); alive = np.ones(c.shape, bool)
-        for i in range(160):
+        for i in range(sp.get("iter", 160)):
             z[alive] = z[alive] ** 2 + c[alive]; esc = alive & (np.abs(z) > 8); k[esc] = i + 1 - np.log2(np.log(np.abs(z[esc])) / math.log(8)); alive &= ~esc
         u = np.clip(k / 40, 0, 1) ** .6; inside = alive
         if amber: r_, g_, b_ = 20 + 235 * u, 8 + 170 * u ** 1.6, 14 + 60 * u ** 3
         else: r_, g_, b_ = 14 + 150 * u ** 2.2, 20 + 215 * u ** 1.1, 40 + 215 * u ** .7
+        if sp.get("cyclic"):   # 深く拡大するとき：回数で色が巡る（虹のふち）
+            w = k * sp.get("cyclic"); r_, g_, b_ = 135 + 120 * np.cos(w + 0.0), 125 + 120 * np.cos(w + 2.1), 140 + 115 * np.cos(w + 4.2)
         a = np.stack([r_, g_, b_], -1); a[inside] = (6, 8, 16)
         return Image.fromarray(a.clip(0, 255).astype(np.uint8))
     sim = Sim(sp, (0, 0, 1, 1)); sim.title()
@@ -1422,9 +1424,15 @@ def pixels(sp):
     side = int(W_ * S * .92); x0 = (W_ * S - side) // 2; y0 = int(H_ * S * .30)
     ims = [img(n).resize((side, side), Image.NEAREST) for n in lv]
     for i, n in enumerate(lv): sim.note(intro + i * hold, PENTA[min(15, i * 2 if i < 8 else 15)], .7, .5, 9); sim.note(intro + i * hold + .18, PENTA[min(15, i * 2 if i < 8 else 15)] + 12, .25, .5, 7, "bell")
-    total = intro + len(lv) * hold + tail
+    pv = sp.get("preview", 1.1)   # 最初にいちばん細かい絵を見せてから、粗い段に落とす（オーナー 11/22）
+    sim.notes = [(t + pv, *r) for t, *r in sim.notes]; sim.chord(.05, [72, 76, 79], gain=.4, dec=5)
+    total = intro + pv + len(lv) * hold + tail
     for fi in range(int(total * FPS)):
-        t = fi / FPS; i = min(len(lv) - 1, max(0, int((t - intro) / hold))); e = t - intro - i * hold
+        t = fi / FPS
+        if t < intro + pv:
+            def draw0(d): d._image.paste(ims[-1], (x0, y0)); d.rounded_rectangle([x0 - 3 * S, y0 - 3 * S, x0 + side + 3 * S, y0 + side + 3 * S], radius=6 * S, outline=(150, 235, 255), width=3 * S)
+            sim.frame(t, (), (), (f"{lv[-1]}×{lv[-1]} ＝ ", f"{lv[-1] ** 2:,}" + sp.get("unit", "ピクセル")), (), draw0); continue
+        t -= pv; i = min(len(lv) - 1, max(0, int((t - intro) / hold))); e = t - intro - i * hold; t += pv
         def draw(d, i=i, e=e):
             im = ims[i]
             if i and e < .35: im = Image.blend(ims[i - 1], im, max(0, e) / .35)   # 前の段からふわっと切りかえ

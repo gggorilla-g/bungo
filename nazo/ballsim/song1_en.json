@@ -1,0 +1,36 @@
+{
+ "kind": "parabola",
+ "id": "song1_en",
+ "melody": "ode",
+ "rounds": [
+  2,
+  4,
+  8,
+  16
+ ],
+ "last": 32,
+ "X": 6.0,
+ "Y": 14.0,
+ "v": 6.4,
+ "title": [
+  "Every bounce plays one note.",
+  "Can you name the song?"
+ ],
+ "count_label": "Balls: ",
+ "yt": {
+  "title": "Can You Name This Song? Every Bounce Plays One Note (Before 64 Balls) #shorts #satisfying #physics",
+  "desc": "Balls fall straight down into a parabola-shaped wall. Every wall hit plays the next note of a famous tune. The ball count doubles every round (4, 8, 16, 32, 64), so it keeps getting faster. Can you name it?\n\nHow it works:\n- A parabola reflects every line parallel to its axis through its focus, so every ball crosses the same point.\n- The wall is higher toward the sides, so the hits are naturally spread out in time. That spread is the rhythm you hear.\n- No gravity here (it moves like light).\n\nAnswer: Beethoven, Symphony No. 9, \"Ode to Joy\" (public domain).\n\nSimulation, sound and animation: original (Python).",
+  "tags": [
+   "name that tune",
+   "classical",
+   "parabola",
+   "physics",
+   "math",
+   "satisfying",
+   "relaxing",
+   "shorts"
+  ]
+ },
+ "interleave": true,
+ "tone": "edm"
+}
