@@ -1676,7 +1676,90 @@ def pendwave(sp):
         sim.frame(t, live, dots, (sp.get("count_label", "そろうまで "), f"{max(0, math.ceil(P - u))}"), fl)
     sim.finish(total)
 
-KINDS = {"pendwave": pendwave, "orbits": orbits, "phyllo": phyllo, "zoomsalt": zoomsalt, "layers": layers, "pixels": pixels, "sortviz": sortviz, "polyfocus": polyfocus, "heliostat": heliostat, "dragon": dragon, "rhythm": rhythm, "lissatable": lissatable, "plotter": plotter, "threebody": threebody, "pendswing": pendswing, "golden": golden, "piphase": piphase, "maurer": maurer, "harmono": harmono, "spiro": spiro, "star": star, "throw": throw, "tusi": tusi, "chain": chain, "basket": basket, "koch": koch, "cycloid": cycloid, "pendulums": pendulums, "lissajous": lissajous, "corner": corner, "sunflower": sunflower, "ulam": ulam, "parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2, "picount": picount}
+
+
+def lens(sp):
+    """向かい合った2枚の放物線の鏡（焦点が同じ）。まん中の点から全方向に打つと、1枚目で水平になり、2枚目でまた同じ点に戻る。
+    道の長さはどの向きも 4f で同じ。打ち出す系なので、速さを向きにそって波のようにずらす（stagger）"""
+    f, v, ST = 1.0, sp.get("v", 2.4), sp.get("stagger", .3); ms = sp.get("rounds", [4, 8, 16, 32]) + [sp.get("last", 64)]; intro, tail = .4, 1.6
+    T = 4 * f / (v * (1 - ST)); sim = Sim(sp, (-1.12, -2.08, 1.12, 2.08), area=(.05, .215, .95, .93))
+    ys = np.linspace(-2 * f, 2 * f, 201); sim.neon([(f - y * y / (4 * f), y) for y in ys]); sim.neon([(-(f - y * y / (4 * f)), y) for y in ys]); sim.ring((0, 0), 12); sim.title()
+    rounds = []
+    for r, m in enumerate(ms):
+        t0 = intro + r * T; balls = []
+        for i in range(m):
+            th = 2 * math.pi * (i + .5) / m + .37 * r; c = math.cos(th); rr = 2 * f / (1 + abs(c)); p1 = (rr * c, rr * math.sin(th)); p2 = (-p1[0], p1[1])
+            spd = 1 - ST * (.5 - .5 * math.cos(th - 1.3 * r)); balls.append(dict(pts=[(0, 0), p1, p2, (0, 0)], cum=[0, rr, rr + 2 * abs(p1[0]), 4 * f], spd=spd, col=hsv((i / m + .08 * r) % 1), done=0))
+        n = len(balls); g = .9 / math.sqrt(n); dec = 4 + 3 * math.sqrt(n / 5)
+        for b in balls:
+            for q in (1, 2): sim.note(t0 + b["cum"][q] / (v * b["spd"]), PENTA[int((b["pts"][q][1] / (2 * f) * .5 + .5) * 15 + .5)], g, .5 + .4 * b["pts"][q][0], dec)
+        sim.chord(t0, [60, 67, 72]); rounds.append((t0, balls))
+    total = intro + len(ms) * T + tail; sim.chord(intro + len(ms) * T, [60, 64, 67, 72], gain=.5, dec=5)
+    sim.notes = [nt for nt in sim.notes if nt[0] < total - .02]
+    for fi in range(int(total * FPS)):
+        t = fi / FPS; r = min(len(rounds) - 1, max(0, int((t - intro) // T))); t0, balls = rounds[r]; s = max(0, t - t0) * v; segs = []; n = len(balls); lw = max(1.0, 2.0 * min(1, 10 / math.sqrt(n)))
+        if r > 0:
+            for b in rounds[r - 1][1]:
+                while b["done"] < 3: segs.append((b["pts"][b["done"]], b["pts"][b["done"] + 1], dim(b["col"], .28))); b["done"] += 1
+        live, dots, fl = [], [], []; arrived = 0
+        for b in balls:
+            cum, pts = b["cum"], b["pts"]; sc = min(s * b["spd"], cum[-1])
+            while b["done"] < 3 and cum[b["done"] + 1] <= sc: segs.append((pts[b["done"]], pts[b["done"] + 1], dim(b["col"], .28))); b["done"] += 1
+            k = b["done"]
+            if k >= 3: arrived += 1; continue
+            pnt = lerp(pts[k], pts[k + 1], (sc - cum[k]) / (cum[k + 1] - cum[k])); live.append((pts[k], pnt, dim(b["col"], .75), lw)); dots.append((pnt, b["col"], 5 if n <= 32 else 4))
+            e = (sc - cum[k]) / (v * b["spd"])
+            if k in (1, 2) and e < .2: fl.append((pts[k], 8 + e * 70, dim(b["col"], 1 - e / .2), 2))
+        sim.commit(segs, width=lw)
+        gl = arrived / n if s > 0 else 0; bt = (t * 2) % 1
+        fl.append(((0, 0), 14 + 30 * gl + 6 * (1 - bt), dim((255, 240, 190), .3 + .7 * gl), 4))
+        sim.frame(t, live, dots, (sp.get("count_label", "ボール："), f"{n:,}"), fl)
+    sim.finish(total)
+
+
+def koch(sp):
+    """コッホ雪片。辺のまん中3分の1に、小さな三角を足す、をくり返す。面積は元の 1.6 倍より大きくならないのに、まわりの長さは毎回 4/3 倍で、どこまでも伸びる。
+    光の玉がふちを1周なぞる。角を曲がるたびに1音"""
+    stages = sp.get("stages", 5); per = sp.get("per", 4.4); intro, tail = .5, 2.2; R = 1.0
+    def poly(n):
+        pts = [(R * math.cos(math.radians(90 + 120 * k)), R * math.sin(math.radians(90 + 120 * k))) for k in range(3)][::-1]
+        for _ in range(n):
+            out = []
+            for i in range(len(pts)):
+                a, b = pts[i], pts[(i + 1) % len(pts)]; dx, dy = (b[0] - a[0]) / 3, (b[1] - a[1]) / 3; p1 = (a[0] + dx, a[1] + dy); p2 = (a[0] + 2 * dx, a[1] + 2 * dy)
+                pk = (p1[0] + dx * .5 + dy * .8660254, p1[1] + dy * .5 - dx * .8660254); out += [a, p1, pk, p2]
+            pts = out
+        return pts
+    polys = [poly(n) for n in range(stages + 1)]; side0 = math.dist(polys[0][0], polys[0][1])
+    sim = Sim(sp, (-1.22, -1.22, 1.22, 1.22)); sim.neon([(1.2 * math.cos(a), 1.2 * math.sin(a)) for a in np.linspace(0, 2 * math.pi, 181)], width=3); sim.title()
+    total = intro + (stages + 1) * per + tail
+    for n, pts in enumerate(polys):
+        t0 = intro + n * per; m = len(pts); step = max(1, m // 48); idx = 7
+        for i in range(0, m, step):
+            a, b, c = pts[i - 1], pts[i], pts[(i + 1) % m]; cr = (b[0] - a[0]) * (c[1] - b[1]) - (b[1] - a[1]) * (c[0] - b[0]); idx = min(15, max(0, idx + (1 if cr < 0 else -2)))
+            sim.note(t0 + (per - .5) * i / m, PENTA[idx], .5, .5 + .4 * b[0], 5)
+        sim.chord(t0 + per - .45, [60 + 2 * 0, 67, 72] if n < stages else [60, 64, 67, 72], gain=.4, dec=4)
+    fS = F(40 * S)
+    for fi in range(int(total * FPS)):
+        t = fi / FPS; n = min(stages, max(0, int((t - intro) / per))); u = min(1, max(0, (t - intro - n * per) / (per - .5))); pts = polys[n]; m = len(pts)
+        cols = lambda q: hsv(.55 + .25 * q / m); k = int(u * m); live = []
+        for i in range(m):
+            a, b = pts[i], pts[(i + 1) % m]
+            if i < k: live.append((a, b, dim(cols(i), .95), 3.2 if m < 400 else 2.2))
+            else: live.append((a, b, dim((120, 140, 190), .35), 1.6))
+        dots = []; fl = []
+        if u < 1:
+            a, b = pts[k % m], pts[(k + 1) % m]; fr = u * m - k; pz = lerp(a, b, fr); dots.append((pz, (235, 248, 255), 9)); fl.append((pz, 16, (160, 220, 255), 2))
+            for q in range(1, 6):
+                kk = (k - q) % m
+                if k - q >= 0: live.append((pts[kk], pts[(kk + 1) % m], dim((235, 248, 255), 1 - q / 6), 5 - q * .6))
+        peri = 3 * (4 / 3) ** n; area = 1 + .6 * (1 - (4 / 9) ** n)
+        def draw(d, area=area, n=n):
+            tx = sp.get("area_label", "面積 ") + f"{area:.3f}" + sp.get("area_tail", "（元の三角形＝1）"); w = d.textlength(tx, font=fS); d.text((1080 * S / 2 - w / 2, 1920 * S * .84), tx, font=fS, fill=(200, 215, 240), stroke_width=4 * S, stroke_fill=(0, 0, 0))
+        sim.frame(t, live, dots, (sp.get("count_label", "まわりの長さ "), f"{peri:.2f}"), fl, draw)
+    sim.finish(total)
+
+KINDS = {"lens": lens, "koch": koch, "pendwave": pendwave, "orbits": orbits, "phyllo": phyllo, "zoomsalt": zoomsalt, "layers": layers, "pixels": pixels, "sortviz": sortviz, "polyfocus": polyfocus, "heliostat": heliostat, "dragon": dragon, "rhythm": rhythm, "lissatable": lissatable, "plotter": plotter, "threebody": threebody, "pendswing": pendswing, "golden": golden, "piphase": piphase, "maurer": maurer, "harmono": harmono, "spiro": spiro, "star": star, "throw": throw, "tusi": tusi, "chain": chain, "basket": basket, "koch": koch, "cycloid": cycloid, "pendulums": pendulums, "lissajous": lissajous, "corner": corner, "sunflower": sunflower, "ulam": ulam, "parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2, "picount": picount}
 
 if __name__ == "__main__":
     sp = json.load(open(sys.argv[1], encoding="utf-8")); KINDS[sp["kind"]](sp); kit(sp)

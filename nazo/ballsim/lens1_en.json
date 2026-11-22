@@ -1,0 +1,27 @@
+{
+ "kind": "lens",
+ "tone": "stone",
+ "style": "big",
+ "mark": "@makeitwork3d",
+ "bloom": 1.15,
+ "title": [
+  "Fire every way between {two mirrors}.",
+  "Do they [ALL] come back to one point?"
+ ],
+ "count_label": "Balls: ",
+ "yt": {
+  "title": "Fire Every Way Between Two Mirrors. Do They ALL Come Back to One Point? (Wait for 64) #shorts #satisfying #physics",
+  "desc": "Balls leave the middle point in every direction between two facing mirrors. After the first bounce they all travel straight sideways; after the second, every one returns to the point it started from.\n\nHow it works:\n- Both mirrors are parabolas that share the same focus (the middle point). A parabola sends lines from its focus out parallel, and brings parallel lines back to its focus.\n- The path point, mirror, mirror, point has the same length in every direction, so at equal speeds they would all return together. Here the speed changes smoothly with direction, so they come back in a wave.\n- No gravity here (it moves like light). Each mirror hit plays a stone-chime note.\n\nSimulation, sound and animation: original (Python).",
+  "tags": [
+   "parabola",
+   "focus",
+   "mirror",
+   "physics",
+   "math",
+   "satisfying",
+   "relaxing",
+   "shorts"
+  ]
+ },
+ "id": "lens1_en"
+}

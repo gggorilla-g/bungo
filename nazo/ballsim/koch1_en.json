@@ -1,20 +1,27 @@
 {
  "kind": "koch",
+ "tone": "stone",
+ "style": "big",
+ "mark": "@makeitwork3d",
+ "bloom": 1.15,
  "title": [
-  "Fold the edge every lap.",
-  "Finite area, infinite edge?"
+  "The {area} barely grows.",
+  "Can the [edge] grow forever?"
  ],
- "len_fmt": "edge length {L:.2f}   step {s}   ",
+ "count_label": "Edge length ",
+ "area_label": "Area ",
+ "area_tail": "  (first triangle = 1)",
  "yt": {
-  "title": "Fold the Edge Every Lap. Finite Area, Infinite Edge? #shorts #math",
-  "desc": "A ball runs around a triangle. After each lap, the middle third of every side gets folded outward into a smaller triangle. Each step makes the edge 4/3 times longer (3, 4, 5.33, 7.11 ... about 16.9 after 6 steps).\n\nHow it works:\n- This shape is the Koch curve (Koch snowflake).\n- The edge length is multiplied by 4/3 every step, so it grows without limit.\n- The added triangles shrink fast, so the area never goes past 1.6 (8/5) times the original triangle.\n- The video stops after 6 steps, but the rule can go on forever.\n- The ball plays one note at every corner (rising through each lap).\n\nSimulation, sound and animation: original (Python).",
+  "title": "The Area Barely Grows. Can the Edge Grow Forever? (Wait for the End) #shorts #satisfying #math",
+  "desc": "Add a small triangle to the middle third of every side, and repeat. The shape is the Koch snowflake. A glowing ball traces the edge once per step and plays a note at every corner.\n\nHow it works:\n- Each step multiplies the edge length by 4/3 (3, 4, 5.33, 7.11, ...). You can repeat forever, so the edge grows without limit.\n- The added triangles shrink so fast that the area never passes 1.6 times (8/5) the first triangle.\n- So this shape has a finite area and an infinitely long edge.\n\nSimulation, sound and animation: original (Python).",
   "tags": [
-   "math",
-   "fractal",
    "koch snowflake",
+   "fractal",
    "infinity",
-   "simulation",
+   "geometry",
+   "math",
    "satisfying",
+   "relaxing",
    "shorts"
   ]
  },
