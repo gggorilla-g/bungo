@@ -1,0 +1,16 @@
+{
+ "thumb": "",
+ "thumb_error": "",
+ "id": "M8V2_9fx5Ac",
+ "url": "https://youtube.com/watch?v=M8V2_9fx5Ac",
+ "requested_publishAt": "",
+ "returned_status": {
+  "uploadStatus": "uploaded",
+  "privacyStatus": "public",
+  "license": "youtube",
+  "embeddable": true,
+  "publicStatsViewable": true,
+  "selfDeclaredMadeForKids": false,
+  "containsSyntheticMedia": false
+ }
+}
