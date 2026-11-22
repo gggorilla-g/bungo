@@ -1,0 +1,25 @@
+{
+ "id": "helio1_en",
+ "kind": "heliostat",
+ "title": [
+  "Many small mirrors.",
+  "Can they send ALL the light to one point?"
+ ],
+ "count_label": "Mirrors: ",
+ "yt": {
+  "title": "Many Small Mirrors. Can They Send ALL the Light to One Point? #shorts #physics #math",
+  "desc": "Light (balls) comes straight down onto a row of small mirrors on the ground. Each mirror is tilted by its own angle so the light bounces to the same point at the top of the tower. More mirrors are added each round.\n\nHow it works:\n- Tilt a mirror so its normal sits exactly halfway between the incoming and outgoing directions, and the light goes where you aim it (angle of incidence = angle of reflection).\n- Solar power towers use the same idea: thousands of mirrors (heliostats) send sunlight to one receiver.\n- Mirrors farther from the tower have a longer path, so the light arrives a little later, in a wave from the inside out.\n- No gravity here (it moves like light). Every mirror hit and every arrival plays a note on a C major scale with chords.\n\nSimulation, sound and animation: original (Python).",
+  "tags": [
+   "physics",
+   "math",
+   "mirror",
+   "reflection",
+   "solar power tower",
+   "heliostat",
+   "simulation",
+   "satisfying",
+   "shorts"
+  ]
+ },
+ "hue0": 0.3
+}

@@ -493,17 +493,19 @@ def basket(sp):
     sim.neon([(Tg[0] - rim - .05, Tg[1] - .1), (Tg[0] - rim - .05, Tg[1] + 1.2)], width=5)
     for k in range(5): sim.thin([(Tg[0] - rim + k * rim / 2, Tg[1]), (Tg[0] - rim * .6 + k * rim * .3, Tg[1] - .7)], color=(150, 150, 165), width=1.2)
     sim.title()
-    balls, t0 = [], intro; scored_t = []
+    balls, t0 = [], intro; scored_t = []; WV, HUE0 = sp.get("wave", 0.0), sp.get("hue0", 0.0)
     for w, m in enumerate(vols):
         for j in range(m):
             x0 = xa + .15 + (xb - xa - .3) * ((j + .5) / m); i = int(np.searchsorted(xs, x0)); yf = float(np.interp(x0, xs, ys))
             sl = (ys[min(i + 1, len(xs) - 1)] - ys[max(i - 1, 0)]) / (xs[min(i + 1, len(xs) - 1)] - xs[max(i - 1, 0)]); nrm = np.array([-sl, 1.0]); nrm /= np.linalg.norm(nrm)
             v = math.sqrt(2 * g * (H - yf)); vin = np.array([0, -v]); vo = vin - 2 * np.dot(vin, nrm) * nrm; t1 = math.sqrt(2 * (H - yf) / g); tT = (Tg[0] - x0) / vo[0]
-            b = dict(x0=x0, yf=yf, vo=vo, t0=t0, t1=t1, tT=tT, col=hsv((j + .5) / m * .85 + .07 * w), last=None, m=m)
-            balls.append(b); scored_t.append(t0 + t1 + tT)
-            g_ = .9 / math.sqrt(m); rank = j / max(1, m - 1)
-            sim.note(t0 + t1, PENTA[int(rank * 15 + .5)], g_, .5 + .3 * x0 / xb, 4 + 3 * math.sqrt(m / 5))
-            sim.note(t0 + t1 + tT, PENTA[min(15, 10 + int(rank * 5 + .5))], .7 * g_, .3, 5 + 3 * math.sqrt(m / 5), "bell")
+            rank = j / max(1, m - 1)
+            td = t0 + WV * (rank if w % 2 == 0 else 1 - rank) * min(1, (m - 1) / 4)   # wave：端から順に落とす（波のズレ。回ごとに向きを入れかえる）
+            b = dict(x0=x0, yf=yf, vo=vo, t0=td, t1=t1, tT=tT, col=hsv(((j + .5) / m * .85 + .07 * w + HUE0) % 1), last=None, m=m)
+            balls.append(b); scored_t.append(td + t1 + tT)
+            g_ = .9 / math.sqrt(m)
+            sim.note(td + t1, PENTA[int(rank * 15 + .5)], g_, .5 + .3 * x0 / xb, 4 + 3 * math.sqrt(m / 5))
+            sim.note(td + t1 + tT, PENTA[min(15, 10 + int(rank * 5 + .5))], .7 * g_, .3, 5 + 3 * math.sqrt(m / 5), "bell")
         t0 += gap
     total = max(scored_t) + tail; scored_t.sort(); tot = sum(vols)
     def pos(b, t):
@@ -522,7 +524,11 @@ def basket(sp):
             b["last"] = p; dots.append((p, b["col"], 5))
         sim.commit(segs, width=1.3)
         n_in = int(np.searchsorted(scored_t, t, side="right")); n_out = sum(1 for b in balls if b["t0"] <= t)
-        sim.frame(t, (), dots, (sp.get("count_fmt", "入った {a} / {b}　").format(a=n_in, b=n_out), ""))
+        fl = []   # 床で跳ねた瞬間に、当たった点が小さく光る（跳ねた感じを見せる）
+        for b in balls:
+            e = t - b["t0"] - b["t1"]
+            if 0 <= e < .28: fl.append(((b["x0"], b["yf"]), 8 + e * 60, dim(b["col"], 1 - e / .28), 2))
+        sim.frame(t, (), dots, (sp.get("count_fmt", "入った {a} / {b}　").format(a=n_in, b=n_out), ""), fl)
     sim.finish(total)
 
 
