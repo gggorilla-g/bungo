@@ -49,3 +49,8 @@ threebody1_ja success UbZldgCpEuM (run 44910778933)
 2026-11-21T13:58:08Z pend1_ja success ZmnyvksedgY (run 44911349028)
 2026-11-21T14:00:32Z liss1_ja success lyEVwSPB5wk (run 44911484723)
 2026-11-22T01:05:44Z ellipse1d_en2 success UyKDX7-UnsY (修正版：着地のジャンプを解消。旧 doX9N9Po-dU)
+2026-11-22T03:01:00Z basket2_en success ulmExtpDmTY (跳ねた直後が消える不具合 → 非公開)
+2026-11-22T03:02:00Z helio1_en success ggwAvLFVChw
+2026-11-22T03:03:00Z parabola3_en success L9ctyLAOrNU
+2026-11-22T03:04:00Z ellipse3_en success 7IQ0LNY08ZY
+2026-11-22T03:20:00Z basket2_en success PJNDfAk3qPQ (修正版)
