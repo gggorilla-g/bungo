@@ -1,8 +1,8 @@
 {
  "thumb": "",
  "thumb_error": "",
- "id": "O_Brpai6am8",
- "url": "https://youtube.com/shorts/O_Brpai6am8",
+ "id": "KojR9prnrww",
+ "url": "https://youtube.com/watch?v=KojR9prnrww",
  "requested_publishAt": "",
  "returned_status": {
   "uploadStatus": "uploaded",
