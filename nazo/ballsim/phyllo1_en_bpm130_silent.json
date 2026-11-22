@@ -1,0 +1,26 @@
+{
+ "kind": "phyllo",
+ "id": "phyllo1_en_bpm130_silent",
+ "tone": "karo",
+ "title": [
+  "One rule: turn, then place a dot.",
+  "What happens at 137.5°?"
+ ],
+ "count_label": "Turn: ",
+ "yt": {
+  "title": "Turn 137.5°, Place a Dot, Repeat. What Pattern Appears? (Wait for the End) #shorts #satisfying #math",
+  "desc": "One rule: turn by a fixed angle from the last dot, then place the next dot a little farther out. At 90° you only get 4 lines, at 135° only 8. At 137.5° a sunflower appears.\n\nHow it works:\n- 137.5° is the golden angle: a full turn split in the golden ratio (about 1 : 1.618), taking the smaller part.\n- It is very hard to approximate with a fraction, so dots never line up in the same direction and they fill the space evenly.\n- Sunflower seeds and pine cone scales grow at close to this angle. Count the spirals and you get Fibonacci numbers such as 21, 34 and 55.\n- Every dot plays a note, and the placing speed doubles on the beat.\n\nSimulation, sound and animation: original (Python).",
+  "tags": [
+   "golden angle",
+   "golden ratio",
+   "sunflower",
+   "fibonacci",
+   "math",
+   "satisfying",
+   "relaxing",
+   "shorts"
+  ]
+ },
+ "bpm": 130,
+ "mute": true
+}

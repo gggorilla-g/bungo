@@ -1573,7 +1573,9 @@ def phyllo(sp):
     """黄金角（オーナー 11/22「リズムと法則が生み出す幾何学的な結末」）。決まりは1つ：前の種から決まった角度だけ回して、少し外に置く。
     角度が 90° や 135° だと線になるだけ。137.5°（黄金角）にすると、ひまわりの種の並びになる。拍に合わせて置き、だんだん速くなる"""
     rounds = sp.get("rounds", [(90.0, [(8, 4.0)]), (135.0, [(8, 4.0)]), (137.5, [(8, 2.0), (16, 2.0), (32, 4.0), (64, 6.0)])])
-    intro, gapr, tail = .5, 1.0, 2.6; plan = []; t = intro
+    K = 120.0 / sp.get("bpm", 120.0)   # bpm：拍の速さ。置くタイミングを全部この拍に合わせる（あとから曲を重ねる用）
+    rounds = [(a_, [(r_ / K, d_ * K) for r_, d_ in sg]) for a_, sg in rounds]
+    intro, gapr, tail = .5 * K, 1.0 * K, 2.6; plan = []; t = intro
     for ang, segs in rounds:
         ts = []
         for rate, dur in segs: ts += [t + i / rate for i in range(int(rate * dur))]; t += dur
@@ -1585,8 +1587,9 @@ def phyllo(sp):
         for n, tn in enumerate(ts):
             if n % step == 0: sim.note(tn, PENTA[[0, 2, 4, 7, 9, 7, 4, 2][(n // step) % 8] + (3 if (n // step) % 16 >= 8 else 0)], .5, .5 + .3 * math.cos(math.radians(ang) * n), 5)
     b = 0.0
-    while b < total - 1: sim.note(intro + b, 36, .55, .5, 9, "kick"); sim.note(intro + b + .25, 80, .10, .5, 9, "hat"); b += .5
+    while b < total - 1: sim.note(intro + b, 36, .55, .5, 9, "kick"); sim.note(intro + b + .25 * K, 80, .10, .5, 9, "hat"); b += .5 * K
     sim.chord(plan[-1][2] + .1, [60, 64, 67, 72], gain=.5, dec=5)
+    if sp.get("mute"): sim.notes = []   # 無音で書き出す（YouTube アプリで曲を重ねる用）
     for fi in range(int(total * FPS)):
         t = fi / FPS; ri = next((i for i, (_, ts, te) in enumerate(plan) if t < te + gapr), len(plan) - 1); ang, ts, te = plan[ri]
         n = sum(1 for x in ts if x <= t); fade = 1.0 if ri == len(plan) - 1 or t < te + gapr - .45 else max(0, (te + gapr - t) / .45)
