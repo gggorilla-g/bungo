@@ -28,5 +28,6 @@
  "brick": 0.045,
  "spread": 7,
  "speedup": 0.003,
- "dur": 30
+ "dur": 30,
+ "bed": true
 }

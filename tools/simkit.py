@@ -215,6 +215,21 @@ class Sim:
         a_ = math.exp(-2 * math.pi * 5000 / SR)   # 1次ローパス約5kHz。キンキンする成分を少し落とす
         for X in (L, R) if SOFT_LP else ():
             from scipy.signal import lfilter; X[:] = lfilter([1 - a_], [1, -a_], X)
+        if self.sp.get("bed"):   # 参考動画の音の分析（11/23）：伸びている動画は音が途切れない（音量の幅 5〜11dB）・余韻が長い（0.9〜1.8秒）・低音が厚い。
+            # → (1) 和音の持続音を薄く敷く (2) 残響を長くする (3) 低い根音を小節ごとに
+            tt = np.arange(n) / SR; pad = np.zeros(n); mel = bool(self.sp.get("melody"))
+            for b0 in np.arange(0, total + 2, harmony.BAR):
+                i0, i1 = int(b0 * SR), min(n, int((b0 + harmony.BAR + .6) * SR))
+                if i0 >= n: break
+                pcs = [0, 7, 4] if mel else harmony.pcs(b0 + .01); seg = tt[i0:i1] - b0; env = np.minimum(1, seg / .5) * np.minimum(1, (harmony.BAR + .6 - seg) / .6)
+                for k, pc in enumerate(pcs):
+                    f = 440 * 2 ** ((48 + pc - 69) / 12); pad[i0:i1] += (np.sin(2 * np.pi * f * seg) + .25 * np.sin(2 * np.pi * 2 * f * seg)) * env * (.5 if k == 0 else .32)
+                r = pcs[0]; fb = 440 * 2 ** ((36 + r - 69) / 12); bl = min(n - i0, int(SR * 1.6)); sb = np.arange(bl) / SR
+                pad[i0:i0 + bl] += np.sin(2 * np.pi * fb * sb) * np.exp(-sb * 2.2) * np.minimum(1, sb / .01) * 1.6
+            pk = max(np.abs(L).max(), np.abs(R).max(), 1e-9); pad *= pk * self.sp.get("bed_gain", .22) / (np.abs(pad).max() + 1e-9)
+            L += pad; R += pad
+            for dly, g in [(.089, .42), (.131, .36), (.197, .30), (.263, .25), (.347, .2), (.461, .15), (.613, .11)]:   # 長めの残響
+                o = int(SR * dly); L[o:] += R[:-o] * g * .55; R[o:] += L[:-o] * g * .55
         st = np.stack([L, R], 1); st = st / (np.abs(st).max() + 1e-9) * .85
         with wave.open(path, "wb") as w:
             w.setnchannels(2); w.setsampwidth(2); w.setframerate(SR); w.writeframes((st * 32767).astype(np.int16).tobytes())

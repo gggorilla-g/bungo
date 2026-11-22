@@ -23,5 +23,6 @@
  },
  "style": "big",
  "mark": "@makeitwork3d",
- "amp": 30
+ "amp": 30,
+ "bed": true
 }
