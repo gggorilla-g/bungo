@@ -1567,7 +1567,39 @@ def zoomsalt(sp):
         sim.frame(t, (), (), (sp.get("count_label", "画面の横幅 "), fmt(w)), (), draw)
     sim.finish(total)
 
-KINDS = {"zoomsalt": zoomsalt, "layers": layers, "pixels": pixels, "sortviz": sortviz, "polyfocus": polyfocus, "heliostat": heliostat, "dragon": dragon, "rhythm": rhythm, "lissatable": lissatable, "plotter": plotter, "threebody": threebody, "pendswing": pendswing, "golden": golden, "piphase": piphase, "maurer": maurer, "harmono": harmono, "spiro": spiro, "star": star, "throw": throw, "tusi": tusi, "chain": chain, "basket": basket, "koch": koch, "cycloid": cycloid, "pendulums": pendulums, "lissajous": lissajous, "corner": corner, "sunflower": sunflower, "ulam": ulam, "parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2, "picount": picount}
+
+
+def phyllo(sp):
+    """黄金角（オーナー 11/22「リズムと法則が生み出す幾何学的な結末」）。決まりは1つ：前の種から決まった角度だけ回して、少し外に置く。
+    角度が 90° や 135° だと線になるだけ。137.5°（黄金角）にすると、ひまわりの種の並びになる。拍に合わせて置き、だんだん速くなる"""
+    rounds = sp.get("rounds", [(90.0, [(8, 4.0)]), (135.0, [(8, 4.0)]), (137.5, [(8, 2.0), (16, 2.0), (32, 4.0), (64, 6.0)])])
+    intro, gapr, tail = .5, 1.0, 2.6; plan = []; t = intro
+    for ang, segs in rounds:
+        ts = []
+        for rate, dur in segs: ts += [t + i / rate for i in range(int(rate * dur))]; t += dur
+        plan.append((ang, ts, t)); t += gapr
+    total = t - gapr + tail; NMAX = max(len(ts) for _, ts, _ in plan)
+    sim = Sim(sp, (-1.08, -1.08, 1.08, 1.08)); sim.ring((0, 0), 6); sim.title()
+    for ang, ts, te in plan:
+        step = max(1, int(round(len(ts) / (te - ts[0]) / 12)))   # 音は多くても毎秒12個くらい
+        for n, tn in enumerate(ts):
+            if n % step == 0: sim.note(tn, PENTA[[0, 2, 4, 7, 9, 7, 4, 2][(n // step) % 8] + (3 if (n // step) % 16 >= 8 else 0)], .5, .5 + .3 * math.cos(math.radians(ang) * n), 5)
+    b = 0.0
+    while b < total - 1: sim.note(intro + b, 36, .55, .5, 9, "kick"); sim.note(intro + b + .25, 80, .10, .5, 9, "hat"); b += .5
+    sim.chord(plan[-1][2] + .1, [60, 64, 67, 72], gain=.5, dec=5)
+    for fi in range(int(total * FPS)):
+        t = fi / FPS; ri = next((i for i, (_, ts, te) in enumerate(plan) if t < te + gapr), len(plan) - 1); ang, ts, te = plan[ri]
+        n = sum(1 for x in ts if x <= t); fade = 1.0 if ri == len(plan) - 1 or t < te + gapr - .45 else max(0, (te + gapr - t) / .45)
+        scale = 1.0 / math.sqrt(max(30, n) + 2); dots = []; ga = math.radians(ang)
+        for i in range(n):
+            r = math.sqrt(i + .5) * scale; a = i * ga; age = t - ts[i]; pop = 1 + .9 * max(0, 1 - age / .18)
+            col = hsv((.08 + .5 * (i / NMAX)) % 1); dots.append(((r * math.cos(a), r * math.sin(a)), dim(col, fade), max(2.2, min(9, 150 * scale)) * pop))
+        fl = []
+        if n and t - ts[n - 1] < .15 and n < 200: i = n - 1; r = math.sqrt(i + .5) * scale; fl.append(((r * math.cos(i * ga), r * math.sin(i * ga)), 10 + (t - ts[i]) * 120, dim((255, 245, 210), 1 - (t - ts[i]) / .15), 2))
+        sim.frame(t, (), dots, (sp.get("count_label", "回す角度 "), f"{ang:g}°"), fl)
+    sim.finish(total)
+
+KINDS = {"phyllo": phyllo, "zoomsalt": zoomsalt, "layers": layers, "pixels": pixels, "sortviz": sortviz, "polyfocus": polyfocus, "heliostat": heliostat, "dragon": dragon, "rhythm": rhythm, "lissatable": lissatable, "plotter": plotter, "threebody": threebody, "pendswing": pendswing, "golden": golden, "piphase": piphase, "maurer": maurer, "harmono": harmono, "spiro": spiro, "star": star, "throw": throw, "tusi": tusi, "chain": chain, "basket": basket, "koch": koch, "cycloid": cycloid, "pendulums": pendulums, "lissajous": lissajous, "corner": corner, "sunflower": sunflower, "ulam": ulam, "parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2, "picount": picount}
 
 if __name__ == "__main__":
     sp = json.load(open(sys.argv[1], encoding="utf-8")); KINDS[sp["kind"]](sp); kit(sp)

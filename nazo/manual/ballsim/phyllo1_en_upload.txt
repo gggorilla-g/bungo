@@ -1,0 +1,16 @@
+【タイトル】
+Turn 137.5°, Place a Dot, Repeat. What Pattern Appears? (Wait for the End) #shorts #satisfying #math
+
+【説明】
+One rule: turn by a fixed angle from the last dot, then place the next dot a little farther out. At 90° you only get 4 lines, at 135° only 8. At 137.5° a sunflower appears.
+
+How it works:
+- 137.5° is the golden angle: a full turn split in the golden ratio (about 1 : 1.618), taking the smaller part.
+- It is very hard to approximate with a fraction, so dots never line up in the same direction and they fill the space evenly.
+- Sunflower seeds and pine cone scales grow at close to this angle. Count the spirals and you get Fibonacci numbers such as 21, 34 and 55.
+- Every dot plays a note, and the placing speed doubles on the beat.
+
+Simulation, sound and animation: original (Python).
+
+【タグ】
+golden angle, golden ratio, sunflower, fibonacci, math, satisfying, relaxing, shorts
