@@ -54,3 +54,5 @@ threebody1_ja success UbZldgCpEuM (run 44910778933)
 2026-11-22T03:03:00Z parabola3_en success L9ctyLAOrNU
 2026-11-22T03:04:00Z ellipse3_en success 7IQ0LNY08ZY
 2026-11-22T03:20:00Z basket2_en success PJNDfAk3qPQ (修正版)
+2026-11-22T09:35:22Z ellipse4_en success hKqnZPOBf0Q (実験1 対照)
+2026-11-22T09:35:22Z ellipse5_en success 3ngvORMxU0g (実験1 処理：冒頭から動く)
