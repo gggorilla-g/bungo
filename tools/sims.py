@@ -514,7 +514,7 @@ def basket(sp):
         if u < b["t1"]: return (b["x0"], H - g * u * u / 2)
         u -= b["t1"]; x = b["x0"] + b["vo"][0] * u; y = b["yf"] + b["vo"][1] * u - g * u * u / 2
         if u > b["tT"]: x = Tg[0] + (x - Tg[0]) * .15   # かごの中はまっすぐ下へ
-        return (x, y) if y > Tg[1] - 1.1 else None
+        return (x, y) if (u <= b["tT"] or y > Tg[1] - 1.1) else None   # 消すのは、かごに入って下に抜けたときだけ（跳ねた直後は必ず見せる）
     for fi in range(int(total * FPS)):
         t = fi / FPS; dots, segs = [], []
         for b in balls:
