@@ -137,7 +137,7 @@ class Sim:
 
     # ---- 音（1個ずつ足す）
     def note(self, t, midi, gain=1.0, pan=.5, dec=6.0, kind="mar"):
-        if self.mel is not None and kind == "mar": self.mel.append((t, gain, pan, dec, "n")); return
+        if self.mel is not None and kind in ("mar", "bell"): self.mel.append((t, gain, pan, dec, "n")); return
         while midi > MAX_MIDI: midi -= 12   # 高すぎる音はオクターブ下げる（オーナー 11/21「ハイキーは気持ち悪い」）
         if harmony.ON and kind not in ("kick", "hat"):   # 当たった音を今の和音（カノン進行）に寄せ、残りの2音を小さく重ねる
             midi = harmony.snap(int(round(midi)), t)

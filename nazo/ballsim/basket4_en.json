@@ -1,0 +1,41 @@
+{
+ "kind": "basket",
+ "title": [
+  "Dropped from a slanted line. One bounce.",
+  "Do they ALL go in?"
+ ],
+ "count_fmt": "in {a} / {b}",
+ "yt": {
+  "title": "Every Ball Goes In. Every Bounce Plays the Next Note (Wait for 32 Balls) #shorts #physics #satisfying",
+  "desc": "Balls are dropped straight down from a slanted line. Each one bounces once off the floor and drops into the basket. Every bounce and every basket plays the next note of Pachelbel's Canon. The ball count doubles each round (1, 2, 4, 8, 16, 32), so the tune keeps getting faster.\n\nHow it works:\n- The floor looks flat but is slightly curved. Its shape was computed point by point so that a ball bouncing anywhere on it passes through the center of the basket from above.\n- The drop height is different at each spot, so the bounces are naturally spread out in time. That spread is the rhythm you hear; nothing is delayed by hand.\n- No air resistance, perfectly elastic bounces.\n\nSimulation, sound and animation: original (Python). Melody: Pachelbel's Canon (public domain).",
+  "tags": [
+   "physics",
+   "math",
+   "basketball",
+   "parabola",
+   "canon",
+   "satisfying",
+   "relaxing",
+   "simulation",
+   "shorts"
+  ]
+ },
+ "id": "basket4_en",
+ "H": 6.0,
+ "target": [
+  -2.3,
+  4.2
+ ],
+ "volleys": [
+  1,
+  2,
+  4,
+  8,
+  16,
+  32
+ ],
+ "hue0": 0.45,
+ "gap": 3.4,
+ "tilt": 4.0,
+ "melody": "canon"
+}
