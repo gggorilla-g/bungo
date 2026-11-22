@@ -1,0 +1,15 @@
+【タイトル】
+Fire Every Way Between Two Mirrors. Do They ALL Come Back to One Point? (Wait for 64) #shorts #satisfying #physics
+
+【説明】
+Balls leave the middle point in every direction between two facing mirrors. After the first bounce they all travel straight sideways; after the second, every one returns to the point it started from.
+
+How it works:
+- Both mirrors are parabolas that share the same focus (the middle point). A parabola sends lines from its focus out parallel, and brings parallel lines back to its focus.
+- The path point, mirror, mirror, point has the same length in every direction, so at equal speeds they would all return together. Here the speed changes smoothly with direction, so they come back in a wave.
+- No gravity here (it moves like light). Each mirror hit plays a stone-chime note.
+
+Simulation, sound and animation: original (Python).
+
+【タグ】
+parabola, focus, mirror, physics, math, satisfying, relaxing, shorts
