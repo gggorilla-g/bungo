@@ -71,3 +71,4 @@ threebody1_ja success UbZldgCpEuM (run 44910778933)
 2026-11-22T12:51:41Z lens1_en success zOrYnZo6zTA
 2026-11-22T12:51:41Z koch1_en success KojR9prnrww
 2026-11-22T12:51:41Z ehon_s02_short success YUoigBTQllA (ほほほブックス、子ども向け)
+2026-11-22T12:54:47Z zoom_salt_ja success 6qElYxtaQOo (雑学、塩ひと粒ズーム)
