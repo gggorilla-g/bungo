@@ -71,7 +71,7 @@ def main(spec_path):
     T_half = 2 * a / (v * (1 - ST))        # F1→壁→F2 の時間（いちばん遅いボールに合わせる）
     hold = sp.get("hold", .08)             # 集まった瞬間に止める秒数
     # 時間割：各周 = F1→F2（T_half）＋止め＋F2→F1（T_half）＋止め
-    cycle = 2 * (T_half + hold)
+    cycle = 2 * (T_half + hold); SM = 2 * a / (1 - ST)   # いちばん遅いボールが着くときの s
     intro = .6
     total = intro + cycle * (doubles + 1) + 2.5
     dt = 1 / (FPS * SUB)
@@ -159,11 +159,11 @@ def main(spec_path):
         n = rd["n"]; hit = rd["hit"]; l1 = rd["l1"]; spd = rd["spd"]
         if t < intro: s, leg = 0, 0
         elif u < T_half: s, leg = u * v, 0
-        elif u < T_half + hold: s, leg = 2 * a, 0
+        elif u < T_half + hold: s, leg = SM, 0
         elif u < 2 * T_half + hold: s, leg = (u - T_half - hold) * v, 1
-        else: s, leg = 2 * a, 1
-        if t > intro + (doubles + 1) * cycle - hold: k, rd, s, leg = doubles, rounds[doubles], 2 * a, 1; n, hit, l1, spd = rd["n"], rd["hit"], rd["l1"], rd["spd"]
-        S_ = np.minimum(2 * a, s * spd) if s < 2 * a else np.full(n, 2 * a)   # ボールごとの進んだ道のり
+        else: s, leg = SM, 1
+        if t > intro + (doubles + 1) * cycle - hold: k, rd, s, leg = doubles, rounds[doubles], SM, 1; n, hit, l1, spd = rd["n"], rd["hit"], rd["l1"], rd["spd"]
+        S_ = np.minimum(2 * a, s * spd)   # ボールごとの進んだ道のり（遅いボールも最後まで同じ速さで。途中で一斉に着地させない）
         A0, A1 = (F1, F2) if leg == 0 else (F2, F1)
         la = l1 if leg == 0 else 2 * a - l1
         cols = [hsv(h) for h in rd["hue"]]
