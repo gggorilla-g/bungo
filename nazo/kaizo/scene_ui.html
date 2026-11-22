@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8">
+<style>
+@font-face{font-family:"JumpSans";font-weight:400;src:url(fonts_jp/NotoSansCJKjp-Regular.woff2) format("woff2")}
+@font-face{font-family:"JumpSans";font-weight:700;src:url(fonts_jp/NotoSansCJKjp-Bold.woff2) format("woff2")}
+@font-face{font-family:"JumpSans";font-weight:900;src:url(fonts_jp/NotoSansCJKjp-Black.woff2) format("woff2")}
+html,body{margin:0;background:#000}
+#stage{position:relative;width:540px;height:960px;overflow:hidden;background:#05060f}
+#stage canvas{position:absolute;left:0;top:0}
+#hud{position:absolute;left:0;top:0;width:540px;height:960px;font-family:"JumpSans"}
+#hud text{paint-order:stroke;stroke:#05060f;stroke-linejoin:round;fill:#fff}
+</style></head>
+<body><div id="stage"><canvas id="glow" width="540" height="960"></canvas><svg id="hud" viewBox="0 0 540 960" xmlns="http://www.w3.org/2000/svg"></svg></div>
+<script src="vendor.js"></script>
+<script>
+// 身のまわりの「気づかれていない UI」を、ネオンのワイヤーの3Dで見せる（雑学）。行ごとにカメラを切りかえ、拍（BPM）に合わせて光る
+// 1本目：シャンプーのギザギザ／ボディソープの1本線／牛乳パックの切り欠き
+const getJ=u=>{const x=new XMLHttpRequest();x.open('GET',u,false);x.send();if(x.status!==200)throw new Error('読めない: '+u);return JSON.parse(x.responseText)};
+const ID=(new URLSearchParams(location.search).get('spec')||'ui_notch_ja').replace(/^.*\//,'').replace(/\.json$/,'');
+const SPEC=getJ('specs/'+ID+'.json'),TL=getJ('specs/'+ID+'_timeline.json');
+const W=540,H=960,DUR=TL.total,LAB=SPEC.labels||{},BEAT=60/(LAB.bpm||120);
+const clamp=(x,a,b)=>Math.min(b,Math.max(a,x)),lerp=(a,b,k)=>a+(b-a)*k,sstep=(a,b,x)=>{const k=clamp((x-a)/(b-a),0,1);return k*k*(3-2*k)};
+const LINES=SPEC.lines.map((l,i)=>Object.assign({},l,TL.beats[i]));
+const L_=fx=>LINES.find(l=>l.fx===fx);
+const T0=(fx,a)=>{const l=L_(fx);return l?l.t0+(a||0)*l.voice:1e9};
+const lineAt=t=>LINES.filter(l=>l.t0<=t+.001).pop()||LINES[0];
+const pulse=t=>Math.exp(-((t%BEAT)/BEAT)*5);     // 拍の頭で1、すぐ落ちる
+
+const renderer=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true,alpha:false});
+renderer.setPixelRatio(window.devicePixelRatio||1);renderer.setSize(W,H);
+document.getElementById('stage').prepend(renderer.domElement);
+const scene=new THREE.Scene();scene.background=new THREE.Color(0x05060f);scene.fog=new THREE.Fog(0x05060f,14,40);
+const cam=new THREE.PerspectiveCamera(38,W/H,.05,200);
+
+// ---- ネオンのワイヤー部品：暗い面＋光る辺（2重にして太く見せる）
+const NEON=[];
+function wire(geo,col,opt){opt=opt||{};const g=new THREE.Group();
+  const face=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({color:new THREE.Color(col).multiplyScalar(opt.fill||.05),transparent:true,opacity:opt.op||.55,depthWrite:true}));g.add(face);
+  const eg=new THREE.EdgesGeometry(geo,opt.th||14);
+  const m1=new THREE.LineBasicMaterial({color:col,transparent:true,opacity:1});const l1=new THREE.LineSegments(eg,m1);g.add(l1);
+  const m2=new THREE.LineBasicMaterial({color:col,transparent:true,opacity:.45});const l2=new THREE.LineSegments(eg,m2);l2.scale.setScalar(1.012);g.add(l2);
+  g.userData={col:new THREE.Color(col),m1,m2,face};NEON.push(g);return g}
+function setGlow(g,k){const c=g.userData.col.clone().multiplyScalar(.55+.7*k);g.userData.m1.color.copy(c);g.userData.m2.opacity=.25+.6*k}
+
+// ---- 容器（回転体）
+function bottleGeo(h,r){const p=[[0,0],[r*.92,0],[r,h*.06],[r,h*.78],[r*.86,h*.88],[r*.36,h*.95],[r*.34,h]].map(a=>new THREE.Vector2(a[0],a[1]));return new THREE.LatheGeometry(p,28)}
+function bottle(col,opt){const g=new THREE.Group();const h=2.2,r=.62;
+  const b=wire(bottleGeo(h,r),col,{th:20});g.add(b);
+  const cap=wire(new THREE.CylinderGeometry(.24,.26,.32,20),col);cap.position.y=h+.16;g.add(cap);
+  const head=wire(new THREE.BoxGeometry(.5,.18,.3),col);head.position.set(.08,h+.42,0);g.add(head);
+  const noz=wire(new THREE.BoxGeometry(.4,.08,.1),col);noz.position.set(.42,h+.44,0);g.add(noz);
+  const stem=wire(new THREE.CylinderGeometry(.06,.06,.22,10),col);stem.position.y=h+.3;g.add(stem);
+  g.userData.parts=[b,cap,head,noz,stem];g.userData.ridges=[];
+  if(opt&&opt.ridges){for(let i=0;i<opt.ridges;i++){const rg=wire(new THREE.BoxGeometry(.05,.07,.42),0xfff1a8,{fill:.5});rg.position.set(r+.02,.95+i*.12,0);g.add(rg);g.userData.ridges.push(rg)}}
+  if(opt&&opt.line){const ln=wire(new THREE.BoxGeometry(.05,.95,.07),0xfff1a8,{fill:.5});ln.position.set(r+.02,1.35,0);g.add(ln);g.userData.ridges.push(ln)}
+  return g}
+const shampoo=bottle(0x41e2ff,{ridges:6}),rinse=bottle(0xff6fb1),body=bottle(0x9dff7a,{line:true});
+shampoo.position.set(-.95,0,0);rinse.position.set(.95,0,0);body.position.set(2.85,0,0);
+shampoo.rotation.y=-.25;rinse.rotation.y=.25+Math.PI;body.rotation.y=-.1;
+scene.add(shampoo,rinse,body);
+// 業界に広がる：同じ目印のある容器の列（奥）
+const crowd=[];const CC=[0x41e2ff,0xffd166,0xa78bfa,0x5eead4,0xff8fab,0x93c5fd];
+for(let i=0;i<10;i++){const c=bottle(CC[i%6],{ridges:6});c.scale.setScalar(.62);c.position.set(-4.2+i*.95,0,-3.2-(i%2)*.7);c.rotation.y=-.6;c.visible=false;scene.add(c);crowd.push(c)}
+
+// ---- 牛乳パック（三角屋根＋てっぺんの耳。耳の片側に切り欠き）
+const milk=new THREE.Group();milk.position.set(7.5,0,0);scene.add(milk);
+const MC=0xfff6e8;
+const mb=wire(new THREE.BoxGeometry(1.3,2.3,1.3),MC,{fill:.16});mb.position.y=1.15;milk.add(mb);
+{const s=new THREE.Shape();s.moveTo(-.65,0);s.lineTo(.65,0);s.lineTo(0,.62);s.lineTo(-.65,0);
+ const roof=wire(new THREE.ExtrudeGeometry(s,{depth:1.3,bevelEnabled:false}),MC,{fill:.16});roof.position.set(0,2.3,-.65);milk.add(roof)}
+const fin=wire(new THREE.BoxGeometry(.06,.26,1.3),MC,{fill:.2});fin.position.set(0,3.05,0);milk.add(fin);
+const notch=wire(new THREE.CylinderGeometry(.13,.13,.08,20,1,false,0,Math.PI),0xffd166,{fill:.6});notch.rotation.z=Math.PI/2;notch.rotation.y=Math.PI/2;notch.position.set(0,3.18,.42);milk.add(notch);
+const spout=wire(new THREE.BoxGeometry(.36,.06,.06),0x9dff7a,{fill:.5});spout.position.set(0,2.95,-.5);spout.visible=false;milk.add(spout);
+
+// ---- 指（なぞる）
+const finger=new THREE.Group();{const fm=wire(new THREE.CapsuleGeometry?new THREE.CapsuleGeometry(.11,.5,6,12):new THREE.CylinderGeometry(.11,.11,.7,12),0xff9df0,{fill:.25});finger.add(fm);finger.rotation.z=1.15}
+scene.add(finger);finger.visible=false;
+
+// ---- 床：音ゲーのような光るレーン（拍で手前へ流れる）
+const grid=new THREE.Group();scene.add(grid);
+const gm=new THREE.LineBasicMaterial({color:0x7c5cff,transparent:true,opacity:.55});
+{const pts=[];for(let x=-12;x<=12;x+=1){pts.push(new THREE.Vector3(x,0,-30),new THREE.Vector3(x,0,8))}
+ grid.add(new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(pts),gm))}
+const rows=[];const rm=new THREE.LineBasicMaterial({color:0x7c5cff,transparent:true,opacity:.5});
+for(let i=0;i<20;i++){const l=new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(-12,0,0),new THREE.Vector3(12,0,0)]),rm.clone());grid.add(l);rows.push(l)}
+const ringG=new THREE.RingGeometry(.9,.96,64);const rings=[];
+for(let i=0;i<3;i++){const m=new THREE.Mesh(ringG,new THREE.MeshBasicMaterial({color:0x41e2ff,transparent:true,opacity:0,side:THREE.DoubleSide}));m.rotation.x=-Math.PI/2;m.position.y=.01;scene.add(m);rings.push(m)}
+// 星くず
+{const g=new THREE.BufferGeometry();const a=[];let s=7;const r=()=>{s=(s*16807)%2147483647;return s/2147483647};for(let i=0;i<500;i++)a.push((r()-.5)*60,r()*18+2,-r()*40-4);
+ g.setAttribute('position',new THREE.Float32BufferAttribute(a,3));scene.add(new THREE.Points(g,new THREE.PointsMaterial({color:0x8fb3ff,size:.06,transparent:true,opacity:.7})))}
+
+// ---- カメラ：行ごとに切りかえ（[位置, 見る点, 寄り引きの量]）。行の中はゆっくり動く
+const V=(x,y,z)=>new THREE.Vector3(x,y,z);
+const CAM={
+ hook:[V(0,2.6,10.8),V(0,1.35,0),'orbit'],
+ same:[V(0,1.6,8.6),V(0,1.4,0),'push'],
+ mix:[V(0,9.6,4.2),V(0,.6,0),'top'],
+ notch:[V(-.95+2.5,1.35,1.1),V(-.95+.5,1.25,0),'side'],
+ touch:[V(-.95+1.7,1.6,1.5),V(-.95+.62,1.25,0),'push'],
+ kao:[V(-3.8,1.2,6.6),V(-.4,1.5,0),'low'],
+ open:[V(0,3.4,8.8),V(0,1.0,-2.6),'dolly'],
+ jis:[V(1.6,2.8,9.4),V(.4,1.4,0),'orbit'],
+ body:[V(2.85+4.6,2.0,4.2),V(2.85+.2,1.3,0),'side'],
+ milk:[V(7.5+3.6,5.0,5.4),V(7.5,2.2,0),'push'],
+ milk2:[V(7.5-3.4,3.0,5.6),V(7.5,2.0,0),'orbit'],
+ end:[V(3.3,4.6,15.5),V(3.3,1.3,0),'pull']};
+function camAt(t){const l=lineAt(t),c=CAM[l.fx]||CAM.hook,u=clamp((t-l.t0)/Math.max(.5,l.t1-l.t0),0,1);const p=c[0].clone(),q=c[1].clone();
+  const k=c[2],e=u*u*(3-2*u);
+  if(k==='orbit'){const d=p.clone().sub(q);const a=(e-.5)*.5;p.copy(q).add(new THREE.Vector3(d.x*Math.cos(a)-d.z*Math.sin(a),d.y,d.x*Math.sin(a)+d.z*Math.cos(a)))}
+  else if(k==='push'){p.lerp(q,e*.18)}
+  else if(k==='pull'){p.lerp(q,-.12*e)}
+  else if(k==='dolly'){p.x+=lerp(-2.2,2.2,e);q.x+=lerp(-1.5,1.5,e)}
+  else if(k==='top'){p.x+=Math.sin(e*Math.PI)*.8}
+  else if(k==='low'){p.y-=.3*e;p.x+=.6*e}
+  else if(k==='side'){p.z+=.5*e;p.y+=.1*e}
+  const pb=pulse(t);p.y+=.012*pb;                        // 拍でほんの少しだけ跳ねる
+  return [p,q]}
+
+// ---- 画面の文字
+const NS='http://www.w3.org/2000/svg',hud=document.getElementById('hud');
+function el(tag,a,txt){const e=document.createElementNS(NS,tag);for(const k in a)e.setAttribute(k,a[k]);if(txt!=null)e.textContent=txt;hud.appendChild(e);return e}
+const tw=s=>{let w=0;for(const ch of String(s))w+=ch.charCodeAt(0)<256?.58:1;return w};
+function drawHud(t){hud.innerHTML='';const l=lineAt(t),a=clamp((t-l.t0)/.12,0,1),pb=pulse(t);
+  if(LAB.topic){const fs=Math.min(22,470/tw(LAB.topic));const w=tw(LAB.topic)*fs+34;el('rect',{x:270-w/2,y:44,width:w,height:fs+18,rx:(fs+18)/2,fill:'#0b1030',stroke:'#41e2ff','stroke-width':1.6,'stroke-opacity':.75+.25*pb});
+    el('text',{x:270,y:44+fs+3,'text-anchor':'middle','font-size':fs,'font-weight':700,'stroke-width':0,fill:'#bdf3ff'},LAB.topic)}
+  const cap=l.cap||[];let y=cap.length>1?748:770;
+  cap.forEach((c,i)=>{const size=Math.min(46,440/tw(c));const sc=1+.035*pb*(i===cap.length-1);
+    const g=el('g',{transform:`translate(270 ${y+(1-a)*8}) scale(${sc})`});
+    const e=document.createElementNS(NS,'text');const at={x:0,y:0,'text-anchor':'middle','font-size':size,'font-weight':900,'stroke-width':Math.max(5,size*.22),style:`opacity:${(.3+.7*a).toFixed(2)};fill:${i===cap.length-1?'#ffe066':'#ffffff'}`};
+    for(const k in at)e.setAttribute(k,at[k]);e.textContent=c;g.appendChild(e);y+=size+14});
+  // 拍のメーター（音ゲーふう：下の4つの点が拍で順に光る）
+  const bi=Math.floor(t/BEAT)%4;for(let i=0;i<4;i++){const on=i===bi;el('circle',{cx:270+(i-1.5)*26,cy:900,r:on?6+3*pb:4,fill:on?'#41e2ff':'#2a2f55'})}}
+
+// ---- 毎コマ
+const glowC=document.getElementById('glow'),gx=glowC.getContext('2d');
+window.renderAt=function(t){const pb=pulse(t),fx=lineAt(t).fx;
+  // 取り違え：2本が入れかわる（上から見る）
+  const m0=T0('mix',.15),m1=T0('mix',.55);let sx=-.95,rx=.95;
+  const sw=k=>{const e=sstep(0,1,k);return e};
+  const k1=sw((t-m0)/1.1),k2=sw((t-m1)/1.1);const s1=lerp(-.95,.95,k1),s2=lerp(.95,-.95,k2);
+  if(t>=m0&&t<T0('notch')){sx=k2>0?s2:s1;rx=k2>0?lerp(-.95,.95,k2):lerp(.95,-.95,k1)}
+  shampoo.position.x=sx;rinse.position.x=rx;shampoo.position.z=Math.sin(Math.PI*k1)*.9*(k2>0?0:1)-Math.sin(Math.PI*k2)*.9;rinse.position.z=-shampoo.position.z;
+  // ゆっくり回る（静止感を消す）
+  const sp=(fx==='notch'||fx==='touch'||fx==='body')?0:.18;shampoo.rotation.y=-.25+Math.sin(t*.6)*sp;rinse.rotation.y=.25+Math.PI-Math.sin(t*.6)*sp;
+  // 光：拍で全体が呼吸。話題の物だけ明るく
+  const hot={shampoo:['hook','same','mix','notch','touch','kao','open','jis','end'],rinse:['hook','same','mix','end'],body:['body','end'],milk:['milk','milk2','end']};
+  for(const [o,name] of [[shampoo,'shampoo'],[rinse,'rinse'],[body,'body']]){const on=hot[name].includes(fx);for(const p of o.userData.parts)setGlow(p,(on?.75:.25)+.25*pb)}
+  for(const p of [mb,fin]) setGlow(p,(hot.milk.includes(fx)?.75:.25)+.25*pb);
+  body.visible=t>=T0('body')-.01||t>=T0('end');
+  // ギザギザ：なぞる指に合わせて、拍ごとに1本ずつ光る
+  const tt0=T0('touch',.12),nR=shampoo.userData.ridges.length;
+  shampoo.userData.ridges.forEach((r,i)=>{let k=t>=T0('notch',.2)?.55:.0;if(t>=T0('notch',.2)&&t<T0('touch'))k=.55+.45*Math.exp(-(((t-T0('notch',.2))-i*BEAT/2)%(BEAT*3))*4);
+    const hit=tt0+(nR-1-i)*BEAT/2;if(t>=hit&&t<hit+2.5)k=Math.max(k,1.4*Math.exp(-(t-hit)*2.2)+.6);r.visible=t>=T0('notch',.15);setGlow(r,k)});
+  finger.visible=t>=tt0-.4&&t<T0('kao');if(finger.visible){const u=clamp((t-tt0)/(nR*BEAT/2),0,1);finger.position.set(-.95+.86,lerp(1.68,.88,u),0)}
+  body.userData.ridges.forEach(r=>{r.visible=t>=T0('body',.2);setGlow(r,.7+.5*pb)});
+  // 業界の列
+  crowd.forEach((c,i)=>{const s0=T0('open',.1)+i*.18;c.visible=t>=s0;const e=sstep(s0,s0+.4,t);c.position.y=(1-e)*1.2;for(const p of c.userData.parts)setGlow(p,.35+.25*pb);c.userData.ridges.forEach(r=>setGlow(r,.6+.5*pb))});
+  // 牛乳：切り欠きが光る。開け口は反対側
+  setGlow(notch,t>=T0('milk',.25)?.9+.6*pb:.2);spout.visible=t>=T0('milk2',.55);if(spout.visible)setGlow(spout,.8+.5*pb);
+  // 床のレーン：拍で手前へ流れる
+  const sc=(t/BEAT)%1;rows.forEach((l,i)=>{const z=-30+((i+sc)/20)*38;l.position.z=z;l.material.opacity=.15+.5*clamp((z+30)/38,0,1)});
+  gm.opacity=.35+.25*pb;
+  // 足元の輪：拍で広がる
+  const tgt=fx==='body'?body:(fx==='milk'||fx==='milk2')?milk:shampoo;rings.forEach((r,i)=>{const ph=((t/BEAT)+i/3)%1;r.position.x=tgt.position.x;r.position.z=tgt.position.z;r.scale.setScalar(.6+ph*1.8);r.material.opacity=(1-ph)*.55})
+  const [p,q]=camAt(t);cam.position.copy(p);cam.lookAt(q);cam.updateProjectionMatrix();renderer.render(scene,cam);
+  // にじみ（ブルーム）：描いた画をぼかして足す
+  gx.globalCompositeOperation='source-over';gx.clearRect(0,0,W,H);gx.filter='blur(9px)';gx.globalAlpha=.85;gx.drawImage(renderer.domElement,0,0,W,H);gx.filter='blur(2px)';gx.globalAlpha=.5;gx.drawImage(renderer.domElement,0,0,W,H);
+  glowC.style.mixBlendMode='screen';drawHud(t);return{t}};
+window.__info={total:DUR};
+Promise.all([400,700,900].map(w=>document.fonts.load(w+' 20px JumpSans','あ0'))).then(()=>{window.__fig={kind:'none'};window.__ready=true},e=>console.log('load error: '+e.message));
+</script></body></html>
