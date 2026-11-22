@@ -1,0 +1,21 @@
+【タイトル】
+Every Heartbeat Plays One Note of the Same Song. Wait for the Whale #shorts #satisfying #animals
+
+【説明】
+Each animal's heart plays the next note of one song every time it beats. The faster the heart, the more notes it adds, until the blue whale joins at the end.
+
+Resting heart rates used here (approximate; real values vary with size, age and activity):
+- Elephant: about 30 beats per minute
+- Human: about 70
+- Cat: about 140
+- Rabbit: about 250
+- Mouse: about 600
+- Hummingbird: up to about 1,200
+- Blue whale: as low as about 2 to 4 while diving (a 2019 study of a wild blue whale recorded 2 beats per minute at its lowest)
+
+Melody: Beethoven, "Ode to Joy" (public domain).
+
+Animation and sound: original (Python).
+
+【タグ】
+heartbeat, animals, blue whale, hummingbird, music, satisfying, relaxing, shorts

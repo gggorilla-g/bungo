@@ -1800,7 +1800,133 @@ def spiro(sp):
         sim.frame(t, live, [(p_, (255, 250, 235), 6)], (sp.get("count_label", "花びら "), f"{petals}"), fl)
     sim.finish(total)
 
-KINDS = {"spiro": spiro, "lens": lens, "koch": koch, "pendwave": pendwave, "orbits": orbits, "phyllo": phyllo, "zoomsalt": zoomsalt, "layers": layers, "pixels": pixels, "sortviz": sortviz, "polyfocus": polyfocus, "heliostat": heliostat, "dragon": dragon, "rhythm": rhythm, "lissatable": lissatable, "plotter": plotter, "threebody": threebody, "pendswing": pendswing, "golden": golden, "piphase": piphase, "maurer": maurer, "harmono": harmono, "spiro": spiro, "star": star, "throw": throw, "tusi": tusi, "chain": chain, "basket": basket, "koch": koch, "cycloid": cycloid, "pendulums": pendulums, "lissajous": lissajous, "corner": corner, "sunflower": sunflower, "ulam": ulam, "parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2, "picount": picount}
+
+
+def pendwave3d(sp):
+    """振り子の波を、斜め下から見た3D（オーナーの画面収録 11/23 にならう：手前ほど大きく暖色、奥ほど小さく寒色、光る玉と残像、細い糸が棒に集まる）。
+    棒は奥へのびる。振り子 i は棒の z_i にぶら下がり、x-y 面でゆれる。P 秒でまたそろう"""
+    N, P, k0, A = sp.get("n", 15), sp.get("period", 24.0), sp.get("k0", 20), math.radians(sp.get("amp", 30)); intro, tail = .6, 2.4; total = intro + P + tail
+    Ls = [1.0 * (k0 / (k0 + i)) ** 2 for i in range(N)]; zs = [1.0 + i * .55 for i in range(N)]
+    ce, cy, tilt, f = np.array([0.0, -1.55, -1.2]), 0, math.radians(sp.get("tilt", 34)), 1.55
+    def proj(x, y, z):   # カメラは棒の手前・下から、上向きに見上げる
+        X, Y, Z = x - ce[0], y - ce[1], z - ce[2]; ca, sa = math.cos(tilt), math.sin(tilt); y2, z2 = Y * ca - Z * sa, Y * sa + Z * ca
+        return (f * X / z2, f * y2 / z2), z2
+    sim = Sim(sp, (-.8, -1.0, .8, 1.12), area=(.03, .13, .97, .95)); sim.title()
+    cols = [hsv((.53 - .45 * i / (N - 1)) % 1) for i in range(N)]   # 奥（上）＝水色 → 手前（下）＝オレンジ
+    for i in range(N):
+        per = P / (k0 + i)
+        for j in range(2 * (k0 + i)):
+            tc = intro + (j + .5) * per / 2
+            if tc < intro + P: sim.note(tc, PENTA[int(i / (N - 1) * 15 + .5)], .42, .5, 5)
+    sim.chord(intro, [60, 67, 72]); sim.chord(intro + P, [60, 64, 67, 72], gain=.55, dec=5)
+    # 画面での見え方（収録にならう）：棒は上から下へ。振り子 i は棒の y_i にぶら下がり、手前（下）ほど大きく、横に大きくふれる
+    ys = [.98 - i * .13 for i in range(N)]; ss = [.5 + .5 * i / (N - 1) for i in range(N)]
+    def bob(i, th): s_ = ss[i]; return (s_ * .78 * math.sin(th), ys[i] - s_ * .16 * math.cos(th) - .05), s_
+    hist = [[] for _ in range(N)]
+    for fi in range(int(total * FPS)):
+        t = fi / FPS; u = min(max(0, t - intro), P); live = [((0, 1.08), (0, ys[-1] - .02), (240, 200, 120), 3.0)]; dots = []; fl = []
+        for i in range(N):
+            per = P / (k0 + i); th = A * math.cos(2 * math.pi * u / per); bp, sc = bob(i, th)
+            live.append(((0, ys[i]), bp, dim(cols[i], .42), 1.2))
+            h = hist[i]; h.append(bp); del h[:-11]
+            for q in range(len(h) - 1): live.append((h[q], h[q + 1], dim(cols[i], .08 + .62 * (q + 1) / len(h)), (1 + 8 * (q + 1) / len(h)) * sc))
+            dots.append((bp, tuple(min(255, int(c * .5 + 255 * .5)) for c in cols[i]), 15 * sc))
+            if 0 < u < P:
+                e = (u - per / 4) % (per / 2) if u > per / 4 else 9
+                if e < .18: fl.append((bp, (18 + e * 120) * sc, dim(cols[i], 1 - e / .18), 2))
+        e = t - (intro + P)
+        if 0 <= e < .7: fl.append(((0, .1), 20 + e * 420, dim((255, 240, 210), 1 - e / .7), 4))
+        sim.frame(t, live, dots, None, fl)
+    sim.finish(total)
+
+
+
+def bricks(sp):
+    """はねるたびにレンガが1つ増える（オーナー画面収録 11/23 の型）。円の中を玉がまっすぐ飛び、壁に当たった場所に内向きのレンガが積もる。
+    積もるほど中がせまくなり、はねる間かくが短くなる＝曲がだんだん速くなる。当たるたびに旋律が1音（melody）"""
+    import random
+    rnd = random.Random(sp.get("seed", 4)); NB = 360; r0, br, th_add, spread = 1.0, .022, sp.get("brick", .016), sp.get("spread", 5)
+    rw = np.full(NB, r0); v = sp.get("v", 1.35); ang = math.radians(sp.get("angle", 63)); p = np.array([0.05, .3]); vel = np.array([math.cos(ang), math.sin(ang)]) * v
+    D, intro, tail = sp.get("dur", 30.0), .4, 2.6; dt = 1 / 600; t = 0.0; frames = []; hits = []; bricks_n = 0
+    while t < D:
+        p = p + vel * dt; t += dt; a = math.atan2(p[1], p[0]); k = int((a % (2 * math.pi)) / (2 * math.pi) * NB) % NB
+        if math.hypot(*p) >= rw[k] - br and np.dot(p, vel) > 0:
+            n_ = p / math.hypot(*p); kl, kr = rw[(k - 3) % NB], rw[(k + 3) % NB]   # 積もった面の傾きも少しだけ法線に入れる
+            tang = np.array([-n_[1], n_[0]]); n_ = n_ + tang * (kl - kr) * 4; n_ /= np.linalg.norm(n_)
+            vel = vel - 2 * np.dot(vel, n_) * n_; p = p - n_ * .003; hits.append((t, a)); bricks_n += 1
+            for j in range(-spread, spread + 1): rw[(k + j) % NB] = max(.32, rw[(k + j) % NB] - th_add * (1 - abs(j) / (spread + 1)) ** .5)
+            vel *= 1.0 + sp.get("speedup", .004)
+        if int(t * FPS) >= len(frames): frames.append((p.copy(), rw.copy(), bricks_n))
+    sim = Sim(sp, (-1.08, -1.08, 1.08, 1.08)); sim.title()
+    for th, a in hits: sim.note(intro + th, 72, .55, .5 + .35 * math.cos(a), 5)
+    sim.chord(intro + D + .05, [60, 64, 67, 72], gain=.55, dec=5)
+    total = intro + D + tail; tr = []
+    angs = np.linspace(0, 2 * math.pi, NB, endpoint=False) + math.pi / NB
+    for fi in range(int(total * FPS)):
+        t = fi / FPS; k = min(len(frames) - 1, max(0, int((t - intro) * FPS))); pp, rr, nb = frames[k]
+        tr.append(tuple(pp)); del tr[:-8]
+        def draw(d, rr=rr):
+            outer = [sim.to((r0 * math.cos(a), r0 * math.sin(a))) for a in angs]; inner = [sim.to((rr[i] * math.cos(angs[i]), rr[i] * math.sin(angs[i]))) for i in range(NB)]
+            for i in range(NB):   # レンガ：外の円と、積もった内側のあいだを塗る。レンガの目地を細い線で
+                if rr[i] < r0 - .001:
+                    j = (i + 1) % NB; d.polygon([outer[i], outer[j], inner[j], inner[i]], fill=(200, 58, 64))
+            for depth in np.arange(r0 - .03, .3, -.03):
+                pts = [sim.to((depth * math.cos(angs[i]), depth * math.sin(angs[i]))) if rr[i] < depth - .006 else None for i in range(NB)]
+                for i in range(NB):
+                    j = (i + 1) % NB
+                    if pts[i] and pts[j]: d.line([pts[i], pts[j]], fill=(232, 150, 150), width=1)
+            for i in range(0, NB, 6):
+                if rr[i] < r0 - .01:
+                    off = (int((r0 - rr[i]) / .03) % 2) * 3; a = angs[(i + off) % NB]; d.line([sim.to((r0 * math.cos(a), r0 * math.sin(a))), sim.to((rr[(i + off) % NB] * math.cos(a), rr[(i + off) % NB] * math.sin(a)))], fill=(232, 150, 150), width=1)
+            d.line(outer + [outer[0]], fill=(245, 245, 250), width=int(5 * S))
+        live = [(tr[q], tr[q + 1], dim((255, 255, 255), .2 + .7 * (q + 1) / len(tr)), 1 + 4 * (q + 1) / len(tr)) for q in range(len(tr) - 1)]
+        fl = []
+        for th, a in hits:
+            e = t - intro - th
+            if 0 <= e < .2: fl.append(((math.cos(a) * .97, math.sin(a) * .97), 8 + e * 80, dim((255, 220, 210), 1 - e / .2), 2))
+            if e > .3: break
+        sim.frame(t, live, [(pp, (255, 255, 255), 6)], (sp.get("count_label", "Bricks: "), f"{nb}"), fl, draw)
+    sim.finish(total)
+
+
+
+def hearts(sp):
+    """心臓の拍で曲を鳴らす（オーナー画面収録 11/23 の型、いいね12万）。生きものごとの心拍（およその安静時）を心電図の線で流し、
+    どの生きものの拍も、同じ1曲の「次の1音」を鳴らす（melody）。下に行くほど速い生きもの。最後にクジラ（ゆっくり）"""
+    rows = sp.get("rows"); add_every, intro, tail = sp.get("add_every", 3.2), .5, 3.0; win = sp.get("window", 2.4)
+    n = len(rows); starts = [intro + i * add_every for i in range(n)]; total = starts[-1] + sp.get("last_hold", 6.0) + tail
+    sim = Sim(sp, (0, 0, 1, 1)); sim.title()
+    beats = []
+    for i, (name, bpm, col) in enumerate(rows):
+        per = 60 / bpm; t = starts[i] + .35
+        while t < total - tail: beats.append((t, i)); t += per
+    beats.sort()
+    for t, i in beats: sim.note(t, 72, .5 / math.sqrt(1 + .25 * i), .5, 5)
+    from simkit import W as W_, H as H_
+    top, bot = .245, .87; fN, fB = F(38 * S), F(34 * S)
+    def ecg(ph):   # 1拍の形（0〜1）：小さな山 → 鋭い山 → 谷 → ゆるい山
+        return (.12 * math.exp(-((ph - .18) / .03) ** 2) + 1.0 * math.exp(-((ph - .30) / .008) ** 2) - .28 * math.exp(-((ph - .33) / .01) ** 2) + .22 * math.exp(-((ph - .52) / .05) ** 2))
+    def heart(d, x, y, r, c):
+        d.ellipse([x - r, y - r * .9, x, y + r * .1], fill=c); d.ellipse([x, y - r * .9, x + r, y + r * .1], fill=c); d.polygon([(x - r * .98, y - r * .25), (x + r * .98, y - r * .25), (x, y + r)], fill=c)
+    for fi in range(int(total * FPS)):
+        t = fi / FPS; shown = [i for i in range(n) if t >= starts[i]]; m = max(1, len(shown)); rh = min(.16, (bot - top) / m)
+        def draw(d, t=t, shown=shown, rh=rh):
+            for k, i in enumerate(shown):
+                name, bpm, col = rows[i]; per = 60 / bpm; yc = (top + rh * (k + .62)) * H_ * S; x0, x1 = W_ * S * .27, W_ * S * .93; amp = rh * H_ * S * .42
+                pts = []; N_ = 260
+                for q in range(N_ + 1):
+                    tt = t - win * (1 - q / N_); ph = ((tt - starts[i] - .35) / per) % 1 if tt >= starts[i] + .35 else .9
+                    pts.append((x0 + (x1 - x0) * q / N_, yc - amp * ecg(ph) * (.55 if per < .12 else .8 if per < .25 else 1)))
+                d.line(pts, fill=dim(col, .30), width=int(10 * S)); d.line(pts, fill=tuple(min(255, int(c * 1.1)) for c in col), width=int(3.5 * S))
+                e = ((t - starts[i] - .35) % per) / per if t >= starts[i] + .35 else 1; pr = 1 + .45 * math.exp(-e * 9)
+                heart(d, W_ * S * .228, yc - 4 * S, 14 * S * pr, (255, 70, 110)); d.ellipse([x1 - 7 * S, pts[-1][1] - 7 * S, x1 + 7 * S, pts[-1][1] + 7 * S], fill=(255, 255, 255))
+                fz = fN if d.textlength(name, font=fN) < W_ * S * .17 else F(int(38 * S * W_ * S * .17 / d.textlength(name, font=fN)))
+                d.text((W_ * S * .025, yc - 20 * S), name, font=fz, fill=(235, 238, 245), stroke_width=4 * S, stroke_fill=(0, 0, 0))
+                tx = f"{bpm:g} " + sp.get("unit", "bpm"); w = d.textlength(tx, font=fB); d.text((x1 - w, yc - amp - 34 * S), tx, font=fB, fill=(255, 255, 255), stroke_width=4 * S, stroke_fill=(0, 0, 0))
+        sim.frame(t, (), (), None, (), draw)
+    sim.finish(total)
+
+KINDS = {"hearts": hearts, "bricks": bricks, "pendwave3d": pendwave3d, "spiro": spiro, "lens": lens, "koch": koch, "pendwave": pendwave, "orbits": orbits, "phyllo": phyllo, "zoomsalt": zoomsalt, "layers": layers, "pixels": pixels, "sortviz": sortviz, "polyfocus": polyfocus, "heliostat": heliostat, "dragon": dragon, "rhythm": rhythm, "lissatable": lissatable, "plotter": plotter, "threebody": threebody, "pendswing": pendswing, "golden": golden, "piphase": piphase, "maurer": maurer, "harmono": harmono, "spiro": spiro, "star": star, "throw": throw, "tusi": tusi, "chain": chain, "basket": basket, "koch": koch, "cycloid": cycloid, "pendulums": pendulums, "lissajous": lissajous, "corner": corner, "sunflower": sunflower, "ulam": ulam, "parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2, "picount": picount}
 
 if __name__ == "__main__":
     sp = json.load(open(sys.argv[1], encoding="utf-8")); KINDS[sp["kind"]](sp); kit(sp)

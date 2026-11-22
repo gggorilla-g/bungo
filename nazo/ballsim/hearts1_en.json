@@ -1,0 +1,92 @@
+{
+ "kind": "hearts",
+ "id": "hearts1_en",
+ "melody": "ode",
+ "tone": "karo",
+ "bloom": 0.9,
+ "style": "big",
+ "mark": "@makeitwork3d",
+ "rows": [
+  [
+   "Elephant",
+   30,
+   [
+    80,
+    240,
+    150
+   ]
+  ],
+  [
+   "You",
+   70,
+   [
+    80,
+    240,
+    150
+   ]
+  ],
+  [
+   "Cat",
+   140,
+   [
+    80,
+    240,
+    150
+   ]
+  ],
+  [
+   "Rabbit",
+   250,
+   [
+    80,
+    240,
+    150
+   ]
+  ],
+  [
+   "Mouse",
+   600,
+   [
+    80,
+    240,
+    150
+   ]
+  ],
+  [
+   "Hummingbird",
+   1200,
+   [
+    80,
+    240,
+    150
+   ]
+  ],
+  [
+   "Blue whale",
+   4,
+   [
+    120,
+    190,
+    255
+   ]
+  ]
+ ],
+ "title": [
+  "Every heartbeat plays one note",
+  "Wait for the [whale]"
+ ],
+ "yt": {
+  "title": "Every Heartbeat Plays One Note of the Same Song. Wait for the Whale #shorts #satisfying #animals",
+  "desc": "Each animal's heart plays the next note of one song every time it beats. The faster the heart, the more notes it adds, until the blue whale joins at the end.\n\nResting heart rates used here (approximate; real values vary with size, age and activity):\n- Elephant: about 30 beats per minute\n- Human: about 70\n- Cat: about 140\n- Rabbit: about 250\n- Mouse: about 600\n- Hummingbird: up to about 1,200\n- Blue whale: as low as about 2 to 4 while diving (a 2019 study of a wild blue whale recorded 2 beats per minute at its lowest)\n\nMelody: Beethoven, \"Ode to Joy\" (public domain).\n\nAnimation and sound: original (Python).",
+  "tags": [
+   "heartbeat",
+   "animals",
+   "blue whale",
+   "hummingbird",
+   "music",
+   "satisfying",
+   "relaxing",
+   "shorts"
+  ]
+ }
+}

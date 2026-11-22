@@ -1,0 +1,16 @@
+【タイトル】
+Every Bounce Adds a Brick. Name the Song Before It's Full #shorts #satisfying #physics
+
+【説明】
+A ball flies inside a circle. Every time it hits the wall, a brick sticks where it hit. The bricks pile up inward, the space shrinks, the bounces come faster, and so does the tune. Every bounce plays the next note of a well-known melody. Can you name it?
+
+Answer: "Twinkle, Twinkle, Little Star" (traditional French melody, public domain).
+
+How it works:
+- The ball moves in straight lines and bounces off the wall at the same angle it came in.
+- Each brick is laid exactly where the ball hit, so the shape of the wall is drawn by the ball itself.
+
+Simulation, sound and animation: original (Python).
+
+【タグ】
+bouncing ball, name that tune, physics, satisfying, simulation, relaxing, shorts

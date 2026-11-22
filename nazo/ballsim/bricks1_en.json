@@ -1,0 +1,32 @@
+{
+ "kind": "bricks",
+ "id": "bricks1_en",
+ "melody": "twinkle",
+ "tone": "karo",
+ "bloom": 0.6,
+ "style": "big",
+ "mark": "@makeitwork3d",
+ "title": [
+  "Every bounce adds a [brick]",
+  "Name the song before it's full"
+ ],
+ "count_label": "Bricks: ",
+ "yt": {
+  "title": "Every Bounce Adds a Brick. Name the Song Before It's Full #shorts #satisfying #physics",
+  "desc": "A ball flies inside a circle. Every time it hits the wall, a brick sticks where it hit. The bricks pile up inward, the space shrinks, the bounces come faster, and so does the tune. Every bounce plays the next note of a well-known melody. Can you name it?\n\nAnswer: \"Twinkle, Twinkle, Little Star\" (traditional French melody, public domain).\n\nHow it works:\n- The ball moves in straight lines and bounces off the wall at the same angle it came in.\n- Each brick is laid exactly where the ball hit, so the shape of the wall is drawn by the ball itself.\n\nSimulation, sound and animation: original (Python).",
+  "tags": [
+   "bouncing ball",
+   "name that tune",
+   "physics",
+   "satisfying",
+   "simulation",
+   "relaxing",
+   "shorts"
+  ]
+ },
+ "v": 2.6,
+ "brick": 0.045,
+ "spread": 7,
+ "speedup": 0.003,
+ "dur": 30
+}

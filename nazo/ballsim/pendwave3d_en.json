@@ -1,0 +1,27 @@
+{
+ "kind": "pendwave3d",
+ "id": "pendwave3d_en",
+ "tone": "stone",
+ "bloom": 1.45,
+ "title": [
+  "15 pendulums. Will they [line up] again?"
+ ],
+ "count_label": "Line-up in ",
+ "yt": {
+  "title": "15 Pendulums Let Go at Once. Will They Line Up Again? (Wait for It) #shorts #satisfying #physics",
+  "desc": "15 pendulums with slightly different lengths, released together from the same angle. They drift into waves, scatter, and line up again exactly 24 seconds later. Each one plays its own note every time it passes the middle.\n\nHow it works:\n- For small swings, a pendulum's period depends almost only on its length: T = 2π√(L/g). Mass is not in the formula.\n- The lengths are chosen so that in 24 seconds the longest swings 20 times, the next 21, and so on up to 34. That is why they meet again at 24 seconds.\n- Rhythms with different beat counts overlap, so the sound drifts apart and comes back together too.\n\nNote: the swing angle is drawn larger than a real small swing (26 degrees) so it is easy to see.\n\nSimulation, sound and animation: original (Python).",
+  "tags": [
+   "pendulum",
+   "pendulum wave",
+   "polyrhythm",
+   "physics",
+   "math",
+   "satisfying",
+   "relaxing",
+   "shorts"
+  ]
+ },
+ "style": "big",
+ "mark": "@makeitwork3d",
+ "amp": 30
+}

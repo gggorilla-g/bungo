@@ -556,3 +556,11 @@
 - 2026-11-22 13:05 UTC 雑学 公開：geo_trap_ja eTEsFulzx6I、geo_speed_ja 5_Ab_q0FMi8（上限が解けた）。11/23 朝の再挑戦の予約は塩・台形・速さが済んだので不要
 - オーナー参考：スピログラフ（DIYStuffandCraft、いいね52万）。→ 新 kind spiro（歯数96の輪の中を歯数41の歯車が転がる。共通の約数がないので花びら96枚、41周で閉じる。花びらの先で石の音、だんだん速く）。spiro1_ja 妄想キュー先頭、spiro1_en は英語の作り溜め（nazo/ballsim/en_stock.txt）
 - 2026-11-22 14:06 UTC 妄想 再挑戦（定時）：10本公開（spiro1_ja QVklsjCuffc、koch1_ja ABa10zU4kSE、lens1_ja GoRfUlmnBqE、orbits1_ja E2Mzrw1Nq6U、pendwave1_ja pJS9BSh37_Q、phyllo1_ja GnNL3xTmX8Y、layers1_ja dO_1vPW9Uy0、song1_ja Yx11QiSxrOY、parabola5_ja 4VPVqJxpzIs、polyfocus1_ja OPnGIO5MSUI）。その後上限。次は 11/23 14:10 UTC ごろ。※英語で見た「大量投稿のあとは配信されない」が妄想でも起きるか、この10本で確かめる（2〜3時間ごとに1本ずつ出すほうがいいかもしれない）
+- 2026-11-23 オーナーの画面収録（動画の中身から学ぶ）を1秒ずつのコマで分析：
+  1. chaostheory「Will they line up again?」振り子15本を斜め下から：上が奥で小さく水色、下が手前で大きくオレンジ、光る玉に残像、細い糸が金の棒へ。題名1行だけ、数字なし → pendwave3d（英語作り溜め）
+  2. EndformTV「Which Planet Reaches Final Form?」いいね4106：じょうごから灰色の玉が円（虹色ネオン）に落ち、同じもの同士がぶつかると合体して次の惑星へ（火星→金星→地球…）。合体の瞬間に光の輪と名前 → 次に作る（惑星の絵はこちらで描く）
+  3. ViralitysVideos「Every bounce adds a brick / Guess the song before the end」いいね6587：白い円に玉、当たった所にレンガが積もる → bricks（英語作り溜め。きらきら星）
+  4. method_math「Hearts Control the Beat / Wait for the whale」いいね12万：生きものの心拍を心電図で並べ、どの拍も同じ曲の次の1音。下へ行くほど速い、最後にクジラ → hearts（hearts1_ja 妄想キュー先頭、hearts1_en 作り溜め。心拍は実在のおよその値）
+  5. edii66「100,000 Dominoes in Minecraft」いいね4.5万：低いカメラで、だんだん大きくなる虹色のドミノを追う → 次に作る（1枚ごとに約1.5倍大きいドミノを倒せる、という実在の話につなげる）
+  6. BouncyPhysics「Every dot = 2 balls / Will they ALL hit it?」：放物線の鏡の中、点に当たると2つに分かれる（1→2048）。下に大きな数字 → 次に作る
+- オーナー：雑学の題材にモンティ・ホール問題、ワインの毒味（囚人とネズミで毒入りを探す二進法の問題）
