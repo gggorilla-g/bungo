@@ -1,0 +1,15 @@
+【タイトル】
+Pick One Bar, Smaller Ones Go Left. Repeat. Does It Sort 72 Bars? (Wait for the Final Sweep) #shorts #satisfying #coding
+
+【説明】
+72 shuffled bars. Pick the last bar of a group, move every smaller bar to its left, then do the same inside each half. Every swap plays the note of the bar that moved (a C major scale), and a final sweep runs up the scale once everything is in order.
+
+How it works:
+- This is quicksort. Each pass puts one bar in its final place and splits the rest into a smaller group and a larger group.
+- The groups shrink until every bar is in place.
+- The starting order is random. Nothing is staged: it just follows the rule.
+
+Animation and sound: original (Python).
+
+【タグ】
+sorting, algorithm, quicksort, coding, satisfying, relaxing, math, shorts

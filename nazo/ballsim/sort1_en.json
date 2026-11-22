@@ -1,0 +1,26 @@
+{
+ "kind": "sortviz",
+ "id": "sort1_en",
+ "algo": "insertion",
+ "n": 32,
+ "dur": 22,
+ "title": [
+  "Only swap with your neighbor.",
+  "Can 32 bars sort themselves?"
+ ],
+ "count_label": "Swaps: ",
+ "yt": {
+  "title": "Only Swap Neighbors. Can 32 Bars Sort Themselves? (Wait for the Final Sweep) #shorts #satisfying #coding",
+  "desc": "32 shuffled bars. One rule: if the bar on your left is taller, swap. Every swap plays the note of the bar that moved (a C major scale), and a final sweep runs up the scale once everything is in order.\n\nHow it works:\n- Take the bars one at a time from the left and slide each one left until nothing taller is beside it (insertion sort).\n- The left part is always in order; each new bar walks to its place.\n- The starting order is random. Nothing is staged: it just follows the rule.\n\nAnimation and sound: original (Python).",
+  "tags": [
+   "sorting",
+   "algorithm",
+   "insertion sort",
+   "coding",
+   "satisfying",
+   "relaxing",
+   "math",
+   "shorts"
+  ]
+ }
+}

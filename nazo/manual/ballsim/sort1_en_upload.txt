@@ -1,0 +1,15 @@
+【タイトル】
+Only Swap Neighbors. Can 32 Bars Sort Themselves? (Wait for the Final Sweep) #shorts #satisfying #coding
+
+【説明】
+32 shuffled bars. One rule: if the bar on your left is taller, swap. Every swap plays the note of the bar that moved (a C major scale), and a final sweep runs up the scale once everything is in order.
+
+How it works:
+- Take the bars one at a time from the left and slide each one left until nothing taller is beside it (insertion sort).
+- The left part is always in order; each new bar walks to its place.
+- The starting order is random. Nothing is staged: it just follows the rule.
+
+Animation and sound: original (Python).
+
+【タグ】
+sorting, algorithm, insertion sort, coding, satisfying, relaxing, math, shorts

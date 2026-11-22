@@ -1333,7 +1333,65 @@ def polyfocus(sp):
         sim.frame(t, live, dots, (sp.get("count_label", "そろうまで "), f"{max(0, math.ceil(P - u))}"), fl)
     sim.finish(total)
 
-KINDS = {"polyfocus": polyfocus, "heliostat": heliostat, "dragon": dragon, "rhythm": rhythm, "lissatable": lissatable, "plotter": plotter, "threebody": threebody, "pendswing": pendswing, "golden": golden, "piphase": piphase, "maurer": maurer, "harmono": harmono, "spiro": spiro, "star": star, "throw": throw, "tusi": tusi, "chain": chain, "basket": basket, "koch": koch, "cycloid": cycloid, "pendulums": pendulums, "lissajous": lissajous, "corner": corner, "sunflower": sunflower, "ulam": ulam, "parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2, "picount": picount}
+
+
+def sortviz(sp):
+    """並べ替えの見える化（ボール以外の題材。オーナー 11/22）。ばらばらの棒を、決まった手順だけで背の順にする。
+    入れかえるたびに、動いた棒の高さの音（ドレミ）が鳴る。最後に左から右へ確かめの音が駆け上がる。仕込みなし：手順どおりに動くだけ"""
+    import random
+    N, algo, D = sp.get("n", 32), sp.get("algo", "insertion"), sp.get("dur", 22.0); rnd = random.Random(sp.get("seed", 3))
+    arr = list(range(N)); rnd.shuffle(arr); a = arr[:]; ops = []
+    def sw(i, j):
+        if i != j: a[i], a[j] = a[j], a[i]; ops.append((i, j))
+    if algo == "insertion":
+        for i in range(1, N):
+            j = i
+            while j > 0 and a[j - 1] > a[j]: sw(j - 1, j); j -= 1
+    elif algo == "quick":
+        def qs(lo, hi):
+            if lo >= hi: return
+            pv = a[hi]; i = lo
+            for j in range(lo, hi):
+                if a[j] < pv: sw(i, j); i += 1
+            sw(i, hi); qs(lo, i - 1); qs(i + 1, hi)
+        qs(0, N - 1)
+    elif algo == "shell":
+        gap = N // 2
+        while gap:
+            for i in range(gap, N):
+                j = i
+                while j >= gap and a[j - gap] > a[j]: sw(j - gap, j); j -= gap
+            gap //= 2
+    intro, dt = .5, D / len(ops); tS = intro + D + .25; sweep = sp.get("sweep", 1.3); total = tS + sweep + 1.8
+    sim = Sim(sp, (-.6, -.5, N + .6, N * 1.25))
+    sim.neon([(-.3, -.25), (N + .3, -.25)], width=4); sim.title()
+    pit = lambda h: PENTA[int(h / (N - 1) * 15 + .5)]
+    cur = arr[:]
+    for k, (i, j) in enumerate(ops):
+        cur[i], cur[j] = cur[j], cur[i]
+        sim.note(intro + (k + 1) * dt, pit(cur[i]), .5, .2 + .6 * i / N, 4)
+    for i in range(N): sim.note(tS + sweep * i / N, pit(i), .42, .2 + .6 * i / N, 4)
+    sim.chord(tS + sweep + .1, [60, 64, 67, 72], gain=.5, dec=5)
+    cur = arr[:]; done = 0
+    for fi in range(int(total * FPS)):
+        t = fi / FPS; kf = (t - intro) / dt; k = min(len(ops), max(0, int(kf)))
+        while done < k: i, j = ops[done]; cur[i], cur[j] = cur[j], cur[i]; done += 1
+        xs = {i: float(i) for i in range(N)}; hot = {}
+        if 0 < k <= len(ops) and kf - k < 1:   # 直前の入れかえは、すべるように動かす
+            i, j = ops[k - 1]; u = min(1, (kf - k) * 1.6 + .2); u = u * u * (3 - 2 * u); xs[i] = j + (i - j) * u; xs[j] = i + (j - i) * u; hot[i] = hot[j] = 1 - (kf - k)
+        sw_i = int((t - tS) / sweep * N) if t >= tS else -1
+        def draw(d, cur=cur[:], xs=xs, hot=hot, sw_i=sw_i):
+            for i in range(N):
+                h = cur[i]; c = hsv(h / N * .85); x0, y0 = sim.to((xs[i] + .12, 0)); x1, y1 = sim.to((xs[i] + .88, (h + 1) * 1.2 * N / (N + 1)))
+                g = hot.get(i, 0); lit = sw_i >= 0 and i <= sw_i
+                if lit: g = max(g, max(0, 1 - (sw_i - i) / 6) * .9, .25)
+                if g: gx = (x1 - x0) * .5; d.rounded_rectangle([x0 - gx, min(y0, y1) - gx, x1 + gx, max(y0, y1)], radius=gx * 1.5, fill=dim(c, .25 + .2 * g))
+                cc = tuple(int(v + (255 - v) * .6 * g) for v in c) if g else dim(c, .86)
+                d.rounded_rectangle([x0, min(y0, y1), x1, max(y0, y1)], radius=(x1 - x0) * .35, fill=cc)
+        sim.frame(t, (), (), (sp.get("count_label", "入れかえ："), f"{k:,}"), (), draw)
+    sim.finish(total)
+
+KINDS = {"sortviz": sortviz, "polyfocus": polyfocus, "heliostat": heliostat, "dragon": dragon, "rhythm": rhythm, "lissatable": lissatable, "plotter": plotter, "threebody": threebody, "pendswing": pendswing, "golden": golden, "piphase": piphase, "maurer": maurer, "harmono": harmono, "spiro": spiro, "star": star, "throw": throw, "tusi": tusi, "chain": chain, "basket": basket, "koch": koch, "cycloid": cycloid, "pendulums": pendulums, "lissajous": lissajous, "corner": corner, "sunflower": sunflower, "ulam": ulam, "parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2, "picount": picount}
 
 if __name__ == "__main__":
     sp = json.load(open(sys.argv[1], encoding="utf-8")); KINDS[sp["kind"]](sp); kit(sp)

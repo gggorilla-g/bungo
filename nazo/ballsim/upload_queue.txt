@@ -1,5 +1,6 @@
 parabola5_ja MOSO ja
 polyfocus1_ja MOSO ja
+sort1_ja MOSO ja
 helio1_ja MOSO ja
 parabola2_ja MOSO ja
 ellipse3_ja MOSO ja
