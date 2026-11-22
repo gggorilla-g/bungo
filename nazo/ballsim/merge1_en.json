@@ -1,0 +1,128 @@
+{
+ "kind": "merge",
+ "id": "merge1_en",
+ "tone": "stone",
+ "bed": true,
+ "bloom": 1.0,
+ "style": "big",
+ "mark": "@makeitwork3d",
+ "tiers": [
+  [
+   "Asteroid",
+   [
+    150,
+    150,
+    160
+   ],
+   "plain"
+  ],
+  [
+   "Moon",
+   [
+    200,
+    200,
+    205
+   ],
+   "plain"
+  ],
+  [
+   "Mercury",
+   [
+    170,
+    150,
+    130
+   ],
+   "plain"
+  ],
+  [
+   "Mars",
+   [
+    200,
+    90,
+    60
+   ],
+   "plain"
+  ],
+  [
+   "Venus",
+   [
+    225,
+    195,
+    130
+   ],
+   "plain"
+  ],
+  [
+   "Earth",
+   [
+    70,
+    120,
+    220
+   ],
+   "earth"
+  ],
+  [
+   "Neptune",
+   [
+    80,
+    110,
+    230
+   ],
+   "plain"
+  ],
+  [
+   "Uranus",
+   [
+    140,
+    210,
+    220
+   ],
+   "plain"
+  ],
+  [
+   "Saturn",
+   [
+    220,
+    190,
+    130
+   ],
+   "ring"
+  ],
+  [
+   "Jupiter",
+   [
+    210,
+    160,
+    110
+   ],
+   "bands"
+  ],
+  [
+   "Sun",
+   [
+    255,
+    190,
+    70
+   ],
+   "sun"
+  ]
+ ],
+ "title": [
+  "Which planet reaches [final form]?"
+ ],
+ "yt": {
+  "title": "Two of the Same Merge Into the Next Planet. Which One Reaches Final Form? #shorts #satisfying #space",
+  "desc": "Small asteroids drop in from the top. When two of the same kind touch, they merge into the next one up: asteroid, Moon, Mercury, Mars, Venus, Earth, Neptune, Uranus, Saturn, Jupiter, Sun. How far will it get?\n\nHow it works:\n- Each merge takes two of the same, so reaching level k takes 2 to the power k asteroids (Earth needs 32, the Sun would need 1,024).\n- Balls fall under gravity and bounce off each other and the round wall. Where they land is not planned; it depends on how the pile settles.\n- Planet sizes here only grow step by step; they are not to scale.\n\nSimulation, sound and animation: original (Python).",
+  "tags": [
+   "merge",
+   "planets",
+   "solar system",
+   "physics",
+   "satisfying",
+   "simulation",
+   "relaxing",
+   "shorts"
+  ]
+ },
+ "r0": 0.06
+}

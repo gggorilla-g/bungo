@@ -1,3 +1,4 @@
+merge1_ja MOSO ja
 hearts1_ja MOSO ja
 sort1_ja MOSO ja
 pixels1_ja MOSO ja

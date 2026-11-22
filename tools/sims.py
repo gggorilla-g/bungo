@@ -1926,7 +1926,92 @@ def hearts(sp):
         sim.frame(t, (), (), None, (), draw)
     sim.finish(total)
 
-KINDS = {"hearts": hearts, "bricks": bricks, "pendwave3d": pendwave3d, "spiro": spiro, "lens": lens, "koch": koch, "pendwave": pendwave, "orbits": orbits, "phyllo": phyllo, "zoomsalt": zoomsalt, "layers": layers, "pixels": pixels, "sortviz": sortviz, "polyfocus": polyfocus, "heliostat": heliostat, "dragon": dragon, "rhythm": rhythm, "lissatable": lissatable, "plotter": plotter, "threebody": threebody, "pendswing": pendswing, "golden": golden, "piphase": piphase, "maurer": maurer, "harmono": harmono, "spiro": spiro, "star": star, "throw": throw, "tusi": tusi, "chain": chain, "basket": basket, "koch": koch, "cycloid": cycloid, "pendulums": pendulums, "lissajous": lissajous, "corner": corner, "sunflower": sunflower, "ulam": ulam, "parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2, "picount": picount}
+
+
+def merge(sp):
+    """合体して次の段へ（オーナー画面収録 11/23「Which Planet Reaches Final Form?」の型）。上の口から小さな星を落とす。
+    同じ段どうしがふれると合体して次の段（大きな星）になる。合体のたびに光の輪と名前、音は段ごとに高く。最後にどの段まで届くか"""
+    import random
+    rnd = random.Random(sp.get("seed", 7)); T = sp.get("tiers"); K = len(T); R0, gro = sp.get("r0", .052), sp.get("grow", 1.30); rad = [R0 * gro ** k for k in range(K)]
+    RC, gate, g = 1.0, .17, 2.6; D, intro, tail = sp.get("dur", 30.0), .4, 3.0; dt = 1 / 240
+    P = np.zeros((0, 2)); V = np.zeros((0, 2)); TI = np.zeros(0, int); born = np.zeros(0); events = []; frames = []; best = 0; t = 0.0; nxt = .2
+    while t < D:
+        if t >= nxt:   # 落とす間かくは、だんだん短く
+            P = np.vstack([P, [rnd.uniform(-gate * .45, gate * .45), RC + .55]]); V = np.vstack([V, [rnd.uniform(-.1, .1), -.4]]); TI = np.append(TI, 0); born = np.append(born, t)
+            nxt = t + max(.11, .42 - .3 * t / D)
+        V[:, 1] -= g * dt; P += V * dt
+        for _ in range(3):
+            n = len(P)
+            if n > 1:
+                d = P[:, None, :] - P[None, :, :]; dist = np.sqrt((d ** 2).sum(-1)) + np.eye(n); rr = np.array([rad[k] for k in TI]); need = rr[:, None] + rr[None, :]
+                ii, jj = np.where(np.triu(dist < need, 1))
+                merged = set()
+                for i, j in zip(ii, jj):
+                    if i in merged or j in merged: continue
+                    if TI[i] == TI[j] and TI[i] < K - 1:   # 合体
+                        k = TI[i] + 1; P[i] = (P[i] + P[j]) / 2; V[i] = (V[i] + V[j]) / 2 * .5; TI[i] = k; born[i] = t; merged.add(j); events.append((t, k, P[i].copy())); best = max(best, k)
+                    else:
+                        nv = d[i, j] / dist[i, j]; ov = need[i, j] - dist[i, j]; mi, mj = rr[i] ** 2, rr[j] ** 2
+                        P[i] += nv * ov * mj / (mi + mj); P[j] -= nv * ov * mi / (mi + mj)
+                        rv = np.dot(V[i] - V[j], nv)
+                        if rv < 0: im = 1.25 * rv / (mi + mj); V[i] -= im * mj * nv; V[j] += im * mi * nv
+                if merged:
+                    keep = [q for q in range(n) if q not in merged]; P, V, TI, born = P[keep], V[keep], TI[keep], born[keep]
+            for q in range(len(P)):   # 円の壁（上の口だけ開いている）
+                x, y = P[q]; r = math.hypot(x, y); rq = rad[TI[q]]
+                if abs(x) < gate - rq and y > 0: continue
+                if r > RC - rq:
+                    nv = np.array([x, y]) / r; P[q] = nv * (RC - rq); vn = np.dot(V[q], nv)
+                    if vn > 0: V[q] -= 1.4 * vn * nv
+                    V[q] *= .995
+            for q in range(len(P)):   # 口の壁
+                x, y = P[q]; rq = rad[TI[q]]
+                if y > RC * .95 and abs(abs(x) - gate) < rq: P[q, 0] = math.copysign(gate - rq, x) if abs(x) < gate else math.copysign(gate + rq, x); V[q, 0] *= -.3
+        V *= .999; t += dt
+        if int(t * FPS) >= len(frames): frames.append((P.copy(), TI.copy(), born.copy(), best))
+    sim = Sim(sp, (-1.1, -1.12, 1.1, 1.62), area=(.02, .17, .98, .94))
+    a0 = math.asin(gate / RC); arc = np.linspace(math.pi / 2 + a0, 2.5 * math.pi - a0, 160)
+    for q in range(len(arc) - 1):   # 虹色のネオンの円（上の口だけ開ける）
+        u = q / (len(arc) - 1); c = hsv((.75 - u) % 1); sim.neon([(RC * math.cos(arc[q]), RC * math.sin(arc[q])), (RC * math.cos(arc[q + 1]), RC * math.sin(arc[q + 1]))], color=c, glow=dim(c, .7), width=7)
+    for sx in (-1, 1): sim.neon([(sx * gate, RC * math.cos(a0)), (sx * gate, RC + .5)], width=5)
+    sim.title()
+    for tt, k, _ in events: sim.note(intro + tt, PENTA[min(15, k * 2)], .55 + .05 * k, .5, 5 + k)
+    sim.chord(intro + D + .1, [60, 64, 67, 72], gain=.55, dec=5)
+    total = intro + D + tail; fN = F(40 * S); fL = F(26 * S); from simkit import W as W_, H as H_
+    def planet(d, x, y, r, k, a=1.0):
+        name, base, kind = T[k]; c = tuple(int(v * a) for v in base); d.ellipse([x - r, y - r, x + r, y + r], fill=c)
+        if kind == "bands":
+            for q in range(-3, 4):
+                yy = y + q * r * .26; w = math.sqrt(max(0, 1 - (q * .26) ** 2)) * r; d.line([x - w, yy, x + w, yy], fill=tuple(int(v * .78 * a) for v in base), width=max(1, int(r * .09)))
+        if kind == "earth": d.ellipse([x - r * .5, y - r * .45, x + r * .1, y + r * .2], fill=tuple(int(v * a) for v in (70, 160, 90))); d.ellipse([x + r * .1, y + r * .1, x + r * .6, y + r * .55], fill=tuple(int(v * a) for v in (70, 160, 90)))
+        if kind == "ring": d.ellipse([x - r * 1.7, y - r * .35, x + r * 1.7, y + r * .35], outline=tuple(int(v * a) for v in (230, 210, 160)), width=max(2, int(r * .12)))
+        if kind == "sun":
+            for q in range(3): rr_ = r * (1.12 + q * .12); d.ellipse([x - rr_, y - rr_, x + rr_, y + rr_], outline=tuple(int(v * a * (1 - q * .3)) for v in (255, 200, 80)), width=max(2, int(r * .05)))
+        d.ellipse([x - r * .55, y - r * .7, x - r * .05, y - r * .25], fill=tuple(min(255, int(v * a + 40)) for v in base))   # つや
+    for fi in range(int(total * FPS)):
+        t = fi / FPS; k_ = min(len(frames) - 1, max(0, int((t - intro) * FPS))); PP, TT, BB, bst = frames[k_]; tsim = (t - intro)
+        def draw(d, PP=PP, TT=TT, BB=BB, bst=bst, tsim=tsim):
+            for q in range(len(PP)):
+                x, y = sim.to(tuple(PP[q])); r = rad[TT[q]] * sim.k; age = tsim - BB[q]; pop = 1 + .35 * math.exp(-max(0, age) * 9) if TT[q] > 0 else 1
+                planet(d, x, y, r * pop, TT[q])
+            for tt, k, pos in events:
+                e = tsim - tt
+                if 0 <= e < .9 and k >= 2:
+                    x, y = sim.to(tuple(pos)); nm = T[k][0]; w = d.textlength(nm, font=fN); d.text((x - w / 2, y - rad[k] * sim.k - 60 * S - e * 30 * S), nm, font=fN, fill=(255, 255, 255), stroke_width=5 * S, stroke_fill=(0, 0, 0))
+            # 上の段の並び：届いた段は色、まだの段は「？」
+            n_ = K; bw = W_ * S * .9 / n_; y0 = H_ * S * .145
+            for k in range(K):
+                x = W_ * S * .05 + bw * (k + .5)
+                if k <= bst: planet(d, x, y0, bw * .32, k)
+                else: d.rounded_rectangle([x - bw * .34, y0 - bw * .34, x + bw * .34, y0 + bw * .34], radius=8 * S, fill=(40, 44, 70)); w = d.textlength("?", font=fL); d.text((x - w / 2, y0 - 16 * S), "?", font=fL, fill=(170, 175, 210))
+        fl = []
+        for tt, k, pos in events:
+            e = t - intro - tt
+            if 0 <= e < .35: fl.append((tuple(pos), rad[k] * 260 * (1 + e * 3), dim((255, 250, 230), 1 - e / .35), 3))
+        sim.frame(t, (), (), None, fl, draw)
+    sim.finish(total)
+
+KINDS = {"merge": merge, "hearts": hearts, "bricks": bricks, "pendwave3d": pendwave3d, "spiro": spiro, "lens": lens, "koch": koch, "pendwave": pendwave, "orbits": orbits, "phyllo": phyllo, "zoomsalt": zoomsalt, "layers": layers, "pixels": pixels, "sortviz": sortviz, "polyfocus": polyfocus, "heliostat": heliostat, "dragon": dragon, "rhythm": rhythm, "lissatable": lissatable, "plotter": plotter, "threebody": threebody, "pendswing": pendswing, "golden": golden, "piphase": piphase, "maurer": maurer, "harmono": harmono, "spiro": spiro, "star": star, "throw": throw, "tusi": tusi, "chain": chain, "basket": basket, "koch": koch, "cycloid": cycloid, "pendulums": pendulums, "lissajous": lissajous, "corner": corner, "sunflower": sunflower, "ulam": ulam, "parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2, "picount": picount}
 
 if __name__ == "__main__":
     sp = json.load(open(sys.argv[1], encoding="utf-8")); KINDS[sp["kind"]](sp); kit(sp)
