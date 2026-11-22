@@ -1391,7 +1391,40 @@ def sortviz(sp):
         sim.frame(t, (), (), (sp.get("count_label", "入れかえ："), f"{k:,}"), (), draw)
     sim.finish(total)
 
-KINDS = {"sortviz": sortviz, "polyfocus": polyfocus, "heliostat": heliostat, "dragon": dragon, "rhythm": rhythm, "lissatable": lissatable, "plotter": plotter, "threebody": threebody, "pendswing": pendswing, "golden": golden, "piphase": piphase, "maurer": maurer, "harmono": harmono, "spiro": spiro, "star": star, "throw": throw, "tusi": tusi, "chain": chain, "basket": basket, "koch": koch, "cycloid": cycloid, "pendulums": pendulums, "lissajous": lissajous, "corner": corner, "sunflower": sunflower, "ulam": ulam, "parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2, "picount": picount}
+
+
+def pixels(sp):
+    """画素数を限界まで上げる（オーナー参考 11/22「こういうのもいいかも」：段階を上げていき「どれが好き？」と聞く型）。
+    同じ絵（マンデルブロ集合。自分で計算）を 4×4 → 8×8 → … → 1024×1024 と細かくしていく。段が上がるたびにドレミが1音上がる"""
+    from PIL import Image
+    lv = sp.get("levels", [4, 8, 16, 32, 64, 128, 256, 512, 1024]); hold, intro, tail = sp.get("hold", 2.4), .2, 1.6
+    cx, cy, R = sp.get("cx", -.6), sp.get("cy", 0.0), sp.get("r", 1.45); amber = os.environ.get("SIM_PALETTE") == "amber"
+    def img(n):
+        x = np.linspace(cx - R, cx + R, n, endpoint=False) + R / n; y = np.linspace(cy - R, cy + R, n, endpoint=False) + R / n
+        c = x[None, :] + 1j * y[:, None]; z = np.zeros_like(c); k = np.zeros(c.shape); alive = np.ones(c.shape, bool)
+        for i in range(160):
+            z[alive] = z[alive] ** 2 + c[alive]; esc = alive & (np.abs(z) > 8); k[esc] = i + 1 - np.log2(np.log(np.abs(z[esc])) / math.log(8)); alive &= ~esc
+        u = np.clip(k / 40, 0, 1) ** .6; inside = alive
+        if amber: r_, g_, b_ = 20 + 235 * u, 8 + 170 * u ** 1.6, 14 + 60 * u ** 3
+        else: r_, g_, b_ = 14 + 150 * u ** 2.2, 20 + 215 * u ** 1.1, 40 + 215 * u ** .7
+        a = np.stack([r_, g_, b_], -1); a[inside] = (6, 8, 16)
+        return Image.fromarray(a.clip(0, 255).astype(np.uint8))
+    sim = Sim(sp, (0, 0, 1, 1)); sim.title()
+    from simkit import W as W_, H as H_
+    side = int(W_ * S * .92); x0 = (W_ * S - side) // 2; y0 = int(H_ * S * .30)
+    ims = [img(n).resize((side, side), Image.NEAREST) for n in lv]
+    for i, n in enumerate(lv): sim.note(intro + i * hold, PENTA[min(15, i * 2 if i < 8 else 15)], .7, .5, 9); sim.note(intro + i * hold + .18, PENTA[min(15, i * 2 if i < 8 else 15)] + 12, .25, .5, 7, "bell")
+    total = intro + len(lv) * hold + tail
+    for fi in range(int(total * FPS)):
+        t = fi / FPS; i = min(len(lv) - 1, max(0, int((t - intro) / hold))); e = t - intro - i * hold
+        def draw(d, i=i, e=e):
+            im = ims[i]
+            if i and e < .35: im = Image.blend(ims[i - 1], im, max(0, e) / .35)   # 前の段からふわっと切りかえ
+            d._image.paste(im, (x0, y0)); d.rounded_rectangle([x0 - 3 * S, y0 - 3 * S, x0 + side + 3 * S, y0 + side + 3 * S], radius=6 * S, outline=(150, 235, 255), width=3 * S)
+        n = lv[i]; sim.frame(t, (), (), (f"{n}×{n} ＝ ", f"{n * n:,}" + sp.get("unit", "ピクセル")), (), draw)
+    sim.finish(total)
+
+KINDS = {"pixels": pixels, "sortviz": sortviz, "polyfocus": polyfocus, "heliostat": heliostat, "dragon": dragon, "rhythm": rhythm, "lissatable": lissatable, "plotter": plotter, "threebody": threebody, "pendswing": pendswing, "golden": golden, "piphase": piphase, "maurer": maurer, "harmono": harmono, "spiro": spiro, "star": star, "throw": throw, "tusi": tusi, "chain": chain, "basket": basket, "koch": koch, "cycloid": cycloid, "pendulums": pendulums, "lissajous": lissajous, "corner": corner, "sunflower": sunflower, "ulam": ulam, "parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2, "picount": picount}
 
 if __name__ == "__main__":
     sp = json.load(open(sys.argv[1], encoding="utf-8")); KINDS[sp["kind"]](sp); kit(sp)

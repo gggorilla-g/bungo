@@ -1,0 +1,15 @@
+【タイトル】
+Pixel Count Pushed to the Limit. Which One Do You Like? #shorts #satisfying #math
+
+【説明】
+The same picture, from 4 x 4 (16 pixels) up to 1024 x 1024 (about 1.05 million pixels), doubling the width and height each step. Which one do you like?
+
+How it works:
+- The picture is the Mandelbrot set. For each point, square and add over and over; points that never blow up are dark, and the rest are colored by how fast they escape.
+- Each step reveals finer detail along the edge. This shape keeps showing new detail no matter how far you go.
+- Every step plays the next note up a C major scale.
+
+Picture, sound and animation: original (computed in Python).
+
+【タグ】
+pixels, resolution, mandelbrot, fractal, math, satisfying, relaxing, shorts
