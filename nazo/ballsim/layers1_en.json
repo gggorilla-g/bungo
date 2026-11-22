@@ -1,0 +1,25 @@
+{
+ "kind": "layers",
+ "id": "layers1_en",
+ "melody": "canon",
+ "layers": 512,
+ "title": [
+  "1 ball vs 512 layers.",
+  "It splits in two every 4 bounces."
+ ],
+ "count_label": "Broken: ",
+ "yt": {
+  "title": "Can 1 Ball Break 512 Layers? It Splits Every 4 Bounces (Wait for the End) #shorts #satisfying #physics",
+  "desc": "One ball falls onto 512 thin layers. Every bounce breaks one layer. After a ball has bounced 4 times, it splits in two. Every break plays the next note of Pachelbel's Canon.\n\nHow it works:\n- Bounces lose no speed (gravity, no air resistance). As the floor drops, the balls fall deeper each time.\n- A new ball leaves at the same speed but at a slightly tilted angle, so its bounce timing drifts away from the others and the notes start to overlap.\n- The count doubles again and again, up to 128 balls, so the layers break faster and faster.\n\nSimulation, sound and animation: original (Python). Melody: Pachelbel's Canon (public domain).",
+  "tags": [
+   "physics",
+   "simulation",
+   "doubling",
+   "canon",
+   "satisfying",
+   "relaxing",
+   "math",
+   "shorts"
+  ]
+ }
+}

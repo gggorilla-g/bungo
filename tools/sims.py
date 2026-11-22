@@ -1387,7 +1387,15 @@ def sortviz(sp):
                 if lit: g = max(g, max(0, 1 - (sw_i - i) / 6) * .9, .25)
                 if g: gx = (x1 - x0) * .5; d.rounded_rectangle([x0 - gx, min(y0, y1) - gx, x1 + gx, max(y0, y1)], radius=gx * 1.5, fill=dim(c, .25 + .2 * g))
                 cc = tuple(int(v + (255 - v) * .6 * g) for v in c) if g else dim(c, .86)
-                d.rounded_rectangle([x0, min(y0, y1), x1, max(y0, y1)], radius=(x1 - x0) * .35, fill=cc)
+                yt, yb, bw = min(y0, y1), max(y0, y1), x1 - x0; rad = bw * .45
+                d.rounded_rectangle([x0, yt, x1, yb], radius=rad, fill=dim(cc, .42))                                   # ふち（暗い）
+                d.rounded_rectangle([x0 + bw * .10, yt + bw * .06, x1 - bw * .16, yb], radius=rad * .8, fill=dim(cc, .78))   # 胴
+                d.rounded_rectangle([x0 + bw * .18, yt + bw * .14, x0 + bw * .62, yb], radius=rad * .6, fill=cc)             # 明るい面
+                hl = tuple(int(v + (255 - v) * .75) for v in cc)
+                d.rounded_rectangle([x0 + bw * .24, yt + bw * .30, x0 + bw * .36, yb - bw * .2], radius=bw * .06, fill=hl)   # 細い映りこみ
+                d.ellipse([x0 + bw * .2, yt + bw * .1, x0 + bw * .56, yt + bw * .36], fill=hl)                               # 頭のつや
+                rh = min((yb - yt) * .22, 60 * S)                                                                           # 床への映りこみ
+                for q in range(4): d.rectangle([x0 + bw * .1, yb + 6 * S + rh * q / 4, x1 - bw * .16, yb + 6 * S + rh * (q + 1) / 4], fill=dim(cc, .16 * (1 - q / 4)))
         sim.frame(t, (), (), (sp.get("count_label", "入れかえ："), f"{k:,}"), (), draw)
     sim.finish(total)
 
@@ -1424,7 +1432,55 @@ def pixels(sp):
         n = lv[i]; sim.frame(t, (), (), (f"{n}×{n} ＝ ", f"{n * n:,}" + sp.get("unit", "ピクセル")), (), draw)
     sim.finish(total)
 
-KINDS = {"pixels": pixels, "sortviz": sortviz, "polyfocus": polyfocus, "heliostat": heliostat, "dragon": dragon, "rhythm": rhythm, "lissatable": lissatable, "plotter": plotter, "threebody": threebody, "pendswing": pendswing, "golden": golden, "piphase": piphase, "maurer": maurer, "harmono": harmono, "spiro": spiro, "star": star, "throw": throw, "tusi": tusi, "chain": chain, "basket": basket, "koch": koch, "cycloid": cycloid, "pendulums": pendulums, "lissajous": lissajous, "corner": corner, "sunflower": sunflower, "ulam": ulam, "parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2, "picount": picount}
+
+
+def layers(sp):
+    """1個のボール 対 たくさんの層（オーナー参考 11/22）。重力で落ちて床（いちばん上の層）で弾むたびに、層が1枚割れる。
+    決まり：同じボールが split 回はねるたびに2つに分かれる（速さは同じ、向きだけ変える → 上下の速さが変わるので、はねる拍が自然にずれる）。
+    はね返りで速さは減らない。割れるたびに音（"melody": "canon" ならカノンが1音進む）"""
+    L, Wd, g = sp.get("layers", 512), sp.get("width", 4.0), sp.get("g", 30.0); Hs, h0 = sp.get("stack", 6.0), sp.get("drop", 2.6)
+    SP, cap, phi = sp.get("split", 4), sp.get("cap", 128), math.radians(sp.get("angle", 24)); th = Hs / L; top = Hs + h0 + 1.2
+    sim = Sim(sp, (-Wd / 2 - .5, -.6, Wd / 2 + .5, top), area=(.06, .235, .94, .93))
+    sim.neon([(-Wd / 2, top), (-Wd / 2, -.5)], width=5); sim.neon([(Wd / 2, top), (Wd / 2, -.5)], width=5); sim.title()
+    intro = .4; dt = 1 / 480; balls = [dict(x=.3, y=Hs + h0, vx=1.3, vy=0.0, n=0, tr=[], on=True)]; broken = 0; t = 0.0; frames = []; flashes = []; t_end = None
+    while True:
+        for b in [b for b in balls if b["on"]]:
+            b["vy"] -= g * dt; b["x"] += b["vx"] * dt; b["y"] += b["vy"] * dt
+            if abs(b["x"]) > Wd / 2 - .05: b["x"] = math.copysign(Wd / 2 - .05, b["x"]); b["vx"] = -b["vx"]
+            fl = Hs - broken * th
+            if broken < L and b["y"] <= fl and b["vy"] < 0:
+                b["y"] = fl; b["vy"] = -b["vy"]; broken += 1; b["n"] += 1; flashes.append((t, fl, b["x"]))
+                sim.note(intro + t, PENTA[int((1 - broken / L) * 15 + .5)], .5 / math.sqrt(max(1, len(balls) / 3)), .5 + .3 * b["x"] / Wd, 4)
+                if broken == L: t_end = t
+                if b["n"] % SP == 0 and len(balls) < cap:   # 分かれる：新しい1個は、同じ速さで向きを phi だけ傾けて出る
+                    a = phi if len(balls) % 2 else -phi; c, s_ = math.cos(a), math.sin(a)
+                    balls.append(dict(x=b["x"], y=b["y"], vx=b["vx"] * c - b["vy"] * s_, vy=abs(b["vx"] * s_ + b["vy"] * c), n=0, tr=[], on=True))
+            if b["y"] < -1.5: b["on"] = False
+        t += dt
+        if int(t * FPS) > len(frames) - 1: frames.append((broken, [(b["x"], b["y"]) for b in balls if b["on"]]))
+        if (t_end is not None and t > t_end + 2.0) or t > sp.get("max", 60): break
+    if t_end is None: t_end = t
+    sim.chord(intro + t_end + .35, [60, 64, 67, 72], gain=.5, dec=5)
+    total = intro + len(frames) / FPS; cols = [dim(hsv(.45 + .5 * i / L), .55) for i in range(L)]; trails = {}
+    for fi in range(int(total * FPS)):
+        tt = fi / FPS; k = min(len(frames) - 1, max(0, int((tt - intro) * FPS))); br, pos = frames[k]
+        def draw(d, br=br, tt=tt):
+            step = max(1, L // 256); xa, _ = sim.to((-Wd / 2, 0)); xb, _ = sim.to((Wd / 2, 0))
+            for i in range(br, L, step):
+                _, y = sim.to((0, Hs - i * th)); d.line([xa, y, xb, y], fill=cols[i], width=max(1, int(1.2 * S)))
+            if br < L: _, y = sim.to((0, Hs - br * th)); d.line([xa, y, xb, y], fill=(225, 255, 240), width=int(2.5 * S))
+            for (tf, yf, xf) in flashes:
+                e = tt - intro - tf
+                if 0 <= e < .18: x, y = sim.to((xf, yf)); r = (10 + e * 260) * S; d.ellipse([x - r, y - r * .35, x + r, y + r * .35], outline=dim((200, 240, 255), 1 - e / .18), width=int(2 * S))
+        live = []; dots = []
+        for j, p in enumerate(pos):
+            tr = trails.setdefault(j, []); tr.append(p); del tr[:-7]
+            for q in range(len(tr) - 1): live.append((tr[q], tr[q + 1], dim((150, 215, 255), .15 + .75 * (q + 1) / len(tr)), 1 + 3.2 * (q + 1) / len(tr)))
+            dots.append((p, (235, 248, 255), 6 if len(pos) <= 16 else 4.5))
+        sim.frame(tt, live, dots, (sp.get("count_label", "割れた層："), f"{br:,} / {L:,}"), (), draw)
+    sim.finish(total)
+
+KINDS = {"layers": layers, "pixels": pixels, "sortviz": sortviz, "polyfocus": polyfocus, "heliostat": heliostat, "dragon": dragon, "rhythm": rhythm, "lissatable": lissatable, "plotter": plotter, "threebody": threebody, "pendswing": pendswing, "golden": golden, "piphase": piphase, "maurer": maurer, "harmono": harmono, "spiro": spiro, "star": star, "throw": throw, "tusi": tusi, "chain": chain, "basket": basket, "koch": koch, "cycloid": cycloid, "pendulums": pendulums, "lissajous": lissajous, "corner": corner, "sunflower": sunflower, "ulam": ulam, "parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2, "picount": picount}
 
 if __name__ == "__main__":
     sp = json.load(open(sys.argv[1], encoding="utf-8")); KINDS[sp["kind"]](sp); kit(sp)
