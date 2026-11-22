@@ -499,3 +499,4 @@
   - 1往復ごとに2倍（4→8→16→32→64個）＝曲がだんだん速くなる。22.6秒
   - 題名に結末の予告：「（最後の64個まで見て）」／英語「(Wait for 64 Balls)」
   - parabola5_ja は妄想キュー先頭、parabola5_en は MIW に 11/23 公開予定（1日3本まで）
+- 11/22 MIW 公開：parabola5_en XqBSrPqXEaA、basket4_en M8V2_9fx5Ac（カノン旋律）。妄想は上限のため parabola5_ja・basket4_ja・basket3_ja をキュー先頭で 23:05 の自動アップロード待ち
