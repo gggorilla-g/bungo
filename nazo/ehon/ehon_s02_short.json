@@ -1,0 +1,490 @@
+{
+ "id": "ehon_s02_short",
+ "title": "みずたまりの おさら",
+ "title_say": "みずたまりの、おさら",
+ "assets": "/mnt/user-data/uploads/Downloads/jump_shisaku/ehon_parts/story02",
+ "voice": {
+  "vvm": "6.vvm",
+  "style": 31,
+  "speed": 0.86,
+  "vol": 1.5
+ },
+ "sfx_files": {
+  "rain": "assets/sfx/yt_light_rain.mp3",
+  "thunder": "assets/sfx_pd/thunder.ogg",
+  "drip": "assets/sfx_pd/drip.ogg",
+  "breeze": "assets/sfx_pd/breeze.ogg",
+  "pochan": "assets/sfx_gen/pochan.wav",
+  "pichon": "assets/sfx_gen/pichon.wav"
+ },
+ "world": {
+  "pino": [
+   "head_w",
+   0.44
+  ],
+  "lulu": [
+   "shell_d",
+   0.55
+  ],
+  "leaf": [
+   "len",
+   0.62
+  ],
+  "drop": [
+   "h",
+   0.09
+  ],
+  "flower": [
+   "w",
+   0.9
+  ],
+  "petal": [
+   "w",
+   0.3
+  ]
+ },
+ "scale_alias": {
+  "pino_lulu_leaf_smile": "pino_lulu_leaf_sit",
+  "mouse_stop": "mouse_walk"
+ },
+ "title_sec": 2.0,
+ "min_shot": 2.4,
+ "cover": "cover",
+ "logo_rel": "ehon/brand/logo_sil_light.png",
+ "output": {
+  "width": 1080,
+  "height": 1920
+ },
+ "music_gain": 0.2,
+ "pages": [
+  {
+   "bg": "bg_puddle",
+   "bg_h": 7.8,
+   "bg_y": -2.7,
+   "gap": 0.3,
+   "pad0": 0.5,
+   "trans": 0.8,
+   "text": {
+    "size": 46,
+    "group": 2,
+    "wrap": 9
+   },
+   "gaps": {
+    "0": 0.18
+   },
+   "pause": {
+    "5": 1.2
+   },
+   "lines": [
+    "あめあがりの みずたまりに、",
+    "そらが うつって いました。",
+    "ピノは はっぱを、そっと うかべました。",
+    "「ちいさな おさら みたい」",
+    "ルルは、ももいろの はなびらを ひろいました。",
+    "「この おさらに、のせて みたいな」"
+   ],
+   "say": {
+    "0": "雨上がりの水たまりに、",
+    "1": "空が、うつっていました。",
+    "2": "ピノは葉っぱを、そっと浮かべました。",
+    "3": "「小さなお皿みたい」",
+    "4": "ルルは、桃色の花びらを拾いました。",
+    "5": "「このお皿に、のせてみたいな」"
+   },
+   "sfx": [
+    {
+     "name": "breeze",
+     "at": "L0",
+     "from": 4,
+     "dur": 10,
+     "gain": 0.12
+    },
+    {
+     "name": "pichon",
+     "from": 0,
+     "dur": 0.45,
+     "gain": 0.6,
+     "lp": 9000,
+     "fin": 0,
+     "at": "L2"
+    }
+   ],
+   "cam": [
+    {
+     "u": "L0",
+     "x": 0.0,
+     "y": 1.15,
+     "d": 6.56,
+     "cut": false
+    },
+    {
+     "u": "L1e+0.4",
+     "x": 0.0,
+     "y": 1.17,
+     "d": 6.23,
+     "cut": false
+    },
+    {
+     "u": "L2",
+     "x": 0,
+     "y": 1,
+     "d": 9,
+     "img": "close/c01_leaf_push",
+     "fx": []
+    },
+    {
+     "u": "L3",
+     "x": -0.65,
+     "y": 0.85,
+     "d": 3.77,
+     "cut": true
+    },
+    {
+     "u": "L3e+0.4",
+     "x": -0.65,
+     "y": 0.87,
+     "d": 3.58,
+     "cut": false
+    },
+    {
+     "u": "L4",
+     "x": 0,
+     "y": 1,
+     "d": 9,
+     "img": "close/c02_petal_pick",
+     "fx": []
+    },
+    {
+     "u": "L5",
+     "x": 0.75,
+     "y": 0.85,
+     "d": 3.77,
+     "cut": true
+    },
+    {
+     "u": "L5e+0.4",
+     "x": 0.75,
+     "y": 0.87,
+     "d": 3.58,
+     "cut": false
+    }
+   ],
+   "items": [
+    {
+     "img": "mouse_stand",
+     "x": -0.65,
+     "z": 0.4,
+     "acts": [
+      {
+       "do": "pose",
+       "t": "L3",
+       "pose": "mouse_push",
+       "dur": 0.45
+      },
+      {
+       "do": "pose",
+       "t": "L5e+0.6",
+       "pose": "mouse_stand",
+       "dur": 0.45
+      }
+     ]
+    },
+    {
+     "img": "snail",
+     "x": 0.75,
+     "z": 0,
+     "acts": [],
+     "face": -1
+    },
+    {
+     "img": "leaf_float",
+     "x": 0.02,
+     "z": -0.2,
+     "acts": [],
+     "h": 0.34,
+     "auto": false,
+     "show": "L3"
+    },
+    {
+     "img": "petal",
+     "x": 0.55,
+     "z": 0.05,
+     "acts": [],
+     "show": "L5"
+    }
+   ]
+  },
+  {
+   "bg": "bg_puddle_wind",
+   "bg_h": 7.8,
+   "bg_y": -2.7,
+   "gap": 0.3,
+   "pad0": 0.5,
+   "trans": 0.8,
+   "text": {
+    "size": 46,
+    "group": 2,
+    "wrap": 9
+   },
+   "pause": {
+    "2": 1.4
+   },
+   "lines": [
+    "そのとき、かぜが ふきました。",
+    "おさらは、みずの まんなかへ。",
+    "「だいじょうぶ。かぜを まとう」"
+   ],
+   "say": {
+    "0": "そのとき、風が吹きました。",
+    "1": "お皿は、水の真ん中へ。",
+    "2": "「大丈夫。風を待とう」"
+   },
+   "sfx": [
+    {
+     "name": "breeze",
+     "at": "L0",
+     "from": 4,
+     "dur": 10,
+     "gain": 0.14
+    }
+   ],
+   "cam": [
+    {
+     "u": "L0",
+     "x": 0.0,
+     "y": 1.15,
+     "d": 6.56,
+     "cut": false
+    },
+    {
+     "u": "L0e+0.4",
+     "x": 0.0,
+     "y": 1.17,
+     "d": 6.23,
+     "cut": false
+    },
+    {
+     "u": "L1",
+     "x": 0,
+     "y": 1,
+     "d": 9,
+     "img": "close/c03_wind_leaf",
+     "fx": []
+    },
+    {
+     "u": "L2",
+     "x": -0.65,
+     "y": 0.85,
+     "d": 3.77,
+     "cut": true
+    },
+    {
+     "u": "L2e+0.4",
+     "x": -0.65,
+     "y": 0.87,
+     "d": 3.58,
+     "cut": false
+    }
+   ],
+   "items": [
+    {
+     "img": "mouse_stand",
+     "x": -0.65,
+     "z": 0.4,
+     "acts": []
+    },
+    {
+     "img": "snail_reach",
+     "x": 0.75,
+     "z": 0,
+     "acts": [],
+     "face": -1
+    },
+    {
+     "img": "leaf_float",
+     "x": -0.12,
+     "z": -0.38,
+     "acts": [],
+     "h": 0.34,
+     "auto": false
+    }
+   ]
+  },
+  {
+   "bg": "bg_puddle",
+   "bg_h": 7.8,
+   "bg_y": -2.7,
+   "gap": 0.3,
+   "pad0": 0.5,
+   "trans": 0.8,
+   "text": {
+    "size": 46,
+    "group": 2,
+    "wrap": 9
+   },
+   "lines": [
+    "かぜが やむと、おさらが もどって きました。",
+    "ルルは はなびらを、そっと のせました。"
+   ],
+   "say": {
+    "0": "風がやむと、お皿が戻ってきました。",
+    "1": "ルルは花びらを、そっとのせました。"
+   },
+   "sfx": [
+    {
+     "name": "pichon",
+     "from": 0,
+     "dur": 0.45,
+     "gain": 0.6,
+     "lp": 9000,
+     "fin": 0,
+     "at": "L1+0.6"
+    }
+   ],
+   "cam": [
+    {
+     "u": "L0",
+     "x": 0.0,
+     "y": 1.15,
+     "d": 6.56,
+     "cut": false
+    },
+    {
+     "u": "L0e+0.4",
+     "x": 0.0,
+     "y": 1.17,
+     "d": 6.23,
+     "cut": false
+    },
+    {
+     "u": "L1",
+     "x": 0,
+     "y": 1,
+     "d": 9,
+     "img": "close/c04_petal_on",
+     "fx": []
+    }
+   ],
+   "items": [
+    {
+     "img": "mouse_watch",
+     "x": -0.65,
+     "z": 0.4,
+     "acts": []
+    },
+    {
+     "img": "snail_watch",
+     "x": 0.75,
+     "z": 0,
+     "acts": [],
+     "face": -1
+    },
+    {
+     "img": "leaf_float",
+     "x": 0.02,
+     "z": -0.2,
+     "acts": [],
+     "h": 0.34,
+     "auto": false
+    }
+   ]
+  },
+  {
+   "bg": "bg_puddle_evening",
+   "bg_h": 7.8,
+   "bg_y": -2.7,
+   "gap": 0.3,
+   "pad0": 0.5,
+   "trans": 0.8,
+   "text": {
+    "size": 46,
+    "group": 2,
+    "wrap": 9
+   },
+   "gaps": {
+    "0": 0.18
+   },
+   "pause": {
+    "1": 1.4
+   },
+   "tail": 1.5,
+   "lines": [
+    "ふたりは ならんで、ながめました。",
+    "みずたまりの そらに、ももいろが ひとつ。",
+    "おしまい"
+   ],
+   "say": {
+    "0": "ふたりは並んで、ながめました。",
+    "1": "水たまりの空に、桃色がひとつ。",
+    "2": "おしまい"
+   },
+   "sfx": [],
+   "cam": [
+    {
+     "u": "L0",
+     "x": 0,
+     "y": 1,
+     "d": 9,
+     "img": "close/c05_two_watch",
+     "fx": []
+    },
+    {
+     "u": "L1",
+     "x": 0.3,
+     "y": 1.25,
+     "d": 3.77,
+     "cut": true
+    },
+    {
+     "u": "L1e+0.4",
+     "x": 0.3,
+     "y": 1.27,
+     "d": 3.58,
+     "cut": false
+    },
+    {
+     "u": "L2",
+     "x": 0.0,
+     "y": 1.15,
+     "d": 6.56,
+     "cut": true
+    },
+    {
+     "u": "L2e+0.4",
+     "x": 0.0,
+     "y": 1.17,
+     "d": 6.23,
+     "cut": false
+    }
+   ],
+   "items": [
+    {
+     "img": "mouse_watch",
+     "x": -0.65,
+     "z": 0.4,
+     "acts": []
+    },
+    {
+     "img": "snail_watch",
+     "x": 0.75,
+     "z": 0,
+     "acts": [],
+     "face": -1
+    },
+    {
+     "img": "leaf_petal",
+     "x": 0.02,
+     "z": -0.2,
+     "acts": [],
+     "h": 0.34,
+     "auto": false
+    }
+   ]
+  }
+ ],
+ "fov": 34,
+ "end_sec": 3.5,
+ "title_card": {
+  "size": 46
+ }
+}
