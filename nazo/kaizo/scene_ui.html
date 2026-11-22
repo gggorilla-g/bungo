@@ -84,7 +84,7 @@ const gm=new THREE.LineBasicMaterial({color:0x7c5cff,transparent:true,opacity:.5
 const rows=[];const rm=new THREE.LineBasicMaterial({color:0x7c5cff,transparent:true,opacity:.5});
 for(let i=0;i<20;i++){const l=new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(-12,0,0),new THREE.Vector3(12,0,0)]),rm.clone());grid.add(l);rows.push(l)}
 const ringG=new THREE.RingGeometry(.9,.96,64);const rings=[];
-for(let i=0;i<3;i++){const m=new THREE.Mesh(ringG,new THREE.MeshBasicMaterial({color:0x41e2ff,transparent:true,opacity:0,side:THREE.DoubleSide}));m.rotation.x=-Math.PI/2;m.position.y=.01;scene.add(m);rings.push(m)}
+for(let i=0;i<(LAB.rings?3:0);i++){const m=new THREE.Mesh(ringG,new THREE.MeshBasicMaterial({color:0x41e2ff,transparent:true,opacity:0,side:THREE.DoubleSide}));m.rotation.x=-Math.PI/2;m.position.y=.01;scene.add(m);rings.push(m)}
 // 星くず
 {const g=new THREE.BufferGeometry();const a=[];let s=7;const r=()=>{s=(s*16807)%2147483647;return s/2147483647};for(let i=0;i<500;i++)a.push((r()-.5)*60,r()*18+2,-r()*40-4);
  g.setAttribute('position',new THREE.Float32BufferAttribute(a,3));scene.add(new THREE.Points(g,new THREE.PointsMaterial({color:0x8fb3ff,size:.06,transparent:true,opacity:.7})))}
