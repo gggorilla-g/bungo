@@ -139,7 +139,7 @@ class Sim:
     def note(self, t, midi, gain=1.0, pan=.5, dec=6.0, kind="mar"):
         if self.mel is not None and kind in ("mar", "bell"): self.mel.append((t, gain, pan, dec, "n")); return
         while midi > MAX_MIDI: midi -= 12   # 高すぎる音はオクターブ下げる（オーナー 11/21「ハイキーは気持ち悪い」）
-        if harmony.ON and kind not in ("kick", "hat"):   # 当たった音を今の和音（カノン進行）に寄せ、残りの2音を小さく重ねる
+        if harmony.ON and kind not in ("kick", "hat", "piano"):   # 当たった音を今の和音（カノン進行）に寄せ、残りの2音を小さく重ねる
             midi = harmony.snap(int(round(midi)), t)
             for o in harmony.others(midi, t): self.notes.append((t, o, gain * .3, min(1, max(0, pan)), dec * 1.1, kind))
         self.notes.append((t, midi, gain, min(1, max(0, pan)), dec, kind))
@@ -167,6 +167,10 @@ class Sim:
                     s = np.sin(2 * np.pi * f * tt) + .5 * np.sin(2 * np.pi * 2 * f * tt) * np.exp(-tt * 14) + .22 * np.sin(2 * np.pi * 3 * f * tt) * np.exp(-tt * 28) + .4 * np.sin(2 * np.pi * f / 2 * tt) * np.exp(-tt * 6)
                     s = s + np.random.default_rng(int(m)).normal(0, 1, len(tt)) * np.exp(-tt * 900) * .12
                     cache[key] = s * np.exp(-tt * max(7.0, dec * 1.6)) * np.minimum(1, tt / .0012) * (f / 523.25) ** -.3; return cache[key]
+                if kind == "piano":   # やわらかいピアノ：倍音を重ね、高い倍音ほど早く消える。打鍵はゆっくりめ
+                    tt = np.arange(int(SR * 2.6)) / SR
+                    s = sum((1 / h ** 1.25) * np.sin(2 * np.pi * f * h * (1 + .0004 * h * h) * tt) * np.exp(-tt * (1.1 + .55 * h)) for h in range(1, 8))
+                    cache[key] = s * np.minimum(1, tt / .006) * (f / 261.6) ** -.35; return cache[key]
                 if kind == "kick":   # 裏のリズム：やわらかい低い太鼓（音の高さが下がる正弦波）
                     tt2 = np.arange(int(SR * .35)) / SR; ph = 2 * np.pi * np.cumsum(55 + 70 * np.exp(-tt2 * 30)) / SR
                     cache[key] = np.sin(ph) * np.exp(-tt2 * 9) * np.minimum(1, tt2 / .002); return cache[key]

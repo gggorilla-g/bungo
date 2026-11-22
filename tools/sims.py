@@ -5,6 +5,7 @@
 #   種類: parabola（放物線の焦点）/ rings（1周ずつ多く回る輪）/ venus（2つの軌道を線で結ぶ）
 import json, sys, os, math
 import numpy as np
+from PIL import ImageDraw
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 if len(sys.argv) > 1 and sys.argv[1].endswith(".json"):   # spec の "palette" を色の決まりとして先に渡す
     os.environ.setdefault("SIM_PALETTE", json.load(open(sys.argv[1])).get("palette", ""))
@@ -1488,7 +1489,85 @@ def layers(sp):
         sim.frame(tt, live, dots, (sp.get("count_label", "割れた層："), f"{br:,} / {L:,}"), (), draw)
     sim.finish(total)
 
-KINDS = {"layers": layers, "pixels": pixels, "sortviz": sortviz, "polyfocus": polyfocus, "heliostat": heliostat, "dragon": dragon, "rhythm": rhythm, "lissatable": lissatable, "plotter": plotter, "threebody": threebody, "pendswing": pendswing, "golden": golden, "piphase": piphase, "maurer": maurer, "harmono": harmono, "spiro": spiro, "star": star, "throw": throw, "tusi": tusi, "chain": chain, "basket": basket, "koch": koch, "cycloid": cycloid, "pendulums": pendulums, "lissajous": lissajous, "corner": corner, "sunflower": sunflower, "ulam": ulam, "parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2, "picount": picount}
+
+
+def zoomsalt(sp):
+    """雑学：塩ひと粒を、原子（イオン）が見えるまで少しずつ拡大する（オーナー参考 11/22：徐々にズーム、ASMR とピアノ）。
+    事実：食卓塩の粒は約0.3mm のサイコロ形（製品で差）。塩化ナトリウムの結晶は Na と Cl が交互に並び、となりどうしは約0.28nm。絵は模式図"""
+    import random
+    from PIL import Image
+    from simkit import W as W_, H as H_
+    rnd = random.Random(5); D, hold0, hold1 = sp.get("dur", 24.0), 1.2, 3.0; w0, w1 = 3e-2, 1.5e-9; total = hold0 + D + hold1
+    VW, VH = int(W_ * S * .94), int(H_ * S * .50); VX, VY = (W_ * S - VW) // 2, int(H_ * S * .27); G = 3e-4; A0 = 2.82e-10
+    grains = []
+    for _ in range(1400):
+        x, y = rnd.uniform(-2.2e-2, 2.2e-2), rnd.uniform(-1.6e-2, 1.6e-2); g = rnd.uniform(2.2e-4, 4e-4)
+        if abs(x) < 5e-4 and abs(y) < 5e-4: continue
+        grains.append((x, y, g, rnd.uniform(0, 1.57), rnd.uniform(.72, 1)))
+    steps = {n: [(rnd.uniform(0, 1), rnd.uniform(-.25, .25)) for _ in range(40)] for n in range(-10, -2)}
+    caps = [(1e-3, ["塩を、ひとつまみ"]), (1e-4, ["1粒は約0.3mm", "形はサイコロ"]), (5e-6, ["表面は、つるつるに見える"]), (4e-7, ["もっと寄ると", "細かい段々がある"]),
+            (2e-8, ["ここから先は", "光の波より小さい"]), (4e-9, ["粒が見えてきた"]), (0, ["ナトリウムと塩素が", "交互にぎっしり"])]
+    if sp.get("lang") == "en":
+        caps = [(1e-3, ["A pinch of salt"]), (1e-4, ["One grain: about 0.3 mm", "Shaped like a tiny cube"]), (5e-6, ["The surface looks smooth"]), (4e-7, ["Closer in,", "it has tiny steps"]),
+                (2e-8, ["From here it is smaller", "than a wave of light"]), (4e-9, ["Dots are showing up"]), (0, ["Sodium and chlorine,", "packed in turns"])]
+    last = sp.get("last", ["1粒に、約100京個", "ならんでいるのだ"])
+    def fmt(w):
+        for u, k in (("cm", 1e-2), ("mm", 1e-3), ("µm", 1e-6), ("nm", 1e-9)):
+            if w >= k: v = w / k; return (f"{v:.0f}" if v >= 10 else f"{v:.1f}") + " " + u
+        return f"{w / 1e-9:.1f} nm"
+    sim = Sim(sp, (0, 0, 1, 1)); sim.title()
+    # 音：ピアノ（カノン進行の分散和音をゆっくり）＋ ASMR（塩のさらさら、10倍ごとにガラスの小さな音）
+    import harmony as hm
+    t = 0.0; k = 0
+    while t < total - .5:
+        r, q = hm.CANON[int(t / 2.0) % 8]; pcs = [(r + x) % 12 for x in q]; arp = [48 + pcs[0], 60 + pcs[1], 60 + pcs[2], 72 + pcs[0], 60 + pcs[2], 60 + pcs[1], 72 + pcs[1], 60 + pcs[2]]
+        sim.note(t, arp[k % 8] if arp[k % 8] >= 55 else arp[k % 8], .42 if k % 8 == 0 else .26, .5 + .12 * math.sin(k), 3, "piano"); t += .25; k += 1
+    for i in range(240): tt_ = rnd.uniform(.1, hold0 + D * .22); sim.note(tt_, 80, rnd.uniform(.05, .16) * max(.2, 1 - tt_ / (hold0 + D * .22)), rnd.uniform(.2, .8), 9, "hat")
+    for dec in range(1, 8): sim.note(hold0 + D * dec / math.log10(w0 / w1), PENTA[min(15, dec * 2)], .22, .5, 5, "glass")
+    fC = F(54 * S); fS = F(34 * S)
+    for fi in range(int(total * FPS)):
+        t = fi / FPS; u = min(1, max(0, (t - hold0) / D)); u = u * u * (3 - 2 * u) * .35 + u * .65; w = w0 * (w1 / w0) ** u; kpx = VW / w; cx, cy = VW / 2, VH / 2
+        def draw(d, w=w, kpx=kpx, t=t):
+            im = Image.new("RGB", (VW, VH), (34, 24, 20)); g = ImageDraw.Draw(im)
+            if w > 6e-4:   # 塩の山
+                for x, y, gs, rot, sh in grains:
+                    px, py, hs = cx + x * kpx, cy + y * kpx, gs * kpx / 2
+                    if hs < .4 or px < -hs * 2 or px > VW + hs * 2 or py < -hs * 2 or py > VH + hs * 2: continue
+                    c_, s_ = math.cos(rot) * hs * 1.41, math.sin(rot) * hs * 1.41; col = tuple(int(v * sh) for v in (236, 240, 248))
+                    g.polygon([(px + c_, py + s_), (px - s_, py + c_), (px - c_, py - s_), (px + s_, py - c_)], fill=col)
+            hs = G * kpx / 2; dk = min(1, max(0, (math.log10(2e-4) - math.log10(w)) / 3.2)); face = tuple(int(a + (b - a) * dk) for a, b in zip((232, 238, 247), (22, 30, 52)))
+            g.rectangle([cx - hs, cy - hs, cx + hs, cy + hs], fill=face)
+            if hs < VW * 2: g.rectangle([cx - hs, cy - hs, cx + hs, cy - hs * .93], fill=(250, 252, 255)); g.rectangle([cx + hs * .93, cy - hs, cx + hs, cy + hs], fill=(196, 204, 220))
+            for n_, ls in steps.items():   # 段々：いつも画面に数本見えるように、10倍ごとの細かさで描く
+                sp_ = 10.0 ** n_ * 3; r_ = sp_ / w
+                if not (.03 < r_ < 1.2) or w > 1.5e-4: continue
+                al = min(1, (r_ - .03) / .08) * min(1, (1.2 - r_) / .5) * (.9 if w > 3e-8 else max(0, (math.log10(w) + 8.3) * 1.2))
+                if al <= 0: continue
+                col = tuple(int(f_ + (min(255, f_ + 70) - f_) * al * .6) for f_ in face)
+                for (ph, sl) in ls:
+                    y = cy + ((ph * 12 - 6) * sp_) * kpx
+                    if -50 < y < VH + 50: g.line([0, y - sl * VW * .5, VW, y + sl * VW * .5], fill=col, width=max(1, int(1.5 * S)))
+            if w < 1.8e-8:   # 原子（イオン）の並び
+                al = min(1, (math.log10(1.8e-8) - math.log10(w)) / .5); a = A0 * kpx; n1 = int(cx / a) + 2; n2 = int(cy / a) + 2
+                for i in range(-n1, n1 + 1):
+                    for j in range(-n2, n2 + 1):
+                        cl = (i + j) % 2 == 0; r = a * (.60 if cl else .34); x, y = cx + i * a, cy + j * a; base = (110, 215, 150) if cl else (255, 176, 84)
+                        col = tuple(int(f_ + (b_ - f_) * al) for f_, b_ in zip(face, base)); g.ellipse([x - r, y - r, x + r, y + r], fill=col)
+                        if r > 5 * S: g.ellipse([x - r * .5, y - r * .58, x - r * .08, y - r * .2], fill=tuple(min(255, int(v + (255 - v) * .5 * al)) for v in col))
+                if w < 3.2e-9 and a > 60 * S:
+                    for (i, j, name) in ((0, 0, sp.get("cl", "塩素")), (1, 0, sp.get("na", "ナトリウム"))):
+                        g.text((cx + i * a, cy + j * a + (a * .72 if i == 0 else -a * .5)), name, font=fS, fill=(255, 255, 255), anchor="mm", stroke_width=4 * S, stroke_fill=(0, 0, 0))
+            unit = 10 ** math.floor(math.log10(w * .35)); bl = unit * kpx   # ものさし
+            g.rectangle([24 * S, VH - 34 * S, 24 * S + bl, VH - 28 * S], fill=(255, 255, 255)); g.text((24 * S, VH - 78 * S), fmt(unit).replace(".0", "").replace("1.0", "1"), font=fS, fill=(255, 255, 255), stroke_width=4 * S, stroke_fill=(0, 0, 0))
+            d._image.paste(im, (VX, VY)); d.rounded_rectangle([VX - 3 * S, VY - 3 * S, VX + VW + 3 * S, VY + VH + 3 * S], radius=8 * S, outline=(150, 235, 255), width=3 * S)
+            lines = last if t > total - hold1 + .3 else next(c for th, c in caps if w > th)
+            y = VY + VH + 46 * S
+            for li, tx in enumerate(lines):
+                d.text((W_ * S / 2, y), tx, font=fC, fill=(255, 214, 80) if li == len(lines) - 1 and len(lines) > 1 else (245, 245, 250), anchor="ma", stroke_width=6 * S, stroke_fill=(0, 0, 0)); y += 70 * S
+        sim.frame(t, (), (), (sp.get("count_label", "画面の横幅 "), fmt(w)), (), draw)
+    sim.finish(total)
+
+KINDS = {"zoomsalt": zoomsalt, "layers": layers, "pixels": pixels, "sortviz": sortviz, "polyfocus": polyfocus, "heliostat": heliostat, "dragon": dragon, "rhythm": rhythm, "lissatable": lissatable, "plotter": plotter, "threebody": threebody, "pendswing": pendswing, "golden": golden, "piphase": piphase, "maurer": maurer, "harmono": harmono, "spiro": spiro, "star": star, "throw": throw, "tusi": tusi, "chain": chain, "basket": basket, "koch": koch, "cycloid": cycloid, "pendulums": pendulums, "lissajous": lissajous, "corner": corner, "sunflower": sunflower, "ulam": ulam, "parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2, "picount": picount}
 
 if __name__ == "__main__":
     sp = json.load(open(sys.argv[1], encoding="utf-8")); KINDS[sp["kind"]](sp); kit(sp)
