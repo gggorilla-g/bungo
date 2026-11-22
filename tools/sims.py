@@ -2013,7 +2013,56 @@ def merge(sp):
         sim.frame(t, (), (), None, fl, draw)
     sim.finish(total)
 
-KINDS = {"merge": merge, "hearts": hearts, "bricks": bricks, "pendwave3d": pendwave3d, "spiro": spiro, "lens": lens, "koch": koch, "pendwave": pendwave, "orbits": orbits, "phyllo": phyllo, "zoomsalt": zoomsalt, "layers": layers, "pixels": pixels, "sortviz": sortviz, "polyfocus": polyfocus, "heliostat": heliostat, "dragon": dragon, "rhythm": rhythm, "lissatable": lissatable, "plotter": plotter, "threebody": threebody, "pendswing": pendswing, "golden": golden, "piphase": piphase, "maurer": maurer, "harmono": harmono, "spiro": spiro, "star": star, "throw": throw, "tusi": tusi, "chain": chain, "basket": basket, "koch": koch, "cycloid": cycloid, "pendulums": pendulums, "lissajous": lissajous, "corner": corner, "sunflower": sunflower, "ulam": ulam, "parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2, "picount": picount}
+
+
+def dominoes(sp):
+    """1枚ごとに1.5倍大きいドミノ（オーナー画面収録 11/23「100,000 Dominoes」の型。実在の話：ドミノは自分より約1.5倍大きいドミノまで倒せる）。
+    低いカメラが倒れる先を追う。大きいほどゆっくり倒れる（倒れる時間は高さの平方根に比例）→ 音の間かくが自然にのびる。音は大きいほど低い"""
+    N, k_ = sp.get("n", 14), sp.get("ratio", 1.5); h0 = .2; H_ = [h0 * k_ ** i for i in range(N)]; z = [0.0]
+    for i in range(1, N): z.append(z[-1] + .62 * H_[i - 1] + .12 * H_[i])
+    intro, tail = .8, 3.4; Tf = [.42 * math.sqrt(h / h0) ** .9 for h in H_]; st = [intro]
+    for i in range(1, N):   # 前のドミノの上の角が届いた瞬間に、次が倒れはじめる
+        a = math.asin(min(.98, (z[i] - z[i - 1]) / H_[i - 1])); u = math.sqrt(a / (math.pi / 2)); st.append(st[-1] + Tf[i - 1] * u)
+    total = st[-1] + Tf[-1] + tail
+    ang = lambda i, t: 0 if t < st[i] else min(math.pi / 2 * .97, math.pi / 2 * ((t - st[i]) / Tf[i]) ** 2)
+    slerp = lambda a, b, u: a + (b - a) * u
+    sstep = lambda a, b, x: (lambda k: k * k * (3 - 2 * k))(min(1, max(0, (x - a) / (b - a))))
+    sim = Sim(sp, (0, 0, 1, 1)); sim.title()
+    for i in range(N):
+        sim.note(st[i], PENTA[max(0, 15 - i)], .55, .5, 5 + i * .4)
+        if i >= 6: sim.note(st[i], 36, .3 + .04 * i, .5, 9, "kick")
+    sim.note(st[-1] + Tf[-1], 36, .8, .5, 9, "kick"); sim.chord(st[-1] + Tf[-1] + .05, [48, 55, 60, 64, 67], gain=.6, dec=6)
+    from simkit import W as W_, H as Hh
+    cols = [hsv((.0 + .8 * i / (N - 1)) % 1) for i in range(N)]; fC = F(56 * S)
+    for fi in range(int(total * FPS)):
+        t = fi / FPS; cur = max([i for i in range(N) if t >= st[i]] or [0]); hc = H_[min(N - 1, cur + 1)]
+        e = sstep(0, 1, (t - st[cur]) / max(.2, Tf[cur])) if cur < N - 1 else 1
+        tz = slerp(z[cur], z[min(N - 1, cur + 1)], e) if cur < N - 1 else z[-1]; hh = slerp(H_[cur], H_[min(N - 1, cur + 1)], e)
+        cam = (hh * 1.15, hh * .38, tz - hh * 2.6); fcl = W_ * S * 1.05
+        def P3(x, y, zz):
+            X, Y, Z = x - cam[0], y - cam[1], zz - cam[2]
+            yaw = -.38; X, Z = X * math.cos(yaw) - Z * math.sin(yaw), X * math.sin(yaw) + Z * math.cos(yaw); Z = max(Z, 1e-3)
+            return (W_ * S / 2 + fcl * X / Z, Hh * S * .60 - fcl * Y / Z), Z
+        def draw(d, t=t):
+            for q in range(-30, 60):   # 床の光る線
+                zz = tz - hh * 3 + q * hh * .35; a, za = P3(-hh * 3, 0, zz); b, zb = P3(hh * 3, 0, zz)
+                if za > .01 and zb > .01: d.line([a, b], fill=(40, 34, 90), width=1)
+            faces = []
+            for i in range(N):
+                h = H_[i]; w = h * .5; th = h * .16; a = ang(i, t); c, s_ = math.cos(a), math.sin(a)
+                def R(x, y, zz): return (x, y * c - (zz) * s_, z[i] + th + (y * s_ + (zz) * c) - th)   # 手前下の辺を軸に、奥へ倒れる
+                pts = [R(x, y, zz) for x in (-w / 2, w / 2) for y in (0, h) for zz in (0, th)]
+                pp = [P3(*p_) for p_ in pts]
+                if min(q[1] for q in pp) < .02: continue
+                for f_, sh in (((0, 2, 6, 4), .55), ((1, 3, 7, 5), .9), ((2, 3, 7, 6), 1.0), ((0, 1, 3, 2), .7), ((4, 5, 7, 6), .62)):
+                    poly = [pp[k][0] for k in f_]; dep = sum(pp[k][1] for k in f_) / 4; faces.append((dep, poly, dim(cols[i], sh)))
+            for dep, poly, col in sorted(faces, key=lambda f: -f[0]):
+                d.polygon(poly, fill=col); d.line(poly + [poly[0]], fill=tuple(min(255, int(v * 1.25 + 30)) for v in col), width=max(1, int(2 * S)))
+            tx = f"×{k_ ** max(0, cur):.0f}" if cur >= 1 else "×1"; w = d.textlength(tx, font=fC); d.text((W_ * S / 2 - w / 2, Hh * S * .80), tx, font=fC, fill=(255, 225, 90), stroke_width=6 * S, stroke_fill=(0, 0, 0))
+        sim.frame(t, (), (), (sp.get("count_label", "Domino "), f"{cur + 1} / {N}"), (), draw)
+    sim.finish(total)
+
+KINDS = {"dominoes": dominoes, "merge": merge, "hearts": hearts, "bricks": bricks, "pendwave3d": pendwave3d, "spiro": spiro, "lens": lens, "koch": koch, "pendwave": pendwave, "orbits": orbits, "phyllo": phyllo, "zoomsalt": zoomsalt, "layers": layers, "pixels": pixels, "sortviz": sortviz, "polyfocus": polyfocus, "heliostat": heliostat, "dragon": dragon, "rhythm": rhythm, "lissatable": lissatable, "plotter": plotter, "threebody": threebody, "pendswing": pendswing, "golden": golden, "piphase": piphase, "maurer": maurer, "harmono": harmono, "spiro": spiro, "star": star, "throw": throw, "tusi": tusi, "chain": chain, "basket": basket, "koch": koch, "cycloid": cycloid, "pendulums": pendulums, "lissajous": lissajous, "corner": corner, "sunflower": sunflower, "ulam": ulam, "parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2, "picount": picount}
 
 if __name__ == "__main__":
     sp = json.load(open(sys.argv[1], encoding="utf-8")); KINDS[sp["kind"]](sp); kit(sp)
