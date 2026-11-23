@@ -23,6 +23,7 @@ spiro6_ja MOSO ja
 parabola3_ja MOSO ja
 ellipse4_ja MOSO ja
 spiro9_en KAIDAN en
+spring1_en KAIDAN en
 canon1_en KAIDAN en
 koch2_en KAIDAN en
 chord1_en KAIDAN en

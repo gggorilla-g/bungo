@@ -288,7 +288,7 @@ def mux(sp, raw, wv, out):
     hue, pit = sp.get("post_hue"), sp.get("post_pitch"); af = "loudnorm=I=-19:TP=-3:LRA=11"
     if pit: r = 2 ** (pit / 12.0); af = f"asetrate={SR}*{r:.6f},aresample={SR},atempo={1 / r:.6f}," + af
     cmd = ["ffmpeg", "-v", "error", "-y", "-i", raw, "-i", wv]
-    if hue: y0 = int(H * .215) // 2 * 2; cmd += ["-filter_complex", f"[0:v]split[a][b];[b]crop={W}:{H - y0}:0:{y0},hue=h={hue},lumakey=threshold=0:tolerance=0.07:softness=0.06[c];[a][c]overlay=0:{y0}[v]", "-map", "[v]", "-c:v", "libx264", "-preset", "veryfast", "-crf", "18", "-pix_fmt", "yuv420p"]
+    if hue: y0 = int(H * .215) // 2 * 2; cmd += ["-filter_complex", f"[0:v]split[a][b];[b]crop={W}:{H - y0}:0:{y0},hue=h={hue},lumakey=threshold=0:tolerance={sp.get('post_key', 0.07)}:softness=0.06[c];[a][c]overlay=0:{y0}[v]", "-map", "[v]", "-c:v", "libx264", "-preset", "veryfast", "-crf", "18", "-pix_fmt", "yuv420p"]
     else: cmd += ["-map", "0:v", "-c:v", "copy"]
     subprocess.run(cmd + ["-map", "1:a", "-c:a", "aac", "-b:a", "192k", "-af", af, "-shortest", "-movflags", "+faststart", out], check=True)
 
