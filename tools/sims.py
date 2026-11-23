@@ -3416,6 +3416,7 @@ def metronomes(sp):
     NX, NZ = sp.get("nx", 10), sp.get("nz", 10); N = NX * NZ; D = sp.get("dur", 21.0); intro, tail = .4, sp.get("tail", 2.6); total = intro + D + tail; K = sp.get("k", .34); rnd = random.Random(sp.get("seed", 5))
     bpm = [120.0] * N; iA, iB = sp.get("rebel_a", 2 * NX + 1), sp.get("rebel_b", 2 * NX + NX - 2); bpm[iA], bpm[iB] = sp.get("bpm_a", 122.0), sp.get("bpm_b", 140.0)
     om = np.array([2 * math.pi * b / 120.0 for b in bpm]); th = np.array([rnd.uniform(0, 2 * math.pi) for _ in range(N)]); dt = 1 / 240.0
+    THR = sp.get("thr", .62)   # みんなとのずれがこれより小さければ「そろった」（速さが同じになった台。少しおくれて振れる台もふくむ）
     SCL = [72, 74, 76, 79, 81, 84, 86, 88]; pit = [rnd.choice(SCL) for _ in range(N)]; pit[iA], pit[iB] = 67, 62
     sim = Sim(sp, (-1, -1, 1, 1)); sim.title(); frames = []; t = 0.0; ticks = 0; main = np.array([i not in (iA, iB) for i in range(N)])
     while t < D + tail + .1:
@@ -3427,8 +3428,11 @@ def metronomes(sp):
                 sim.notes.append((intro + t, pit[i], (.42 if reb else .50 / (1 + 16 * r)), .15 + .7 * x_, 7 if reb else 9, "glass")); ticks += 1
         th = th2; t += dt
         if int(t * FPS) >= len(frames):
-            dl = np.angle(np.exp(1j * (th - psi))); frames.append((th.copy(), r, psi, float((np.abs(dl[main]) < .35).mean()), dl.copy()))
+            dl = np.angle(np.exp(1j * (th - psi))); frames.append((th.copy(), r, psi, float((np.abs(dl) < THR).mean()), dl.copy()))
+    nD = int(D * FPS); i100 = next((i for i in range(nD) if all(fr_[3] >= 1 for fr_ in frames[i:min(nD, i + int(1.5 * FPS))])), None); t100 = intro + i100 / FPS if i100 is not None else None   # 全部そろった時刻（オーナー 11/23「全部揃えるまでやりたい」）
     for mi in (60, 67, 72, 76, 79, 84): sim.notes.append((intro + D + .05, mi, .30, .5, 1.6, "glass"))
+    if t100:
+        for q_, mi in enumerate((72, 76, 79, 84, 88, 91)): sim.notes.append((t100 + .05 + q_ * .07, mi, .40, .3 + .08 * q_, 2.2, "glass"))
     WS, HS = 1080 * S, 1920 * S; FL = 1750 * S; cam = np.array([0.0, 5.6, -6.4]); tg = np.array([0.0, .0, 1.75]); fw = tg - cam; fw /= np.linalg.norm(fw); rt = np.cross((0, 1, 0), fw); rt /= np.linalg.norm(rt); up = np.cross(fw, rt); cy0 = .50 * HS
     def pj(P):
         Dv = np.asarray(P, float) - cam; z = Dv @ fw; return (WS / 2 + FL * (Dv @ rt) / z, cy0 - FL * (Dv @ up) / z), z
@@ -3461,19 +3465,24 @@ def metronomes(sp):
                     i = jz * NX + ix; x0 = -1.95 + ix * XS + sway; z0 = jz * ZS; phi = .50 * math.sin(thf[i]); reb = i in (iA, iB)
                     e = ((thf[i] % math.pi) / om[i]); fl = math.exp(-e * 16)
                     col = hsv((.53 + .46 * dl[i] / math.pi) % 1, .62, .96)   # 色＝みんなとのずれ。ずれが小さくなるほど、同じ水色に近づく
-                    if reb: col = mix(col, (245, 70, 100), .55)
+                    if reb: col = mix(col, (245, 70, 100), .55 * min(1.0, abs(dl[i]) / .5) if (t100 and t >= t100) else .55)   # そろったら、へそ曲がりもみんなの色に近づく
                     (bx, by), zb = pj((x0, BY, z0)); sc = FL / zb; hgt, wb, L = .40, .11, .58
                     apex = pj((x0, BY + hgt, z0))[0]; bl = pj((x0 - wb, BY, z0))[0]; br_ = pj((x0 + wb, BY, z0))[0]; tip = pj((x0 + L * math.sin(phi), BY + L * math.cos(phi), z0))[0]; bead = pj((x0 + L * .78 * math.sin(phi), BY + L * .78 * math.cos(phi), z0))[0]
                     so = [pj((x0 + .16 * math.cos(u_) + .05, BY + .001, z0 + .10 * math.sin(u_)))[0] for u_ in np.linspace(0, 2 * math.pi, 13)]; d.polygon(so, fill=(206, 226, 238))   # 台に落ちる影
                     d.polygon([bl, br_, apex], fill=mix(WHT, col, .30 + .25 * fl)); d.line([bl, apex, br_, bl], fill=mix(col, (40, 60, 80), .18), width=max(1, int(sc * .009)))   # ガラスの胴
                     d.line([bl, apex], fill=(255, 255, 255), width=max(1, int(sc * .006)))
                     d.line([(bx, by), tip], fill=mix(col, (40, 60, 80), .30), width=max(1, int(sc * .011)))   # 針
-                    rb = sc * (.036 + .018 * fl)
+                    rb = sc * (.036 + .018 * fl) * (1 + .5 * math.exp(-(t - t100) * 3) if (t100 and t >= t100) else 1)
                     d.ellipse([bead[0] - rb * 1.9, bead[1] - rb * 1.9, bead[0] + rb * 1.9, bead[1] + rb * 1.9], fill=mix(WHT, col, .22 + .30 * fl)); d.ellipse([bead[0] - rb, bead[1] - rb, bead[0] + rb, bead[1] + rb], fill=mix(col, (255, 255, 255), .10 + .5 * fl), outline=mix(col, (40, 60, 80), .25))
                     d.ellipse([bead[0] - rb * .5, bead[1] - rb * .62, bead[0] - rb * .05, bead[1] - rb * .18], fill=(255, 255, 255))
                     if reb:
                         nm = "A" if i == iA else "B"; tw = d.textlength(nm, font=fL); d.text((apex[0] - tw / 2, apex[1] - sc * .52), nm, font=fL, fill=(225, 50, 80), stroke_width=int(3 * S), stroke_fill=(255, 255, 255))
-            a_ok = abs(dl[iA]) < .6 and r > .8; l1 = sp.get("l_a", "A：1分に122回 → {s}").format(s=sp.get("a_yes", "つられてそろった") if a_ok else sp.get("a_no", "まだずれている")); l2 = sp.get("l_b", "B：1分に140回 → そろわない")
+            if t100 and 0 <= t - t100 < 1.6:   # 全部そろった瞬間：台の上を光の波が走る
+                e_ = (t - t100) / 1.6
+                for q_ in range(3):
+                    rr = (e_ * 3.6 - q_ * .35)
+                    if rr > 0: ring = [pj((sway + rr * math.cos(u_), BY + .003, 1.8 + rr * .8 * math.sin(u_)))[0] for u_ in np.linspace(0, 2 * math.pi, 48)]; d.line(ring, fill=mix((120, 225, 255), (246, 250, 253), e_), width=int((10 - 3 * q_) * S * (1 - e_) + 1))
+            a_ok = abs(dl[iA]) < THR and r > .8; b_ok = abs(dl[iB]) < THR and r > .8 and (t100 is not None and t >= t100 - .2); l1 = sp.get("l_a", "A：1分に122回 → {s}").format(s=sp.get("a_yes", "つられてそろった") if a_ok else sp.get("a_no", "まだずれている")); l2 = sp.get("l_b", "B：1分に125回 → {s}").format(s=sp.get("b_yes", "最後にそろった") if b_ok else sp.get("a_no", "まだずれている"))
             for n_, (tx, c_) in enumerate(((sp.get("l_0", "98台：1分に120回。台は「ころ」の上で横に動く"), (40, 70, 95)), (l1, (215, 50, 85)), (l2, (190, 30, 60)))):
                 d.text((WS / 2 - d.textlength(tx, font=fS) / 2, (.690 + .034 * n_) * HS), tx, font=fS, fill=c_, stroke_width=int(4 * S), stroke_fill=(250, 252, 254))
         sim.frame(t, (), (), (sp.get("count_label", "そろった "), f"{int(round(sync * 100))}%"), (), draw)
