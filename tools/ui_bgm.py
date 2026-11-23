@@ -41,6 +41,18 @@ if "ratio" in fxb:   # QR：点が 1:1:3:1:1 の区切りを通るたびに1音
 if "open" in fxb and "mark" in fxb:   # QR：広がる（1枚ごとに小さく）
     tb = fxb["open"]; t0 = tb["t0"] + .1 * tb["voice"]
     for i in range(12): add(t0 + i * .16, stone([79, 84, 86, 88][i % 4], 6), .16, .2 + .05 * i)
+if "odd" in fxb:     # バーコードの検算：札を1枚ずつ足す音、3倍、合計、答え
+    Q = B / 4
+    for f, base, pan in [("odd", 72, .3), ("even", 74, .7)]:
+        a0 = fxb[f]["t0"] + .12
+        for j, st in enumerate([0, 2, 4, 5, 7, 9]): add(a0 + j * Q, stone(base + st, 6), .3, pan)
+    for m in [79, 83, 86]: add(fxb["even"]["t0"] + 1.12, stone(m, 3), .2, .7)
+    for m in [72, 76, 79]: add(fxb["sum"]["t0"], stone(m, 2.5), .22)
+    tb = fxb["chk"]; add(tb["t0"] + .45 * tb["voice"], stone(88, 2.2), .36); add(tb["t0"] + .45 * tb["voice"], stone(84, 2.2), .25)
+    tb = fxb["err"]; add(tb["t0"] + .3 * tb["voice"], stone(61, 3), .3); add(tb["t0"] + .3 * tb["voice"], stone(66, 3), .22)
+    tb = fxb["beep"]; add(tb["t0"] + .62 * tb["voice"], stone(84, 2.5), .3); add(tb["t0"] + .62 * tb["voice"] + .09, stone(88, 2.5), .3)
+    tb = fxb["all"]
+    for j in range(int((tb["voice"] - .1) / Q)): add(tb["t0"] + .1 + j * Q, stone(77 + (j % 4) * 2, 8), .17, .2 + .05 * (j % 12))
 for dly, g in [(.031, .3), (.067, .24), (.113, .18), (.171, .12)]:
     o = int(SR * dly); L[o:] += R[:-o] * g; R[o:] += L[:-o] * g
 st = np.stack([L, R], 1); st = st / (np.abs(st).max() + 1e-9) * .8

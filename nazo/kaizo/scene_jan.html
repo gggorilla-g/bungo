@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8">
+<style>
+@font-face{font-family:"JumpSans";font-weight:400;src:url(fonts_jp/NotoSansCJKjp-Regular.woff2) format("woff2")}
+@font-face{font-family:"JumpSans";font-weight:700;src:url(fonts_jp/NotoSansCJKjp-Bold.woff2) format("woff2")}
+@font-face{font-family:"JumpSans";font-weight:900;src:url(fonts_jp/NotoSansCJKjp-Black.woff2) format("woff2")}
+html,body{margin:0;background:#000}
+#stage{position:relative;width:540px;height:960px;overflow:hidden;background:#05060f}
+#stage canvas{position:absolute;left:0;top:0}
+#hud{position:absolute;left:0;top:0;width:540px;height:960px;font-family:"JumpSans"}
+#hud text{paint-order:stroke;stroke:#05060f;stroke-linejoin:round;fill:#fff}
+</style></head>
+<body><div id="stage"><canvas id="glow" width="540" height="960"></canvas><svg id="hud" viewBox="0 0 540 960" xmlns="http://www.w3.org/2000/svg"></svg></div>
+<script src="vendor.js"></script>
+<script>
+// バーコードの最後の1けた（チェックデジット）の計算を、ネオンのワイヤーの3Dで見せる（雑学）
+const getJ=u=>{const x=new XMLHttpRequest();x.open('GET',u,false);x.send();if(x.status!==200)throw new Error('読めない: '+u);return JSON.parse(x.responseText)};
+const ID=(new URLSearchParams(location.search).get('spec')||'ui_jan_ja').replace(/^.*\//,'').replace(/\.json$/,'');
+const SPEC=getJ('specs/'+ID+'.json'),TL=getJ('specs/'+ID+'_timeline.json');
+const W=540,H=960,DUR=TL.total,LAB=SPEC.labels||{},BEAT=60/(LAB.bpm||120);
+const clamp=(x,a,b)=>Math.min(b,Math.max(a,x)),lerp=(a,b,k)=>a+(b-a)*k,sstep=(a,b,x)=>{const k=clamp((x-a)/(b-a),0,1);return k*k*(3-2*k)};
+const LINES=SPEC.lines.map((l,i)=>Object.assign({},l,TL.beats[i]));
+const L_=fx=>LINES.find(l=>l.fx===fx);
+const T0=(fx,a)=>{const l=L_(fx);return l?l.t0+(a||0)*l.voice:1e9};
+const lineAt=t=>LINES.filter(l=>l.t0<=t+.001).pop()||LINES[0];
+const pulse=t=>Math.exp(-((t%BEAT)/BEAT)*5);     // 拍の頭で1、すぐ落ちる
+
+const renderer=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true,alpha:false});
+renderer.setPixelRatio(window.devicePixelRatio||1);renderer.setSize(W,H);
+document.getElementById('stage').prepend(renderer.domElement);
+const scene=new THREE.Scene();scene.background=new THREE.Color(0x05060f);scene.fog=new THREE.Fog(0x05060f,14,40);
+const cam=new THREE.PerspectiveCamera(38,W/H,.05,200);
+
+// ---- ネオンのワイヤー部品：暗い面＋光る辺（2重にして太く見せる）
+const NEON=[];
+function wire(geo,col,opt){opt=opt||{};const g=new THREE.Group();
+  const face=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({color:new THREE.Color(col).multiplyScalar(opt.fill||.05),transparent:true,opacity:opt.op||.55,depthWrite:true}));g.add(face);
+  const eg=new THREE.EdgesGeometry(geo,opt.th||14);
+  const m1=new THREE.LineBasicMaterial({color:col,transparent:true,opacity:1});const l1=new THREE.LineSegments(eg,m1);g.add(l1);
+  const m2=new THREE.LineBasicMaterial({color:col,transparent:true,opacity:.45});const l2=new THREE.LineSegments(eg,m2);l2.scale.setScalar(1.012);g.add(l2);
+  g.userData={col:new THREE.Color(col),m1,m2,face};NEON.push(g);return g}
+function setGlow(g,k){const c=g.userData.col.clone().multiplyScalar(.55+.7*k);g.userData.m1.color.copy(c);g.userData.m2.opacity=.25+.6*k}
+
+function boxes(list){const base=new THREE.BoxGeometry(1,1,1).toNonIndexed().attributes.position.array,n=base.length;const out=new Float32Array(list.length*n);
+  list.forEach((b,i)=>{for(let k=0;k<n;k+=3){out[i*n+k]=base[k]*b[3]+b[0];out[i*n+k+1]=base[k+1]*b[4]+b[1];out[i*n+k+2]=base[k+2]*b[5]+b[2]}});
+  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(out,3));return g}
+let seed=5;const rnd=()=>{seed=(seed*16807)%2147483647;return seed/2147483647};
+const CODE=LAB.code.split('').map(Number),BAD=LAB.bad||[4,8];
+const ODD=[0,2,4,6,8,10].map(i=>CODE[i]),EVN=[1,3,5,7,9,11].map(i=>CODE[i]);
+const run=a=>a.map((v,i)=>a.slice(0,i+1).reduce((x,y)=>x+y,0));const RO=run(ODD),RE=run(EVN);
+const SO=RO[5],SE=RE[5],TOT=SO+SE*3,NEXT=Math.ceil(TOT/10)*10,CD=NEXT-TOT;
+const TOTB=TOT-CODE[BAD[0]]*(BAD[0]%2?3:1)+BAD[1]*(BAD[0]%2?3:1),CDB=(10-TOTB%10)%10;
+if(CD!==CODE[12])throw new Error('チェックデジットが合わない');
+// ---- 数字の札（13枚）
+const COL=i=>i===12?0xffd166:(i%2===0?0x41e2ff:0xff6fb1);
+const tiles=CODE.map((d,i)=>{const g=wire(new THREE.BoxGeometry(.42,.42,.08),COL(i),{fill:.16,op:.9});scene.add(g);return g});
+const rowP=i=>[(i-6)*.345,2.15,.75],colP=i=>i===12?[0,2.0,1.25]:[(i%2===0?-.95:.95),4.3-Math.floor(i/2)*.52,1];
+// ---- バーコードの線（模式）
+const bars=(()=>{const l=[];let x=-2.15;while(x<2.15){const w=.035*(1+Math.floor(rnd()*3));l.push([x+w/2,0,0,w,2.6,.05]);x+=w+.035*(1+Math.floor(rnd()*3))}
+  const g=wire(boxes(l),0xdfe8ff,{fill:.22,op:.9});g.position.set(0,3.95,0);scene.add(g);return g})();
+const scanM=new THREE.MeshBasicMaterial({color:0xff5fa2,transparent:true,opacity:.95});
+const scan=new THREE.Mesh(new THREE.BoxGeometry(4.7,.03,.03),scanM);scan.position.set(0,3.95,.1);scene.add(scan);
+// ---- 床：音ゲーのような光るレーン（拍で手前へ流れる）
+const grid=new THREE.Group();scene.add(grid);
+const gm=new THREE.LineBasicMaterial({color:0x7c5cff,transparent:true,opacity:.55});
+{const pts=[];for(let x=-12;x<=12;x+=1){pts.push(new THREE.Vector3(x,0,-30),new THREE.Vector3(x,0,8))}
+ grid.add(new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(pts),gm))}
+const rows=[];const rm=new THREE.LineBasicMaterial({color:0x7c5cff,transparent:true,opacity:.5});
+for(let i=0;i<20;i++){const l=new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(-12,0,0),new THREE.Vector3(12,0,0)]),rm.clone());grid.add(l);rows.push(l)}
+// 星くず
+{const g=new THREE.BufferGeometry();const a=[];let s=7;const r=()=>{s=(s*16807)%2147483647;return s/2147483647};for(let i=0;i<500;i++)a.push((r()-.5)*60,r()*18+2,-r()*40-4);
+ g.setAttribute('position',new THREE.Float32BufferAttribute(a,3));scene.add(new THREE.Points(g,new THREE.PointsMaterial({color:0x8fb3ff,size:.06,transparent:true,opacity:.7})))}
+
+const V=(x,y,z)=>new THREE.Vector3(x,y,z);
+const CROW=[V(0,3.0,13.3),V(0,2.45,0)],CCOL=[V(0,2.7,9.9),V(0,1.9,0)];
+let MODE=0;
+function modeAt(t){return sstep(T0('split',.1),T0('split',.1)+.7,t)*(1-sstep(T0('beep'),T0('beep')+.6,t))}
+function camAt(t){const l=lineAt(t),u=clamp((t-l.t0)/Math.max(.5,l.t1-l.t0),0,1),e=u*u*(3-2*u);
+  const p=CROW[0].clone().lerp(CCOL[0],MODE),q=CROW[1].clone().lerp(CCOL[1],MODE);
+  const li=LINES.indexOf(l);const a=((li%2)?1:-1)*(e-.5)*.34;const d=p.clone().sub(q);p.copy(q).add(new THREE.Vector3(d.x*Math.cos(a)-d.z*Math.sin(a),d.y,d.x*Math.sin(a)+d.z*Math.cos(a)));
+  if(l.fx==='hook'||l.fx==='end')p.lerp(q,l.fx==='hook'?.1*e:-.08*e);
+  p.y+=.012*pulse(t);return [p,q]}
+// ---- 画面の文字
+const NS='http://www.w3.org/2000/svg',hud=document.getElementById('hud');
+function el(tag,a,txt){const e=document.createElementNS(NS,tag);for(const k in a)e.setAttribute(k,a[k]);if(txt!=null)e.textContent=txt;hud.appendChild(e);return e}
+const tw=s=>{let w=0;for(const ch of String(s))w+=ch.charCodeAt(0)<256?.58:1;return w};
+function drawHud(t){hud.innerHTML='';const l=lineAt(t),a=clamp((t-l.t0)/.12,0,1),pb=pulse(t);
+  if(LAB.topic){const fs=Math.min(22,470/tw(LAB.topic));const w=tw(LAB.topic)*fs+34;el('rect',{x:270-w/2,y:44,width:w,height:fs+18,rx:(fs+18)/2,fill:'#0b1030',stroke:'#41e2ff','stroke-width':1.6,'stroke-opacity':.75+.25*pb});
+    el('text',{x:270,y:44+fs+3,'text-anchor':'middle','font-size':fs,'font-weight':700,'stroke-width':0,fill:'#bdf3ff'},LAB.topic)}
+  const cap=l.cap||[];let y=cap.length>1?748:770;
+  cap.forEach((c,i)=>{const size=Math.min(46,440/tw(c));const sc=1+.035*pb*(i===cap.length-1);
+    const g=el('g',{transform:`translate(270 ${y+(1-a)*8}) scale(${sc})`});
+    const e=document.createElementNS(NS,'text');const at={x:0,y:0,'text-anchor':'middle','font-size':size,'font-weight':900,'stroke-width':Math.max(5,size*.22),style:`opacity:${(.3+.7*a).toFixed(2)};fill:${i===cap.length-1?'#ffe066':'#ffffff'}`};
+    for(const k in at)e.setAttribute(k,at[k]);e.textContent=c;g.appendChild(e);y+=size+14});
+  // 拍のメーター（音ゲーふう：下の4つの点が拍で順に光る）
+  const bi=Math.floor(t/BEAT)%4;for(let i=0;i<4;i++){const on=i===bi;el('circle',{cx:270+(i-1.5)*26,cy:900,r:on?6+3*pb:4,fill:on?'#41e2ff':'#2a2f55'})}extraHud(t,l,pb)}
+
+// 3Dの位置に数字を書く
+const tmpV=new THREE.Vector3();
+function at3(x,y,z){tmpV.set(x,y,z).project(cam);const d=cam.position.distanceTo(new THREE.Vector3(x,y,z));return [(tmpV.x+1)/2*W,(1-tmpV.y)/2*H,H/(2*Math.tan(19*Math.PI/180)*d)]}
+function lab(x,y,txt,size,fill,op){const [sx,sy,pp]=at3(x,y,.06);const fs=size*pp;el('text',{x:sx,y:sy+fs*.36,'text-anchor':'middle','font-size':fs,'font-weight':900,'stroke-width':Math.max(3,fs*.16),style:`fill:${fill};opacity:${op==null?1:op}`},txt)}
+let ST={};
+function extraHud(t,l,pb){const s=ST;
+  tiles.forEach((g,i)=>{let d=String(CODE[i]),c='#ffffff';if(i===12&&s.q){d='?';c='#ffe066'}else if(i===12)c='#ffe066';
+    if(s.badI===i){d=String(s.badD);c='#ff7ab8'}
+    lab(g.position.x,g.position.y,d,.3*g.scale.x,c)});
+  if(s.idx>=0)for(let i=0;i<=s.idx&&i<13;i++){const g=tiles[i];lab(g.position.x,g.position.y-.34,String(i+1),.13,i===12?'#ffe066':'#9aa3d8')}
+  if(s.no>0)lab(-.95,1.02,String(s.so),.44,s.bad?'#ff7ab8':'#7fe9ff');
+  if(s.ne>0){lab(.95,1.02,String(s.x3?s.se*3:s.se),.44,'#ff9fcb');if(s.x3)lab(.95,.56,s.se+' × 3',.2,'#ff9fcb')}
+  if(s.tot){lab(0,3.55,String(s.tot),.62*(1+.04*pb),s.bad?'#ff7ab8':'#ffffff');lab(0,4.12,'合計',.17,'#9aa3d8')}
+  if(s.rest!=null){lab(0,3.0,s.bad?('あと '+s.rest):('→ '+NEXT),.25,s.bad?'#ff7ab8':'#ffe066');lab(0,2.62,s.bad?('≠ '+CD):('あと '+s.rest),.27,s.bad?'#ff7ab8':'#ffe066')}
+  if(s.msg)lab(0,1.25,s.msg,.52,s.ok?'#9dff7a':'#ff7ab8')}
+
+const glowC=document.getElementById('glow'),gx=glowC.getContext('2d');
+window.renderAt=function(t){const pb=pulse(t),L=lineAt(t),fx=L.fx,Q=BEAT/4;MODE=modeAt(t);const s=ST={idx:-1,no:0,ne:0,badI:-1};
+  const inCol=MODE>.5,after=f=>t>=T0(f);
+  // 札の位置：横一列 ⇄ 2列（奇数番目｜偶数番目）
+  tiles.forEach((g,i)=>{const a=rowP(i),b=colP(i);const k=clamp(MODE*1.3-(i/12)*.3,0,1),e=k*k*(3-2*k);g.position.set(lerp(a[0],b[0],e),lerp(a[1],b[1],e)+Math.sin(e*Math.PI)*.35*((i%2)?1:-1),0);g.scale.setScalar(lerp(a[2],b[2],e));g.userData.k=.5+.2*pb});
+  // 13けた：半拍の半分ごとに1枚ずつ数える
+  if(fx==='n13'){const n=Math.floor((t-L.t0-.15)/Q);s.idx=clamp(n,-1,12);tiles.forEach((g,i)=>{if(i<=n)g.userData.k=.6+1.4*Math.exp(-Math.max(0,t-L.t0-.15-i*Q)*4)})}
+  if(fx==='hook'){tiles[12].userData.k=.9+.9*pb}
+  s.q=after('split')&&t<T0('chk',.45);
+  // 足し算：1枚ずつ光って、合計がふえる
+  const tick=(f,arr,R,key,side)=>{if(!after(f))return;const a=T0(f)+.12,n=clamp(Math.floor((t-a)/Q)+1,0,6);s[key]=n;if(n>0)s[side]=R[n-1];if(fx===f)for(let j=0;j<n;j++){tiles[arr[j]].userData.k=.7+1.5*Math.exp(-Math.max(0,t-a-j*Q)*4)}};
+  if(inCol){tick('odd',[0,2,4,6,8,10],RO,'no','so');tick('even',[1,3,5,7,9,11],RE,'ne','se');
+    if(after('even')&&t>=T0('even')+.12+1.0)s.x3=1;
+    if(after('sum')){s.tot=TOT}
+    if(t>=T0('chk',.02)){s.rest=CD}
+    if(t>=T0('chk',.45)){tiles[12].userData.k=1.0+.8*pb+1.5*Math.exp(-(t-T0('chk',.45))*3)}
+    if(t>=T0('err',.3)){s.bad=1;s.badI=BAD[0];s.badD=BAD[1];s.so=SO-CODE[BAD[0]]+BAD[1];s.tot=TOTB;s.rest=CDB;tiles[BAD[0]].userData.k=1.2+.6*pb;tiles[12].userData.k=.5}}
+  // 読み取り：1回目は読みまちがい、2回目で合う
+  bars.visible=MODE<.6;bars.scale.y=1-MODE;scan.visible=false;setGlow(bars,.55+.3*pb);
+  if(fx==='hook'||fx==='n13'){scan.visible=true;scan.position.y=3.95+Math.sin(t*4)*.5}
+  if(fx==='beep'&&MODE<.5){scan.visible=true;scan.position.y=3.95+Math.sin(t*9)*.6;const h=T0('beep',.62);if(t<h){s.badI=BAD[0];s.badD=BAD[1];s.msg='合わない';tiles[BAD[0]].userData.k=1.3}else{s.msg='OK';s.ok=1;tiles.forEach(g=>g.userData.k=.9+.9*Math.exp(-(t-h)*3))}}
+  // どの1けたでも見つかる：まちがいが1枚ずつ移っていく
+  if(fx==='all'){const n=Math.floor((t-L.t0-.1)/Q);if(n>=0){const i=n%12;s.badI=i;s.badD=(CODE[i]+1+n%7)%10;if(s.badD===CODE[i])s.badD=(s.badD+1)%10;tiles[i].userData.k=1.5;s.msg='合わない'}}
+  if(fx==='end'){tiles.forEach((g,i)=>g.userData.k=.8+.7*pb);s.msg='OK';s.ok=1;scan.visible=true;scan.position.y=3.95+Math.sin(t*4)*.5}
+  tiles.forEach(g=>setGlow(g,g.userData.k));
+  const sc=(t/BEAT)%1;rows.forEach((l,i)=>{const z=-30+((i+sc)/20)*38;l.position.z=z;l.material.opacity=.15+.5*clamp((z+30)/38,0,1)});
+  gm.opacity=.35+.25*pb;
+  const [p,q]=camAt(t);cam.position.copy(p);cam.lookAt(q);cam.updateProjectionMatrix();cam.updateMatrixWorld();renderer.render(scene,cam);
+  gx.globalCompositeOperation='source-over';gx.clearRect(0,0,W,H);gx.filter='blur(9px)';gx.globalAlpha=.85;gx.drawImage(renderer.domElement,0,0,W,H);gx.filter='blur(2px)';gx.globalAlpha=.5;gx.drawImage(renderer.domElement,0,0,W,H);
+  glowC.style.mixBlendMode='screen';drawHud(t);return{t}};
+window.__info={total:DUR};
+Promise.all([400,700,900].map(w=>document.fonts.load(w+' 20px JumpSans','あ0'))).then(()=>{window.__fig={kind:'none'};window.__ready=true},e=>console.log('load error: '+e.message));
+</script></body></html>
