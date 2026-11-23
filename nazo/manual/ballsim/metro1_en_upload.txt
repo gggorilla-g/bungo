@@ -1,16 +1,17 @@
 【タイトル】
-98 Glass Metronomes and 2 Slightly Fast Ones. Will All 100 Sync? #shorts #satisfying #physics
+100 Glass Metronomes. Release the Board. Will They All Sync? #shorts #satisfying #physics
 
 【説明】
-100 glass metronomes stand on a platform. 98 of them tick at 120 BPM. A is built a little fast at 120.5 and B at 121. They all start at random. Will all 100 ever sync?
+100 glass metronomes stand on a platform. 98 of them tick at 120 BPM. The two red ones are built a little fast, at 120.5 and 121. At first the board is locked with wedges and they tick at random. After 6 seconds the board is released. Will all 100 sync?
 
 Answer: yes. Even the two with a different speed get pulled to the same rate.
 
 How it works:
-- The platform sits on two rollers, so it is free to slide sideways, like a base-isolated building.
+- The platform sits on two rollers. Once the wedges are removed it is free to slide sideways, like a base-isolated building.
+- While the board is locked, nothing connects the metronomes, so they stay scattered forever.
 - When the metronomes swing, the platform moves a little the other way. Through that motion the metronomes pull on each other. The red mark below shows where the platform is.
 - In this video each one is pulled slightly toward the average swing of the group (the Kuramoto model). The more of them are in sync, the stronger the pull.
-- If the speed difference is small, the pull wins and the rates become equal. A and B settle just barely ahead of the others (about 3 degrees of needle angle for B).
+- If the speed difference is small, the pull wins and the rates become equal. Those two settle just barely ahead of the others (up to about 3 degrees of needle angle).
 - A metronome that is far off (say 140 BPM) would never sync with this much pull.
 - The color shows how far each one is from the group. As the gap shrinks, the colors drift toward the same light blue.
 - The sound is a glass note every time a needle passes the center.
