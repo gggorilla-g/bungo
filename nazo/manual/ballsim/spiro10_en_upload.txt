@@ -1,0 +1,19 @@
+【タイトル】
+Roll Two Gears at Once. How Do the Flowers Overlap? #shorts #satisfying #math
+
+【説明】
+Inside a ring with 144 teeth, a gear with 55 teeth and a gear with 84 teeth roll at the same time, in opposite directions. A pen in each gear draws a flower. How do the two flowers overlap?
+
+Answer: a big flower with 12 petals sits on top of a fine flower with 144 petals.
+
+How it works:
+- The number of petals is the ring's teeth divided by the greatest common divisor. 144 and 55 share only 1, so you get 144 petals (it closes after 55 laps). 144 and 84 share 12, so you get 12 petals (it closes after 7 laps).
+- Both gears finish drawing at exactly the same moment. They speed up as they go.
+- The ring has teeth on the inside and the gears have teeth on the outside. They stay meshed and roll without slipping. The two gears pass through each other.
+- The point where a gear touches the ring glows, and the ring keeps glowing for a moment after it passes. A freshly drawn line glows white before it settles into its color.
+- A note plays every time a pen passes the tip of a petal.
+
+Simulation, sound and animation: original (Python).
+
+【タグ】
+math, spirograph, pattern, geometry, satisfying, relaxing, shorts

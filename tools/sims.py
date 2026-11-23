@@ -3350,7 +3350,64 @@ def spiro2(sp):
         sim.frame(t, live, balls, (sp.get("count_label", "花びら "), sp.get("count", " ＋ ".join(str(g["petals"]) for g in G))), fl)
     sim.finish(total)
 
-KINDS = {"spiro2": spiro2, "slinky3d": slinky3d, "fifths": fifths, "slinky": slinky, "chordballs": chordballs, "canonstairs": canonstairs, "koch2": koch2, "polywheel": polywheel, "circlefill": circlefill, "dots45": dots45, "spiralglass": spiralglass, "dominoes2": dominoes2, "hearts2": hearts2, "cupcaustic": cupcaustic, "dominoes": dominoes, "merge": merge, "hearts": hearts, "bricks": bricks, "pendwave3d": pendwave3d, "spiro": spiro, "lens": lens, "koch": koch, "pendwave": pendwave, "orbits": orbits, "phyllo": phyllo, "zoomsalt": zoomsalt, "layers": layers, "pixels": pixels, "sortviz": sortviz, "polyfocus": polyfocus, "heliostat": heliostat, "dragon": dragon, "rhythm": rhythm, "lissatable": lissatable, "plotter": plotter, "threebody": threebody, "pendswing": pendswing, "golden": golden, "piphase": piphase, "maurer": maurer, "harmono": harmono, "spiropens": spiropens, "star": star, "throw": throw, "tusi": tusi, "chain": chain, "basket": basket, "koch": koch, "cycloid": cycloid, "pendulums": pendulums, "lissajous": lissajous, "corner": corner, "sunflower": sunflower, "ulam": ulam, "parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2, "picount": picount}
+def metronomes(sp):
+    """同じ台にのったメトロノーム100台（98台は同じ速さ、2台だけ速さがちがう「へそ曲がり」）。台をとおして引っぱり合い、だんだんそろう（オーナー画面収録 11/23「98 metronomes. 2 rebels.」の型。見た目も音もガラスの質感で）。
+    法則（蔵本モデル）：各メトロノームは、みんなの平均の振れに少しずつ引きよせられる。速さの差が小さい A（122）はつられてそろい、差が大きい B（140）は最後までそろわない"""
+    import random
+    NX, NZ = sp.get("nx", 10), sp.get("nz", 10); N = NX * NZ; D = sp.get("dur", 21.0); intro, tail = .4, sp.get("tail", 2.6); total = intro + D + tail; K = sp.get("k", .34); rnd = random.Random(sp.get("seed", 5))
+    bpm = [120.0] * N; iA, iB = sp.get("rebel_a", 2 * NX + 1), sp.get("rebel_b", 2 * NX + NX - 2); bpm[iA], bpm[iB] = sp.get("bpm_a", 122.0), sp.get("bpm_b", 140.0)
+    om = np.array([2 * math.pi * b / 120.0 for b in bpm]); th = np.array([rnd.uniform(0, 2 * math.pi) for _ in range(N)]); dt = 1 / 240.0
+    SCL = [72, 74, 76, 79, 81, 84, 86, 88]; pit = [rnd.choice(SCL) for _ in range(N)]; pit[iA], pit[iB] = 67, 62
+    sim = Sim(sp, (-1, -1, 1, 1)); sim.title(); frames = []; t = 0.0; ticks = 0; main = np.array([i not in (iA, iB) for i in range(N)])
+    while t < D + tail + .1:
+        z = np.exp(1j * th[main]).mean(); r, psi = abs(z), math.atan2(z.imag, z.real); th2 = th + (om + K * r * np.sin(psi - th)) * dt
+        cr = np.floor(th2 / math.pi) != np.floor(th / math.pi)   # 針がまん中を通る＝カチッ
+        if t < D:
+            for i in np.nonzero(cr)[0]:
+                reb = i in (iA, iB); x_ = (i % NX) / (NX - 1.0)
+                sim.notes.append((intro + t, pit[i], (.42 if reb else .50 / (1 + 16 * r)), .15 + .7 * x_, 7 if reb else 9, "glass")); ticks += 1
+        th = th2; t += dt
+        if int(t * FPS) >= len(frames):
+            dl = np.angle(np.exp(1j * (th - psi))); frames.append((th.copy(), r, psi, float((np.abs(dl[main]) < .35).mean()), dl.copy()))
+    for mi in (60, 67, 72, 76, 79, 84): sim.notes.append((intro + D + .05, mi, .30, .5, 1.6, "glass"))
+    WS, HS = 1080 * S, 1920 * S; FL = 1750 * S; cam = np.array([0.0, 5.6, -6.4]); tg = np.array([0.0, .0, 1.75]); fw = tg - cam; fw /= np.linalg.norm(fw); rt = np.cross((0, 1, 0), fw); rt /= np.linalg.norm(rt); up = np.cross(fw, rt); cy0 = .455 * HS
+    def pj(P):
+        Dv = np.asarray(P, float) - cam; z = Dv @ fw; return (WS / 2 + FL * (Dv @ rt) / z, cy0 - FL * (Dv @ up) / z), z
+    fS, fL = F(40 * S), F(30 * S); XS, ZS = 3.9 / (NX - 1), 3.6 / (NZ - 1)
+    for fi in range(int(total * FPS)):
+        t = fi / FPS; k = min(len(frames) - 1, max(0, int((t - intro) * FPS))); thf, r, psi, sync, dl = frames[k]
+        def draw(d, thf=thf, r=r, psi=psi, dl=dl, t=t):
+            sway = -.05 * r * math.sin(psi)   # 台はみんなの振れと逆向きに少しゆれる
+            q = [pj((x_ + sway, 0, z_))[0] for x_, z_ in ((-2.3, -.45), (2.3, -.45), (2.3, 4.05), (-2.3, 4.05))]; q2 = [pj((x_ + sway, -.12, z_))[0] for x_, z_ in ((-2.3, -.45), (2.3, -.45))]
+            d.polygon(q, fill=(12, 22, 40)); d.polygon([q[0], q[1], q2[1], q2[0]], fill=(20, 40, 64))   # ガラスの台（上の面と手前の厚み）
+            for gx in np.linspace(-2.3, 2.3, 11): d.line([pj((gx + sway, 0, -.45))[0], pj((gx + sway, 0, 4.05))[0]], fill=(22, 40, 66), width=max(1, int(1.5 * S)))
+            d.line(q + [q[0]], fill=(70, 150, 190), width=int(6 * S)); d.line(q + [q[0]], fill=(190, 240, 255), width=int(2 * S)); d.line([q2[0], q2[1]], fill=(120, 200, 235), width=int(2 * S))
+            for jz in range(NZ - 1, -1, -1):   # 奥の列から手前へ
+                for ix in range(NX):
+                    i = jz * NX + ix; x0 = -1.95 + ix * XS + sway; z0 = jz * ZS; phi = .50 * math.sin(thf[i]); reb = i in (iA, iB); dd = abs(dl[i])
+                    e = ((thf[i] % math.pi) / om[i]); fl = math.exp(-e * 16)
+                    if reb: col = (255, 90, 110) if i == iA else (255, 60, 60)
+                    elif dd < .35: col = (170, 235, 255)
+                    else: col = hsv((.55 + dl[i] / (2 * math.pi) * .9) % 1, .55, 1)
+                    (bx, by), zb = pj((x0, 0, z0)); sc = FL / zb; hgt, wb, L = .40, .11, .58
+                    apex = pj((x0, hgt, z0))[0]; bl = pj((x0 - wb, 0, z0))[0]; br_ = pj((x0 + wb, 0, z0))[0]; tip = pj((x0 + L * math.sin(phi), L * math.cos(phi), z0))[0]; bead = pj((x0 + L * .78 * math.sin(phi), L * .78 * math.cos(phi), z0))[0]
+                    rtip = pj((x0 + L * math.sin(phi), -L * math.cos(phi) * .55, z0))[0]   # 台に映る影（ガラスの映りこみ）
+                    d.line([(bx, by), rtip], fill=dim(col, .13), width=max(1, int(sc * .012)))
+                    d.polygon([bl, br_, apex], fill=dim(col, .10 + .10 * fl)); d.line([bl, apex, br_, bl], fill=dim(col, .42 + .3 * fl), width=max(1, int(sc * .010)))   # ガラスの胴（うすい面と光るふち）
+                    d.line([bl, apex], fill=dim((255, 255, 255), .30 + .4 * fl), width=max(1, int(sc * .005)))   # ふちのつや
+                    d.line([(bx, by), tip], fill=dim(col, .35), width=max(1, int(sc * .020))); d.line([(bx, by), tip], fill=tuple(min(255, int(v * .8 + 60 + 120 * fl)) for v in col), width=max(1, int(sc * .008)))   # 針
+                    rb = sc * (.034 + .020 * fl)
+                    d.ellipse([bead[0] - rb * 2.1, bead[1] - rb * 2.1, bead[0] + rb * 2.1, bead[1] + rb * 2.1], fill=dim(col, .16 + .25 * fl)); d.ellipse([bead[0] - rb, bead[1] - rb, bead[0] + rb, bead[1] + rb], fill=tuple(min(255, int(v * .75 + 70 + 150 * fl)) for v in col))
+                    d.ellipse([bead[0] - rb * .45, bead[1] - rb * .6, bead[0] - rb * .05, bead[1] - rb * .2], fill=(255, 255, 255))   # 玉のつや
+                    if reb:
+                        nm = "A" if i == iA else "B"; tw = d.textlength(nm, font=fL); d.text((apex[0] - tw / 2, apex[1] - sc * .50), nm, font=fL, fill=col, stroke_width=int(3 * S), stroke_fill=(0, 0, 0))
+            a_ok = abs(dl[iA]) < .6 and r > .8; l1 = sp.get("l_a", "A：1分に122回 → {s}").format(s=sp.get("a_yes", "つられてそろった") if a_ok else sp.get("a_no", "まだずれている")); l2 = sp.get("l_b", "B：1分に140回 → そろわない")
+            for n_, (tx, c_) in enumerate(((sp.get("l_0", "98台：1分に120回"), (200, 235, 250)), (l1, (255, 120, 135)), (l2, (255, 90, 90)))):
+                d.text((WS / 2 - d.textlength(tx, font=fS) / 2, (.700 + .034 * n_) * HS), tx, font=fS, fill=c_, stroke_width=int(4 * S), stroke_fill=(0, 0, 0))
+        sim.frame(t, (), (), (sp.get("count_label", "そろった "), f"{int(round(sync * 100))}%"), (), draw)
+    sim.finish(total)
+
+KINDS = {"metronomes": metronomes, "spiro2": spiro2, "slinky3d": slinky3d, "fifths": fifths, "slinky": slinky, "chordballs": chordballs, "canonstairs": canonstairs, "koch2": koch2, "polywheel": polywheel, "circlefill": circlefill, "dots45": dots45, "spiralglass": spiralglass, "dominoes2": dominoes2, "hearts2": hearts2, "cupcaustic": cupcaustic, "dominoes": dominoes, "merge": merge, "hearts": hearts, "bricks": bricks, "pendwave3d": pendwave3d, "spiro": spiro, "lens": lens, "koch": koch, "pendwave": pendwave, "orbits": orbits, "phyllo": phyllo, "zoomsalt": zoomsalt, "layers": layers, "pixels": pixels, "sortviz": sortviz, "polyfocus": polyfocus, "heliostat": heliostat, "dragon": dragon, "rhythm": rhythm, "lissatable": lissatable, "plotter": plotter, "threebody": threebody, "pendswing": pendswing, "golden": golden, "piphase": piphase, "maurer": maurer, "harmono": harmono, "spiropens": spiropens, "star": star, "throw": throw, "tusi": tusi, "chain": chain, "basket": basket, "koch": koch, "cycloid": cycloid, "pendulums": pendulums, "lissajous": lissajous, "corner": corner, "sunflower": sunflower, "ulam": ulam, "parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2, "picount": picount}
 
 if __name__ == "__main__":
     sp = json.load(open(sys.argv[1], encoding="utf-8")); KINDS[sp["kind"]](sp); kit(sp)

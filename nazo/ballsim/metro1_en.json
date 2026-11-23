@@ -1,0 +1,34 @@
+{
+ "kind": "metronomes",
+ "id": "metro1_en",
+ "bloom": 0,
+ "glow": 0.55,
+ "style": "big",
+ "mark": "@makeitwork3d",
+ "title": [
+  "{98} glass metronomes",
+  "and [2 rebels]. Will they sync?"
+ ],
+ "count_label": "In sync: ",
+ "yt": {
+  "title": "98 Glass Metronomes and 2 Rebels. Will They All Sync? #shorts #satisfying #physics",
+  "desc": "100 glass metronomes stand on a glass platform. 98 of them tick at 120 BPM. Rebel A ticks at 122 and rebel B at 140. They all start at random. Will they ever sync?\n\nAnswer: the 98 and A fall into sync. B never does.\n\nHow it works:\n- Metronomes on the same platform pull on each other a little through the platform's motion.\n- In this video each one is pulled slightly toward the average swing of the group (the Kuramoto model). The more of them are in sync, the stronger the pull.\n- If the speed difference is small, the pull wins. A is only 2 BPM off, so it gets pulled in.\n- If the difference is large, the pull cannot keep up. B is 20 BPM faster, so it stays off the beat forever.\n- The color shows how far each one is from the group. In sync, it turns pale blue-white.\n- The sound is a glass note every time a needle passes the center. Each metronome has its own pitch, so in sync they make a chord.\n\nSimulation, sound and animation: original (Python).",
+  "tags": [
+   "physics",
+   "metronome",
+   "synchronization",
+   "glass",
+   "satisfying",
+   "relaxing",
+   "simulation",
+   "shorts"
+  ]
+ },
+ "l_0": "98 of them: 120 BPM",
+ "l_a": "A: 122 BPM -> {s}",
+ "a_yes": "pulled into sync",
+ "a_no": "still off",
+ "l_b": "B: 140 BPM -> never syncs",
+ "post_hue": 40,
+ "post_pitch": 2
+}
