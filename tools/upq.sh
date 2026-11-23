@@ -14,7 +14,9 @@ while read -r id ch lg; do
   if ! v="$(python3 tools/vet.py check "$id" </dev/null 2>&1)"; then echo "$id $ch $lg" >> "$Q.keep"; echo "とばす: $id（$v）"; continue; fi
   up="$id"
   [ -f "output/${id}_t.mp4" ] && [ "output/$id.mp4" -nt "output/${id}_t.mp4" ] && rm -f "output/${id}_t.mp4"   # 本編を作り直したら、古い予告つき版は使わない
-  if [ "${TEASER:-1}" = 1 ] && [ ! -f "output/${id}_t.mp4" ]; then   # 冒頭に結末の一瞬（teaser.py）。終わり3.2秒前の1秒を使う
+  nt=$(python3 -c "import json,sys; print(0 if json.load(open('nazo/ballsim/$id.json')).get('teaser', True) else 1)" 2>/dev/null </dev/null)   # spec に "teaser": false があれば、冒頭の予告を付けない（ループする動画は最初に結末を見せるとつながらない。オーナー 11/23）
+  [ "$nt" = 1 ] && rm -f "output/${id}_t.mp4"
+  if [ "${TEASER:-1}" = 1 ] && [ "$nt" != 1 ] && [ ! -f "output/${id}_t.mp4" ]; then   # 冒頭に結末の一瞬（teaser.py）。終わり3.2秒前の1秒を使う
     d=$(ffprobe </dev/null -v error -show_entries format=duration -of csv=p=0 "output/$id.mp4"); at=$(python3 -c "print(max(0, $d - 3.2))")
     python3 tools/teaser.py "output/$id.mp4" "output/${id}_t.mp4" "$at" 1.0 >/dev/null </dev/null
   fi
