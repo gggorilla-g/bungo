@@ -1,0 +1,33 @@
+{
+ "kind": "spiro",
+ "R": 131,
+ "r": 49,
+ "tone": "stone",
+ "style": "big",
+ "mark": "@makeitwork3d",
+ "bloom": 0.75,
+ "title": [
+  "Use {131 and 49} teeth.",
+  "What appears [inside] the flower?"
+ ],
+ "count_label": "Petals: ",
+ "id": "spiro9_en",
+ "hole": 0.9,
+ "hue": 0.5,
+ "hue_w": 0.45,
+ "yt": {
+  "title": "131 and 49 Teeth. What Appears Inside the Flower? (Wait for the End) #shorts #satisfying #math",
+  "desc": "A 49-tooth gear rolls inside a 131-tooth ring. A pen in one of the gear's holes draws a flower. Every petal tip plays a stone chime. The color changes in the order the line is drawn.\n\nHow it works:\n- 49/131 is very close to 3/8. So after 8 petals the pen is almost back where it started (about 2.7 degrees short).\n- The petals gather in 8 directions and drift a little each time. Where they pile up, an 8-pointed star appears.\n- 131 and 49 share no common factor bigger than 1, so there are 131 petals and the line only closes after 49 laps.\n- The curve is a hypotrochoid.\n\nSimulation, sound and animation: original (Python).",
+  "tags": [
+   "math",
+   "spirograph",
+   "gears",
+   "geometry",
+   "pattern",
+   "satisfying",
+   "relaxing",
+   "simulation",
+   "shorts"
+  ]
+ }
+}

@@ -224,10 +224,11 @@ class Sim:
         if self.sp.get("bed"):   # 参考動画の音の分析（11/23）：伸びている動画は音が途切れない（音量の幅 5〜11dB）・余韻が長い（0.9〜1.8秒）・低音が厚い。
             # → (1) 和音の持続音を薄く敷く (2) 残響を長くする (3) 低い根音を小節ごとに
             tt = np.arange(n) / SR; pad = np.zeros(n); mel = bool(self.sp.get("melody"))
+            off = self.sp.get("bed_off", 0.0)   # 小節の頭を、動画の拍の頭に合わせる（秒）
             for b0 in np.arange(0, total + 2, harmony.BAR):
-                i0, i1 = int(b0 * SR), min(n, int((b0 + harmony.BAR + .6) * SR))
+                i0, i1 = int((b0 + off) * SR), min(n, int((b0 + off + harmony.BAR + .6) * SR))
                 if i0 >= n: break
-                pcs = [0, 7, 4] if mel else harmony.pcs(b0 + .01); seg = tt[i0:i1] - b0; env = np.minimum(1, seg / .5) * np.minimum(1, (harmony.BAR + .6 - seg) / .6)
+                pcs = [0, 7, 4] if mel else harmony.pcs(b0 + .01); seg = tt[i0:i1] - b0 - off; env = np.minimum(1, seg / .5) * np.minimum(1, (harmony.BAR + .6 - seg) / .6)
                 for k, pc in enumerate(pcs):
                     f = 440 * 2 ** ((48 + pc - 69) / 12); pad[i0:i1] += (np.sin(2 * np.pi * f * seg) + .25 * np.sin(2 * np.pi * 2 * f * seg)) * env * (.5 if k == 0 else .32)
                 r = pcs[0]; fb = 440 * 2 ** ((36 + r - 69) / 12); bl = min(n - i0, int(SR * 1.6)); sb = np.arange(bl) / SR

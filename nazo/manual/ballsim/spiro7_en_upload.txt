@@ -1,0 +1,16 @@
+【タイトル】
+Add One Tiny Wheel to the Gear. The Flower Turns Into a Weave (Wait for the End) #shorts #satisfying #math
+
+【説明】
+A 41-tooth gear rolls inside a 96-tooth ring. This time a tiny extra wheel sits on the gear's pen hole, and the pen rides on the rim of that wheel. Every petal tip plays a stone chime.
+
+How it works:
+- The pen's path is three rotations added together (going around the ring, the gear spinning, and the tiny wheel spinning).
+- The tiny wheel turns 137/41 times (about 3.3) for each trip around the ring, opposite to the gear. At that speed the 96 petals keep their spacing, and each petal gets a small loop. The overlapping loops look like a weave.
+- 96 and 41 share no common factor bigger than 1, so there are 96 petals and the line only closes after 41 laps.
+- The tiny wheel is not a real meshed gear. It simply turns at a set speed.
+
+Simulation, sound and animation: original (Python).
+
+【タグ】
+math, spirograph, gears, geometry, pattern, satisfying, relaxing, simulation, shorts

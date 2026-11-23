@@ -1,0 +1,41 @@
+{
+ "kind": "spiro",
+ "R": 96,
+ "r": 41,
+ "tone": "stone",
+ "style": "big",
+ "mark": "@makeitwork3d",
+ "bloom": 0.4,
+ "title": [
+  "Put {5 pens} in the same gear.",
+  "What do they [draw together]?"
+ ],
+ "count_label": "Petals: ",
+ "id": "spiro8_en",
+ "holes": [
+  0.95,
+  0.8,
+  0.65,
+  0.5,
+  0.35
+ ],
+ "hue": 0.5,
+ "hue_w": 0.06,
+ "hue_step": 0.09,
+ "line": 0.62,
+ "yt": {
+  "title": "Put 5 Pens in the Same Gear. What Do They Draw Together? (Wait for the End) #shorts #satisfying #math",
+  "desc": "A 41-tooth gear rolls inside a 96-tooth ring. This time five pens sit in five holes at different distances from the gear's center (95%, 80%, 65%, 50% and 35% of the gear's radius). The outermost pen plays a stone chime at every petal tip.\n\nHow it works:\n- All five pens draw 96 petals. 96 and 41 share no common factor bigger than 1, so the lines only close after 41 laps.\n- The closer a hole is to the gear's center, the shallower its petals and the bigger the hole in the middle.\n- Five flowers of different shapes overlap into fine, lace-like bands.\n- The curve is a hypotrochoid.\n\nSimulation, sound and animation: original (Python).",
+  "tags": [
+   "math",
+   "spirograph",
+   "gears",
+   "geometry",
+   "pattern",
+   "satisfying",
+   "relaxing",
+   "simulation",
+   "shorts"
+  ]
+ }
+}

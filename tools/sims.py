@@ -1770,7 +1770,11 @@ def spiro(sp):
     R = 1.0; r = R * rt / Rt; d = r * hole; D, intro, tail = sp.get("dur", 22.0), .5, 2.6; total = intro + D + tail
     th_end = 2 * math.pi * laps; th_at = lambda t: th_end * min(1, max(0, (t - intro) / D)) ** 1.6
     holes = sp.get("holes") or [hole]; d = r * holes[0]; H0, HW, HS = sp.get("hue", .62), sp.get("hue_w", .30), sp.get("hue_step", .0)   # holes：同じ歯車に何本もペンを差す。hue_step：ペンごとの色のずれ
-    penD = lambda th, dd: ((R - r) * math.cos(th) + dd * math.cos((R - r) / r * th), (R - r) * math.sin(th) - dd * math.sin((R - r) / r * th))
+    W3 = sp.get("wheel3"); m3 = (1 + W3.get("j", 1) * Rt / rt) if W3 else 0; e3 = (W3.get("e", .1) * R) if W3 else 0; p3 = W3.get("phase", 0.0) if W3 else 0
+    def penD(th, dd, full=True):
+        x, y = (R - r) * math.cos(th) + dd * math.cos((R - r) / r * th), (R - r) * math.sin(th) - dd * math.sin((R - r) / r * th)
+        if W3 and full: x += e3 * math.cos(m3 * th + p3); y += e3 * math.sin(m3 * th + p3)
+        return (x, y)
     pen = lambda th: penD(th, d)
     sim = Sim(sp, (-1.15, -1.15, 1.15, 1.15)); sim.neon([(R * math.cos(a), R * math.sin(a)) for a in np.linspace(0, 2 * math.pi, 241)], width=4); sim.title()
     # 花びらの先（中心からいちばん遠い点）を通る時刻に音
@@ -1790,14 +1794,18 @@ def spiro(sp):
         n = max(1, int((th - prev) / .01))
         for k in range(n):
             a0, a1 = prev + (th - prev) * k / n, prev + (th - prev) * (k + 1) / n
-            for j, hl in enumerate(holes): segs.append((penD(a0, r * hl), penD(a1, r * hl), dim(hsv((H0 + HS * j + HW * a1 / th_end) % 1), .85)))
+            for j, hl in enumerate(holes): segs.append((penD(a0, r * hl), penD(a1, r * hl), dim(hsv((H0 + HS * j + HW * a1 / th_end) % 1), sp.get("line", .85))))
         if th > prev: sim.commit(segs, width=1.6)
         prev = th; c = ((R - r) * math.cos(th), (R - r) * math.sin(th)); p_ = pen(th); live = []
         live += [((c[0] + r * math.cos(a), c[1] + r * math.sin(a)), (c[0] + r * math.cos(a + .1), c[1] + r * math.sin(a + .1)), (120, 140, 190), 2.4) for a in np.arange(0, 2 * math.pi, .1)]
         spin = -(R - r) / r * th
         for k in range(rt // 4):   # 歯車の歯（回転が見えるように）
             a = spin + 2 * math.pi * k / (rt // 4); live.append(((c[0] + r * .93 * math.cos(a), c[1] + r * .93 * math.sin(a)), (c[0] + r * math.cos(a), c[1] + r * math.sin(a)), (150, 170, 215), 2))
-        live.append((c, p_, (200, 210, 240), 1.4)); extra = [penD(th, r * hl) for hl in holes[1:]]
+        extra = [penD(th, r * hl) for hl in holes[1:]]
+        if W3:
+            h_ = penD(th, d, False); live.append((c, h_, (200, 210, 240), 1.4)); live.append((h_, p_, (255, 220, 150), 1.6))
+            live += [((h_[0] + e3 * math.cos(a_), h_[1] + e3 * math.sin(a_)), (h_[0] + e3 * math.cos(a_ + .2), h_[1] + e3 * math.sin(a_ + .2)), (255, 200, 120), 2.2) for a_ in np.arange(0, 2 * math.pi, .2)]
+        else: live.append((c, p_, (200, 210, 240), 1.4))
         fl = [(p_, 10 + 4 * math.sin(t * 12), (255, 240, 200), 2)] if t < intro + D else []
         e = t - intro - D
         if 0 <= e < .7: fl.append(((0, 0), 30 + e * 500, dim((255, 245, 210), 1 - e / .7), 4))
@@ -2246,7 +2254,97 @@ def cupcaustic(sp):
     sim.finish(total)
 
 
-KINDS = {"cupcaustic": cupcaustic, "dominoes": dominoes, "merge": merge, "hearts": hearts, "bricks": bricks, "pendwave3d": pendwave3d, "spiro": spiro, "lens": lens, "koch": koch, "pendwave": pendwave, "orbits": orbits, "phyllo": phyllo, "zoomsalt": zoomsalt, "layers": layers, "pixels": pixels, "sortviz": sortviz, "polyfocus": polyfocus, "heliostat": heliostat, "dragon": dragon, "rhythm": rhythm, "lissatable": lissatable, "plotter": plotter, "threebody": threebody, "pendswing": pendswing, "golden": golden, "piphase": piphase, "maurer": maurer, "harmono": harmono, "spiropens": spiropens, "star": star, "throw": throw, "tusi": tusi, "chain": chain, "basket": basket, "koch": koch, "cycloid": cycloid, "pendulums": pendulums, "lissajous": lissajous, "corner": corner, "sunflower": sunflower, "ulam": ulam, "parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2, "picount": picount}
+def hearts2(sp):
+    """心拍を「2倍ずつの拍」にそろえて重ねる（参考：オーナー画面収録 11/23「Hearts Control the Beat」。作り直し 11/23：リズムと和音をそろえる）。
+    ゾウ32・ヒト64・ネコ128・ウサギ256・ネズミ512・ハチドリ1024（回/分。およその値を2倍ずつにそろえた）＝ 1小節に 1・2・4・8・16・32 回。
+    1拍ごとに、その小節の和音（C→G→Am→F）の中の1音。最後の行（クジラ、4回/分＝8小節に1回）が低く鳴って、画面が光る"""
+    import harmony
+    from PIL import Image, ImageChops
+    from simkit import W as W_, H as H_
+    rows = sp["rows"]; base = sp.get("base", 32); BAR = 60.0 / base; nA = len(rows) - 1
+    enter = sp.get("enter", [0, 2, 4, 6, 8, 10])[:nA]; wh_in, wh_beat, end_bar = sp.get("whale_in", 11), sp.get("whale_beat", 12), sp.get("end_bar", 14)
+    t0, tail = .12, sp.get("tail", 2.4); T_end = t0 + end_bar * BAR; total = T_end + tail; win = sp.get("window", 2.6)
+    PROG = [(0, (0, 4, 7)), (7, (0, 4, 7)), (9, (0, 3, 7)), (5, (0, 4, 7))]   # C → G → Am → F（1小節ずつ）
+    near = lambda pc, c: min(range(c - 6, c + 7), key=lambda m: ((m - pc) % 12 != 0) * 99 + abs(m - c))
+    def pitch(i, bar, k):   # 行 i の、その小節の k 個目の拍の音（和音の中の音だけ）。大きい生きものほど低い
+        r, q = PROG[bar % len(PROG)]
+        if i == 0: return near(r, 41)
+        if i == 1: return near(r, 52) if k % 2 == 0 else near(r + 7, 55)
+        if i == 2: return [near(r + q[1], 64), near(r + q[2], 65), near(r, 69), near(r + q[2], 65)][k % 4]
+        b = near(r, 72 if i == 3 else 76); T = [b, b + q[1], b + q[2], b + 12]
+        if i == 3: return T[[0, 1, 2, 1, 3, 2, 1, 2][k % 8]]
+        if i == 4: return T[[2, 3, 1, 3][k % 4]]
+        return [T[3], T[2]][k % 2]
+    GAIN = sp.get("gains", [.62, .50, .40, .28, .13, .055]); DEC = [2.0, 2.6, 3.6, 5.5, 10, 16]
+    start = [t0 + enter[i] * BAR for i in range(nA)]; per = [BAR / 2 ** i for i in range(nA)]; tw = t0 + wh_beat * BAR; t_wh = t0 + wh_in * BAR
+    sim = Sim(sp, (0, 0, 1, 1)); sim.title()
+    on0 = harmony.ON; harmony.ON = False
+    for i in range(nA):
+        nb = int(round((T_end - start[i]) / per[i]))
+        for j in range(nb):
+            t = start[i] + j * per[i]; bar = int((t - t0) / BAR + 1e-6); k = int(round((t - t0 - bar * BAR) / per[i]))
+            sim.note(t, pitch(i, bar, k), GAIN[i], .5 + (.0 if i < 2 else .28 * math.sin(i * 2.1 + k * .9)), DEC[i], "stone")
+            if i == 0: sim.note(t, 36, .55, .5, 9, "kick")          # 心臓の「ドクン」：遅い2つだけ、低い太鼓を小さく重ねる
+            if i == 1 and k % 2 == 1: sim.note(t, 36, .25, .5, 9, "kick")
+    sim.note(tw, 36, 1.0, .5, 9, "kick"); sim.note(tw, 24, .9, .5, 1.0, "stone"); sim.note(tw, 36, .9, .5, 1.0, "stone")   # クジラ：いちばん低い音を長く
+    for m in (48, 55, 60, 64, 67): sim.note(tw + .02, m, .22, .5, 1.6, "bell")
+    for m in (36, 48, 55, 60, 64, 72): sim.note(T_end, m, .34, .5, 1.6, "bell")                                                # 終わりの和音
+    sim.note(T_end, 36, .7, .5, 9, "kick")
+    harmony.ON = on0
+    ICON = {}
+    for nm in set(r_[2] for r_ in rows): ICON[nm] = Image.open(os.path.join(os.path.dirname(__file__), "..", "nazo", "ballsim", "icons", nm + ".png")).convert("RGBA")
+    top, bot = sp.get("top", .205), sp.get("bot", .87); fB = F(30 * S); fNm = F(24 * S); GREEN = tuple(sp.get("line_color", (84, 236, 164)))
+    sst = lambda x: (lambda u: u * u * (3 - 2 * u))(min(1, max(0, x)))
+    def ecg(ph):   # 1拍の形（0〜1）：小さな山 → 鋭い山 → 谷 → ゆるい山
+        return (.12 * math.exp(-((ph - .18) / .03) ** 2) + 1.0 * math.exp(-((ph - .30) / .008) ** 2) - .28 * math.exp(-((ph - .33) / .01) ** 2) + .22 * math.exp(-((ph - .52) / .05) ** 2))
+    def heart(d, x, y, r, c):
+        d.ellipse([x - r, y - r * .9, x, y + r * .1], fill=c); d.ellipse([x, y - r * .9, x + r, y + r * .1], fill=c); d.polygon([(x - r * .98, y - r * .25), (x + r * .98, y - r * .25), (x, y + r)], fill=c)
+    def level(i, tt):   # 行 i の、時刻 tt の線の高さ（0〜1）
+        if i < nA:
+            if tt < start[i] or tt >= T_end: return 0.0
+            p_ = per[i]; c_ = (.30 if p_ > .2 else .5) * p_; u = (tt - start[i] + c_) % p_; sg = max(.008 * p_, .010)   # 鋭い山の幅は 0.01 秒より細くしない（速い生きものは、そろった櫛の形になる）
+            v = math.exp(-((u - c_) / sg) ** 2)
+            if p_ > .2: v += .12 * math.exp(-((u - .18 * p_) / (.03 * p_)) ** 2) - .28 * math.exp(-((u - .33 * p_) / (.01 * p_)) ** 2) + .22 * math.exp(-((u - .52 * p_) / (.05 * p_)) ** 2)
+            return v * (.5 if i >= 5 else .62 if i == 4 else .8 if i == 3 else 1)
+        e = tt - tw
+        return ecg(.30 + e / 2.2) * 1.15 if -.66 < e < 1.5 else 0.0   # クジラ：1回だけ、ゆっくり大きく
+    qs = 8; yy_, xx_ = np.mgrid[0:H_ * S // qs, 0:W_ * S // qs]
+    for fi in range(int(total * FPS)):
+        t = fi / FPS
+        def draw(d, t=t):
+            A = [sst((t - (start[i] - .30)) / .5) for i in range(nA)] + [sst((t - (t_wh - .30)) / .5)]
+            m_eff = max(1.0, sum(A)); rh = min(.150, (bot - top) / m_eff); cum = 0.0; x0, x1 = W_ * S * .265, W_ * S * .935
+            ew = t - tw
+            for i in range(nA + 1):
+                a = A[i]
+                if a <= .01: continue
+                yc = (top + rh * (cum + .56)) * H_ * S; cum += a; amp = rh * H_ * S * .36
+                name, bpm, icn = rows[i][0], rows[i][1], rows[i][2]
+                col = GREEN if i < nA or ew < 0 else tuple(int(GREEN[c_] + ((255, 110, 150)[c_] - GREEN[c_]) * math.exp(-ew * .9)) for c_ in range(3))
+                pts = [(x0 + (x1 - x0) * q / 520, yc - amp * level(i, t - win * (1 - q / 520))) for q in range(521)]
+                d.line(pts, fill=dim(col, .26 * a), width=int(9 * S)); d.line(pts, fill=dim(col, a), width=int(3.2 * S))
+                d.ellipse([x1 - 6 * S, pts[-1][1] - 6 * S, x1 + 6 * S, pts[-1][1] + 6 * S], fill=dim((255, 255, 255), a))
+                if i < nA: ab = ((t - start[i]) % per[i]) if start[i] <= t < T_end else 9.0; pulse = math.exp(-ab * 9) if per[i] >= .2 else (.25 if start[i] <= t < T_end else 0)
+                else: pulse = math.exp(-ew * 2.2) if ew >= 0 else 0
+                heart(d, W_ * S * .222, yc - 3 * S, 13 * S * (1 + .45 * pulse), dim((255, 64, 100), a))
+                ic = ICON[icn]; sz = min(rh * H_ * S * .56, 124 * S) * (1 + .10 * pulse) * (.6 + .4 * a); iw, ih = int(sz * ic.width / max(ic.size)), int(sz * ic.height / max(ic.size))
+                im_ = ic.resize((max(1, iw), max(1, ih)), Image.LANCZOS)
+                if a < .999: im_.putalpha(im_.getchannel("A").point(lambda v, a=a: int(v * a)))
+                d._image.paste(im_, (int(W_ * S * .105 - iw / 2), int(yc - 6 * S - ih / 2)), im_)
+                w = d.textlength(name, font=fNm); d.text((W_ * S * .105 - w / 2, yc - 6 * S + sz / 2 + 2 * S), name, font=fNm, fill=dim((200, 205, 215), a))
+                tx = f"{bpm:,} " + sp.get("unit", "bpm"); w = d.textlength(tx, font=fB); d.text((x1 - w, yc - amp - 40 * S), tx, font=fB, fill=dim((255, 255, 255), a), stroke_width=3 * S, stroke_fill=(0, 0, 0))
+            if 0 <= ew < 3.0:   # クジラの1拍：心臓から赤い光が広がる
+                hx, hy = W_ * S * .222 / qs, (top + rh * (m_eff - 1 + .56)) * H_ * S / qs; rad = W_ * S / qs * (.18 + 1.25 * min(1, ew / .5)); inten = math.exp(-ew * 1.5) * sp.get("flash", .85)
+                g = np.clip(1 - np.hypot(xx_ - hx, yy_ - hy) / rad, 0, 1) ** 1.6 * inten
+                gi = Image.fromarray((g[:, :, None] * np.array([255, 52, 96])[None, None, :]).astype(np.uint8), "RGB").resize((W_ * S, H_ * S), Image.BILINEAR)
+                d._image.paste(ImageChops.add(d._image, gi))
+        sim.frame(t, (), (), None, (), draw)
+    bar0, can0 = harmony.BAR, harmony.CANON; harmony.BAR, harmony.CANON = BAR, PROG   # 持続音（bed）も同じ小節・同じ和音で
+    try: sim.finish(total)
+    finally: harmony.BAR, harmony.CANON = bar0, can0
+
+
+KINDS = {"hearts2": hearts2, "cupcaustic": cupcaustic, "dominoes": dominoes, "merge": merge, "hearts": hearts, "bricks": bricks, "pendwave3d": pendwave3d, "spiro": spiro, "lens": lens, "koch": koch, "pendwave": pendwave, "orbits": orbits, "phyllo": phyllo, "zoomsalt": zoomsalt, "layers": layers, "pixels": pixels, "sortviz": sortviz, "polyfocus": polyfocus, "heliostat": heliostat, "dragon": dragon, "rhythm": rhythm, "lissatable": lissatable, "plotter": plotter, "threebody": threebody, "pendswing": pendswing, "golden": golden, "piphase": piphase, "maurer": maurer, "harmono": harmono, "spiropens": spiropens, "star": star, "throw": throw, "tusi": tusi, "chain": chain, "basket": basket, "koch": koch, "cycloid": cycloid, "pendulums": pendulums, "lissajous": lissajous, "corner": corner, "sunflower": sunflower, "ulam": ulam, "parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2, "picount": picount}
 
 if __name__ == "__main__":
     sp = json.load(open(sys.argv[1], encoding="utf-8")); KINDS[sp["kind"]](sp); kit(sp)

@@ -1,0 +1,16 @@
+【タイトル】
+Put 5 Pens in the Same Gear. What Do They Draw Together? (Wait for the End) #shorts #satisfying #math
+
+【説明】
+A 41-tooth gear rolls inside a 96-tooth ring. This time five pens sit in five holes at different distances from the gear's center (95%, 80%, 65%, 50% and 35% of the gear's radius). The outermost pen plays a stone chime at every petal tip.
+
+How it works:
+- All five pens draw 96 petals. 96 and 41 share no common factor bigger than 1, so the lines only close after 41 laps.
+- The closer a hole is to the gear's center, the shallower its petals and the bigger the hole in the middle.
+- Five flowers of different shapes overlap into fine, lace-like bands.
+- The curve is a hypotrochoid.
+
+Simulation, sound and animation: original (Python).
+
+【タグ】
+math, spirograph, gears, geometry, pattern, satisfying, relaxing, simulation, shorts
