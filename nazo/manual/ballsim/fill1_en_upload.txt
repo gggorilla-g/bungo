@@ -1,0 +1,20 @@
+【タイトル】
+Every Bounce Paints the Ring and Plays a Note. Will It Fill It All? Name the Song #shorts #satisfying #physics
+
+【説明】
+A ball flies in straight lines inside a circle. Every bounce paints one piece of the ring where it hit, and plays the next note of a tune. Will the whole ring get painted? Can you name the tune?
+
+Answer: Pachelbel's Canon (written around 1680, public domain).
+
+How it works:
+- Inside a circle, a ball travels the same distance between every two bounces. So the hits come at a steady beat.
+- Each bounce lands three eighths of a turn further on. After 8 bounces, all 8 pieces of the ring are painted.
+- Every time a ring is full, the balls double (1, 2, 4, 8). The new balls follow the same shape of path, half a beat and half a piece apart.
+- So the notes go from quarter notes to 8th, 16th and 32nd notes, and the pieces go 8, 16, 32, 64. That is 120 bounces in total.
+- The thin lines are the paths. They pile up and a small circle appears in the middle, because every path passes the center at the same distance.
+- Balls pass through each other.
+
+Simulation, sound and animation: original (Python).
+
+【タグ】
+physics, music, canon, satisfying, relaxing, simulation, shorts
