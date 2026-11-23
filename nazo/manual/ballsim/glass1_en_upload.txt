@@ -1,13 +1,13 @@
 【タイトル】
-One Ball Breaks One Glass. How Many Balls to Break All 255? It Doubles Every Trip #shorts #satisfying #math
+One Ball Flows In and Multiplies. How Many Balls to Break All 255 Glass? #shorts #satisfying #math
 
 【説明】
-255 pieces of glass sit along a spiral track. One ball breaks one piece and goes back to the gate. When every ball is back, they double and go again (1, 2, 4, 8...). How many balls does it take to break it all?
+255 pieces of glass sit along a spiral track. One ball at a time flows in from outside. When it passes the point, it multiplies: x1, x2, x4, x8... (the multiplier doubles every time). Each ball breaks one piece. How many balls have to flow in to break it all?
 
 How it works:
-- The first trip sends 1 ball, the second 2, the third 4. Every trip doubles.
-- The eighth trip sends 128. And 1 + 2 + 4 + 8 + 16 + 32 + 64 + 128 = 255, so the very last ball of the eighth trip breaks the very last piece.
-- Doubling eight times always adds up to one less than the next double (256 - 1 = 255).
+- Eight balls flow in. The multipliers are x1, x2, x4, x8, x16, x32, x64, x128.
+- 1 + 2 + 4 + 8 + 16 + 32 + 64 + 128 = 255, so the very last ball from the eighth pass breaks the very last piece.
+- Add up eight doublings starting from 1 and you always get one less than the next number (256 - 1 = 255).
 - The glass breaks at a steady pace, so you hear rolls of 1, 2, 4, 8... hits. Each hit plays a note from the current chord, going up and down.
 - Balls pass through each other.
 

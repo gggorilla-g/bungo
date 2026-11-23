@@ -2505,7 +2505,8 @@ def dominoes2(sp):
 
 def spiralglass(sp):
     """うずまきのガラスを全部割る（参考：オーナー画面収録 11/23「How many balls to break it ALL?」）。
-    うずまきの道に、ガラスが 2^rounds − 1 枚（既定 255枚）。ボール1個はガラスを1枚割って入口に戻る。入口に全部戻ると、2倍になってまた出ていく（1→2→4→…→128）。
+    うずまきの道に、ガラスが 2^rounds − 1 枚（既定 255枚）。毎回、ボールが1個、外から道を流れてくる。入口の点を通ると n 倍にふえる（×1→×2→×4→…→×128）。ふえたボールは1個につき1枚のガラスを割って消える。
+    （オーナー 11/23「1個の球が流れてきて、ポイントを通るとn倍になる感じがいい。チェックポイントから発射するのではなくて」→ 入口に戻って待つ作りをやめ、流れ抜ける作りにした）
     割れる間かくは一定（32分音符）なので、1・2・4・8…と長くなる連打になる。音は和音の中の音を上り下り（カロッ）。割れたガラスは破片になって飛ぶ"""
     import harmony
     from simkit import W as W_, H as H_
@@ -2513,7 +2514,13 @@ def spiralglass(sp):
     thmax = 2 * math.pi * (Rr - bb / 2 - r_end) / bb; TH_ = np.linspace(0, thmax, 24000); RC = Rr - bb * TH_ / (2 * math.pi) - bb / 2
     SS = np.cumsum(np.sqrt(RC ** 2 + (bb / (2 * math.pi)) ** 2) * np.gradient(TH_)); Lt = (SS[-1] - gate) / NT
     th_of = lambda s_: float(np.interp(s_, SS, TH_)); pos_th = lambda th_, off=0.0: ((Rr - bb * th_ / (2 * math.pi) - bb / 2 + off) * math.cos(-math.pi / 2 + th_), (Rr - bb * th_ / (2 * math.pi) - bb / 2 + off) * math.sin(-math.pi / 2 + th_))
-    pos_s = lambda s_: pos_th(th_of(max(0.0, s_)))
+    th_in = sp.get("entry", -1.25) * math.pi; TE = np.linspace(th_in, 0, 3000); RE = Rr - bb * TE / (2 * math.pi) - bb / 2   # 入口までの道（うずまきを外へ1周ぶん近くのばした所）
+    SE = np.cumsum(np.sqrt(RE ** 2 + (bb / (2 * math.pi)) ** 2) * np.gradient(TE)); Le = float(SE[-1]); SE = SE - Le; p_end = pos_th(th_in); p_e2 = pos_th(th_in + .02)
+    dl = math.hypot(p_end[0] - p_e2[0], p_end[1] - p_e2[1]); dirb = ((p_end[0] - p_e2[0]) / dl, (p_end[1] - p_e2[1]) / dl); APP = 1.3   # 道の端より前は、まっすぐ外から入ってくる
+    def pos_s(s_):
+        if s_ >= 0: return pos_th(th_of(s_))
+        if s_ >= -Le: return pos_th(float(np.interp(s_, SE, TE)))
+        return (p_end[0] + dirb[0] * (-Le - s_), p_end[1] + dirb[1] * (-Le - s_))
     S0 = [gate + n * Lt for n in range(NT + 1)]; TB = [th_of(s_) for s_ in S0]
     # ガラス1枚ずつの形と色（色は向きで決める＝色の輪をうずまきに切った見た目）
     tiles = []
@@ -2523,17 +2530,17 @@ def spiralglass(sp):
         tm = (ta + tb) / 2; hue = ((-math.pi / 2 + tm) / (2 * math.pi)) % 1
         tiles.append(dict(poly=outer + inner[::-1], sheen=sheen, col=hsv(hue, .78, 1), c=pos_th(tm), th=tm))
     # 当たる時刻：回ごとに 2^k 個。間かく tau で次のガラスへ。出る時刻は、当たる時刻から道のりぶん戻して決める
-    intro, tail = .35, sp.get("tail", 2.6); balls = []; hits = []; rstart = []; tprev = intro
+    intro, tail = .1, sp.get("tail", 2.6); balls = []; hits = []; rstart = []; leads = []; tprev = intro + (Le + APP) / v
     for k in range(RN):
         n0 = 2 ** k - 1; H0 = tprev + S0[n0] / v; grid = .25 if k < 3 else .5; H0 = math.ceil((H0 - 1e-6) / grid) * grid
-        rstart.append((H0 - S0[n0] / v, 2 ** k)); last_ret = 0
+        g_ = H0 - S0[n0] / v; rstart.append((g_, 2 ** k)); leads.append(g_)   # g_：流れてきた1個が入口の点を通る時刻
         for j in range(2 ** k):
-            n = n0 + j; h = H0 + j * tau; d_ = S0[n]; balls.append(dict(dep=h - d_ / v, hit=h, ret=h + d_ / v, d=d_, k=k)); hits.append((h, n, j, k)); last_ret = max(last_ret, h + d_ / v)
-        tprev = last_ret + .14
+            n = n0 + j; h = H0 + j * tau; d_ = S0[n]; balls.append(dict(dep=h - d_ / v, hit=h, d=d_, k=k, j=j)); hits.append((h, n, j, k))
+        tprev = H0 + (2 ** k - 1) * tau + .18 - S0[min(NT - 1, 2 ** (k + 1) - 1)] / v   # 次の1個は、前の回の最後の1枚が割れるころに着くように流れてくる
+        tprev = max(tprev, g_ + .2)
     T_last = hits[-1][0]; total = T_last + tail
-    sim = Sim(sp, (-1.1, -1.1, 1.1, 1.1))
-    sim.neon([pos_th(u, bb / 2) for u in np.linspace(0, thmax + 2 * math.pi * .999, 900)], width=4)   # うずまきの壁
-    sim.neon([pos_th(0, -bb / 2), pos_th(0, bb / 2)], width=4); sim.title()
+    sim = Sim(sp, (-1.22, -1.22, 1.22, 1.22))
+    sim.neon([pos_th(u, bb / 2) for u in np.linspace(th_in, thmax + 2 * math.pi * .999, 1000)], width=4); sim.title()   # うずまきの壁（入口までの道も同じ1本の線）
     on0 = harmony.ON; harmony.ON = False
     for h, n, j, k in hits:   # 割れる音：その時の和音の中の音を、上って下りる
         r, q = harmony.CANON[int(h / harmony.BAR) % len(harmony.CANON)]; T = [60 + r, 60 + r + q[1], 60 + r + q[2], 72 + r, 72 + r + q[1], 72 + r + q[2], 84 + r]
@@ -2542,16 +2549,16 @@ def spiralglass(sp):
         x, y = tiles[n]["c"]; sim.note(h, m, .34 if k < 5 else .28, .5 + .35 * x, 5.0, "karo")
     b = 0.0
     while b < T_last:   # 裏の拍：連打が鳴っている間だけ、やわらかい低い太鼓
-        if any(abs(h - b) < tau * .6 or (h0_ <= b <= h1_) for (h, _, _, _), h0_, h1_ in ((hits[0], 0, 0),)) or any(rs + S0[2 ** kk - 1] / v - .01 <= b <= rs + S0[2 ** kk - 1] / v + (cnt - 1) * tau + .01 for kk, (rs, cnt) in enumerate(rstart) if cnt >= 8): sim.note(b, 36, .5, .5, 9, "kick")
+        if any(rs + S0[2 ** kk - 1] / v - .01 <= b <= rs + S0[2 ** kk - 1] / v + (cnt - 1) * tau + .01 for kk, (rs, cnt) in enumerate(rstart) if cnt >= 4): sim.note(b, 36, .5, .5, 9, "kick")
         b += .5
     for kk, (rs, cnt) in enumerate(rstart):
-        if kk > 0: sim.note(rs, 72 + harmony.CANON[int(rs / harmony.BAR) % len(harmony.CANON)][0], .16, .5, 4, "bell")   # 2倍になって出ていく合図
+        sim.note(rs, 72 + harmony.CANON[int(rs / harmony.BAR) % len(harmony.CANON)][0], .2, .5, 4, "bell")   # 点を通ってふえる合図
     sim.note(T_last + tau, 36, 1.0, .5, 9, "kick")
     for m in (48, 55, 60, 64, 67, 72, 76): sim.note(T_last + tau, m, .30, .5, 1.6, "bell")
     harmony.ON = on0
     rng = np.random.default_rng(sp.get("seed", 5)); shards = []; broke = [None] * NT
     for h, n, j, k in hits: broke[n] = h
-    fB = F(38 * S); gx, gy = pos_th(0); WALL_ = [sim.to(pos_th(u, bb / 2)) for u in np.linspace(0, thmax + 2 * math.pi * .999, 420)]
+    fB = F(38 * S); gx, gy = pos_th(0); WALL_ = [sim.to(pos_th(u, bb / 2)) for u in np.linspace(th_in, thmax + 2 * math.pi * .999, 460)]
     hit_i = 0; hits_sorted = sorted(hits)
     for fi in range(int(total * FPS)):
         t = fi / FPS
@@ -2563,7 +2570,7 @@ def spiralglass(sp):
                                    sz=sz, a=a0, w=rng.uniform(-9, 9), col=tuple(int(c_ * .5 + 255 * .5) for c_ in tl["col"]), life=rng.uniform(.5, .95)))
         shards = [s_ for s_ in shards if t - s_["t0"] < s_["life"]]
         nb = sum(1 for h_ in broke if h_ is not None and h_ <= t)
-        rk = max([kk for kk, (rs, cnt) in enumerate(rstart) if t >= rs] or [0]); rs_age = t - rstart[rk][0]
+        rk = max([kk for kk, (rs, cnt) in enumerate(rstart) if t >= rs] or [-1]); rs_age = t - rstart[rk][0] if rk >= 0 else 9.0
         def draw(d, t=t, nb=nb, rk=rk, rs_age=rs_age, shards=list(shards)):
             agl = t - T_last
             if agl > 0:   # 全部割れた：うずまきの壁が虹色に光る
@@ -2585,17 +2592,25 @@ def spiralglass(sp):
                 e = t - h
                 if e < 0: break
                 if e < .14: x, y = sim.to(tiles[n]["c"]); r_ = (10 + 150 * e) * S; d.ellipse([x - r_, y - r_, x + r_, y + r_], outline=dim((255, 250, 235), 1 - e / .14), width=max(1, int(3 * S)))
-            for b_ in balls:   # ボール：行き（白く明るい）と帰り（小さく暗い）
-                if not (b_["dep"] <= t <= b_["ret"]): continue
-                going = t <= b_["hit"]; s_ = (t - b_["dep"]) * v if going else b_["d"] - (t - b_["hit"]) * v
-                for q in range(5 if going else 2):   # 尾
-                    sq = s_ - (q * .035 if going else -q * .035)
+            for b_ in balls:   # ふえたボール：入口の点から、割るガラスまで（割ったら消える）
+                if not (b_["dep"] <= t <= b_["hit"]): continue
+                s_ = (t - b_["dep"]) * v
+                for q in range(4, -1, -1):   # 尾
+                    sq = s_ - q * .035
                     if sq < 0: continue
-                    x, y = sim.to(pos_s(sq)); r_ = (7.5 - q * 1.1 if going else 4.5 - q) * S; g_ = (1 - q * .2) * (1 if going else .45)
-                    d.ellipse([x - r_, y - r_, x + r_, y + r_], fill=dim((255, 246, 230) if q == 0 else (255, 150, 110), g_))
-            x, y = sim.to((gx, gy)); pr = 1 + .35 * math.exp(-max(0, rs_age) * 7); r_ = 38 * S * pr; c = hsv((.08 + rk * .13) % 1, .7, 1)   # 入口：いま何倍か
+                    x, y = sim.to(pos_s(sq)); r_ = (7.5 - q * 1.1) * S
+                    d.ellipse([x - r_, y - r_, x + r_, y + r_], fill=dim((255, 246, 230) if q == 0 else (255, 150, 110), 1 - q * .2))
+            for g_ in leads:   # 流れてくる1個：外から道に入り、入口の点まで（点を通ると、ふえたボールに引きつがれる）
+                if not (g_ - (Le + APP) / v <= t < g_): continue
+                s_ = -(g_ - t) * v
+                for q in range(9, -1, -1):
+                    x, y = sim.to(pos_s(s_ - q * .045)); r_ = (11 - q * .95) * S
+                    d.ellipse([x - r_, y - r_, x + r_, y + r_], fill=dim((255, 250, 240) if q == 0 else (255, 170, 120), 1 - q * .095))
+            rkn = min(RN - 1, rk + 1) if (rk < 0 or (rk + 1 < RN and t >= leads[rk + 1] - (Le + APP) / v)) else rk   # 次の1個が流れてきたら、次の倍率を出しておく
+            x, y = sim.to((gx, gy)); pr = 1 + .35 * math.exp(-max(0, rs_age) * 7); r_ = 38 * S * pr; c = hsv((.08 + rkn * .13) % 1, .7, 1)   # 入口の点：ここを通ると何倍になるか
+            if 0 <= rs_age < .3: rr_ = (40 + 260 * rs_age) * S; d.ellipse([x - rr_, y - rr_, x + rr_, y + rr_], outline=dim((255, 250, 235), 1 - rs_age / .3), width=max(1, int(4 * S)))
             d.ellipse([x - r_, y - r_, x + r_, y + r_], fill=dim(c, .9), outline=(255, 255, 255), width=max(1, int(2 * S)))
-            tx_ = f"×{2 ** rk}"; fb_ = fB if len(tx_) <= 3 else F(int((30 if len(tx_) == 4 else 25) * S)); w = d.textlength(tx_, font=fb_); d.text((x - w / 2, y - fb_.size * .68), tx_, font=fb_, fill=(20, 16, 30))
+            tx_ = f"×{2 ** rkn}"; fb_ = fB if len(tx_) <= 3 else F(int((30 if len(tx_) == 4 else 25) * S)); w = d.textlength(tx_, font=fb_); d.text((x - w / 2, y - fb_.size * .68), tx_, font=fb_, fill=(20, 16, 30))
         sim.frame(t, (), (), (sp.get("count_label", "割れたガラス "), f"{nb} / {NT}"), (), draw)
     sim.finish(total)
 
@@ -2672,7 +2687,235 @@ def dots45(sp):
     finally: harmony.BAR = bar0
 
 
-KINDS = {"dots45": dots45, "spiralglass": spiralglass, "dominoes2": dominoes2, "hearts2": hearts2, "cupcaustic": cupcaustic, "dominoes": dominoes, "merge": merge, "hearts": hearts, "bricks": bricks, "pendwave3d": pendwave3d, "spiro": spiro, "lens": lens, "koch": koch, "pendwave": pendwave, "orbits": orbits, "phyllo": phyllo, "zoomsalt": zoomsalt, "layers": layers, "pixels": pixels, "sortviz": sortviz, "polyfocus": polyfocus, "heliostat": heliostat, "dragon": dragon, "rhythm": rhythm, "lissatable": lissatable, "plotter": plotter, "threebody": threebody, "pendswing": pendswing, "golden": golden, "piphase": piphase, "maurer": maurer, "harmono": harmono, "spiropens": spiropens, "star": star, "throw": throw, "tusi": tusi, "chain": chain, "basket": basket, "koch": koch, "cycloid": cycloid, "pendulums": pendulums, "lissajous": lissajous, "corner": corner, "sunflower": sunflower, "ulam": ulam, "parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2, "picount": picount}
+def circlefill(sp):
+    """はねるたびに円のふちを1区画ぬり、旋律が1音進む（オーナー画面収録 11/23「WILL IT FILL THE WHOLE CIRCLE?」の型。鍵盤つき）。
+    法則：円の中のボールは、はね返るたびに同じ長さの道（弦）を進む＝同じ間かくで当たる。1回で 3/8 周進むので、8回でちょうど1周ぶんの区画がうまる。
+    1周ぬり終わるたびにボールが2倍（半拍ずれ・半区画ずれの同じ形の道）。当たる間かくは 4分→8分→16分→32分 と細かくなる。曲はパッヘルベル「カノン」（著作権なし）"""
+    T = sp.get("beat", .75); t0 = sp.get("intro", .75); NL = sp.get("layers", 4); th0 = math.pi / 2; tail = sp.get("tail", 2.8)
+    FR = [0, .5, .25, .75, .125, .625, .375, .875][:2 ** (NL - 1)]   # ボールごとのずれ（時間は拍の何分の1、場所は区画の何分の1）
+    MEL = [[76, 74, 72, 71, 69, 67, 69, 71],
+           [72, 76, 79, 77, 76, 72, 76, 74, 72, 69, 72, 79, 77, 81, 79, 77],
+           [79, 76, 72, 76, 74, 71, 67, 71, 72, 69, 64, 69, 71, 67, 64, 67, 69, 65, 60, 65, 67, 64, 60, 64, 69, 65, 69, 72, 71, 74, 77, 79],
+           [72, 74, 76, 77, 79, 77, 76, 74, 71, 74, 77, 79, 83, 79, 77, 74, 69, 72, 76, 81, 76, 72, 69, 72, 67, 71, 76, 79, 76, 71, 67, 71,
+            65, 69, 72, 77, 72, 69, 65, 69, 64, 67, 72, 76, 72, 67, 64, 67, 65, 69, 72, 77, 81, 77, 72, 69, 67, 71, 74, 79, 77, 74, 71, 74]]
+    HUE = [(.97, .72), (.07, .80), (.13, .78), (.52, .42)]; wR = sp.get("ring_w", .085)
+    ang = lambda b, m: th0 - 2 * math.pi * (3 / 8 * m + FR[b] / 8)
+    hp = lambda b, m: (math.cos(ang(b, m)), math.sin(ang(b, m)))
+    hits = []   # (時刻, 層, ボール, 何回目の当たり, 音)
+    for L in range(NL):
+        n = 2 ** L
+        for j in range(8 * n):
+            b = FR.index((j % n) / n); m = 8 * L + j // n; hits.append((t0 + (m + FR[b]) * T, L, b, m, MEL[L][j]))
+    hits.sort(); T_fin = t0 + 8 * NL * T; total = T_fin + tail
+    spawn = [0.0] + [0.0] * (len(FR) - 1)
+    for b in range(1, len(FR)):
+        L = int(math.ceil(math.log2(b + 1))); spawn[b] = t0 + 8 * L * T - T / 2 ** (L - 1)   # 前の層の最後の1区画がうまった時
+    def pos(b, t):
+        u = (t - t0) / T - FR[b]; m = math.floor(u); f = u - m; a, c = hp(b, m), hp(b, m + 1); return (a[0] + (c[0] - a[0]) * f, a[1] + (c[1] - a[1]) * f)
+    import harmony
+    bar0 = harmony.BAR; harmony.BAR = T; sp = dict(sp); sp.setdefault("bed_off", t0)
+    try:
+        sim = Sim(sp, (-1.40, -1.40, 1.40, 1.40), area=(.08, .232, .92, .708))
+        sim.neon([(math.cos(a), math.sin(a)) for a in np.linspace(0, 2 * math.pi, 241)], closed=True, width=5); sim.title()
+        tone = sp.get("tone", "karo")
+        for th, L, b, m, note in hits:
+            a = ang(b, m); pan = .5 + .32 * math.cos(a); ci = int((th - t0) / T + 1e-6) % 8; r, q = harmony.CANON[ci]
+            sim.notes.append((th, note, (.62, .5, .42, .34)[L], pan, (5, 6, 7, 9)[L], tone))
+            if L == 0 or abs(((th - t0) / T) % 1) < 1e-6:   # 拍の頭：和音の根音を低いピアノで（層が進んでも4分の拍を保つ）
+                sim.notes.append((th, 48 + r if r < 8 else 36 + r, .30, .5, 2.2, "piano")); sim.notes.append((th, 60 + (r + q[1]) % 12, .12, .5, 2.6, "piano"))
+            if L >= 1 and abs(((th - t0) / T) % 1) < 1e-6: sim.notes.append((th, 36, .34, .5, 9, "kick"))
+        for mi in (48, 60, 64, 67, 72, 76): sim.notes.append((T_fin, mi, .34, .5, 1.5, "bell"))
+        sim.notes.append((T_fin, 36, .8, .5, 9, "kick"))
+        # 鍵盤（下）：鳴った音のキーが光る
+        K0, K1 = 60, 84; whites = [m for m in range(K0, K1 + 1) if m % 12 in (0, 2, 4, 5, 7, 9, 11)]; WS, HS = 1080 * S, 1920 * S
+        kx0, kx1, ky0, ky1 = .07 * WS, .93 * WS, .722 * HS, .790 * HS; kw = (kx1 - kx0) / len(whites)
+        def keyrect(m):
+            if m in whites: i = whites.index(m); return (kx0 + i * kw + 1.5 * S, ky0, kx0 + (i + 1) * kw - 1.5 * S, ky1), False
+            i = whites.index(m - 1); cx_ = kx0 + (i + 1) * kw; return (cx_ - kw * .30, ky0, cx_ + kw * .30, ky0 + (ky1 - ky0) * .60), True
+        fC = F(64 * S); nseg = lambda L: 8 * 2 ** L
+        done = set()
+        for fi in range(int(total * FPS)):
+            t = fi / FPS
+            for hi, (th, L, b, m, note) in enumerate(hits):   # 通った道を細い線で残す（重なって星の形になる）
+                if th <= t and hi not in done:
+                    done.add(hi); h_, s_ = HUE[L]; sim.commit([(hp(b, m - 1), hp(b, m), dim(hsv(h_, s_ * .9, 1), (.30, .22, .16, .11)[L]))], width=1.6)
+            nh = sum(1 for h in hits if h[0] <= t)
+            def draw(d, t=t):
+                cx, cy = sim.to((0, 0)); k = sim.k
+                agl = max(0.0, t - T_fin); fin = math.exp(-agl * 2.2) if t >= T_fin else 0
+                for th, L, b, m, note in hits:   # ぬった区画
+                    if th > t: break
+                    e = t - th; h_, s_ = HUE[L]; fl = math.exp(-e * 9); a = ang(b, m); half = 180.0 / nseg(L); gap = .5 if L < 3 else .25
+                    r1 = (1 + wR * (L + 1)) * k; r0_ = (1 + wR * L) * k + 3 * S; col = hsv(h_, s_ * (1 - .75 * fl), min(1, .80 + .2 * fl + .2 * fin))
+                    d.arc([cx - r1, cy - r1, cx + r1, cy + r1], -math.degrees(a) - half + gap, -math.degrees(a) + half - gap, fill=col, width=int(r1 - r0_))
+                    if e < .30:   # 当たった所から外へ光の輪
+                        x, y = sim.to((math.cos(a), math.sin(a))); rr = (10 + 150 * e) * S; d.ellipse([x - rr, y - rr, x + rr, y + rr], outline=dim((255, 245, 225), 1 - e / .30), width=max(1, int(3 * S)))
+                for b in range(len(FR)):   # ボール（尾つき）
+                    if t < spawn[b] or (b == 0 and t < 0): continue
+                    ap = min(1, (t - spawn[b]) / .25) if b else 1.0; ap *= max(0, 1 - agl / .5)
+                    if ap <= 0: continue
+                    for q_ in range(7, -1, -1):
+                        x, y = sim.to(pos(b, t - q_ * .011)); r_ = (9 - q_ * .95) * S * (.6 + .4 * ap) * (1 if len(FR) <= 2 or t < spawn[min(len(FR) - 1, 2)] else .86)
+                        d.ellipse([x - r_, y - r_, x + r_, y + r_], fill=dim((255, 252, 244) if q_ == 0 else (255, 190, 140), ap * (1 - q_ * .12)))
+                for b in range(1, len(FR)):   # ふえた瞬間：輪が広がる
+                    e = t - spawn[b]
+                    if 0 <= e < .45:
+                        x, y = sim.to(pos(b, t)); rr = (12 + 190 * e) * S; d.ellipse([x - rr, y - rr, x + rr, y + rr], outline=dim((255, 240, 200), 1 - e / .45), width=max(1, int(3 * S)))
+                for L in range(1, NL):   # 1周ぬり終わった合図：真ん中に「×2」
+                    e = t - spawn[2 ** (L - 1)]
+                    if 0 <= e < 1.1:
+                        g = min(1, e / .12) * max(0, 1 - max(0, e - .7) / .4); tx = sp.get("x2", "ボール ×2"); w_ = d.textlength(tx, font=fC)
+                        d.text((cx - w_ / 2, cy - 40 * S), tx, font=fC, fill=dim(hsv(HUE[L][0], .5, 1), g))
+                if t >= T_fin and agl < .6:
+                    rr = (1 + wR * NL) * k + 420 * agl * S; d.ellipse([cx - rr, cy - rr, cx + rr, cy + rr], outline=dim((255, 245, 220), 1 - agl / .6), width=max(1, int(4 * S)))
+                lit = {}
+                for th, L, b, m, note in hits:
+                    if th > t: break
+                    e = t - th
+                    if e < .42: lit[note] = max(lit.get(note, 0), 1 - e / .42)
+                for mi in whites + [m_ for m_ in range(K0, K1 + 1) if m_ not in whites]:   # 白いキー → 黒いキーの順
+                    (x0, y0, x1, y1), blk = keyrect(mi); g = lit.get(mi, 0); base = (26, 28, 44) if blk else (214, 220, 232); hc = hsv((mi % 12) / 12.0, .78, 1)
+                    col = tuple(int(base[i] * (1 - g) + hc[i] * g) for i in range(3))
+                    d.rounded_rectangle([x0, y0, x1, y1], radius=int(5 * S), fill=col)
+                    if g > .05 and not blk: d.rounded_rectangle([x0, y1 - 14 * S, x1, y1], radius=int(5 * S), fill=dim((255, 255, 255), .55 * g))
+            sim.frame(t, (), (), (sp.get("count_label", "はねた回数 "), f"{nh}"), (), draw)
+        sim.finish(total)
+    finally: harmony.BAR = bar0
+
+def polywheel(sp):
+    """三角形が地面を転がる。1回転するたびに辺が1つふえる（オーナー画面収録 11/23「Can a triangle become a wheel?」の型）。
+    法則：一定の速さで回るので、1回転（1小節）の中で n角形は n回着地する＝3連、4つ、5連…と拍が細かくなる。中心の上下は 半径×(1−cos(180°/n)) で、辺がふえるほど平らになる"""
+    BAR = sp.get("bar", 1.1); N0, N1 = sp.get("n0", 3), sp.get("n1", 24); R = 1.0; intro = sp.get("intro", .5); tail = sp.get("tail", 2.8); w = 2 * math.pi / BAR
+    segs = []; x = 0.0; t = intro   # (開始時刻, n, 支点x, 何番目の着地か)
+    lands = []; cxs = 0.0
+    for n in range(N0, N1 + 1):
+        sd = 2 * R * math.sin(math.pi / n); px = cxs + sd / 2   # 辺を下にして置く。支点は右はし
+        for i in range(n):
+            segs.append((t, n, px, i)); t += BAR / n; lands.append((t, n, px + sd, i)); px += sd
+        cxs = px - sd / 2
+    T_end = t; total = T_end + tail
+    def state(tt):
+        tt = min(max(tt, intro), T_end - 1e-6); k = 0
+        lo, hi = 0, len(segs) - 1
+        while lo < hi:
+            mid = (lo + hi + 1) // 2
+            if segs[mid][0] <= tt: lo = mid
+            else: hi = mid - 1
+        ts, n, px, i = segs[lo]; ph = (tt - ts) * w; a = math.pi / 2 + math.pi / n - ph
+        c = (px + R * math.cos(a), R * math.sin(a)); base = a + math.pi
+        return n, c, [(c[0] + R * math.cos(base + 2 * math.pi * j / n), c[1] + R * math.sin(base + 2 * math.pi * j / n)) for j in range(n)], i
+    import harmony
+    bar0 = harmony.BAR; harmony.BAR = BAR; sp = dict(sp); sp.setdefault("bed_off", intro)
+    try:
+        sim = Sim(sp, (-1.75, -0.9, 1.75, 2.9)); sim.title()
+        for tl, n, lx, i in lands:
+            ci = int((tl - BAR / n - intro) / BAR + 1e-6) % 8; r, q = harmony.CANON[ci]; tones = [m for m in range(57, 86) if (m - r) % 12 in q]
+            sim.notes.append((tl, tones[min(len(tones) - 1, (i * len(tones)) // n)], .56 * (3.0 / n) ** .33, .5, 6 + n * .25, sp.get("tone", "karo")))
+            if i == n - 1: sim.notes.append((tl, 36, .5, .5, 9, "kick")); sim.notes.append((tl, 48 + harmony.CANON[(ci + 1) % 8][0] % 12, .26, .5, 2.2, "piano"))
+        for mi in (48, 60, 64, 67, 72, 76): sim.notes.append((T_end, mi, .3, .5, 1.5, "bell"))
+        dtp = 1 / 240.0; path = []; vpath = []; tt = intro
+        while tt < T_end: n, c, V, i = state(tt); path.append((tt, c, n)); vpath.append(V); tt += dtp
+        fB, fS = F(120 * S), F(40 * S); hue = lambda n: .035 + .105 * (n - N0) / max(1, N1 - N0)
+        for fi in range(int(total * FPS)):
+            t = fi / FPS; n, c, V, i = state(t); camx = c[0]; done = t >= T_end
+            def draw(d, t=t, n=n, c=c, V=V, camx=camx, done=done):
+                P = lambda p: sim.to((p[0] - camx, p[1])); WS = 1080 * S
+                gy = P((camx, 0))[1]
+                for gx in np.arange(math.floor((camx - 2.6) / .5) * .5, camx + 2.6, .5):   # 地面の目もり（流れて速さがわかる）
+                    x_, _ = P((gx, 0)); big = abs(gx / 2.0 - round(gx / 2.0)) < 1e-6; d.line([x_, gy, x_, gy + (26 if big else 12) * S], fill=(70, 150, 190) if big else (40, 80, 110), width=max(1, int(2 * S)))
+                d.line([0, gy, WS, gy], fill=(30, 90, 120), width=int(9 * S)); d.line([0, gy, WS, gy], fill=(150, 235, 255), width=int(3 * S))
+                k0 = int((min(t, T_end) - intro) / dtp); pts = [(P(pc), nn) for (tq, pc, nn) in path[max(0, k0 - 1900):k0 + 1:2] if abs(pc[0] - camx) < 2.7]   # 中心が通った道：でこぼこが平らになっていく
+                for a_, b_ in zip(pts, pts[1:]): d.line([a_[0], b_[0]], fill=dim(hsv(hue(a_[1]), .7, 1), .9), width=max(1, int(4 * S)))
+                ks = list(range(max(0, k0 - int(1.5 * BAR / dtp)), k0 + 1, 3))   # 角が通った道（1回転半ぶん）：弧が重なってレースもようになる
+                for qa, qb in zip(ks, ks[1:]):
+                    Va, Vb = vpath[qa], vpath[qb]
+                    if len(Va) != len(Vb): continue
+                    g = .22 + .50 * (qb - ks[0]) / max(1, len(ks) * 3); cl = dim(hsv(hue(len(Va)) + .5, .55, 1), g)
+                    for j in range(len(Va)): d.line([P(Va[j]), P(Vb[j])], fill=cl, width=max(1, int(1.6 * S)))
+                h_ = hue(n); col = hsv(h_, .78, 1); poly = [P(v) for v in V]; cc = P(c)
+                d.polygon(poly, fill=dim(col, .30))
+                for j in range(n): d.line([cc, poly[j]], fill=dim(col, .22), width=max(1, int(1.5 * S)))   # スポーク
+                d.line(poly + [poly[0]], fill=dim(col, .5), width=int(10 * S)); d.line(poly + [poly[0]], fill=tuple(min(255, int(v * .55 + 115)) for v in col), width=int(3.5 * S))
+                rr = 9 * S; d.ellipse([cc[0] - rr, cc[1] - rr, cc[0] + rr, cc[1] + rr], fill=(255, 250, 235))
+                for tl, nn, lx, ii in lands:   # 着地の光：地面にそって広がる
+                    e = t - tl
+                    if e < 0: break
+                    if e < .28:
+                        x_, y_ = P((lx, 0)); g = 1 - e / .28; wd = (20 + 240 * e) * S * (1.5 if ii == nn - 1 else 1)
+                        d.line([x_ - wd, y_, x_ + wd, y_], fill=dim((255, 240, 205), g), width=int((7 if ii == nn - 1 else 4) * S)); r2 = (6 + 30 * e) * S; d.ellipse([x_ - r2, y_ - r2, x_ + r2, y_ + r2], outline=dim((255, 240, 205), g), width=max(1, int(2 * S)))
+                tx = sp.get("fmt", "{n}角形").format(n=n); tw = d.textlength(tx, font=fB); pop = 1 + .18 * math.exp(-max(0, (t - intro) % BAR if not done else 9) * 9)
+                d.text((WS / 2 - tw / 2, gy + 70 * S), tx, font=fB, fill=dim(tuple(min(255, int(v * .6 + 100)) for v in col), min(1, .85 * pop)))
+                bump = (1 - math.cos(math.pi / n)) * 100; t2 = sp.get("bump", "中心の上下  半径の {b}%").format(b=("%.1f" % bump))
+                d.text((WS / 2 - d.textlength(t2, font=fS) / 2, gy + 215 * S), t2, font=fS, fill=(190, 200, 215))
+            sim.frame(t, (), (), None, (), draw)
+        sim.finish(total)
+    finally: harmony.BAR = bar0
+
+def koch2(sp):
+    """コッホ雪片：光の玉がふちを1周するたびに、通った辺のまん中に小さな三角が生える（オーナー画面収録 11/23「Can a shape with finite area have an infinite edge?」の型）。
+    1周は3小節で一定。生える数は 3、12、48、192、768 と4倍ずつ＝音は細かくなる。ふちの長さは1周ごとに 4/3 倍、面積は 8/5 に近づくだけ"""
+    BAR = sp.get("bar", 1.5); G = sp.get("laps", 5); LAP = 3 * BAR; intro = sp.get("intro", .5); tail = sp.get("tail", 3.0); T_end = intro + G * LAP; total = T_end + tail
+    base = [np.array([math.cos(math.pi / 2 - 2 * math.pi * k / 3), math.sin(math.pi / 2 - 2 * math.pi * k / 3)]) for k in range(3)]   # 時計回り
+    gens = [base]
+    for g in range(G):
+        P = gens[-1]; Q = []
+        for i in range(len(P)):
+            a, b = P[i], P[(i + 1) % len(P)]; dv = b - a; nrm = np.array([-dv[1], dv[0]]); Q += [a, a + dv / 3, (a + b) / 2 + nrm * (math.sqrt(3) / 6), a + dv * 2 / 3]
+        gens.append(Q)
+    side0 = float(np.linalg.norm(base[1] - base[0])); A0 = math.sqrt(3) / 4 * side0 ** 2
+    def shape(t):
+        """いまの形（点の列）、玉の位置、ふちの長さ（元の1辺=1）、面積（元=1）、何周目か"""
+        if t >= T_end: g = G - 1; u = 1.0
+        else: g = int(max(0, t - intro) / LAP); u = (max(0, t - intro) - g * LAP) / LAP
+        P = gens[g]; N = len(P); x = u * N + (N if t >= T_end else 0); grow = max(.10, min(.45, LAP / N * 1.5)); pts = []; ln = 0.0; ar = 0.0; Lg = side0 / 3 ** g
+        for i in range(N):
+            a, b = P[i], P[(i + 1) % N]; e = (x - (i + 1)) * (LAP / N) / grow; am = 0.0 if e <= 0 else 1.0 if e >= 1 else e * e * (3 - 2 * e)
+            if am <= 0: pts.append(a); ln += Lg; continue
+            dv = b - a; nrm = np.array([-dv[1], dv[0]]); h = am * math.sqrt(3) / 6
+            pts += [a, a + dv / 3, (a + b) / 2 + nrm * h, a + dv * 2 / 3]; ln += Lg * 2 / 3 + 2 * math.hypot(Lg / 6, h * Lg); ar += .5 * (Lg / 3) * (h * Lg)
+        i = min(N - 1, int(u * N)); f = u * N - i; ball = P[i] + (P[(i + 1) % N] - P[i]) * f if t < T_end else None
+        area_prev = 1 + sum(3 * 4 ** (k - 1) * (1 / 9.0) ** k for k in range(1, g + 1))
+        return pts, ball, ln / side0, area_prev + ar / A0, g, u
+    import harmony
+    bar0 = harmony.BAR; harmony.BAR = BAR; sp = dict(sp); sp.setdefault("bed_off", intro)
+    try:
+        sim = Sim(sp, (-1.12, -1.12, 1.12, 1.12), area=(.06, .235, .94, .74))
+        sim.neon([(1.07 * math.cos(a), 1.07 * math.sin(a)) for a in np.linspace(0, 2 * math.pi, 241)], closed=True, width=4); sim.title()
+        ev = []   # 生える時刻
+        for g in range(G):
+            N = 3 * 4 ** g; st = max(1, N // 48)   # 音は1小節に16個まで
+            for i in range(N):
+                tb = intro + g * LAP + (i + 1) * LAP / N
+                if i % st == st - 1 or N <= 48:
+                    bi = int((tb - intro - 1e-6) / BAR); r, q = harmony.CANON[bi % 8]; tones = [m for m in range(60, 85) if (m - r) % 12 in q]
+                    k = (i // st) if N > 48 else i; per = max(1, (N // st if N > 48 else N) // 3); j = k % per; up = j if j < len(tones) else (len(tones) - 1 - (j - len(tones)) % len(tones))
+                    a_ = gens[g][i]; sim.notes.append((tb, tones[int(up) % len(tones)], (.62, .52, .40, .36, .34)[min(g, 4)], .5 + .3 * a_[0], 5 + g, sp.get("tone", "karo")))
+            for b_ in range(3):
+                tb = intro + g * LAP + b_ * BAR; r, q = harmony.CANON[(g * 3 + b_) % 8]; sim.notes.append((tb, 48 + r if r < 8 else 36 + r, .28, .5, 2.0, "piano"))
+                if g >= 1: sim.notes.append((tb, 36, .40, .5, 9, "kick"))
+        for mi in (48, 60, 64, 67, 72, 76): sim.notes.append((T_end, mi, .32, .5, 1.5, "bell"))
+        sim.notes.append((T_end, 36, .7, .5, 9, "kick"))
+        fS = F(40 * S); hue = lambda v: .52 + .42 * min(1, v / G)
+        for fi in range(int(total * FPS)):
+            t = fi / FPS; pts, ball, ln, area, g, u = shape(t)
+            def draw(d, t=t, pts=pts, ball=ball, area=area, g=g, u=u):
+                agl = max(0, t - T_end); pul = math.exp(-agl * 2.5) if t >= T_end else math.exp(-(((t - intro) % BAR) if t > intro else 9) * 6) * .35
+                col = hsv(hue(g + u), .72, 1); P_ = [sim.to(p) for p in pts]
+                d.polygon(P_, fill=dim(col, .22 + .12 * pul))
+                d.line(P_ + [P_[0]], fill=dim(col, .45), width=int((11 if g < 3 else 8) * S), joint="curve"); d.line(P_ + [P_[0]], fill=tuple(min(255, int(v * .6 + 100 + 40 * pul)) for v in col), width=int((4 if g < 3 else 3) * S), joint="curve")
+                if ball is not None and t >= intro - .3:
+                    N = len(gens[g]); x_ = u * N
+                    for q_ in range(9, -1, -1):   # 尾：通ってきた辺をさかのぼる
+                        xx = x_ - q_ * N * .0045; ii = int(math.floor(xx)); ff = xx - ii; a, b = gens[g][ii % N], gens[g][(ii + 1) % N]; bx, by = sim.to(a + (b - a) * ff); r_ = (13 - q_ * 1.1) * S
+                        d.ellipse([bx - r_, by - r_, bx + r_, by + r_], fill=dim((255, 255, 250) if q_ == 0 else tuple(min(255, int(v * .5 + 120)) for v in col), 1 - q_ * .09))
+                if t >= T_end and agl < .7:
+                    cx, cy = sim.to((0, 0)); rr = (1.07 * sim.k) + 380 * agl * S; d.ellipse([cx - rr, cy - rr, cx + rr, cy + rr], outline=dim((255, 240, 250), 1 - agl / .7), width=max(1, int(4 * S)))
+                tx = sp.get("area", "面積 {a}（元＝1）  1.6 はこえない").format(a="%.3f" % area); d.text((1080 * S / 2 - d.textlength(tx, font=fS) / 2, .752 * 1920 * S), tx, font=fS, fill=(190, 200, 215))
+            sim.frame(t, (), (), (sp.get("count_label", "ふちの長さ "), "%.2f" % ln), (), draw)
+        sim.finish(total)
+    finally: harmony.BAR = bar0
+
+KINDS = {"koch2": koch2, "polywheel": polywheel, "circlefill": circlefill, "dots45": dots45, "spiralglass": spiralglass, "dominoes2": dominoes2, "hearts2": hearts2, "cupcaustic": cupcaustic, "dominoes": dominoes, "merge": merge, "hearts": hearts, "bricks": bricks, "pendwave3d": pendwave3d, "spiro": spiro, "lens": lens, "koch": koch, "pendwave": pendwave, "orbits": orbits, "phyllo": phyllo, "zoomsalt": zoomsalt, "layers": layers, "pixels": pixels, "sortviz": sortviz, "polyfocus": polyfocus, "heliostat": heliostat, "dragon": dragon, "rhythm": rhythm, "lissatable": lissatable, "plotter": plotter, "threebody": threebody, "pendswing": pendswing, "golden": golden, "piphase": piphase, "maurer": maurer, "harmono": harmono, "spiropens": spiropens, "star": star, "throw": throw, "tusi": tusi, "chain": chain, "basket": basket, "koch": koch, "cycloid": cycloid, "pendulums": pendulums, "lissajous": lissajous, "corner": corner, "sunflower": sunflower, "ulam": ulam, "parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2, "picount": picount}
 
 if __name__ == "__main__":
     sp = json.load(open(sys.argv[1], encoding="utf-8")); KINDS[sp["kind"]](sp); kit(sp)

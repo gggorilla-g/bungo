@@ -1,0 +1,29 @@
+{
+ "kind": "koch2",
+ "id": "koch2_en",
+ "bed": true,
+ "bloom": 0,
+ "glow": 0.5,
+ "style": "big",
+ "mark": "@makeitwork3d",
+ "title": [
+  "The {area} stays finite.",
+  "Can the [edge] be infinite?"
+ ],
+ "count_label": "Edge: ",
+ "yt": {
+  "title": "The Area Stays Finite. Can the Edge Be Infinite? #shorts #satisfying #math",
+  "desc": "A light runs along the edge of a triangle. On every side it passes, a small triangle grows out of the middle third. Every lap repeats this (the Koch snowflake). The area is limited. Can the edge become infinite?\n\nHow it works:\n- Every lap makes the edge 4/3 times longer (3, 4, 5.33, 7.11, 9.48, 12.64). You can repeat it forever, so the length has no limit.\n- The number of new triangles is 3, 12, 48, 192, 768. Four times more each lap. A lap always takes the same time, so the notes get finer and finer.\n- The added triangles get small so fast that the area never passes 1.6 times (8/5) the first triangle.\n- So a shape can have a finite area and an infinite edge. It never leaves the circle around it either.\n\nSimulation, sound and animation: original (Python).",
+  "tags": [
+   "math",
+   "fractal",
+   "koch snowflake",
+   "infinity",
+   "geometry",
+   "satisfying",
+   "relaxing",
+   "shorts"
+  ]
+ },
+ "area": "Area {a} (start = 1)  never passes 1.6"
+}

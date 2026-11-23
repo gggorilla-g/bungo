@@ -1,0 +1,19 @@
+【タイトル】
+Tip One 5 cm Domino. Will the 5 m One Fall? 105 Dominoes, Each a Bit Bigger #shorts #satisfying #physics
+
+【説明】
+105 dominoes. The first is 5 cm tall and each one is about 4.5% bigger than the one before, so the last is 5 m tall: exactly 100 times the first. Tip the first one. Does the chain make it to the end?
+
+How it works:
+- A falling domino can knock over a bigger one. In 1983 physicist Lorne Whitehead showed it works up to about 1.5 times the size. Here each step is much smaller (about 1.045 times), so they go down one after another.
+- Bigger dominoes fall more slowly (fall time grows with the square root of height). So it starts as a fast roll, then slows down, and the notes get lower.
+- Each domino comes to rest leaning on the back of the next one.
+- The pictures beside the road are for scale (coffee cup about 9 cm, cat 30 cm, dog 60 cm, person 170 cm, elephant 3 m, giraffe 5 m).
+
+Note: this is an animation of the idea, not a full physics simulation.
+
+Simulation, sound and animation: original (Python).
+Emoji: Noto Color Emoji (Google, SIL Open Font License 1.1)
+
+【タグ】
+domino, chain reaction, physics, satisfying, relaxing, simulation, shorts

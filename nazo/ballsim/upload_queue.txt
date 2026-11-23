@@ -1,5 +1,7 @@
 cup1_ja MOSO ja
+domino2_ja MOSO ja
 glass1_ja MOSO ja
+dots3_ja MOSO ja
 hearts2_ja MOSO ja
 spiro9_ja MOSO ja
 cardioid4_ja MOSO ja
@@ -14,9 +16,10 @@ cardioid5_ja MOSO ja
 spiro6_ja MOSO ja
 parabola3_ja MOSO ja
 ellipse4_ja MOSO ja
-glass1_en KAIDAN en
 spiro9_en KAIDAN en
+domino2_en KAIDAN en
 cup1_en KAIDAN en
+dots3_en KAIDAN en
 spiro7_en KAIDAN en
 spiro5_en KAIDAN en
 spiro8_en KAIDAN en

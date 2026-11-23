@@ -1,0 +1,16 @@
+【タイトル】
+Each Dot Doubles the Balls. Will All 2,048 Meet at the Next Dot? #shorts #satisfying #math
+
+【説明】
+There are two dots (two focus points). Fire balls from one dot: the curved wall below sends them straight up, the slanted mirror turns them sideways, and the curved wall on the right brings them together at the other dot. Every time the balls pass a dot, they double (1, 2, 4 ... 2,048).
+
+How it works:
+- The bottom and right walls are parabolas. A line from the focus reflects parallel to the axis, and a line parallel to the axis reflects through the focus.
+- The 45-degree mirror turns balls going straight up into balls going straight sideways. That is why the trails form a grid of vertical and horizontal lines.
+- The path from dot to dot has the same length in every direction, so balls moving at the same speed all arrive together.
+- No gravity here (balls move like light rays) and balls pass through each other.
+
+Simulation, sound and animation: original (Python).
+
+【タグ】
+math, physics, parabola, focus, doubling, satisfying, relaxing, simulation, shorts

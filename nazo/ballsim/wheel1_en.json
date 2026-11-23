@@ -1,0 +1,29 @@
+{
+ "kind": "polywheel",
+ "id": "wheel1_en",
+ "bed": true,
+ "bloom": 0,
+ "glow": 0.45,
+ "style": "big",
+ "mark": "@makeitwork3d",
+ "title": [
+  "Can a {triangle} become a [wheel]?",
+  "Every full turn adds one side"
+ ],
+ "yt": {
+  "title": "Can a Triangle Become a Wheel? Every Full Turn Adds One Side #shorts #satisfying #math",
+  "desc": "A triangle rolls along the ground. Every full turn, it gains one side (3, 4, 5 ... 24 sides). Can a triangle become a wheel?\n\nHow it works:\n- A polygon rolls by tipping over each corner. Every time a side lands, you hear a note.\n- It turns at a steady rate. So in one full turn a triangle lands 3 times, a square 4 times, a pentagon 5 times. The beat gets finer and finer.\n- The center lifts every time it goes over a corner. The size of that bump is radius x (1 - cos(180 degrees / number of sides)). That is 50% of the radius for a triangle, 29% for a square, 7.6% for 8 sides and 0.9% for 24 sides.\n- It never reaches exactly 0%, but it gets as close as you like. The shape it is heading for is a circle: a wheel.\n- The thin lines behind are the paths of the corners.\n\nSimulation, sound and animation: original (Python).",
+  "tags": [
+   "math",
+   "physics",
+   "polygon",
+   "wheel",
+   "satisfying",
+   "relaxing",
+   "simulation",
+   "shorts"
+  ]
+ },
+ "fmt": "{n} sides",
+ "bump": "Center moves up and down {b}% of radius"
+}
