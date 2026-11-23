@@ -3779,8 +3779,8 @@ def pendcone(sp):
     hist = [[] for _ in range(N)]
     def sm(a, b, x): k = min(1, max(0, (x - a) / (b - a))); return k * k * (3 - 2 * k)
     for fi in range(int(total * FPS)):
-        t = fi / FPS; u = min(max(0, t - intro), P); th = PM * sm(t1, t2, u) + (math.radians(86) - PM) * sm(P - 3.0, P + .4, t - intro); ct, st = math.cos(th), math.sin(th)
-        pr = lambda x, y, z: (x, top + (y - top) * ct - z * st - .44 * st)      # 上へ回るほど、つり下げた点を画面のまん中へ
+        t = fi / FPS; u = min(max(0, t - intro), P); th = PM * sm(t1, t2, u) + (math.radians(86) - PM) * sm(P - 3.0, P + .4, t - intro) if not sp.get("top") else math.pi / 2; ct, st = math.cos(th), math.sin(th)
+        pr = lambda x, y, z: (x, top + (y - top) * ct - z * st - sp.get("drop", .44) * st)      # 上へ回るほど、つり下げた点を画面のまん中へ
         live, dots, fl = [], [], []; pv = pr(0, top, 0)
         live.append((pr(-.44, top, 0), pr(.44, top, 0), dim((120, 220, 255), .8 * ct + .1), 4))
         for i in range(N):
@@ -3794,6 +3794,9 @@ def pendcone(sp):
             dots.append((pz, cols[i], 9))
             e = (u - per / 4) % (per / 2) if u > per / 4 else 9
             if e < .16 and u < P: fl.append((pz, 10 + e * 150, dim(cols[i], 1 - e / .16), 2.5))
+        if sp.get("link"):
+            pp = [d_[0] for d_ in dots[:N]]
+            for i in range(N - 1): live.append((pp[i], pp[i + 1], dim(cols[i], sp.get("link", .6)), 2.2))
         dots.append((pv, (255, 245, 210), 5))
         e = t - (intro + P)
         if 0 <= e < .7:

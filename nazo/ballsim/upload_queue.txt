@@ -1,4 +1,5 @@
 spring2_ja MOSO ja
+pendcone2_ja MOSO ja
 radwave1_ja MOSO ja
 radwave3_ja MOSO ja
 pendcone1_ja MOSO ja
