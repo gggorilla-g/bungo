@@ -1,22 +1,21 @@
 【タイトル】
-A Pulsing Spring Walks Down Stairs. The Taller the Step, the Deeper the Note #shorts #satisfying #physics
+Every Step Is Twice as Tall. How Far Can the Spring Walk Down? 1 cm to 256 cm #shorts #satisfying #physics
 
 【説明】
-A spring with pulsing color bands walks down a staircase. The step height keeps changing, from 2 cm to 56 cm.
+A blue-green spring walks down a staircase. Every step is twice as tall as the one before (1, 2, 4, 8, 16, 32, 64, 128, 256 cm). How far can the spring walk down?
 
-The sound comes from the step height. A taller step gives a lower note that rings longer. Steps of the same height give the same note. While the spring is coming down, the pitch slides from one octave above down to that note.
+Answer: in this video it walks down every step, including the 256 cm one.
 
 How it works:
 - The walk has three stages. The front lifts, arcs over and lands on the next step. The turns flow through the arc from the old step to the new one. The last end flips up and lands on top of the new pile.
-- The time for one step is the spring's own fixed time (0.86 s) plus the extra time the front needs to fall. Fall time grows with the square root of the height.
-- On a tall step more turns are in the air and the gaps between them get wider, so the spring stretches far.
-- The scale has five notes: D, E flat, G, A, B flat (the Japanese miyako-bushi scale). The step heights are laid out along this scale.
-- The spring has 60 turns. The color bands are modeled on Leucochloridium, a parasite that pulses inside a snail's tentacles.
-- The shape and timing come from the rules above. This is not a force calculation for every turn.
+- The time for one step is the spring's own fixed time (1.3 s) plus the extra time the front needs to fall. Fall time grows with the square root of the height, so doubling the height adds only a little time.
+- Instead, on a tall step more turns are in the air and the gaps between them get wider, so the spring stretches far.
+- The sound comes from the step height. Every doubling goes two notes down the scale. A taller step gives a lower note that rings longer. While the spring comes down, the pitch slides from one octave above down to that note.
+- The scale has five notes: D, E flat, G, A, B flat (the Japanese miyako-bushi scale).
+- The spring has 60 turns. The color bands move along it in pulses.
+- The shape and timing come from the rules above. This is not a force calculation for every turn. A real spring would be fully stretched long before a step this tall.
 
 Simulation, sound and animation: original (Python).
-
-Note: in this English version the colors are shifted from the original bands.
 
 【タグ】
 physics, spring, stairs, 3d, satisfying, relaxing, simulation, shorts
