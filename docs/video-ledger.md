@@ -620,3 +620,4 @@
 - オーナー（午後）：「いろんなクラシックバリエーションあってもいいね。あと傾向としては途中でリズム変わるのがやっぱりエスカレーションがいいんだと思う」
   → 円ぬりを曲ちがいで出せるようにした（fill2＝きらきら星、fill3＝歓喜の歌）。骨組み8音→旋律16音→変奏32音→64音。決まりは docs/vet-checklist.md に追記
 - 追加の収録：r12 @learnbandroom「what do two of these make?」（32分音符→16分→8分とまとまる）＝未着手、r13 @MostPeopleFail「The darkest chord, built by falling balls.」→ chord1 を作成
+- オーナー「曲違いは作らなくていいです」→ fill2・fill3 は書き出しを止め、出さない（hold.txt）。途中で拍が変わる決まりは残す
