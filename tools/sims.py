@@ -3185,7 +3185,7 @@ def slinky3d(sp):
     （オーナー 11/23「今物理無視してるので。スピードが変わるというより、段差が変わってその結果伸びたりとか」→ 段の高さで拍を作るのをやめた。
      1段にかかる時間＝バネ自身の決まった時間 T0 ＋ 先が余分に落ちる時間（√(2h/g) ぶん）。高い段ほど弧が長くのび、空中の輪がふえ、輪の間かくが広がる。長さの単位は 1＝約8cm、g＝122）"""
     BEAT = sp.get("bar", 1.2); G_ = 122.0; T0 = sp.get("t0", .86); HA = .8; intro = sp.get("intro", .7); tail = sp.get("tail", 3.0); H0 = 1.0; SW = sp.get("step_w", 1.35); R = .43; N = sp.get("coils", 60); th = .0125; WZ = 1.15
-    SEQ = sp.get("heights", [.5, .5, .9, 1.4, 2.0, 2.8, .3, .3, .3, 1.0, 2.2, 3.4, .4, .4, .4, 1.5, 3.0, .6, .3, .3, 3.8, 5.5])   # 段の高さ（どんどん変わる）
+    SEQ = sp.get("heights", [.5, .5, 1.2, 2.4, .3, .3, 3.6, .4, 1.6, 4.8, .3, .3, .3, 2.8, 5.6, .5, .5, 7.0])   # 段の高さ（どんどん変わる）
     steps = [(0.0, 0.0)]; times = [intro]; PH = []
     for h in SEQ:
         fall = math.sqrt(2 * (h + HA) / G_) - math.sqrt(2 * HA / G_); tl_ = .30 + fall; Tst = T0 + fall; PH.append((tl_ / Tst, (tl_ + .34) / Tst, min(36.0, 15 + 4.2 * h)))   # ①の終わり、②の終わり、空中の輪の数
@@ -3214,15 +3214,21 @@ def slinky3d(sp):
             C[inR] = bez(CP, tt); d_ = -dbez(CP, tt); T[inR] = d_ / np.maximum(1e-9, np.linalg.norm(d_, axis=1))[:, None]
         return C, T
     import harmony
-    bar0 = harmony.BAR; harmony.BAR = BEAT; sp = dict(sp); sp.setdefault("bed_off", intro)
+    bar0 = harmony.BAR; canon0 = harmony.CANON; harmony.BAR = 2.4; harmony.CANON = [(2, (0, 7, 10))] * 8; sp = dict(sp); sp.setdefault("bed_off", 0.0); sp.setdefault("bed_gain", .30)   # 下に、レ・ラ・ドの持続音
     try:
         sim = Sim(sp, (-1, -1, 1, 1)); sim.title()
+        # 音は段の高さで決まる（オーナー 11/23「もっと神秘的で滋味深く、音に意味のある感じ。音と段差の高さがリンク」）
+        #   高い段ほど低く、長くひびく。同じ高さの段は同じ音。音階はレ・ミ♭・ソ・ラ・シ♭（都節）。下りている間は、1オクターブ上からその音まで高さがすべり落ちる
+        SCL = [m for m in range(50, 87) if m % 12 in (2, 3, 7, 9, 10)]; lo_, hi_ = math.log(min(SEQ)), math.log(max(SEQ)); sim.extra = []; SR_ = 44100
+        def pitch(h): g_ = (math.log(h) - lo_) / max(1e-9, hi_ - lo_); return SCL[int(round((1 - g_) * (len(SCL) - 1)))]
         for k in range(1, NS + 1):
-            tl = times[k]; bi = int((tl - intro) / BEAT); r, q = harmony.CANON[bi % 8]; tones = [m for m in range(55, 86) if (m - r) % 12 in q]; h_ = SEQ[k - 1]
-            sim.notes.append((tl, tones[max(0, len(tones) - 1 - int(h_ * 2.2))], .46 + .06 * min(4, h_), .5, 5, sp.get("tone", "karo")))   # 着く音：高い段ほど低い音
-            tland = times[k - 1] + PH[k - 1][0] * (times[k] - times[k - 1]); sim.notes.append((tland, tones[min(len(tones) - 1, 3)] + 12, .22, .5, 9, sp.get("tone", "karo")))   # 先が次の段にふれる小さな音
-            sim.notes.append((tl, 36, .30 + .08 * min(4, h_), .5, 9, "kick"))
-        for mi in (48, 60, 64, 67, 72, 76): sim.notes.append((T_end, mi, .32, .5, 1.5, "bell"))
+            tl = times[k]; h_ = SEQ[k - 1]; m = pitch(h_); g_ = (math.log(h_) - lo_) / max(1e-9, hi_ - lo_); dur = times[k] - times[k - 1]
+            sim.notes.append((tl, m, .50 + .22 * g_, .5, 2.6 - 1.6 * g_, "bell")); sim.notes.append((tl, m - 12, .22 + .20 * g_, .5, 2.2 - 1.2 * g_, "piano")); sim.notes.append((tl, m + 7, .10, .5, 3.0, "bell"))   # 着く音：鐘。高い段ほど低く、長い余韻
+            tland = times[k - 1] + PH[k - 1][0] * dur; sim.notes.append((tland, m + 12, .12, .62, 5, "stone"))   # 先が次の段にふれる、小さな石の音
+            tt = np.arange(int(SR_ * dur)) / SR_; u_ = tt / dur; mm = (m + 12) - 12 * (u_ * u_ * (3 - 2 * u_)); fr = 440 * 2 ** ((mm - 69) / 12) * (1 + .004 * np.sin(2 * math.pi * 5.5 * tt)); ph = 2 * math.pi * np.cumsum(fr) / SR_
+            env = np.sin(math.pi * u_) ** 1.5; sim.extra.append((times[k - 1], (np.sin(ph) + .30 * np.sin(2 * ph) + .10 * np.sin(3 * ph)) * env, .10 + .10 * g_, .5))   # のびている間の、すべり落ちる声
+        m0 = pitch(max(SEQ))
+        for mi in (m0 - 12, m0, m0 + 7, m0 + 12, m0 + 15): sim.notes.append((T_end + .05, mi, .26, .5, 1.0, "bell"))
         WS, HS = 1080 * S, 1920 * S; FL = sp.get("fl", 1650) * S; fS = F(40 * S); ytop, ybot = int(.215 * HS), int(.80 * HS); cy0 = (ytop + ybot) / 2 + 20 * S
         OFF = np.array(sp.get("cam", [2.3, 1.7, 4.8])); tgt = [None]; zoom = [1.0]
         def state(t):
@@ -3232,7 +3238,7 @@ def slinky3d(sp):
         for fi in range(int(total * FPS)):
             t = fi / FPS; k, p = state(t); C, T = center(k, p); mid = np.array([C[:, 0].mean(), C[:, 1].mean() + .05, 0.0])
             tgt[0] = mid if tgt[0] is None else tgt[0] + (mid - tgt[0]) * .13; tg = tgt[0].copy()
-            ext = max(C[:, 1].max() - C[:, 1].min() + 2 * R, (C[:, 0].max() - C[:, 0].min() + 2 * R) * 1.2, (steps[k][1] - steps[k + 1][1] + N * th + 1.3) if (0 < p < .8 and t < T_end) else 0); zoom[0] += (max(1.0, ext / 2.55) - zoom[0]) * .09; zm_ = zoom[0]   # その段の高さが分かった時点で引きはじめる; zm_ = zoom[0]   # 高い段でのびた時は、引いて全体を入れる
+            ext = max(C[:, 1].max() - C[:, 1].min() + 2 * R, (C[:, 0].max() - C[:, 0].min() + 2 * R) * 1.2, (steps[k][1] - steps[k + 1][1] + N * th + 1.3) if (0 < p < .8 and t < T_end) else 0); zoom[0] += (max(1.0, ext / 3.1) - zoom[0]) * .09; zm_ = zoom[0]   # その段の高さが分かった時点で引きはじめる; zm_ = zoom[0]   # 高い段でのびた時は、引いて全体を入れる
             def draw(d, t=t, k=k, C=C, T=T, tg=tg, zm_=zm_):
                 cam = tg + OFF * zm_; fw = tg - cam; fw /= np.linalg.norm(fw); rt = np.cross(fw, (0, 1, 0)); rt /= np.linalg.norm(rt); up = np.cross(rt, fw)
                 def pj(P):
@@ -3255,19 +3261,21 @@ def slinky3d(sp):
                 th_ = 2 * math.pi * U; P3 = np.zeros((M, 3)); P3[:, 0] = C[:, 0] + R * np.cos(th_) * (-T[:, 1]); P3[:, 1] = C[:, 1] + R * np.cos(th_) * T[:, 0]; P3[:, 2] = R * np.sin(th_)   # らせん：中心線に直角な円を回りながら進む
                 q2, z = pj(P3); zm = (z[:-1] + z[1:]) / 2; order = np.argsort(-zm); zc = (C[:, 0] - cam[0]) * fw[0] + (C[:, 1] - cam[1]) * fw[1] + (0 - cam[2]) * fw[2]
                 PER = sp.get("pulse", 1.15); ph_ = t / PER; fr_ = ph_ - math.floor(ph_); surge = math.floor(ph_) + fr_ * fr_ * (3 - 2 * fr_)   # 色の帯は「ぶぉん、ぶぉん」と脈を打って進む（ロイコクロリディウムのもよう）
-                hue = (U / N * 1.6 - surge * .5) % 1.0; wave = .5 + .5 * np.cos(2 * math.pi * (U / N * 2.0 - surge))   # wave：太く明るい帯が、色といっしょに送られていく
+                band = (U / N * 3.0 - surge) % 1.0; wave = .5 + .5 * np.cos(2 * math.pi * (U / N * 3.0 - surge - .31))   # 帯の位置。wave：緑の帯のところで太く明るくふくらむ
+                PAL = np.array([(74, 40, 22), (120, 232, 60), (236, 240, 96), (38, 176, 72), (244, 238, 196), (74, 40, 22)], float); PX = np.array([0, .16, .40, .58, .82, 1.0])   # こげ茶 → 明るい緑 → 黄 → 深い緑 → クリーム（ロイコクロリディウムのしま）
+                RGB = np.stack([np.interp(band, PX, PAL[:, c_]) for c_ in range(3)], 1)
                 puls = .55 + .45 * math.sin(math.pi * fr_) ** 2
                 for i in order:   # 奥の線から手前へ。手前がわ（カメラに近い半周）は明るく太く、奥がわは暗く細く
-                    near = max(0.0, min(1.0, .5 + (zc[i] - zm[i]) / (2 * R))); wv = float(wave[i]) ** 2 * puls; col = hsv(float(hue[i]), .86 - .30 * wv, 1); w_ = FL / zm[i] * .0125 * (1 + .9 * wv); near = min(1.0, near * (.72 + .5 * wv) + .18 * wv)
+                    near = max(0.0, min(1.0, .5 + (zc[i] - zm[i]) / (2 * R))); wv = float(wave[i]) ** 2 * puls; col = tuple(int(v) for v in RGB[i]); w_ = FL / zm[i] * .0125 * (1 + .9 * wv); near = min(1.0, near * (.72 + .5 * wv) + .18 * wv)
                     a, b = tuple(q2[i]), tuple(q2[i + 1])
                     g.line([a, b], fill=dim(col, .22 + .22 * near), width=max(1, int(w_ * 1.9))); g.line([a, b], fill=tuple(min(255, int(v * (.42 + .58 * near) + 60 * near)) for v in col), width=max(1, int(w_ * .85)))
                 d._image.paste(base, (0, ytop))
-                tx = sp.get("fmt", "段の高さ {h}cm  →  {b}秒").format(h=("%.0f" % (SEQ[k] * 8)), b=("%.2f" % (times[k + 1] - times[k]))) if t < T_end else sp.get("done", "段が高いほど、長くのびる")
+                NN = sp.get("note_names", {2: "レ", 3: "ミ♭", 7: "ソ", 9: "ラ", 10: "シ♭"}); mp_ = pitch(SEQ[k]); tx = sp.get("fmt", "段の高さ {h}cm  →  音 {n}（{o}）").format(h=("%.0f" % (SEQ[k] * 8)), b=("%.2f" % (times[k + 1] - times[k])), n=NN.get(mp_ % 12, NN.get(str(mp_ % 12), "")), o=sp.get("oct_names", ["低い", "中", "高い"])[min(2, max(0, (mp_ - 50) // 12))]) if t < T_end else sp.get("done", "段が高いほど、低く長くひびく")
                 d.text((WS / 2 - d.textlength(tx, font=fS) / 2, .806 * HS), tx, font=fS, fill=(215, 222, 238), stroke_width=int(4 * S), stroke_fill=(0, 0, 0))
             nd = sum(1 for j in range(1, NS + 1) if times[j] <= t)
             sim.frame(t, (), (), (sp.get("count_label", "下りた段 "), f"{nd} / {NS}"), (), draw)
         sim.finish(total)
-    finally: harmony.BAR = bar0
+    finally: harmony.BAR = bar0; harmony.CANON = canon0
 
 KINDS = {"slinky3d": slinky3d, "fifths": fifths, "slinky": slinky, "chordballs": chordballs, "canonstairs": canonstairs, "koch2": koch2, "polywheel": polywheel, "circlefill": circlefill, "dots45": dots45, "spiralglass": spiralglass, "dominoes2": dominoes2, "hearts2": hearts2, "cupcaustic": cupcaustic, "dominoes": dominoes, "merge": merge, "hearts": hearts, "bricks": bricks, "pendwave3d": pendwave3d, "spiro": spiro, "lens": lens, "koch": koch, "pendwave": pendwave, "orbits": orbits, "phyllo": phyllo, "zoomsalt": zoomsalt, "layers": layers, "pixels": pixels, "sortviz": sortviz, "polyfocus": polyfocus, "heliostat": heliostat, "dragon": dragon, "rhythm": rhythm, "lissatable": lissatable, "plotter": plotter, "threebody": threebody, "pendswing": pendswing, "golden": golden, "piphase": piphase, "maurer": maurer, "harmono": harmono, "spiropens": spiropens, "star": star, "throw": throw, "tusi": tusi, "chain": chain, "basket": basket, "koch": koch, "cycloid": cycloid, "pendulums": pendulums, "lissajous": lissajous, "corner": corner, "sunflower": sunflower, "ulam": ulam, "parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2, "picount": picount}
 
