@@ -1903,7 +1903,18 @@ def hearts(sp):
         per = 60 / bpm; t = starts[i] + .35
         while t < total - tail: beats.append((t, i)); t += per
     beats.sort()
-    for t, i in beats: sim.note(t, 72, .5 / math.sqrt(1 + .25 * i), .5, 5)
+    if sp.get("melody"):
+        for t, i in beats: sim.note(t, 72, .5 / math.sqrt(1 + .25 * i), .5, 5)
+    else:   # 生きものごとに決まった1音（和音の中の音）。速い生きものほど高く、小さく、短く → 速い拍は「きらきら」に溶ける（オーナー 11/23「音汚い」）
+        PIT = sp.get("pitches") or [48, 55, 64, 67, 72, 79, 36]
+        for t, i in beats:
+            bpm = rows[i][1]; g = .55 * min(1.0, math.sqrt(40 / bpm)) * (1.3 if bpm < 10 else 1); dc = 4 if bpm < 60 else 6 if bpm < 200 else 12 if bpm < 700 else 18
+            sim.note(t, PIT[i % len(PIT)], g, .5 + .32 * math.sin(i * 2.1), dc, "mar")
+            if bpm < 10: sim.note(t, 36, .5, .5, 9, "kick")
+    ICONS = {}
+    if sp.get("icons"):
+        from PIL import Image
+        for nm in set(sp["icons"]): ICONS[nm] = Image.open(os.path.join(os.path.dirname(__file__), "..", "nazo", "ballsim", "icons", nm + ".png")).convert("RGBA")
     from simkit import W as W_, H as H_
     top, bot = .245, .87; fN, fB = F(38 * S), F(34 * S)
     def ecg(ph):   # 1拍の形（0〜1）：小さな山 → 鋭い山 → 谷 → ゆるい山
@@ -1922,8 +1933,14 @@ def hearts(sp):
                 d.line(pts, fill=dim(col, .30), width=int(10 * S)); d.line(pts, fill=tuple(min(255, int(c * 1.1)) for c in col), width=int(3.5 * S))
                 e = ((t - starts[i] - .35) % per) / per if t >= starts[i] + .35 else 1; pr = 1 + .45 * math.exp(-e * 9)
                 heart(d, W_ * S * .228, yc - 4 * S, 14 * S * pr, (255, 70, 110)); d.ellipse([x1 - 7 * S, pts[-1][1] - 7 * S, x1 + 7 * S, pts[-1][1] + 7 * S], fill=(255, 255, 255))
-                fz = fN if d.textlength(name, font=fN) < W_ * S * .17 else F(int(38 * S * W_ * S * .17 / d.textlength(name, font=fN)))
-                d.text((W_ * S * .025, yc - 20 * S), name, font=fz, fill=(235, 238, 245), stroke_width=4 * S, stroke_fill=(0, 0, 0))
+                if ICONS:   # アイコン（拍で少しふくらむ）＋名前は線の左上
+                    ic = ICONS[sp["icons"][i]]; sz = int(min(rh * H_ * S * .78, 120 * S) * (1 + .12 * math.exp(-e * 9)))
+                    tint = Image.new("RGBA", ic.size, tuple(min(255, int(c * 1.15)) for c in col) + (255,)); tint.putalpha(ic.getchannel("A"))
+                    im_ = tint.resize((sz, sz)); d._image.paste(im_, (int(W_ * S * .105 - sz / 2), int(yc - sz / 2)), im_)
+                    d.text((x0, yc - amp - 34 * S), name, font=fB, fill=(235, 238, 245), stroke_width=4 * S, stroke_fill=(0, 0, 0))
+                else:
+                    fz = fN if d.textlength(name, font=fN) < W_ * S * .17 else F(int(38 * S * W_ * S * .17 / d.textlength(name, font=fN)))
+                    d.text((W_ * S * .025, yc - 20 * S), name, font=fz, fill=(235, 238, 245), stroke_width=4 * S, stroke_fill=(0, 0, 0))
                 tx = f"{bpm:g} " + sp.get("unit", "bpm"); w = d.textlength(tx, font=fB); d.text((x1 - w, yc - amp - 34 * S), tx, font=fB, fill=(255, 255, 255), stroke_width=4 * S, stroke_fill=(0, 0, 0))
         sim.frame(t, (), (), None, (), draw)
     sim.finish(total)
