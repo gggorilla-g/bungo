@@ -3288,7 +3288,17 @@ def spiro2(sp):
         rt = gd["r"]; g = math.gcd(Rt, rt); r = R * rt / Rt; G.append(dict(rt=rt, r=r, d=r * gd.get("hole", .8), petals=Rt // g, laps=rt // g, th_end=2 * math.pi * (rt // g), dir=gd.get("dir", 1), hue=gd.get("hue", .5), hw=gd.get("hue_w", .2), line=gd.get("line", .7), prev=0.0, sat=gd.get("sat", .85)))
     u_at = lambda t: min(1, max(0, (t - intro) / D)) ** PW
     def pen(g, th): a = g["dir"] * th; return ((R - g["r"]) * math.cos(a) + g["d"] * math.cos((R - g["r"]) / g["r"] * a), (R - g["r"]) * math.sin(a) - g["d"] * math.sin((R - g["r"]) / g["r"] * a))
-    sim = Sim(sp, (-1.15, -1.15, 1.15, 1.15)); sim.neon([(R * math.cos(a), R * math.sin(a)) for a in np.linspace(0, 2 * math.pi, 241)], width=4); sim.title()
+    TH = sp.get("tooth", .030)   # 歯の高さ。輪は内がわに歯、歯車は外がわに歯。転がる円（ピッチ円）は R と r で、歯はその上下に半分ずつ
+    def teeth(n, rad, cx, cy, spin, inner):
+        """歯の形（台形）の点の列。inner＝輪の内がわの歯（山が中心向き）"""
+        pts = []; st = 2 * math.pi / n
+        for k in range(n):
+            a0 = spin + k * st; lo, hi = (rad + TH / 2, rad - TH / 2) if inner else (rad + TH / 2, rad - TH / 2)
+            # 歯車：a0 に山（外へ）。輪：a0 に谷（外へ）。同じ角度で、歯車の山が輪の谷に入る
+            for da, rr in ((-.30, hi), (-.18, lo), (.18, lo), (.30, hi)): pts.append((cx + rr * math.cos(a0 + da * st), cy + rr * math.sin(a0 + da * st)))
+        return pts
+    sim = Sim(sp, (-1.17, -1.17, 1.17, 1.17)); sim.neon([((R + TH / 2 + .035) * math.cos(a), (R + TH / 2 + .035) * math.sin(a)) for a in np.linspace(0, 2 * math.pi, 241)], width=4)
+    sim.thin(teeth(Rt, R, 0, 0, 0, True), color=(110, 170, 205), width=2, closed=True); sim.title()
     for gi, g in enumerate(G):   # 花びらの先（中心からいちばん遠い点）を通る時刻に音。歯車ごとに音の高さの帯を分ける
         N = 8000; ths = np.linspace(0, g["th_end"], N); rad = np.array([math.hypot(*pen(g, x)) for x in ths]); last = -9; tips = 0; step = max(1, int(g["petals"] * 1.0 / (D * 5.5)))
         for i in range(1, N - 1):
@@ -3310,10 +3320,12 @@ def spiro2(sp):
             g["prev"] = th; a = g["dir"] * th; c = ((R - g["r"]) * math.cos(a), (R - g["r"]) * math.sin(a)); p_ = pen(g, th); col = hsv(g["hue"] % 1, .55, 1)
             if on or t < intro + D + .6:
                 fade = 1.0 if on else max(0, 1 - (t - intro - D) / .6)
-                live += [((c[0] + g["r"] * math.cos(x), c[1] + g["r"] * math.sin(x)), (c[0] + g["r"] * math.cos(x + .1), c[1] + g["r"] * math.sin(x + .1)), dim((120, 140, 190), fade), 2.2) for x in np.arange(0, 2 * math.pi, .1)]
-                spin = -(R - g["r"]) / g["r"] * a
-                for k in range(g["rt"] // 5): x = spin + 2 * math.pi * k / (g["rt"] // 5); live.append(((c[0] + g["r"] * .93 * math.cos(x), c[1] + g["r"] * .93 * math.sin(x)), (c[0] + g["r"] * math.cos(x), c[1] + g["r"] * math.sin(x)), dim((150, 170, 215), fade), 2))
-                live.append((c, p_, dim((200, 210, 240), fade), 1.4)); balls.append((p_, (255, 250, 235), 6))
+                spin = a - (R / g["r"]) * a   # すべらずに転がる：ふれている点で、歯車の歯と輪の歯が同じだけ進む（歯車の山が輪の谷に入ったまま回る）
+                gp = teeth(g["rt"], g["r"], c[0], c[1], spin, False); gc = dim(tuple(min(255, int(v * .45 + 120)) for v in col), fade)
+                live += [(gp[k], gp[(k + 1) % len(gp)], gc, 2.0) for k in range(len(gp))]
+                for hk in range(1, 6):   # ペンを差す穴の列（本物の定規と同じ見た目）
+                    hr = g["r"] * hk / 6.0; hx, hy = c[0] + hr * math.cos(-(R - g["r"]) / g["r"] * a), c[1] - hr * math.sin((R - g["r"]) / g["r"] * a); fl.append(((hx, hy), 3.2, dim((150, 170, 215), fade), 1.2))
+                fl.append((c, 5, dim((170, 190, 230), fade), 1.5)); balls.append((p_, (255, 250, 235), 6))
             if on:   # 接地の光：ふれている点と、通ったあとの輪（だんだん消える）
                 q = (R * math.cos(a), R * math.sin(a)); fl.append((q, 9 + 3 * math.sin(t * 14 + gi), dim(tuple(min(255, int(v * .5 + 128)) for v in col), 1), 3)); balls.append((q, (255, 252, 240), 7))
                 for k in range(22):
