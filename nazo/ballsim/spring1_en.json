@@ -1,0 +1,32 @@
+{
+ "kind": "slinky",
+ "id": "spring1_en",
+ "bed": true,
+ "bloom": 0,
+ "glow": 0.5,
+ "style": "big",
+ "mark": "@makeitwork3d",
+ "title": [
+  "A {rainbow spring} walks down stairs",
+  "The steps change. So does the [beat]"
+ ],
+ "count_label": "Steps: ",
+ "yt": {
+  "title": "A Rainbow Spring Walks Down Stairs. The Step Height Changes and So Does the Beat #shorts #satisfying #physics",
+  "desc": "A rainbow spring with colors that never stop flowing walks down a staircase. The height of the steps keeps changing. What happens to the rhythm?\n\nAnswer: the lower the step, the faster and finer the beat.\n\nHow it works:\n- In this video, the time to go down one step grows with the square root of the step height. That is the same rule as the time it takes something to fall.\n- So a step one quarter as high takes half the time. A step one sixteenth as high takes a quarter of the time.\n- Height 1 is one beat, height 0.25 is half a beat, height 0.0625 is a quarter beat. The pattern of step heights becomes the rhythm.\n- The last step is 4 high (four times) and takes 2 beats.\n- The spring has 28 rings. The color flows with the ring number and with time.\n- The shape of the spring is an animation of rings moving over one after another with a delay. It is not a force calculation of a real spring.\n\nSimulation, sound and animation: original (Python).",
+  "tags": [
+   "physics",
+   "spring",
+   "stairs",
+   "rhythm",
+   "satisfying",
+   "relaxing",
+   "simulation",
+   "shorts"
+  ]
+ },
+ "fmt": "Step height {h}  ->  time {b} beat",
+ "done": "4x the height, 2x the time",
+ "post_hue": 160,
+ "post_pitch": 2
+}

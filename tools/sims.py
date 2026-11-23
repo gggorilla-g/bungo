@@ -3050,7 +3050,78 @@ def chordballs(sp):
         sim.frame(t, (), (), (sp.get("count_label", "鳴った音 "), f"{nh}"), (), draw)
     sim.finish(total)
 
-KINDS = {"chordballs": chordballs, "canonstairs": canonstairs, "koch2": koch2, "polywheel": polywheel, "circlefill": circlefill, "dots45": dots45, "spiralglass": spiralglass, "dominoes2": dominoes2, "hearts2": hearts2, "cupcaustic": cupcaustic, "dominoes": dominoes, "merge": merge, "hearts": hearts, "bricks": bricks, "pendwave3d": pendwave3d, "spiro": spiro, "lens": lens, "koch": koch, "pendwave": pendwave, "orbits": orbits, "phyllo": phyllo, "zoomsalt": zoomsalt, "layers": layers, "pixels": pixels, "sortviz": sortviz, "polyfocus": polyfocus, "heliostat": heliostat, "dragon": dragon, "rhythm": rhythm, "lissatable": lissatable, "plotter": plotter, "threebody": threebody, "pendswing": pendswing, "golden": golden, "piphase": piphase, "maurer": maurer, "harmono": harmono, "spiropens": spiropens, "star": star, "throw": throw, "tusi": tusi, "chain": chain, "basket": basket, "koch": koch, "cycloid": cycloid, "pendulums": pendulums, "lissajous": lissajous, "corner": corner, "sunflower": sunflower, "ulam": ulam, "parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2, "picount": picount}
+def slinky(sp):
+    """虹色のバネ（色が流れ続ける）が階段を下りる。段の高さがどんどん変わる（オーナー 11/23「グラデーションが常に変わり続けるおもちゃが段差をどんどん降りる。段差の高さもどんどん変わる感じ」）。
+    法則：1段下りる時間は、段の高さの平方根に比例（落ちる時間と同じ決まり）。高さ 1 : 1/4 : 1/16 の段は、拍の長さ 1 : 1/2 : 1/4 になる＝段の高さでリズムが変わる"""
+    BEAT = sp.get("beat", .9); intro = sp.get("intro", .7); tail = sp.get("tail", 3.0); H0 = 1.0; SW = sp.get("step_w", 1.25); R = .43; N = sp.get("coils", 28); th = .021; lag = .46
+    SEQ = sp.get("seq", [1] * 4 + [.5] * 8 + [1, .5, .5] * 2 + [.25] * 16 + [.5] * 4 + [.25] * 8 + [2])
+    steps = [(0.0, 0.0)]; times = [intro]   # 段の上の面（中心x, 高さy）、着く時刻
+    for dbeats in SEQ: x, y = steps[-1]; steps.append((x + SW, y - H0 * dbeats ** 2)); times.append(times[-1] + dbeats * BEAT)
+    T_end = times[-1]; total = T_end + tail; NS = len(SEQ)
+    ease = lambda v: v * v * (3 - 2 * v)
+    def coil(i, k, p):
+        """段 k から k+1 へ進む途中（進み具合 p）の、輪 i の中心と向き（道の向き）"""
+        (xa, ya), (xb, yb) = steps[k], steps[k + 1]; sv = min(1.0, max(0.0, (p - lag * i / (N - 1)) / (1 - lag))); sv = ease(sv)
+        A = (xa, ya + (N - 1 - i) * th + th / 2); B = (xb, yb + i * th + th / 2); arch = .62 + .10 * (ya - yb) ** .5
+        def P(v): return (A[0] + (B[0] - A[0]) * v, A[1] + (B[1] - A[1]) * v + arch * math.sin(math.pi * v) + (R * .9) * math.sin(math.pi * v) ** 2)
+        c = P(sv)
+        if sv <= 0 or sv >= 1: return c, math.pi / 2
+        a_, b_ = P(max(0, sv - .01)), P(min(1, sv + .01)); ang = math.atan2(b_[1] - a_[1], b_[0] - a_[0]); w_ = math.sin(math.pi * sv) ** .5
+        d_ = ((ang - math.pi / 2 + math.pi) % (2 * math.pi)) - math.pi; return c, math.pi / 2 + d_ * w_
+    import harmony
+    bar0 = harmony.BAR; harmony.BAR = BEAT; sp = dict(sp); sp.setdefault("bed_off", intro)
+    try:
+        sim = Sim(sp, (-1, -1, 1, 1)); sim.title()
+        for k in range(1, NS + 1):
+            tl = times[k]; bi = int((tl - intro) / BEAT - 1e-6); r, q = harmony.CANON[bi % 8]; tones = [m for m in range(55, 86) if (m - r) % 12 in q]; d_ = SEQ[k - 1]
+            sim.notes.append((tl, tones[(len(tones) - 1 - (k * 2) % len(tones))], {2: .7, 1: .6, .5: .5, .25: .40}.get(d_, .5), .5, 5 if d_ >= .5 else 8, sp.get("tone", "karo")))
+            if abs(((tl - intro) / BEAT) % 1) < 1e-6 or d_ >= 1: sim.notes.append((tl, 48 + r if r < 8 else 36 + r, .26, .5, 2.0, "piano")); sim.notes.append((tl, 36, .36 if d_ < 2 else .8, .5, 9, "kick"))
+        for mi in (48, 60, 64, 67, 72, 76): sim.notes.append((T_end, mi, .32, .5, 1.5, "bell"))
+        WS, HS = 1080 * S, 1920 * S; K = 268 * S; fS, fB = F(40 * S), F(46 * S); cam = [0.0, 0.3]
+        def state(t):
+            if t < intro: return 0, 0.0
+            if t >= T_end: return NS - 1, 1.0
+            k = max(j for j in range(NS) if times[j] <= t); return k, (t - times[k]) / (times[k + 1] - times[k])
+        for fi in range(int(total * FPS)):
+            t = fi / FPS; k, p = state(t); (xa, ya), (xb, yb) = steps[k], steps[k + 1]; pe = ease(min(1, p * 1.15))
+            tx_, ty_ = xa + (xb - xa) * pe, ya + (yb - ya) * pe + .45; cam[0] += (tx_ - cam[0]) * .16; cam[1] += (ty_ - cam[1]) * .16
+            def draw(d, t=t, k=k, p=p, cx_=cam[0], cy_=cam[1]):
+                Pp = lambda x, y: (WS / 2 + (x - cx_) * K, .50 * HS - (y - cy_) * K)
+                ytop, ybot = .215 * HS, .80 * HS
+                for gx in np.arange(math.floor(cx_ - 3), cx_ + 3, .5):   # うしろの方眼（流れて、下りる速さがわかる）
+                    x_, _ = Pp(gx, 0); d.line([x_, ytop, x_, ybot], fill=(16, 22, 44), width=max(1, int(1.5 * S)))
+                for gy in np.arange(math.floor(cy_ - 4), cy_ + 4, .5):
+                    _, y_ = Pp(0, gy)
+                    if ytop < y_ < ybot: d.line([0, y_, WS, y_], fill=(16, 22, 44), width=max(1, int(1.5 * S)))
+                poly = []   # 階段
+                for j in range(max(0, k - 6), min(NS + 1, k + 8)):
+                    x, y = steps[j]; poly += [Pp(x - SW / 2, y), Pp(x + SW / 2, y)]
+                poly = [(x_, min(max(y_, ytop), ybot)) for x_, y_ in poly]
+                if len(poly) >= 2:
+                    d.polygon([(poly[0][0], ybot)] + poly + [(poly[-1][0], ybot)], fill=(10, 14, 34)); d.line(poly, fill=(40, 110, 150), width=int(9 * S), joint="curve"); d.line(poly, fill=(150, 235, 255), width=int(3 * S), joint="curve")
+                for j in range(max(1, k - 6), min(NS + 1, k + 2)):   # ついた段が光る
+                    e = t - times[j]
+                    if 0 <= e < .5:
+                        x, y = steps[j]; (x0, y0), (x1, _) = Pp(x - SW / 2, y), Pp(x + SW / 2, y)
+                        if ytop < y0 < ybot: c_ = hsv((j * .07) % 1, .6, 1); g = 1 - e / .5; d.line([x0, y0, x1, y0], fill=dim(c_, g), width=int(8 * S)); d.rectangle([x0, y0 + 5 * S, x1, min(ybot, y0 + (30 + 200 * e) * S)], fill=tuple(int(b_ + c_[q_] * .22 * g) for q_, b_ in enumerate((10, 14, 34))))
+                rings = []
+                for i in range(N - 1, -1, -1):
+                    c, ang = coil(i, k, p); rings.append((i, c, ang))
+                for i, c, ang in rings:   # 輪：道に直角な輪を横から見た形（だ円）。色は輪の番号＋時間で流れ続ける
+                    col = hsv((i / N * .85 + t * .22) % 1, .82, 1); ca, sa = math.cos(ang), math.sin(ang); pts = []
+                    for q in range(25):
+                        u = 2 * math.pi * q / 24; lx, ly = R * math.cos(u), R * .26 * math.sin(u)   # 長い軸は道に直角、短い軸は道の向き
+                        pts.append(Pp(c[0] + (-sa) * lx + ca * ly, c[1] + ca * lx + sa * ly))
+                    if any(y_ < ytop for _, y_ in pts): continue
+                    d.line(pts, fill=dim(col, .45), width=int(8 * S), joint="curve"); d.line(pts, fill=tuple(min(255, int(v * .8 + 50)) for v in col), width=int(3.5 * S), joint="curve")
+                hh = H0 * SEQ[k] ** 2; tx = sp.get("fmt", "段の高さ {h}  →  下りる時間 {b} 拍").format(h=("%g" % round(hh, 3)), b=("%g" % SEQ[k])) if t < T_end else sp.get("done", "高さが4倍で、時間は2倍")
+                d.text((WS / 2 - d.textlength(tx, font=fS) / 2, .812 * HS - 60 * S), tx, font=fS, fill=(215, 222, 238), stroke_width=int(4 * S), stroke_fill=(0, 0, 0))
+            nd = sum(1 for j in range(1, NS + 1) if times[j] <= t)
+            sim.frame(t, (), (), (sp.get("count_label", "下りた段 "), f"{nd} / {NS}"), (), draw)
+        sim.finish(total)
+    finally: harmony.BAR = bar0
+
+KINDS = {"slinky": slinky, "chordballs": chordballs, "canonstairs": canonstairs, "koch2": koch2, "polywheel": polywheel, "circlefill": circlefill, "dots45": dots45, "spiralglass": spiralglass, "dominoes2": dominoes2, "hearts2": hearts2, "cupcaustic": cupcaustic, "dominoes": dominoes, "merge": merge, "hearts": hearts, "bricks": bricks, "pendwave3d": pendwave3d, "spiro": spiro, "lens": lens, "koch": koch, "pendwave": pendwave, "orbits": orbits, "phyllo": phyllo, "zoomsalt": zoomsalt, "layers": layers, "pixels": pixels, "sortviz": sortviz, "polyfocus": polyfocus, "heliostat": heliostat, "dragon": dragon, "rhythm": rhythm, "lissatable": lissatable, "plotter": plotter, "threebody": threebody, "pendswing": pendswing, "golden": golden, "piphase": piphase, "maurer": maurer, "harmono": harmono, "spiropens": spiropens, "star": star, "throw": throw, "tusi": tusi, "chain": chain, "basket": basket, "koch": koch, "cycloid": cycloid, "pendulums": pendulums, "lissajous": lissajous, "corner": corner, "sunflower": sunflower, "ulam": ulam, "parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2, "picount": picount}
 
 if __name__ == "__main__":
     sp = json.load(open(sys.argv[1], encoding="utf-8")); KINDS[sp["kind"]](sp); kit(sp)
