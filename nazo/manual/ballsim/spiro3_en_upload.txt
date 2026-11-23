@@ -1,0 +1,14 @@
+【タイトル】
+Roll a 45-Tooth Gear Inside a 99-Tooth Ring. How Many Petals? #shorts #satisfying #math
+
+【説明】
+A 45-tooth gear rolls inside a 99-tooth ring. A pen in one of the gear's holes draws a flower. Every petal tip plays a stone-chime note.
+
+How it works:
+- The greatest common factor of 99 and 45 is 9, so the flower gets 99/9 = 11 petals and the line closes after 45/9 = 5 laps.
+- The curve is a hypotrochoid. The hole you put the pen in sets how fat the petals are.
+
+Simulation, sound and animation: original (Python).
+
+【タグ】
+math, spirograph, gears, geometry, satisfying, relaxing, simulation, shorts

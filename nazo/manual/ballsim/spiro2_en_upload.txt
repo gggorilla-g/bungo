@@ -1,0 +1,15 @@
+【タイトル】
+41 Teeth Drew 96 Petals. What About 42? (Wait for the End) #shorts #satisfying #math
+
+【説明】
+A 42-tooth gear rolls inside a 96-tooth ring. A pen in one of the gear's holes draws a flower. Every petal tip plays a stone-chime note.
+
+How it works:
+- The greatest common factor of 96 and 42 is 6, so the flower gets 96/6 = 16 petals and the line closes after 42/6 = 7 laps.
+- Adding just one tooth (41 to 42) turns 96 petals into 16. 41 shares no factor with 96, but 42 and 96 share 6.
+- The curve is a hypotrochoid. The hole you put the pen in sets how fat the petals are.
+
+Simulation, sound and animation: original (Python).
+
+【タグ】
+math, spirograph, gears, geometry, satisfying, relaxing, simulation, shorts

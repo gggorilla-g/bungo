@@ -1906,11 +1906,19 @@ def hearts(sp):
     if sp.get("melody"):
         for t, i in beats: sim.note(t, 72, .5 / math.sqrt(1 + .25 * i), .5, 5)
     else:   # 生きものごとに決まった1音（和音の中の音）。速い生きものほど高く、小さく、短く → 速い拍は「きらきら」に溶ける（オーナー 11/23「音汚い」）
-        PIT = sp.get("pitches") or [48, 55, 64, 67, 72, 79, 36]
+        # 和音を意識（オーナー 11/23）：カノン進行に合わせて、生きものごとに和音の中の役（根音・3度・5度）と高さを持つ。
+        # クジラ＝いちばん低い根音、ゾウ＝根音、ヒト＝5度、ネコ＝3度、ウサギ＝5度（上）、ネズミ＝根音（上）、ハチドリ＝3度（上）
+        import harmony
+        ROLE = sp.get("roles") or [(0, 50), (2, 57), (1, 64), (2, 69), (0, 74), (1, 78), (0, 38)]
+        on0 = harmony.ON; harmony.ON = False
+        def voice(t, k):
+            r, q = harmony.CANON[int(max(0, t) / harmony.BAR) % len(harmony.CANON)]; pc = (r + q[ROLE[k][0]]) % 12; c = ROLE[k][1]
+            return min(range(c - 6, c + 7), key=lambda m: (m % 12 != pc) * 99 + abs(m - c))
         for t, i in beats:
-            bpm = rows[i][1]; g = .55 * min(1.0, math.sqrt(40 / bpm)) * (1.3 if bpm < 10 else 1); dc = 4 if bpm < 60 else 6 if bpm < 200 else 12 if bpm < 700 else 18
-            sim.note(t, PIT[i % len(PIT)], g, .5 + .32 * math.sin(i * 2.1), dc, "mar")
-            if bpm < 10: sim.note(t, 36, .5, .5, 9, "kick")
+            bpm = rows[i][1]; g = .5 * min(1.0, math.sqrt(40 / bpm)) * (1.4 if bpm < 10 else 1); dc = 3 if bpm < 60 else 5 if bpm < 200 else 10 if bpm < 700 else 16
+            sim.note(t, voice(t, i), g, .5 + .3 * math.sin(i * 2.1), dc, "mar")
+            if bpm < 10: sim.note(t, voice(t, i) - 12, .45, .5, 2, "mar")
+        harmony.ON = on0
     ICONS = {}
     if sp.get("icons"):
         from PIL import Image
@@ -1928,12 +1936,7 @@ def hearts(sp):
                 wi = [i for i in shown if rows[i][1] < 10]; wp_ = 0
                 for i in wi:
                     per = 60 / rows[i][1]; ag_ = (t - starts[i] - .35) % per if t >= starts[i] + .35 else 9; wp_ = max(wp_, math.exp(-ag_ * 2.2))
-                gc = tuple(min(255, int(v * (1 + 2.5 * wp_))) for v in (22, 20, 58))
-                for k2, i2 in enumerate(shown):   # 拍の瞬間、行が光る（格子より先に、背景に足す形で）
-                    per2 = 60 / rows[i2][1]; ab2 = ((t - starts[i2] - .35) % per2) if t >= starts[i2] + .35 else 9; fb = math.exp(-ab2 * 8) if per2 >= .2 else 0
-                    if fb > .05:
-                        yc2 = (top + rh * (k2 + .62)) * H_ * S; c2 = rows[i2][2]
-                        d.rectangle([W_ * S * .27, yc2 - rh * H_ * S * .38, W_ * S * .93, yc2 + rh * H_ * S * .32], fill=tuple(int(b_ + v * .2 * fb) for b_, v in zip((8, 9, 22), c2)))
+                gc = tuple(min(255, int(v * (1 + 1.0 * wp_))) for v in (20, 19, 50))
                 for q in range(14):
                     yy = (top + (bot - top) * q / 13) * H_ * S; d.line([(0, yy), (W_ * S, yy)], fill=gc, width=max(1, int(1 * S)))
                 off = (t * 40 * S) % (W_ * S / 12)
@@ -1948,12 +1951,12 @@ def hearts(sp):
                 ab = ((t - starts[i] - .35) % per) if t >= starts[i] + .35 else 9
                 d.line(pts, fill=dim(col, .30), width=int(10 * S)); d.line(pts, fill=tuple(min(255, int(c * 1.1)) for c in col), width=int(3.5 * S))
                 if sp.get("glow") and per >= .2 and ab < .45:   # 右端に光の輪（ヒット）
-                    rr = (8 + 70 * ab) * S; al = 1 - ab / .45; d.ellipse([x1 - rr, pts[-1][1] - rr, x1 + rr, pts[-1][1] + rr], outline=tuple(int(min(255, c * .6 + 100) * al) for c in col), width=max(1, int(4 * S * al + 1)))
+                    rr = (8 + 40 * ab) * S; al = .55 * (1 - ab / .45); d.ellipse([x1 - rr, pts[-1][1] - rr, x1 + rr, pts[-1][1] + rr], outline=tuple(int(min(255, c * .6 + 100) * al) for c in col), width=max(1, int(4 * S * al + 1)))
                 e = ((t - starts[i] - .35) % per) / per if t >= starts[i] + .35 else 1; pr = 1 + .45 * math.exp(-e * 9)
                 heart(d, W_ * S * .228, yc - 4 * S, 14 * S * pr, (255, 70, 110)); d.ellipse([x1 - 7 * S, pts[-1][1] - 7 * S, x1 + 7 * S, pts[-1][1] + 7 * S], fill=(255, 255, 255))
                 if ICONS:   # アイコン（拍で少しふくらむ）＋名前は線の左上
                     ic = ICONS[sp["icons"][i]]; sz = int(min(rh * H_ * S * .78, 120 * S) * (1 + .12 * math.exp(-e * 9)))
-                    ib = math.exp(-e * per * 6) if per >= .2 else .3
+                    ib = .45 * math.exp(-e * per * 6) if per >= .2 else .12
                     tint = Image.new("RGBA", ic.size, tuple(min(255, int(c * (1.0 + .5 * ib) + 90 * ib)) for c in col) + (255,)); tint.putalpha(ic.getchannel("A"))
                     im_ = tint.resize((sz, sz)); d._image.paste(im_, (int(W_ * S * .105 - sz / 2), int(yc - sz / 2)), im_)
                     d.text((x0, yc - amp - 34 * S), name, font=fB, fill=(235, 238, 245), stroke_width=4 * S, stroke_fill=(0, 0, 0))
@@ -2058,9 +2061,24 @@ def dominoes(sp):
     for i in range(1, N): z.append(z[-1] + .62 * H_[i - 1] + .12 * H_[i])
     intro, tail = .8, 3.4; Tf = [.42 * math.sqrt(h / h0) ** .9 for h in H_]; st = [intro]
     for i in range(1, N):   # 前のドミノの上の角が届いた瞬間に、次が倒れはじめる
-        a = math.asin(min(.98, (z[i] - z[i - 1]) / H_[i - 1])); u = math.sqrt(a / (math.pi / 2)); st.append(st[-1] + Tf[i - 1] * u)
+        a = math.asin(min(.98, (z[i] - z[i - 1] - .16 * H_[i - 1]) / H_[i - 1])); u = math.sqrt(a / (math.pi / 2)); st.append(st[-1] + Tf[i - 1] * u)
     total = st[-1] + Tf[-1] + tail
-    ang = lambda i, t: 0 if t < st[i] else min(math.pi / 2 * .97, math.pi / 2 * ((t - st[i]) / Tf[i]) ** 2)
+    ang = lambda i, t: 0 if t < st[i] else min(math.pi / 2, math.pi / 2 * ((t - st[i]) / Tf[i]) ** 2)
+    def lean(i, bj):   # ドミノ i が、角度 bj のドミノ i+1 の背中にもたれかかる角度（それ以上は倒れられない）（オーナー 11/23「ちゃんとドミノとして倒れ込んで」）
+        hi, ti, hj, tj = H_[i], .16 * H_[i], H_[i + 1], .16 * H_[i + 1]; cb, sb = math.cos(bj), math.sin(bj)
+        q0 = (tj * sb, z[i + 1] + tj * (1 - cb)); nv = (-sb, cb)   # i+1 の背面の線（y, z）と、前向きの法線
+        def gap(a_): cy, cz = hi * math.cos(a_), z[i] + ti + hi * math.sin(a_); return (cy - q0[0]) * nv[0] + (cz - q0[1]) * nv[1]
+        if gap(math.pi / 2) <= 0: return math.pi / 2
+        lo, hi_ = 0.0, math.pi / 2
+        for _ in range(30):
+            m = (lo + hi_) / 2
+            if gap(m) <= 0: lo = m
+            else: hi_ = m
+        return lo
+    def angles(t):
+        A = [ang(i, t) for i in range(N)]
+        for i in range(N - 2, -1, -1): A[i] = min(A[i], lean(i, A[i + 1]))
+        return A
     slerp = lambda a, b, u: a + (b - a) * u
     sstep = lambda a, b, x: (lambda k: k * k * (3 - 2 * k))(min(1, max(0, (x - a) / (b - a))))
     sim = Sim(sp, (0, 0, 1, 1))
@@ -2118,10 +2136,10 @@ def dominoes(sp):
             for q in range(-12, 13):   # 縦のレーン
                 xx = q * hh * .35; a, za = P3(xx, 0, tz - hh * 2.4); b, zb = P3(xx, 0, tz + hh * 30)
                 if za > .01 and zb > .01: d.line([a, b], fill=gc if q else tuple(min(255, int(v * 1.6)) for v in gc), width=max(1, int((2.5 if q == 0 else 1.2) * S)))
-            faces = []
+            faces = []; AN = angles(t)
             for i in range(N):
-                h = H_[i]; w = h * .5; th = h * .16; a = ang(i, t); c, s_ = math.cos(a), math.sin(a)
-                def R(x, y, zz): return (x, y * c - (zz) * s_, z[i] + th + (y * s_ + (zz) * c) - th)   # 手前下の辺を軸に、奥へ倒れる
+                h = H_[i]; w = h * .5; th = h * .16; a = AN[i]; c, s_ = math.cos(a), math.sin(a)
+                def R(x, y, zz): return (x, y * c - (zz - th) * s_, z[i] + th + y * s_ + (zz - th) * c)   # 手前下の辺を軸に、前へ倒れる
                 pts = [R(x, y, zz) for x in (-w / 2, w / 2) for y in (0, h) for zz in (0, th)]
                 pp = [P3(*p_) for p_ in pts]
                 if min(q[1] for q in pp) < .02: continue

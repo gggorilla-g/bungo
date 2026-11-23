@@ -1,0 +1,31 @@
+{
+ "kind": "spiro",
+ "R": 99,
+ "r": 45,
+ "hole": 0.95,
+ "tone": "stone",
+ "style": "big",
+ "mark": "@makeitwork3d",
+ "bloom": 1.2,
+ "title": [
+  "Roll a 45-tooth gear in a 99-tooth ring",
+  "How many [petals]?"
+ ],
+ "count_label": "Petals: ",
+ "id": "spiro3_en",
+ "hue": 0.12,
+ "yt": {
+  "title": "Roll a 45-Tooth Gear Inside a 99-Tooth Ring. How Many Petals? #shorts #satisfying #math",
+  "desc": "A 45-tooth gear rolls inside a 99-tooth ring. A pen in one of the gear's holes draws a flower. Every petal tip plays a stone-chime note.\n\nHow it works:\n- The greatest common factor of 99 and 45 is 9, so the flower gets 99/9 = 11 petals and the line closes after 45/9 = 5 laps.\n- The curve is a hypotrochoid. The hole you put the pen in sets how fat the petals are.\n\nSimulation, sound and animation: original (Python).",
+  "tags": [
+   "math",
+   "spirograph",
+   "gears",
+   "geometry",
+   "satisfying",
+   "relaxing",
+   "simulation",
+   "shorts"
+  ]
+ }
+}
