@@ -3763,7 +3763,45 @@ def radwave(sp):
         sim.frame(t, live, dots, (sp.get("count_label", "そろうまで "), f"{max(0, math.ceil(intro + TT - t))}"), fl)
     sim.finish(total)
 
-KINDS = {"radwave": radwave, "ringsong": ringsong, "whisper": whisper, "picollide": picollide, "metronomes": metronomes, "spiro2": spiro2, "slinky3d": slinky3d, "fifths": fifths, "slinky": slinky, "chordballs": chordballs, "canonstairs": canonstairs, "koch2": koch2, "polywheel": polywheel, "circlefill": circlefill, "dots45": dots45, "spiralglass": spiralglass, "dominoes2": dominoes2, "hearts2": hearts2, "cupcaustic": cupcaustic, "dominoes": dominoes, "merge": merge, "hearts": hearts, "bricks": bricks, "pendwave3d": pendwave3d, "spiro": spiro, "lens": lens, "koch": koch, "pendwave": pendwave, "orbits": orbits, "phyllo": phyllo, "zoomsalt": zoomsalt, "layers": layers, "pixels": pixels, "sortviz": sortviz, "polyfocus": polyfocus, "heliostat": heliostat, "dragon": dragon, "rhythm": rhythm, "lissatable": lissatable, "plotter": plotter, "threebody": threebody, "pendswing": pendswing, "golden": golden, "piphase": piphase, "maurer": maurer, "harmono": harmono, "spiropens": spiropens, "star": star, "throw": throw, "tusi": tusi, "chain": chain, "basket": basket, "koch": koch, "cycloid": cycloid, "pendulums": pendulums, "lissajous": lissajous, "corner": corner, "sunflower": sunflower, "ulam": ulam, "parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2, "picount": picount}
+def pendcone(sp):
+    """振り子の波を3Dに（オーナー 11/23「これ3Dにして回転してることにするとどうなるの」）。長さだけちがう N 本が、同じ角度で円をえがいて回る（円すい振り子）。
+    真横から見ると、ゆれている振り子と同じに見える。カメラが上へ回ると、じつは回っていて、上からは渦が巻いてはほどける。P 秒で全部が1列に戻る"""
+    N, P, k0, A = sp.get("n", 15), sp.get("period", 24.0), sp.get("k0", 20), math.radians(sp.get("amp", 26)); intro, tail = .6, 2.6; total = intro + P + tail
+    Ls = [1.0 * (k0 / (k0 + i)) ** 2 for i in range(N)]; top = 1.12; t1, t2 = sp.get("tilt_at", 5.0), sp.get("tilt_end", 9.5); PM = math.radians(sp.get("pitch", 62))
+    sim = Sim(sp, (-.5, -.12, .5, top + .03), area=(.04, .215, .96, .90)); sim.title()
+    cols = [hsv(.02 + .8 * i / N) for i in range(N)]
+    for i in range(N):
+        per = P / (k0 + i)
+        for j in range(2 * (k0 + i)):
+            tc = intro + (j + .5) * per / 2
+            if tc < intro + P: sim.note(tc, PENTA[int(i / (N - 1) * 15 + .5)], .42, .5, 5)
+    sim.chord(intro, [60, 67, 72]); sim.chord(intro + P, [60, 64, 67, 72], gain=.55, dec=5); sim.chord(intro + t1, [67, 72, 76], gain=.3, dec=2.5)
+    hist = [[] for _ in range(N)]
+    def sm(a, b, x): k = min(1, max(0, (x - a) / (b - a))); return k * k * (3 - 2 * k)
+    for fi in range(int(total * FPS)):
+        t = fi / FPS; u = min(max(0, t - intro), P); th = PM * sm(t1, t2, u) + (math.radians(86) - PM) * sm(P - 3.0, P + .4, t - intro); ct, st = math.cos(th), math.sin(th)
+        pr = lambda x, y, z: (x, top + (y - top) * ct - z * st - .44 * st)      # 上へ回るほど、つり下げた点を画面のまん中へ
+        live, dots, fl = [], [], []; pv = pr(0, top, 0)
+        live.append((pr(-.44, top, 0), pr(.44, top, 0), dim((120, 220, 255), .8 * ct + .1), 4))
+        for i in range(N):
+            per = P / (k0 + i); ph = 2 * math.pi * u / per; L = Ls[i]; r = L * math.sin(A); y = top - L * math.cos(A)
+            pz = pr(r * math.cos(ph), y, r * math.sin(ph))
+            if st > .05:
+                ring = [pr(r * math.cos(a), y, r * math.sin(a)) for a in np.linspace(0, 2 * math.pi, 49)]
+                for q in range(48): live.append((ring[q], ring[q + 1], dim(cols[i], .16 * st), 1))
+            live.append((pv, pz, dim(cols[i], .22), 1.2)); h = hist[i]; h.append(pz); del h[:-12]
+            for q in range(len(h) - 1): live.append((h[q], h[q + 1], dim(cols[i], .1 + .75 * (q + 1) / len(h)), 1 + 4 * (q + 1) / len(h)))
+            dots.append((pz, cols[i], 9))
+            e = (u - per / 4) % (per / 2) if u > per / 4 else 9
+            if e < .16 and u < P: fl.append((pz, 10 + e * 150, dim(cols[i], 1 - e / .16), 2.5))
+        dots.append((pv, (255, 245, 210), 5))
+        e = t - (intro + P)
+        if 0 <= e < .7:
+            for i in range(N): fl.append((pr(Ls[i] * math.sin(A), top - Ls[i] * math.cos(A), 0), 12 + e * 120, dim((255, 245, 210), 1 - e / .7), 3))
+        sim.frame(t, live, dots, (sp.get("count_label", "そろうまで "), f"{max(0, math.ceil(P - u))}"), fl)
+    sim.finish(total)
+
+KINDS = {"pendcone": pendcone, "radwave": radwave, "ringsong": ringsong, "whisper": whisper, "picollide": picollide, "metronomes": metronomes, "spiro2": spiro2, "slinky3d": slinky3d, "fifths": fifths, "slinky": slinky, "chordballs": chordballs, "canonstairs": canonstairs, "koch2": koch2, "polywheel": polywheel, "circlefill": circlefill, "dots45": dots45, "spiralglass": spiralglass, "dominoes2": dominoes2, "hearts2": hearts2, "cupcaustic": cupcaustic, "dominoes": dominoes, "merge": merge, "hearts": hearts, "bricks": bricks, "pendwave3d": pendwave3d, "spiro": spiro, "lens": lens, "koch": koch, "pendwave": pendwave, "orbits": orbits, "phyllo": phyllo, "zoomsalt": zoomsalt, "layers": layers, "pixels": pixels, "sortviz": sortviz, "polyfocus": polyfocus, "heliostat": heliostat, "dragon": dragon, "rhythm": rhythm, "lissatable": lissatable, "plotter": plotter, "threebody": threebody, "pendswing": pendswing, "golden": golden, "piphase": piphase, "maurer": maurer, "harmono": harmono, "spiropens": spiropens, "star": star, "throw": throw, "tusi": tusi, "chain": chain, "basket": basket, "koch": koch, "cycloid": cycloid, "pendulums": pendulums, "lissajous": lissajous, "corner": corner, "sunflower": sunflower, "ulam": ulam, "parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2, "picount": picount}
 
 if __name__ == "__main__":
     sp = json.load(open(sys.argv[1], encoding="utf-8")); KINDS[sp["kind"]](sp); kit(sp)

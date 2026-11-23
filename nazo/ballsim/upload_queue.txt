@@ -1,6 +1,7 @@
 spring2_ja MOSO ja
 radwave1_ja MOSO ja
 radwave3_ja MOSO ja
+pendcone1_ja MOSO ja
 pi2_ja MOSO ja
 rays1_ja MOSO ja
 metro1_ja MOSO ja
