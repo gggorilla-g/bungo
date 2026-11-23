@@ -1,0 +1,18 @@
+【タイトル】
+3 Balls. 1 Melody. Each Starts One Turn Later (Listen to the End) #shorts #satisfying #music
+
+【説明】
+Three balls go down a spiral staircase. Every step plays one note of a melody. The second ball starts one turn later, the third two turns later, and each plays the same melody from the start. What happens when they overlap?
+
+Answer: they fit together. That is what a canon is (based on Pachelbel's Canon, written around 1680, public domain).
+
+How it works:
+- The staircase has 8 steps per turn. Each step moves to the next chord, and 8 steps bring the chords back around.
+- The three balls always land at the same moment, exactly one turn apart. So all three are always on a step with the same chord.
+- Notes from the same chord sound good together, so the delayed copies of the melody never clash.
+- Pink is the first ball, yellow the second, green the third. A step glows in the color of the ball that last landed on it.
+
+Simulation, sound and animation: original (Python).
+
+【タグ】
+music, canon, pachelbel, satisfying, relaxing, simulation, shorts

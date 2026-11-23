@@ -2986,7 +2986,8 @@ def canonstairs(sp):
                         th = .05 * K * cT; side = [(x_, y_ + th) for x_, y_ in dat]
                         d.polygon(side, fill=dim(col, g * .35 * fog)); d.polygon(dat, fill=dim(col, g * fog)); d.line(dat + [dat[0]], fill=dim(tuple(min(255, int(v * .6 + 100)) for v in col), min(1, (g + .25)) * fog), width=max(1, int(2.5 * S)))
                     else:
-                        (x, y), i_, f = dat; c_ = BC[i]
+                        (x, y), i_, f = dat; fgb = max(0, min(1, (1 - abs(y - cy0) / (.275 * HS)) * 2.2)); c_ = dim(BC[i], fgb)   # 題名にかかる高さでは玉も消す
+                        if fgb <= .02: continue
                         for rr, gg in ((64, .10), (44, .20), (30, .38)): r_ = rr * S; d.ellipse([x - r_, y - r_, x + r_, y + r_], fill=dim(c_, gg))
                         r_ = 19 * S; d.ellipse([x - r_, y - r_, x + r_, y + r_], fill=tuple(min(255, int(v * .45 + 150)) for v in c_))
                 for tl, b, i in lands:   # 着地の光の輪
