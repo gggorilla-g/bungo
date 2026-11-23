@@ -687,3 +687,4 @@
 - 2026-11-23 22時台（定時）：妄想 spring2_ja → WZW9QomEgMo、英語 pendcone2_en → btV5SulZh1c。とばしなし、上限なし。残り51本
 - 2026-11-23 23:3x(日本時間) 妄想 長尺 公開：long_laws_ja lUn8XyniUxc（上限は外れていた。22時台の定時で spring2_ja も公開済み）
 - 2026-11-24 00時台（定時）：妄想 pendcone2_ja → x980ykHGIMc、英語 radwave3_en → A3ywFLPEbCw。とばしなし、上限なし。残り49本
+- 2026-11-24 02時台（定時）：妄想 radwave1_ja → rYhSh1F8-jo、英語 xmas1_en → vRRnrZ8XSuE。とばしなし、上限なし。前回分（pendcone2_ja, radwave3_en）が順番待ちに残っていたので、upload_done と照合して外してから実行。残り47本
