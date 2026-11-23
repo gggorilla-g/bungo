@@ -3253,7 +3253,7 @@ def slinky3d(sp):
                 for gy in np.arange(math.floor(tg[1] - 9), tg[1] + 9, 1.0):
                     q2, z = pj([(tg[0] - 7, gy, -3.2), (tg[0] + 7, gy, -3.2)]); g.line([tuple(q2[0]), tuple(q2[1])], fill=(20, 28, 56), width=max(1, int(2 * S)))
                 for j in range(k - 8, k + 10):   # 階段（奥の段から順に）：横の壁 → け上げ → ふみ面
-                    x, y = stp(j); x0 = x - SW / 2; x1 = x + SW / 2; e = t - times[j] if 1 <= j <= NS else 9; fl = math.exp(-e * 4) if e >= 0 else 0; hc = hsv(.45, .5, 1)
+                    x, y = stp(j); x0 = x - SW / 2; x1 = x + SW / 2; e = t - times[j] if 1 <= j <= NS else 9; fl = math.exp(-e * 4) if e >= 0 else 0; hc = hsv((sp.get("hue0", .47) + j / float(NS)) % 1, .65, 1)
                     faces = [([(x0, y, WZ), (x1, y, WZ), (x1, y - 60, WZ), (x0, y - 60, WZ)], (7, 10, 26), False)]
                     faces.append(([(x0, y, -WZ), (x0, y, WZ), (x0, stp(j - 1)[1], WZ), (x0, stp(j - 1)[1], -WZ)], (10, 14, 34), False))
                     faces.append(([(x0, y, -WZ), (x1, y, -WZ), (x1, y, WZ), (x0, y, WZ)], tuple(int(b_ + hc[i_] * .30 * fl) for i_, b_ in enumerate((16, 23, 52))), True))
@@ -3268,12 +3268,18 @@ def slinky3d(sp):
                 band = (U / N * 1.0 - surge * .5) % 1.0; wave = np.zeros(M)   # しまにしない：端から端まで1回りのなめらかなグラデーションが、ゆっくり送られる（オーナー 11/23「しましまにしなくていい」）
                 PAL = np.array(sp.get("pal", [(20, 150, 190), (40, 214, 228), (110, 250, 200), (40, 215, 130), (60, 225, 190), (20, 150, 190)]), float); PX = np.array([0, .2, .4, .6, .8, 1.0])   # 青緑 → 水色 → うすい緑 → 緑 → 白っぽい水色（オーナー 11/23「もう少し綺麗な青緑とか緑のグラデーションで」）
                 RGB = np.stack([np.interp(band, PX, PAL[:, c_]) for c_ in range(3)], 1)
+                HJ = lambda j_: sp.get("hue0", .47) + j_ / float(NS)   # 段ごとの色。着いた段の色に、バネのグラデーションが変わっていく（オーナー 11/23「着地点によってグラデーション変わって、床にその色が写る」）。1めぐりで元の色にもどるのでループもつながる
+                inB_ = T[:, 1] > .99; inA_ = T[:, 1] < -.99; nB_ = inB_.sum(); nR_ = max(1, M - nB_ - inA_.sum()); wj = np.where(inB_, 1.0, np.where(inA_, 0.0, 1 - np.clip((np.arange(M) - nB_) / nR_, 0, 1)))
+                HUE_ = HJ(k) + wj / NS + .09 * (U / N - .5) + .02 * np.sin(2 * math.pi * (U / N * 2 - surge)); RGB = np.array([hsv(float(h_) % 1, .72, 1) for h_ in HUE_[::8]], float).repeat(8, axis=0)[:M]
                 puls = .55 + .45 * math.sin(math.pi * fr_) ** 2
                 NRM = np.stack([np.cos(th_) * (-T[:, 1]), np.cos(th_) * T[:, 0], np.sin(th_)], 1); Lv = np.array([-.35, .72, .60]); Lv = Lv / np.linalg.norm(Lv); Vv = (cam - tg); Vv = Vv / np.linalg.norm(Vv); Hv = Lv + Vv; Hv = Hv / np.linalg.norm(Hv)
                 DIF = np.clip(NRM @ Lv, 0, 1); SPC = np.clip(NRM @ Hv, 0, 1) ** 12   # 針金の向きで明るさを変える：光の当たる面は明るく、つやの筋が入る（樹脂のバネの見た目）
-                for sx_, sy_, fr_s in ((steps[k][0], steps[k][1], float((T[:, 1] < -.99).mean())), (steps[k + 1][0], steps[k + 1][1], float((T[:, 1] > .99).mean()))):   # 山の下の影
+                for sx_, sy_, fr_s, hj_ in ((steps[k][0], steps[k][1], float((T[:, 1] < -.99).mean()), HJ(k)), (steps[k + 1][0], steps[k + 1][1], float((T[:, 1] > .99).mean()), HJ(k + 1))):   # 山の下：床に写る色（外がわほどうすい）と、まん中の影
                     if fr_s > .02:
-                        sq, sz = pj([(sx_ + R * 1.25 * math.cos(x_) + .10, sy_ + .002, R * 1.25 * math.sin(x_) - .06) for x_ in np.linspace(0, 2 * math.pi, 28)]); g.polygon([tuple(v) for v in sq], fill=tuple(int(c_ * (1 - .55 * min(1, fr_s * 2.5))) for c_ in (16, 23, 52)))
+                        gc_ = hsv(hj_ % 1, .75, 1); am = min(1.0, fr_s * 2.2)
+                        for rr_, al_ in ((2.6, .10), (2.0, .16), (1.5, .24)):
+                            sq, sz = pj([(sx_ + R * rr_ * math.cos(x_) * min(1, SW / 2 / (R * rr_)), sy_ + .002, max(-WZ, min(WZ, R * rr_ * math.sin(x_)))) for x_ in np.linspace(0, 2 * math.pi, 32)]); g.polygon([tuple(v) for v in sq], fill=tuple(int(b_ + gc_[q_] * al_ * am) for q_, b_ in enumerate((16, 23, 52))))
+                        sq, sz = pj([(sx_ + R * 1.1 * math.cos(x_) + .08, sy_ + .003, R * 1.1 * math.sin(x_) - .05) for x_ in np.linspace(0, 2 * math.pi, 28)]); g.polygon([tuple(v) for v in sq], fill=tuple(int(c_ * (1 - .5 * am)) for c_ in (16, 23, 52)))
                 for i in order:   # 奥の線から手前へ。手前がわ（カメラに近い半周）は明るく太く、奥がわは暗く細く
                     near = max(0.0, min(1.0, .5 + (zc[i] - zm[i]) / (2 * R))); wv = float(wave[i]) ** 2 * puls; col = tuple(int(v) for v in RGB[i]); w_ = FL / zm[i] * .0165; near = min(1.0, near * (.80 + .20 * puls))
                     a, b = tuple(q2[i]), tuple(q2[i + 1])
@@ -3471,16 +3477,25 @@ def picollide(sp):
             u = float(np.interp(te, st["grid"], st["meas"])); ta = intro + si * SLOT + u * SLOT
             if ta - last >= .011: sim.notes.append((ta, (86 if kd == "b" else 79) - (0 if st["N"] < 40 else 0), .30 if st["N"] < 40 else .12, .35 if kd == "w" else .6, 10, "glass")); last = ta
         for j, mi in enumerate((60, 67, 72, 76)): sim.notes.append((intro + (si + 1) * SLOT - .55, mi + (0 if si < 3 else 12 * (j == 3)), .22, .5, 2.0, "glass"))
-    WS, HS = 1080 * S, 1920 * S; FL = 1300 * S; cam = np.array([2.55, 2.0, -6.5]); tg = np.array([2.45, 1.0, 0.0]); fw = tg - cam; fw /= np.linalg.norm(fw); rt = np.cross((0, 1, 0), fw); rt /= np.linalg.norm(rt); up = np.cross(fw, rt); cy0 = .56 * HS
-    def pj(P): Dv = np.asarray(P, float) - cam; z = Dv @ fw; return (WS / 2 + FL * (Dv @ rt) / z, cy0 - FL * (Dv @ up) / z)
+    WS, HS = 1080 * S, 1920 * S; FL = 1300 * S; CAM = {}; cy0 = .56 * HS; inten = [0.0]
+    def setcam(I, xs):
+        """I＝ぶつかりの激しさ（0〜1）。激しいほど、小さい箱とはさまれる所へ低く寄る（オーナー 11/23「強い力がかかってる所を見せるカメラアングルも大事」）"""
+        e_ = I * I * (3 - 2 * I); c = np.array([2.55 + (xs + 1.7 - 2.55) * e_, 2.0 - .85 * e_, -6.5 + 1.9 * e_]); tg = np.array([2.45 + (xs + .9 - 2.45) * e_, 1.0 - .30 * e_, 0.0])
+        fw = tg - c; fw /= np.linalg.norm(fw); rt = np.cross((0, 1, 0), fw); rt /= np.linalg.norm(rt); CAM.update(c=c, fw=fw, rt=rt, up=np.cross(fw, rt))
+    setcam(0, 1.25)
+    def pj(P): Dv = np.asarray(P, float) - CAM["c"]; z = max(.05, Dv @ CAM["fw"]); return (WS / 2 + FL * (Dv @ CAM["rt"]) / z, cy0 - FL * (Dv @ CAM["up"]) / z)
     fB, fM, fS = F(170 * S), F(54 * S), F(40 * S)
     def box(d, x, w, col, fl, lab):
-        zf, zb = -w / 2, w / 2; P = lambda xx, yy, zz: pj((xx, yy, zz))
-        for sgn in (-1, 1):   # 床への映りこみ（下向きに暗く）→ 本体
+        zf, zb = -w / 2, w / 2; P = lambda xx, yy, zz: pj((xx, yy, zz)); camx = CAM["c"][0]
+        for sgn in (-1, 1):   # 床への映りこみ（下向きに暗く）→ 本体。面は「奥 → 横 → 上 → 手前」の順で、見える側の横の面だけを描く
             yy0, yy1 = (0, w) if sgn > 0 else (0, -w * .6); g = 1.0 if sgn > 0 else .22
             front = [P(x, yy0, zf), P(x + w, yy0, zf), P(x + w, yy1, zf), P(x, yy1, zf)]; back = [P(x, yy0, zb), P(x + w, yy0, zb), P(x + w, yy1, zb), P(x, yy1, zb)]
-            d.polygon(front, fill=dim(col, (.10 + .22 * fl) * g))
-            if sgn > 0: d.polygon([front[3], front[2], back[2], back[3]], fill=dim(col, (.16 + .2 * fl) * g)); d.polygon([front[1], back[1], back[2], front[2]], fill=dim(col, (.07 + .15 * fl) * g))
+            if sgn > 0:
+                d.polygon(back, fill=dim(col, .05 + .10 * fl))
+                if camx > x + w: d.polygon([front[1], back[1], back[2], front[2]], fill=dim(col, .09 + .20 * fl))
+                elif camx < x: d.polygon([front[0], back[0], back[3], front[3]], fill=dim(col, .09 + .20 * fl))
+                d.polygon([front[3], front[2], back[2], back[3]], fill=dim(col, .16 + .24 * fl))
+            d.polygon(front, fill=dim(col, (.10 + .26 * fl) * g))
             for a_, b_ in zip(back, back[1:] + back[:1]): d.line([a_, b_], fill=dim(col, .30 * g), width=max(1, int(2 * S)))
             for a_, b_ in zip(front, back): d.line([a_, b_], fill=dim(col, .55 * g), width=max(1, int(2.5 * S)))
             for a_, b_ in zip(front, front[1:] + front[:1]): d.line([a_, b_], fill=dim(col, .5 * g), width=int(9 * S)); d.line([a_, b_], fill=dim(tuple(min(255, int(v * .55 + 115 + 60 * fl)) for v in col), g), width=int(3 * S))
@@ -3491,7 +3506,10 @@ def picollide(sp):
         t = fi / FPS; si = min(len(MASS) - 1, max(0, int((t - intro) / SLOT))); u = min(1.0, max(0.0, (t - intro - si * SLOT) / SLOT)); st = stages[si]
         if t >= intro + SLOT * len(MASS): u = 1.0
         tt, x1, x2, n, t0, kd = at(si, u); du = 1e-3; t2 = float(np.interp(min(1, u + du), st["meas"], st["grid"])); slow = (st["T"] * du) / max(1e-12, (t2 - tt))
-        def draw(d, t=t, si=si, st=st, tt=tt, x1=x1, x2=x2, n=n, t0=t0, kd=kd, slow=slow):
+        n_prev = at(si, max(0.0, u - .25 / SLOT))[3] if u > 0 else n; rate = max(0, n - n_prev) / .25; I_t = min(1.0, math.log10(1 + rate) / math.log10(1 + 500)) if st["N"] >= 40 and n < st["N"] else 0.0
+        inten[0] += (I_t - inten[0]) * .07; I = inten[0]; setcam(I, x1)
+        def draw(d, t=t, si=si, st=st, tt=tt, x1=x1, x2=x2, n=n, t0=t0, kd=kd, slow=slow, I=I):
+            d0 = d; lay = d._image.copy(); d = ImageDraw.Draw(lay)   # 場面は別の紙に描き、題名より下だけを貼る（寄った時に箱が題名にかぶらない）
             for gz in np.linspace(-2.5, 2.5, 6): d.line([pj((0, 0, gz)), pj((7, 0, gz))], fill=(18, 30, 54), width=max(1, int(1.5 * S)))   # 床の線
             for gx in np.arange(0, 7.1, 1.0): d.line([pj((gx, 0, -2.5)), pj((gx, 0, 2.5))], fill=(18, 30, 54), width=max(1, int(1.5 * S)))
             wall = [pj((0, 0, -2.5)), pj((0, 0, 2.5)), pj((0, 4.2, 2.5)), pj((0, 4.2, -2.5))]; e_w = (tt - t0) if kd == "w" else 9; flw = math.exp(-e_w / max(1e-9, st["T"]) * 220)
@@ -3500,7 +3518,17 @@ def picollide(sp):
             d.line(wall + [wall[0]], fill=(70, 150, 190), width=int(7 * S)); d.line(wall + [wall[0]], fill=(190, 240, 255), width=int(2.5 * S))
             e_b = (tt - t0) if kd == "b" else 9; flb = math.exp(-e_b / max(1e-9, st["T"]) * 220)
             lab2 = sp.get("kg", "{m}kg").format(m=f"{st['M']:,}")
-            box(d, max(x2, x1 + w1), st["w2"], (255, 170, 70), flb, lab2); box(d, x1, w1, (90, 225, 255), max(flb, flw), sp.get("kg", "{m}kg").format(m="1"))
+            hot = tuple(int(c_ * (1 - .75 * I) + 255 * .75 * I) for c_ in (90, 225, 255))   # はさまれて激しくぶつかるほど、小さい箱は白く光る
+            xb = max(x2, x1 + w1); order = [(xb, st["w2"], (255, 170, 70), max(flb, .5 * I), lab2), (x1, w1, hot, max(flb, flw, I), sp.get("kg", "{m}kg").format(m="1"))]
+            if CAM["c"][0] > xb: order.reverse()   # カメラから遠い箱を先に描く
+            for bx_, bw_, bc_, bf_, bl_ in order: box(d, bx_, bw_, bc_, bf_, bl_)
+            if I > .05:   # 力がかかっている所：ぶつかる面と壁から、光の線と輪が出る
+                for (px_, ph_) in ((x1 + w1, flb), (0.0, flw)):
+                    c0 = pj((px_, w1 * .5, -w1 / 2)); rr = (20 + 70 * I) * S * (.6 + .4 * ph_)
+                    for q_ in range(12):
+                        an = q_ * math.pi / 6 + n * .7; l0, l1 = rr * .35, rr * (1.0 + .5 * ((q_ * 7 + n) % 5) / 4); d.line([(c0[0] + l0 * math.cos(an), c0[1] + l0 * math.sin(an)), (c0[0] + l1 * math.cos(an), c0[1] + l1 * math.sin(an))], fill=dim((255, 245, 220), min(1, .25 + .75 * I) * (.5 + .5 * ph_)), width=max(1, int(2 * S)))
+                    d.ellipse([c0[0] - rr * .3, c0[1] - rr * .3, c0[0] + rr * .3, c0[1] + rr * .3], fill=dim((255, 250, 235), min(1, .3 + .7 * I)))
+            yc0, yc1 = int(.215 * HS), int(.83 * HS); d0._image.paste(lay.crop((0, yc0, WS, yc1)), (0, yc0)); d = d0
             num = f"{n:,}".replace(",", ""); tw = d.textlength(num, font=fB); done = n >= st["N"]
             d.text((WS / 2 - tw / 2, .235 * HS), num, font=fB, fill=(255, 225, 120) if done else (235, 240, 250), stroke_width=int(6 * S), stroke_fill=(0, 0, 0))
             l1 = sp.get("vs", "1kg  対  {m}kg").format(m=f"{st['M']:,}"); d.text((WS / 2 - d.textlength(l1, font=fM) / 2, .735 * HS), l1, font=fM, fill=(230, 235, 245), stroke_width=int(4 * S), stroke_fill=(0, 0, 0))
@@ -3562,7 +3590,56 @@ def whisper(sp):
         sim.frame(t, (), heads, (sp.get("count_label", "光の数 "), f"{pl['n']:,}"), (), draw)
     sim.finish(total)
 
-KINDS = {"whisper": whisper, "picollide": picollide, "metronomes": metronomes, "spiro2": spiro2, "slinky3d": slinky3d, "fifths": fifths, "slinky": slinky, "chordballs": chordballs, "canonstairs": canonstairs, "koch2": koch2, "polywheel": polywheel, "circlefill": circlefill, "dots45": dots45, "spiralglass": spiralglass, "dominoes2": dominoes2, "hearts2": hearts2, "cupcaustic": cupcaustic, "dominoes": dominoes, "merge": merge, "hearts": hearts, "bricks": bricks, "pendwave3d": pendwave3d, "spiro": spiro, "lens": lens, "koch": koch, "pendwave": pendwave, "orbits": orbits, "phyllo": phyllo, "zoomsalt": zoomsalt, "layers": layers, "pixels": pixels, "sortviz": sortviz, "polyfocus": polyfocus, "heliostat": heliostat, "dragon": dragon, "rhythm": rhythm, "lissatable": lissatable, "plotter": plotter, "threebody": threebody, "pendswing": pendswing, "golden": golden, "piphase": piphase, "maurer": maurer, "harmono": harmono, "spiropens": spiropens, "star": star, "throw": throw, "tusi": tusi, "chain": chain, "basket": basket, "koch": koch, "cycloid": cycloid, "pendulums": pendulums, "lissajous": lissajous, "corner": corner, "sunflower": sunflower, "ulam": ulam, "parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2, "picount": picount}
+def ringsong(sp):
+    """輪の上の玉が線を通るたびに1音。全部の玉は同じ速さで回る（円ばんのオルゴールと同じ仕組み）。外がわの輪ほど高い音（オーナー画面収録 11/23 @BouncyPhysics「Each ball = one note / Name this Christmas song」の型）。
+    曲は「ジングルベル」（1857年、著作権なし）。1周目はゆっくり、2周目は速く（オーナー「途中でリズムが変わるのがいい」）。玉の位置＝その音が鳴る時刻なので、輪の上の並びがそのまま楽譜"""
+    E, D, C, Fq, G = 64, 62, 60, 65, 67
+    A = [(E, 1), (E, 1), (E, 2), (E, 1), (E, 1), (E, 2), (E, 1), (G, 1), (C, 1.5), (D, .5), (E, 4), (Fq, 1), (Fq, 1), (Fq, 1.5), (Fq, .5), (Fq, 1), (E, 1), (E, 1), (E, .5), (E, .5)]
+    L1 = A + [(E, 1), (D, 1), (D, 1), (E, 1), (D, 2), (G, 2)]; L2 = A + [(G, 1), (G, 1), (Fq, 1), (D, 1), (C, 4)]
+    notes = []; b = 0.0
+    for m, du in L1 + L2: notes.append((b, m)); b += du
+    NB = 32; B1, B2 = sp.get("beat1", .30), sp.get("beat2", .21); intro = .6; tail = sp.get("tail", 3.4); t1 = intro + NB * B1; T_end = t1 + NB * B2; total = T_end + tail
+    Bat = lambda t: 0.0 if t < intro else ((t - intro) / B1 if t < t1 else min(2 * NB, NB + (t - t1) / B2)); tat = lambda bb: intro + bb * B1 if bb <= NB else t1 + (bb - NB) * B2
+    RING = {C: .40, D: .55, E: .70, Fq: .85, G: 1.0}; COL = {C: (255, 90, 110), D: (255, 215, 90), E: (245, 250, 255), Fq: (90, 235, 150), G: (255, 120, 130)}
+    sim = Sim(sp, (-1.18, -1.18, 1.18, 1.18)); sim.title()
+    for bb, m in notes:
+        tt = tat(bb); x = RING[m]; lap2 = bb >= NB
+        sim.notes.append((tt, m + 12, .50, .5 + .2 * x, 4.5, sp.get("tone", "karo")))
+        if lap2: sim.notes.append((tt, m + 24, .16, .5, 5, "bell"))
+    for lap, roots in enumerate(([0, 0, 0, 0, 5, 0, 2, 7], [0, 0, 0, 0, 5, 0, 7, 0])):   # 小節ごとの低い音
+        for bar, r in enumerate(roots):
+            tt = tat(lap * NB + bar * 4); sim.notes.append((tt, 48 + r if r < 6 else 36 + r, .30, .5, 2.0, "piano")); sim.notes.append((tat(lap * NB + bar * 4 + 2), 55 if r in (0, 5) else 50, .14, .5, 2.6, "piano"))
+            if lap == 1:
+                for q in range(4): sim.notes.append((tat(NB + bar * 4 + q), 36, .30, .5, 9, "kick"))
+    for mi in (48, 60, 64, 67, 72, 76): sim.notes.append((T_end + .05, mi, .32, .5, 1.3, "bell"))
+    WS, HS = 1080 * S, 1920 * S; fB = F(64 * S)
+    for fi in range(int(total * FPS)):
+        t = fi / FPS; Bn = Bat(t)
+        def draw(d, t=t, Bn=Bn):
+            cx, cy = sim.to((0, 0)); k = sim.k; fin = max(0.0, t - T_end); glowall = min(1.0, fin / .5)
+            last = {}
+            for bb, m in notes:
+                if bb <= Bn: last[m] = Bn - bb
+            for m, x in RING.items():   # 輪：玉が線を通ると、輪ぜんたいが光る
+                e = last.get(m, 99); e_s = e * (B1 if Bn <= NB else B2); fl = max(math.exp(-e_s * 5), glowall * (.75 + .25 * math.sin(fin * 6 + x * 9))); r_ = x * k; c = COL[m]
+                d.ellipse([cx - r_, cy - r_, cx + r_, cy + r_], outline=dim(c, .16 + .5 * fl), width=int((3 + 8 * fl) * S)); d.ellipse([cx - r_, cy - r_, cx + r_, cy + r_], outline=dim(tuple(min(255, int(v * .6 + 100)) for v in c), .22 + .78 * fl), width=max(1, int((1.5 + 2.5 * fl) * S)))
+            d.line([cx - 1.12 * k, cy, cx + 1.12 * k, cy], fill=(60, 80, 110), width=max(1, int(1.5 * S))); d.line([cx, cy, cx + 1.12 * k, cy], fill=(200, 220, 240), width=max(1, int(2.5 * S)))   # 音が鳴る線（右の半分）
+            for bb, m in notes:   # 玉：同じ速さで回る。線の 26拍前から見えはじめ、通って3拍で消える
+                dlt = bb - Bn
+                if not (-3 < dlt < 26) or t >= T_end + .1: continue
+                vis = min(1.0, (26 - dlt) / 3) if dlt > 0 else max(0.0, 1 + dlt / 3); x = RING[m]; c = COL[m]; hit = math.exp(-max(0, -dlt) * 2.5) if dlt <= 0 else 0
+                for q in range(9, -1, -1):
+                    a = 2 * math.pi * (dlt + q * .22) / NB; px, py = cx + x * k * math.cos(a), cy - x * k * math.sin(a) * -1; r_ = (10 - q * .8 + 7 * hit * (q == 0)) * S
+                    d.ellipse([px - r_, py - r_, px + r_, py + r_], fill=dim(tuple(min(255, int(v * (.55 if q else .35) + (0 if q else 165))) for v in c), vis * (1 - q * .095)))
+                if hit > .05: px = cx + x * k; rr = (14 + 60 * (1 - hit)) * S; d.ellipse([px - rr, cy - rr, px + rr, cy + rr], outline=dim((255, 250, 235), hit), width=max(1, int(3 * S)))
+            if fin > 0:   # しめくくり：まん中に星、下に一言
+                g = min(1.0, fin / .6); R1, R2 = .20 * k * g, .085 * k * g; st = [(cx + (R1 if q % 2 == 0 else R2) * math.sin(math.pi * q / 5), cy - (R1 if q % 2 == 0 else R2) * math.cos(math.pi * q / 5)) for q in range(10)]
+                d.polygon(st, fill=(255, 225, 120)); tx = sp.get("end", "メリークリスマス"); d.text((WS / 2 - d.textlength(tx, font=fB) / 2, .745 * HS), tx, font=fB, fill=dim((255, 240, 220), g), stroke_width=int(5 * S), stroke_fill=(0, 0, 0))
+        nh = sum(1 for bb, m in notes if bb <= Bn and t >= intro)
+        sim.frame(t, (), (), (sp.get("count_label", "鳴った音 "), f"{nh}"), (), draw)
+    sim.finish(total)
+
+KINDS = {"ringsong": ringsong, "whisper": whisper, "picollide": picollide, "metronomes": metronomes, "spiro2": spiro2, "slinky3d": slinky3d, "fifths": fifths, "slinky": slinky, "chordballs": chordballs, "canonstairs": canonstairs, "koch2": koch2, "polywheel": polywheel, "circlefill": circlefill, "dots45": dots45, "spiralglass": spiralglass, "dominoes2": dominoes2, "hearts2": hearts2, "cupcaustic": cupcaustic, "dominoes": dominoes, "merge": merge, "hearts": hearts, "bricks": bricks, "pendwave3d": pendwave3d, "spiro": spiro, "lens": lens, "koch": koch, "pendwave": pendwave, "orbits": orbits, "phyllo": phyllo, "zoomsalt": zoomsalt, "layers": layers, "pixels": pixels, "sortviz": sortviz, "polyfocus": polyfocus, "heliostat": heliostat, "dragon": dragon, "rhythm": rhythm, "lissatable": lissatable, "plotter": plotter, "threebody": threebody, "pendswing": pendswing, "golden": golden, "piphase": piphase, "maurer": maurer, "harmono": harmono, "spiropens": spiropens, "star": star, "throw": throw, "tusi": tusi, "chain": chain, "basket": basket, "koch": koch, "cycloid": cycloid, "pendulums": pendulums, "lissajous": lissajous, "corner": corner, "sunflower": sunflower, "ulam": ulam, "parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2, "picount": picount}
 
 if __name__ == "__main__":
     sp = json.load(open(sys.argv[1], encoding="utf-8")); KINDS[sp["kind"]](sp); kit(sp)

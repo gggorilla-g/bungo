@@ -1,0 +1,28 @@
+{
+ "kind": "ringsong",
+ "id": "xmas1_en",
+ "bloom": 0,
+ "glow": 0.5,
+ "style": "big",
+ "mark": "@makeitwork3d",
+ "title": [
+  "Each ball = {one note}",
+  "Name this [Christmas song]"
+ ],
+ "count_label": "Notes: ",
+ "yt": {
+  "title": "Each Ball Is One Note. Name This Christmas Song (Listen to the End) #shorts #satisfying #christmas",
+  "desc": "Balls travel around five rings at the same speed. Every time a ball crosses the line on the right, its ring plays a note. Outer rings are higher. Can you name the Christmas song?\n\nAnswer: Jingle Bells (written in 1857, public domain).\n\nHow it works:\n- The rings from inside to outside are C, D, E, F, G. One ball is one note.\n- All balls move at the same speed, so their positions on the rings are the sheet music. It works like a disc music box.\n- A ball a quarter turn away from the line plays a quarter turn later.\n- The first lap is slow and the second lap is fast. The second lap ends a little differently.\n- At the end, all five rings light up together.\n\nSimulation, sound and animation: original (Python).",
+  "tags": [
+   "music",
+   "christmas",
+   "music box",
+   "satisfying",
+   "relaxing",
+   "simulation",
+   "shorts"
+  ]
+ },
+ "end": "Merry Christmas",
+ "post_hue": 25
+}
