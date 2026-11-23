@@ -672,3 +672,4 @@
 - 2026-11-23 雑学 公開：ui_qr_ja WCe9nNDKN0M
 - 2026-11-23 雑学 公開：ui_jan_ja（バーコードの最後の1けた＝チェックデジット。scene_jan.html：13枚の札が2列に分かれて足し算、3倍、合計116、あと4。1けたのまちがいで合わなくなる様子。出典 GS1 Japan／GS1）結果: ui_jan_ja success TzXiJVtSSEg (run 45140719149)
 - 2026-11-23 雑学 公開：ui_gate_ja（改札のタッチ＝通信0.2秒をかせぐ。scene_gate.html：改札機、半球の通信範囲、カードの通過と通信ゲージ、20倍の四角、15度の傾き、光の輪。出典 JR EAST Technical Review No.4 Suica 開発記）結果: ui_gate_ja success qhUSwTFolV8 (run 45143250356)。オーナー：QR・バーコードの回は「とてもいい」「いいね」
+- 2026-11-23 18:2x(日本時間) 順番待ち：英語 pi2_en 公開 xZvHYZuoIuY（run 45146685690）／妄想 spring2_ja はまだ1日の上限で出せず、順番待ちに残した
