@@ -1,0 +1,27 @@
+{
+ "kind": "canonstairs",
+ "id": "canon1_en",
+ "bed": true,
+ "bloom": 0,
+ "glow": 0.5,
+ "style": "big",
+ "mark": "@makeitwork3d",
+ "title": [
+  "{3} balls. [1] melody.",
+  "Each starts one turn later"
+ ],
+ "yt": {
+  "title": "3 Balls. 1 Melody. Each Starts One Turn Later (Listen to the End) #shorts #satisfying #music",
+  "desc": "Three balls go down a spiral staircase. Every step plays one note of a melody. The second ball starts one turn later, the third two turns later, and each plays the same melody from the start. What happens when they overlap?\n\nAnswer: they fit together. That is what a canon is (based on Pachelbel's Canon, written around 1680, public domain).\n\nHow it works:\n- The staircase has 8 steps per turn. Each step moves to the next chord, and 8 steps bring the chords back around.\n- The three balls always land at the same moment, exactly one turn apart. So all three are always on a step with the same chord.\n- Notes from the same chord sound good together, so the delayed copies of the melody never clash.\n- Pink is the first ball, yellow the second, green the third. A step glows in the color of the ball that last landed on it.\n\nSimulation, sound and animation: original (Python).",
+  "tags": [
+   "music",
+   "canon",
+   "pachelbel",
+   "satisfying",
+   "relaxing",
+   "simulation",
+   "shorts"
+  ]
+ },
+ "fmt": "{n} balls  |  turn {k}"
+}

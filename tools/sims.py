@@ -2915,7 +2915,84 @@ def koch2(sp):
         sim.finish(total)
     finally: harmony.BAR = bar0
 
-KINDS = {"koch2": koch2, "polywheel": polywheel, "circlefill": circlefill, "dots45": dots45, "spiralglass": spiralglass, "dominoes2": dominoes2, "hearts2": hearts2, "cupcaustic": cupcaustic, "dominoes": dominoes, "merge": merge, "hearts": hearts, "bricks": bricks, "pendwave3d": pendwave3d, "spiro": spiro, "lens": lens, "koch": koch, "pendwave": pendwave, "orbits": orbits, "phyllo": phyllo, "zoomsalt": zoomsalt, "layers": layers, "pixels": pixels, "sortviz": sortviz, "polyfocus": polyfocus, "heliostat": heliostat, "dragon": dragon, "rhythm": rhythm, "lissatable": lissatable, "plotter": plotter, "threebody": threebody, "pendswing": pendswing, "golden": golden, "piphase": piphase, "maurer": maurer, "harmono": harmono, "spiropens": spiropens, "star": star, "throw": throw, "tusi": tusi, "chain": chain, "basket": basket, "koch": koch, "cycloid": cycloid, "pendulums": pendulums, "lissajous": lissajous, "corner": corner, "sunflower": sunflower, "ulam": ulam, "parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2, "picount": picount}
+def canonstairs(sp):
+    """らせん階段を、3つの玉が1周おくれで下りる。1段ごとに旋律が1音。同じ旋律を1周おくれで重ねる＝カノン（オーナー画面収録 11/23「CANON IN D / 3 BALLS. 1 MELODY.」の型）。
+    1周8段＝8つの和音。どの玉も同じ時刻に着地するので、ずれた旋律がいつも同じ和音の中で重なる"""
+    T = sp.get("beat", .6); t0 = sp.get("intro", .8); NB = sp.get("balls", 3); SPT = 8; tail = sp.get("tail", 3.0)
+    PH = [[76, 74, 72, 71, 69, 67, 69, 71], [72, 71, 69, 67, 65, 64, 65, 62], [72, 76, 79, 77, 76, 72, 76, 74], [76, 79, 76, 79, 81, 79, 81, 79], [67, 71, 72, 76, 77, 79, 81, 83]]
+    NT = len(PH); NS = NT * SPT; dz = sp.get("dz", .17); tilt = math.radians(sp.get("tilt", 33)); cT, sT = math.cos(tilt), math.sin(tilt)
+    T_end = t0 + NS * T; total = T_end + tail; r_in, r_out, rb = .60, 1.0, .80; BC = [(255, 110, 190), (255, 190, 70), (90, 240, 170)]; TONE = [sp.get("tone", "karo"), "stone", "bell"]
+    import harmony
+    bar0 = harmony.BAR; harmony.BAR = T; sp = dict(sp); sp.setdefault("bed_off", t0)
+    try:
+        sim = Sim(sp, (-1, -1, 1, 1)); sim.title(); lands = []
+        for b in range(NB):
+            for i in range(NS - b * SPT):
+                tl = t0 + (i + b * SPT) * T; lands.append((tl, b, i)); sim.notes.append((tl, PH[i // SPT][i % SPT], (.58, .46, .30)[b], (.5, .3, .7)[b], (5, 5, 2.5)[b], TONE[b]))
+        for i in range(NS):
+            r, q = harmony.CANON[i % 8]; sim.notes.append((t0 + i * T, 48 + r if r < 8 else 36 + r, .26, .5, 2.0, "piano"))
+            if i >= SPT and i % 2 == 0: sim.notes.append((t0 + i * T, 36, .34, .5, 9, "kick"))
+        for mi in (48, 60, 64, 67, 72, 76): sim.notes.append((T_end, mi, .32, .5, 1.5, "bell"))
+        lands.sort(); WS, HS = 1080 * S, 1920 * S; K = 318 * S; cx0, cy0 = WS / 2, .50 * HS; fS = F(44 * S)
+        phi = lambda i: math.pi / 2 + .5 - i * 2 * math.pi / SPT   # 段 i の向き（手前から始まり、時計回りに下りる）
+        def proj(x, y, z, zc, az):
+            ca, sa = math.cos(az), math.sin(az); x, y = x * ca - y * sa, x * sa + y * ca
+            return (cx0 + x * K, cy0 - ((z - zc) * cT + y * sT) * K), y * cT - (z - zc) * sT   # 画面の位置、奥行き（大きいほど奥）
+        NTILE = NS + 10
+        for fi in range(int(total * FPS)):
+            t = fi / FPS; u0 = (t - t0) / T; zc = -dz * (min(max(u0, -1), NS - 1 + 1.2 * (1 - math.exp(-max(0, t - T_end) * 1.2))) - 6.5); az = .10 * math.sin(t * .33)
+            lit = {}   # 段 → (色, 明るさ)
+            for tl, b, i in lands:
+                if tl > t: break
+                e = t - tl; lit[i] = (BC[b], e)
+            def draw(d, t=t, u0=u0, zc=zc, az=az, lit=lit):
+                objs = []
+                for rr_, cw in ((.12, (120, 220, 255)), (r_in - .05, (90, 110, 220))):   # 中心の柱と内側の手すり（らせんの線）
+                    ln = []
+                    for q in np.arange(-3, NTILE + 1, .25):
+                        (x_, y_), _ = proj(rr_ * math.cos(phi(q)), rr_ * math.sin(phi(q)), -dz * q, zc, az); ln.append((x_, y_))
+                    for pa, pb in zip(ln, ln[1:]):
+                        fg = max(0, min(1, (1 - abs((pa[1] + pb[1]) / 2 - cy0) / (.275 * HS)) * 2.2))
+                        if fg > .02: d.line([pa, pb], fill=dim(cw, .5 * fg), width=max(1, int(2.5 * S)))
+                for i in range(-2, NTILE):
+                    a0, a1 = phi(i) + math.pi / SPT * .88, phi(i) - math.pi / SPT * .88; z = -dz * i
+                    arc = [a0 + (a1 - a0) * q / 5 for q in range(6)]
+                    top = [proj(r_out * math.cos(a), r_out * math.sin(a), z, zc, az)[0] for a in arc] + [proj(r_in * math.cos(a), r_in * math.sin(a), z, zc, az)[0] for a in reversed(arc)]
+                    _, dep = proj(rb * math.cos(phi(i)), rb * math.sin(phi(i)), z, zc, az); objs.append((dep, "t", i, top))
+                for b in range(NB):
+                    u = u0 - b * SPT
+                    if u < -1.2 or t > T_end + 1.2: continue
+                    uu = min(u, NS - b * SPT - 1 + 0.0) if t >= T_end else u; i = math.floor(uu); f = uu - i
+                    a = phi(i) + (phi(i + 1) - phi(i)) * f; hop = 4 * .34 * f * (1 - f)
+                    if t >= T_end: f = 0; hop = .10 * abs(math.sin((t - T_end) * 5)) * math.exp(-(t - T_end) * 1.5); a = phi(i)
+                    z = -dz * (i + f) + hop + .07 + (max(0, -u) * 1.6 if u < 0 else 0)
+                    p_, dep = proj(rb * math.cos(a), rb * math.sin(a), z, zc, az); objs.append((dep - .02, "b", b, (p_, i, f)))
+                objs.sort(key=lambda o: -o[0])
+                for dep, kind_, i, dat in objs:
+                    if kind_ == "t":
+                        yy = dat[0][1]; fog = max(0, min(1, (1 - abs(yy - cy0) / (.275 * HS)) * 2.2))
+                        if fog <= .02: continue
+                        hcol = hsv(.78 - .16 * ((i % SPT) / SPT), .70, 1); g = .30; col = hcol
+                        if i in lit:
+                            c_, e = lit[i]; fl = math.exp(-e * 6); col = tuple(int(c_[q] * (1 - fl) + 255 * fl) for q in range(3)); g = .62 + .38 * fl
+                        th = .05 * K * cT; side = [(x_, y_ + th) for x_, y_ in dat]
+                        d.polygon(side, fill=dim(col, g * .35 * fog)); d.polygon(dat, fill=dim(col, g * fog)); d.line(dat + [dat[0]], fill=dim(tuple(min(255, int(v * .6 + 100)) for v in col), min(1, (g + .25)) * fog), width=max(1, int(2.5 * S)))
+                    else:
+                        (x, y), i_, f = dat; c_ = BC[i]
+                        for rr, gg in ((64, .10), (44, .20), (30, .38)): r_ = rr * S; d.ellipse([x - r_, y - r_, x + r_, y + r_], fill=dim(c_, gg))
+                        r_ = 19 * S; d.ellipse([x - r_, y - r_, x + r_, y + r_], fill=tuple(min(255, int(v * .45 + 150)) for v in c_))
+                for tl, b, i in lands:   # 着地の光の輪
+                    e = t - tl
+                    if e < 0: break
+                    if e < .32:
+                        (x, y), _ = proj(rb * math.cos(phi(i)), rb * math.sin(phi(i)), -dz * i, zc, az); rw = (18 + 190 * e) * S; d.ellipse([x - rw, y - rw * sT, x + rw, y + rw * sT], outline=dim(BC[b], 1 - e / .32), width=max(1, int(3 * S)))
+                nb = sum(1 for b in range(NB) if u0 - b * SPT >= -1.2); tx = sp.get("fmt", "玉 {n}こ  ｜  {k}周目").format(n=nb, k=min(NT, max(1, int(max(0, u0) // SPT) + 1)))
+                d.text((WS / 2 - d.textlength(tx, font=fS) / 2, .79 * HS), tx, font=fS, fill=(215, 220, 235), stroke_width=int(4 * S), stroke_fill=(0, 0, 0))
+            sim.frame(t, (), (), None, (), draw)
+        sim.finish(total)
+    finally: harmony.BAR = bar0
+
+KINDS = {"canonstairs": canonstairs, "koch2": koch2, "polywheel": polywheel, "circlefill": circlefill, "dots45": dots45, "spiralglass": spiralglass, "dominoes2": dominoes2, "hearts2": hearts2, "cupcaustic": cupcaustic, "dominoes": dominoes, "merge": merge, "hearts": hearts, "bricks": bricks, "pendwave3d": pendwave3d, "spiro": spiro, "lens": lens, "koch": koch, "pendwave": pendwave, "orbits": orbits, "phyllo": phyllo, "zoomsalt": zoomsalt, "layers": layers, "pixels": pixels, "sortviz": sortviz, "polyfocus": polyfocus, "heliostat": heliostat, "dragon": dragon, "rhythm": rhythm, "lissatable": lissatable, "plotter": plotter, "threebody": threebody, "pendswing": pendswing, "golden": golden, "piphase": piphase, "maurer": maurer, "harmono": harmono, "spiropens": spiropens, "star": star, "throw": throw, "tusi": tusi, "chain": chain, "basket": basket, "koch": koch, "cycloid": cycloid, "pendulums": pendulums, "lissajous": lissajous, "corner": corner, "sunflower": sunflower, "ulam": ulam, "parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2, "picount": picount}
 
 if __name__ == "__main__":
     sp = json.load(open(sys.argv[1], encoding="utf-8")); KINDS[sp["kind"]](sp); kit(sp)
