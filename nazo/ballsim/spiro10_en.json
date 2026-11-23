@@ -1,0 +1,48 @@
+{
+ "kind": "spiro2",
+ "id": "spiro10_en",
+ "R": 144,
+ "gears": [
+  {
+   "r": 55,
+   "hole": 0.9,
+   "hue": 0.5,
+   "hue_w": 0.16,
+   "line": 0.55
+  },
+  {
+   "r": 84,
+   "hole": 0.78,
+   "hue": 0.86,
+   "hue_w": 0.14,
+   "line": 0.9,
+   "dir": -1
+  }
+ ],
+ "bed": true,
+ "tone": "stone",
+ "style": "big",
+ "mark": "@makeitwork3d",
+ "bloom": 0.7,
+ "title": [
+  "Roll {two} gears at once.",
+  "How do the flowers [overlap]?"
+ ],
+ "count_label": "Petals: ",
+ "yt": {
+  "title": "Roll Two Gears at Once. How Do the Flowers Overlap? #shorts #satisfying #math",
+  "desc": "Inside a ring with 144 teeth, a gear with 55 teeth and a gear with 84 teeth roll at the same time, in opposite directions. A pen in each gear draws a flower. How do the two flowers overlap?\n\nAnswer: a big flower with 12 petals sits on top of a fine flower with 144 petals.\n\nHow it works:\n- The number of petals is the ring's teeth divided by the greatest common divisor. 144 and 55 share only 1, so you get 144 petals (it closes after 55 laps). 144 and 84 share 12, so you get 12 petals (it closes after 7 laps).\n- Both gears finish drawing at exactly the same moment. They speed up as they go.\n- The point where a gear touches the ring glows, and the ring keeps glowing for a moment after it passes. A freshly drawn line glows white before it settles into its color.\n- A note plays every time a pen passes the tip of a petal.\n\nSimulation, sound and animation: original (Python).",
+  "tags": [
+   "math",
+   "spirograph",
+   "pattern",
+   "geometry",
+   "satisfying",
+   "relaxing",
+   "shorts"
+  ]
+ },
+ "count": "144 + 12",
+ "post_hue": 100,
+ "post_pitch": 2
+}

@@ -3278,7 +3278,56 @@ def slinky3d(sp):
         sim.finish(total)
     finally: harmony.BAR = bar0; harmony.CANON = canon0
 
-KINDS = {"slinky3d": slinky3d, "fifths": fifths, "slinky": slinky, "chordballs": chordballs, "canonstairs": canonstairs, "koch2": koch2, "polywheel": polywheel, "circlefill": circlefill, "dots45": dots45, "spiralglass": spiralglass, "dominoes2": dominoes2, "hearts2": hearts2, "cupcaustic": cupcaustic, "dominoes": dominoes, "merge": merge, "hearts": hearts, "bricks": bricks, "pendwave3d": pendwave3d, "spiro": spiro, "lens": lens, "koch": koch, "pendwave": pendwave, "orbits": orbits, "phyllo": phyllo, "zoomsalt": zoomsalt, "layers": layers, "pixels": pixels, "sortviz": sortviz, "polyfocus": polyfocus, "heliostat": heliostat, "dragon": dragon, "rhythm": rhythm, "lissatable": lissatable, "plotter": plotter, "threebody": threebody, "pendswing": pendswing, "golden": golden, "piphase": piphase, "maurer": maurer, "harmono": harmono, "spiropens": spiropens, "star": star, "throw": throw, "tusi": tusi, "chain": chain, "basket": basket, "koch": koch, "cycloid": cycloid, "pendulums": pendulums, "lissajous": lissajous, "corner": corner, "sunflower": sunflower, "ulam": ulam, "parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2, "picount": picount}
+def spiro2(sp):
+    """スピログラフ・歯車2個（オーナー 11/23「模様のやつは今後、接地した部分が発光するようなエフェクトつけて。丸を2個とかにして、より複雑で綺麗な模様を追求して」）。
+    同じ輪の内側を、歯数のちがう歯車が同時に転がる（gears：[{r, hole, hue, hue_w, dir, line}]）。どちらも同じ時間でちょうど描き終わる。
+    光：歯車が輪にふれている所が光り、通ったあとの輪もしばらく光る。描いたばかりの線は白く光ってから色に落ち着く"""
+    Rt = sp.get("R", 144); GS = sp["gears"]; R = 1.0; D, intro, tail = sp.get("dur", 22.0), .5, sp.get("tail", 2.8); total = intro + D + tail; PW = sp.get("accel", 1.5)
+    G = []
+    for gd in GS:
+        rt = gd["r"]; g = math.gcd(Rt, rt); r = R * rt / Rt; G.append(dict(rt=rt, r=r, d=r * gd.get("hole", .8), petals=Rt // g, laps=rt // g, th_end=2 * math.pi * (rt // g), dir=gd.get("dir", 1), hue=gd.get("hue", .5), hw=gd.get("hue_w", .2), line=gd.get("line", .7), prev=0.0, sat=gd.get("sat", .85)))
+    u_at = lambda t: min(1, max(0, (t - intro) / D)) ** PW
+    def pen(g, th): a = g["dir"] * th; return ((R - g["r"]) * math.cos(a) + g["d"] * math.cos((R - g["r"]) / g["r"] * a), (R - g["r"]) * math.sin(a) - g["d"] * math.sin((R - g["r"]) / g["r"] * a))
+    sim = Sim(sp, (-1.15, -1.15, 1.15, 1.15)); sim.neon([(R * math.cos(a), R * math.sin(a)) for a in np.linspace(0, 2 * math.pi, 241)], width=4); sim.title()
+    for gi, g in enumerate(G):   # 花びらの先（中心からいちばん遠い点）を通る時刻に音。歯車ごとに音の高さの帯を分ける
+        N = 8000; ths = np.linspace(0, g["th_end"], N); rad = np.array([math.hypot(*pen(g, x)) for x in ths]); last = -9; tips = 0; step = max(1, int(g["petals"] * 1.0 / (D * 5.5)))
+        for i in range(1, N - 1):
+            if rad[i] >= rad[i - 1] and rad[i] > rad[i + 1]:
+                tt = intro + D * (ths[i] / g["th_end"]) ** (1 / PW)
+                if tips % step == 0 and tt - last > .09: sim.note(tt, PENTA[[0, 2, 4, 7, 9, 12, 9, 7, 4, 2][(tips // step) % 10]] + (0 if gi == 0 else -12), .46 if gi == 0 else .38, .5 + .35 * pen(g, ths[i])[0], 5); last = tt
+                tips += 1
+    b = 0.0
+    while b < D: sim.note(intro + b, 36, .40, .5, 9, "kick"); b += .5
+    sim.chord(intro + D + .1, [60, 64, 67, 72], gain=.55, dec=5)
+    hot = []   # 描いたばかりの線（時刻つき）
+    for fi in range(int(total * FPS)):
+        t = fi / FPS; u = u_at(t); segs = []; live = []; balls = []; fl = []; on = t < intro + D
+        for gi, g in enumerate(G):
+            th = g["th_end"] * u; n = max(1, int((th - g["prev"]) / .012))
+            for k in range(n):
+                a0, a1 = g["prev"] + (th - g["prev"]) * k / n, g["prev"] + (th - g["prev"]) * (k + 1) / n; p0, p1 = pen(g, a0), pen(g, a1)
+                segs.append((p0, p1, dim(hsv((g["hue"] + g["hw"] * a1 / g["th_end"]) % 1, g["sat"], 1), g["line"]))); hot.append((t, p0, p1, gi))
+            g["prev"] = th; a = g["dir"] * th; c = ((R - g["r"]) * math.cos(a), (R - g["r"]) * math.sin(a)); p_ = pen(g, th); col = hsv(g["hue"] % 1, .55, 1)
+            if on or t < intro + D + .6:
+                fade = 1.0 if on else max(0, 1 - (t - intro - D) / .6)
+                live += [((c[0] + g["r"] * math.cos(x), c[1] + g["r"] * math.sin(x)), (c[0] + g["r"] * math.cos(x + .1), c[1] + g["r"] * math.sin(x + .1)), dim((120, 140, 190), fade), 2.2) for x in np.arange(0, 2 * math.pi, .1)]
+                spin = -(R - g["r"]) / g["r"] * a
+                for k in range(g["rt"] // 5): x = spin + 2 * math.pi * k / (g["rt"] // 5); live.append(((c[0] + g["r"] * .93 * math.cos(x), c[1] + g["r"] * .93 * math.sin(x)), (c[0] + g["r"] * math.cos(x), c[1] + g["r"] * math.sin(x)), dim((150, 170, 215), fade), 2))
+                live.append((c, p_, dim((200, 210, 240), fade), 1.4)); balls.append((p_, (255, 250, 235), 6))
+            if on:   # 接地の光：ふれている点と、通ったあとの輪（だんだん消える）
+                q = (R * math.cos(a), R * math.sin(a)); fl.append((q, 9 + 3 * math.sin(t * 14 + gi), dim(tuple(min(255, int(v * .5 + 128)) for v in col), 1), 3)); balls.append((q, (255, 252, 240), 7))
+                for k in range(22):
+                    x0 = a - g["dir"] * k * .045; x1 = a - g["dir"] * (k + 1) * .045; live.append(((R * math.cos(x0), R * math.sin(x0)), (R * math.cos(x1), R * math.sin(x1)), dim(tuple(min(255, int(v * .6 + 100)) for v in col), (1 - k / 22) ** 1.5), 7 - k * .2))
+        if segs: sim.commit(segs, width=1.5)
+        hot = [h for h in hot if t - h[0] < .30]
+        for th_, p0, p1, gi in hot[::2]:   # 描いたばかりの線：白く光ってから色に落ち着く
+            e = (t - th_) / .30; live.append((p0, p1, dim((255, 250, 235), (1 - e) ** 1.3), 3.2 - 1.6 * e))
+        e = t - intro - D
+        if 0 <= e < .7: fl.append(((0, 0), 30 + e * 500, dim((255, 245, 210), 1 - e / .7), 4))
+        sim.frame(t, live, balls, (sp.get("count_label", "花びら "), sp.get("count", " ＋ ".join(str(g["petals"]) for g in G))), fl)
+    sim.finish(total)
+
+KINDS = {"spiro2": spiro2, "slinky3d": slinky3d, "fifths": fifths, "slinky": slinky, "chordballs": chordballs, "canonstairs": canonstairs, "koch2": koch2, "polywheel": polywheel, "circlefill": circlefill, "dots45": dots45, "spiralglass": spiralglass, "dominoes2": dominoes2, "hearts2": hearts2, "cupcaustic": cupcaustic, "dominoes": dominoes, "merge": merge, "hearts": hearts, "bricks": bricks, "pendwave3d": pendwave3d, "spiro": spiro, "lens": lens, "koch": koch, "pendwave": pendwave, "orbits": orbits, "phyllo": phyllo, "zoomsalt": zoomsalt, "layers": layers, "pixels": pixels, "sortviz": sortviz, "polyfocus": polyfocus, "heliostat": heliostat, "dragon": dragon, "rhythm": rhythm, "lissatable": lissatable, "plotter": plotter, "threebody": threebody, "pendswing": pendswing, "golden": golden, "piphase": piphase, "maurer": maurer, "harmono": harmono, "spiropens": spiropens, "star": star, "throw": throw, "tusi": tusi, "chain": chain, "basket": basket, "koch": koch, "cycloid": cycloid, "pendulums": pendulums, "lissajous": lissajous, "corner": corner, "sunflower": sunflower, "ulam": ulam, "parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2, "picount": picount}
 
 if __name__ == "__main__":
     sp = json.load(open(sys.argv[1], encoding="utf-8")); KINDS[sp["kind"]](sp); kit(sp)
