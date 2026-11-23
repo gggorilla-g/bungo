@@ -1,0 +1,80 @@
+{
+ "kind": "spiro2",
+ "id": "spiro12_en",
+ "R": 96,
+ "gears": [
+  {
+   "r": 8,
+   "holes": [
+    0.92,
+    0.45
+   ],
+   "hue": 0.11,
+   "hue_step": 0.03,
+   "hue_w": 0.03,
+   "line": 0.95
+  },
+  {
+   "r": 40,
+   "holes": [
+    0.95,
+    0.78,
+    0.6
+   ],
+   "hue": 0.5,
+   "hue_step": 0.04,
+   "hue_w": 0.03,
+   "line": 0.85
+  },
+  {
+   "r": 56,
+   "holes": [
+    0.66,
+    0.5,
+    0.34
+   ],
+   "hue": 0.86,
+   "hue_step": 0.04,
+   "hue_w": 0.03,
+   "line": 0.85,
+   "dir": -1
+  },
+  {
+   "r": 88,
+   "holes": [
+    0.3,
+    0.18
+   ],
+   "hue": 0.33,
+   "hue_step": 0.06,
+   "hue_w": 0.04,
+   "line": 0.8
+  }
+ ],
+ "bed": true,
+ "tone": "stone",
+ "style": "big",
+ "mark": "@makeitwork3d",
+ "bloom": 0.45,
+ "title": [
+  "Roll {four} gears at once.",
+  "Each draws [12 petals]. Together?"
+ ],
+ "count_label": "Petals: ",
+ "yt": {
+  "title": "Roll Four Gears at Once. Each Draws 12 Petals. What Do They Make Together? #shorts #satisfying #math",
+  "desc": "Inside a ring with 96 teeth, gears with 8, 40, 56 and 88 teeth roll at the same time. There are 10 pens in all. What pattern do they make together?\n\nAnswer: a border frill, a 12-pointed star, a 12-petal flower and a small ring in the middle, nested inside each other.\n\nHow it works:\n- The number of petals is the ring's teeth divided by the greatest common divisor. 96 shares 8 with each of 8, 40, 56 and 88, so every gear draws 12 petals.\n- Because the petal counts match, the shapes never clash. They form one pattern with 12-fold symmetry.\n- A small gear draws near the ring and a big gear draws near the middle. So the pattern splits into bands from outside to inside.\n- Each gear uses 2 or 3 pen holes, stacking the same shape at slightly different sizes.\n- The ring has teeth on the inside and the gears have teeth on the outside. They stay meshed and roll without slipping. The gears pass through each other.\n- The point where a gear touches the ring glows, and a freshly drawn line glows white before it settles into its color.\n\nSimulation, sound and animation: original (Python).",
+  "tags": [
+   "math",
+   "spirograph",
+   "pattern",
+   "geometry",
+   "satisfying",
+   "relaxing",
+   "shorts"
+  ]
+ },
+ "count": "12 x 10 pens",
+ "post_hue": 70,
+ "post_pitch": 2
+}
