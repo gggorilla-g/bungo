@@ -16,7 +16,7 @@ while read -r id ch lg; do
     python3 tools/teaser.py "output/$id.mp4" "output/${id}_t.mp4" "$at" 1.0 >/dev/null
   fi
   [ -f "output/${id}_t.mp4" ] && up="${id}_t"
-  out="$(tools/up.sh "$up" "nazo/manual/ballsim/${id}_upload.txt" "YT_REFRESH_TOKEN_$ch" "$lg" 1 2>&1 | grep -v '^fatal: expected')"
+  out="$(tools/up.sh "$up" "nazo/manual/ballsim/${id}_upload.txt" "YT_REFRESH_TOKEN_$ch" "$lg" 1 </dev/null 2>&1 | grep -v '^fatal: expected')"
   echo "$out" | tail -1
   if echo "$out" | grep -q " success "; then echo "$(date -u +%FT%TZ) $out" | tail -1 >> "$D"; cnt[$ch]=$(( ${cnt[$ch]:-0} + 1 ))
   else echo "$id $ch $lg" >> "$Q.keep"; echo "$out" | grep -q "exceeded the number of videos" && { full[$ch]=1; echo "上限: $ch はあとで"; }; fi

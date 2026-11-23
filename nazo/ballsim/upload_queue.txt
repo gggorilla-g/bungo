@@ -1,3 +1,4 @@
+domino1_ja MOSO ja
 merge1_ja MOSO ja
 dots2_ja MOSO ja
 hearts1_ja MOSO ja
@@ -32,4 +33,3 @@ epi2_ja MOSO ja
 harmono1_ja MOSO ja
 harmono2_ja MOSO ja
 piphase1_ja MOSO ja
-domino1_ja MOSO ja
