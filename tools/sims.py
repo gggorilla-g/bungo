@@ -2992,7 +2992,56 @@ def canonstairs(sp):
         sim.finish(total)
     finally: harmony.BAR = bar0
 
-KINDS = {"canonstairs": canonstairs, "koch2": koch2, "polywheel": polywheel, "circlefill": circlefill, "dots45": dots45, "spiralglass": spiralglass, "dominoes2": dominoes2, "hearts2": hearts2, "cupcaustic": cupcaustic, "dominoes": dominoes, "merge": merge, "hearts": hearts, "bricks": bricks, "pendwave3d": pendwave3d, "spiro": spiro, "lens": lens, "koch": koch, "pendwave": pendwave, "orbits": orbits, "phyllo": phyllo, "zoomsalt": zoomsalt, "layers": layers, "pixels": pixels, "sortviz": sortviz, "polyfocus": polyfocus, "heliostat": heliostat, "dragon": dragon, "rhythm": rhythm, "lissatable": lissatable, "plotter": plotter, "threebody": threebody, "pendswing": pendswing, "golden": golden, "piphase": piphase, "maurer": maurer, "harmono": harmono, "spiropens": spiropens, "star": star, "throw": throw, "tusi": tusi, "chain": chain, "basket": basket, "koch": koch, "cycloid": cycloid, "pendulums": pendulums, "lissajous": lissajous, "corner": corner, "sunflower": sunflower, "ulam": ulam, "parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2, "picount": picount}
+def chordballs(sp):
+    """音の板の上でボールがはねる。はねる回数が1回ずつちがうので、音はばらけて波になり、決まった時刻にまた全部そろって和音になる（オーナー画面収録 11/23「The darkest chord, built by falling balls.」の型）。
+    法則：ボール k は周期 D/(n0+k)。高さは周期の2乗に比例（同じ重力）。D 秒後に全員が同時に着地する"""
+    NOTES = sp.get("notes", [36, 43, 48, 51, 55, 58, 62, 63, 67, 70]); NAMES = sp.get("names", ["C", "G", "C", "E♭", "G", "B♭", "D", "E♭", "G", "B♭"]); N = len(NOTES)
+    D = sp.get("cycle", 18.0); n0 = sp.get("n0", 12); intro = sp.get("intro", .9); tail = sp.get("tail", 3.2); Tk = [D / (n0 + k) for k in range(N)]; HY = 6.6; hk = [HY * (T_ / Tk[0]) ** 2 for T_ in Tk]
+    T_end = intro + D; total = T_end + tail
+    sim = Sim(sp, (-.55, -1.0, N - .45, 7.3), area=(.04, .235, .96, .765)); sim.title(); lands = []
+    for k in range(N):
+        for j in range(n0 + k + 1):
+            tl = intro + j * Tk[k]; lands.append((tl, k, j)); last = j == n0 + k or j == 0
+            sim.notes.append((tl, NOTES[k] + 12, (.5 if last else .40) * (1.15 - .04 * k), .12 + .76 * k / (N - 1), 3.2 if last else 4.5, sp.get("tone", "piano")))
+    for mi in NOTES[:3]: sim.notes.append((T_end, mi, .4, .5, 1.2, "bell"))
+    lands.sort(); fN, fS = F(34 * S), F(44 * S); col = lambda k: hsv((.93 + .19 * k / (N - 1)) % 1, .78, 1)
+    def y_of(k, t):
+        if t < intro: return hk[k] * min(1.0, ((intro - t) / (Tk[k] / 2))) ** 2 if False else hk[k] * (1 - (1 - min(1.0, (intro - t) / (Tk[k] / 2))) ** 2)   # 出だし：頂点から落ちてきて、全員同時に着地
+        if t >= T_end: e = t - T_end; return .10 * abs(math.sin(e * 6)) * math.exp(-e * 2.2)
+        ph = ((t - intro) % Tk[k]) / Tk[k]; return hk[k] * 4 * ph * (1 - ph)
+    for fi in range(int(total * FPS)):
+        t = fi / FPS; nh = sum(1 for l in lands if l[0] <= t)
+        def draw(d, t=t):
+            lit = {}
+            for tl, k, j in lands:
+                if tl > t: break
+                lit[k] = t - tl
+            agl = t - T_end; allg = math.exp(-max(0, agl) * 1.6) if agl >= 0 else (math.exp(-(t - intro) * 3) if t >= intro else 0)
+            for k in range(N):   # 音の板
+                c = col(k); e = lit.get(k, 9); fl = math.exp(-e * 7); g = .34 + .66 * max(fl, allg * .9)
+                x0, y0 = sim.to((k - .40, 0)); x1, y1 = sim.to((k + .40, -.24)); d.rounded_rectangle([x0, y0, x1, y1], radius=int(8 * S), fill=dim(tuple(int(c[i] * (1 - fl * .6) + 255 * fl * .6) for i in range(3)), g))
+                tw = d.textlength(NAMES[k], font=fN); d.text(((x0 + x1) / 2 - tw / 2, y1 + 14 * S), NAMES[k], font=fN, fill=dim((235, 225, 235), .55 + .45 * max(fl, allg)))
+                if e < .35:   # 着地の光：上へのびる柱
+                    hh = (60 + 520 * e) * S; d.rectangle([x0 + 8 * S, y0 - hh, x1 - 8 * S, y0], fill=dim(c, .22 * (1 - e / .35)))
+            for k in range(N):   # 高さの柱：周期が短いボールほど低い（高さは周期の2乗に比例）
+                c = col(k); xa, ya = sim.to((k - .33, hk[k] + .42)); xb, yb = sim.to((k + .33, 0)); e = lit.get(k, 9); fl = math.exp(-e * 5)
+                d.rectangle([xa, ya, xb, yb], fill=dim(c, .07 + .10 * fl), outline=dim(c, .30 + .3 * fl), width=max(1, int(2 * S)))
+            pts = []
+            for k in range(N):   # ボール（落ちる速さでのびる）
+                y = y_of(k, t); c = col(k); x, yy = sim.to((k, y + .20)); pts.append((x, yy))
+                vy = 0 if (t < intro or t >= T_end) else abs(1 - 2 * (((t - intro) % Tk[k]) / Tk[k])); st = 1 + .28 * vy
+                for q in range(5, 0, -1):
+                    yq = y_of(k, t - q * .014); xq, yyq = sim.to((k, yq + .20)); r_ = (17 - q * 2.2) * S; d.ellipse([xq - r_, yyq - r_, xq + r_, yyq + r_], fill=dim(c, .34 - q * .05))
+                r_ = 20 * S; d.ellipse([x - r_ / st, yy - r_ * st, x + r_ / st, yy + r_ * st], fill=tuple(min(255, int(v * .7 + 70)) for v in c))
+            d.line(pts, fill=(120, 110, 150), width=max(1, int(2 * S)), joint="curve")   # ボールをつなぐ線：波の形が見える
+            if agl >= 0 and agl < .8:
+                cx, cy = sim.to(((N - 1) / 2, 0)); rr = (60 + 900 * agl) * S; d.ellipse([cx - rr, cy - rr * .5, cx + rr, cy + rr * .5], outline=dim((255, 230, 240), 1 - agl / .8), width=max(1, int(4 * S)))
+            rem = max(0.0, T_end - t); tx = sp.get("fmt", "次にそろうまで {s} 秒").format(s="%.1f" % rem) if rem > 0 else sp.get("done", "全部そろった")
+            d.text((1080 * S / 2 - d.textlength(tx, font=fS) / 2, .775 * 1920 * S), tx, font=fS, fill=(225, 215, 230), stroke_width=int(4 * S), stroke_fill=(0, 0, 0))
+        sim.frame(t, (), (), (sp.get("count_label", "鳴った音 "), f"{nh}"), (), draw)
+    sim.finish(total)
+
+KINDS = {"chordballs": chordballs, "canonstairs": canonstairs, "koch2": koch2, "polywheel": polywheel, "circlefill": circlefill, "dots45": dots45, "spiralglass": spiralglass, "dominoes2": dominoes2, "hearts2": hearts2, "cupcaustic": cupcaustic, "dominoes": dominoes, "merge": merge, "hearts": hearts, "bricks": bricks, "pendwave3d": pendwave3d, "spiro": spiro, "lens": lens, "koch": koch, "pendwave": pendwave, "orbits": orbits, "phyllo": phyllo, "zoomsalt": zoomsalt, "layers": layers, "pixels": pixels, "sortviz": sortviz, "polyfocus": polyfocus, "heliostat": heliostat, "dragon": dragon, "rhythm": rhythm, "lissatable": lissatable, "plotter": plotter, "threebody": threebody, "pendswing": pendswing, "golden": golden, "piphase": piphase, "maurer": maurer, "harmono": harmono, "spiropens": spiropens, "star": star, "throw": throw, "tusi": tusi, "chain": chain, "basket": basket, "koch": koch, "cycloid": cycloid, "pendulums": pendulums, "lissajous": lissajous, "corner": corner, "sunflower": sunflower, "ulam": ulam, "parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2, "picount": picount}
 
 if __name__ == "__main__":
     sp = json.load(open(sys.argv[1], encoding="utf-8")); KINDS[sp["kind"]](sp); kit(sp)

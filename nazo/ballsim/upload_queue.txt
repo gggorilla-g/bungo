@@ -1,5 +1,9 @@
+fill1_ja MOSO ja
+canon1_ja MOSO ja
 cup1_ja MOSO ja
+wheel1_ja MOSO ja
 domino2_ja MOSO ja
+koch2_ja MOSO ja
 glass1_ja MOSO ja
 dots3_ja MOSO ja
 hearts2_ja MOSO ja

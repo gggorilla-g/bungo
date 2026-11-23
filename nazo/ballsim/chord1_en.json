@@ -1,0 +1,40 @@
+{
+ "kind": "chordballs",
+ "id": "chord1_en",
+ "bloom": 0,
+ "glow": 0.5,
+ "style": "big",
+ "mark": "@makeitwork3d",
+ "title": [
+  "A {dark, sad chord}",
+  "played by [falling balls]"
+ ],
+ "count_label": "Notes: ",
+ "yt": {
+  "title": "A Dark, Sad Chord Played by Falling Balls. They All Land Together After 18 Seconds #shorts #satisfying #music",
+  "desc": "Ten balls bounce on note pads. The notes are C, G, C, Eb, G, Bb, D, Eb, G, Bb (a C minor chord with an added ninth: dark and sad). They start together, then drift apart into waves. Will they ever land together again?\n\nAnswer: after 18 seconds, every ball lands at the same moment.\n\nHow it works:\n- In 18 seconds the left ball bounces 12 times, the next one 13, the next 14, and the last one 21. Each differs by just one bounce.\n- So the timing slowly shifts and you see waves and alternating patterns. At 9 seconds, every other ball lands together.\n- After 18 seconds every ball has finished a whole number of bounces, so they all land at once and the full chord sounds.\n- The height of a bounce grows with the square of its period (same gravity for all). The columns behind show those heights.\n\nSimulation, sound and animation: original (Python).",
+  "tags": [
+   "music",
+   "physics",
+   "chord",
+   "satisfying",
+   "relaxing",
+   "simulation",
+   "shorts"
+  ]
+ },
+ "fmt": "All together again in {s} s",
+ "done": "All together",
+ "names": [
+  "C",
+  "G",
+  "C",
+  "Eb",
+  "G",
+  "Bb",
+  "D",
+  "Eb",
+  "G",
+  "Bb"
+ ]
+}
