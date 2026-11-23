@@ -53,6 +53,19 @@ if "odd" in fxb:     # バーコードの検算：札を1枚ずつ足す音、3�
     tb = fxb["beep"]; add(tb["t0"] + .62 * tb["voice"], stone(84, 2.5), .3); add(tb["t0"] + .62 * tb["voice"] + .09, stone(88, 2.5), .3)
     tb = fxb["all"]
     for j in range(int((tb["voice"] - .1) / Q)): add(tb["t0"] + .1 + j * Q, stone(77 + (j % 4) * 2, 8), .17, .2 + .05 * (j % 12))
+if "tilt" in fxb and "launch" in fxb:   # 改札：カードが通るたびに、合えば「ピッ」、足りなければ低い2音
+    CY = {"hook": ("ok", 2.0), "goal": ("ok", 1.0), "fail": ("ng", .75), "why": ("ng", 1.0), "touch": ("ok", 1.4), "time": ("ok", 1.4), "led": ("ok", 1.0), "result": ("ok", .75), "end": ("ok", 1.0)}
+    for f, (k, per) in CY.items():
+        tb = fxb[f]; a0 = tb["t0"] + .1; j = 0
+        while a0 + j * per + (.58 if k == "ok" else .46) * per < tb["t0"] + tb["voice"] + .2:
+            tt = a0 + j * per + (.58 if k == "ok" else .46) * per
+            if k == "ok": add(tt, stone(88, 5), .26, .6); add(tt + .07, stone(91, 5), .2, .6)
+            else: add(tt, stone(63, 4), .24, .6); add(tt + .09, stone(61, 4), .22, .6)
+            j += 1
+    tb = fxb["tilt"]
+    for i, m in enumerate([72, 76, 79, 84]): add(tb["t0"] + .25 * tb["voice"] + i * .27, stone(m, 3), .24, .5)
+    tb = fxb["launch"]
+    for i in range(10): add(tb["t0"] + .2 * tb["voice"] + i * .14, stone([79, 84, 86, 88][i % 4], 6), .16, .2 + .06 * i)
 for dly, g in [(.031, .3), (.067, .24), (.113, .18), (.171, .12)]:
     o = int(SR * dly); L[o:] += R[:-o] * g; R[o:] += L[:-o] * g
 st = np.stack([L, R], 1); st = st / (np.abs(st).max() + 1e-9) * .8
