@@ -3232,7 +3232,7 @@ def slinky3d(sp):
         for fi in range(int(total * FPS)):
             t = fi / FPS; k, p = state(t); C, T = center(k, p); mid = np.array([C[:, 0].mean(), C[:, 1].mean() + .05, 0.0])
             tgt[0] = mid if tgt[0] is None else tgt[0] + (mid - tgt[0]) * .13; tg = tgt[0].copy()
-            ext = max(C[:, 1].max() - C[:, 1].min() + 2 * R, (C[:, 0].max() - C[:, 0].min() + 2 * R) * 1.2, (steps[k][1] - steps[k + 1][1] + N * th + 1.3) if (0 < p < .8 and t < T_end) else 0); zoom[0] += (max(1.0, ext / 2.55) - zoom[0]) * .09   # その段の高さが分かった時点で引きはじめる; zm_ = zoom[0]   # 高い段でのびた時は、引いて全体を入れる
+            ext = max(C[:, 1].max() - C[:, 1].min() + 2 * R, (C[:, 0].max() - C[:, 0].min() + 2 * R) * 1.2, (steps[k][1] - steps[k + 1][1] + N * th + 1.3) if (0 < p < .8 and t < T_end) else 0); zoom[0] += (max(1.0, ext / 2.55) - zoom[0]) * .09; zm_ = zoom[0]   # その段の高さが分かった時点で引きはじめる; zm_ = zoom[0]   # 高い段でのびた時は、引いて全体を入れる
             def draw(d, t=t, k=k, C=C, T=T, tg=tg, zm_=zm_):
                 cam = tg + OFF * zm_; fw = tg - cam; fw /= np.linalg.norm(fw); rt = np.cross(fw, (0, 1, 0)); rt /= np.linalg.norm(rt); up = np.cross(rt, fw)
                 def pj(P):
