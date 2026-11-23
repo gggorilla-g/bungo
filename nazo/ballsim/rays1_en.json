@@ -1,0 +1,31 @@
+{
+ "kind": "whisper",
+ "id": "rays1_en",
+ "bed": true,
+ "tone": "karo",
+ "bloom": 0.3,
+ "style": "big",
+ "mark": "@makeitwork3d",
+ "title": [
+  "Send {1000 rays} into a circle.",
+  "Do any hit [you] in the middle?"
+ ],
+ "count_label": "Rays: ",
+ "yt": {
+  "title": "Send 1000 Rays Into a Circle. Do Any Hit You in the Middle? #shorts #satisfying #physics",
+  "desc": "Parallel rays of light enter a circle and bounce off the wall. 10 rays, then 100, then 1000. You are standing in the middle. Does any ray hit you?\n\nAnswer: not one. The rays keep running around near the wall and a dark circle stays in the middle.\n\nHow it works:\n- Inside a circle, a ray travels the same distance between bounces and reflects at the same angle every time.\n- So a ray that first passes at distance x from the center stays touching a circle of radius x forever. It can never go inside it.\n- In this video the innermost ray passes at half the radius. So no ray ever enters the inner half.\n- This is the same reason a whisper near the wall of a big dome can be heard far along the wall: a whispering gallery.\n- With more rays the lines overlap and start to look like silk.\n\nSimulation, sound and animation: original (Python).",
+  "tags": [
+   "physics",
+   "light",
+   "reflection",
+   "circle",
+   "satisfying",
+   "relaxing",
+   "simulation",
+   "shorts"
+  ]
+ },
+ "you": "you",
+ "post_hue": 60,
+ "post_pitch": 2
+}

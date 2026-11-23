@@ -1,0 +1,19 @@
+【タイトル】
+Crash Two Glass Blocks and Count the Hits. 1 kg vs 1,000,000 kg Gives a Famous Number #shorts #satisfying #math
+
+【説明】
+Two glass blocks sit in front of a glass wall. The small one is 1 kg. Crash the big one into it and count every hit: block on block and block on wall. Make the big block 100 times heavier each time. What happens to the count?
+
+Answer: 1 kg vs 1 kg gives 3 hits, 100 kg gives 31, 10,000 kg gives 314, and 1,000,000 kg gives 3141. The digits of pi (3.141...) appear.
+
+How it works:
+- The collisions lose no energy, and there is no friction with the floor.
+- The heavier the big block, the more times the small block bounces between it and the wall, pushing the big block back a little each time.
+- Plot the two speeds on a chart scaled by the masses and the point moves around a circle by the same angle on every hit. So the count is half a turn (pi) divided by that angle.
+- Every time the mass ratio goes up 100 times, the angle becomes one tenth and the count gains one digit. That is why you get 3, 31, 314, 3141.
+- Where the hits come too fast to see, the video slows down time and shows the slow-motion factor. The collision times are computed exactly from formulas.
+
+Simulation, sound and animation: original (Python).
+
+【タグ】
+math, physics, pi, collisions, satisfying, relaxing, simulation, shorts
