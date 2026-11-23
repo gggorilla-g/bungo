@@ -3309,7 +3309,9 @@ def spiro2(sp):
             for da, rr in ((-.30, hi), (-.18, lo), (.18, lo), (.30, hi)): pts.append((cx + rr * math.cos(a0 + da * st), cy + rr * math.sin(a0 + da * st)))
         return pts
     sim = Sim(sp, (-1.17, -1.17, 1.17, 1.17)); sim.neon([((R + TH / 2 + .035) * math.cos(a), (R + TH / 2 + .035) * math.sin(a)) for a in np.linspace(0, 2 * math.pi, 241)], width=4)
-    sim.thin(teeth(Rt, R, 0, 0, 0, True), color=(110, 170, 205), width=2, closed=True); sim.title()
+    TEETH = sp.get("teeth", True)   # false：歯を描かず、歯車は担当の色のうすい円にする（オーナー 11/23「歯車いらないかも。担当カラーを反映させた薄い円でいいかも」）
+    if TEETH: sim.thin(teeth(Rt, R, 0, 0, 0, True), color=(110, 170, 205), width=2, closed=True)
+    sim.title(); allsegs = []; boosted = [0]
     for gi, g in enumerate(G):   # 花びらの先（中心からいちばん遠い点）を通る時刻に音。歯車ごとに音の高さの帯を分ける
         N = 8000; ths = np.linspace(0, g["th_end"], N); rad = np.array([math.hypot(*pen(g, x)) for x in ths]); last = -9; tips = 0; step = max(1, int(g["petals"] * 1.0 / (D * 5.5)))
         for i in range(1, N - 1):
@@ -3321,7 +3323,11 @@ def spiro2(sp):
                 tips += 1
     b = 0.0
     while b < D: sim.note(intro + b, 36, .40, .5, 9, "kick"); b += .5
-    sim.chord(intro + D + .1, [60, 64, 67, 72], gain=.55, dec=5)
+    if sp.get("finale", True):   # 見せ場の音：光の波に合わせて音がかけ上がり、波が外に着いた所で和音
+        WV = sp.get("wave", 1.1)
+        for q_ in range(12): sim.note(intro + D + .04 + WV * q_ / 12, PENTA[min(len(PENTA) - 1, q_)], .30 + .02 * q_, .2 + .05 * q_, 5)
+        sim.chord(intro + D + WV + .02, [48, 60, 64, 67, 72, 76], gain=.6, dec=3)
+    else: sim.chord(intro + D + .1, [60, 64, 67, 72], gain=.55, dec=5)
     hot = []   # 描いたばかりの線（時刻つき）
     for fi in range(int(total * FPS)):
         t = fi / FPS; u = u_at(t); segs = []; live = []; balls = []; fl = []; on = t < intro + D
@@ -3330,16 +3336,21 @@ def spiro2(sp):
             for k in range(n):
                 a0, a1 = g["prev"] + (th - g["prev"]) * k / n, g["prev"] + (th - g["prev"]) * (k + 1) / n
                 for hi_, d_ in enumerate(g["ds"]):   # 同じ歯車の穴ごとに1本ずつ（内がわの穴ほど、小さな花になる）
-                    p0, p1 = pen(g, a0, d_), pen(g, a1, d_); segs.append((p0, p1, dim(hsv((g["hue"] + g["hs"] * hi_ + g["hw"] * a1 / g["th_end"]) % 1, g["sat"], 1), g["line"]))); hot.append((t, p0, p1, gi))
+                    p0, p1 = pen(g, a0, d_), pen(g, a1, d_); cseg = hsv((g["hue"] + g["hs"] * hi_ + g["hw"] * a1 / g["th_end"]) % 1, g["sat"], 1); segs.append((p0, p1, dim(cseg, g["line"]))); hot.append((t, p0, p1, gi)); allsegs.append((math.hypot((p0[0] + p1[0]) / 2, (p0[1] + p1[1]) / 2), p0, p1, cseg))
             g["prev"] = th; a = g["dir"] * th; c = ((R - g["r"]) * math.cos(a), (R - g["r"]) * math.sin(a)); p_ = pen(g, th); col = hsv(g["hue"] % 1, .55, 1)
             if on or t < intro + D + .6:
                 fade = 1.0 if on else max(0, 1 - (t - intro - D) / .6)
                 spin = a - (R / g["r"]) * a   # すべらずに転がる：ふれている点で、歯車の歯と輪の歯が同じだけ進む（歯車の山が輪の谷に入ったまま回る）
-                gp = teeth(g["rt"], g["r"], c[0], c[1], spin, False); gc = dim(tuple(min(255, int(v * .45 + 120)) for v in col), fade)
-                live += [(gp[k], gp[(k + 1) % len(gp)], gc, 2.0) for k in range(len(gp))]
-                for hk in range(1, 6):   # ペンを差す穴の列（本物の定規と同じ見た目）
-                    hr = g["r"] * hk / 6.0; hx, hy = c[0] + hr * math.cos(-(R - g["r"]) / g["r"] * a), c[1] - hr * math.sin((R - g["r"]) / g["r"] * a); fl.append(((hx, hy), 3.2, dim((150, 170, 215), fade), 1.2))
-                fl.append((c, 5, dim((170, 190, 230), fade), 1.5)); balls += [(pen(g, th, d_), (255, 250, 235), 5) for d_ in g["ds"]]
+                if TEETH:
+                    gp = teeth(g["rt"], g["r"], c[0], c[1], spin, False); gc = dim(tuple(min(255, int(v * .45 + 120)) for v in col), fade)
+                    live += [(gp[k], gp[(k + 1) % len(gp)], gc, 2.0) for k in range(len(gp))]
+                    for hk in range(1, 6):   # ペンを差す穴の列（本物の定規と同じ見た目）
+                        hr = g["r"] * hk / 6.0; hx, hy = c[0] + hr * math.cos(-(R - g["r"]) / g["r"] * a), c[1] - hr * math.sin((R - g["r"]) / g["r"] * a); fl.append(((hx, hy), 3.2, dim((150, 170, 215), fade), 1.2))
+                    fl.append((c, 5, dim((170, 190, 230), fade), 1.5))
+                else:
+                    gc = dim(hsv(g["hue"] % 1, .6, 1), .42 * fade); live += [((c[0] + g["r"] * math.cos(x), c[1] + g["r"] * math.sin(x)), (c[0] + g["r"] * math.cos(x + .08), c[1] + g["r"] * math.sin(x + .08)), gc, 1.6) for x in np.arange(0, 2 * math.pi, .08)]
+                    for d_ in g["ds"]: live.append((c, pen(g, th, d_), dim(hsv(g["hue"] % 1, .5, 1), .35 * fade), 1.2))   # 中心からペンへの細い腕
+                balls += [(pen(g, th, d_), (255, 250, 235), 5) for d_ in g["ds"]]
             if on:   # 接地の光：ふれている点と、通ったあとの輪（だんだん消える）
                 q = (R * math.cos(a), R * math.sin(a)); fl.append((q, 9 + 3 * math.sin(t * 14 + gi), dim(tuple(min(255, int(v * .5 + 128)) for v in col), 1), 3)); balls.append((q, (255, 252, 240), 7))
                 for k in range(22):
@@ -3349,7 +3360,17 @@ def spiro2(sp):
         for th_, p0, p1, gi in hot[::(2 if len(hot) < 900 else 4)]:   # 描いたばかりの線：白く光ってから色に落ち着く
             e = (t - th_) / .30; live.append((p0, p1, dim((255, 250, 235), (1 - e) ** 1.3), 3.2 - 1.6 * e))
         e = t - intro - D
-        if 0 <= e < .7: fl.append(((0, 0), 30 + e * 500, dim((255, 245, 210), 1 - e / .7), 4))
+        if e >= 0 and sp.get("finale", True):   # できあがりの見せ場：まん中から外へ光の波が走り、通った線が明るく灯る。星の先で光がはじける
+            if boosted[0] == 0: allsegs.sort(key=lambda q_: q_[0])
+            rw = min(1.2, e / sp.get("wave", 1.1) * 1.15); k1 = boosted[0]
+            while k1 < len(allsegs) and allsegs[k1][0] <= rw: k1 += 1
+            if k1 > boosted[0]: sim.commit([(p0, p1, tuple(int(v * .50 + 14) for v in cs)) for _, p0, p1, cs in allsegs[boosted[0]:k1]], width=1.5); boosted[0] = k1
+            if rw < 1.15: fl.append(((0, 0), rw * sim.k / S, (255, 250, 235), 5)); fl.append(((0, 0), max(1, rw * sim.k / S - 14), dim((255, 240, 200), .5), 9))
+            e2 = e - sp.get("wave", 1.1)
+            if 0 <= e2 < .9:
+                for q_ in range(12): x_ = math.pi / 2 + 2 * math.pi * q_ / 12; fl.append(((.99 * math.cos(x_), .99 * math.sin(x_)), 6 + e2 * 70, dim((255, 245, 215), 1 - e2 / .9), 3))
+                fl.append(((0, 0), sim.k / S * (1.0 + e2 * .5), dim((255, 245, 210), 1 - e2 / .9), 4))
+        elif 0 <= e < .7: fl.append(((0, 0), 30 + e * 500, dim((255, 245, 210), 1 - e / .7), 4))
         sim.frame(t, live, balls, (sp.get("count_label", "花びら "), sp.get("count", " ＋ ".join(str(g["petals"]) for g in G))), fl)
     sim.finish(total)
 

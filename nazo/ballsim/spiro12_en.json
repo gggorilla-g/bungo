@@ -63,7 +63,7 @@
  "count_label": "Petals: ",
  "yt": {
   "title": "Roll Four Gears at Once. Each Draws 12 Petals. What Do They Make Together? #shorts #satisfying #math",
-  "desc": "Inside a ring with 96 teeth, gears with 8, 40, 56 and 88 teeth roll at the same time. There are 10 pens in all. What pattern do they make together?\n\nAnswer: a border frill, a 12-pointed star, a 12-petal flower and a small ring in the middle, nested inside each other.\n\nHow it works:\n- The number of petals is the ring's teeth divided by the greatest common divisor. 96 shares 8 with each of 8, 40, 56 and 88, so every gear draws 12 petals.\n- Because the petal counts match, the shapes never clash. They form one pattern with 12-fold symmetry.\n- A small gear draws near the ring and a big gear draws near the middle. So the pattern splits into bands from outside to inside.\n- Each gear uses 2 or 3 pen holes, stacking the same shape at slightly different sizes.\n- The ring has teeth on the inside and the gears have teeth on the outside. They stay meshed and roll without slipping. The gears pass through each other.\n- The point where a gear touches the ring glows, and a freshly drawn line glows white before it settles into its color.\n\nSimulation, sound and animation: original (Python).",
+  "desc": "Inside a ring with 96 teeth, gears with 8, 40, 56 and 88 teeth roll at the same time. There are 10 pens in all. What pattern do they make together?\n\nAnswer: a border frill, a 12-pointed star, a 12-petal flower and a small ring in the middle, nested inside each other.\n\nHow it works:\n- The number of petals is the ring's teeth divided by the greatest common divisor. 96 shares 8 with each of 8, 40, 56 and 88, so every gear draws 12 petals.\n- Because the petal counts match, the shapes never clash. They form one pattern with 12-fold symmetry.\n- A small gear draws near the ring and a big gear draws near the middle. So the pattern splits into bands from outside to inside.\n- Each gear uses 2 or 3 pen holes, stacking the same shape at slightly different sizes.\n- Each gear is shown as a thin colored circle. It rolls without slipping, and the gears pass through each other.\n- The point where a gear touches the ring glows, and a freshly drawn line glows white before it settles into its color.\n- When the drawing is done, a wave of light runs from the middle outward and the whole pattern lights up.\n\nSimulation, sound and animation: original (Python).",
   "tags": [
    "math",
    "spirograph",
@@ -76,5 +76,9 @@
  },
  "count": "12 x 10 pens",
  "post_hue": 70,
- "post_pitch": 2
+ "post_pitch": 2,
+ "teeth": false,
+ "accel": 2.0,
+ "tail": 4.0,
+ "dur": 20.0
 }
