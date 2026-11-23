@@ -1,0 +1,19 @@
+【タイトル】
+Each Ball Is One Note. Name This Christmas Song (Listen to the End) #shorts #satisfying #christmas
+
+【説明】
+Balls travel around five rings at the same speed. Every time a ball crosses the line on the right, its ring plays a note. Outer rings are higher. Can you name the Christmas song?
+
+Answer: Jingle Bells (written in 1857, public domain).
+
+How it works:
+- The rings from inside to outside are C, D, E, F, G. One ball is one note.
+- All balls move at the same speed, so their positions on the rings are the sheet music. It works like a disc music box.
+- A ball a quarter turn away from the line plays a quarter turn later.
+- The first lap is slow and the second lap is fast. The second lap ends a little differently.
+- At the end, all five rings light up together.
+
+Simulation, sound and animation: original (Python).
+
+【タグ】
+music, christmas, music box, satisfying, relaxing, simulation, shorts
