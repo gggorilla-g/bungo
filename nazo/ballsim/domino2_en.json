@@ -1,0 +1,65 @@
+{
+ "kind": "dominoes2",
+ "id": "domino2_en",
+ "n": 105,
+ "total_ratio": 100,
+ "unit_cm": 5,
+ "tone": "stone",
+ "bed": true,
+ "bloom": 0.6,
+ "glow": 0.45,
+ "style": "big",
+ "mark": "@makeitwork3d",
+ "objects": [
+  [
+   "emoji_cup",
+   9,
+   "Coffee cup"
+  ],
+  [
+   "emoji_catfull",
+   30,
+   "Cat"
+  ],
+  [
+   "emoji_dog",
+   60,
+   "Dog"
+  ],
+  [
+   "emoji_standing",
+   170,
+   "Person"
+  ],
+  [
+   "emoji_elephantfull",
+   300,
+   "Elephant"
+  ],
+  [
+   "emoji_giraffe",
+   500,
+   "Giraffe"
+  ]
+ ],
+ "title": [
+  "Tip one {5 cm} domino.",
+  "Will the [5 m] one fall?"
+ ],
+ "count_label": "Domino ",
+ "height_label": "Height ",
+ "yt": {
+  "title": "Tip One 5 cm Domino. Will the 5 m One Fall? 105 Dominoes, Each a Bit Bigger #shorts #satisfying #physics",
+  "desc": "105 dominoes. The first is 5 cm tall and each one is about 4.5% bigger than the one before, so the last is 5 m tall: exactly 100 times the first. Tip the first one. Does the chain make it to the end?\n\nHow it works:\n- A falling domino can knock over a bigger one. In 1983 physicist Lorne Whitehead showed it works up to about 1.5 times the size. Here each step is much smaller (about 1.045 times), so they go down one after another.\n- Bigger dominoes fall more slowly (fall time grows with the square root of height). So it starts as a fast roll, then slows down, and the notes get lower.\n- Each domino comes to rest leaning on the back of the next one.\n- The pictures beside the road are for scale (coffee cup about 9 cm, cat 30 cm, dog 60 cm, person 170 cm, elephant 3 m, giraffe 5 m).\n\nNote: this is an animation of the idea, not a full physics simulation.\n\nSimulation, sound and animation: original (Python).\nEmoji: Noto Color Emoji (Google, SIL Open Font License 1.1)",
+  "tags": [
+   "domino",
+   "chain reaction",
+   "physics",
+   "satisfying",
+   "relaxing",
+   "simulation",
+   "shorts"
+  ]
+ },
+ "bed_gain": 0.17
+}
