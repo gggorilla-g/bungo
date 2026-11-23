@@ -32,5 +32,9 @@
  "snap": 1,
  "snap_a": 0.6,
  "post_hue": 40,
- "post_pitch": -2
+ "post_pitch": -2,
+ "warp": 8.0,
+ "warp_q": 4,
+ "warp_w": 0.018,
+ "skip_live": 1
 }

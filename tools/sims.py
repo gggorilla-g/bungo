@@ -3709,8 +3709,18 @@ def ringsong(sp):
 
 def radwave(sp):
     """ズレて揃う型 × 「1点から全方向に打つ」型（オーナー 11/23「いいとこ取り」）。円のまん中から N 個を全方向へ同時に打つ。ちがうのは速さだけ。
-    P 秒のあいだに k0, k0+1, … 往復する速さなので、P 秒後に全部がまん中に戻る。壁に当たるたびにその玉の音、当たった場所が光る。となりどうしを線で結ぶ（渦がほどけて、また巻く）"""
-    N, P, k0 = sp.get("n", 20), sp.get("period", 26.0), sp.get("k0", 14); intro, tail = .6, 2.6; total = intro + P + tail; R = 1.0
+    P 秒のあいだに k0, k0+1, … 往復する速さなので、P 秒後に全部がまん中に戻る。壁に当たるたびにその玉の音、当たった場所が光る。となりどうしを線で結ぶ（渦がほどけて、また巻く）
+    snap：とちゅうで q 組にそろう瞬間（P×m/q）の形だけ残す。warp：そろう瞬間（q≦warp_q）の前後はゆっくり、あいだのばらばらな時間は速く通す（オーナー 11/23「途中のランダム性が強すぎて、カオス感が強い」）"""
+    N, P, k0 = sp.get("n", 20), sp.get("period", 26.0), sp.get("k0", 14); intro, tail = .6, 2.6; R = 1.0
+    from fractions import Fraction as Fr
+    SNAP = sorted({float(Fr(m, q)) for q in range(2, sp.get("snap_q", 6) + 1) for m in range(1, q)}); snapfl = []
+    ug = np.linspace(0, P, 20001); g = np.ones_like(ug)
+    if sp.get("warp"):
+        SL = sorted({float(Fr(m, q)) for q in range(2, sp.get("warp_q", 4) + 1) for m in range(1, q)}) + [1.0]
+        for f in SL: g += sp.get("warp", 5.0) * np.exp(-(((ug / P) - f) / sp.get("warp_w", .014)) ** 2)
+    tr = np.concatenate([[0], np.cumsum((g[1:] + g[:-1]) / 2 * np.diff(ug))]); TT = sp.get("warp_dur", P); tr *= TT / tr[-1]
+    T_of = lambda u: intro + float(np.interp(u, ug, tr)); U_of = lambda t: float(np.interp(t - intro, tr, ug)) if t > intro else 0.0
+    total = intro + TT + tail
     sim = Sim(sp, (-1.1, -1.1, 1.1, 1.1), area=(.05, .235, .95, .86)); sim.neon([(R * math.cos(a), R * math.sin(a)) for a in np.linspace(0, 2 * math.pi, 241)], width=4); sim.ring((0, 0), 10); sim.title()
     cols = [hsv(.02 + .86 * i / N) for i in range(N)]; ang = [2 * math.pi * i / N + math.pi / 2 for i in range(N)]
     def tri(x): x = x % 1.0; return 4 * x if x < .25 else 2 - 4 * x if x < .75 else 4 * x - 4
@@ -3718,18 +3728,18 @@ def radwave(sp):
     for i in range(N):
         per = P / (k0 + i)
         for j in range(2 * (k0 + i)):
-            tc = intro + (j + .5) * per / 2
-            if tc < intro + P: hits[i].append((tc, 1 if j % 2 == 0 else -1)); sim.note(tc, PENTA[int(i / (N - 1) * 15 + .5)], sp.get("gain", .36), .5 + .4 * math.cos(ang[i]) * (1 if j % 2 == 0 else -1), 5)
-    sim.chord(intro, [60, 67, 72]); sim.chord(intro + P, [60, 64, 67, 72], gain=.55, dec=5)
-    from fractions import Fraction as Fr
-    SNAP = sorted({float(Fr(m, q)) for q in range(2, sp.get("snap_q", 6) + 1) for m in range(1, q)}); snapfl = []
+            uc = (j + .5) * per / 2
+            if uc < P: tc = T_of(uc); hits[i].append((tc, 1 if j % 2 == 0 else -1)); sim.note(tc, PENTA[int(i / (N - 1) * 15 + .5)], sp.get("gain", .36), .5 + .4 * math.cos(ang[i]) * (1 if j % 2 == 0 else -1), 5)
+    sim.chord(intro, [60, 67, 72]); sim.chord(intro + TT, [60, 64, 67, 72], gain=.55, dec=5)
     if sp.get("snap"):
-        for fq in SNAP: sim.chord(intro + fq * P, [72, 79], gain=.18, dec=3)
-    hist = [[] for _ in range(N)]
+        for fq in SNAP: sim.chord(T_of(fq * P), [72, 79], gain=.18, dec=3)
+    hist = [[] for _ in range(N)]; uprev = 0.0; SK = sp.get("skip", 1); SKL = sp.get("skip_live", SK); TR = sp.get("trace", 0)
     for fi in range(int(total * FPS)):
-        t = fi / FPS; u = min(max(0, t - intro), P); live, dots, fl, pts = [], [], [], []
+        t = fi / FPS; u = min(U_of(t), P); live, dots, fl, pts = [], [], [], []
+        def pos(uu): return [(tri(uu * (k0 + i) / P) * R * math.cos(ang[i]), tri(uu * (k0 + i) / P) * R * math.sin(ang[i])) for i in range(N)]
+        pts = pos(u)
         for i in range(N):
-            sgn = tri(u * (k0 + i) / P) * R; c, s_ = math.cos(ang[i]), math.sin(ang[i]); pz = (sgn * c, sgn * s_); pts.append(pz)
+            c, s_ = math.cos(ang[i]), math.sin(ang[i]); pz = pts[i]
             live.append(((-R * c, -R * s_), (R * c, R * s_), dim(cols[i], .05), 1))
             h = hist[i]; h.append(pz); del h[:-20]
             for q in range(len(h) - 1): live.append((h[q], h[q + 1], dim(cols[i], .04 + .8 * ((q + 1) / len(h)) ** 2), 1 + 4 * (q + 1) / len(h)))
@@ -3737,18 +3747,20 @@ def radwave(sp):
             for tc, sd in hits[i]:
                 e = t - tc
                 if 0 <= e < .28: fl.append(((sd * R * c, sd * R * s_), 8 + e * 110, dim(cols[i], 1 - e / .28), 3)); dots.append(((sd * R * c, sd * R * s_), dim(cols[i], 1 - e / .28), 7))
-        SK = sp.get("skip", 1); TR = sp.get("trace", 0)
-        for i in range(N): live.append((pts[i], pts[(i + SK) % N], dim(cols[i], .5), 2.0))
-        if TR and fi % 3 == 0 and intro <= t <= intro + P and not sp.get("snap"): sim.commit([(pts[i], pts[(i + SK) % N], dim(cols[i], TR)) for i in range(N)], width=1.0)
-        if sp.get("snap"):                       # とちゅうで q 組にそろう瞬間（P×m/q）だけ、その形を残す
+        la = .5
+        if sp.get("warp"): dd = min(abs(u / P - f) for f in [0.0] + SL); la = .1 + .55 * math.exp(-(dd / sp.get("warp_w", .014) / 1.3) ** 2)   # ばらばらな間は線を薄く、そろう瞬間に明るく
+        for i in range(N): live.append((pts[i], pts[(i + SKL) % N], dim(cols[i], la), 2.0))
+        if TR and fi % 3 == 0 and intro <= t <= intro + TT and not sp.get("snap"): sim.commit([(pts[i], pts[(i + SK) % N], dim(cols[i], TR)) for i in range(N)], width=1.0)
+        if sp.get("snap"):                       # とちゅうで q 組にそろう瞬間（P×m/q）だけ、その形を残す（その瞬間の位置で描く）
             for fq in SNAP:
-                if abs(t - (intro + fq * P)) < .5 / FPS: sim.commit([(pts[i], pts[(i + SK) % N], dim(cols[i], sp.get("snap_a", .55))) for i in range(N)], width=1.4); snapfl.append(t)
+                if uprev < fq * P <= u: q_ = pos(fq * P); sim.commit([(q_[i], q_[(i + SK) % N], dim(cols[i], sp.get("snap_a", .55))) for i in range(N)], width=1.4); snapfl.append(t)
+        uprev = u
         for ts in snapfl:
             e = t - ts
             if 0 <= e < .5: fl.append(((0, 0), 20 + e * 700, dim((255, 245, 210), .7 * (1 - e / .5)), 2))
-        e = t - (intro + P)
+        e = t - (intro + TT)
         if 0 <= e < .7: fl.append(((0, 0), 14 + e * 520, dim((255, 245, 210), 1 - e / .7), 4)); fl.append(((0, 0), 10 + e * 260, dim((160, 230, 255), 1 - e / .7), 3))
-        sim.frame(t, live, dots, (sp.get("count_label", "そろうまで "), f"{max(0, math.ceil(P - u))}"), fl)
+        sim.frame(t, live, dots, (sp.get("count_label", "そろうまで "), f"{max(0, math.ceil(intro + TT - t))}"), fl)
     sim.finish(total)
 
 KINDS = {"radwave": radwave, "ringsong": ringsong, "whisper": whisper, "picollide": picollide, "metronomes": metronomes, "spiro2": spiro2, "slinky3d": slinky3d, "fifths": fifths, "slinky": slinky, "chordballs": chordballs, "canonstairs": canonstairs, "koch2": koch2, "polywheel": polywheel, "circlefill": circlefill, "dots45": dots45, "spiralglass": spiralglass, "dominoes2": dominoes2, "hearts2": hearts2, "cupcaustic": cupcaustic, "dominoes": dominoes, "merge": merge, "hearts": hearts, "bricks": bricks, "pendwave3d": pendwave3d, "spiro": spiro, "lens": lens, "koch": koch, "pendwave": pendwave, "orbits": orbits, "phyllo": phyllo, "zoomsalt": zoomsalt, "layers": layers, "pixels": pixels, "sortviz": sortviz, "polyfocus": polyfocus, "heliostat": heliostat, "dragon": dragon, "rhythm": rhythm, "lissatable": lissatable, "plotter": plotter, "threebody": threebody, "pendswing": pendswing, "golden": golden, "piphase": piphase, "maurer": maurer, "harmono": harmono, "spiropens": spiropens, "star": star, "throw": throw, "tusi": tusi, "chain": chain, "basket": basket, "koch": koch, "cycloid": cycloid, "pendulums": pendulums, "lissajous": lissajous, "corner": corner, "sunflower": sunflower, "ulam": ulam, "parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2, "picount": picount}

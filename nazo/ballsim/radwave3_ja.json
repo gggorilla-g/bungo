@@ -31,5 +31,9 @@
  "trace": 0,
  "gain": 0.34,
  "snap": 1,
- "snap_a": 0.6
+ "snap_a": 0.6,
+ "warp": 8.0,
+ "warp_q": 4,
+ "warp_w": 0.018,
+ "skip_live": 1
 }
