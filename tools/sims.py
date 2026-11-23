@@ -2062,7 +2062,62 @@ def dominoes(sp):
         sim.frame(t, (), (), (sp.get("count_label", "Domino "), f"{cur + 1} / {N}"), (), draw)
     sim.finish(total)
 
-KINDS = {"dominoes": dominoes, "merge": merge, "hearts": hearts, "bricks": bricks, "pendwave3d": pendwave3d, "spiro": spiro, "lens": lens, "koch": koch, "pendwave": pendwave, "orbits": orbits, "phyllo": phyllo, "zoomsalt": zoomsalt, "layers": layers, "pixels": pixels, "sortviz": sortviz, "polyfocus": polyfocus, "heliostat": heliostat, "dragon": dragon, "rhythm": rhythm, "lissatable": lissatable, "plotter": plotter, "threebody": threebody, "pendswing": pendswing, "golden": golden, "piphase": piphase, "maurer": maurer, "harmono": harmono, "spiro": spiro, "star": star, "throw": throw, "tusi": tusi, "chain": chain, "basket": basket, "koch": koch, "cycloid": cycloid, "pendulums": pendulums, "lissajous": lissajous, "corner": corner, "sunflower": sunflower, "ulam": ulam, "parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2, "picount": picount}
+def cupcaustic(sp):
+    """丸いお椀（半円の壁）に上からまっすぐ落とす。放物線とちがい、全部は1点に集まらない。
+    跳ね返った線が重なって、明るいカーブ（腎臓形 nephroid の一部。コーヒーカップの底の光の模様と同じ）が浮かぶ。
+    ばらつきは入れない（自然な道の長さの差だけ）"""
+    R, Y, v = 6.0, sp.get("Y", 9.0), sp.get("v", 7.0); XF = R + .15; YB = -R - .15
+    ms = sp.get("rounds", [4, 8, 16, 32, 64, 128, 256]); XM = sp.get("xmax", .93); NB = sp.get("bounces", 2)
+    intro, tail = .3, sp.get("tail", 2.0)
+    sim = Sim(sp, (-XF, YB, XF, Y + .15))
+    sim.neon([(R * math.cos(a), R * math.sin(a)) for a in np.linspace(math.pi, 2 * math.pi, 241)])
+    sim.neon([(-R, Y), (R, Y)], width=5)
+    sim.ring((0, -R / 2), 13); sim.title()
+    def path(x):
+        P = np.array([x, Y]); d = np.array([0.0, -1.0]); pts = [tuple(P)]
+        hit = np.array([x, -math.sqrt(R * R - x * x)]); pts.append(tuple(hit)); P = hit
+        for k in range(NB + 1):
+            n_ = P / R; d = d - 2 * (d @ n_) * n_; d = d / np.linalg.norm(d)
+            tq = -2 * (P @ d); Q = P + tq * d
+            if Q[1] <= 1e-6 and k < NB: pts.append(tuple(Q)); P = Q; continue
+            ts = [tt for tt in [((Y - P[1]) / d[1]) if d[1] > 1e-9 else None, ((XF - P[0]) / d[0]) if d[0] > 1e-9 else None,
+                                ((-XF - P[0]) / d[0]) if d[0] < -1e-9 else None, (tq if Q[1] <= 1e-6 else None)] if tt is not None and tt > 1e-6]
+            pts.append(tuple(P + min(ts) * d)); break
+        cum = [0.0]
+        for a_, b_ in zip(pts, pts[1:]): cum.append(cum[-1] + math.hypot(b_[0] - a_[0], b_[1] - a_[1]))
+        return pts, cum
+    rounds, t0 = [], intro
+    for r, m in enumerate(ms):
+        xs = [(-XM + 2 * XM * (j + .5) / m) * R for j in range(m)]; balls = []
+        for x in xs:
+            pts, cum = path(x); balls.append(dict(pts=pts, cum=cum, col=hsv((.55 + .45 * (x / R + 1) / 2) % 1), done=0))
+        n = len(balls); D = max(b["cum"][-1] for b in balls) / v
+        hits = sorted([(b["cum"][k] / v, b["pts"][k][0]) for b in balls for k in range(1, len(b["pts"]) - 1)])
+        step = max(1, -(-len(hits) // 40)); g = .9 / math.sqrt(min(n, 40)); dec = 4 + 3 * math.sqrt(min(n, 64) / 5)
+        sim.chord(t0, [60, 67, 72])
+        for th, hx in hits[::step]: sim.note(t0 + th, PENTA[int((hx / R + 1) / 2 * 15 + .5)], g, .5 + .3 * hx / R, dec)
+        rounds.append((t0, D, balls)); t0 += D + .15
+    total = t0 + tail
+    for fi in range(int(total * FPS)):
+        t = fi / FPS; r = max([i for i, (a_, _, _) in enumerate(rounds) if t >= a_] or [0]); tr, D, balls = rounds[r]; s = max(0, t - tr) * v
+        n = len(balls); lw = max(1.0, 2.0 * min(1, 10 / math.sqrt(n))); al = .34 * min(1, 5 / math.sqrt(n)) + .06
+        segs = []
+        if r > 0:
+            for b in rounds[r - 1][2]:
+                while b["done"] < len(b["pts"]) - 1: segs.append((b["pts"][b["done"]], b["pts"][b["done"] + 1], dim(b["col"], b.get("al", al)))); b["done"] += 1
+        live, dots = [], []
+        for b in balls:
+            b["al"] = al; cum, pts = b["cum"], b["pts"]; L = len(pts) - 1; sc = min(s, cum[-1])
+            while b["done"] < L and cum[b["done"] + 1] <= sc: segs.append((pts[b["done"]], pts[b["done"] + 1], dim(b["col"], al))); b["done"] += 1
+            k = b["done"]; p = pts[-1] if k >= L else lerp(pts[k], pts[k + 1], (sc - cum[k]) / (cum[k + 1] - cum[k]))
+            if k < L: live.append((pts[k], p, dim(b["col"], .7), lw))
+            if k < L: dots.append((p, b["col"], 5 if n <= 32 else (4 if n <= 128 else 3)))
+        sim.commit(segs, width=lw)
+        sim.frame(t, live, dots, (sp.get("count_label", "ボール："), f"{n:,}"), [])
+    sim.finish(total)
+
+
+KINDS = {"cupcaustic": cupcaustic, "dominoes": dominoes, "merge": merge, "hearts": hearts, "bricks": bricks, "pendwave3d": pendwave3d, "spiro": spiro, "lens": lens, "koch": koch, "pendwave": pendwave, "orbits": orbits, "phyllo": phyllo, "zoomsalt": zoomsalt, "layers": layers, "pixels": pixels, "sortviz": sortviz, "polyfocus": polyfocus, "heliostat": heliostat, "dragon": dragon, "rhythm": rhythm, "lissatable": lissatable, "plotter": plotter, "threebody": threebody, "pendswing": pendswing, "golden": golden, "piphase": piphase, "maurer": maurer, "harmono": harmono, "spiro": spiro, "star": star, "throw": throw, "tusi": tusi, "chain": chain, "basket": basket, "koch": koch, "cycloid": cycloid, "pendulums": pendulums, "lissajous": lissajous, "corner": corner, "sunflower": sunflower, "ulam": ulam, "parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2, "picount": picount}
 
 if __name__ == "__main__":
     sp = json.load(open(sys.argv[1], encoding="utf-8")); KINDS[sp["kind"]](sp); kit(sp)
