@@ -23,6 +23,8 @@ parabola3_ja MOSO ja
 ellipse4_ja MOSO ja
 fill1_en KAIDAN en
 spiro9_en KAIDAN en
+canon1_en KAIDAN en
+koch2_en KAIDAN en
 chord1_en KAIDAN en
 wheel1_en KAIDAN en
 domino2_en KAIDAN en

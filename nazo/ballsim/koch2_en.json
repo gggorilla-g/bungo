@@ -25,5 +25,7 @@
    "shorts"
   ]
  },
- "area": "Area {a} (start = 1)  never passes 1.6"
+ "area": "Area {a} (start = 1)  never passes 1.6",
+ "post_hue": 120,
+ "post_pitch": 3
 }

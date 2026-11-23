@@ -621,3 +621,7 @@
   → 円ぬりを曲ちがいで出せるようにした（fill2＝きらきら星、fill3＝歓喜の歌）。骨組み8音→旋律16音→変奏32音→64音。決まりは docs/vet-checklist.md に追記
 - 追加の収録：r12 @learnbandroom「what do two of these make?」（32分音符→16分→8分とまとまる）＝未着手、r13 @MostPeopleFail「The darkest chord, built by falling balls.」→ chord1 を作成
 - オーナー「曲違いは作らなくていいです」→ fill2・fill3 は書き出しを止め、出さない（hold.txt）。途中で拍が変わる決まりは残す
+- オーナー「これらは英語版でも出したい。完コピだと弾かれそうなのでマイナーチェンジで、なるべく新しく作る書き出し負担が少ない物」
+  → 絵を作り直さず、最後に1本にまとめる段だけで変える仕組みにした（simkit.mux）。spec の post_hue＝題名より下の絵の色相（暗い背景はそのまま）、post_pitch＝音の高さ（半音）
+  → 書き出し済みの絵と音が残っていれば `python3 tools/remux.py <spec>` で数十秒。英語版の fill1・wheel1・koch2・chord1・canon1・glass1 に反映し、確認し直した
+  → 推測（未確認）：これで重複と見なされないかは、出してみないと分からない

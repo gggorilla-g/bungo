@@ -25,5 +25,7 @@
   ]
  },
  "fmt": "{n} sides",
- "bump": "Center moves up and down {b}% of radius"
+ "bump": "Center moves up and down {b}% of radius",
+ "post_hue": 200,
+ "post_pitch": -2
 }

@@ -278,9 +278,19 @@ class Sim:
                 if g > .12: ns.append((t + .375, m, g * .26, 1 - pan, dec, "edm")); ns.append((t + .75, m, g * .11, pan, dec, "edm"))
             self.notes = ns
         self.proc.stdin.close(); self.proc.wait(); wv = f"build_ballsim/{self.id}.wav"; self._audio(total, wv)
-        subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", self.raw, "-i", wv, "-map", "0:v", "-map", "1:a", "-c:v", "copy", "-c:a", "aac", "-b:a", "192k",
-                        "-af", "loudnorm=I=-19:TP=-3:LRA=11", "-shortest", "-movflags", "+faststart", f"output/{self.id}.mp4"], check=True)
+        mux(self.sp, self.raw, wv, f"output/{self.id}.mp4")
         print(f"書き出し: output/{self.id}.mp4  {total:.1f}秒  音 {len(self.notes)}")
+
+
+def mux(sp, raw, wv, out):
+    """絵と音を1本にする。spec の post_hue（度）・post_pitch（半音）があれば、題名より下の絵の色相と、音の高さをずらす。
+    （オーナー 11/23「英語版でも出したい。完コピだと弾かれそうなのでマイナーチェンジで、書き出し負担が少ないもの」→ 作り直さず、この段だけで変える）"""
+    hue, pit = sp.get("post_hue"), sp.get("post_pitch"); af = "loudnorm=I=-19:TP=-3:LRA=11"
+    if pit: r = 2 ** (pit / 12.0); af = f"asetrate={SR}*{r:.6f},aresample={SR},atempo={1 / r:.6f}," + af
+    cmd = ["ffmpeg", "-v", "error", "-y", "-i", raw, "-i", wv]
+    if hue: y0 = int(H * .215) // 2 * 2; cmd += ["-filter_complex", f"[0:v]split[a][b];[b]crop={W}:{H - y0}:0:{y0},hue=h={hue},lumakey=threshold=0:tolerance=0.07:softness=0.06[c];[a][c]overlay=0:{y0}[v]", "-map", "[v]", "-c:v", "libx264", "-preset", "veryfast", "-crf", "18", "-pix_fmt", "yuv420p"]
+    else: cmd += ["-map", "0:v", "-c:v", "copy"]
+    subprocess.run(cmd + ["-map", "1:a", "-c:a", "aac", "-b:a", "192k", "-af", af, "-shortest", "-movflags", "+faststart", out], check=True)
 
 
 def kit(sp):

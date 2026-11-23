@@ -29,5 +29,7 @@
    "simulation",
    "shorts"
   ]
- }
+ },
+ "post_hue": 110,
+ "post_pitch": -2
 }
