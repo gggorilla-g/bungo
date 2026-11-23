@@ -7,11 +7,12 @@
 Answer: the 98 and A fall into sync. B never does.
 
 How it works:
-- Metronomes on the same platform pull on each other a little through the platform's motion.
+- The platform sits on two rollers, so it is free to slide sideways, like a base-isolated building.
+- When the metronomes swing, the platform moves a little the other way. Through that motion the metronomes pull on each other. The red mark below shows where the platform is.
 - In this video each one is pulled slightly toward the average swing of the group (the Kuramoto model). The more of them are in sync, the stronger the pull.
 - If the speed difference is small, the pull wins. A is only 2 BPM off, so it gets pulled in.
 - If the difference is large, the pull cannot keep up. B is 20 BPM faster, so it stays off the beat forever.
-- The color shows how far each one is from the group. In sync, it turns pale blue-white.
+- The color shows how far each one is from the group. As the gap shrinks, the colors drift toward the same light blue.
 - The sound is a glass note every time a needle passes the center. Each metronome has its own pitch, so in sync they make a chord.
 
 Simulation, sound and animation: original (Python).
