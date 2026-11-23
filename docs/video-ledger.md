@@ -625,3 +625,4 @@
   → 絵を作り直さず、最後に1本にまとめる段だけで変える仕組みにした（simkit.mux）。spec の post_hue＝題名より下の絵の色相（暗い背景はそのまま）、post_pitch＝音の高さ（半音）
   → 書き出し済みの絵と音が残っていれば `python3 tools/remux.py <spec>` で数十秒。英語版の fill1・wheel1・koch2・chord1・canon1・glass1 に反映し、確認し直した
   → 推測（未確認）：これで重複と見なされないかは、出してみないと分からない
+- 英語：ガラスを新しい版で出し直し（BIWESzV1vlE）。古い版 9eMUGxr28Iw は Studio で非公開にした（オーナー「ガラス出し直して」）

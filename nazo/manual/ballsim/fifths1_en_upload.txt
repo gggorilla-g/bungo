@@ -1,0 +1,20 @@
+【タイトル】
+Connect the Notes of a Chord on the Circle of Fifths. Stack All 12 Keys. What Shape? #shorts #satisfying #music
+
+【説明】
+Twelve notes sit on a circle, each a fifth from the next (the circle of fifths). Lines connect the notes of a chord. Change the key one step at a time and stack all 12. What shape do you get?
+
+Answer: a pattern with 12-fold symmetry and a hole in the middle.
+
+How it works:
+- On the circle of fifths, neighbors are a fifth apart (like C and G).
+- A major seventh chord (C, E, G, B) makes a long thin four-sided shape on the circle. Change the key and the shape stays the same. It only turns.
+- So stacking 12 keys stacks the same shape 12 times, turned 30 degrees each time.
+- First lap: major seventh (blue). Second lap: minor seventh (pink). Third lap: diminished seventh (yellow). A diminished seventh is a square, and there are only three different ones.
+- Every lap, the notes play twice as fast.
+- The chords go down by fifths (C, F, Bb, Eb ...).
+
+Simulation, sound and animation: original (Python).
+
+【タグ】
+music, math, circle of fifths, chords, satisfying, relaxing, simulation, shorts
