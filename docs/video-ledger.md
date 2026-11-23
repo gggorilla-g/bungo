@@ -689,3 +689,4 @@
 - 2026-11-24 00時台（定時）：妄想 pendcone2_ja → x980ykHGIMc、英語 radwave3_en → A3ywFLPEbCw。とばしなし、上限なし。残り49本
 - 2026-11-24 02時台（定時）：妄想 radwave1_ja → rYhSh1F8-jo、英語 xmas1_en → vRRnrZ8XSuE。とばしなし、上限なし。前回分（pendcone2_ja, radwave3_en）が順番待ちに残っていたので、upload_done と照合して外してから実行。残り47本
 - 2026-11-24 05時台（定時）：妄想 radwave3_ja → AUjZthWgKFY、英語 rays1_en → O_82sobZHsw。とばしなし、上限なし。残り45本。朝の「視聴を継続」は読めず（クラウド実行でブラウザ無し、vidIQ に認可済みチャンネルが無い）
+- 2026-11-24 07時台（定時）：妄想 pendcone1_ja → G51jEp6UYMw、英語 fifths1_en → 5g3UCxEKsok。とばしなし、上限なし。残り43本。朝の「視聴を継続」は読めず（クラウド実行でブラウザ無し、vidIQ に認可済みチャンネルが無い）
