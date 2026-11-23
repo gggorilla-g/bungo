@@ -1,0 +1,16 @@
+【タイトル】
+The Area Stays Finite. Can the Edge Be Infinite? #shorts #satisfying #math
+
+【説明】
+A light runs along the edge of a triangle. On every side it passes, a small triangle grows out of the middle third. Every lap repeats this (the Koch snowflake). The area is limited. Can the edge become infinite?
+
+How it works:
+- Every lap makes the edge 4/3 times longer (3, 4, 5.33, 7.11, 9.48, 12.64). You can repeat it forever, so the length has no limit.
+- The number of new triangles is 3, 12, 48, 192, 768. Four times more each lap. A lap always takes the same time, so the notes get finer and finer.
+- The added triangles get small so fast that the area never passes 1.6 times (8/5) the first triangle.
+- So a shape can have a finite area and an infinite edge. It never leaves the circle around it either.
+
+Simulation, sound and animation: original (Python).
+
+【タグ】
+math, fractal, koch snowflake, infinity, geometry, satisfying, relaxing, shorts
