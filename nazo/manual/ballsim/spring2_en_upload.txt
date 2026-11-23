@@ -13,6 +13,7 @@ How it works:
 - The sound comes from the step height. Every doubling goes two notes down the scale. A taller step gives a lower note that rings longer. While the spring comes down, the pitch slides from one octave above down to that note.
 - The scale has five notes: D, E flat, G, A, B flat (the Japanese miyako-bushi scale).
 - The spring has 60 turns. The color is a smooth gradient that slowly moves along it.
+- The staircase repeats the same pattern, so the end of the video joins back to the start.
 - The shape and timing come from the rules above. This is not a force calculation for every turn. A real spring would be fully stretched long before a step this tall.
 
 Simulation, sound and animation: original (Python).

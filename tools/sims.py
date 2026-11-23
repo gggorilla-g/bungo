@@ -3296,9 +3296,9 @@ def spiro2(sp):
     Rt = sp.get("R", 144); GS = sp["gears"]; R = 1.0; D, intro, tail = sp.get("dur", 22.0), .5, sp.get("tail", 2.8); total = intro + D + tail; PW = sp.get("accel", 1.5)
     G = []
     for gd in GS:
-        rt = gd["r"]; g = math.gcd(Rt, rt); r = R * rt / Rt; G.append(dict(rt=rt, r=r, d=r * gd.get("hole", .8), petals=Rt // g, laps=rt // g, th_end=2 * math.pi * (rt // g), dir=gd.get("dir", 1), hue=gd.get("hue", .5), hw=gd.get("hue_w", .2), line=gd.get("line", .7), prev=0.0, sat=gd.get("sat", .85)))
+        rt = gd["r"]; g = math.gcd(Rt, rt); r = R * rt / Rt; G.append(dict(rt=rt, r=r, d=r * (gd.get("holes") or [gd.get("hole", .8)])[0], ds=[r * h_ for h_ in (gd.get("holes") or [gd.get("hole", .8)])], hs=gd.get("hue_step", .0), petals=Rt // g, laps=rt // g, th_end=2 * math.pi * (rt // g), dir=gd.get("dir", 1), hue=gd.get("hue", .5), hw=gd.get("hue_w", .2), line=gd.get("line", .7), prev=0.0, sat=gd.get("sat", .85)))
     u_at = lambda t: min(1, max(0, (t - intro) / D)) ** PW
-    def pen(g, th): a = g["dir"] * th; return ((R - g["r"]) * math.cos(a) + g["d"] * math.cos((R - g["r"]) / g["r"] * a), (R - g["r"]) * math.sin(a) - g["d"] * math.sin((R - g["r"]) / g["r"] * a))
+    def pen(g, th, d_=None): a = g["dir"] * th; d_ = g["d"] if d_ is None else d_; return ((R - g["r"]) * math.cos(a) + d_ * math.cos((R - g["r"]) / g["r"] * a), (R - g["r"]) * math.sin(a) - d_ * math.sin((R - g["r"]) / g["r"] * a))
     TH = sp.get("tooth", .030)   # 歯の高さ。輪は内がわに歯、歯車は外がわに歯。転がる円（ピッチ円）は R と r で、歯はその上下に半分ずつ
     def teeth(n, rad, cx, cy, spin, inner):
         """歯の形（台形）の点の列。inner＝輪の内がわの歯（山が中心向き）"""
@@ -3315,7 +3315,9 @@ def spiro2(sp):
         for i in range(1, N - 1):
             if rad[i] >= rad[i - 1] and rad[i] > rad[i + 1]:
                 tt = intro + D * (ths[i] / g["th_end"]) ** (1 / PW)
-                if tips % step == 0 and tt - last > .09: sim.note(tt, PENTA[[0, 2, 4, 7, 9, 12, 9, 7, 4, 2][(tips // step) % 10]] + (0 if gi == 0 else -12), .46 if gi == 0 else .38, .5 + .35 * pen(g, ths[i])[0], 5); last = tt
+                if tips % step == 0 and tt - last > .09:
+                    sim.note(tt, PENTA[[0, 2, 4, 7, 9, 12, 9, 7, 4, 2][(tips // step) % 10]] + (0 if gi == 0 else -12), .46 if gi == 0 else .38, .5 + .35 * pen(g, ths[i])[0], 5); last = tt
+                    if len(g["ds"]) > 1: sim.note(tt, PENTA[min(len(PENTA) - 1, [4, 7, 9, 12, 14, 16, 14, 12, 9, 7][(tips // step) % 10])] + (0 if gi == 0 else -12), .22, .5 + .35 * pen(g, ths[i])[0], 5)   # 穴が何本もある時は、上に1音重ねる
                 tips += 1
     b = 0.0
     while b < D: sim.note(intro + b, 36, .40, .5, 9, "kick"); b += .5
@@ -3326,8 +3328,9 @@ def spiro2(sp):
         for gi, g in enumerate(G):
             th = g["th_end"] * u; n = max(1, int((th - g["prev"]) / .012))
             for k in range(n):
-                a0, a1 = g["prev"] + (th - g["prev"]) * k / n, g["prev"] + (th - g["prev"]) * (k + 1) / n; p0, p1 = pen(g, a0), pen(g, a1)
-                segs.append((p0, p1, dim(hsv((g["hue"] + g["hw"] * a1 / g["th_end"]) % 1, g["sat"], 1), g["line"]))); hot.append((t, p0, p1, gi))
+                a0, a1 = g["prev"] + (th - g["prev"]) * k / n, g["prev"] + (th - g["prev"]) * (k + 1) / n
+                for hi_, d_ in enumerate(g["ds"]):   # 同じ歯車の穴ごとに1本ずつ（内がわの穴ほど、小さな花になる）
+                    p0, p1 = pen(g, a0, d_), pen(g, a1, d_); segs.append((p0, p1, dim(hsv((g["hue"] + g["hs"] * hi_ + g["hw"] * a1 / g["th_end"]) % 1, g["sat"], 1), g["line"]))); hot.append((t, p0, p1, gi))
             g["prev"] = th; a = g["dir"] * th; c = ((R - g["r"]) * math.cos(a), (R - g["r"]) * math.sin(a)); p_ = pen(g, th); col = hsv(g["hue"] % 1, .55, 1)
             if on or t < intro + D + .6:
                 fade = 1.0 if on else max(0, 1 - (t - intro - D) / .6)
@@ -3336,14 +3339,14 @@ def spiro2(sp):
                 live += [(gp[k], gp[(k + 1) % len(gp)], gc, 2.0) for k in range(len(gp))]
                 for hk in range(1, 6):   # ペンを差す穴の列（本物の定規と同じ見た目）
                     hr = g["r"] * hk / 6.0; hx, hy = c[0] + hr * math.cos(-(R - g["r"]) / g["r"] * a), c[1] - hr * math.sin((R - g["r"]) / g["r"] * a); fl.append(((hx, hy), 3.2, dim((150, 170, 215), fade), 1.2))
-                fl.append((c, 5, dim((170, 190, 230), fade), 1.5)); balls.append((p_, (255, 250, 235), 6))
+                fl.append((c, 5, dim((170, 190, 230), fade), 1.5)); balls += [(pen(g, th, d_), (255, 250, 235), 5) for d_ in g["ds"]]
             if on:   # 接地の光：ふれている点と、通ったあとの輪（だんだん消える）
                 q = (R * math.cos(a), R * math.sin(a)); fl.append((q, 9 + 3 * math.sin(t * 14 + gi), dim(tuple(min(255, int(v * .5 + 128)) for v in col), 1), 3)); balls.append((q, (255, 252, 240), 7))
                 for k in range(22):
                     x0 = a - g["dir"] * k * .045; x1 = a - g["dir"] * (k + 1) * .045; live.append(((R * math.cos(x0), R * math.sin(x0)), (R * math.cos(x1), R * math.sin(x1)), dim(tuple(min(255, int(v * .6 + 100)) for v in col), (1 - k / 22) ** 1.5), 7 - k * .2))
         if segs: sim.commit(segs, width=1.5)
         hot = [h for h in hot if t - h[0] < .30]
-        for th_, p0, p1, gi in hot[::2]:   # 描いたばかりの線：白く光ってから色に落ち着く
+        for th_, p0, p1, gi in hot[::(2 if len(hot) < 900 else 4)]:   # 描いたばかりの線：白く光ってから色に落ち着く
             e = (t - th_) / .30; live.append((p0, p1, dim((255, 250, 235), (1 - e) ** 1.3), 3.2 - 1.6 * e))
         e = t - intro - D
         if 0 <= e < .7: fl.append(((0, 0), 30 + e * 500, dim((255, 245, 210), 1 - e / .7), 4))
