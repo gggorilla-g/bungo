@@ -3178,7 +3178,96 @@ def fifths(sp):
         sim.frame(t, (), (), (sp.get("count_label", "重ねた和音 "), f"{nd} / {len(chords)}"), (), draw)
     sim.finish(total)
 
-KINDS = {"fifths": fifths, "slinky": slinky, "chordballs": chordballs, "canonstairs": canonstairs, "koch2": koch2, "polywheel": polywheel, "circlefill": circlefill, "dots45": dots45, "spiralglass": spiralglass, "dominoes2": dominoes2, "hearts2": hearts2, "cupcaustic": cupcaustic, "dominoes": dominoes, "merge": merge, "hearts": hearts, "bricks": bricks, "pendwave3d": pendwave3d, "spiro": spiro, "lens": lens, "koch": koch, "pendwave": pendwave, "orbits": orbits, "phyllo": phyllo, "zoomsalt": zoomsalt, "layers": layers, "pixels": pixels, "sortviz": sortviz, "polyfocus": polyfocus, "heliostat": heliostat, "dragon": dragon, "rhythm": rhythm, "lissatable": lissatable, "plotter": plotter, "threebody": threebody, "pendswing": pendswing, "golden": golden, "piphase": piphase, "maurer": maurer, "harmono": harmono, "spiropens": spiropens, "star": star, "throw": throw, "tusi": tusi, "chain": chain, "basket": basket, "koch": koch, "cycloid": cycloid, "pendulums": pendulums, "lissajous": lissajous, "corner": corner, "sunflower": sunflower, "ulam": ulam, "parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2, "picount": picount}
+def slinky3d(sp):
+    """虹色のバネが階段を下りる・立体版（オーナー 11/23「スプリングは3Dで。様子ももっと精緻に。階段も3Dで、スプリングが動いてるんだけど常に中央で」）。
+    バネは1本のらせん（輪を別々に描かない）。下り方は3つの段階：①先がもち上がって弧をえがき次の段に着く ②弧をとおって輪が前の段から次の段へ流れる ③最後の端がはね上がって、次の段の山の上に重なる。
+    カメラはバネを追い、バネはいつも画面の中央。
+    （オーナー 11/23「今物理無視してるので。スピードが変わるというより、段差が変わってその結果伸びたりとか」→ 段の高さで拍を作るのをやめた。
+     1段にかかる時間＝バネ自身の決まった時間 T0 ＋ 先が余分に落ちる時間（√(2h/g) ぶん）。高い段ほど弧が長くのび、空中の輪がふえ、輪の間かくが広がる。長さの単位は 1＝約8cm、g＝122）"""
+    BEAT = sp.get("bar", 1.2); G_ = 122.0; T0 = sp.get("t0", .52); HA = .8; intro = sp.get("intro", .7); tail = sp.get("tail", 3.0); H0 = 1.0; SW = sp.get("step_w", 1.35); R = .43; N = sp.get("coils", 30); th = .022; WZ = 1.15
+    SEQ = sp.get("heights", [.5, .5, .8, .8, 1.2, 1.2, 1.8, 1.8, 2.6, 2.6, .3, .3, .3, .3, 1.0, 2.0, 3.2, .4, .4, .4, .4, 1.5, 3.0, .6, 2.2, .3, .3, .3, 3.8, 5.5])   # 段の高さ（どんどん変わる）
+    steps = [(0.0, 0.0)]; times = [intro]; PH = []
+    for h in SEQ:
+        fall = math.sqrt(2 * (h + HA) / G_) - math.sqrt(2 * HA / G_); tl_ = .17 + fall; Tst = T0 + fall; PH.append((tl_ / Tst, (tl_ + .23) / Tst, min(16.0, 7 + 2.0 * h)))   # ①の終わり、②の終わり、空中の輪の数
+        x, y = steps[-1]; steps.append((x + SW, y - h)); times.append(times[-1] + Tst)
+    T_end = times[-1]; total = T_end + tail; NS = len(SEQ); M = N * 26; U = np.linspace(0, N, M)
+    def bez(P, tt):
+        tt = tt[:, None]; a = (1 - tt); return a ** 3 * P[0] + 3 * a * a * tt * P[1] + 3 * a * tt * tt * P[2] + tt ** 3 * P[3]
+    def dbez(P, tt):
+        tt = tt[:, None]; a = (1 - tt); return 3 * a * a * (P[1] - P[0]) + 6 * a * tt * (P[2] - P[1]) + 3 * tt * tt * (P[3] - P[2])
+    def center(k, p):
+        """段 k→k+1 の途中（進み p）。らせんの中心線の点 C と向き T を、先頭の端から順に（輪の数 U ごと）返す"""
+        (xa, ya), (xb, yb) = steps[k], steps[k + 1]; Yc = ya + N * th + .78 + .06 * (ya - yb); P1, P2, KA = PH[k]
+        if p < P1: q = p / P1; q = .35 * q + .65 * q * q; nArch = KA * q; nB = 0.0   # 先は落ちながら速くなる
+        elif p < P2: q = (p - P1) / (P2 - P1); nArch = KA; nB = (N - KA) * q
+        else: q = (p - P2) / (1 - P2); q = q * q * (3 - 2 * q); nArch = KA * (1 - q); nB = N - nArch
+        nA = N - nB - nArch; At = np.array([xa, ya + th * nA]); Bt = np.array([xb, yb + th * nB]); CP = [At, np.array([xa, Yc]), np.array([xb, Yc]), Bt]
+        C = np.zeros((M, 2)); T = np.zeros((M, 2)); inB = U < nB; inR = (U >= nB) & (U <= nB + nArch); inA = U > nB + nArch
+        C[inB, 0] = xb; C[inB, 1] = yb + th * U[inB]; T[inB] = (0, 1)
+        C[inA, 0] = xa; C[inA, 1] = ya + th * (N - U[inA]); T[inA] = (0, -1)
+        if inR.any():
+            f = (U[inR] - nB) / max(nArch, 1e-6)   # 0＝先頭側、1＝うしろ側（前の段の山の上）
+            f = f - .42 * np.sin(2 * math.pi * f) / (2 * math.pi)   # 輪の間かく：弧のてっぺんで広く、両はしでつまる（下の輪の重さを上の輪が支えるため）
+            if p < P1: tt = (p / P1) ** 1 * 0 + (1 - f) * q   # ①：できあがる弧の、前の段から q までの部分。先頭は弧の先を進む
+            elif p < P2: tt = 1 - f
+            else: tt = 1 - f * (1 - q)   # ③：弧の q から先だけが残る（うしろの端が弧をたどって次の段へ）
+            C[inR] = bez(CP, tt); d_ = -dbez(CP, tt); T[inR] = d_ / np.maximum(1e-9, np.linalg.norm(d_, axis=1))[:, None]
+        return C, T
+    import harmony
+    bar0 = harmony.BAR; harmony.BAR = BEAT; sp = dict(sp); sp.setdefault("bed_off", intro)
+    try:
+        sim = Sim(sp, (-1, -1, 1, 1)); sim.title()
+        for k in range(1, NS + 1):
+            tl = times[k]; bi = int((tl - intro) / BEAT); r, q = harmony.CANON[bi % 8]; tones = [m for m in range(55, 86) if (m - r) % 12 in q]; h_ = SEQ[k - 1]
+            sim.notes.append((tl, tones[max(0, len(tones) - 1 - int(h_ * 2.2))], .46 + .06 * min(4, h_), .5, 5, sp.get("tone", "karo")))   # 着く音：高い段ほど低い音
+            tland = times[k - 1] + PH[k - 1][0] * (times[k] - times[k - 1]); sim.notes.append((tland, tones[min(len(tones) - 1, 3)] + 12, .22, .5, 9, sp.get("tone", "karo")))   # 先が次の段にふれる小さな音
+            sim.notes.append((tl, 36, .30 + .08 * min(4, h_), .5, 9, "kick"))
+        for mi in (48, 60, 64, 67, 72, 76): sim.notes.append((T_end, mi, .32, .5, 1.5, "bell"))
+        WS, HS = 1080 * S, 1920 * S; FL = sp.get("fl", 1650) * S; fS = F(40 * S); ytop, ybot = int(.215 * HS), int(.80 * HS); cy0 = (ytop + ybot) / 2 + 20 * S
+        OFF = np.array(sp.get("cam", [2.3, 1.7, 4.8])); tgt = [None]; zoom = [1.0]
+        def state(t):
+            if t < intro: return 0, 0.0
+            if t >= T_end: return NS - 1, 1.0
+            k = max(j for j in range(NS) if times[j] <= t); return k, (t - times[k]) / (times[k + 1] - times[k])
+        for fi in range(int(total * FPS)):
+            t = fi / FPS; k, p = state(t); C, T = center(k, p); mid = np.array([C[:, 0].mean(), C[:, 1].mean() + .05, 0.0])
+            tgt[0] = mid if tgt[0] is None else tgt[0] + (mid - tgt[0]) * .22; tg = tgt[0].copy()
+            ext = max(C[:, 1].max() - C[:, 1].min() + 2 * R, (C[:, 0].max() - C[:, 0].min() + 2 * R) * 1.2); zoom[0] += (max(1.0, ext / 2.7) - zoom[0]) * .10; zm_ = zoom[0]   # 高い段でのびた時は、引いて全体を入れる
+            def draw(d, t=t, k=k, C=C, T=T, tg=tg, zm_=zm_):
+                cam = tg + OFF * zm_; fw = tg - cam; fw /= np.linalg.norm(fw); rt = np.cross(fw, (0, 1, 0)); rt /= np.linalg.norm(rt); up = np.cross(rt, fw)
+                def pj(P):
+                    D = np.asarray(P, float) - cam; z = D @ fw; return np.stack([WS / 2 + FL * (D @ rt) / z, cy0 - ytop - FL * (D @ up) / z], axis=-1), z
+                base = d._image.crop((0, ytop, WS, ybot)); g = ImageDraw.Draw(base)
+                for gx in np.arange(math.floor(tg[0] - 7), tg[0] + 7, 1.0):   # うしろの壁の方眼（流れて、下りる速さがわかる）
+                    q2, z = pj([(gx, tg[1] - 9, -3.2), (gx, tg[1] + 9, -3.2)]); g.line([tuple(q2[0]), tuple(q2[1])], fill=(20, 28, 56), width=max(1, int(2 * S)))
+                for gy in np.arange(math.floor(tg[1] - 9), tg[1] + 9, 1.0):
+                    q2, z = pj([(tg[0] - 7, gy, -3.2), (tg[0] + 7, gy, -3.2)]); g.line([tuple(q2[0]), tuple(q2[1])], fill=(20, 28, 56), width=max(1, int(2 * S)))
+                for j in range(max(0, k - 8), min(NS + 1, k + 9)):   # 階段（奥の段から順に）：横の壁 → け上げ → ふみ面
+                    x, y = steps[j]; x0 = x - SW / 2 - (4 if j == 0 else 0); x1 = x + SW / 2 + (4 if j == NS else 0); e = t - times[j] if j >= 1 else 9; fl = math.exp(-e * 4) if e >= 0 else 0; hc = hsv((j * .07) % 1, .6, 1)
+                    faces = [([(x0, y, WZ), (x1, y, WZ), (x1, y - 12, WZ), (x0, y - 12, WZ)], (7, 10, 26), False)]
+                    if j >= 1: faces.append(([(x0, y, -WZ), (x0, y, WZ), (x0, steps[j - 1][1], WZ), (x0, steps[j - 1][1], -WZ)], (10, 14, 34), False))
+                    faces.append(([(x0, y, -WZ), (x1, y, -WZ), (x1, y, WZ), (x0, y, WZ)], tuple(int(b_ + hc[i_] * .30 * fl) for i_, b_ in enumerate((16, 23, 52))), True))
+                    for quad, colf, tread in faces:
+                        q2, z = pj(quad)
+                        if (z < .3).any(): continue
+                        pts = [tuple(v) for v in q2]; g.polygon(pts, fill=colf)
+                        ec = (150, 235, 255) if tread else (50, 110, 150); g.line(pts + [pts[0]], fill=dim(ec, .35 if not tread else .5), width=int((7 if tread else 4) * S)); g.line(pts + [pts[0]], fill=ec if tread else dim(ec, .8), width=max(1, int((2.5 if tread else 1.5) * S)))
+                th_ = 2 * math.pi * U; P3 = np.zeros((M, 3)); P3[:, 0] = C[:, 0] + R * np.cos(th_) * (-T[:, 1]); P3[:, 1] = C[:, 1] + R * np.cos(th_) * T[:, 0]; P3[:, 2] = R * np.sin(th_)   # らせん：中心線に直角な円を回りながら進む
+                q2, z = pj(P3); zm = (z[:-1] + z[1:]) / 2; order = np.argsort(-zm); zc = (C[:, 0] - cam[0]) * fw[0] + (C[:, 1] - cam[1]) * fw[1] + (0 - cam[2]) * fw[2]
+                hue = (U / N * .85 + t * .22) % 1.0
+                for i in order:   # 奥の線から手前へ。手前がわ（カメラに近い半周）は明るく太く、奥がわは暗く細く
+                    near = max(0.0, min(1.0, .5 + (zc[i] - zm[i]) / (2 * R))); col = hsv(float(hue[i]), .82, 1); w_ = FL / zm[i] * .020
+                    a, b = tuple(q2[i]), tuple(q2[i + 1])
+                    g.line([a, b], fill=dim(col, .22 + .22 * near), width=max(1, int(w_ * 1.9))); g.line([a, b], fill=tuple(min(255, int(v * (.42 + .58 * near) + 60 * near)) for v in col), width=max(1, int(w_ * .85)))
+                d._image.paste(base, (0, ytop))
+                tx = sp.get("fmt", "段の高さ {h}cm  →  {b}秒").format(h=("%.0f" % (SEQ[k] * 8)), b=("%.2f" % (times[k + 1] - times[k]))) if t < T_end else sp.get("done", "段が高いほど、長くのびる")
+                d.text((WS / 2 - d.textlength(tx, font=fS) / 2, .806 * HS), tx, font=fS, fill=(215, 222, 238), stroke_width=int(4 * S), stroke_fill=(0, 0, 0))
+            nd = sum(1 for j in range(1, NS + 1) if times[j] <= t)
+            sim.frame(t, (), (), (sp.get("count_label", "下りた段 "), f"{nd} / {NS}"), (), draw)
+        sim.finish(total)
+    finally: harmony.BAR = bar0
+
+KINDS = {"slinky3d": slinky3d, "fifths": fifths, "slinky": slinky, "chordballs": chordballs, "canonstairs": canonstairs, "koch2": koch2, "polywheel": polywheel, "circlefill": circlefill, "dots45": dots45, "spiralglass": spiralglass, "dominoes2": dominoes2, "hearts2": hearts2, "cupcaustic": cupcaustic, "dominoes": dominoes, "merge": merge, "hearts": hearts, "bricks": bricks, "pendwave3d": pendwave3d, "spiro": spiro, "lens": lens, "koch": koch, "pendwave": pendwave, "orbits": orbits, "phyllo": phyllo, "zoomsalt": zoomsalt, "layers": layers, "pixels": pixels, "sortviz": sortviz, "polyfocus": polyfocus, "heliostat": heliostat, "dragon": dragon, "rhythm": rhythm, "lissatable": lissatable, "plotter": plotter, "threebody": threebody, "pendswing": pendswing, "golden": golden, "piphase": piphase, "maurer": maurer, "harmono": harmono, "spiropens": spiropens, "star": star, "throw": throw, "tusi": tusi, "chain": chain, "basket": basket, "koch": koch, "cycloid": cycloid, "pendulums": pendulums, "lissajous": lissajous, "corner": corner, "sunflower": sunflower, "ulam": ulam, "parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2, "picount": picount}
 
 if __name__ == "__main__":
     sp = json.load(open(sys.argv[1], encoding="utf-8")); KINDS[sp["kind"]](sp); kit(sp)
