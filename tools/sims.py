@@ -3394,40 +3394,53 @@ def metronomes(sp):
         if int(t * FPS) >= len(frames):
             dl = np.angle(np.exp(1j * (th - psi))); frames.append((th.copy(), r, psi, float((np.abs(dl[main]) < .35).mean()), dl.copy()))
     for mi in (60, 67, 72, 76, 79, 84): sim.notes.append((intro + D + .05, mi, .30, .5, 1.6, "glass"))
-    WS, HS = 1080 * S, 1920 * S; FL = 1750 * S; cam = np.array([0.0, 5.6, -6.4]); tg = np.array([0.0, .0, 1.75]); fw = tg - cam; fw /= np.linalg.norm(fw); rt = np.cross((0, 1, 0), fw); rt /= np.linalg.norm(rt); up = np.cross(fw, rt); cy0 = .455 * HS
+    WS, HS = 1080 * S, 1920 * S; FL = 1750 * S; cam = np.array([0.0, 5.6, -6.4]); tg = np.array([0.0, .0, 1.75]); fw = tg - cam; fw /= np.linalg.norm(fw); rt = np.cross((0, 1, 0), fw); rt /= np.linalg.norm(rt); up = np.cross(fw, rt); cy0 = .50 * HS
     def pj(P):
         Dv = np.asarray(P, float) - cam; z = Dv @ fw; return (WS / 2 + FL * (Dv @ rt) / z, cy0 - FL * (Dv @ up) / z), z
     fS, fL = F(40 * S), F(30 * S); XS, ZS = 3.9 / (NX - 1), 3.6 / (NZ - 1)
     for fi in range(int(total * FPS)):
         t = fi / FPS; k = min(len(frames) - 1, max(0, int((t - intro) * FPS))); thf, r, psi, sync, dl = frames[k]
         def draw(d, thf=thf, r=r, psi=psi, dl=dl, t=t):
-            sway = -.05 * r * math.sin(psi)   # 台はみんなの振れと逆向きに少しゆれる
-            q = [pj((x_ + sway, 0, z_))[0] for x_, z_ in ((-2.3, -.45), (2.3, -.45), (2.3, 4.05), (-2.3, 4.05))]; q2 = [pj((x_ + sway, -.12, z_))[0] for x_, z_ in ((-2.3, -.45), (2.3, -.45))]
-            d.polygon(q, fill=(12, 22, 40)); d.polygon([q[0], q[1], q2[1], q2[0]], fill=(20, 40, 64))   # ガラスの台（上の面と手前の厚み）
-            for gx in np.linspace(-2.3, 2.3, 11): d.line([pj((gx + sway, 0, -.45))[0], pj((gx + sway, 0, 4.05))[0]], fill=(22, 40, 66), width=max(1, int(1.5 * S)))
-            d.line(q + [q[0]], fill=(70, 150, 190), width=int(6 * S)); d.line(q + [q[0]], fill=(190, 240, 255), width=int(2 * S)); d.line([q2[0], q2[1]], fill=(120, 200, 235), width=int(2 * S))
+            # 白い世界（オーナー 11/23「もっと透明感のある綺麗な色で。そろって行くにつれグラデーションで色が近づく。白い世界にしてもいい。耐震構造みたいな仕組みはちゃんと描写」）
+            mix = lambda c1, c2, g_: tuple(int(c1[q_] * (1 - g_) + c2[q_] * g_) for q_ in range(3)); WHT = (246, 250, 253)
+            y0p, y1p = int(.215 * HS), int(.800 * HS)
+            for yy in range(y0p, y1p, 6 * S): g_ = (yy - y0p) / (y1p - y0p); d.rectangle([0, yy, WS, yy + 6 * S], fill=mix((250, 252, 254), (222, 232, 242), g_))
+            sway = -.16 * r * math.sin(psi)   # 台は、みんなの振れと逆向きに動く（ころの上にのっているので、横に自由に動ける）
+            BY, BT, RR = .74, .12, .30   # 台の上の面の高さ、台の厚み、ころの半径
+            gq = [pj((x_, 0, z_))[0] for x_, z_ in ((-7, -1.6), (7, -1.6), (7, 6), (-7, 6))]; d.polygon(gq, fill=(232, 239, 246))   # 床
+            for gx in np.linspace(-6, 6, 13): d.line([pj((gx, 0, -1.6))[0], pj((gx, 0, 6))[0]], fill=(214, 224, 234), width=max(1, int(1.5 * S)))
+            sh = [pj((x_ + sway, 0.001, z_))[0] for x_, z_ in ((-2.25, -.4), (2.45, -.4), (2.45, 4.25), (-2.25, 4.25))]; d.polygon(sh, fill=(206, 216, 228))   # 台の影
+            for rx in (-1.45, 1.45):   # ころ（台と床の間の円柱。台が動くと転がる）
+                xc = rx + sway / 2; ang_ = -(sway / 2) / RR
+                bodyq = [pj((xc - RR, RR, -.45))[0], pj((xc + RR, RR, -.45))[0], pj((xc + RR, RR, 4.05))[0], pj((xc - RR, RR, 4.05))[0]]; d.polygon(bodyq, fill=(196, 222, 236))
+                ce = [pj((xc + RR * math.cos(u_), RR + RR * math.sin(u_), -.45))[0] for u_ in np.linspace(0, 2 * math.pi, 25)]; d.polygon(ce, fill=(214, 236, 246)); d.line(ce, fill=(120, 170, 200), width=max(1, int(2.5 * S)))
+                for sk in range(3): u_ = ang_ + sk * 2 * math.pi / 3; d.line([pj((xc, RR, -.45))[0], pj((xc + RR * math.cos(u_), RR + RR * math.sin(u_), -.45))[0]], fill=(120, 170, 200), width=max(1, int(2 * S)))
+            top = [pj((x_ + sway, BY, z_))[0] for x_, z_ in ((-2.3, -.45), (2.3, -.45), (2.3, 4.05), (-2.3, 4.05))]; fr = [pj((x_ + sway, BY - BT, -.45))[0] for x_ in (-2.3, 2.3)]
+            d.polygon([top[0], top[1], fr[1], fr[0]], fill=(176, 214, 232)); d.polygon(top, fill=(226, 242, 250))   # ガラスの台（手前の厚み → 上の面）
+            for gx in np.linspace(-2.3, 2.3, 11): d.line([pj((gx + sway, BY, -.45))[0], pj((gx + sway, BY, 4.05))[0]], fill=(206, 228, 240), width=max(1, int(1.2 * S)))
+            d.line(top + [top[0]], fill=(120, 180, 210), width=int(3 * S)); d.line([top[0], top[1]], fill=(255, 255, 255), width=int(2 * S)); d.line([fr[0], fr[1]], fill=(120, 180, 210), width=int(2 * S))
+            mk = pj((0, 0.002, -.75))[0]; mb = pj((sway, BY - BT, -.45))[0]; d.line([pj((-.45, 0.002, -.75))[0], pj((.45, 0.002, -.75))[0]], fill=(150, 170, 190), width=int(3 * S)); d.line([(mk[0], mk[1] - 8 * S), (mk[0], mk[1] + 8 * S)], fill=(150, 170, 190), width=int(3 * S))   # 床の目もりと、台の印（ゆれが見える）
+            mx_ = pj((sway, 0.002, -.75))[0]; d.polygon([(mx_[0], mx_[1] - 6 * S), (mx_[0] - 11 * S, mx_[1] - 26 * S), (mx_[0] + 11 * S, mx_[1] - 26 * S)], fill=(240, 110, 130))
             for jz in range(NZ - 1, -1, -1):   # 奥の列から手前へ
                 for ix in range(NX):
-                    i = jz * NX + ix; x0 = -1.95 + ix * XS + sway; z0 = jz * ZS; phi = .50 * math.sin(thf[i]); reb = i in (iA, iB); dd = abs(dl[i])
+                    i = jz * NX + ix; x0 = -1.95 + ix * XS + sway; z0 = jz * ZS; phi = .50 * math.sin(thf[i]); reb = i in (iA, iB)
                     e = ((thf[i] % math.pi) / om[i]); fl = math.exp(-e * 16)
-                    if reb: col = (255, 90, 110) if i == iA else (255, 60, 60)
-                    elif dd < .35: col = (170, 235, 255)
-                    else: col = hsv((.55 + dl[i] / (2 * math.pi) * .9) % 1, .55, 1)
-                    (bx, by), zb = pj((x0, 0, z0)); sc = FL / zb; hgt, wb, L = .40, .11, .58
-                    apex = pj((x0, hgt, z0))[0]; bl = pj((x0 - wb, 0, z0))[0]; br_ = pj((x0 + wb, 0, z0))[0]; tip = pj((x0 + L * math.sin(phi), L * math.cos(phi), z0))[0]; bead = pj((x0 + L * .78 * math.sin(phi), L * .78 * math.cos(phi), z0))[0]
-                    rtip = pj((x0 + L * math.sin(phi), -L * math.cos(phi) * .55, z0))[0]   # 台に映る影（ガラスの映りこみ）
-                    d.line([(bx, by), rtip], fill=dim(col, .13), width=max(1, int(sc * .012)))
-                    d.polygon([bl, br_, apex], fill=dim(col, .10 + .10 * fl)); d.line([bl, apex, br_, bl], fill=dim(col, .42 + .3 * fl), width=max(1, int(sc * .010)))   # ガラスの胴（うすい面と光るふち）
-                    d.line([bl, apex], fill=dim((255, 255, 255), .30 + .4 * fl), width=max(1, int(sc * .005)))   # ふちのつや
-                    d.line([(bx, by), tip], fill=dim(col, .35), width=max(1, int(sc * .020))); d.line([(bx, by), tip], fill=tuple(min(255, int(v * .8 + 60 + 120 * fl)) for v in col), width=max(1, int(sc * .008)))   # 針
-                    rb = sc * (.034 + .020 * fl)
-                    d.ellipse([bead[0] - rb * 2.1, bead[1] - rb * 2.1, bead[0] + rb * 2.1, bead[1] + rb * 2.1], fill=dim(col, .16 + .25 * fl)); d.ellipse([bead[0] - rb, bead[1] - rb, bead[0] + rb, bead[1] + rb], fill=tuple(min(255, int(v * .75 + 70 + 150 * fl)) for v in col))
-                    d.ellipse([bead[0] - rb * .45, bead[1] - rb * .6, bead[0] - rb * .05, bead[1] - rb * .2], fill=(255, 255, 255))   # 玉のつや
+                    col = hsv((.53 + .46 * dl[i] / math.pi) % 1, .62, .96)   # 色＝みんなとのずれ。ずれが小さくなるほど、同じ水色に近づく
+                    if reb: col = mix(col, (245, 70, 100), .55)
+                    (bx, by), zb = pj((x0, BY, z0)); sc = FL / zb; hgt, wb, L = .40, .11, .58
+                    apex = pj((x0, BY + hgt, z0))[0]; bl = pj((x0 - wb, BY, z0))[0]; br_ = pj((x0 + wb, BY, z0))[0]; tip = pj((x0 + L * math.sin(phi), BY + L * math.cos(phi), z0))[0]; bead = pj((x0 + L * .78 * math.sin(phi), BY + L * .78 * math.cos(phi), z0))[0]
+                    so = [pj((x0 + .16 * math.cos(u_) + .05, BY + .001, z0 + .10 * math.sin(u_)))[0] for u_ in np.linspace(0, 2 * math.pi, 13)]; d.polygon(so, fill=(206, 226, 238))   # 台に落ちる影
+                    d.polygon([bl, br_, apex], fill=mix(WHT, col, .30 + .25 * fl)); d.line([bl, apex, br_, bl], fill=mix(col, (40, 60, 80), .18), width=max(1, int(sc * .009)))   # ガラスの胴
+                    d.line([bl, apex], fill=(255, 255, 255), width=max(1, int(sc * .006)))
+                    d.line([(bx, by), tip], fill=mix(col, (40, 60, 80), .30), width=max(1, int(sc * .011)))   # 針
+                    rb = sc * (.036 + .018 * fl)
+                    d.ellipse([bead[0] - rb * 1.9, bead[1] - rb * 1.9, bead[0] + rb * 1.9, bead[1] + rb * 1.9], fill=mix(WHT, col, .22 + .30 * fl)); d.ellipse([bead[0] - rb, bead[1] - rb, bead[0] + rb, bead[1] + rb], fill=mix(col, (255, 255, 255), .10 + .5 * fl), outline=mix(col, (40, 60, 80), .25))
+                    d.ellipse([bead[0] - rb * .5, bead[1] - rb * .62, bead[0] - rb * .05, bead[1] - rb * .18], fill=(255, 255, 255))
                     if reb:
-                        nm = "A" if i == iA else "B"; tw = d.textlength(nm, font=fL); d.text((apex[0] - tw / 2, apex[1] - sc * .50), nm, font=fL, fill=col, stroke_width=int(3 * S), stroke_fill=(0, 0, 0))
+                        nm = "A" if i == iA else "B"; tw = d.textlength(nm, font=fL); d.text((apex[0] - tw / 2, apex[1] - sc * .52), nm, font=fL, fill=(225, 50, 80), stroke_width=int(3 * S), stroke_fill=(255, 255, 255))
             a_ok = abs(dl[iA]) < .6 and r > .8; l1 = sp.get("l_a", "A：1分に122回 → {s}").format(s=sp.get("a_yes", "つられてそろった") if a_ok else sp.get("a_no", "まだずれている")); l2 = sp.get("l_b", "B：1分に140回 → そろわない")
-            for n_, (tx, c_) in enumerate(((sp.get("l_0", "98台：1分に120回"), (200, 235, 250)), (l1, (255, 120, 135)), (l2, (255, 90, 90)))):
-                d.text((WS / 2 - d.textlength(tx, font=fS) / 2, (.700 + .034 * n_) * HS), tx, font=fS, fill=c_, stroke_width=int(4 * S), stroke_fill=(0, 0, 0))
+            for n_, (tx, c_) in enumerate(((sp.get("l_0", "98台：1分に120回。台は「ころ」の上で横に動く"), (40, 70, 95)), (l1, (215, 50, 85)), (l2, (190, 30, 60)))):
+                d.text((WS / 2 - d.textlength(tx, font=fS) / 2, (.690 + .034 * n_) * HS), tx, font=fS, fill=c_, stroke_width=int(4 * S), stroke_fill=(250, 252, 254))
         sim.frame(t, (), (), (sp.get("count_label", "そろった "), f"{int(round(sync * 100))}%"), (), draw)
     sim.finish(total)
 
