@@ -32,6 +32,15 @@ fxb = {ln.get("fx"): bt for ln, bt in zip(sp["lines"], tl["beats"])}
 if "touch" in fxb:   # ギザギザを指でなぞる：1本ごとに「コッ」（上から下へ、音も下がる）
     tb = fxb["touch"]; t0 = tb["t0"] + .12 * tb["voice"]
     for i, m in enumerate([84, 83, 81, 79, 77, 76]): add(t0 + i * B / 2, stone(m, 5), .34, .6)
+if "mark" in fxb:    # QR：目印が1拍に1つずつ入る（上がる3音）
+    tb = fxb["mark"]; t0 = tb["t0"] + .3 * tb["voice"]
+    for i, m in enumerate([76, 79, 84]): add(t0 + i * B, stone(m, 3), .36, .35 + .15 * i)
+if "ratio" in fxb:   # QR：点が 1:1:3:1:1 の区切りを通るたびに1音
+    tb = fxb["ratio"]; t0 = tb["t0"] + .38 * tb["voice"]; d = tb["voice"] * .5
+    for u, m in zip([0, 1 / 7, 2 / 7, 5 / 7, 6 / 7, 1], [72, 76, 79, 76, 79, 84]): add(t0 + u * d, stone(m, 5), .34, .3 + .4 * u)
+if "open" in fxb and "mark" in fxb:   # QR：広がる（1枚ごとに小さく）
+    tb = fxb["open"]; t0 = tb["t0"] + .1 * tb["voice"]
+    for i in range(12): add(t0 + i * .16, stone([79, 84, 86, 88][i % 4], 6), .16, .2 + .05 * i)
 for dly, g in [(.031, .3), (.067, .24), (.113, .18), (.171, .12)]:
     o = int(SR * dly); L[o:] += R[:-o] * g; R[o:] += L[:-o] * g
 st = np.stack([L, R], 1); st = st / (np.abs(st).max() + 1e-9) * .8
