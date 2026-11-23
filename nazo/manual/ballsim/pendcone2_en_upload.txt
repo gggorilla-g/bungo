@@ -1,0 +1,14 @@
+【タイトル】
+15 pendulums that only differ in length, seen from straight above. Back in line after 24 s (watch to the end) #Shorts #physics #math
+
+【説明】
+Fifteen pendulums that differ only in length, each swinging in a circle (a conical pendulum), seen from straight above. They start in a line, wind into a spiral, unwind, and after 24 seconds they are back in a line. Neighbors are linked with lines.
+
+How it works:
+- In 24 seconds the longest pendulum makes 20 turns, the next 21, and so on up to 34. So after 24 seconds they all line up again.
+- Along the way they form 2, 3 and 4 arms (2 arms at 12 s, 3 arms at 8 s and 16 s).
+
+Simulation, sound and animation: original (made with Python).
+
+【タグ】
+physics, math, pendulum, pendulum wave, satisfying, simulation, shorts

@@ -1,0 +1,32 @@
+{
+ "kind": "pendcone",
+ "id": "pendcone2_en",
+ "tone": "stone",
+ "bloom": 1.2,
+ "title": [
+  "15 pendulums, only the {lengths} differ.",
+  "Seen from [straight above]?"
+ ],
+ "count_label": "Line-up in ",
+ "yt": {
+  "title": "15 pendulums that only differ in length, seen from straight above. Back in line after 24 s (watch to the end) #Shorts #physics #math",
+  "desc": "Fifteen pendulums that differ only in length, each swinging in a circle (a conical pendulum), seen from straight above. They start in a line, wind into a spiral, unwind, and after 24 seconds they are back in a line. Neighbors are linked with lines.\n\nHow it works:\n- In 24 seconds the longest pendulum makes 20 turns, the next 21, and so on up to 34. So after 24 seconds they all line up again.\n- Along the way they form 2, 3 and 4 arms (2 arms at 12 s, 3 arms at 8 s and 16 s).\n\nSimulation, sound and animation: original (made with Python).",
+  "tags": [
+   "physics",
+   "math",
+   "pendulum",
+   "pendulum wave",
+   "satisfying",
+   "simulation",
+   "shorts"
+  ]
+ },
+ "style": "big",
+ "mark": "@makeitwork3d",
+ "top": 1,
+ "link": 0.6,
+ "amp": 28,
+ "drop": 0.61,
+ "post_hue": 40,
+ "post_pitch": -2
+}
