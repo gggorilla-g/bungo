@@ -3707,7 +3707,39 @@ def ringsong(sp):
         sim.frame(t, (), (), (sp.get("count_label", "鳴った音 "), f"{nh}"), (), draw)
     sim.finish(total)
 
-KINDS = {"ringsong": ringsong, "whisper": whisper, "picollide": picollide, "metronomes": metronomes, "spiro2": spiro2, "slinky3d": slinky3d, "fifths": fifths, "slinky": slinky, "chordballs": chordballs, "canonstairs": canonstairs, "koch2": koch2, "polywheel": polywheel, "circlefill": circlefill, "dots45": dots45, "spiralglass": spiralglass, "dominoes2": dominoes2, "hearts2": hearts2, "cupcaustic": cupcaustic, "dominoes": dominoes, "merge": merge, "hearts": hearts, "bricks": bricks, "pendwave3d": pendwave3d, "spiro": spiro, "lens": lens, "koch": koch, "pendwave": pendwave, "orbits": orbits, "phyllo": phyllo, "zoomsalt": zoomsalt, "layers": layers, "pixels": pixels, "sortviz": sortviz, "polyfocus": polyfocus, "heliostat": heliostat, "dragon": dragon, "rhythm": rhythm, "lissatable": lissatable, "plotter": plotter, "threebody": threebody, "pendswing": pendswing, "golden": golden, "piphase": piphase, "maurer": maurer, "harmono": harmono, "spiropens": spiropens, "star": star, "throw": throw, "tusi": tusi, "chain": chain, "basket": basket, "koch": koch, "cycloid": cycloid, "pendulums": pendulums, "lissajous": lissajous, "corner": corner, "sunflower": sunflower, "ulam": ulam, "parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2, "picount": picount}
+def radwave(sp):
+    """ズレて揃う型 × 「1点から全方向に打つ」型（オーナー 11/23「いいとこ取り」）。円のまん中から N 個を全方向へ同時に打つ。ちがうのは速さだけ。
+    P 秒のあいだに k0, k0+1, … 往復する速さなので、P 秒後に全部がまん中に戻る。壁に当たるたびにその玉の音、当たった場所が光る。となりどうしを線で結ぶ（渦がほどけて、また巻く）"""
+    N, P, k0 = sp.get("n", 20), sp.get("period", 26.0), sp.get("k0", 14); intro, tail = .6, 2.6; total = intro + P + tail; R = 1.0
+    sim = Sim(sp, (-1.1, -1.1, 1.1, 1.1), area=(.05, .235, .95, .86)); sim.neon([(R * math.cos(a), R * math.sin(a)) for a in np.linspace(0, 2 * math.pi, 241)], width=4); sim.ring((0, 0), 10); sim.title()
+    cols = [hsv(.02 + .86 * i / N) for i in range(N)]; ang = [2 * math.pi * i / N + math.pi / 2 for i in range(N)]
+    def tri(x): x = x % 1.0; return 4 * x if x < .25 else 2 - 4 * x if x < .75 else 4 * x - 4
+    hits = [[] for _ in range(N)]
+    for i in range(N):
+        per = P / (k0 + i)
+        for j in range(2 * (k0 + i)):
+            tc = intro + (j + .5) * per / 2
+            if tc < intro + P: hits[i].append((tc, 1 if j % 2 == 0 else -1)); sim.note(tc, PENTA[int(i / (N - 1) * 15 + .5)], sp.get("gain", .36), .5 + .4 * math.cos(ang[i]) * (1 if j % 2 == 0 else -1), 5)
+    sim.chord(intro, [60, 67, 72]); sim.chord(intro + P, [60, 64, 67, 72], gain=.55, dec=5)
+    hist = [[] for _ in range(N)]
+    for fi in range(int(total * FPS)):
+        t = fi / FPS; u = min(max(0, t - intro), P); live, dots, fl, pts = [], [], [], []
+        for i in range(N):
+            sgn = tri(u * (k0 + i) / P) * R; c, s_ = math.cos(ang[i]), math.sin(ang[i]); pz = (sgn * c, sgn * s_); pts.append(pz)
+            live.append(((-R * c, -R * s_), (R * c, R * s_), dim(cols[i], .05), 1))
+            h = hist[i]; h.append(pz); del h[:-20]
+            for q in range(len(h) - 1): live.append((h[q], h[q + 1], dim(cols[i], .04 + .8 * ((q + 1) / len(h)) ** 2), 1 + 4 * (q + 1) / len(h)))
+            dots.append((pz, cols[i], 9))
+            for tc, sd in hits[i]:
+                e = t - tc
+                if 0 <= e < .28: fl.append(((sd * R * c, sd * R * s_), 8 + e * 110, dim(cols[i], 1 - e / .28), 3)); dots.append(((sd * R * c, sd * R * s_), dim(cols[i], 1 - e / .28), 7))
+        for i in range(N): live.append((pts[i], pts[(i + 1) % N], dim(cols[i], .5), 2.0))
+        e = t - (intro + P)
+        if 0 <= e < .7: fl.append(((0, 0), 14 + e * 520, dim((255, 245, 210), 1 - e / .7), 4)); fl.append(((0, 0), 10 + e * 260, dim((160, 230, 255), 1 - e / .7), 3))
+        sim.frame(t, live, dots, (sp.get("count_label", "そろうまで "), f"{max(0, math.ceil(P - u))}"), fl)
+    sim.finish(total)
+
+KINDS = {"radwave": radwave, "ringsong": ringsong, "whisper": whisper, "picollide": picollide, "metronomes": metronomes, "spiro2": spiro2, "slinky3d": slinky3d, "fifths": fifths, "slinky": slinky, "chordballs": chordballs, "canonstairs": canonstairs, "koch2": koch2, "polywheel": polywheel, "circlefill": circlefill, "dots45": dots45, "spiralglass": spiralglass, "dominoes2": dominoes2, "hearts2": hearts2, "cupcaustic": cupcaustic, "dominoes": dominoes, "merge": merge, "hearts": hearts, "bricks": bricks, "pendwave3d": pendwave3d, "spiro": spiro, "lens": lens, "koch": koch, "pendwave": pendwave, "orbits": orbits, "phyllo": phyllo, "zoomsalt": zoomsalt, "layers": layers, "pixels": pixels, "sortviz": sortviz, "polyfocus": polyfocus, "heliostat": heliostat, "dragon": dragon, "rhythm": rhythm, "lissatable": lissatable, "plotter": plotter, "threebody": threebody, "pendswing": pendswing, "golden": golden, "piphase": piphase, "maurer": maurer, "harmono": harmono, "spiropens": spiropens, "star": star, "throw": throw, "tusi": tusi, "chain": chain, "basket": basket, "koch": koch, "cycloid": cycloid, "pendulums": pendulums, "lissajous": lissajous, "corner": corner, "sunflower": sunflower, "ulam": ulam, "parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2, "picount": picount}
 
 if __name__ == "__main__":
     sp = json.load(open(sys.argv[1], encoding="utf-8")); KINDS[sp["kind"]](sp); kit(sp)

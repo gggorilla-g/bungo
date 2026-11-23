@@ -1,0 +1,28 @@
+{
+ "kind": "radwave",
+ "id": "radwave1_en",
+ "tone": "stone",
+ "bloom": 1.2,
+ "title": [
+  "Fire {every way} from the center.",
+  "Only the speeds differ. When do they [all] meet?"
+ ],
+ "count_label": "Sync in ",
+ "yt": {
+  "title": "Fire 20 balls every way from the center. When do they all meet again? (watch to the end) #Shorts #physics #math",
+  "desc": "Twenty balls leave the center of a circle at the same moment, in every direction. Only their speeds differ. They form a spiral, scatter, and 26 seconds later they all meet at the center again. Each ball plays its own note when it hits the wall.\n\nHow it works:\n- A path through the center of a circle bounces straight back through the center.\n- In 26 seconds the slowest ball makes 14 round trips, the next 15, and so on up to 33. So after 26 seconds every ball is back at the center.\n- Along the way they briefly line up in 2 or 3 groups.\n\nSimulation, sound and animation: original (made with Python).",
+  "tags": [
+   "physics",
+   "math",
+   "polyrhythm",
+   "satisfying",
+   "simulation",
+   "circle",
+   "shorts"
+  ]
+ },
+ "style": "big",
+ "mark": "@makeitwork3d",
+ "post_hue": 40,
+ "post_pitch": -2
+}

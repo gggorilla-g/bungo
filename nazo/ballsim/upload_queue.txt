@@ -1,4 +1,5 @@
 spring2_ja MOSO ja
+radwave1_ja MOSO ja
 fill1_ja MOSO ja
 pi2_ja MOSO ja
 xmas1_ja MOSO ja
@@ -28,6 +29,7 @@ cardioid5_ja MOSO ja
 spiro6_ja MOSO ja
 parabola3_ja MOSO ja
 ellipse4_ja MOSO ja
+radwave1_en KAIDAN en
 xmas1_en KAIDAN en
 rays1_en KAIDAN en
 fifths1_en KAIDAN en
