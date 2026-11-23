@@ -28,5 +28,6 @@
  "fmt": "Step height {h}  ->  time {b} beat",
  "done": "4x the height, 2x the time",
  "post_hue": 160,
- "post_pitch": 2
+ "post_pitch": 2,
+ "post_key": 0.16
 }

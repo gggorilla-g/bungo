@@ -1,0 +1,20 @@
+【タイトル】
+A Rainbow Spring Walks Down Stairs. The Step Height Changes and So Does the Beat #shorts #satisfying #physics
+
+【説明】
+A rainbow spring with colors that never stop flowing walks down a staircase. The height of the steps keeps changing. What happens to the rhythm?
+
+Answer: the lower the step, the faster and finer the beat.
+
+How it works:
+- In this video, the time to go down one step grows with the square root of the step height. That is the same rule as the time it takes something to fall.
+- So a step one quarter as high takes half the time. A step one sixteenth as high takes a quarter of the time.
+- Height 1 is one beat, height 0.25 is half a beat, height 0.0625 is a quarter beat. The pattern of step heights becomes the rhythm.
+- The last step is 4 high (four times) and takes 2 beats.
+- The spring has 28 rings. The color flows with the ring number and with time.
+- The shape of the spring is an animation of rings moving over one after another with a delay. It is not a force calculation of a real spring.
+
+Simulation, sound and animation: original (Python).
+
+【タグ】
+physics, spring, stairs, rhythm, satisfying, relaxing, simulation, shorts
