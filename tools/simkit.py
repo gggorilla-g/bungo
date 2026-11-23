@@ -134,7 +134,13 @@ class Sim:
         flashes = [(p, min(r, FLASH_MAX), col, wd) for p, r, col, wd in flashes]
         for p, r, col, wd in flashes:
             x, y = self.to(p); d.ellipse([x - r * S, y - r * S, x + r * S, y + r * S], outline=col, width=max(1, int(wd * S)))
-        if draw: draw(d)
+        if draw:
+            draw(d)
+            gw = self.sp.get("glow")
+            if gw:   # 描いたものの明るいところだけにじませる（ブルーム）。draw で描く場面も発光感をそろえる（オーナー 11/23「発光の感じは踏襲」）
+                q = 4; g = im.resize((W * S // q, H * S // q), Image.BILINEAR).point(lambda v: 0 if v < 70 else min(255, int((v - 70) * 1.5)))
+                g = g.filter(ImageFilter.GaussianBlur(7)); g = Image.eval(g, lambda v: min(255, int(v * gw)))
+                im = ImageChops.add(im, g.resize((W * S, H * S), Image.BILINEAR)); d = ImageDraw.Draw(im)
         if label:
             lab, num = label; fC, fN = F(50 * S), F(62 * S); w1, w2 = d.textlength(lab, font=fC), d.textlength(num, font=fN); x0 = W * S / 2 - (w1 + w2) / 2; y = getattr(self, "label_y", 318) * S
             d.text((x0, y + 8 * S), lab, font=fC, fill=(235, 235, 240), stroke_width=5 * S, stroke_fill=(0, 0, 0))

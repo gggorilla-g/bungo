@@ -5,7 +5,7 @@
 #   種類: parabola（放物線の焦点）/ rings（1周ずつ多く回る輪）/ venus（2つの軌道を線で結ぶ）
 import json, sys, os, math
 import numpy as np
-from PIL import ImageDraw
+from PIL import ImageDraw, ImageFilter
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 if len(sys.argv) > 1 and sys.argv[1].endswith(".json"):   # spec の "palette" を色の決まりとして先に渡す
     os.environ.setdefault("SIM_PALETTE", json.load(open(sys.argv[1])).get("palette", ""))
@@ -1924,18 +1924,37 @@ def hearts(sp):
     for fi in range(int(total * FPS)):
         t = fi / FPS; shown = [i for i in range(n) if t >= starts[i]]; m = max(1, len(shown)); rh = min(.16, (bot - top) / m)
         def draw(d, t=t, shown=shown, rh=rh):
+            if sp.get("glow"):   # 床のワイヤー（ゆっくり流れる）＋クジラの拍で全体が明るく
+                wi = [i for i in shown if rows[i][1] < 10]; wp_ = 0
+                for i in wi:
+                    per = 60 / rows[i][1]; ag_ = (t - starts[i] - .35) % per if t >= starts[i] + .35 else 9; wp_ = max(wp_, math.exp(-ag_ * 2.2))
+                gc = tuple(min(255, int(v * (1 + 2.5 * wp_))) for v in (22, 20, 58))
+                for k2, i2 in enumerate(shown):   # 拍の瞬間、行が光る（格子より先に、背景に足す形で）
+                    per2 = 60 / rows[i2][1]; ab2 = ((t - starts[i2] - .35) % per2) if t >= starts[i2] + .35 else 9; fb = math.exp(-ab2 * 8) if per2 >= .2 else 0
+                    if fb > .05:
+                        yc2 = (top + rh * (k2 + .62)) * H_ * S; c2 = rows[i2][2]
+                        d.rectangle([W_ * S * .27, yc2 - rh * H_ * S * .38, W_ * S * .93, yc2 + rh * H_ * S * .32], fill=tuple(int(b_ + v * .2 * fb) for b_, v in zip((8, 9, 22), c2)))
+                for q in range(14):
+                    yy = (top + (bot - top) * q / 13) * H_ * S; d.line([(0, yy), (W_ * S, yy)], fill=gc, width=max(1, int(1 * S)))
+                off = (t * 40 * S) % (W_ * S / 12)
+                for q in range(14):
+                    xx = q * W_ * S / 12 - off; d.line([(xx, top * H_ * S), (xx, bot * H_ * S)], fill=gc, width=max(1, int(1 * S)))
             for k, i in enumerate(shown):
                 name, bpm, col = rows[i]; per = 60 / bpm; yc = (top + rh * (k + .62)) * H_ * S; x0, x1 = W_ * S * .27, W_ * S * .93; amp = rh * H_ * S * .42
                 pts = []; N_ = 260
                 for q in range(N_ + 1):
                     tt = t - win * (1 - q / N_); ph = ((tt - starts[i] - .35) / per) % 1 if tt >= starts[i] + .35 else .9
                     pts.append((x0 + (x1 - x0) * q / N_, yc - amp * ecg(ph) * (.55 if per < .12 else .8 if per < .25 else 1)))
+                ab = ((t - starts[i] - .35) % per) if t >= starts[i] + .35 else 9
                 d.line(pts, fill=dim(col, .30), width=int(10 * S)); d.line(pts, fill=tuple(min(255, int(c * 1.1)) for c in col), width=int(3.5 * S))
+                if sp.get("glow") and per >= .2 and ab < .45:   # 右端に光の輪（ヒット）
+                    rr = (8 + 70 * ab) * S; al = 1 - ab / .45; d.ellipse([x1 - rr, pts[-1][1] - rr, x1 + rr, pts[-1][1] + rr], outline=tuple(int(min(255, c * .6 + 100) * al) for c in col), width=max(1, int(4 * S * al + 1)))
                 e = ((t - starts[i] - .35) % per) / per if t >= starts[i] + .35 else 1; pr = 1 + .45 * math.exp(-e * 9)
                 heart(d, W_ * S * .228, yc - 4 * S, 14 * S * pr, (255, 70, 110)); d.ellipse([x1 - 7 * S, pts[-1][1] - 7 * S, x1 + 7 * S, pts[-1][1] + 7 * S], fill=(255, 255, 255))
                 if ICONS:   # アイコン（拍で少しふくらむ）＋名前は線の左上
                     ic = ICONS[sp["icons"][i]]; sz = int(min(rh * H_ * S * .78, 120 * S) * (1 + .12 * math.exp(-e * 9)))
-                    tint = Image.new("RGBA", ic.size, tuple(min(255, int(c * 1.15)) for c in col) + (255,)); tint.putalpha(ic.getchannel("A"))
+                    ib = math.exp(-e * per * 6) if per >= .2 else .3
+                    tint = Image.new("RGBA", ic.size, tuple(min(255, int(c * (1.0 + .5 * ib) + 90 * ib)) for c in col) + (255,)); tint.putalpha(ic.getchannel("A"))
                     im_ = tint.resize((sz, sz)); d._image.paste(im_, (int(W_ * S * .105 - sz / 2), int(yc - sz / 2)), im_)
                     d.text((x0, yc - amp - 34 * S), name, font=fB, fill=(235, 238, 245), stroke_width=4 * S, stroke_fill=(0, 0, 0))
                 else:
@@ -2086,13 +2105,19 @@ def dominoes(sp):
                 off = (tz * .004) % 1
                 for layer, (amp_, colh) in enumerate(((.10, (34, 22, 70)), (.06, (22, 16, 52)))):
                     pts = [(W_ * S * ((u - off * (1 + layer)) % 1.0001), hy - Hh * S * amp_ * v) for u, v in HILL]; pts.sort()
-                    d.polygon([(0, hy)] + pts + [(W_ * S, hy)], fill=colh)
+                    d.polygon([(0, hy)] + pts + [(W_ * S, hy)], fill=(8, 8, 22)); d.line(pts, fill=(90, 60, 200) if layer else (150, 90, 255), width=max(1, int((2 if layer else 3) * S)))
                 for q in range(30):   # 地面：地平線から手前へ明るく
-                    y0 = hy + (Hh * S - hy) * q / 30; u = q / 29; d.rectangle([0, y0, W_ * S, y0 + (Hh * S - hy) / 30 + 1], fill=(int(10 + 8 * u), int(8 + 6 * u), int(26 + 14 * u)))
+                    y0 = hy + (Hh * S - hy) * q / 30; u = q / 29; d.rectangle([0, y0, W_ * S, y0 + (Hh * S - hy) / 30 + 1], fill=(int(5 + 4 * u), int(5 + 3 * u), int(14 + 8 * u)))
                 d.line([(0, hy), (W_ * S, hy)], fill=(120, 90, 220), width=max(1, int(2 * S)))
-            for q in range(-30, 60):   # 床の光る線
-                zz = tz - hh * 3 + q * hh * .35; a, za = P3(-hh * 3, 0, zz); b, zb = P3(hh * 3, 0, zz)
-                if za > .01 and zb > .01: d.line([a, b], fill=(40, 34, 90), width=1)
+            kh = max([k for k in range(1, N) if t >= st[k]] or [0]); ag = t - st[kh] if kh else 9.0; tl = st[-1] + Tf[-1]; agl = t - tl
+            pul = math.exp(-ag * 5) * (.5 + .5 * min(1, kh / 6)) + (1.6 * math.exp(-agl * 2.5) if agl >= 0 else 0)
+            gc = tuple(min(255, int(v * (1 + 2.2 * pul))) for v in (46, 36, 120)); sp_ = hh * .35
+            for q in range(-30, 60):   # 床のワイヤー：横の線（拍で明るく）
+                zz = (math.floor((tz - hh * 3) / sp_) + q) * sp_; a, za = P3(-hh * 4, 0, zz); b, zb = P3(hh * 4, 0, zz)
+                if za > .01 and zb > .01: d.line([a, b], fill=gc, width=max(1, int(1.5 * S)))
+            for q in range(-12, 13):   # 縦のレーン
+                xx = q * hh * .35; a, za = P3(xx, 0, tz - hh * 2.4); b, zb = P3(xx, 0, tz + hh * 30)
+                if za > .01 and zb > .01: d.line([a, b], fill=gc if q else tuple(min(255, int(v * 1.6)) for v in gc), width=max(1, int((2.5 if q == 0 else 1.2) * S)))
             faces = []
             for i in range(N):
                 h = H_[i]; w = h * .5; th = h * .16; a = ang(i, t); c, s_ = math.cos(a), math.sin(a)
@@ -2101,7 +2126,8 @@ def dominoes(sp):
                 pp = [P3(*p_) for p_ in pts]
                 if min(q[1] for q in pp) < .02: continue
                 for f_, sh in (((0, 2, 6, 4), .55), ((1, 3, 7, 5), .9), ((2, 3, 7, 6), 1.0), ((0, 1, 3, 2), .7), ((4, 5, 7, 6), .62)):
-                    poly = [pp[k][0] for k in f_]; dep = sum(pp[k][1] for k in f_) / 4; faces.append((dep, poly, dim(cols[i], sh)))
+                    fl_ = math.exp(-(t - st[i]) * 7) if t >= st[i] else 0
+                    poly = [pp[k][0] for k in f_]; dep = sum(pp[k][1] for k in f_) / 4; faces.append((dep, poly, (cols[i], sh, fl_)))
             for o in OBJ:
                 o["vis"] = min(1, max(0, cur + e + 1.6 - o["near"]))
                 if o["vis"] <= 0: continue
@@ -2112,15 +2138,33 @@ def dominoes(sp):
                     _, o, bx, by, hp = poly
                     if 6 < hp < Hh * S * 3:
                         wp = hp * o["im"].width / o["im"].height; im_ = o["im"].resize((max(1, int(wp)), max(1, int(hp))))
-                        glow = _Im.new("RGBA", im_.size, tuple(min(255, int(v * .55 + 40)) for v in o["col"]) + (255,)); _va = .92 * o["vis"]; glow.putalpha(im_.getchannel("A").point(lambda v, _va=_va: int(v * _va)))
-                        d._image.paste(glow, (int(bx - wp / 2), int(by - hp)), glow)
+                        A = im_.getchannel("A"); _va = o["vis"]
+                        fillc = _Im.new("RGBA", im_.size, tuple(int(v * .22) for v in o["col"]) + (255,)); fillc.putalpha(A.point(lambda v, _va=_va: int(v * .9 * _va)))
+                        ed = A.filter(ImageFilter.FIND_EDGES).filter(ImageFilter.MaxFilter(3))   # ワイヤーの線画：ふちだけ光らせる
+                        line_ = _Im.new("RGBA", im_.size, tuple(min(255, int(v * 1.1 + 40)) for v in o["col"]) + (255,)); line_.putalpha(ed.point(lambda v, _va=_va: int(min(255, v * 2) * _va)))
+                        d._image.paste(fillc, (int(bx - wp / 2), int(by - hp)), fillc); d._image.paste(line_, (int(bx - wp / 2), int(by - hp)), line_)
                         lb = f'{o["lab"]} {hcm_txt(o["h"] * UCM)}'; lw_ = d.textlength(lb, font=fO)
                         if hp > 30 * S and o["vis"] > .6: d.text((min(W_ * S - lw_ - 10 * S, max(10 * S, bx - lw_ / 2)), by - hp - 34 * S), lb, font=fO, fill=(235, 238, 245), stroke_width=3 * S, stroke_fill=(0, 0, 0))
                     continue
-                d.polygon(poly, fill=col); d.line(poly + [poly[0]], fill=tuple(min(255, int(v * 1.25 + 30)) for v in col), width=max(1, int(2 * S)))
+                c0, sh, fl_ = col; fillc = tuple(int(v * (.16 * sh + .35 * fl_)) for v in c0)   # ワイヤー：中は暗く透け、ふちが光る
+                edge = tuple(min(255, int(v * (1.0 + .6 * fl_) + 120 * fl_)) for v in c0)
+                d.polygon(poly, fill=fillc); d.line(poly + [poly[0]], fill=dim(c0, .45), width=max(1, int(6 * S))); d.line(poly + [poly[0]], fill=edge, width=max(1, int(2.4 * S)))
+            if kh and ag < .6:   # 当たった瞬間：光の輪と火花（音ゲーのヒット）
+                hc_ = math.sqrt(max(0, H_[kh - 1] ** 2 - (z[kh] - z[kh - 1]) ** 2)); (cx, cy), cz = P3(0, hc_, z[kh])
+                if cz > .05:
+                    ph_ = fcl * H_[kh] / cz; r1 = ph_ * (.08 + .5 * ag / .6); al = 1 - ag / .6; c0 = cols[kh]
+                    d.ellipse([cx - r1, cy - r1, cx + r1, cy + r1], outline=tuple(int(min(255, v * .5 + 128) * al) for v in c0), width=max(1, int(5 * S * al + 1)))
+                    for j in range(12):
+                        an = j * math.pi / 6 + kh; l0, l1 = r1 * .55, r1 * (.9 + .5 * al)
+                        d.line([(cx + l0 * math.cos(an), cy + l0 * math.sin(an)), (cx + l1 * math.cos(an), cy + l1 * math.sin(an))], fill=tuple(int(255 * al) for _ in range(3)), width=max(1, int(2.5 * S)))
+            if 0 <= agl < 1.6:   # 最後の巨人が倒れきった：地面に広がる光の輪
+                al = 1 - agl / 1.6; R_ = H_[-1] * (.3 + 2.2 * agl / 1.6)
+                ring = [P3(R_ * math.cos(u), 0, z[-1] + H_[-1] * .9 + R_ * math.sin(u)) for u in np.linspace(0, 2 * math.pi, 90)]
+                ring = [p_ for p_, zz_ in ring if zz_ > .05]
+                if len(ring) > 3: d.line(ring, fill=tuple(int(min(255, v * .6 + 110) * al) for v in cols[-1]), width=max(1, int(6 * S * al + 1)))
             tx = f"×{k_ ** max(0, cur):.0f}" if cur >= 1 else "×1"
             if WORLD: tx += "   " + hcm_txt(H_[cur] * UCM)
-            w = d.textlength(tx, font=fC); d.text((W_ * S / 2 - w / 2, Hh * S * .80), tx, font=fC, fill=(255, 225, 90), stroke_width=6 * S, stroke_fill=(0, 0, 0))
+            fC2 = F(int(56 * S * (1 + .22 * math.exp(-min(ag, agl if agl >= 0 else 9) * 9)))); w = d.textlength(tx, font=fC2); d.text((W_ * S / 2 - w / 2, Hh * S * .80 - (fC2.size - fC.size) / 2), tx, font=fC2, fill=(255, 225, 90), stroke_width=6 * S, stroke_fill=(0, 0, 0))
         sim.frame(t, (), (), (sp.get("count_label", "Domino "), f"{cur + 1} / {N}"), (), draw)
     sim.finish(total)
 
