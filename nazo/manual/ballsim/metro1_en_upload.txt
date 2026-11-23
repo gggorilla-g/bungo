@@ -1,18 +1,17 @@
 【タイトル】
-98 Glass Metronomes and 2 Rebels. Will All 100 Sync? #shorts #satisfying #physics
+98 Glass Metronomes and 2 Slightly Fast Ones. Will All 100 Sync? #shorts #satisfying #physics
 
 【説明】
-100 glass metronomes stand on a platform. 98 of them tick at 120 BPM. Rebel A ticks at 122 and rebel B at 125. They all start at random. Will all 100 ever sync?
+100 glass metronomes stand on a platform. 98 of them tick at 120 BPM. A is built a little fast at 120.5 and B at 121. They all start at random. Will all 100 ever sync?
 
-Answer: yes. First the 98 fall into step, then A is pulled in, and finally B.
+Answer: yes. Even the two with a different speed get pulled to the same rate.
 
 How it works:
 - The platform sits on two rollers, so it is free to slide sideways, like a base-isolated building.
 - When the metronomes swing, the platform moves a little the other way. Through that motion the metronomes pull on each other. The red mark below shows where the platform is.
 - In this video each one is pulled slightly toward the average swing of the group (the Kuramoto model). The more of them are in sync, the stronger the pull.
-- A is only a little faster, so it gets pulled in early. B is further off and cannot sync until the pull of the group has grown strong.
-- Here "in sync" means ticking at the same rate. B ends up at the same rate but swings a little behind the others.
-- A metronome that is much further off (say 140 BPM) would never sync with this much pull.
+- If the speed difference is small, the pull wins and the rates become equal. A and B settle just barely ahead of the others (about 3 degrees of needle angle for B).
+- A metronome that is far off (say 140 BPM) would never sync with this much pull.
 - The color shows how far each one is from the group. As the gap shrinks, the colors drift toward the same light blue.
 - The sound is a glass note every time a needle passes the center.
 
