@@ -3572,7 +3572,7 @@ def whisper(sp):
     オーナー「このくらいやってもいいね、このタイプは。綺麗」＝線が重なって絹のような面になる型は、1000本まで重ねてよい）。
     法則：円の中では、はね返るたびに同じ長さの道を進む。中心からの距離が x の光は、半径 x の円にずっとふれたまま回る。いちばん内がわの光の x より内には、どの光も入れない"""
     from PIL import Image
-    STG = sp.get("stages", [[10, 7, 5.0], [100, 8, 6.0], [1000, 7, 8.0]]); X0, X1 = sp.get("x0", .50), sp.get("x1", .93); intro = .4; tail = sp.get("tail", 3.0); gap = .7; YT = 1.72
+    STG = sp.get("stages", [[10, 7, 7.0], [100, 8, 8.5], [1000, 7, 10.5]]); X0, X1 = sp.get("x0", .50), sp.get("x1", .93); intro = .4; tail = sp.get("tail", 3.0); gap = .7; YT = 1.72
     sim = Sim(sp, (-1.12, -1.12, 1.12, 1.80)); sim.neon([(math.cos(a), math.sin(a)) for a in np.linspace(0, 2 * math.pi, 241)], closed=True, width=3); sim.title()
     plans = []; t0 = intro
     for n, K, dur in STG:
@@ -3601,21 +3601,22 @@ def whisper(sp):
         if pi > 0 and plans[pi - 1]["t1"] + .15 < t < pl["t0"]: sim.acc = Image.eval(sim.acc, lambda v_: int(v_ * .86))
         heads = []
         if pl["t0"] <= t:
-            s1 = min((t - pl["t0"]) * pl["v"], 1e9); s0 = pl["prev"]; n = pl["n"]; g = min(.92, sp.get("gain", 4.2) / n ** .76); CH = 1 if n <= 100 else 24; segs = [[] for _ in range(CH)]   # 同じ呼び出しの中の線は足されない。となりどうしの光を別の組に分けて重ねる（重なりが明るさになる＝絹のような面）
+            s1 = min((t - pl["t0"]) * pl["v"], 1e9); s0 = pl["prev"]; n = pl["n"]; g = min(.92, sp.get("gain", 3.3) / n ** .76); CH = 1 if n <= 100 else 24; segs = [[] for _ in range(CH)]   # 同じ呼び出しの中の線は足されない。となりどうしの光を別の組に分けて重ねる（重なりが明るさになる＝絹のような面）
             for ri, (pts, cum, x) in enumerate(pl["rays"]):
                 a_ = min(s0, cum[-1]); b_ = min(s1, cum[-1])
                 if b_ > a_:
                     pa, ka = at(pts, cum, a_); pb, kb = at(pts, cum, b_); col = dim(hsv(.47 + .20 * ri / max(1, n - 1), .66, 1), g); q = [pa] + [pts[k_] for k_ in range(ka + 1, kb + 1)] + [pb]
                     for u_, w_ in zip(q, q[1:]): segs[ri % CH].append((tuple(u_), tuple(w_), col))
-                if b_ < cum[-1] and (n <= 100 or ri % 10 == 0): heads.append((tuple(at(pts, cum, b_)[0]), (235, 250, 255), 3.2 if n <= 10 else 2.0))
+                if b_ < cum[-1] and (n <= 100 or ri % 10 == 0): heads.append((tuple(at(pts, cum, b_)[0]), (235, 250, 255), 4.2 if n <= 10 else 2.6))
             for sg in segs:
-                if sg: sim.commit(sg, width=1.4 if n >= 1000 else 1.8)
+                if sg: sim.commit(sg, width=sp.get("lw", 2.1) if n >= 1000 else sp.get("lw", 2.1) * 1.35)
             pl["prev"] = s1
         def draw(d, t=t):
             cx, cy = sim.to((0, 0)); r_ = X0 * sim.k
             d.ellipse([cx - r_, cy - r_, cx + r_, cy + r_], outline=(60, 80, 120), width=max(1, int(1.5 * S)))   # どの光も入れない円（いちばん内がわの光がふれる円）
             for rr, c_ in ((26, (40, 70, 110)), (15, (150, 220, 255)), (7, (255, 255, 255))): rr = rr * S; d.ellipse([cx - rr, cy - rr, cx + rr, cy + rr], fill=c_)   # まん中の「あなた」
-            tx = sp.get("you", "あなた"); d.text((cx - d.textlength(tx, font=fS) / 2, cy + 34 * S), tx, font=fS, fill=(200, 225, 245), stroke_width=int(4 * S), stroke_fill=(0, 0, 0))
+            tx = sp.get("you", "")   # まん中の字は出さない（オーナー 11/23「あなた、はいらないのでは」）
+            if tx: d.text((cx - d.textlength(tx, font=fS) / 2, cy + 34 * S), tx, font=fS, fill=(200, 225, 245), stroke_width=int(4 * S), stroke_fill=(0, 0, 0))
         sim.frame(t, (), heads, (sp.get("count_label", "光の数 "), f"{pl['n']:,}"), (), draw)
     sim.finish(total)
 
