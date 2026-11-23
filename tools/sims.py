@@ -3190,7 +3190,9 @@ def slinky3d(sp):
     for h in SEQ:
         fall = math.sqrt(2 * (h + HA) / G_) - math.sqrt(2 * HA / G_); tl_ = .55 + fall; Tst = T0 + fall; PH.append((tl_ / Tst, (tl_ + .66) / Tst, min(52.0, 15 + 4.2 * h)))   # ①の終わり、②の終わり、空中の輪の数
         x, y = steps[-1]; steps.append((x + SW, y - h)); times.append(times[-1] + Tst)
-    T_end = times[-1]; total = T_end + tail; NS = len(SEQ); M = N * 22; U = np.linspace(0, N, M)
+    T_end = times[-1]; total = T_end + tail; NS = len(SEQ); CYC = (NS * SW, -sum(SEQ))   # 階段は同じ並びがくり返す（最後の絵が最初の絵につながり、動画がループする。オーナー 11/23「最後ループするように」）
+    M = N * 32; U = np.linspace(0, N, M)
+    def stp(j): c_ = j // NS; x_, y_ = steps[j % NS]; return (x_ + c_ * CYC[0], y_ + c_ * CYC[1])
     def bez(P, tt):
         tt = tt[:, None]; a = (1 - tt); return a ** 3 * P[0] + 3 * a * a * tt * P[1] + 3 * a * tt * tt * P[2] + tt ** 3 * P[3]
     def dbez(P, tt):
@@ -3239,6 +3241,7 @@ def slinky3d(sp):
             t = fi / FPS; k, p = state(t); C, T = center(k, p); mid = np.array([C[:, 0].mean(), C[:, 1].mean() + .05, 0.0])
             pe_ = p * p * p * (p * (6 * p - 15) + 10); (xa_, ya_), (xb_, yb_) = steps[k], steps[k + 1]; mid = np.array([xa_ + (xb_ - xa_) * pe_, ya_ + (yb_ - ya_) * pe_ + N * th / 2 + .12, 0.0])   # カメラのねらいは、バネの形ではなく「いまの段から次の段へ」のなめらかな道（ゆれを出さない）
             tgt[0] = mid if tgt[0] is None else tgt[0] + (mid - tgt[0]) * .35; tg = tgt[0].copy()   # 道そのものがなめらかなので、おくれはほとんど付けない（大きな段で置いていかれないように）
+            if t >= T_end: zoom[0] += (1.0 - zoom[0]) * .06   # 終わりは、はじめと同じ引きにもどす
             ext = max(C[:, 1].max() - C[:, 1].min() + 2 * R, (C[:, 0].max() - C[:, 0].min() + 2 * R) * 1.2, (steps[k][1] - steps[k + 1][1] + N * th + 1.3) if (0 < p < .8 and t < T_end) else 0); zoom[0] += (min(sp.get("zoom_max", 3.4), max(1.0, ext / 3.1)) - zoom[0]) * .035; zm_ = zoom[0]   # その段の高さが分かった時点で引きはじめる; zm_ = zoom[0]   # 高い段でのびた時は、引いて全体を入れる
             def draw(d, t=t, k=k, C=C, T=T, tg=tg, zm_=zm_):
                 cam = tg + OFF * zm_; fw = tg - cam; fw /= np.linalg.norm(fw); rt = np.cross(fw, (0, 1, 0)); rt /= np.linalg.norm(rt); up = np.cross(rt, fw)
@@ -3249,10 +3252,10 @@ def slinky3d(sp):
                     q2, z = pj([(gx, tg[1] - 9, -3.2), (gx, tg[1] + 9, -3.2)]); g.line([tuple(q2[0]), tuple(q2[1])], fill=(20, 28, 56), width=max(1, int(2 * S)))
                 for gy in np.arange(math.floor(tg[1] - 9), tg[1] + 9, 1.0):
                     q2, z = pj([(tg[0] - 7, gy, -3.2), (tg[0] + 7, gy, -3.2)]); g.line([tuple(q2[0]), tuple(q2[1])], fill=(20, 28, 56), width=max(1, int(2 * S)))
-                for j in range(max(0, k - 8), min(NS + 1, k + 9)):   # 階段（奥の段から順に）：横の壁 → け上げ → ふみ面
-                    x, y = steps[j]; x0 = x - SW / 2 - (4 if j == 0 else 0); x1 = x + SW / 2 + (4 if j == NS else 0); e = t - times[j] if j >= 1 else 9; fl = math.exp(-e * 4) if e >= 0 else 0; hc = hsv((j * .07) % 1, .6, 1)
+                for j in range(k - 8, k + 10):   # 階段（奥の段から順に）：横の壁 → け上げ → ふみ面
+                    x, y = stp(j); x0 = x - SW / 2; x1 = x + SW / 2; e = t - times[j] if 1 <= j <= NS else 9; fl = math.exp(-e * 4) if e >= 0 else 0; hc = hsv(.45, .5, 1)
                     faces = [([(x0, y, WZ), (x1, y, WZ), (x1, y - 60, WZ), (x0, y - 60, WZ)], (7, 10, 26), False)]
-                    if j >= 1: faces.append(([(x0, y, -WZ), (x0, y, WZ), (x0, steps[j - 1][1], WZ), (x0, steps[j - 1][1], -WZ)], (10, 14, 34), False))
+                    faces.append(([(x0, y, -WZ), (x0, y, WZ), (x0, stp(j - 1)[1], WZ), (x0, stp(j - 1)[1], -WZ)], (10, 14, 34), False))
                     faces.append(([(x0, y, -WZ), (x1, y, -WZ), (x1, y, WZ), (x0, y, WZ)], tuple(int(b_ + hc[i_] * .30 * fl) for i_, b_ in enumerate((16, 23, 52))), True))
                     for quad, colf, tread in faces:
                         q2, z = pj(quad)
@@ -3261,15 +3264,23 @@ def slinky3d(sp):
                         ec = (150, 235, 255) if tread else (50, 110, 150); g.line(pts + [pts[0]], fill=dim(ec, .35 if not tread else .5), width=int((7 if tread else 4) * S)); g.line(pts + [pts[0]], fill=ec if tread else dim(ec, .8), width=max(1, int((2.5 if tread else 1.5) * S)))
                 th_ = 2 * math.pi * U; P3 = np.zeros((M, 3)); P3[:, 0] = C[:, 0] + R * np.cos(th_) * (-T[:, 1]); P3[:, 1] = C[:, 1] + R * np.cos(th_) * T[:, 0]; P3[:, 2] = R * np.sin(th_)   # らせん：中心線に直角な円を回りながら進む
                 q2, z = pj(P3); zm = (z[:-1] + z[1:]) / 2; order = np.argsort(-zm); zc = (C[:, 0] - cam[0]) * fw[0] + (C[:, 1] - cam[1]) * fw[1] + (0 - cam[2]) * fw[2]
-                PER = sp.get("pulse", 2.4); ph_ = t / PER; fr_ = ph_ - math.floor(ph_); surge = math.floor(ph_) + fr_ * fr_ * (3 - 2 * fr_)   # 色の帯は「ぶぉん、ぶぉん」と脈を打って進む（ロイコクロリディウムのもよう）
+                PER = total / max(2, 2 * round(total / (2 * sp.get("pulse", 2.4)))); ph_ = t / PER; fr_ = ph_ - math.floor(ph_); surge = math.floor(ph_) + fr_ * fr_ * (3 - 2 * fr_)   # 色の帯は「ぶぉん、ぶぉん」と脈を打って進む（ロイコクロリディウムのもよう）
                 band = (U / N * 1.0 - surge * .5) % 1.0; wave = np.zeros(M)   # しまにしない：端から端まで1回りのなめらかなグラデーションが、ゆっくり送られる（オーナー 11/23「しましまにしなくていい」）
                 PAL = np.array(sp.get("pal", [(20, 150, 190), (40, 214, 228), (110, 250, 200), (40, 215, 130), (60, 225, 190), (20, 150, 190)]), float); PX = np.array([0, .2, .4, .6, .8, 1.0])   # 青緑 → 水色 → うすい緑 → 緑 → 白っぽい水色（オーナー 11/23「もう少し綺麗な青緑とか緑のグラデーションで」）
                 RGB = np.stack([np.interp(band, PX, PAL[:, c_]) for c_ in range(3)], 1)
                 puls = .55 + .45 * math.sin(math.pi * fr_) ** 2
+                NRM = np.stack([np.cos(th_) * (-T[:, 1]), np.cos(th_) * T[:, 0], np.sin(th_)], 1); Lv = np.array([-.35, .72, .60]); Lv = Lv / np.linalg.norm(Lv); Vv = (cam - tg); Vv = Vv / np.linalg.norm(Vv); Hv = Lv + Vv; Hv = Hv / np.linalg.norm(Hv)
+                DIF = np.clip(NRM @ Lv, 0, 1); SPC = np.clip(NRM @ Hv, 0, 1) ** 12   # 針金の向きで明るさを変える：光の当たる面は明るく、つやの筋が入る（樹脂のバネの見た目）
+                for sx_, sy_, fr_s in ((steps[k][0], steps[k][1], float((T[:, 1] < -.99).mean())), (steps[k + 1][0], steps[k + 1][1], float((T[:, 1] > .99).mean()))):   # 山の下の影
+                    if fr_s > .02:
+                        sq, sz = pj([(sx_ + R * 1.25 * math.cos(x_) + .10, sy_ + .002, R * 1.25 * math.sin(x_) - .06) for x_ in np.linspace(0, 2 * math.pi, 28)]); g.polygon([tuple(v) for v in sq], fill=tuple(int(c_ * (1 - .55 * min(1, fr_s * 2.5))) for c_ in (16, 23, 52)))
                 for i in order:   # 奥の線から手前へ。手前がわ（カメラに近い半周）は明るく太く、奥がわは暗く細く
-                    near = max(0.0, min(1.0, .5 + (zc[i] - zm[i]) / (2 * R))); wv = float(wave[i]) ** 2 * puls; col = tuple(int(v) for v in RGB[i]); w_ = FL / zm[i] * .0145; near = min(1.0, near * (.80 + .20 * puls))
+                    near = max(0.0, min(1.0, .5 + (zc[i] - zm[i]) / (2 * R))); wv = float(wave[i]) ** 2 * puls; col = tuple(int(v) for v in RGB[i]); w_ = FL / zm[i] * .0165; near = min(1.0, near * (.80 + .20 * puls))
                     a, b = tuple(q2[i]), tuple(q2[i + 1])
-                    g.line([a, b], fill=dim(col, .22 + .22 * near), width=max(1, int(w_ * 1.9))); g.line([a, b], fill=tuple(min(255, int(v * (.42 + .58 * near) + 60 * near)) for v in col), width=max(1, int(w_ * .85)))
+                    df, sp_ = float(DIF[i]), float(SPC[i]); sh = (.58 + .52 * df) * (.66 + .34 * near)
+                    g.line([a, b], fill=dim(col, .26 + .14 * near), width=max(1, int(w_ * 1.9)))   # ふち（暗い）
+                    g.line([a, b], fill=tuple(min(255, int(v * sh + 200 * sp_ * (.4 + .6 * near))) for v in col), width=max(1, int(w_ * 1.05)))   # 本体＋つや
+                    if sp_ * near > .45: g.line([a, b], fill=dim((255, 255, 250), min(1, sp_ * near)), width=max(1, int(w_ * .40)))   # つやの芯
                 d._image.paste(base, (0, ytop))
                 NN = sp.get("note_names", {2: "レ", 3: "ミ♭", 7: "ソ", 9: "ラ", 10: "シ♭"}); mp_ = pitch(SEQ[k]); tx = sp.get("fmt", "段の高さ {h}cm  →  音 {n}（{o}）").format(h=("%g" % round(SEQ[k] * 8, 1)), b=("%.2f" % (times[k + 1] - times[k])), n=NN.get(mp_ % 12, NN.get(str(mp_ % 12), "")), o=sp.get("oct_names", ["低い", "中", "高い"])[min(2, max(0, (mp_ - 50) // 12))]) if t < T_end else sp.get("done", "1cm から 256cm まで、全部下りた")
                 d.text((WS / 2 - d.textlength(tx, font=fS) / 2, .806 * HS), tx, font=fS, fill=(215, 222, 238), stroke_width=int(4 * S), stroke_fill=(0, 0, 0))
