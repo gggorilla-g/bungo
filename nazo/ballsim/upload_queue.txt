@@ -1,4 +1,5 @@
 fill1_ja MOSO ja
+spring1_ja MOSO ja
 canon1_ja MOSO ja
 chord1_ja MOSO ja
 cup1_ja MOSO ja
