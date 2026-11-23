@@ -8,10 +8,10 @@ Answer: the taller the step, the longer the spring stretches. The time per step 
 
 How it works:
 - The walk has three stages. The front lifts, arcs over and lands on the next step. The rings flow through the arc from the old step to the new one. The last end flips up and lands on top of the new pile.
-- The time for one step is the spring's own fixed time (0.52 s) plus the extra time the front needs to fall. Fall time grows with the square root of the height, so a step ten times taller takes only a little longer.
+- The time for one step is the spring's own fixed time (0.86 s) plus the extra time the front needs to fall. Fall time grows with the square root of the height, so a step ten times taller takes only a little longer.
 - Instead, on a tall step more rings are in the air and the gaps between them get wider. The gaps are widest near the top of the arc, because the upper rings carry the weight of the rings below.
 - The camera always follows the spring. When it stretches far, the camera pulls back a little.
-- The spring has 30 turns. The color flows with the turn number and with time.
+- The spring has 60 turns. The color bands move along it in pulses.
 - The shape and timing come from the rules above. This is not a force calculation for every turn.
 
 Simulation, sound and animation: original (Python).
