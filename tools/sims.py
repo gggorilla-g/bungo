@@ -3510,7 +3510,59 @@ def picollide(sp):
         sim.frame(t, (), (), (sp.get("count_label", "ぶつかった回数"), ""), (), draw)
     sim.finish(total)
 
-KINDS = {"picollide": picollide, "metronomes": metronomes, "spiro2": spiro2, "slinky3d": slinky3d, "fifths": fifths, "slinky": slinky, "chordballs": chordballs, "canonstairs": canonstairs, "koch2": koch2, "polywheel": polywheel, "circlefill": circlefill, "dots45": dots45, "spiralglass": spiralglass, "dominoes2": dominoes2, "hearts2": hearts2, "cupcaustic": cupcaustic, "dominoes": dominoes, "merge": merge, "hearts": hearts, "bricks": bricks, "pendwave3d": pendwave3d, "spiro": spiro, "lens": lens, "koch": koch, "pendwave": pendwave, "orbits": orbits, "phyllo": phyllo, "zoomsalt": zoomsalt, "layers": layers, "pixels": pixels, "sortviz": sortviz, "polyfocus": polyfocus, "heliostat": heliostat, "dragon": dragon, "rhythm": rhythm, "lissatable": lissatable, "plotter": plotter, "threebody": threebody, "pendswing": pendswing, "golden": golden, "piphase": piphase, "maurer": maurer, "harmono": harmono, "spiropens": spiropens, "star": star, "throw": throw, "tusi": tusi, "chain": chain, "basket": basket, "koch": koch, "cycloid": cycloid, "pendulums": pendulums, "lissajous": lissajous, "corner": corner, "sunflower": sunflower, "ulam": ulam, "parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2, "picount": picount}
+def whisper(sp):
+    """平行な光を円の中に入れると、壁づたいにぐるぐる回り、まん中には来ない（オーナー画面収録 11/23 Instagram「You are in the middle. The rays circle around you. / RAYS: 10→100→1000」の型。
+    オーナー「このくらいやってもいいね、このタイプは。綺麗」＝線が重なって絹のような面になる型は、1000本まで重ねてよい）。
+    法則：円の中では、はね返るたびに同じ長さの道を進む。中心からの距離が x の光は、半径 x の円にずっとふれたまま回る。いちばん内がわの光の x より内には、どの光も入れない"""
+    from PIL import Image
+    STG = sp.get("stages", [[10, 7, 5.0], [100, 8, 6.0], [1000, 7, 8.0]]); X0, X1 = sp.get("x0", .50), sp.get("x1", .93); intro = .4; tail = sp.get("tail", 3.0); gap = .7; YT = 1.72
+    sim = Sim(sp, (-1.12, -1.12, 1.12, 1.80)); sim.neon([(math.cos(a), math.sin(a)) for a in np.linspace(0, 2 * math.pi, 241)], closed=True, width=3); sim.title()
+    plans = []; t0 = intro
+    for n, K, dur in STG:
+        rays = []
+        for i in range(n):
+            x = X0 + (X1 - X0) * (i + .5) / n; P = np.array([x, YT]); d = np.array([0.0, -1.0]); pts = [P.copy()]; Q = np.array([x, -math.sqrt(1 - x * x)]); pts.append(Q.copy()); P = Q
+            for _ in range(K):
+                nrm = -P; d = d - 2 * (d @ nrm) * nrm; d /= np.linalg.norm(d); tt = -2 * (P @ d); P = P + d * tt; P /= np.linalg.norm(P); pts.append(P.copy())
+            pts = np.array(pts); seg = np.linalg.norm(np.diff(pts, axis=0), axis=1); cum = np.concatenate([[0], np.cumsum(seg)]); rays.append((pts, cum, x))
+        Lmax = max(r_[1][-1] for r_ in rays); v = Lmax / dur; plans.append(dict(n=n, K=K, t0=t0, t1=t0 + dur, v=v, rays=rays, prev=0.0)); t0 += dur + gap
+    total = t0 - gap + tail
+    for pi, pl in enumerate(plans):   # 音：数本を選んで、はね返るたびに1音（外がわの光ほど細かく鳴る）
+        pick = sorted(set(int(round(q)) for q in np.linspace(0, pl["n"] - 1, min(pl["n"], 9))))
+        for j, ri in enumerate(pick):
+            pts, cum, x = pl["rays"][ri]
+            for k in range(1, len(cum) - 1): sim.note(pl["t0"] + cum[k] / pl["v"], PENTA[min(len(PENTA) - 1, 2 + j)], (.50, .34, .26)[pi], .5 + .4 * float(pts[k][0]), 6)
+        sim.chord(pl["t1"] + .05, [60, 64, 67, 72], gain=.4, dec=4)
+    fS = F(44 * S)
+    def at(pts, cum, s_):
+        k = int(np.searchsorted(cum, s_, side="right") - 1); k = min(max(k, 0), len(cum) - 2); f_ = (s_ - cum[k]) / max(1e-9, cum[k + 1] - cum[k]); return pts[k] + (pts[k + 1] - pts[k]) * min(1.0, f_), k
+    cur = [0]
+    for fi in range(int(total * FPS)):
+        t = fi / FPS; pi = max([i for i, pl in enumerate(plans) if t >= pl["t0"] - gap * .5] or [0]); pl = plans[pi]
+        if pi != cur[0]:   # 次の段に入る前に、前の絵を消す
+            sim.acc = Image.new("RGB", sim.acc.size); cur[0] = pi
+        if pi > 0 and plans[pi - 1]["t1"] + .15 < t < pl["t0"]: sim.acc = Image.eval(sim.acc, lambda v_: int(v_ * .86))
+        heads = []
+        if pl["t0"] <= t:
+            s1 = min((t - pl["t0"]) * pl["v"], 1e9); s0 = pl["prev"]; n = pl["n"]; g = min(.92, sp.get("gain", 4.2) / n ** .76); CH = 1 if n <= 100 else 24; segs = [[] for _ in range(CH)]   # 同じ呼び出しの中の線は足されない。となりどうしの光を別の組に分けて重ねる（重なりが明るさになる＝絹のような面）
+            for ri, (pts, cum, x) in enumerate(pl["rays"]):
+                a_ = min(s0, cum[-1]); b_ = min(s1, cum[-1])
+                if b_ > a_:
+                    pa, ka = at(pts, cum, a_); pb, kb = at(pts, cum, b_); col = dim(hsv(.47 + .20 * ri / max(1, n - 1), .66, 1), g); q = [pa] + [pts[k_] for k_ in range(ka + 1, kb + 1)] + [pb]
+                    for u_, w_ in zip(q, q[1:]): segs[ri % CH].append((tuple(u_), tuple(w_), col))
+                if b_ < cum[-1] and (n <= 100 or ri % 10 == 0): heads.append((tuple(at(pts, cum, b_)[0]), (235, 250, 255), 3.2 if n <= 10 else 2.0))
+            for sg in segs:
+                if sg: sim.commit(sg, width=1.4 if n >= 1000 else 1.8)
+            pl["prev"] = s1
+        def draw(d, t=t):
+            cx, cy = sim.to((0, 0)); r_ = X0 * sim.k
+            d.ellipse([cx - r_, cy - r_, cx + r_, cy + r_], outline=(60, 80, 120), width=max(1, int(1.5 * S)))   # どの光も入れない円（いちばん内がわの光がふれる円）
+            for rr, c_ in ((26, (40, 70, 110)), (15, (150, 220, 255)), (7, (255, 255, 255))): rr = rr * S; d.ellipse([cx - rr, cy - rr, cx + rr, cy + rr], fill=c_)   # まん中の「あなた」
+            tx = sp.get("you", "あなた"); d.text((cx - d.textlength(tx, font=fS) / 2, cy + 34 * S), tx, font=fS, fill=(200, 225, 245), stroke_width=int(4 * S), stroke_fill=(0, 0, 0))
+        sim.frame(t, (), heads, (sp.get("count_label", "光の数 "), f"{pl['n']:,}"), (), draw)
+    sim.finish(total)
+
+KINDS = {"whisper": whisper, "picollide": picollide, "metronomes": metronomes, "spiro2": spiro2, "slinky3d": slinky3d, "fifths": fifths, "slinky": slinky, "chordballs": chordballs, "canonstairs": canonstairs, "koch2": koch2, "polywheel": polywheel, "circlefill": circlefill, "dots45": dots45, "spiralglass": spiralglass, "dominoes2": dominoes2, "hearts2": hearts2, "cupcaustic": cupcaustic, "dominoes": dominoes, "merge": merge, "hearts": hearts, "bricks": bricks, "pendwave3d": pendwave3d, "spiro": spiro, "lens": lens, "koch": koch, "pendwave": pendwave, "orbits": orbits, "phyllo": phyllo, "zoomsalt": zoomsalt, "layers": layers, "pixels": pixels, "sortviz": sortviz, "polyfocus": polyfocus, "heliostat": heliostat, "dragon": dragon, "rhythm": rhythm, "lissatable": lissatable, "plotter": plotter, "threebody": threebody, "pendswing": pendswing, "golden": golden, "piphase": piphase, "maurer": maurer, "harmono": harmono, "spiropens": spiropens, "star": star, "throw": throw, "tusi": tusi, "chain": chain, "basket": basket, "koch": koch, "cycloid": cycloid, "pendulums": pendulums, "lissajous": lissajous, "corner": corner, "sunflower": sunflower, "ulam": ulam, "parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2, "picount": picount}
 
 if __name__ == "__main__":
     sp = json.load(open(sys.argv[1], encoding="utf-8")); KINDS[sp["kind"]](sp); kit(sp)
