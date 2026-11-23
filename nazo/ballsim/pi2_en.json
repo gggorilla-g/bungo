@@ -1,0 +1,33 @@
+{
+ "kind": "picollide",
+ "id": "pi2_en",
+ "bloom": 0,
+ "glow": 0.55,
+ "style": "big",
+ "mark": "@makeitwork3d",
+ "title": [
+  "Crash two {glass blocks}.",
+  "Count the hits. [A famous number?]"
+ ],
+ "count_label": "Collisions",
+ "yt": {
+  "title": "Crash Two Glass Blocks and Count the Hits. 1 kg vs 1,000,000 kg Gives a Famous Number #shorts #satisfying #math",
+  "desc": "Two glass blocks sit in front of a glass wall. The small one is 1 kg. Crash the big one into it and count every hit: block on block and block on wall. Make the big block 100 times heavier each time. What happens to the count?\n\nAnswer: 1 kg vs 1 kg gives 3 hits, 100 kg gives 31, 10,000 kg gives 314, and 1,000,000 kg gives 3141. The digits of pi (3.141...) appear.\n\nHow it works:\n- The collisions lose no energy, and there is no friction with the floor.\n- The heavier the big block, the more times the small block bounces between it and the wall, pushing the big block back a little each time.\n- Plot the two speeds on a chart scaled by the masses and the point moves around a circle by the same angle on every hit. So the count is half a turn (pi) divided by that angle.\n- Every time the mass ratio goes up 100 times, the angle becomes one tenth and the count gains one digit. That is why you get 3, 31, 314, 3141.\n- Where the hits come too fast to see, the video slows down time and shows the slow-motion factor. The collision times are computed exactly from formulas.\n\nSimulation, sound and animation: original (Python).",
+  "tags": [
+   "math",
+   "physics",
+   "pi",
+   "collisions",
+   "satisfying",
+   "relaxing",
+   "simulation",
+   "shorts"
+  ]
+ },
+ "kg": "{m} kg",
+ "vs": "1 kg  vs  {m} kg",
+ "slow": "Slow motion x{k}",
+ "answer": "3 -> 31 -> 314 -> 3141 ...  that is pi",
+ "post_hue": 50,
+ "post_pitch": 2
+}
