@@ -6,13 +6,13 @@
  "style": "big",
  "mark": "@makeitwork3d",
  "title": [
-  "{98} glass metronomes",
-  "and [2 rebels]. Will all 100 sync?"
+  "{98} glass metronomes and",
+  "[2 slightly fast ones]. All sync?"
  ],
  "count_label": "In sync: ",
  "yt": {
-  "title": "98 Glass Metronomes and 2 Rebels. Will All 100 Sync? #shorts #satisfying #physics",
-  "desc": "100 glass metronomes stand on a platform. 98 of them tick at 120 BPM. Rebel A ticks at 122 and rebel B at 125. They all start at random. Will all 100 ever sync?\n\nAnswer: yes. First the 98 fall into step, then A is pulled in, and finally B.\n\nHow it works:\n- The platform sits on two rollers, so it is free to slide sideways, like a base-isolated building.\n- When the metronomes swing, the platform moves a little the other way. Through that motion the metronomes pull on each other. The red mark below shows where the platform is.\n- In this video each one is pulled slightly toward the average swing of the group (the Kuramoto model). The more of them are in sync, the stronger the pull.\n- A is only a little faster, so it gets pulled in early. B is further off and cannot sync until the pull of the group has grown strong.\n- Here \"in sync\" means ticking at the same rate. B ends up at the same rate but swings a little behind the others.\n- A metronome that is much further off (say 140 BPM) would never sync with this much pull.\n- The color shows how far each one is from the group. As the gap shrinks, the colors drift toward the same light blue.\n- The sound is a glass note every time a needle passes the center.\n\nSimulation, sound and animation: original (Python).",
+  "title": "98 Glass Metronomes and 2 Slightly Fast Ones. Will All 100 Sync? #shorts #satisfying #physics",
+  "desc": "100 glass metronomes stand on a platform. 98 of them tick at 120 BPM. A is built a little fast at 120.5 and B at 121. They all start at random. Will all 100 ever sync?\n\nAnswer: yes. Even the two with a different speed get pulled to the same rate.\n\nHow it works:\n- The platform sits on two rollers, so it is free to slide sideways, like a base-isolated building.\n- When the metronomes swing, the platform moves a little the other way. Through that motion the metronomes pull on each other. The red mark below shows where the platform is.\n- In this video each one is pulled slightly toward the average swing of the group (the Kuramoto model). The more of them are in sync, the stronger the pull.\n- If the speed difference is small, the pull wins and the rates become equal. A and B settle just barely ahead of the others (about 3 degrees of needle angle for B).\n- A metronome that is far off (say 140 BPM) would never sync with this much pull.\n- The color shows how far each one is from the group. As the gap shrinks, the colors drift toward the same light blue.\n- The sound is a glass note every time a needle passes the center.\n\nSimulation, sound and animation: original (Python).",
   "tags": [
    "physics",
    "metronome",
@@ -25,13 +25,15 @@
   ]
  },
  "l_0": "98 of them: 120 BPM. The board rolls on two rollers",
- "l_a": "A: 122 BPM -> {s}",
+ "l_a": "A: 120.5 BPM -> {s}",
  "a_yes": "pulled into sync",
  "a_no": "still off",
- "l_b": "B: 125 BPM -> {s}",
+ "l_b": "B: 121 BPM -> {s}",
  "post_pitch": 2,
- "k": 0.5,
- "bpm_b": 125.0,
- "dur": 21.5,
- "b_yes": "pulled in at last"
+ "k": 0.75,
+ "bpm_b": 121.0,
+ "dur": 17.0,
+ "b_yes": "pulled into sync",
+ "bpm_a": 120.5,
+ "thr": 0.13
 }
