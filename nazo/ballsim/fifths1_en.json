@@ -1,0 +1,44 @@
+{
+ "kind": "fifths",
+ "id": "fifths1_en",
+ "bloom": 0.7,
+ "glow": 0.35,
+ "style": "big",
+ "mark": "@makeitwork3d",
+ "title": [
+  "Connect the notes of a {chord}",
+  "Stack all 12 keys. [What shape?]"
+ ],
+ "count_label": "Chords: ",
+ "yt": {
+  "title": "Connect the Notes of a Chord on the Circle of Fifths. Stack All 12 Keys. What Shape? #shorts #satisfying #music",
+  "desc": "Twelve notes sit on a circle, each a fifth from the next (the circle of fifths). Lines connect the notes of a chord. Change the key one step at a time and stack all 12. What shape do you get?\n\nAnswer: a pattern with 12-fold symmetry and a hole in the middle.\n\nHow it works:\n- On the circle of fifths, neighbors are a fifth apart (like C and G).\n- A major seventh chord (C, E, G, B) makes a long thin four-sided shape on the circle. Change the key and the shape stays the same. It only turns.\n- So stacking 12 keys stacks the same shape 12 times, turned 30 degrees each time.\n- First lap: major seventh (blue). Second lap: minor seventh (pink). Third lap: diminished seventh (yellow). A diminished seventh is a square, and there are only three different ones.\n- Every lap, the notes play twice as fast.\n- The chords go down by fifths (C, F, Bb, Eb ...).\n\nSimulation, sound and animation: original (Python).",
+  "tags": [
+   "music",
+   "math",
+   "circle of fifths",
+   "chords",
+   "satisfying",
+   "relaxing",
+   "simulation",
+   "shorts"
+  ]
+ },
+ "done": "Every chord is the same shape, turned",
+ "names": [
+  "C",
+  "G",
+  "D",
+  "A",
+  "E",
+  "B",
+  "F#",
+  "Db",
+  "Ab",
+  "Eb",
+  "Bb",
+  "F"
+ ],
+ "post_hue": 140,
+ "post_pitch": -2
+}

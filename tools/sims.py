@@ -3121,7 +3121,64 @@ def slinky(sp):
         sim.finish(total)
     finally: harmony.BAR = bar0
 
-KINDS = {"slinky": slinky, "chordballs": chordballs, "canonstairs": canonstairs, "koch2": koch2, "polywheel": polywheel, "circlefill": circlefill, "dots45": dots45, "spiralglass": spiralglass, "dominoes2": dominoes2, "hearts2": hearts2, "cupcaustic": cupcaustic, "dominoes": dominoes, "merge": merge, "hearts": hearts, "bricks": bricks, "pendwave3d": pendwave3d, "spiro": spiro, "lens": lens, "koch": koch, "pendwave": pendwave, "orbits": orbits, "phyllo": phyllo, "zoomsalt": zoomsalt, "layers": layers, "pixels": pixels, "sortviz": sortviz, "polyfocus": polyfocus, "heliostat": heliostat, "dragon": dragon, "rhythm": rhythm, "lissatable": lissatable, "plotter": plotter, "threebody": threebody, "pendswing": pendswing, "golden": golden, "piphase": piphase, "maurer": maurer, "harmono": harmono, "spiropens": spiropens, "star": star, "throw": throw, "tusi": tusi, "chain": chain, "basket": basket, "koch": koch, "cycloid": cycloid, "pendulums": pendulums, "lissajous": lissajous, "corner": corner, "sunflower": sunflower, "ulam": ulam, "parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2, "picount": picount}
+def fifths(sp):
+    """五度圏（12の音を5度ずつ並べた円）の上で、和音の音を線でつなぐ。12の調ぶん重ねると、対称な模様になる（オーナー画面収録 11/23「The symmetry of music is so amazing」の型）。
+    1周目はメジャー7、2周目はマイナー7、3周目はディミニッシュ7。1周するたびに速さが2倍（4つの音を順に鳴らす間かくが半分）。和音の形は、五度圏の上ではどの調でも同じ形で、回るだけ"""
+    NAMES = sp.get("names", ["C", "G", "D", "A", "E", "B", "F♯", "D♭", "A♭", "E♭", "B♭", "F"]); PC = [(7 * i) % 12 for i in range(12)]   # 五度圏の位置 → 音
+    PASS = [("maj7", "M7", (0, 4, 7, 11), .25), ("m7", "m7", (0, 3, 7, 10), .125), ("dim7", "dim7", (0, 3, 6, 9), .0625)][:sp.get("passes", 3)]
+    HUE = [(.53, .70), (.90, .62), (.12, .70)]; intro = sp.get("intro", .6); tail = sp.get("tail", 3.2)
+    pos_of = lambda pc: PC.index(pc % 12); ang = lambda k: math.pi / 2 - 2 * math.pi * k / 12; pt = lambda k, r=1.0: (r * math.cos(ang(k)), r * math.sin(ang(k)))
+    ev = []; t = intro; chords = []   # ev: (時刻, 円の位置, 音, 周, 和音の番号)   chords: (始まり, 終わり, 名前, 周, 位置の列)
+    for pi, (nm, sfx, iv, dt) in enumerate(PASS):
+        for c in range(12):
+            root = PC[(-c) % 12]; ks = [pos_of(root + x) for x in iv]; t_s = t
+            for j, x in enumerate(iv):
+                m = 60 + (root + x) % 12 if j == 0 else None; base = 60 + root % 12 - (12 if root % 12 > 6 else 0); m = base + x; ev.append((t, ks[j], m, pi, len(chords))); t += dt
+            chords.append((t_s, t, NAMES[pos_of(root)] + sfx, pi, ks))
+    T_end = t; total = T_end + tail
+    sim = Sim(sp, (-1.34, -1.34, 1.34, 1.34), area=(.06, .235, .94, .735))
+    sim.neon([pt(0, 1.0) if False else (math.cos(a), math.sin(a)) for a in np.linspace(0, 2 * math.pi, 241)], closed=True, width=4)
+    for k in range(12): sim.thin([pt(k, .97), pt(k, 1.05)], color=(150, 200, 230), width=3)
+    sim.title()
+    for te, k, m, pi, ci in ev:
+        x, _ = pt(k); sim.notes.append((te, m, (.55, .42, .34)[pi], .5 + .32 * x, (4.5, 6, 9)[pi], sp.get("tone", "karo")))
+    for t_s, t_e, nm, pi, ks in chords:
+        root = PC[ks[0]]; sim.notes.append((t_s, 36 + root if root >= 4 else 48 + root, (.34, .28, .22)[pi], .5, 1.6 if pi == 0 else 3, "piano"))
+        if pi == 0:
+            for x in PASS[0][2][1:]: sim.notes.append((t_s, 48 + (root + x) % 12, .07, .5, 1.6, "bell"))
+    for mi in (36, 48, 55, 60, 64, 67, 71): sim.notes.append((T_end, mi, .30, .5, 1.3, "bell"))
+    fN, fB = F(46 * S), F(96 * S); drawn = set()
+    def path_pos(ci, t):
+        t_s, t_e, nm, pi, ks = chords[ci]; dt = PASS[pi][3]; u = (t - t_s) / dt; j = int(min(3.999, max(0, u))); f = min(1, max(0, u - j)); a, b = pt(ks[j]), pt(ks[(j + 1) % 4]); return (a[0] + (b[0] - a[0]) * f, a[1] + (b[1] - a[1]) * f)
+    for fi in range(int(total * FPS)):
+        t = fi / FPS
+        for ci, (t_s, t_e, nm, pi, ks) in enumerate(chords):   # 鳴らし終わった和音の形を、線で残す（重なって模様になる）
+            dt = PASS[pi][3]
+            for j in range(4):
+                if (ci, j) not in drawn and t >= t_s + (j + 1) * dt:
+                    drawn.add((ci, j)); h_, s_ = HUE[pi]; sim.commit([(pt(ks[j]), pt(ks[(j + 1) % 4]), dim(hsv(h_, s_, 1), (.55, .46, .42)[pi]))], width=2.2)
+        cur = next((ci for ci, c in enumerate(chords) if c[0] <= t < c[1]), None); nd = sum(1 for c in chords if c[1] <= t)
+        def draw(d, t=t, cur=cur):
+            agl = max(0, t - T_end)
+            for k in range(12):
+                x, y = sim.to(pt(k, 1.19)); e = min([t - te for te, kk, m, pi, ci in ev if kk == k and te <= t] or [9]); fl = math.exp(-e * 6)
+                tw = d.textlength(NAMES[k], font=fN); d.text((x - tw / 2, y - 28 * S), NAMES[k], font=fN, fill=tuple(int(150 + 105 * fl) for _ in range(3)))
+                if e < .3: px, py = sim.to(pt(k)); rr = (8 + 120 * e) * S; d.ellipse([px - rr, py - rr, px + rr, py + rr], outline=dim((255, 245, 225), 1 - e / .3), width=max(1, int(3 * S)))
+            if cur is not None:
+                t_s, t_e, nm, pi, ks = chords[cur]; dt = PASS[pi][3]; h_, s_ = HUE[pi]; col = hsv(h_, s_ * .6, 1); u = (t - t_s) / dt; P_ = [sim.to(pt(k)) for k in ks]
+                for j in range(4):   # いま描いている辺
+                    if u >= j + 1: d.line([P_[j], P_[(j + 1) % 4]], fill=col, width=int(5 * S))
+                    elif u > j: f = u - j; a, b = P_[j], P_[(j + 1) % 4]; d.line([a, (a[0] + (b[0] - a[0]) * f, a[1] + (b[1] - a[1]) * f)], fill=col, width=int(5 * S))
+                for q_ in range(6, -1, -1):
+                    x, y = sim.to(path_pos(cur, t - q_ * dt * .06)); r_ = (12 - q_ * 1.3) * S; d.ellipse([x - r_, y - r_, x + r_, y + r_], fill=dim((255, 252, 240) if q_ == 0 else col, 1 - q_ * .12))
+                tw = d.textlength(nm, font=fB); d.text((1080 * S / 2 - tw / 2, .742 * 1920 * S), nm, font=fB, fill=tuple(min(255, int(v * .6 + 100)) for v in hsv(h_, s_, 1)))
+            elif t >= T_end:
+                tx = sp.get("done", "どの和音も、同じ形が回るだけ"); fD = F(54 * S); tw = d.textlength(tx, font=fD); d.text((1080 * S / 2 - tw / 2, .752 * 1920 * S), tx, font=fD, fill=(235, 235, 245))
+                if agl < .7: cx, cy = sim.to((0, 0)); rr = sim.k + 420 * agl * S; d.ellipse([cx - rr, cy - rr, cx + rr, cy + rr], outline=dim((255, 245, 225), 1 - agl / .7), width=max(1, int(4 * S)))
+        sim.frame(t, (), (), (sp.get("count_label", "重ねた和音 "), f"{nd} / {len(chords)}"), (), draw)
+    sim.finish(total)
+
+KINDS = {"fifths": fifths, "slinky": slinky, "chordballs": chordballs, "canonstairs": canonstairs, "koch2": koch2, "polywheel": polywheel, "circlefill": circlefill, "dots45": dots45, "spiralglass": spiralglass, "dominoes2": dominoes2, "hearts2": hearts2, "cupcaustic": cupcaustic, "dominoes": dominoes, "merge": merge, "hearts": hearts, "bricks": bricks, "pendwave3d": pendwave3d, "spiro": spiro, "lens": lens, "koch": koch, "pendwave": pendwave, "orbits": orbits, "phyllo": phyllo, "zoomsalt": zoomsalt, "layers": layers, "pixels": pixels, "sortviz": sortviz, "polyfocus": polyfocus, "heliostat": heliostat, "dragon": dragon, "rhythm": rhythm, "lissatable": lissatable, "plotter": plotter, "threebody": threebody, "pendswing": pendswing, "golden": golden, "piphase": piphase, "maurer": maurer, "harmono": harmono, "spiropens": spiropens, "star": star, "throw": throw, "tusi": tusi, "chain": chain, "basket": basket, "koch": koch, "cycloid": cycloid, "pendulums": pendulums, "lissajous": lissajous, "corner": corner, "sunflower": sunflower, "ulam": ulam, "parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2, "picount": picount}
 
 if __name__ == "__main__":
     sp = json.load(open(sys.argv[1], encoding="utf-8")); KINDS[sp["kind"]](sp); kit(sp)
