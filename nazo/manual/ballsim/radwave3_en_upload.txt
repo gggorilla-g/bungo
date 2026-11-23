@@ -1,0 +1,15 @@
+【タイトル】
+24 balls fired every way from the center, each linked to its 7th neighbor. What shape is left? #Shorts #math #physics
+
+【説明】
+Twenty-four balls leave the center of a circle at once, in every direction. Only their speeds differ. Each ball is linked to the ball seven places away. Whenever they line up in 2, 3, 4, 5 or 6 groups, that shape is kept. After 26 seconds every ball is back at the center.
+
+How it works:
+- A path through the center of a circle bounces straight back through the center.
+- In 26 seconds the slowest ball makes 16 round trips, the next 17, and so on up to 39.
+- Each ball plays its own note when it hits the wall.
+
+Simulation, sound and animation: original (made with Python).
+
+【タグ】
+math, physics, polyrhythm, satisfying, simulation, pattern, shorts

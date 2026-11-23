@@ -3721,6 +3721,10 @@ def radwave(sp):
             tc = intro + (j + .5) * per / 2
             if tc < intro + P: hits[i].append((tc, 1 if j % 2 == 0 else -1)); sim.note(tc, PENTA[int(i / (N - 1) * 15 + .5)], sp.get("gain", .36), .5 + .4 * math.cos(ang[i]) * (1 if j % 2 == 0 else -1), 5)
     sim.chord(intro, [60, 67, 72]); sim.chord(intro + P, [60, 64, 67, 72], gain=.55, dec=5)
+    from fractions import Fraction as Fr
+    SNAP = sorted({float(Fr(m, q)) for q in range(2, sp.get("snap_q", 6) + 1) for m in range(1, q)}); snapfl = []
+    if sp.get("snap"):
+        for fq in SNAP: sim.chord(intro + fq * P, [72, 79], gain=.18, dec=3)
     hist = [[] for _ in range(N)]
     for fi in range(int(total * FPS)):
         t = fi / FPS; u = min(max(0, t - intro), P); live, dots, fl, pts = [], [], [], []
@@ -3733,7 +3737,15 @@ def radwave(sp):
             for tc, sd in hits[i]:
                 e = t - tc
                 if 0 <= e < .28: fl.append(((sd * R * c, sd * R * s_), 8 + e * 110, dim(cols[i], 1 - e / .28), 3)); dots.append(((sd * R * c, sd * R * s_), dim(cols[i], 1 - e / .28), 7))
-        for i in range(N): live.append((pts[i], pts[(i + 1) % N], dim(cols[i], .5), 2.0))
+        SK = sp.get("skip", 1); TR = sp.get("trace", 0)
+        for i in range(N): live.append((pts[i], pts[(i + SK) % N], dim(cols[i], .5), 2.0))
+        if TR and fi % 3 == 0 and intro <= t <= intro + P and not sp.get("snap"): sim.commit([(pts[i], pts[(i + SK) % N], dim(cols[i], TR)) for i in range(N)], width=1.0)
+        if sp.get("snap"):                       # とちゅうで q 組にそろう瞬間（P×m/q）だけ、その形を残す
+            for fq in SNAP:
+                if abs(t - (intro + fq * P)) < .5 / FPS: sim.commit([(pts[i], pts[(i + SK) % N], dim(cols[i], sp.get("snap_a", .55))) for i in range(N)], width=1.4); snapfl.append(t)
+        for ts in snapfl:
+            e = t - ts
+            if 0 <= e < .5: fl.append(((0, 0), 20 + e * 700, dim((255, 245, 210), .7 * (1 - e / .5)), 2))
         e = t - (intro + P)
         if 0 <= e < .7: fl.append(((0, 0), 14 + e * 520, dim((255, 245, 210), 1 - e / .7), 4)); fl.append(((0, 0), 10 + e * 260, dim((160, 230, 255), 1 - e / .7), 3))
         sim.frame(t, live, dots, (sp.get("count_label", "そろうまで "), f"{max(0, math.ceil(P - u))}"), fl)

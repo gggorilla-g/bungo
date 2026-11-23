@@ -1,0 +1,36 @@
+{
+ "kind": "radwave",
+ "id": "radwave3_en",
+ "tone": "stone",
+ "bloom": 1.2,
+ "title": [
+  "Fire {24 balls} every way from the center.",
+  "Link each to the [7th] neighbor."
+ ],
+ "count_label": "Sync in ",
+ "yt": {
+  "title": "24 balls fired every way from the center, each linked to its 7th neighbor. What shape is left? #Shorts #math #physics",
+  "desc": "Twenty-four balls leave the center of a circle at once, in every direction. Only their speeds differ. Each ball is linked to the ball seven places away. Whenever they line up in 2, 3, 4, 5 or 6 groups, that shape is kept. After 26 seconds every ball is back at the center.\n\nHow it works:\n- A path through the center of a circle bounces straight back through the center.\n- In 26 seconds the slowest ball makes 16 round trips, the next 17, and so on up to 39.\n- Each ball plays its own note when it hits the wall.\n\nSimulation, sound and animation: original (made with Python).",
+  "tags": [
+   "math",
+   "physics",
+   "polyrhythm",
+   "satisfying",
+   "simulation",
+   "pattern",
+   "shorts"
+  ]
+ },
+ "style": "big",
+ "mark": "@makeitwork3d",
+ "n": 24,
+ "k0": 16,
+ "period": 26.0,
+ "skip": 7,
+ "trace": 0,
+ "gain": 0.34,
+ "snap": 1,
+ "snap_a": 0.6,
+ "post_hue": 40,
+ "post_pitch": -2
+}
