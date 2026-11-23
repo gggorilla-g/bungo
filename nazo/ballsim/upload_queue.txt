@@ -43,3 +43,6 @@ spiro7_en KAIDAN en
 spiro5_en KAIDAN en
 spiro8_en KAIDAN en
 spiro6_en KAIDAN en
+hearts2_en KAIDAN en
+mirrors1_en KAIDAN en
+parabola2_en KAIDAN en
