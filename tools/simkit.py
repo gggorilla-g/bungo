@@ -216,6 +216,9 @@ class Sim:
             i = int(round(t * SR)); s = tone(m, dec, kind); k = min(len(s), n - i)
             if i < 0 or k <= 0: continue
             L[i:i + k] += s[:k] * g * (1 - pan) * 1.414; R[i:i + k] += s[:k] * g * pan * 1.414
+        for t0, arr, g, pan in getattr(self, "extra", ()):   # 型ごとに作った音（高さがすべる音など）をそのまま足す
+            i = int(round(t0 * SR)); k = min(len(arr), n - i)
+            if i >= 0 and k > 0: L[i:i + k] += arr[:k] * g * (1 - pan) * 1.414; R[i:i + k] += arr[:k] * g * pan * 1.414
         for dly, g in [(.031, .3), (.067, .24), (.113, .18), (.171, .13), (.257, .09)]:
             o = int(SR * dly); L[o:] += R[:-o] * g; R[o:] += L[:-o] * g
         a_ = math.exp(-2 * math.pi * 5000 / SR)   # 1次ローパス約5kHz。キンキンする成分を少し落とす
