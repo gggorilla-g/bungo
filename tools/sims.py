@@ -2698,7 +2698,15 @@ def circlefill(sp):
            [79, 76, 72, 76, 74, 71, 67, 71, 72, 69, 64, 69, 71, 67, 64, 67, 69, 65, 60, 65, 67, 64, 60, 64, 69, 65, 69, 72, 71, 74, 77, 79],
            [72, 74, 76, 77, 79, 77, 76, 74, 71, 74, 77, 79, 83, 79, 77, 74, 69, 72, 76, 81, 76, 72, 69, 72, 67, 71, 76, 79, 76, 71, 67, 71,
             65, 69, 72, 77, 72, 69, 65, 69, 64, 67, 72, 76, 72, 67, 64, 67, 65, 69, 72, 77, 81, 77, 72, 69, 67, 71, 74, 79, 77, 74, 71, 74]]
-    HUE = [(.97, .72), (.07, .80), (.13, .78), (.52, .42)]; wR = sp.get("ring_w", .085)
+    MJ_, MN_ = (0, 4, 7), (0, 3, 7); prog = None
+    SONGS = {   # 曲ごとの「骨組み8音・旋律16音・和音8つ」。32音と64音は旋律の各音にとなりの音を足して細かくする（変奏）。どれも著作権の切れた曲
+        "twinkle": ([72, 79, 81, 79, 77, 76, 74, 72], [72, 72, 79, 79, 81, 81, 79, 79, 77, 77, 76, 76, 74, 74, 72, 72], [(0, MJ_), (0, MJ_), (5, MJ_), (0, MJ_), (5, MJ_), (0, MJ_), (7, MJ_), (0, MJ_)]),
+        "ode": ([76, 77, 79, 76, 72, 74, 76, 74], [76, 76, 77, 79, 79, 77, 76, 74, 72, 72, 74, 76, 76, 74, 74, 74], [(0, MJ_), (0, MJ_), (0, MJ_), (7, MJ_), (0, MJ_), (0, MJ_), (0, MJ_), (7, MJ_)]),
+    }
+    if sp.get("song") in SONGS:
+        sk, ml, prog = SONGS[sp["song"]]; SC = [m for m in range(48, 96) if m % 12 in (0, 2, 4, 5, 7, 9, 11)]; up = lambda m: SC[SC.index(m) + 1]; dn = lambda m: SC[SC.index(m) - 1]
+        MEL = [sk, ml, [x for m in ml for x in (m, up(m))], [x for m in ml for x in (up(m), m, dn(m), m)]]
+    hs = sp.get("hue_shift", 0.0); HUE = [((h_ + hs) % 1, s_) for h_, s_ in [(.97, .72), (.07, .80), (.13, .78), (.52, .42)]]; wR = sp.get("ring_w", .085)
     ang = lambda b, m: th0 - 2 * math.pi * (3 / 8 * m + FR[b] / 8)
     hp = lambda b, m: (math.cos(ang(b, m)), math.sin(ang(b, m)))
     hits = []   # (時刻, 層, ボール, 何回目の当たり, 音)
@@ -2713,7 +2721,7 @@ def circlefill(sp):
     def pos(b, t):
         u = (t - t0) / T - FR[b]; m = math.floor(u); f = u - m; a, c = hp(b, m), hp(b, m + 1); return (a[0] + (c[0] - a[0]) * f, a[1] + (c[1] - a[1]) * f)
     import harmony
-    bar0 = harmony.BAR; harmony.BAR = T; sp = dict(sp); sp.setdefault("bed_off", t0)
+    bar0 = harmony.BAR; canon0 = harmony.CANON; harmony.BAR = T; harmony.CANON = prog or canon0; sp = dict(sp); sp.setdefault("bed_off", t0)
     try:
         sim = Sim(sp, (-1.40, -1.40, 1.40, 1.40), area=(.08, .232, .92, .708))
         sim.neon([(math.cos(a), math.sin(a)) for a in np.linspace(0, 2 * math.pi, 241)], closed=True, width=5); sim.title()
@@ -2780,7 +2788,7 @@ def circlefill(sp):
                     if g > .05 and not blk: d.rounded_rectangle([x0, y1 - 14 * S, x1, y1], radius=int(5 * S), fill=dim((255, 255, 255), .55 * g))
             sim.frame(t, (), (), (sp.get("count_label", "はねた回数 "), f"{nh}"), (), draw)
         sim.finish(total)
-    finally: harmony.BAR = bar0
+    finally: harmony.BAR = bar0; harmony.CANON = canon0
 
 def polywheel(sp):
     """三角形が地面を転がる。1回転するたびに辺が1つふえる（オーナー画面収録 11/23「Can a triangle become a wheel?」の型）。
