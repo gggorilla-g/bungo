@@ -2,7 +2,7 @@
 Every Step Is Twice as Tall. How Far Can the Spring Walk Down? 1 cm to 256 cm #shorts #satisfying #physics
 
 【説明】
-A blue-green spring walks down a staircase. Every step is twice as tall as the one before (1, 2, 4, 8, 16, 32, 64, 128, 256 cm). How far can the spring walk down?
+A spring walks down a staircase. Every step is twice as tall as the one before (1, 2, 4, 8, 16, 32, 64, 128, 256 cm). How far can the spring walk down?
 
 Answer: in this video it walks down every step, including the 256 cm one.
 
@@ -12,7 +12,7 @@ How it works:
 - Instead, on a tall step more turns are in the air and the gaps between them get wider, so the spring stretches far.
 - The sound comes from the step height. Every doubling goes two notes down the scale. A taller step gives a lower note that rings longer. While the spring comes down, the pitch slides from one octave above down to that note.
 - The scale has five notes: D, E flat, G, A, B flat (the Japanese miyako-bushi scale).
-- The spring has 60 turns. The color is a smooth gradient that slowly moves along it.
+- The spring has 60 turns. The color changes with every step it lands on, and the step picks up that color.
 - The staircase repeats the same pattern, so the end of the video joins back to the start.
 - The shape and timing come from the rules above. This is not a force calculation for every turn. A real spring would be fully stretched long before a step this tall.
 
