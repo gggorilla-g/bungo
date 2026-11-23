@@ -1,11 +1,9 @@
 cup1_ja MOSO ja
 domino1_ja MOSO ja
-spiro2_ja MOSO ja
 parabola3_ja MOSO ja
 cardioid4_ja MOSO ja
 ellipse3_ja MOSO ja
 mirrors1_ja MOSO ja
-spiro3_ja MOSO ja
 parabola2_ja MOSO ja
 ellipse4_ja MOSO ja
 merge1_ja MOSO ja

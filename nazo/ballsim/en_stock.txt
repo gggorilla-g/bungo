@@ -4,4 +4,3 @@ bricks1_en
 merge1_en
 dots2_en
 cup1_en
-spiro3_en
