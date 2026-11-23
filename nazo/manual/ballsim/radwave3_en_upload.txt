@@ -8,6 +8,7 @@ How it works:
 - A path through the center of a circle bounces straight back through the center.
 - In 26 seconds the slowest ball makes 16 round trips, the next 17, and so on up to 39.
 - Each ball plays its own note when it hits the wall.
+- Time slows down around the moments when the balls line up in 2, 3 or 4 groups, and speeds up in between. Only the playback speed changes, not the motion.
 
 Simulation, sound and animation: original (made with Python).
 
