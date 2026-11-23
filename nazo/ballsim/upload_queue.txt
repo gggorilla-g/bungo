@@ -1,5 +1,7 @@
 fill1_ja MOSO ja
 spring2_ja MOSO ja
+spiro12_ja MOSO ja
+metro1_ja MOSO ja
 fifths1_ja MOSO ja
 canon1_ja MOSO ja
 chord1_ja MOSO ja
@@ -23,6 +25,7 @@ cardioid5_ja MOSO ja
 spiro6_ja MOSO ja
 parabola3_ja MOSO ja
 ellipse4_ja MOSO ja
+metro1_en KAIDAN en
 fifths1_en KAIDAN en
 canon1_en KAIDAN en
 koch2_en KAIDAN en
