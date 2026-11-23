@@ -12,8 +12,8 @@ while read -r id ch lg; do
   if [ "${cnt[$ch]:-0}" -ge "$MAX" ]; then echo "$id $ch $lg" >> "$Q.keep"; continue; fi
   up="$id"
   if [ "${TEASER:-1}" = 1 ] && [ ! -f "output/${id}_t.mp4" ]; then   # 冒頭に結末の一瞬（teaser.py）。終わり3.2秒前の1秒を使う
-    d=$(ffprobe -v error -show_entries format=duration -of csv=p=0 "output/$id.mp4"); at=$(python3 -c "print(max(0, $d - 3.2))")
-    python3 tools/teaser.py "output/$id.mp4" "output/${id}_t.mp4" "$at" 1.0 >/dev/null
+    d=$(ffprobe </dev/null -v error -show_entries format=duration -of csv=p=0 "output/$id.mp4"); at=$(python3 -c "print(max(0, $d - 3.2))")
+    python3 tools/teaser.py "output/$id.mp4" "output/${id}_t.mp4" "$at" 1.0 >/dev/null </dev/null
   fi
   [ -f "output/${id}_t.mp4" ] && up="${id}_t"
   out="$(tools/up.sh "$up" "nazo/manual/ballsim/${id}_upload.txt" "YT_REFRESH_TOKEN_$ch" "$lg" 1 </dev/null 2>&1 | grep -v '^fatal: expected')"
