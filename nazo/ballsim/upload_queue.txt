@@ -29,7 +29,6 @@ parabola3_ja MOSO ja
 ellipse4_ja MOSO ja
 metro1_en KAIDAN en
 pi2_en KAIDAN en
-spiro12_en KAIDAN en
 rays1_en KAIDAN en
 fifths1_en KAIDAN en
 canon1_en KAIDAN en
