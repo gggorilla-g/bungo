@@ -63,7 +63,7 @@ for ci, c in enumerate(CH):
         i0 = int(T * SR); n = int(d * SR); idx = (int((off % vd) * SR) + np.arange(n)) % min(len(a), int(vd * SR)); audio[i0:i0 + n] += a[idx] * .16
         with wave.open(f"build_kaizo/{sid}/{lid}.wav") as f: vw = np.frombuffer(f.readframes(f.getnframes()), np.int16).astype(np.float32) / 32768; vsr = f.getframerate()
         vw = vw[:int(VO[lid] * vsr)]; vw = np.interp(np.arange(int(len(vw) * SR / vsr)) * vsr / SR, np.arange(len(vw)), vw)
-        j0 = int((T + lead) * SR); audio[j0:j0 + len(vw)] += vw[:, None] * 1.0
+        j0 = int((T + lead) * SR); audio[j0:j0 + len(vw)] += vw[:, None] * 1.6
         T += d; off += d
 audio = np.clip(audio[:int(T * SR)], -1, 1)
 with wave.open(f"{B}/audio.wav", "wb") as w: w.setnchannels(2); w.setsampwidth(2); w.setframerate(SR); w.writeframes((audio * 32767).astype(np.int16).tobytes())
