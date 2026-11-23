@@ -2,7 +2,7 @@
  "kind": "ringsong",
  "id": "xmas1_en",
  "bloom": 0,
- "glow": 0.5,
+ "glow": 0.7,
  "style": "big",
  "mark": "@makeitwork3d",
  "title": [
@@ -24,5 +24,6 @@
   ]
  },
  "end": "Merry Christmas",
- "post_hue": 25
+ "post_hue": 25,
+ "hey": "Hey!"
 }

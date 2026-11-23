@@ -3507,9 +3507,10 @@ def picollide(sp):
             if ta - last >= .011: sim.notes.append((ta, (86 if kd == "b" else 79) - (0 if st["N"] < 40 else 0), .30 if st["N"] < 40 else .12, .35 if kd == "w" else .6, 10, "glass")); last = ta
         for j, mi in enumerate((60, 67, 72, 76)): sim.notes.append((intro + (si + 1) * SLOT - .55, mi + (0 if si < 3 else 12 * (j == 3)), .22, .5, 2.0, "glass"))
     WS, HS = 1080 * S, 1920 * S; FL = 1300 * S; CAM = {}; cy0 = .56 * HS; inten = [0.0]
-    def setcam(I, xs):
+    def setcam(I, xs, sh=(0.0, 0.0)):
         """I＝ぶつかりの激しさ（0〜1）。激しいほど、小さい箱とはさまれる所へ低く寄る（オーナー 11/23「強い力がかかってる所を見せるカメラアングルも大事」）"""
         e_ = I * I * (3 - 2 * I); c = np.array([2.55 + (xs + 1.7 - 2.55) * e_, 2.0 - .85 * e_, -6.5 + 1.9 * e_]); tg = np.array([2.45 + (xs + .9 - 2.45) * e_, 1.0 - .30 * e_, 0.0])
+        c = c + np.array([sh[0], sh[1], 0.0]); tg = tg + np.array([sh[0] * .6, sh[1] * .6, 0.0])
         fw = tg - c; fw /= np.linalg.norm(fw); rt = np.cross((0, 1, 0), fw); rt /= np.linalg.norm(rt); CAM.update(c=c, fw=fw, rt=rt, up=np.cross(fw, rt))
     setcam(0, 1.25)
     def pj(P): Dv = np.asarray(P, float) - CAM["c"]; z = max(.05, Dv @ CAM["fw"]); return (WS / 2 + FL * (Dv @ CAM["rt"]) / z, cy0 - FL * (Dv @ CAM["up"]) / z)
@@ -3536,7 +3537,9 @@ def picollide(sp):
         if t >= intro + SLOT * len(MASS): u = 1.0
         tt, x1, x2, n, t0, kd = at(si, u); du = 1e-3; t2 = float(np.interp(min(1, u + du), st["meas"], st["grid"])); slow = (st["T"] * du) / max(1e-12, (t2 - tt))
         n_prev = at(si, max(0.0, u - .25 / SLOT))[3] if u > 0 else n; rate = max(0, n - n_prev) / .25; I_t = min(1.0, math.log10(1 + rate) / math.log10(1 + 500)) if st["N"] >= 40 and n < st["N"] else 0.0
-        inten[0] += (I_t - inten[0]) * .07; I = inten[0]; setcam(I, x1)
+        inten[0] += (I_t - inten[0]) * .07; I = inten[0]
+        hitp = math.exp(-(tt - t0) / max(1e-9, st["T"]) * 160) if (n > 0 and st["N"] < 40) else 0.0
+        amp = .012 + .050 * I + .10 * hitp * (.4 + .2 * si); setcam(I, x1, (amp * math.sin(t * 91.0 + si), amp * .7 * math.sin(t * 127.0 + 1.3)) if (I > .02 or hitp > .02) else (0.0, 0.0))
         def draw(d, t=t, si=si, st=st, tt=tt, x1=x1, x2=x2, n=n, t0=t0, kd=kd, slow=slow, I=I):
             d0 = d; lay = d._image.copy(); d = ImageDraw.Draw(lay)   # 場面は別の紙に描き、題名より下だけを貼る（寄った時に箱が題名にかぶらない）
             for gz in np.linspace(-2.5, 2.5, 6): d.line([pj((0, 0, gz)), pj((7, 0, gz))], fill=(18, 30, 54), width=max(1, int(1.5 * S)))   # 床の線
@@ -3547,6 +3550,11 @@ def picollide(sp):
             d.line(wall + [wall[0]], fill=(70, 150, 190), width=int(7 * S)); d.line(wall + [wall[0]], fill=(190, 240, 255), width=int(2.5 * S))
             e_b = (tt - t0) if kd == "b" else 9; flb = math.exp(-e_b / max(1e-9, st["T"]) * 220)
             lab2 = sp.get("kg", "{m}kg").format(m=f"{st['M']:,}")
+            pw_ = max(I, .8 * max(flb, flw) if st["N"] < 40 and n > 0 else 0)
+            if pw_ > .03:
+                hc0 = pj((x1 + w1 / 2, w1 * .5, 0)); hcol = (255, 190, 110) if pw_ < .6 else (255, 235, 200)
+                for q_ in range(9, 0, -1): rr = (60 + 520 * pw_) * S * q_ / 9.0; d.ellipse([hc0[0] - rr, hc0[1] - rr * .8, hc0[0] + rr, hc0[1] + rr * .8], fill=tuple(int(bg_ + hcol[i_] * (.05 + .30 * pw_) * (1 - q_ / 10.0) ** 1.6) for i_, bg_ in enumerate((10, 14, 28))))
+                fg = [pj((x_, 0.002, z_)) for x_, z_ in ((0, -1.6), (x1 + w1 + 1.6, -1.6), (x1 + w1 + 1.6, 1.6), (0, 1.6))]; d.polygon(fg, fill=tuple(int(bg_ + hcol[i_] * .16 * pw_) for i_, bg_ in enumerate((12, 18, 34))))
             hot = tuple(int(c_ * (1 - .75 * I) + 255 * .75 * I) for c_ in (90, 225, 255))   # はさまれて激しくぶつかるほど、小さい箱は白く光る
             xb = max(x2, x1 + w1); order = [(xb, st["w2"], (255, 170, 70), max(flb, .5 * I), lab2), (x1, w1, hot, max(flb, flw, I), sp.get("kg", "{m}kg").format(m="1"))]
             if CAM["c"][0] > xb: order.reverse()   # カメラから遠い箱を先に描く
@@ -3628,7 +3636,7 @@ def ringsong(sp):
     L1 = A + [(E, 1), (D, 1), (D, 1), (E, 1), (D, 2), (G, 2)]; L2 = A + [(G, 1), (G, 1), (Fq, 1), (D, 1), (C, 4)]
     notes = []; b = 0.0
     for m, du in L1 + L2: notes.append((b, m)); b += du
-    NB = 32; B1, B2 = sp.get("beat1", .30), sp.get("beat2", .21); intro = .6; tail = sp.get("tail", 3.4); t1 = intro + NB * B1; T_end = t1 + NB * B2; total = T_end + tail
+    NB = 32; B1, B2 = sp.get("beat1", .30), sp.get("beat2", .21); intro = .6; tail = sp.get("tail", 4.0); t1 = intro + NB * B1; T_end = t1 + NB * B2; total = T_end + tail
     Bat = lambda t: 0.0 if t < intro else ((t - intro) / B1 if t < t1 else min(2 * NB, NB + (t - t1) / B2)); tat = lambda bb: intro + bb * B1 if bb <= NB else t1 + (bb - NB) * B2
     RING = {C: .40, D: .55, E: .70, Fq: .85, G: 1.0}; COL = {C: (255, 90, 110), D: (255, 215, 90), E: (245, 250, 255), Fq: (90, 235, 150), G: (255, 120, 130)}
     sim = Sim(sp, (-1.18, -1.18, 1.18, 1.18)); sim.title()
@@ -3642,11 +3650,19 @@ def ringsong(sp):
             if lap == 1:
                 for q in range(4): sim.notes.append((tat(NB + bar * 4 + q), 36, .30, .5, 9, "kick"))
     for mi in (48, 60, 64, 67, 72, 76): sim.notes.append((T_end + .05, mi, .32, .5, 1.3, "bell"))
-    WS, HS = 1080 * S, 1920 * S; fB = F(64 * S)
+    WS, HS = 1080 * S, 1920 * S; fB = F(64 * S); import random as _r; rn = _r.Random(12); TW = [(rn.uniform(-1.15, 1.15), rn.uniform(-1.15, 1.15), rn.uniform(0, 6.28), rn.choice([(255, 225, 130), (255, 150, 160), (150, 245, 190), (255, 255, 255)])) for _ in range(70)]
+    HEY = [tat(30.0), T_end + .05]
+    for q in range(3): sim.notes.append((HEY[1], 79 + (0, 5, 9)[q], .30, .5, 3.0, sp.get("tone", "karo")))
     for fi in range(int(total * FPS)):
         t = fi / FPS; Bn = Bat(t)
         def draw(d, t=t, Bn=Bn):
             cx, cy = sim.to((0, 0)); k = sim.k; fin = max(0.0, t - T_end); glowall = min(1.0, fin / .5)
+            bp = math.exp(-((Bn % 1.0) * (B1 if Bn <= NB else B2)) * 7) if 0 < Bn < 2 * NB else 0; hey = max([math.exp(-(t - h_) * 3.0) for h_ in HEY if t >= h_] or [0.0])
+            for q_ in range(6, 0, -1): rr = 1.25 * k * q_ / 6.0; d.ellipse([cx - rr, cy - rr, cx + rr, cy + rr], fill=tuple(int(b_ + c_ * (.030 + .020 * bp + .10 * hey + .05 * glowall) * (1 - q_ / 7.0)) for b_, c_ in zip((8, 10, 22), (255, 190, 120))))
+            for (tx_, ty_, ph_, tc_) in TW:
+                g_ = max(0.0, math.sin(t * 3.1 + ph_)) ** 3 * (.45 + .55 * bp) + hey * .8 + glowall * .5 * max(0, math.sin(t * 7 + ph_))
+                if g_ < .06: continue
+                px, py = sim.to((tx_, ty_)); r_ = (2.5 + 5 * min(1, g_)) * S; d.line([px - r_ * 2.2, py, px + r_ * 2.2, py], fill=dim(tc_, min(1, g_)), width=max(1, int(1.5 * S))); d.line([px, py - r_ * 2.2, px, py + r_ * 2.2], fill=dim(tc_, min(1, g_)), width=max(1, int(1.5 * S))); d.ellipse([px - r_ * .6, py - r_ * .6, px + r_ * .6, py + r_ * .6], fill=dim((255, 255, 255), min(1, g_)))
             last = {}
             for bb, m in notes:
                 if bb <= Bn: last[m] = Bn - bb
@@ -3661,9 +3677,17 @@ def ringsong(sp):
                 for q in range(9, -1, -1):
                     a = 2 * math.pi * (dlt + q * .22) / NB; px, py = cx + x * k * math.cos(a), cy - x * k * math.sin(a) * -1; r_ = (10 - q * .8 + 7 * hit * (q == 0)) * S
                     d.ellipse([px - r_, py - r_, px + r_, py + r_], fill=dim(tuple(min(255, int(v * (.55 if q else .35) + (0 if q else 165))) for v in c), vis * (1 - q * .095)))
-                if hit > .05: px = cx + x * k; rr = (14 + 60 * (1 - hit)) * S; d.ellipse([px - rr, cy - rr, px + rr, cy + rr], outline=dim((255, 250, 235), hit), width=max(1, int(3 * S)))
-            if fin > 0:   # しめくくり：まん中に星、下に一言
-                g = min(1.0, fin / .6); R1, R2 = .20 * k * g, .085 * k * g; st = [(cx + (R1 if q % 2 == 0 else R2) * math.sin(math.pi * q / 5), cy - (R1 if q % 2 == 0 else R2) * math.cos(math.pi * q / 5)) for q in range(10)]
+                if hit > .05:
+                    px = cx + x * k; rr = (14 + 60 * (1 - hit)) * S; d.ellipse([px - rr, cy - rr, px + rr, cy + rr], outline=dim((255, 250, 235), hit), width=max(1, int(3 * S)))
+                    for q_ in range(8): an = q_ * math.pi / 4 + .4; l0, l1 = rr * .8, rr * 1.7; d.line([(px + l0 * math.cos(an), cy + l0 * math.sin(an)), (px + l1 * math.cos(an), cy + l1 * math.sin(an))], fill=dim(c, hit), width=max(1, int(2.5 * S)))
+            for h_ in HEY:
+                e = t - h_
+                if 0 <= e < .75:
+                    tx = sp.get("hey", "ヘイ！"); sc_ = 1 + .6 * math.exp(-e * 10); fq = F(int(150 * S * sc_)); ga = max(0, 1 - max(0, e - .45) / .3)
+                    d.text((WS / 2 - d.textlength(tx, font=fq) / 2, cy - 95 * S * sc_), tx, font=fq, fill=dim((255, 235, 140), ga), stroke_width=int(8 * S), stroke_fill=dim((200, 40, 60), ga))
+                    for q_ in range(16): an = q_ * math.pi / 8; l0, l1 = (.30 + 1.6 * e) * k, (.42 + 2.1 * e) * k; d.line([(cx + l0 * math.cos(an), cy + l0 * math.sin(an)), (cx + l1 * math.cos(an), cy + l1 * math.sin(an))], fill=dim((255, 230, 150), ga), width=max(1, int(4 * S)))
+            if fin > .75:
+                g = min(1.0, (fin - .75) / .5); R1, R2 = .20 * k * g, .085 * k * g; st = [(cx + (R1 if q % 2 == 0 else R2) * math.sin(math.pi * q / 5), cy - (R1 if q % 2 == 0 else R2) * math.cos(math.pi * q / 5)) for q in range(10)]
                 d.polygon(st, fill=(255, 225, 120)); tx = sp.get("end", "メリークリスマス"); d.text((WS / 2 - d.textlength(tx, font=fB) / 2, .745 * HS), tx, font=fB, fill=dim((255, 240, 220), g), stroke_width=int(5 * S), stroke_fill=(0, 0, 0))
         nh = sum(1 for bb, m in notes if bb <= Bn and t >= intro)
         sim.frame(t, (), (), (sp.get("count_label", "鳴った音 "), f"{nh}"), (), draw)
