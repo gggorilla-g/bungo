@@ -61,5 +61,6 @@
    "shorts"
   ]
  },
- "bed_gain": 0.17
+ "bed_gain": 0.17,
+ "post_pitch": 2
 }
