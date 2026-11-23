@@ -686,3 +686,4 @@
 - 2026-11-23 オーナー「いんじゃね」→ pendcone2_en を作成・確認、英語の順番待ちの先頭へ
 - 2026-11-23 22時台（定時）：妄想 spring2_ja → WZW9QomEgMo、英語 pendcone2_en → btV5SulZh1c。とばしなし、上限なし。残り51本
 - 2026-11-23 23:3x(日本時間) 妄想 長尺 公開：long_laws_ja lUn8XyniUxc（上限は外れていた。22時台の定時で spring2_ja も公開済み）
+- 2026-11-24 00時台（定時）：妄想 pendcone2_ja → x980ykHGIMc、英語 radwave3_en → A3ywFLPEbCw。とばしなし、上限なし。残り49本
