@@ -1,0 +1,20 @@
+【タイトル】
+98 Glass Metronomes and 2 Rebels. Will They All Sync? #shorts #satisfying #physics
+
+【説明】
+100 glass metronomes stand on a glass platform. 98 of them tick at 120 BPM. Rebel A ticks at 122 and rebel B at 140. They all start at random. Will they ever sync?
+
+Answer: the 98 and A fall into sync. B never does.
+
+How it works:
+- Metronomes on the same platform pull on each other a little through the platform's motion.
+- In this video each one is pulled slightly toward the average swing of the group (the Kuramoto model). The more of them are in sync, the stronger the pull.
+- If the speed difference is small, the pull wins. A is only 2 BPM off, so it gets pulled in.
+- If the difference is large, the pull cannot keep up. B is 20 BPM faster, so it stays off the beat forever.
+- The color shows how far each one is from the group. In sync, it turns pale blue-white.
+- The sound is a glass note every time a needle passes the center. Each metronome has its own pitch, so in sync they make a chord.
+
+Simulation, sound and animation: original (Python).
+
+【タグ】
+physics, metronome, synchronization, glass, satisfying, relaxing, simulation, shorts
