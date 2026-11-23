@@ -3416,11 +3416,12 @@ def metronomes(sp):
     NX, NZ = sp.get("nx", 10), sp.get("nz", 10); N = NX * NZ; D = sp.get("dur", 21.0); intro, tail = .4, sp.get("tail", 2.6); total = intro + D + tail; K = sp.get("k", .34); rnd = random.Random(sp.get("seed", 5))
     bpm = [120.0] * N; iA, iB = sp.get("rebel_a", 2 * NX + 1), sp.get("rebel_b", 2 * NX + NX - 2); bpm[iA], bpm[iB] = sp.get("bpm_a", 122.0), sp.get("bpm_b", 140.0)
     om = np.array([2 * math.pi * b / 120.0 for b in bpm]); th = np.array([rnd.uniform(0, 2 * math.pi) for _ in range(N)]); dt = 1 / 240.0
+    TF = sp.get("free_at", 0.0)   # 台を放す時刻（オーナー 11/23「ばらつきのある時間を長くしたい」→ はじめは台を止めておき、とちゅうで放す。実験と同じ手順）
     THR = sp.get("thr", .62)   # みんなとのずれがこれより小さければ「そろった」（速さが同じになった台。少しおくれて振れる台もふくむ）
     SCL = [72, 74, 76, 79, 81, 84, 86, 88]; pit = [rnd.choice(SCL) for _ in range(N)]; pit[iA], pit[iB] = 67, 62
     sim = Sim(sp, (-1, -1, 1, 1)); sim.title(); frames = []; t = 0.0; ticks = 0; main = np.array([i not in (iA, iB) for i in range(N)])
     while t < D + tail + .1:
-        z = np.exp(1j * th[main]).mean(); r, psi = abs(z), math.atan2(z.imag, z.real); th2 = th + (om + K * r * np.sin(psi - th)) * dt
+        z = np.exp(1j * th[main]).mean(); r, psi = abs(z), math.atan2(z.imag, z.real); th2 = th + (om + (K if t >= TF else 0.0) * r * np.sin(psi - th)) * dt   # 台を止めている間（TF 秒まで）は、引っぱり合わない
         cr = np.floor(th2 / math.pi) != np.floor(th / math.pi)   # 針がまん中を通る＝カチッ
         if t < D:
             for i in np.nonzero(cr)[0]:
@@ -3429,7 +3430,7 @@ def metronomes(sp):
         th = th2; t += dt
         if int(t * FPS) >= len(frames):
             dl = np.angle(np.exp(1j * (th - psi))); frames.append((th.copy(), r, psi, float((np.abs(dl) < THR).mean()), dl.copy()))
-    nD = int(D * FPS); i100 = next((i for i in range(nD) if all(fr_[3] >= 1 for fr_ in frames[i:min(nD, i + int(1.5 * FPS))])), None); t100 = intro + i100 / FPS if i100 is not None else None   # 全部そろった時刻（オーナー 11/23「全部揃えるまでやりたい」）
+    nD = int(D * FPS); i100 = next((i for i in range(int(TF * FPS), nD) if all(fr_[3] >= 1 for fr_ in frames[i:min(nD, i + int(1.5 * FPS))])), None); t100 = intro + i100 / FPS if i100 is not None else None   # 全部そろった時刻（オーナー 11/23「全部揃えるまでやりたい」）
     for mi in (60, 67, 72, 76, 79, 84): sim.notes.append((intro + D + .05, mi, .30, .5, 1.6, "glass"))
     if t100:
         for q_, mi in enumerate((72, 76, 79, 84, 88, 91)): sim.notes.append((t100 + .05 + q_ * .07, mi, .40, .3 + .08 * q_, 2.2, "glass"))
@@ -3444,7 +3445,7 @@ def metronomes(sp):
             mix = lambda c1, c2, g_: tuple(int(c1[q_] * (1 - g_) + c2[q_] * g_) for q_ in range(3)); WHT = (246, 250, 253)
             y0p, y1p = int(.215 * HS), int(.800 * HS)
             for yy in range(y0p, y1p, 6 * S): g_ = (yy - y0p) / (y1p - y0p); d.rectangle([0, yy, WS, yy + 6 * S], fill=mix((250, 252, 254), (222, 232, 242), g_))
-            sway = -.16 * r * math.sin(psi)   # 台は、みんなの振れと逆向きに動く（ころの上にのっているので、横に自由に動ける）
+            free = (t - intro) >= TF; fe_ = min(1.0, max(0.0, (t - intro - TF) / .6)); sway = -.16 * r * math.sin(psi) * fe_   # 台は、みんなの振れと逆向きに動く（ころの上にのっているので、横に自由に動ける）
             BY, BT, RR = .74, .12, .30   # 台の上の面の高さ、台の厚み、ころの半径
             gq = [pj((x_, 0, z_))[0] for x_, z_ in ((-7, -1.6), (7, -1.6), (7, 6), (-7, 6))]; d.polygon(gq, fill=(232, 239, 246))   # 床
             for gx in np.linspace(-6, 6, 13): d.line([pj((gx, 0, -1.6))[0], pj((gx, 0, 6))[0]], fill=(214, 224, 234), width=max(1, int(1.5 * S)))
@@ -3454,6 +3455,9 @@ def metronomes(sp):
                 bodyq = [pj((xc - RR, RR, -.45))[0], pj((xc + RR, RR, -.45))[0], pj((xc + RR, RR, 4.05))[0], pj((xc - RR, RR, 4.05))[0]]; d.polygon(bodyq, fill=(196, 222, 236))
                 ce = [pj((xc + RR * math.cos(u_), RR + RR * math.sin(u_), -.45))[0] for u_ in np.linspace(0, 2 * math.pi, 25)]; d.polygon(ce, fill=(214, 236, 246)); d.line(ce, fill=(120, 170, 200), width=max(1, int(2.5 * S)))
                 for sk in range(3): u_ = ang_ + sk * 2 * math.pi / 3; d.line([pj((xc, RR, -.45))[0], pj((xc + RR * math.cos(u_), RR + RR * math.sin(u_), -.45))[0]], fill=(120, 170, 200), width=max(1, int(2 * S)))
+            for sx_ in (-1.45 - RR - .02, 1.45 + RR + .02):   # 車止め（台を止めている間だけ。放すと外れる）
+                if fe_ < 1:
+                    sg = -1 if sx_ < 0 else 1; ox = sg * .9 * fe_; wq = [pj((sx_ + ox, 0, -.5))[0], pj((sx_ + ox + sg * .34, 0, -.5))[0], pj((sx_ + ox, RR * 1.5, -.5))[0]]; d.polygon(wq, fill=mix((240, 110, 130), (232, 239, 246), fe_)); d.line(wq + [wq[0]], fill=mix((190, 50, 80), (232, 239, 246), fe_), width=max(1, int(2.5 * S)))
             top = [pj((x_ + sway, BY, z_))[0] for x_, z_ in ((-2.3, -.45), (2.3, -.45), (2.3, 4.05), (-2.3, 4.05))]; fr = [pj((x_ + sway, BY - BT, -.45))[0] for x_ in (-2.3, 2.3)]
             d.polygon([top[0], top[1], fr[1], fr[0]], fill=(176, 214, 232)); d.polygon(top, fill=(226, 242, 250))   # ガラスの台（手前の厚み → 上の面）
             for gx in np.linspace(-2.3, 2.3, 11): d.line([pj((gx + sway, BY, -.45))[0], pj((gx + sway, BY, 4.05))[0]], fill=(206, 228, 240), width=max(1, int(1.2 * S)))
@@ -3475,16 +3479,17 @@ def metronomes(sp):
                     rb = sc * (.036 + .018 * fl) * (1 + .5 * math.exp(-(t - t100) * 3) if (t100 and t >= t100) else 1)
                     d.ellipse([bead[0] - rb * 1.9, bead[1] - rb * 1.9, bead[0] + rb * 1.9, bead[1] + rb * 1.9], fill=mix(WHT, col, .22 + .30 * fl)); d.ellipse([bead[0] - rb, bead[1] - rb, bead[0] + rb, bead[1] + rb], fill=mix(col, (255, 255, 255), .10 + .5 * fl), outline=mix(col, (40, 60, 80), .25))
                     d.ellipse([bead[0] - rb * .5, bead[1] - rb * .62, bead[0] - rb * .05, bead[1] - rb * .18], fill=(255, 255, 255))
-                    if reb:
+                    if reb and sp.get("marks", False):
                         nm = "A" if i == iA else "B"; tw = d.textlength(nm, font=fL); d.text((apex[0] - tw / 2, apex[1] - sc * .52), nm, font=fL, fill=(225, 50, 80), stroke_width=int(3 * S), stroke_fill=(255, 255, 255))
             if t100 and 0 <= t - t100 < 1.6:   # 全部そろった瞬間：台の上を光の波が走る
                 e_ = (t - t100) / 1.6
                 for q_ in range(3):
                     rr = (e_ * 3.6 - q_ * .35)
                     if rr > 0: ring = [pj((sway + rr * math.cos(u_), BY + .003, 1.8 + rr * .8 * math.sin(u_)))[0] for u_ in np.linspace(0, 2 * math.pi, 48)]; d.line(ring, fill=mix((120, 225, 255), (246, 250, 253), e_), width=int((10 - 3 * q_) * S * (1 - e_) + 1))
-            a_ok = abs(dl[iA]) < THR and r > .8; b_ok = abs(dl[iB]) < THR and r > .8 and (t100 is not None and t >= t100 - .2); l1 = sp.get("l_a", "A：1分に122回 → {s}").format(s=sp.get("a_yes", "つられてそろった") if a_ok else sp.get("a_no", "まだずれている")); l2 = sp.get("l_b", "B：1分に125回 → {s}").format(s=sp.get("b_yes", "最後にそろった") if b_ok else sp.get("a_no", "まだずれている"))
-            for n_, (tx, c_) in enumerate(((sp.get("l_0", "98台：1分に120回。台は「ころ」の上で横に動く"), (40, 70, 95)), (l1, (215, 50, 85)), (l2, (190, 30, 60)))):
-                d.text((WS / 2 - d.textlength(tx, font=fS) / 2, (.690 + .034 * n_) * HS), tx, font=fS, fill=c_, stroke_width=int(4 * S), stroke_fill=(250, 252, 254))
+            ok2 = abs(dl[iA]) < THR and abs(dl[iB]) < THR and r > .8
+            ln0 = sp.get("l_0", "98台は1分に120回、赤い2台は少し速い"); ln1 = sp.get("l_stop", "台を止めている：ばらばらのまま") if not free else (sp.get("l_done", "100台ぜんぶ、そろった") if (t100 and t >= t100) else (sp.get("l_two", "2台もつられてきた") if ok2 else sp.get("l_free", "台を放した：台のゆれで引っぱり合う")))
+            for n_, (tx, c_) in enumerate(((ln0, (40, 70, 95)), (ln1, (215, 50, 85) if not free else (20, 110, 150)))):
+                d.text((WS / 2 - d.textlength(tx, font=fS) / 2, (.700 + .038 * n_) * HS), tx, font=fS, fill=c_, stroke_width=int(4 * S), stroke_fill=(250, 252, 254))
         sim.frame(t, (), (), (sp.get("count_label", "そろった "), f"{int(round(sync * 100))}%"), (), draw)
     sim.finish(total)
 
