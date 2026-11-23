@@ -1,0 +1,32 @@
+{
+ "kind": "spiro",
+ "R": 105,
+ "r": 32,
+ "tone": "stone",
+ "style": "big",
+ "mark": "@makeitwork3d",
+ "bloom": 1.2,
+ "title": [
+  "Make the gear {smaller}.",
+  "What happens to the [middle]?"
+ ],
+ "count_label": "Petals: ",
+ "id": "spiro5_en",
+ "hole": 0.9,
+ "hue": 0.42,
+ "hue_w": 0.22,
+ "yt": {
+  "title": "Same Ring, Smaller Gear. What Happens to the Middle? (Wait for the End) #shorts #satisfying #math",
+  "desc": "A small 32-tooth gear rolls inside a 105-tooth ring. A pen in one of the gear's holes draws a flower. Every petal tip plays a stone chime.\n\nHow it works:\n- A small gear keeps the pen close to the ring, so it never reaches the center. That leaves a round hole in the middle (about 40% of the ring's radius).\n- 105 and 32 share no common factor bigger than 1, so the flower gets 105 petals and the line only closes after 32 laps.\n- The curve is a hypotrochoid.\n\nSimulation, sound and animation: original (Python).",
+  "tags": [
+   "math",
+   "spirograph",
+   "gears",
+   "geometry",
+   "satisfying",
+   "relaxing",
+   "simulation",
+   "shorts"
+  ]
+ }
+}

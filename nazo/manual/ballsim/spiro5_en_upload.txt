@@ -1,0 +1,15 @@
+【タイトル】
+Same Ring, Smaller Gear. What Happens to the Middle? (Wait for the End) #shorts #satisfying #math
+
+【説明】
+A small 32-tooth gear rolls inside a 105-tooth ring. A pen in one of the gear's holes draws a flower. Every petal tip plays a stone chime.
+
+How it works:
+- A small gear keeps the pen close to the ring, so it never reaches the center. That leaves a round hole in the middle (about 40% of the ring's radius).
+- 105 and 32 share no common factor bigger than 1, so the flower gets 105 petals and the line only closes after 32 laps.
+- The curve is a hypotrochoid.
+
+Simulation, sound and animation: original (Python).
+
+【タグ】
+math, spirograph, gears, geometry, satisfying, relaxing, simulation, shorts

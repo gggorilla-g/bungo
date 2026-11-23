@@ -699,7 +699,7 @@ def star(sp):
     sim.finish(total)
 
 
-def spiro(sp):
+def spiropens(sp):
     """スピログラフ。半径 R の輪の内側を、半径 r の歯車がすべらずに回る。歯車の中心から d の穴にペン。
     位置 = ((R−r)cos t + d cos(kt+φ), (R−r)sin t − d sin(kt+φ))、k=(R−r)/r。t が 2π×r/gcd(R,r) 進むと閉じ、花びらは R/gcd 枚。
     ペンは歯車が1周するたびに増え、穴の向き φ を少しずつずらす。どのペンも花びらの先（いちばん外）に来るたびに1音"""
@@ -1682,7 +1682,7 @@ def lens(sp):
     """向かい合った2枚の放物線の鏡（焦点が同じ）。まん中の点から全方向に打つと、1枚目で水平になり、2枚目でまた同じ点に戻る。
     道の長さはどの向きも 4f で同じ。打ち出す系なので、速さを向きにそって波のようにずらす（stagger）"""
     f, v, ST = 1.0, sp.get("v", 2.4), sp.get("stagger", .3); ms = sp.get("rounds", [4, 8, 16, 32]) + [sp.get("last", 64)]; intro, tail = .4, 1.6
-    T = 4 * f / (v * (1 - ST)); sim = Sim(sp, (-1.12, -2.08, 1.12, 2.08), area=(.05, .215, .95, .93))
+    T = 4 * f / (v * (1 - ST)); sim = Sim(sp, (-1.12, -2.08, 1.12, 2.08), area=(.05, .215, .95, .885))   # 下の先がチャンネル名の字（.905）に重ならない高さまで
     ys = np.linspace(-2 * f, 2 * f, 201); sim.neon([(f - y * y / (4 * f), y) for y in ys]); sim.neon([(-(f - y * y / (4 * f)), y) for y in ys]); sim.ring((0, 0), 12); sim.title()
     rounds = []
     for r, m in enumerate(ms):
@@ -1769,7 +1769,9 @@ def spiro(sp):
     Rt, rt, hole = sp.get("R", 96), sp.get("r", 60), sp.get("hole", .8); g = math.gcd(Rt, rt); petals, laps = Rt // g, rt // g
     R = 1.0; r = R * rt / Rt; d = r * hole; D, intro, tail = sp.get("dur", 22.0), .5, 2.6; total = intro + D + tail
     th_end = 2 * math.pi * laps; th_at = lambda t: th_end * min(1, max(0, (t - intro) / D)) ** 1.6
-    pen = lambda th: ((R - r) * math.cos(th) + d * math.cos((R - r) / r * th), (R - r) * math.sin(th) - d * math.sin((R - r) / r * th))
+    holes = sp.get("holes") or [hole]; d = r * holes[0]; H0, HW, HS = sp.get("hue", .62), sp.get("hue_w", .30), sp.get("hue_step", .0)   # holes：同じ歯車に何本もペンを差す。hue_step：ペンごとの色のずれ
+    penD = lambda th, dd: ((R - r) * math.cos(th) + dd * math.cos((R - r) / r * th), (R - r) * math.sin(th) - dd * math.sin((R - r) / r * th))
+    pen = lambda th: penD(th, d)
     sim = Sim(sp, (-1.15, -1.15, 1.15, 1.15)); sim.neon([(R * math.cos(a), R * math.sin(a)) for a in np.linspace(0, 2 * math.pi, 241)], width=4); sim.title()
     # 花びらの先（中心からいちばん遠い点）を通る時刻に音
     N = 6000; ths = np.linspace(0, th_end, N); rad = np.array([math.hypot(*pen(t_)) for t_ in ths]); last = -9; tips = 0
@@ -1788,18 +1790,18 @@ def spiro(sp):
         n = max(1, int((th - prev) / .01))
         for k in range(n):
             a0, a1 = prev + (th - prev) * k / n, prev + (th - prev) * (k + 1) / n
-            segs.append((pen(a0), pen(a1), dim(hsv((.62 + .3 * a1 / th_end) % 1), .85)))
+            for j, hl in enumerate(holes): segs.append((penD(a0, r * hl), penD(a1, r * hl), dim(hsv((H0 + HS * j + HW * a1 / th_end) % 1), .85)))
         if th > prev: sim.commit(segs, width=1.6)
         prev = th; c = ((R - r) * math.cos(th), (R - r) * math.sin(th)); p_ = pen(th); live = []
         live += [((c[0] + r * math.cos(a), c[1] + r * math.sin(a)), (c[0] + r * math.cos(a + .1), c[1] + r * math.sin(a + .1)), (120, 140, 190), 2.4) for a in np.arange(0, 2 * math.pi, .1)]
         spin = -(R - r) / r * th
         for k in range(rt // 4):   # 歯車の歯（回転が見えるように）
             a = spin + 2 * math.pi * k / (rt // 4); live.append(((c[0] + r * .93 * math.cos(a), c[1] + r * .93 * math.sin(a)), (c[0] + r * math.cos(a), c[1] + r * math.sin(a)), (150, 170, 215), 2))
-        live.append((c, p_, (200, 210, 240), 1.4))
+        live.append((c, p_, (200, 210, 240), 1.4)); extra = [penD(th, r * hl) for hl in holes[1:]]
         fl = [(p_, 10 + 4 * math.sin(t * 12), (255, 240, 200), 2)] if t < intro + D else []
         e = t - intro - D
         if 0 <= e < .7: fl.append(((0, 0), 30 + e * 500, dim((255, 245, 210), 1 - e / .7), 4))
-        sim.frame(t, live, [(p_, (255, 250, 235), 6)], (sp.get("count_label", "花びら "), f"{petals}"), fl)
+        sim.frame(t, live, [(p_, (255, 250, 235), 6)] + [(q_, (255, 250, 235), 5) for q_ in extra], (sp.get("count_label", "花びら "), f"{petals}"), fl)
     sim.finish(total)
 
 
@@ -2019,6 +2021,9 @@ def merge(sp):
     for tt, k, _ in events: sim.note(intro + tt, PENTA[min(15, k * 2)], .55 + .05 * k, .5, 5 + k)
     sim.chord(intro + D + .1, [60, 64, 67, 72], gain=.55, dec=5)
     total = intro + D + tail; fN = F(40 * S); fL = F(26 * S); from simkit import W as W_, H as H_
+    firsts = set(); top_ = 0
+    for tt, k, _ in events:
+        if k > top_: top_ = k; firsts.add((tt, k))
     def planet(d, x, y, r, k, a=1.0):
         name, base, kind = T[k]; c = tuple(int(v * a) for v in base); d.ellipse([x - r, y - r, x + r, y + r], fill=c)
         if kind == "bands":
@@ -2037,10 +2042,10 @@ def merge(sp):
                 planet(d, x, y, r * pop, TT[q])
             for tt, k, pos in events:
                 e = tsim - tt
-                if 0 <= e < .9 and k >= 2:
+                if 0 <= e < .9 and k >= 2 and (tt, k) in firsts:   # 名前は、その段に初めて届いた時だけ（名前どうしが重ならないように）
                     x, y = sim.to(tuple(pos)); nm = T[k][0]; w = d.textlength(nm, font=fN); d.text((x - w / 2, y - rad[k] * sim.k - 60 * S - e * 30 * S), nm, font=fN, fill=(255, 255, 255), stroke_width=5 * S, stroke_fill=(0, 0, 0))
             # 上の段の並び：届いた段は色、まだの段は「？」
-            n_ = K; bw = W_ * S * .9 / n_; y0 = H_ * S * .145
+            n_ = K; bw = W_ * S * .9 / n_; y0 = max(H_ * S * .145, (getattr(sim, "label_y", 0) + 46) * S)   # 題名が2行のときは、その下へ（題名と重ねない）
             for k in range(K):
                 x = W_ * S * .05 + bw * (k + .5)
                 if k <= bst: planet(d, x, y0, bw * .32, k)
@@ -2241,7 +2246,7 @@ def cupcaustic(sp):
     sim.finish(total)
 
 
-KINDS = {"cupcaustic": cupcaustic, "dominoes": dominoes, "merge": merge, "hearts": hearts, "bricks": bricks, "pendwave3d": pendwave3d, "spiro": spiro, "lens": lens, "koch": koch, "pendwave": pendwave, "orbits": orbits, "phyllo": phyllo, "zoomsalt": zoomsalt, "layers": layers, "pixels": pixels, "sortviz": sortviz, "polyfocus": polyfocus, "heliostat": heliostat, "dragon": dragon, "rhythm": rhythm, "lissatable": lissatable, "plotter": plotter, "threebody": threebody, "pendswing": pendswing, "golden": golden, "piphase": piphase, "maurer": maurer, "harmono": harmono, "spiro": spiro, "star": star, "throw": throw, "tusi": tusi, "chain": chain, "basket": basket, "koch": koch, "cycloid": cycloid, "pendulums": pendulums, "lissajous": lissajous, "corner": corner, "sunflower": sunflower, "ulam": ulam, "parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2, "picount": picount}
+KINDS = {"cupcaustic": cupcaustic, "dominoes": dominoes, "merge": merge, "hearts": hearts, "bricks": bricks, "pendwave3d": pendwave3d, "spiro": spiro, "lens": lens, "koch": koch, "pendwave": pendwave, "orbits": orbits, "phyllo": phyllo, "zoomsalt": zoomsalt, "layers": layers, "pixels": pixels, "sortviz": sortviz, "polyfocus": polyfocus, "heliostat": heliostat, "dragon": dragon, "rhythm": rhythm, "lissatable": lissatable, "plotter": plotter, "threebody": threebody, "pendswing": pendswing, "golden": golden, "piphase": piphase, "maurer": maurer, "harmono": harmono, "spiropens": spiropens, "star": star, "throw": throw, "tusi": tusi, "chain": chain, "basket": basket, "koch": koch, "cycloid": cycloid, "pendulums": pendulums, "lissajous": lissajous, "corner": corner, "sunflower": sunflower, "ulam": ulam, "parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2, "picount": picount}
 
 if __name__ == "__main__":
     sp = json.load(open(sys.argv[1], encoding="utf-8")); KINDS[sp["kind"]](sp); kit(sp)

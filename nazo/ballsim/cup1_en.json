@@ -7,8 +7,8 @@
  "style": "big",
  "mark": "@makeitwork3d",
  "title": [
-  "A {parabola} sends every ball to one point",
-  "What about a [round bowl]?"
+  "A parabola has {one focus}.",
+  "Does a [round bowl]?"
  ],
  "count_label": "Balls: ",
  "yt": {

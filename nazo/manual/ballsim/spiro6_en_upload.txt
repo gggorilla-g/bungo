@@ -1,0 +1,15 @@
+【タイトル】
+Same Ring, Bigger Gear. What Does the Flower Turn Into? (Wait for the End) #shorts #satisfying #math
+
+【説明】
+A big 59-tooth gear rolls inside a 96-tooth ring. A pen in one of the gear's holes draws a flower. Every petal tip plays a stone chime. The color follows the rainbow in the order the line is drawn.
+
+How it works:
+- 96 and 59 share no common factor bigger than 1, so the flower gets 96 petals and the line only closes after 59 laps.
+- Each new petal lands about 221 degrees away from the last one. After 13 petals it is almost back where it started (about 3.75 degrees short), so petals of the same color gather in 13 places and the flower looks like a pinwheel with 13 blades.
+- The curve is a hypotrochoid.
+
+Simulation, sound and animation: original (Python).
+
+【タグ】
+math, spirograph, gears, geometry, satisfying, relaxing, simulation, shorts

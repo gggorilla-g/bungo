@@ -1,6 +1,1 @@
-# 英語（MIW）の作り溜め。1日3本まで、時間をあけて出す（11/22 大量投稿で配信が止まった観測から）
-pendwave3d_en
-bricks1_en
-merge1_en
-dots2_en
-cup1_en
+# 11/23 から、英語（MIW）も upload_queue.txt に "<id> KAIDAN en" で入れる（確認済み vetted.json のものだけ）。このファイルは使わない

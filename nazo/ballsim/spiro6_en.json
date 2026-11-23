@@ -1,0 +1,32 @@
+{
+ "kind": "spiro",
+ "R": 96,
+ "r": 59,
+ "tone": "stone",
+ "style": "big",
+ "mark": "@makeitwork3d",
+ "bloom": 0.7,
+ "title": [
+  "Make the gear {bigger}.",
+  "What does the flower [turn into]?"
+ ],
+ "count_label": "Petals: ",
+ "id": "spiro6_en",
+ "hole": 0.9,
+ "hue": 0.0,
+ "hue_w": 1.0,
+ "yt": {
+  "title": "Same Ring, Bigger Gear. What Does the Flower Turn Into? (Wait for the End) #shorts #satisfying #math",
+  "desc": "A big 59-tooth gear rolls inside a 96-tooth ring. A pen in one of the gear's holes draws a flower. Every petal tip plays a stone chime. The color follows the rainbow in the order the line is drawn.\n\nHow it works:\n- 96 and 59 share no common factor bigger than 1, so the flower gets 96 petals and the line only closes after 59 laps.\n- Each new petal lands about 221 degrees away from the last one. After 13 petals it is almost back where it started (about 3.75 degrees short), so petals of the same color gather in 13 places and the flower looks like a pinwheel with 13 blades.\n- The curve is a hypotrochoid.\n\nSimulation, sound and animation: original (Python).",
+  "tags": [
+   "math",
+   "spirograph",
+   "gears",
+   "geometry",
+   "satisfying",
+   "relaxing",
+   "simulation",
+   "shorts"
+  ]
+ }
+}

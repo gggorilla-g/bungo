@@ -10,7 +10,10 @@ while read -r id ch lg; do
   [ -z "$id" ] && continue
   if [ -n "${full[$ch]}" ] || [ ! -f "output/$id.mp4" ] || [ ! -f "nazo/manual/ballsim/${id}_upload.txt" ]; then echo "$id $ch $lg" >> "$Q.keep"; continue; fi
   if [ "${cnt[$ch]:-0}" -ge "$MAX" ]; then echo "$id $ch $lg" >> "$Q.keep"; continue; fi
+  # 目で確かめた動画だけ上げる（オーナー 11/23「勘所を押さえない動画はあげないで」）。vetted.json に無い・確かめた時と絵が違う行はとばして残す
+  if ! v="$(python3 tools/vet.py check "$id" </dev/null 2>&1)"; then echo "$id $ch $lg" >> "$Q.keep"; echo "とばす: $id（$v）"; continue; fi
   up="$id"
+  [ -f "output/${id}_t.mp4" ] && [ "output/$id.mp4" -nt "output/${id}_t.mp4" ] && rm -f "output/${id}_t.mp4"   # 本編を作り直したら、古い予告つき版は使わない
   if [ "${TEASER:-1}" = 1 ] && [ ! -f "output/${id}_t.mp4" ]; then   # 冒頭に結末の一瞬（teaser.py）。終わり3.2秒前の1秒を使う
     d=$(ffprobe </dev/null -v error -show_entries format=duration -of csv=p=0 "output/$id.mp4"); at=$(python3 -c "print(max(0, $d - 3.2))")
     python3 tools/teaser.py "output/$id.mp4" "output/${id}_t.mp4" "$at" 1.0 >/dev/null </dev/null
