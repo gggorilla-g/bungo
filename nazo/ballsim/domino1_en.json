@@ -14,7 +14,7 @@
  "count_label": "Domino ",
  "yt": {
   "title": "Each Domino Is 1.5x Bigger. Can the Tiny One Topple the Giant? #shorts #satisfying #physics",
-  "desc": "14 dominoes, each one 1.5 times taller than the one before. The first is tiny; the last is about 195 times taller. Can the chain make it all the way?\n\nHow it works:\n- A falling domino can knock over a domino up to about 1.5 times its own size. This was worked out by physicist Lorne Whitehead in 1983, and it has been shown with real dominoes many times.\n- Each step multiplies the size, so 13 steps of 1.5x make the last one 1.5^13, about 195 times taller than the first.\n- Bigger dominoes fall more slowly (fall time grows with the square root of height), so the beat stretches out and the notes get lower as the giants fall.\n\nNote: this is a simple animation of the idea, not a full physics simulation.\n\nSimulation, sound and animation: original (Python).",
+  "desc": "14 dominoes, each one 1.5 times taller than the one before. The first is tiny; the last is about 195 times taller. Can the chain make it all the way?\n\nHow it works:\n- A falling domino can knock over a domino up to about 1.5 times its own size. This was worked out by physicist Lorne Whitehead in 1983, and it has been shown with real dominoes many times.\n- Each step multiplies the size, so 13 steps of 1.5x make the last one 1.5^13, about 195 times taller than the first.\n- Bigger dominoes fall more slowly (fall time grows with the square root of height), so the beat stretches out and the notes get lower as the giants fall.\n\nNote: this is a simple animation of the idea, not a full physics simulation.\n\nSimulation, sound and animation: original (Python).\nIcons: game-icons.net (CC BY 3.0)",
   "tags": [
    "domino",
    "chain reaction",
@@ -24,5 +24,47 @@
    "simulation",
    "shorts"
   ]
- }
+ },
+ "world": true,
+ "unit_cm": 25,
+ "objects": [
+  [
+   "ladybug",
+   1,
+   0,
+   "Ladybug"
+  ],
+  [
+   "coffee-cup",
+   10,
+   2,
+   "Cup"
+  ],
+  [
+   "cat",
+   30,
+   4,
+   "Cat"
+  ],
+  [
+   "sitting-dog",
+   60,
+   6,
+   "Dog"
+  ],
+  [
+   "person",
+   170,
+   9,
+   "Person"
+  ],
+  [
+   "family-house",
+   700,
+   12,
+   "House",
+   0,
+   0.2
+  ]
+ ]
 }

@@ -2044,13 +2044,33 @@ def dominoes(sp):
     ang = lambda i, t: 0 if t < st[i] else min(math.pi / 2 * .97, math.pi / 2 * ((t - st[i]) / Tf[i]) ** 2)
     slerp = lambda a, b, u: a + (b - a) * u
     sstep = lambda a, b, x: (lambda k: k * k * (3 - 2 * k))(min(1, max(0, (x - a) / (b - a))))
-    sim = Sim(sp, (0, 0, 1, 1)); sim.title()
+    sim = Sim(sp, (0, 0, 1, 1))
+    if sp.get("world"):   # 空と星は背景に先に描く（タイトルはその上）
+        from simkit import W as _W, H as _H
+        _d = ImageDraw.Draw(sim.bg); hy = _H * S * .60; _r = np.random.default_rng(7)
+        for q in range(60):
+            y0 = hy * q / 60; u = q / 59; _d.rectangle([0, y0, _W * S, y0 + hy / 60 + 1], fill=(int(6 + 40 * u * u), int(8 + 14 * u * u), int(22 + 60 * u * u)))
+        for _ in range(160):
+            sx, sy, sb = _r.random(), _r.random() * .55, _r.random(); r_ = (1 + 1.4 * sb) * S; cx, cy = sx * _W * S, sy * hy
+            _d.ellipse([cx - r_, cy - r_, cx + r_, cy + r_], fill=(int(120 + 100 * sb), int(130 + 95 * sb), 255))
+    sim.title()
     for i in range(N):
         sim.note(st[i], PENTA[max(0, 15 - i)], .55, .5, 5 + i * .4)
         if i >= 6: sim.note(st[i], 36, .3 + .04 * i, .5, 9, "kick")
     sim.note(st[-1] + Tf[-1], 36, .8, .5, 9, "kick"); sim.chord(st[-1] + Tf[-1] + .05, [48, 55, 60, 64, 67], gain=.6, dec=6)
     from simkit import W as W_, H as Hh
     cols = [hsv((.0 + .8 * i / (N - 1)) % 1) for i in range(N)]; fC = F(56 * S)
+    WORLD = sp.get("world"); UCM = sp.get("unit_cm", 25.0); OBJ = []; fO = F(26 * S)
+    if WORLD:   # 世界ごと作る（オーナー 11/23）：空・地平線・山なみ・星、横に大きさの目安（実寸）を立てる
+        from PIL import Image as _Im
+        for ob in sp.get("objects", []):
+            icn, hcm, near, lab = ob[:4]; dz = ob[4] if len(ob) > 4 else 0; dx = ob[5] if len(ob) > 5 else 0
+            im0 = _Im.open(os.path.join(os.path.dirname(__file__), "..", "nazo", "ballsim", "icons", icn + ".png")).convert("RGBA")
+            bb = im0.getchannel("A").getbbox(); im0 = im0.crop(bb); hu = hcm / UCM; wu = hu * im0.width / im0.height
+            OBJ.append(dict(im=im0, h=hu, w=wu, x=-(H_[near] * .55 + wu / 2 + H_[near] * (.3 + dx)), z=z[near] + H_[near] * (.1 + dz), lab=lab, near=near, col=hsv((.0 + .8 * near / (N - 1)) % 1)))
+        rng_ = np.random.default_rng(7); STARS = [(rng_.random(), rng_.random() * .55, rng_.random()) for _ in range(140)]
+        HILL = [(q / 60, .5 + .5 * math.sin(q * .37) * math.sin(q * .13 + 1) + .25 * math.sin(q * 1.3)) for q in range(61)]
+    def hcm_txt(cm): return (f"{cm / 100:.1f}m" if cm >= 100 else f"{cm:.0f}cm") if sp.get("lang", "ja") == "ja" or True else ""
     for fi in range(int(total * FPS)):
         t = fi / FPS; cur = max([i for i in range(N) if t >= st[i]] or [0]); hc = H_[min(N - 1, cur + 1)]
         e = sstep(0, 1, (t - st[cur]) / max(.2, Tf[cur])) if cur < N - 1 else 1
@@ -2061,6 +2081,15 @@ def dominoes(sp):
             yaw = -.38; X, Z = X * math.cos(yaw) - Z * math.sin(yaw), X * math.sin(yaw) + Z * math.cos(yaw); Z = max(Z, 1e-3)
             return (W_ * S / 2 + fcl * X / Z, Hh * S * .60 - fcl * Y / Z), Z
         def draw(d, t=t):
+            if WORLD:
+                hy = Hh * S * .60
+                off = (tz * .004) % 1
+                for layer, (amp_, colh) in enumerate(((.10, (34, 22, 70)), (.06, (22, 16, 52)))):
+                    pts = [(W_ * S * ((u - off * (1 + layer)) % 1.0001), hy - Hh * S * amp_ * v) for u, v in HILL]; pts.sort()
+                    d.polygon([(0, hy)] + pts + [(W_ * S, hy)], fill=colh)
+                for q in range(30):   # 地面：地平線から手前へ明るく
+                    y0 = hy + (Hh * S - hy) * q / 30; u = q / 29; d.rectangle([0, y0, W_ * S, y0 + (Hh * S - hy) / 30 + 1], fill=(int(10 + 8 * u), int(8 + 6 * u), int(26 + 14 * u)))
+                d.line([(0, hy), (W_ * S, hy)], fill=(120, 90, 220), width=max(1, int(2 * S)))
             for q in range(-30, 60):   # 床の光る線
                 zz = tz - hh * 3 + q * hh * .35; a, za = P3(-hh * 3, 0, zz); b, zb = P3(hh * 3, 0, zz)
                 if za > .01 and zb > .01: d.line([a, b], fill=(40, 34, 90), width=1)
@@ -2073,9 +2102,25 @@ def dominoes(sp):
                 if min(q[1] for q in pp) < .02: continue
                 for f_, sh in (((0, 2, 6, 4), .55), ((1, 3, 7, 5), .9), ((2, 3, 7, 6), 1.0), ((0, 1, 3, 2), .7), ((4, 5, 7, 6), .62)):
                     poly = [pp[k][0] for k in f_]; dep = sum(pp[k][1] for k in f_) / 4; faces.append((dep, poly, dim(cols[i], sh)))
+            for o in OBJ:
+                o["vis"] = min(1, max(0, cur + e + 1.6 - o["near"]))
+                if o["vis"] <= 0: continue
+                (bx, by), zb_ = P3(o["x"], 0, o["z"]); (tx_, ty_), zt_ = P3(o["x"], o["h"], o["z"])
+                if zb_ > .05 and zt_ > .05: faces.append((zb_ + 1e-3, ("img", o, bx, by, by - ty_), None))
             for dep, poly, col in sorted(faces, key=lambda f: -f[0]):
+                if isinstance(poly, tuple) and poly and poly[0] == "img":
+                    _, o, bx, by, hp = poly
+                    if 6 < hp < Hh * S * 3:
+                        wp = hp * o["im"].width / o["im"].height; im_ = o["im"].resize((max(1, int(wp)), max(1, int(hp))))
+                        glow = _Im.new("RGBA", im_.size, tuple(min(255, int(v * .55 + 40)) for v in o["col"]) + (255,)); _va = .92 * o["vis"]; glow.putalpha(im_.getchannel("A").point(lambda v, _va=_va: int(v * _va)))
+                        d._image.paste(glow, (int(bx - wp / 2), int(by - hp)), glow)
+                        lb = f'{o["lab"]} {hcm_txt(o["h"] * UCM)}'; lw_ = d.textlength(lb, font=fO)
+                        if hp > 30 * S and o["vis"] > .6: d.text((min(W_ * S - lw_ - 10 * S, max(10 * S, bx - lw_ / 2)), by - hp - 34 * S), lb, font=fO, fill=(235, 238, 245), stroke_width=3 * S, stroke_fill=(0, 0, 0))
+                    continue
                 d.polygon(poly, fill=col); d.line(poly + [poly[0]], fill=tuple(min(255, int(v * 1.25 + 30)) for v in col), width=max(1, int(2 * S)))
-            tx = f"×{k_ ** max(0, cur):.0f}" if cur >= 1 else "×1"; w = d.textlength(tx, font=fC); d.text((W_ * S / 2 - w / 2, Hh * S * .80), tx, font=fC, fill=(255, 225, 90), stroke_width=6 * S, stroke_fill=(0, 0, 0))
+            tx = f"×{k_ ** max(0, cur):.0f}" if cur >= 1 else "×1"
+            if WORLD: tx += "   " + hcm_txt(H_[cur] * UCM)
+            w = d.textlength(tx, font=fC); d.text((W_ * S / 2 - w / 2, Hh * S * .80), tx, font=fC, fill=(255, 225, 90), stroke_width=6 * S, stroke_fill=(0, 0, 0))
         sim.frame(t, (), (), (sp.get("count_label", "Domino "), f"{cur + 1} / {N}"), (), draw)
     sim.finish(total)
 

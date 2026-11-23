@@ -12,6 +12,7 @@ How it works:
 Note: this is a simple animation of the idea, not a full physics simulation.
 
 Simulation, sound and animation: original (Python).
+Icons: game-icons.net (CC BY 3.0)
 
 【タグ】
 domino, chain reaction, physics, satisfying, relaxing, simulation, shorts
