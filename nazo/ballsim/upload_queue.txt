@@ -1,5 +1,6 @@
 fill1_ja MOSO ja
 canon1_ja MOSO ja
+chord1_ja MOSO ja
 cup1_ja MOSO ja
 wheel1_ja MOSO ja
 domino2_ja MOSO ja
@@ -20,7 +21,10 @@ cardioid5_ja MOSO ja
 spiro6_ja MOSO ja
 parabola3_ja MOSO ja
 ellipse4_ja MOSO ja
+fill1_en KAIDAN en
 spiro9_en KAIDAN en
+chord1_en KAIDAN en
+wheel1_en KAIDAN en
 domino2_en KAIDAN en
 cup1_en KAIDAN en
 dots3_en KAIDAN en

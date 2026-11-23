@@ -1,0 +1,18 @@
+【タイトル】
+A Dark, Sad Chord Played by Falling Balls. They All Land Together After 18 Seconds #shorts #satisfying #music
+
+【説明】
+Ten balls bounce on note pads. The notes are C, G, C, Eb, G, Bb, D, Eb, G, Bb (a C minor chord with an added ninth: dark and sad). They start together, then drift apart into waves. Will they ever land together again?
+
+Answer: after 18 seconds, every ball lands at the same moment.
+
+How it works:
+- In 18 seconds the left ball bounces 12 times, the next one 13, the next 14, and the last one 21. Each differs by just one bounce.
+- So the timing slowly shifts and you see waves and alternating patterns. At 9 seconds, every other ball lands together.
+- After 18 seconds every ball has finished a whole number of bounces, so they all land at once and the full chord sounds.
+- The height of a bounce grows with the square of its period (same gravity for all). The columns behind show those heights.
+
+Simulation, sound and animation: original (Python).
+
+【タグ】
+music, physics, chord, satisfying, relaxing, simulation, shorts
