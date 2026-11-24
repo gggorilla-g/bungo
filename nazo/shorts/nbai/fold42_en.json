@@ -1,0 +1,539 @@
+{
+ "schemaVersion": 1,
+ "id": "fold42_en",
+ "titleLines": [
+  "How many folds",
+  [
+   [
+    "to reach the ",
+    0
+   ],
+   [
+    "Moon",
+    1
+   ],
+   [
+    "?",
+    0
+   ]
+  ]
+ ],
+ "output": {
+  "width": 1080,
+  "height": 1920,
+  "fps": 30,
+  "durationSeconds": 30
+ },
+ "paper": {
+  "thicknessM": 0.0001,
+  "sheetM": [
+   0.21,
+   0.297
+  ],
+  "note": "コピー用紙を想定した仮定の厚さ"
+ },
+ "timeline": {
+  "coldOpenEnd": 2.4,
+  "endN": 42,
+  "keys": [
+   [
+    2.4,
+    0
+   ],
+   [
+    3.0,
+    0
+   ],
+   [
+    5.7,
+    10
+   ],
+   [
+    6.5,
+    10
+   ],
+   [
+    7.0,
+    12
+   ],
+   [
+    8.8,
+    12
+   ],
+   [
+    9.6,
+    14
+   ],
+   [
+    10.6,
+    14
+   ],
+   [
+    11.6,
+    18
+   ],
+   [
+    12.6,
+    18
+   ],
+   [
+    13.4,
+    22
+   ],
+   [
+    15.0,
+    22
+   ],
+   [
+    15.8,
+    26
+   ],
+   [
+    17.4,
+    26
+   ],
+   [
+    18.2,
+    30
+   ],
+   [
+    20.0,
+    30
+   ],
+   [
+    22.4,
+    39
+   ],
+   [
+    24.0,
+    39
+   ],
+   [
+    25.0,
+    42
+   ],
+   [
+    30.0,
+    42
+   ]
+  ]
+ },
+ "notes": {
+  "calc": "*Thought experiment with 0.1 mm (0.004 in) paper",
+  "big": "*Earth and Moon enlarged. Positions are illustrative",
+  "rec": "*Guinness World Record (2002, 4,000 ft thin paper)"
+ },
+ "references": [
+  {
+   "id": "paper",
+   "label": "紙の厚さ",
+   "value": 0.1,
+   "unit": "mm",
+   "valueM": 0.0001,
+   "kind": "scene-assumption",
+   "note": "コピー用紙を想定した仮定"
+  },
+  {
+   "id": "doll",
+   "label": "人形の背",
+   "value": 1.6,
+   "unit": "m",
+   "valueM": 1.6,
+   "kind": "scene-assumption",
+   "note": "作中の人形の高さ"
+  },
+  {
+   "id": "school",
+   "label": "校舎",
+   "value": 15,
+   "unit": "m",
+   "valueM": 15,
+   "kind": "scene-assumption",
+   "note": "作中の設定（4階建て・屋上まで約15m）"
+  },
+  {
+   "id": "tokyo_tower",
+   "label": "東京タワー",
+   "value": 333,
+   "unit": "m",
+   "valueM": 333,
+   "kind": "external-fact",
+   "sourceUrl": "https://www.gotokyo.org/jp/destinations/southern-tokyo/tokyo-tower-and-around/index.html",
+   "checkedAt": "2026-11-13",
+   "labelEn": "Tokyo Tower 1,093 ft"
+  },
+  {
+   "id": "fuji",
+   "label": "富士山",
+   "value": 3776,
+   "unit": "m",
+   "valueM": 3776,
+   "kind": "external-fact",
+   "sourceUrl": "https://www.data.jma.go.jp/svd/vois/data/tokyo/STOCK/souran/main/55_Fujisan.pdf",
+   "checkedAt": "2026-11-13",
+   "note": "気象庁 日本活火山総覧",
+   "labelEn": "Mt. Fuji 12,388 ft"
+  },
+  {
+   "id": "karman",
+   "label": "宇宙の入口（カーマン・ライン）",
+   "value": 100,
+   "unit": "km",
+   "valueM": 100000,
+   "kind": "external-fact",
+   "sourceUrl": "https://www-2025.fai.org/node/23280",
+   "checkedAt": "2026-11-14",
+   "note": "国際航空連盟（FAI）が航空と宇宙の境目とする高度",
+   "labelEn": "Edge of space 62 miles"
+  },
+  {
+   "id": "geo",
+   "label": "静止衛星の高さ",
+   "value": 35786,
+   "unit": "km",
+   "valueM": 35786000,
+   "kind": "external-fact",
+   "sourceUrl": "https://esa.int/Our_Activities/Space_Transportation/Types_of_orbits",
+   "checkedAt": "2026-11-14",
+   "note": "ESA Types of orbits",
+   "labelEn": "Geostationary orbit 22,236 miles"
+  },
+  {
+   "id": "moon",
+   "label": "月までの平均距離",
+   "value": 384400,
+   "unit": "km",
+   "valueM": 384400000,
+   "kind": "external-fact",
+   "sourceUrl": "https://science.nasa.gov/moon/facts/",
+   "checkedAt": "2026-11-14",
+   "note": "NASA Moon Facts",
+   "labelEn": "Moon 238,855 miles"
+  },
+  {
+   "id": "record",
+   "label": "紙を半分に折った最多回数",
+   "value": 12,
+   "unit": "回",
+   "year": 2002,
+   "kind": "external-fact",
+   "sourceUrl": "https://guinnessworldrecords.com/world-records/494571-most-times-to-fold-a-piece-of-paper",
+   "checkedAt": "2026-11-14",
+   "note": "Britney Gallivan、2002年1月27日、米国ポモナ、長さ1,219mの薄紙"
+  },
+  {
+   "id": "earth_r",
+   "label": "地球の平均半径",
+   "value": 6371,
+   "unit": "km",
+   "valueM": 6371000,
+   "kind": "external-fact",
+   "sourceUrl": "https://nssdc.gsfc.nasa.gov/planetary/factsheet/earthfact.html",
+   "checkedAt": "2026-11-14"
+  },
+  {
+   "id": "moon_r",
+   "label": "月の半径",
+   "value": 1740,
+   "unit": "km",
+   "valueM": 1740000,
+   "kind": "external-fact",
+   "sourceUrl": "https://science.nasa.gov/moon/facts/",
+   "checkedAt": "2026-11-14",
+   "note": "NASA Moon Facts（約1,740km）"
+  }
+ ],
+ "captions": [
+  {
+   "id": "cold",
+   "when": {
+    "tMax": 2.4
+   },
+   "main": [
+    "Answer: {end} folds"
+   ],
+   "sub": [
+    "Fold 0.1 mm paper in half, again and again"
+   ],
+   "note": "calc",
+   "bindings": {
+    "end": {
+     "metric": "endN"
+    }
+   },
+   "checks": [
+    {
+     "type": "firstExceeds",
+     "n": 42,
+     "ref": "moon"
+    }
+   ]
+  },
+  {
+   "id": "start",
+   "when": {
+    "tMin": 2.4,
+    "nMax": 10
+   },
+   "main": [
+    "Let's start from fold 1"
+   ],
+   "sub": [
+    "Each fold doubles the thickness"
+   ],
+   "note": "calc"
+  },
+  {
+   "id": "n10",
+   "when": {
+    "nMin": 10,
+    "nMax": 12
+   },
+   "main": [
+    "10 folds: {t}"
+   ],
+   "sub": [
+    "Still on the desk"
+   ],
+   "bindings": {
+    "t": {
+     "metric": "thick",
+     "n": 10
+    }
+   }
+  },
+  {
+   "id": "n12",
+   "when": {
+    "nMin": 12,
+    "nMax": 14
+   },
+   "main": [
+    "12 folds. The human record"
+   ],
+   "sub": [
+    "Nobody has folded paper more than {ref:record} times"
+   ],
+   "note": "rec"
+  },
+  {
+   "id": "n14",
+   "when": {
+    "nMin": 14,
+    "nMax": 18
+   },
+   "main": [
+    "14 folds: {t}"
+   ],
+   "sub": [
+    "Taller than the doll (5.2 ft)"
+   ],
+   "bindings": {
+    "t": {
+     "metric": "thick",
+     "n": 14
+    }
+   },
+   "checks": [
+    {
+     "type": "firstExceeds",
+     "n": 14,
+     "ref": "doll"
+    }
+   ]
+  },
+  {
+   "id": "n18",
+   "when": {
+    "nMin": 18,
+    "nMax": 22
+   },
+   "main": [
+    "18 folds: {t}"
+   ],
+   "sub": [
+    "Taller than the school (49 ft)"
+   ],
+   "bindings": {
+    "t": {
+     "metric": "thick",
+     "n": 18
+    }
+   },
+   "checks": [
+    {
+     "type": "firstExceeds",
+     "n": 18,
+     "ref": "school"
+    }
+   ]
+  },
+  {
+   "id": "n22",
+   "when": {
+    "nMin": 22,
+    "nMax": 26
+   },
+   "main": [
+    "22 folds: {t}"
+   ],
+   "sub": [
+    "Taller than Tokyo Tower (1,093 ft)"
+   ],
+   "bindings": {
+    "t": {
+     "metric": "thick",
+     "n": 22
+    }
+   },
+   "checks": [
+    {
+     "type": "firstExceeds",
+     "n": 22,
+     "ref": "tokyo_tower"
+    }
+   ]
+  },
+  {
+   "id": "n26",
+   "when": {
+    "nMin": 26,
+    "nMax": 30
+   },
+   "main": [
+    "26 folds: {t}"
+   ],
+   "sub": [
+    "Taller than Mt. Fuji (12,388 ft)"
+   ],
+   "bindings": {
+    "t": {
+     "metric": "thick",
+     "n": 26
+    }
+   },
+   "checks": [
+    {
+     "type": "firstExceeds",
+     "n": 26,
+     "ref": "fuji"
+    }
+   ]
+  },
+  {
+   "id": "n30",
+   "when": {
+    "nMin": 30,
+    "nMax": 39
+   },
+   "main": [
+    "30 folds: {t}"
+   ],
+   "sub": [
+    "Past the edge of space (62 miles)"
+   ],
+   "bindings": {
+    "t": {
+     "metric": "thick",
+     "n": 30
+    }
+   },
+   "checks": [
+    {
+     "type": "firstExceeds",
+     "n": 30,
+     "ref": "karman"
+    }
+   ]
+  },
+  {
+   "id": "n39",
+   "when": {
+    "nMin": 39,
+    "nMax": 42
+   },
+   "main": [
+    "39 folds: {t}"
+   ],
+   "sub": [
+    "Higher than satellites (22,236 miles)"
+   ],
+   "note": "big",
+   "bindings": {
+    "t": {
+     "metric": "thick",
+     "n": 39
+    }
+   },
+   "checks": [
+    {
+     "type": "firstExceeds",
+     "n": 39,
+     "ref": "geo"
+    }
+   ]
+  },
+  {
+   "id": "n42",
+   "when": {
+    "nMin": 42,
+    "tMin": 2.4,
+    "tMax": 27.4
+   },
+   "main": [
+    "42 folds: {t}"
+   ],
+   "sub": [
+    "You reach the Moon (238,855 miles)"
+   ],
+   "note": "big",
+   "bindings": {
+    "t": {
+     "metric": "thick",
+     "n": 42
+    }
+   },
+   "checks": [
+    {
+     "type": "firstExceeds",
+     "n": 42,
+     "ref": "moon"
+    }
+   ]
+  },
+  {
+   "id": "tail",
+   "when": {
+    "nMin": 42,
+    "tMin": 27.4
+   },
+   "main": [
+    "The real record is {ref:record} folds"
+   ],
+   "sub": [
+    "{rest} more to reach the Moon"
+   ],
+   "note": "rec",
+   "bindings": {
+    "rest": {
+     "metric": "restFromRecord"
+    }
+   }
+  }
+ ],
+ "template": "fold",
+ "post": {
+  "title": "How Many Folds to Reach the Moon? #shorts",
+  "desc": "Paper is 0.1 mm (0.004 in) thick. Each fold doubles it. How many folds until the stack reaches the Moon?\n\nAnswer: 42 folds.\n\n*A thought experiment. In real life, the record is 12 folds (Britney Gallivan, 2002, with a 4,000 ft strip of thin paper).\n*Earth and Moon are enlarged so you can see them.\n\nSources: NASA Moon Facts (average distance 238,855 miles), FAI (Karman line, 100 km), ESA (geostationary orbit, 35,786 km), Guinness World Records.\nSimulation and animation: original.",
+  "tags": [
+   "what if",
+   "paper folding",
+   "moon",
+   "exponential",
+   "math",
+   "science",
+   "thought experiment"
+  ]
+ },
+ "lang": "en"
+}

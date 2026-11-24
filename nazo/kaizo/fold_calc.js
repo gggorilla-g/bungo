@@ -8,7 +8,11 @@ function make(spec){
   const nInt=t=>Math.floor(nAt(t)+1e-9);
   const thick=n=>P0*Math.pow(2,n);
   // 長さの表示：mm / cm / m / km
-  function fmtLen(m){if(m<0.01)return(Math.round(m*10000)/10).toFixed(1)+'mm';if(m<1)return(Math.round(m*1000)/10).toFixed(1)+'cm';
+  const EN=spec.lang==='en';
+  // 英語版：in / ft / miles（MIW の決まり。ジャンプ英語版と同じ）
+  function fmtLenEn(m){const ft=m/0.3048;if(ft<1){const i=m/0.0254;return(i<1?i.toFixed(3):i<10?i.toFixed(2):i.toFixed(1))+' in'}
+    if(ft<10)return ft.toFixed(1)+' ft';if(ft<5280*10)return Math.round(ft).toLocaleString('en-US')+' ft';return Math.round(m/1609.344).toLocaleString('en-US')+' miles'}
+  function fmtLen(m){if(EN)return fmtLenEn(m);if(m<0.01)return(Math.round(m*10000)/10).toFixed(1)+'mm';if(m<1)return(Math.round(m*1000)/10).toFixed(1)+'cm';
     if(m<10)return(Math.round(m*100)/100).toFixed(2)+'m';if(m<100)return(Math.round(m*10)/10).toFixed(1)+'m';if(m<10000)return Math.round(m).toLocaleString('en-US')+'m';
     return Math.round(m/1000).toLocaleString('en-US')+'km'}
   const fmtNum=v=>typeof v==='number'?(Number.isInteger(v)?v.toLocaleString('en-US'):String(v)):String(v);
