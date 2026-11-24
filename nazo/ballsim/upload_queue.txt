@@ -1,4 +1,3 @@
-rays1_ja MOSO ja
 metro1_ja MOSO ja
 fill1_ja MOSO ja
 spiro12_ja MOSO ja
@@ -26,7 +25,6 @@ cardioid5_ja MOSO ja
 spiro6_ja MOSO ja
 parabola3_ja MOSO ja
 ellipse4_ja MOSO ja
-koch2_en KAIDAN en
 chord1_en KAIDAN en
 wheel1_en KAIDAN en
 domino2_en KAIDAN en
