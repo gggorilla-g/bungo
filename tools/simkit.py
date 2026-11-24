@@ -201,6 +201,15 @@ class Sim:
                 if kind == "kick":   # 裏のリズム：やわらかい低い太鼓（音の高さが下がる正弦波）
                     tt2 = np.arange(int(SR * .35)) / SR; ph = 2 * np.pi * np.cumsum(55 + 70 * np.exp(-tt2 * 30)) / SR
                     cache[key] = np.sin(ph) * np.exp(-tt2 * 9) * np.minimum(1, tt2 / .002); return cache[key]
+                if kind == "edmkick":   # EDM のバスドラム（オーナー 11/25「バスドラムとかEDM低音みたいな感じ」）：頭の「ドッ」（高い所からすばやく下がる）＋太い胴。少しだけ歪ませて芯を出す
+                    tt2 = np.arange(int(SR * .40)) / SR; ph = 2 * np.pi * np.cumsum(46 + 170 * np.exp(-tt2 * 55) + 45 * np.exp(-tt2 * 11)) / SR
+                    body = np.tanh(np.sin(ph) * 1.7) / np.tanh(1.7) * np.exp(-tt2 * 7.0) * np.minimum(1, tt2 / .0015) * np.minimum(1, (.40 - tt2) / .03)
+                    ck = np.random.default_rng(5).normal(0, 1, len(tt2)); ck = np.convolve(ck, np.ones(8) / 8, "same") * np.exp(-tt2 * 700) * .4   # ごく短いはじき
+                    knock = np.sin(2 * np.pi * np.cumsum(120 + 160 * np.exp(-tt2 * 45)) / SR) * np.exp(-tt2 * 26) * .55   # 小さいスピーカーでも聞こえる「コツ」（低い胴だけだとスマホでは聞こえない）
+                    cache[key] = body * .5 + knock * 1.2 + ck; return cache[key]
+                if kind == "sub":   # EDM の低音：正弦波＋少しの2倍音。dec が小さいほど長くのびる
+                    s2 = .55 * np.sin(2 * np.pi * f * tt) + 1.0 * np.sin(4 * np.pi * f * tt) + .7 * np.sin(6 * np.pi * f * tt) + .4 * np.sin(8 * np.pi * f * tt)   # 2〜4倍音を足す（スマホでも聞こえる低音に）
+                    cache[key] = np.tanh(s2 * .7) * np.exp(-tt * dec) * np.minimum(1, tt / .012) * np.minimum(1, (tt[-1] - tt) / .02); return cache[key]
                 if kind == "hat":    # 裏のリズム：ごく小さいシャカ（高い帯域を丸めたノイズ）
                     tt2 = np.arange(int(SR * .06)) / SR; nz = np.random.default_rng(7).normal(0, 1, len(tt2)); nz = nz - np.convolve(nz, np.ones(6) / 6, "same")
                     cache[key] = np.convolve(nz, np.ones(3) / 3, "same") * np.exp(-tt2 * 70) * .5; return cache[key]
@@ -217,9 +226,12 @@ class Sim:
                 else: s = np.sin(2 * np.pi * f * tt) + .28 * np.sin(2 * np.pi * f * 4 * tt) * np.exp(-tt * 20) + .1 * np.sin(2 * np.pi * f * 10 * tt) * np.exp(-tt * 45)
                 cache[key] = s * np.exp(-tt * dec) * np.minimum(1, tt / .003) * (f / 523.25) ** -.25   # 高い音ほど少し小さく
             return cache[key]
+        duck = self.sp.get("duck", 0); KL = np.zeros(n) if duck else None; env_d = np.zeros(n) if duck else None
         for t, m, g, pan, dec, kind in self.notes:
             i = int(round(t * SR)); s = tone(m, dec, kind); k = min(len(s), n - i)
             if i < 0 or k <= 0: continue
+            if duck and kind == "edmkick":   # バスドラムは別の道（残響をかけず、最後に足す）
+                KL[i:i + k] += s[:k] * g; dl = min(n - i, int(SR * .34)); sh = np.exp(-np.arange(dl) / SR / .13) * g; env_d[i:i + dl] = np.maximum(env_d[i:i + dl], sh); continue
             L[i:i + k] += s[:k] * g * (1 - pan) * 1.414; R[i:i + k] += s[:k] * g * pan * 1.414
         for t0, arr, g, pan in getattr(self, "extra", ()):   # 型ごとに作った音（高さがすべる音など）をそのまま足す
             i = int(round(t0 * SR)); k = min(len(arr), n - i)
@@ -245,6 +257,9 @@ class Sim:
             L += pad; R += pad
             for dly, g in [(.089, .42), (.131, .36), (.197, .30), (.263, .25), (.347, .2), (.461, .15), (.613, .11)]:   # 長めの残響
                 o = int(SR * dly); L[o:] += R[:-o] * g * .55; R[o:] += L[:-o] * g * .55
+        if duck:
+            gd = 1 - min(.85, duck) * np.minimum(1, env_d); L *= gd; R *= gd
+            pk = max(np.abs(L).max(), np.abs(R).max(), 1e-9); kg = pk * self.sp.get("kick_gain", 1.0) / (np.abs(KL).max() + 1e-9); L += KL * kg; R += KL * kg
         st = np.stack([L, R], 1); st = st / (np.abs(st).max() + 1e-9) * .85
         with wave.open(path, "wb") as w:
             w.setnchannels(2); w.setsampwidth(2); w.setframerate(SR); w.writeframes((st * 32767).astype(np.int16).tobytes())

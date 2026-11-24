@@ -2283,9 +2283,18 @@ def hearts2(sp):
         nb = int(round((T_end - start[i]) / per[i]))
         for j in range(nb):
             t = start[i] + j * per[i]; bar = int((t - t0) / BAR + 1e-6); k = int(round((t - t0 - bar * BAR) / per[i]))
-            sim.note(t, pitch(i, bar, k), GAIN[i], .5 + (.0 if i < 2 else .28 * math.sin(i * 2.1 + k * .9)), DEC[i], "stone")
-            if i == 0: sim.note(t, 36, .55, .5, 9, "kick")          # 心臓の「ドクン」：遅い2つだけ、低い太鼓を小さく重ねる
-            if i == 1 and k % 2 == 1: sim.note(t, 36, .25, .5, 9, "kick")
+            if sp.get("edm") and i < 3:   # 11/25 オーナー「心拍数はバスドラムとかEDM低音みたいな感じで」：遅い3つの拍に太鼓と低音を重ねる。ゾウ＝小節の頭、あなた＝3拍目、ネコ＝2・4拍目 → 3つそろうと4つ打ち
+                r_ = PROG[bar % len(PROG)][0]; act = [t >= start[q] - 1e-6 for q in range(3)]
+                if i == 0: sim.note(t, 36, 1.0, .5, 9, "edmkick"); sim.note(t, near(r_, 33), .30, .5, 1.3, "sub"); sim.note(t, pitch(0, bar, k) + 24, GAIN[0] * .45, .5, DEC[0], "stone")   # 2オクターブ上も小さく（スマホでも最初の拍が聞こえるように）
+                if i == 1:
+                    if k % 2 == 1 or not act[0]: sim.note(t, 36, .86, .5, 9, "edmkick")   # 同じ瞬間に重なる拍は、大きい生きものの太鼓だけ（重ねると濁る）
+                    sim.note(t, near(r_ + (7 if k % 2 else 0), 45), .17, .5, 2.4, "sub")
+                if i == 2:
+                    if k % 2 == 1 or not act[1]: sim.note(t, 36, .72, .5, 9, "edmkick")
+                    sim.note(t + per[i] / 2, near(r_, 45), .14, .5, 6.0, "sub")           # 裏拍に短い低音（ドッ・ン・ドッ・ン）
+            sim.note(t, pitch(i, bar, k) + (12 if sp.get("edm") and i == 0 else 0), GAIN[i], .5 + (.0 if i < 2 else .28 * math.sin(i * 2.1 + k * .9)), DEC[i], "stone")   # edm：ゾウの音は1オクターブ上げる（低音と重なって濁らないように）
+            if i == 0 and not sp.get("edm"): sim.note(t, 36, .55, .5, 9, "kick")          # 心臓の「ドクン」：遅い2つだけ、低い太鼓を小さく重ねる
+            if i == 1 and k % 2 == 1 and not sp.get("edm"): sim.note(t, 36, .25, .5, 9, "kick")
     sim.note(tw, 36, 1.0, .5, 9, "kick"); sim.note(tw, 24, .9, .5, 1.0, "stone"); sim.note(tw, 36, .9, .5, 1.0, "stone")   # クジラ：いちばん低い音を長く
     for m in (48, 55, 60, 64, 67): sim.note(tw + .02, m, .22, .5, 1.6, "bell")
     for m in (36, 48, 55, 60, 64, 72): sim.note(T_end, m, .34, .5, 1.6, "bell")                                                # 終わりの和音
@@ -2327,9 +2336,23 @@ def hearts2(sp):
                 if i < nA: ab = ((t - start[i]) % per[i]) if start[i] <= t < T_end else 9.0; pulse = math.exp(-ab * 9) if per[i] >= .2 else (.25 if start[i] <= t < T_end else 0)
                 else: pulse = math.exp(-ew * 2.2) if ew >= 0 else 0
                 heart(d, W_ * S * .222, yc - 3 * S, 13 * S * (1 + .45 * pulse), dim((255, 64, 100), a))
-                ic = ICON[icn]; sz = min(rh * H_ * S * .56, 124 * S) * (1 + .10 * pulse) * (.6 + .4 * a); iw, ih = int(sz * ic.width / max(ic.size)), int(sz * ic.height / max(ic.size))
+                if sp.get("react"):   # 打たれたら「ドクン」：ふくらんで少し戻りすぎてから落ちつく。速い生きものは小刻みにふるえる
+                    if i < nA and per[i] >= .2: e_ = ((t - start[i]) % per[i]) if start[i] <= t < T_end else 9.0
+                    elif i < nA: e_ = 9.0
+                    else: e_ = ew if ew >= 0 else 9.0
+                    bump = (.38 * math.exp(-e_ * 10) * math.cos(e_ * 26)) if e_ < 1.2 else 0.0
+                    if i < nA and per[i] < .2 and start[i] <= t < T_end: bump = .05 * math.sin(t * 2 * math.pi / per[i] / 2)
+                    if i == nA and 0 <= ew < 2: bump = .6 * math.exp(-ew * 3) * math.cos(ew * 9)
+                    sq = 1 + bump
+                else: sq = 1 + .10 * pulse
+                ic = ICON[icn]; sz = min(rh * H_ * S * .56, 124 * S) * sq * (.6 + .4 * a); iw, ih = int(sz * ic.width / max(ic.size)), int(sz * ic.height / max(ic.size))
                 im_ = ic.resize((max(1, iw), max(1, ih)), Image.LANCZOS)
                 if a < .999: im_.putalpha(im_.getchannel("A").point(lambda v, a=a: int(v * a)))
+                if sp.get("react"):   # 縦につぶれて横に広がる（ドクンの形）
+                    sy_ = 1 / max(.6, sq) ** .5 if sq > 1 else 1; im_ = im_.resize((max(1, int(iw * (1 + (sq - 1) * .3))), max(1, int(ih * (1 + (sq - 1) * 1.0) * sy_))), Image.LANCZOS); iw, ih = im_.size
+                    if i < nA and per[i] >= .2 and start[i] <= t < T_end:   # 打った瞬間、生きものの後ろに輪がひろがる
+                        e2 = (t - start[i]) % per[i]
+                        if e2 < .35: rr_ = sz * (.5 + 1.2 * e2 / .35); cx_, cy_ = W_ * S * .105, yc - 6 * S; d.ellipse([cx_ - rr_, cy_ - rr_, cx_ + rr_, cy_ + rr_], outline=dim((255, 90, 130), a * (1 - e2 / .35)), width=int(3 * S))
                 d._image.paste(im_, (int(W_ * S * .105 - iw / 2), int(yc - 6 * S - ih / 2)), im_)
                 w = d.textlength(name, font=fNm); d.text((W_ * S * .105 - w / 2, yc - 6 * S + sz / 2 + 2 * S), name, font=fNm, fill=dim((200, 205, 215), a))
                 tx = f"{bpm:,} " + sp.get("unit", "bpm"); w = d.textlength(tx, font=fB); d.text((x1 - w, yc - amp - 40 * S), tx, font=fB, fill=dim((255, 255, 255), a), stroke_width=3 * S, stroke_fill=(0, 0, 0))
