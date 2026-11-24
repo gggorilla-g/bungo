@@ -1,0 +1,16 @@
+【タイトル】
+How Many Folds to Reach the Moon? #shorts
+
+【説明】
+Paper is 0.1 mm (0.004 in) thick. Each fold doubles it. How many folds until the stack reaches the Moon?
+
+Answer: 42 folds.
+
+*A thought experiment. In real life, the record is 12 folds (Britney Gallivan, 2002, with a 4,000 ft strip of thin paper).
+*Earth and Moon are enlarged so you can see them.
+
+Sources: NASA Moon Facts (average distance 238,855 miles), FAI (Karman line, 100 km), ESA (geostationary orbit, 35,786 km), Guinness World Records.
+Simulation and animation: original.
+
+【タグ】
+what if, paper folding, moon, exponential, math, science, thought experiment

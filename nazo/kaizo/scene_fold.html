@@ -133,10 +133,10 @@ function drawHud(t,n,place,labels,cam){hud.innerHTML='';
   const t2=el('text',{x:270,y:140,'font-size':31,'font-weight':900,'text-anchor':'middle','stroke-width':7});
   SPEC.titleLines[1].forEach(([s,k])=>{const ts=document.createElementNS(NS,'tspan');ts.textContent=s;if(k)ts.setAttribute('style','fill:#ffd43b');t2.appendChild(ts)});
   const since=t-lastN(t),pop=t>=C.CO&&since>=0&&since<.18?1+.16*(1-since/.18):1;
-  pill(26,208,L('折った回数'));T(24,262,54,EN?('x'+n):(n+'回'),{sw:9,fill:n>C.rec?'#ffd43b':null,tf:pop>1?`translate(24 262) scale(${pop.toFixed(3)}) translate(-24 -262)`:null});
-  pill(26,300,L('厚さ'));T(24,346,n>=36?34:40,C.fmtLen(C.thick(n)),{sw:8});
-  pill(514,208,L('実際に折れた記録'),15,'end');T(516,254,36,EN?('x'+C.rec):(C.rec+'回'),{a:'end',sw:8});
-  pill(26,392,L(place),14);
+  pill(26,208,TR('折った回数'));T(24,262,54,EN?('x'+n):(n+'回'),{sw:9,fill:n>C.rec?'#ffd43b':null,tf:pop>1?`translate(24 262) scale(${pop.toFixed(3)}) translate(-24 -262)`:null});
+  pill(26,300,TR('厚さ'));T(24,346,n>=36?34:40,C.fmtLen(C.thick(n)),{sw:8});
+  pill(514,208,TR('実際に折れた記録'),15,'end');T(516,254,36,EN?('x'+C.rec):(C.rec+'回'),{a:'end',sw:8});
+  pill(26,392,TR(place),14);
   labels.forEach(l=>{const v=new THREE.Vector3(l.p[0],l.p[1],l.p[2]).project(cam);if(v.z>1)return;const x=(v.x+1)/2*W,y=(1-v.y)/2*H,dx=l.dx||0,dy=l.dy||0;let op=l.op==null?1:l.op;
     op*=sstep(392,414,y+dy)*(1-sstep(600,640,y+dy));if(op<=.02)return;
     const gg=el('g',{style:'opacity:'+op.toFixed(2)});
@@ -152,7 +152,7 @@ function drawHud(t,n,place,labels,cam){hud.innerHTML='';
 const dims=k=>{let a=SPEC.paper.sheetM[0],b=SPEC.paper.sheetM[1];for(let i=0;i<k;i++){if(b>=a)b/=2;else a/=2}return[a,b]};
 const EN=C.spec.lang==='en';   // 英語版（fold42_en）：画面の字を英語に
 const DICT={'折った回数':'Folds','厚さ':'Thickness','実際に折れた記録':'Real record','机の上':'On the desk','校庭':'Schoolyard','東京の上空':'Above Tokyo','宇宙':'Space','人形 1.6m':'Doll 5.2 ft','校舎 約15m':'School 49 ft'};
-const L=s=>EN?(DICT[s]||s):s;
+const TR=s=>EN?(DICT[s]||s):s;
 const fmtRef=r=>(EN&&r.labelEn)?r.labelEn:r.label.replace(/（.*）/,'')+' '+r.value.toLocaleString('en-US')+r.unit;
 window.renderAt=function(t){
   const nf=C.nAt(t),n=C.nInt(t),h=C.thick(nf);
@@ -168,8 +168,8 @@ window.renderAt=function(t){
     paper.scale.set(Math.max(lerp(a[0],b[0],f),wmin),Math.max(h,.0001),Math.max(lerp(a[1],b[1],f),wmin*.8));
     const px=v=>v/Vh*960;   // 高さ v が画面で何px か
     const lab=(p,txt,v,o)=>{const s=px(v);const op=sstep(26,60,s)*(1-sstep(520,700,s));if(op>.02)labels.push(Object.assign({p,t:txt,op},o||{}))};
-    lab([1.05,1.6,.15],L('人形 1.6m'),1.6,{dx:-10,dy:-22,a:'end'});
-    lab([-20,15,-40],L('校舎 約15m'),15,{dx:-10,dy:-18,a:'end'});
+    lab([1.05,1.6,.15],TR('人形 1.6m'),1.6,{dx:-10,dy:-22,a:'end'});
+    lab([-20,15,-40],TR('校舎 約15m'),15,{dx:-10,dy:-18,a:'end'});
     lab([TOWER[0],333,TOWER[1]],fmtRef(R.tokyo_tower),333,{dx:16,dy:52});
     lab([FUJI[0],R.fuji.value,FUJI[1]],fmtRef(R.fuji)+(EN?'':'（高さの比較）'),R.fuji.value,{dx:-12,dy:-18,a:'end'});
     renderer.render(ground,gcam);cam=gcam;place=h<1.2?'机の上':(h<60?'校庭':'東京の上空')}
