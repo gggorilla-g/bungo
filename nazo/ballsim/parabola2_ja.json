@@ -24,5 +24,6 @@
  "id": "parabola2_ja",
  "from_focus": true,
  "stagger": 0.3,
- "v": 8.32
+ "v": 8.32,
+ "teaser": false
 }

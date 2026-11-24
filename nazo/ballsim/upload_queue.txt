@@ -1,3 +1,7 @@
+parabola3_ja MOSO ja
+cup1_ja MOSO ja
+parabola2_ja MOSO ja
+mirrors1_ja MOSO ja
 spiro12_ja MOSO ja
 canon1_ja MOSO ja
 fifths1_ja MOSO ja
@@ -6,9 +10,6 @@ glass1_ja MOSO ja
 koch2_ja MOSO ja
 wheel1_ja MOSO ja
 hearts2_ja MOSO ja
-mirrors1_ja MOSO ja
-parabola2_ja MOSO ja
-cup1_ja MOSO ja
 domino2_ja MOSO ja
 dots3_ja MOSO ja
 xmas1_ja MOSO ja
@@ -21,7 +22,6 @@ ellipse3_ja MOSO ja
 spiro5_ja MOSO ja
 cardioid5_ja MOSO ja
 spiro6_ja MOSO ja
-parabola3_ja MOSO ja
 ellipse4_ja MOSO ja
 domino2_en KAIDAN en
 cup1_en KAIDAN en
