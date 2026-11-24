@@ -45,7 +45,12 @@ let seed=3;const rnd=()=>{seed=(seed*16807)%2147483647;return seed/2147483647};
 const isP=n=>{if(n<2)return false;for(let d=2;d*d<=n;d++)if(n%d===0)return false;return true};
 // ---- 数の箱（1〜48、横12×縦4）。素数は光る
 const NB=48,boxes=[];
-for(let n=1;n<=NB;n++){const c=(n-1)%12,r=Math.floor((n-1)/12);const g=wire(new THREE.BoxGeometry(.34,.34,.34),isP(n)?0xffd166:0x41e2ff,{fill:.12,op:.7});g.position.set(1.6+(c-5.5)*.46,5.6-r*.46,1.8);g.userData.n=n;scene.add(g);boxes.push(g)}
+for(let n=1;n<=NB;n++){const c=(n-1)%6,r=Math.floor((n-1)/6);const g=wire(new THREE.BoxGeometry(.34,.34,.34),0x41e2ff,{fill:.12,op:.7});g.position.set(1.6+(c-2.5)*.44,6.9-r*.44,1.8);g.userData.n=n;scene.add(g);boxes.push(g)}
+// ---- 素数の宝石：素数の箱から金色の結晶が浮かび上がり、回りながら光る（オーナー 11/24「素数自体に価値があるような見せ方」）
+const gems=boxes.filter(g=>isP(g.userData.n)).map(b=>{const g=wire(new THREE.OctahedronGeometry(.15,0),0xffd166,{fill:.55,op:.9,th:1});g.scale.set(1,1.35,1);g.position.copy(b.position);g.visible=false;scene.add(g);
+  const h=new THREE.Mesh(new THREE.SphereGeometry(.21,16,12),new THREE.MeshBasicMaterial({color:0xffc94d,transparent:true,opacity:0,depthWrite:false}));scene.add(h);
+  const r=new THREE.Mesh(new THREE.RingGeometry(.2,.22,48),new THREE.MeshBasicMaterial({color:0xfff1b8,transparent:true,opacity:0,side:THREE.DoubleSide,depthWrite:false}));scene.add(r);
+  return {g,h,r,b,n:b.userData.n}});
 // ---- 複素数の平面（右）：実部0と1の縦の帯、まん中の線（実部1/2）、零点
 const PX=1.6,SY=.11;            // 帯の位置と、虚部の縮尺（1単位→.11）
 const plane=new THREE.Group();plane.position.set(PX,0,0);scene.add(plane);
@@ -76,8 +81,8 @@ for(let i=0;i<20;i++){const l=new THREE.Line(new THREE.BufferGeometry().setFromP
 const V=(x,y,z)=>new THREE.Vector3(x,y,z);
 const CAM={
  hook:[V(PX+4.2,5.2,13.5),V(PX,4.6,0),'orbit'],
- riemann:[V(PX+.8,5.4,11.5),V(PX,4.9,0),'push'],
- prime:[V(PX,5.4,8.2),V(PX,4.9,1.8),'push'],
+ riemann:[V(PX+.9,6.0,14.0),V(PX,5.2,0),'push'],
+ prime:[V(PX,5.6,12.8),V(PX,5.1,1.8),'push'],
  zeta:[V(PX+2.4,5.0,13.0),V(PX,4.6,0),'orbit'],
  line:[V(PX+3.0,4.6,12.5),V(PX,4.6,0),'push'],
  check:[V(PX-2.6,4.6,12.0),V(PX,4.6,0),'orbit'],
@@ -113,8 +118,8 @@ function at3(x,y,z){tmpV.set(x,y,z).project(cam);return [(tmpV.x+1)/2*W,(1-tmpV.
 let ST={};
 function big(txt,y,size,fill,pb){el('text',{x:270,y,'text-anchor':'middle','font-size':size*(1+.03*pb),'font-weight':900,'stroke-width':Math.max(6,size*.16),style:`fill:${fill}`},txt)}
 function extraHud(t,l,pb){const s=ST;
-  if(s.year)big(s.year,250,84,'#ffe066',pb);
-  if(s.nums)for(const b of s.nums){const [x,y]=at3(b.x,b.y,b.z);el('text',{x,y:y+8,'text-anchor':'middle','font-size':b.p?26:18,'font-weight':b.p?900:700,'stroke-width':4,style:`fill:${b.p?'#fff4c2':'#7f8bc7'};opacity:${b.o}`},String(b.n))}
+  if(s.year)big(s.year,l.fx==='riemann'?150:250,84,'#ffe066',pb);
+  if(s.nums)for(const b of s.nums){const [x,y]=at3(b.x,b.y,b.z);el('text',{x,y:y+(b.p?10:6),'text-anchor':'middle','font-size':b.p?30:15,'font-weight':b.p?900:700,'stroke-width':b.p?6:3,style:`fill:${b.p?'#fff4c2':'#5d6799'};opacity:${b.p?b.o:b.o*.7}`},String(b.n))}
   if(s.half){const [x,y]=at3(PX,7.4,0);el('text',{x:x+14,y,'font-size':24,'font-weight':900,'stroke-width':5,style:'fill:#ff9fcb'},'実部 1/2')}
   if(s.count!=null){big(s.count,200,58,'#7fe9ff',pb);big('個目も 線の上',250,26,'#bdf3ff',0)}
   if(s.prize)big('100万ドル',230,92,'#ffe066',pb);
@@ -125,10 +130,18 @@ function extraHud(t,l,pb){const s=ST;
 const glowC=document.getElementById('glow'),gx=glowC.getContext('2d');
 window.renderAt=function(t){const pb=pulse(t),L=lineAt(t),fx=L.fx,Q=BEAT/2;const s=ST={};
   // 数の箱：『素数』の行で1つずつ数え、素数が光る
-  const p0=T0('prime',.05);
-  boxes.forEach((g,i)=>{const n=g.userData.n,on=t>=p0+i*.06,pr=isP(n);const fo=1-sstep(T0('zeta',.25),T0('zeta',.6),t);g.visible=t>=T0('riemann')&&fo>0;g.scale.setScalar(Math.max(.001,fo));let k=.15;
-    if(on&&t<T0('line'))k=pr?.8+.6*pb+1.4*Math.exp(-(t-p0-i*.06)*3):.25;if(t>=T0('zeta')&&pr)k=.6+.4*pb;setGlow(g,k)});
-  if(fx==='prime'||fx==='riemann'||fx==='zeta')s.nums=boxes.filter(g=>g.visible&&g.scale.x>.6).map(g=>({x:g.position.x,y:g.position.y,z:.2,n:g.userData.n,p:isP(g.userData.n),o:t>=p0+(g.userData.n-1)*.06||fx!=='prime'?1:.25}));
+  const p0=T0('prime',.05),pe=T0('zeta',.6);
+  boxes.forEach((g,i)=>{const n=g.userData.n,ta=p0+i*.06,on=t>=ta,pr=isP(n);const fo=1-sstep(T0('zeta',.25),T0('zeta',.6),t);g.visible=t>=T0('riemann')&&fo>0;
+    let k=.15,sc=1,z=1.8;
+    if(on&&t<pe){if(pr){k=.9+.6*pb+1.6*Math.exp(-(t-ta)*3)}else{const d=sstep(ta,ta+.5,t);k=.22-.14*d;sc=1-.3*d;z=1.8-.9*d}}   // 素数でない数は暗く、小さく、奥へ下がる
+    g.scale.setScalar(Math.max(.001,sc*fo));g.position.z=z;setGlow(g,k)});
+  gems.forEach((o,j)=>{const ta=p0+(o.n-1)*.06,e=t-ta,fo=1-sstep(T0('zeta',.25),T0('zeta',.6),t),on=e>=0&&fo>0&&t>=T0('prime');o.g.visible=on;
+    if(!on){o.h.material.opacity=0;o.r.material.opacity=0;return}
+    const up=sstep(0,.45,e);o.g.position.set(o.b.position.x,o.b.position.y+.05*up,1.8+.55*up);o.g.rotation.y=t*1.6+j;o.g.scale.set(fo,1.35*fo,fo);
+    setGlow(o.g,1.0+.6*pb+1.8*Math.exp(-e*3));
+    o.h.position.copy(o.g.position);o.h.material.opacity=(.18+.12*pb+.5*Math.exp(-e*3))*fo;o.h.scale.setScalar(1+.15*pb);
+    o.r.position.copy(o.g.position);o.r.lookAt(cam.position);const rr=Math.min(1,e/.6);o.r.scale.setScalar(1+2.2*rr);o.r.material.opacity=e<.6?.8*(1-rr):0});
+  if(fx==='prime'||fx==='riemann'||fx==='zeta')s.nums=boxes.filter(g=>g.visible&&g.scale.x>.6).map(g=>({x:g.position.x,y:g.position.y,z:isP(g.userData.n)&&t>=p0+(g.userData.n-1)*.06&&fx!=='riemann'?2.45:2.0,n:g.userData.n,p:isP(g.userData.n),o:t>=p0+(g.userData.n-1)*.06||fx!=='prime'?1:.25}));
   if(fx==='riemann')s.year='1859';
   // 零点：『ゼロになる点』で、下から順に1つずつ現れる
   const z0=T0('zeta',.45);zeros.forEach((z,i)=>{const a=z0+i*.12;const on=t>=a;z.m.material.opacity=on?1:0;z.h.material.opacity=on?(.25+.25*pb+.6*Math.exp(-(t-a)*4)):0});

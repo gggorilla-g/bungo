@@ -66,6 +66,10 @@ if "tilt" in fxb and "launch" in fxb:   # 改札：カードが通るたびに�
     for i, m in enumerate([72, 76, 79, 84]): add(tb["t0"] + .25 * tb["voice"] + i * .27, stone(m, 3), .24, .5)
     tb = fxb["launch"]
     for i in range(10): add(tb["t0"] + .2 * tb["voice"] + i * .14, stone([79, 84, 86, 88][i % 4], 6), .16, .2 + .06 * i)
+if "prime" in fxb and "zeta" in fxb:   # リーマン予想：素数が光るたびに澄んだ1音（だんだん高く）
+    tb = fxb["prime"]; t0 = tb["t0"] + .05 * tb["voice"]; PR = [n for n in range(2, 49) if all(n % d for d in range(2, int(n ** .5) + 1))]
+    SC = [72, 74, 76, 79, 81, 84, 86, 88, 91, 93, 96, 98, 100, 103, 105]
+    for j, n_ in enumerate(PR): add(t0 + (n_ - 1) * .06, stone(SC[j] - 12, 3), .28, .3 + .4 * j / len(PR))
 for dly, g in [(.031, .3), (.067, .24), (.113, .18), (.171, .12)]:
     o = int(SR * dly); L[o:] += R[:-o] * g; R[o:] += L[:-o] * g
 st = np.stack([L, R], 1); st = st / (np.abs(st).max() + 1e-9) * .8
