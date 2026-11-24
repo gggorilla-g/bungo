@@ -731,3 +731,4 @@
   - cardioid2_en G3lV-d8V004「Double Each Number. What Shape Appears?」（妄想 番号2倍 4,103回）。色相150・音程+2
   - layers1_en qMFRgnKT8dA「1 Ball vs 512 Layers. It Splits Every 4 Bounces」（妄想 512枚 2,717回）。色相150・音程+2
   - ほかの上位（放物線・楕円・歓喜の歌・バネ・走る・コッホ・板・円周率・ジャンプ・金星・黄金角・2枚の鏡・振り子・12個・直角）は英語版を投稿済み。
+- 11/24 23時台 JST：持ち主「妄想行けるんじゃない」→ 上限が戻っていた。jingle1_ja KdsYknW7v3g、metro2_ja bou0O2veMQo を投稿（23:45 の上げ直し予約は取り消し）。
