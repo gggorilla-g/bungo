@@ -1,5 +1,5 @@
 【タイトル】
-Send Each Ball to Double Its Number. What Shape Appears? #shorts #math
+Double Each Number. What Shape Appears? #shorts #math #satisfying
 
 【説明】
 Put 100 numbered points (0 to 99) on a circle. From each point, send one ball to the point with double its number (subtract 100 if it goes past 99; for example 63 goes to 126 - 100 = 26). The lines left behind pile up into a heart-like curve called a cardioid.
