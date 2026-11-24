@@ -3227,13 +3227,17 @@ def slinky3d(sp):
             if "midi" in sp: return sp["midi"]   # 列ごとに音を決める（slinkynotes）
             g_ = (math.log(h) - lo_) / max(1e-9, hi_ - lo_); return SCL[int(round((1 - g_) * (len(SCL) - 1)))]
         for k in range(1, NS + 1):
+            if "midis" in sp:   # 曲にする：着地ごとの音を譜面で決める（オーナー 11/24「実際に音楽にできないかな」）。すべる声や石の前打音は入れない
+                mz = sp["midis"][k - 1]; vz = sp.get("vol", .4); pz = sp.get("pan", .5)
+                for mq in (mz if isinstance(mz, list) else [mz]): sim.notes.append((times[k], mq, vz, pz, sp.get("dec", 2.0), sp.get("voice", "bell")))
+                continue
             tl = times[k]; h_ = SEQ[k - 1]; m = pitch(h_); g_ = (math.log(h_) - lo_) / max(1e-9, hi_ - lo_); dur = times[k] - times[k - 1]
             sim.notes.append((tl, m, .50 + .22 * g_, .5, 2.6 - 1.6 * g_, "bell")); sim.notes.append((tl, m - 12, .22 + .20 * g_, .5, 2.2 - 1.2 * g_, "piano")); sim.notes.append((tl, m + 7, .10, .5, 3.0, "bell"))   # 着く音：鐘。高い段ほど低く、長い余韻
             tland = times[k - 1] + PH[k - 1][0] * dur; sim.notes.append((tland, m + 12, .12, .62, 5, "stone"))   # 先が次の段にふれる、小さな石の音
             tt = np.arange(int(SR_ * dur)) / SR_; u_ = tt / dur; mm = (m + 12) - 12 * (u_ * u_ * (3 - 2 * u_)); fr = 440 * 2 ** ((mm - 69) / 12) * (1 + .004 * np.sin(2 * math.pi * 5.5 * tt)); ph = 2 * math.pi * np.cumsum(fr) / SR_
             env = np.sin(math.pi * u_) ** 1.5; sim.extra.append((times[k - 1], (np.sin(ph) + .30 * np.sin(2 * ph) + .10 * np.sin(3 * ph)) * env, .10 + .10 * g_, .5))   # のびている間の、すべり落ちる声
         m0 = pitch(max(SEQ))
-        for mi in (m0 - 12, m0, m0 + 7, m0 + 12, m0 + 15): sim.notes.append((T_end + .05, mi, .26, .5, 1.0, "bell"))
+        for mi in (() if "midis" in sp else (m0 - 12, m0, m0 + 7, m0 + 12, m0 + 15)): sim.notes.append((T_end + .05, mi, .26, .5, 1.0, "bell"))
         WS, HS = 1080 * S, 1920 * S; FL = sp.get("fl", 1650) * S; fS = F(40 * S); ytop, ybot = int(sp.get("band", [.215, .80])[0] * HS), int(sp.get("band", [.215, .80])[1] * HS); cy0 = (ytop + ybot) / 2 + 20 * S
         OFF = np.array(sp.get("cam", [2.3, 1.7, 4.8])); tgt = [None]; tg2 = [None]; zoom = [1.0]; ghosts = []; fP = F(120 * S)
         def state(t):
@@ -3431,7 +3435,7 @@ def metronomes(sp):
         if t < D:
             for i in np.nonzero(cr)[0]:
                 reb = i in (iA, iB); x_ = (i % NX) / (NX - 1.0)
-                sim.notes.append((intro + t, pit[i], (.42 if reb else .50 / (1 + 16 * r)), .15 + .7 * x_, 7 if reb else 9, "glass")); ticks += 1
+                sim.notes.append((intro + t, pit[i], (.42 if reb else .50 / (1 + 16 * r)), .15 + .7 * x_, 7 if reb else 9, sp.get("voice", "glass"))); ticks += 1
         th = th2; t += dt
         if int(t * FPS) >= len(frames):
             dl = np.angle(np.exp(1j * (th - psi))); frames.append((th.copy(), r, psi, float((np.abs(dl) < THR).mean()), dl.copy()))
