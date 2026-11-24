@@ -2706,7 +2706,7 @@ def circlefill(sp):
     if sp.get("song") in SONGS:
         sk, ml, prog = SONGS[sp["song"]]; SC = [m for m in range(48, 96) if m % 12 in (0, 2, 4, 5, 7, 9, 11)]; up = lambda m: SC[SC.index(m) + 1]; dn = lambda m: SC[SC.index(m) - 1]
         MEL = [sk, ml, [x for m in ml for x in (m, up(m))], [x for m in ml for x in (up(m), m, dn(m), m)]]
-    hs = sp.get("hue_shift", 0.0); HUE = [((h_ + hs) % 1, s_) for h_, s_ in [(.97, .72), (.07, .80), (.13, .78), (.52, .42)]]; wR = sp.get("ring_w", .085)
+    hs = sp.get("hue_shift", 0.0); HUE = [((h_ + hs) % 1, s_) for h_, s_ in sp.get("hues", [(.97, .72), (.07, .80), (.13, .78), (.52, .42)])]; IR = sp.get("iris", 0.0); wR = sp.get("ring_w", .085)   # iris：区画の色を場所で少しずつ変える（玉虫色）
     ang = lambda b, m: th0 - 2 * math.pi * (3 / 8 * m + FR[b] / 8)
     hp = lambda b, m: (math.cos(ang(b, m)), math.sin(ang(b, m)))
     hits = []   # (時刻, 層, ボール, 何回目の当たり, 音)
@@ -2754,8 +2754,9 @@ def circlefill(sp):
                 for th, L, b, m, note in hits:   # ぬった区画
                     if th > t: break
                     e = t - th; h_, s_ = HUE[L]; fl = math.exp(-e * 9); a = ang(b, m); half = 180.0 / nseg(L); gap = .5 if L < 3 else .25
-                    r1 = (1 + wR * (L + 1)) * k; r0_ = (1 + wR * L) * k + 3 * S; col = hsv(h_, s_ * (1 - .75 * fl), min(1, .80 + .2 * fl + .2 * fin))
+                    r1 = (1 + wR * (L + 1)) * k; r0_ = (1 + wR * L) * k + 3 * S; h_ = (h_ + IR * math.sin(a * 2 + L * 1.3 + t * sp.get("iris_spin", 0.0))) % 1; col = hsv(h_, s_ * (1 - .75 * fl), min(1, .80 + .2 * fl + .2 * fin))
                     d.arc([cx - r1, cy - r1, cx + r1, cy + r1], -math.degrees(a) - half + gap, -math.degrees(a) + half - gap, fill=col, width=int(r1 - r0_))
+                    if IR: rs = r0_ + 5 * S; d.arc([cx - rs, cy - rs, cx + rs, cy + rs], -math.degrees(a) - half + gap, -math.degrees(a) + half - gap, fill=hsv(h_, s_ * .35, 1), width=max(1, int(3 * S)))   # 内がわに細い光のふち（ガラスのよう）
                     if e < .30:   # 当たった所から外へ光の輪
                         x, y = sim.to((math.cos(a), math.sin(a))); rr = (10 + 150 * e) * S; d.ellipse([x - rr, y - rr, x + rr, y + rr], outline=dim((255, 245, 225), 1 - e / .30), width=max(1, int(3 * S)))
                 for b in range(len(FR)):   # ボール（尾つき）
