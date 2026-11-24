@@ -10,11 +10,12 @@ from scipy.signal import butter, sosfilt, fftconvolve
 
 W, H, FPS, SR = 1080, 1920, 30, 48000
 BPM = 126; BEAT = 60 / BPM; BAR = 4 * BEAT; S16 = BEAT / 4
-OUT = sys.argv[1] if len(sys.argv) > 1 else "output/passcode2_ja.mp4"
+EN = os.environ.get("LANG_OUT") == "en"   # 英語版（MIW）：画面の字だけ英語に
+OUT = sys.argv[1] if len(sys.argv) > 1 else ("output/passcode2_en.mp4" if EN else "output/passcode2_ja.mp4")
 FM = "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf"
 FJ = "/usr/share/fonts/opentype/noto/NotoSansCJK-Medium.ttc"
 fD = ImageFont.truetype("/usr/share/fonts/opentype/inter/Inter-Light.otf", 88); fK = ImageFont.truetype("/usr/share/fonts/opentype/inter/Inter-SemiBold.otf", 23)
-fT = ImageFont.truetype(FJ, 40); fS = ImageFont.truetype(FJ, 28); fL = ImageFont.truetype(FM, 34)
+fT = ImageFont.truetype(FJ, 40); fTE = ImageFont.truetype("/usr/share/fonts/opentype/inter/Inter-SemiBold.otf", 40); fSE = ImageFont.truetype("/usr/share/fonts/opentype/inter/Inter-Regular.otf", 28); fS = ImageFont.truetype(FJ, 28); fL = ImageFont.truetype(FM, 34)
 
 # ---------- 楽譜 ----------
 # A 4分で押す（2小節）→ B 8分（2小節）→ C 16分（2小節）→ ため（2小節：低い太鼓が上へのぼり、最後の8分は無音）→ 4つ打ちで戻る（4小節）→ 最後の1打
@@ -213,8 +214,8 @@ def frame(t):
     done = [p for p in presses if p[0] <= t + 1e-6]; n_in = len(done) % 6
     if done and len(done) % 6 == 0 and t - done[-1][0] < .12: n_in = 6
     if si == 4 or ingap or (si == 3 and t >= tb(7, 8)): n_in = 6
-    d.text((W / 2, Y0 + 130), "押すたびに、1音", font=fT, fill=(255, 255, 255, 240), anchor="mm")
-    d.text((W / 2, Y0 + 188), "だんだん、速くなる", font=fS, fill=(255, 255, 255, 180), anchor="mm")
+    d.text((W / 2, Y0 + 130), "One tap, one beat" if EN else "押すたびに、1音", font=fTE if EN else fT, fill=(255, 255, 255, 240), anchor="mm")
+    d.text((W / 2, Y0 + 188), "Faster and faster" if EN else "だんだん、速くなる", font=fSE if EN else fS, fill=(255, 255, 255, 180), anchor="mm")
     d.text((W / 2, Y0), ["x1", "x2", "x4", "x8", "OPEN"][si], font=fL, fill=(255, 255, 255, 200), anchor="mm")
     for j in range(6):   # 入力の丸6つ（ドゥンで少しふくらむ）
         cx = W / 2 + (j - 2.5) * 84; cy = Y0 + 300; s = 16 * (1 + .25 * kp)

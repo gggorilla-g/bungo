@@ -1,0 +1,17 @@
+【タイトル】
+Every Tap Is a Deep Bass Hit. It Gets Faster Until the Drop (Use Headphones) #shorts #bass #music
+
+【説明】
+Each key press plays one deep bass hit. The taps speed up: quarter notes, eighth notes, sixteenths, then thirty-seconds. The bass drops out, a short silence, and the four-on-the-floor beat comes back. Headphones or speakers recommended.
+
+How it works:
+- Tempo: 126 BPM.
+- Each tap is an 808-style bass: the pitch drops a little at the start, so it sounds like "doom".
+- Lower notes light the lower keys, higher notes the upper keys. The "0" key flashes on the beat.
+- Every bass hit pushes the other sounds down for a moment (sidechain), which makes the mix pump.
+
+- The screen is an original drawing, not a recording of a real phone.
+- Sound and visuals: original (made with Python).
+
+【タグ】
+bass,808,deep bass,EDM,keypad,satisfying,headphones,music,shorts
