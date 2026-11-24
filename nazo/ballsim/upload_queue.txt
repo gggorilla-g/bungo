@@ -23,7 +23,6 @@ spiro5_ja MOSO ja
 cardioid5_ja MOSO ja
 spiro6_ja MOSO ja
 ellipse4_ja MOSO ja
-domino2_en KAIDAN en
 cup1_en KAIDAN en
 dots3_en KAIDAN en
 spiro7_en KAIDAN en
