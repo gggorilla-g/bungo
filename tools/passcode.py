@@ -11,7 +11,7 @@ OUT = sys.argv[1] if len(sys.argv) > 1 else "output/passcode1_ja.mp4"
 FM = "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf"
 FMB = "/usr/share/fonts/truetype/dejavu/DejaVuSansMono-Bold.ttf"
 FJ = "/usr/share/fonts/opentype/noto/NotoSansCJK-Medium.ttc"
-fD = ImageFont.truetype(FMB, 96); fT = ImageFont.truetype(FJ, 40); fS = ImageFont.truetype(FJ, 28); fL = ImageFont.truetype(FM, 26)
+fD = ImageFont.truetype("/usr/share/fonts/opentype/inter/Inter-Light.otf", 104); fK = ImageFont.truetype("/usr/share/fonts/opentype/inter/Inter-SemiBold.otf", 27); fT = ImageFont.truetype(FJ, 40); fS = ImageFont.truetype(FJ, 28); fL = ImageFont.truetype(FM, 26)
 
 # ---------- 楽譜：段ごとに押す間かくが半分になる ----------
 # 段1：4分（2小節）、段2：8分（2小節）、段3：16分（2小節）、段4：16分＋和音でため（2小節）→ ほどける（2小節）
@@ -105,8 +105,8 @@ with wave.open("build_passcode/a.wav", "wb") as w:
 
 # ---------- 絵（11/25 オーナー「マットなんだけど程よくブラーも効いてる」：ネオンの発光をやめ、ぼかした色の背景にすりガラスのキー） ----------
 # 段ごとの背景の色（くすんだ色）：夕方の青灰 → セージ → 砂 → ばら → ほどけ（明るい乳白）
-TINT = [((70, 78, 96), (120, 128, 150), (95, 90, 110)), ((70, 86, 80), (130, 150, 138), (98, 108, 96)),
-        ((96, 84, 70), (165, 148, 120), (120, 104, 92)), ((98, 76, 84), (170, 136, 148), (122, 96, 108)), ((130, 120, 118), (205, 192, 186), (160, 148, 150))]
+TINT = [((92, 86, 80), (150, 140, 128), (112, 104, 96)), ((84, 90, 84), (146, 150, 138), (106, 110, 100)),
+        ((100, 90, 78), (170, 154, 132), (124, 110, 96)), ((100, 84, 86), (168, 142, 146), (124, 102, 106)), ((132, 124, 118), (208, 196, 186), (162, 152, 146))]   # 11/25「アイフォンに寄せていい」：温かい灰色の壁紙寄り
 def blobs(cols, seed):   # 大きくぼかした色の雲（背景）
     rs = np.random.default_rng(seed); im = Image.new("RGB", (W // 4, H // 4), cols[0]); d = ImageDraw.Draw(im)
     for q in range(7):
@@ -115,10 +115,11 @@ def blobs(cols, seed):   # 大きくぼかした色の雲（背景）
     return im.filter(ImageFilter.GaussianBlur(60)).resize((W + 240, H + 240), Image.BICUBIC)
 BGS = [np.asarray(blobs(c, 5 + i), np.float32) for i, c in enumerate(TINT)]
 grain = (np.random.default_rng(9).normal(0, 1, (H, W, 1)) * 3.0).astype(np.float32)   # マットに見せる細かい粒
-KW, KG = 232, 40; KX0 = (W - 3 * KW - 2 * KG) // 2; KY0 = 800; KH = 196
+KD = 216; KSX = 296; KSY = 258; KY0 = 930   # 丸いキー（電話のキー配列。ABC の文字つき）
+LET = {"2": "ABC", "3": "DEF", "4": "GHI", "5": "JKL", "6": "MNO", "7": "PQRS", "8": "TUV", "9": "WXYZ"}
 kpos = {}
 for i, k in enumerate(KEYS):
-    r, c = divmod(i, 3); kpos[k] = (KX0 + c * (KW + KG), KY0 + r * (KH + 36))
+    r, c = divmod(i, 3); kpos[k] = (W / 2 + (c - 1) * KSX, KY0 + r * KSY)   # キーの中心
 def stage_at(t): return 0 if t < T0 + 2 * BAR else 1 if t < T0 + 4 * BAR else 2 if t < T0 + 6 * BAR else 3 if t < DROP else 4
 def frame(t):
     si = stage_at(t); prev = max(0, si - 1); edges = [T0 + 2 * BAR, T0 + 4 * BAR, T0 + 6 * BAR, DROP]
@@ -132,29 +133,31 @@ def frame(t):
     soft = Image.new("RGBA", (W // 2, H // 2), (0, 0, 0, 0)); g = ImageDraw.Draw(soft)   # ぼかして重ねる光（ほんのり）
     done = [p for p in presses if p[0] <= t]; n_in = len(done) % 6 if t < DROP else 6
     if done and len(done) % 6 == 0 and t - done[-1][0] < .18 and t < DROP: n_in = 6
-    d.text((W / 2, 260), "押すたびに、1音", font=fT, fill=(255, 255, 255, 235), anchor="mm")
-    d.text((W / 2, 316), "だんだん、速くなる", font=fS, fill=(255, 255, 255, 170), anchor="mm")
-    d.text((W / 2, 392), ["x1", "x2", "x4", "x4+", "OPEN"][si], font=fL, fill=(255, 255, 255, 190), anchor="mm")
-    for j in range(6):
-        cx = W / 2 + (j - 2.5) * 90; cy = 520; s = 18; pts = [(cx, cy - s), (cx + s, cy), (cx, cy + s), (cx - s, cy)]
-        if j < n_in: d.polygon(pts, fill=(255, 255, 255, 235))
-        else: d.polygon(pts, outline=(255, 255, 255, 170), width=3)
+    d.text((W / 2, 430), "押すたびに、1音", font=fT, fill=(255, 255, 255, 240), anchor="mm")
+    d.text((W / 2, 488), "だんだん、速くなる", font=fS, fill=(255, 255, 255, 190), anchor="mm")
+    d.text((W / 2, 300), ["x1", "x2", "x4", "x4+", "OPEN"][si], font=fL, fill=(255, 255, 255, 200), anchor="mm")
+    for j in range(6):   # 入力の丸6つ
+        cx = W / 2 + (j - 2.5) * 96; cy = 600; s = 16
+        if j < n_in: d.ellipse([cx - s, cy - s, cx + s, cy + s], fill=(255, 255, 255, 240))
+        else: d.ellipse([cx - s, cy - s, cx + s, cy + s], outline=(255, 255, 255, 220), width=3)
     for k, (x, y) in kpos.items():
         if k in "*#": continue
         hit = [p for p in done if p[1] == k]; e = t - hit[-1][0] if hit else 9
         if t >= DROP: e = min(e, ((t - DROP) * 2 / BEAT + "1234567890".index(k) * .37) % 1 * .6)
         lit = math.exp(-e * 6)
-        rr = [x, y, x + KW, y + KH]
-        d.rounded_rectangle(rr, radius=44, fill=(255, 255, 255, int(34 + 120 * lit)))   # すりガラス：白をうすく重ねる
-        if lit > .05: g.rounded_rectangle([v / 2 for v in rr], radius=22, fill=(255, 250, 240, int(110 * lit)))
-        d.text((x + KW / 2, y + KH / 2), k, font=fD, fill=(255, 255, 255, 245), anchor="mm")
+        rr = [x - KD / 2, y - KD / 2, x + KD / 2, y + KD / 2]
+        d.ellipse(rr, fill=(255, 255, 255, int(40 + 130 * lit)))   # すりガラスの丸：白をうすく重ねる
+        if lit > .05: g.ellipse([v / 2 for v in rr], fill=(255, 250, 240, int(110 * lit)))
+        dy = -14 if k in LET else 0
+        d.text((x, y + dy), k, font=fD, fill=(255, 255, 255, 250), anchor="mm")
+        if k in LET: d.text((x, y + 50), " ".join(LET[k]) if len(LET[k]) < 4 else " ".join(LET[k]), font=fK, fill=(255, 255, 255, 235), anchor="mm")
     if t >= DROP:   # ほどけ：ぼんやりした光の輪
         e = t - DROP
         for q in range(4):
             eq = (e - q * BEAT) % (BEAT * 4) if e > q * BEAT else -1
             if 0 <= eq < 1.4:
                 r = 80 + 500 * eq; a = int(120 * (1 - eq / 1.4))
-                g.ellipse([W / 4 - r / 2, 575 - r / 2, W / 4 + r / 2, 575 + r / 2], outline=(255, 252, 245, a), width=6)
+                g.ellipse([W / 4 - r / 2, 640 - r / 2, W / 4 + r / 2, 640 + r / 2], outline=(255, 252, 245, a), width=6)
     soft = soft.filter(ImageFilter.GaussianBlur(14)).resize((W, H), Image.BILINEAR)
     im = Image.alpha_composite(Image.alpha_composite(im, soft), ov)
     return im.convert("RGB")
