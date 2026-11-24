@@ -3189,7 +3189,7 @@ def slinky3d(sp):
     SEQ = sp.get("heights", [.125, .25, .5, 1, 2, 4, 8, 16, 32])   # 段の高さ（どんどん変わる）
     steps = [(0.0, 0.0)]; times = [intro]; PH = []
     for h in SEQ:
-        fall = math.sqrt(2 * (h + HA) / G_) - math.sqrt(2 * HA / G_); tl_ = .55 + fall; Tst = T0 + fall; PH.append((tl_ / Tst, (tl_ + .66) / Tst, min(52.0, 15 + 4.2 * h)))   # ①の終わり、②の終わり、空中の輪の数
+        fall = math.sqrt(2 * (h + HA) / G_) - math.sqrt(2 * HA / G_); PS_ = sp.get("ph_scale", 1.0); tl_ = .55 * PS_ + fall; Tst = T0 + fall; PH.append((tl_ / Tst, (tl_ + .66 * PS_) / Tst, min(52.0, 15 + 4.2 * h)))   # ①の終わり、②の終わり、空中の輪の数
         x, y = steps[-1]; steps.append((x + SW, y - h)); times.append(times[-1] + Tst)
     T_end = times[-1]; total = T_end + tail; NS = len(SEQ); CYC = (NS * SW, -sum(SEQ))   # 階段は同じ並びがくり返す（最後の絵が最初の絵につながり、動画がループする。オーナー 11/23「最後ループするように」）
     M = N * 32; U = np.linspace(0, N, M)
@@ -3223,7 +3223,9 @@ def slinky3d(sp):
         # 音は段の高さで決まる（オーナー 11/23「もっと神秘的で滋味深く、音に意味のある感じ。音と段差の高さがリンク」）
         #   高い段ほど低く、長くひびく。同じ高さの段は同じ音。音階はレ・ミ♭・ソ・ラ・シ♭（都節）。下りている間は、1オクターブ上からその音まで高さがすべり落ちる
         SCL = [m for m in range(50, 87) if m % 12 in (2, 3, 7, 9, 10)]; lo_, hi_ = math.log(min(SEQ)), math.log(max(SEQ)); sim.extra = []; SR_ = 44100
-        def pitch(h): g_ = (math.log(h) - lo_) / max(1e-9, hi_ - lo_); return SCL[int(round((1 - g_) * (len(SCL) - 1)))]
+        def pitch(h):
+            if "midi" in sp: return sp["midi"]   # 列ごとに音を決める（slinkynotes）
+            g_ = (math.log(h) - lo_) / max(1e-9, hi_ - lo_); return SCL[int(round((1 - g_) * (len(SCL) - 1)))]
         for k in range(1, NS + 1):
             tl = times[k]; h_ = SEQ[k - 1]; m = pitch(h_); g_ = (math.log(h_) - lo_) / max(1e-9, hi_ - lo_); dur = times[k] - times[k - 1]
             sim.notes.append((tl, m, .50 + .22 * g_, .5, 2.6 - 1.6 * g_, "bell")); sim.notes.append((tl, m - 12, .22 + .20 * g_, .5, 2.2 - 1.2 * g_, "piano")); sim.notes.append((tl, m + 7, .10, .5, 3.0, "bell"))   # 着く音：鐘。高い段ほど低く、長い余韻
@@ -3232,7 +3234,7 @@ def slinky3d(sp):
             env = np.sin(math.pi * u_) ** 1.5; sim.extra.append((times[k - 1], (np.sin(ph) + .30 * np.sin(2 * ph) + .10 * np.sin(3 * ph)) * env, .10 + .10 * g_, .5))   # のびている間の、すべり落ちる声
         m0 = pitch(max(SEQ))
         for mi in (m0 - 12, m0, m0 + 7, m0 + 12, m0 + 15): sim.notes.append((T_end + .05, mi, .26, .5, 1.0, "bell"))
-        WS, HS = 1080 * S, 1920 * S; FL = sp.get("fl", 1650) * S; fS = F(40 * S); ytop, ybot = int(.215 * HS), int(.80 * HS); cy0 = (ytop + ybot) / 2 + 20 * S
+        WS, HS = 1080 * S, 1920 * S; FL = sp.get("fl", 1650) * S; fS = F(40 * S); ytop, ybot = int(sp.get("band", [.215, .80])[0] * HS), int(sp.get("band", [.215, .80])[1] * HS); cy0 = (ytop + ybot) / 2 + 20 * S
         OFF = np.array(sp.get("cam", [2.3, 1.7, 4.8])); tgt = [None]; tg2 = [None]; zoom = [1.0]; ghosts = []; fP = F(120 * S)
         def state(t):
             if t < intro: return 0, 0.0
@@ -3315,11 +3317,11 @@ def slinky3d(sp):
                     if sp_ * near > .45: g.line([a, b], fill=dim((255, 255, 250), min(1, sp_ * near)), width=max(1, int(w_ * .40)))   # つやの芯
                 d._image.paste(base, (0, ytop))
                 e_p = t - times[k] if t < T_end else 9
-                if 0 <= e_p < 1.0 and t >= intro:   # 段に入るたびに、その段の高さを大きく出す
+                if 0 <= e_p < 1.0 and t >= intro and not sp.get("bare"):   # 段に入るたびに、その段の高さを大きく出す
                     tp = sp.get("pop", "{h}cm").format(h=("%g" % round(SEQ[k] * 8, 1))); sc_ = 1 + .5 * math.exp(-e_p * 9); fq = F(int(120 * S * sc_)); ga = min(1, e_p / .08) * max(0, 1 - max(0, e_p - .6) / .4); cp = hsv((sp.get("hue0", .47) + (k + 1) / float(NS)) % 1, .55, 1)
                     d.text((WS / 2 - d.textlength(tp, font=fq) / 2, .262 * HS - 60 * S * (sc_ - 1)), tp, font=fq, fill=dim(cp, ga), stroke_width=int(6 * S), stroke_fill=(0, 0, 0))
                 NN = sp.get("note_names", {2: "レ", 3: "ミ♭", 7: "ソ", 9: "ラ", 10: "シ♭"}); mp_ = pitch(SEQ[k]); tx = sp.get("fmt", "段の高さ {h}cm  →  音 {n}（{o}）").format(h=("%g" % round(SEQ[k] * 8, 1)), b=("%.2f" % (times[k + 1] - times[k])), n=NN.get(mp_ % 12, NN.get(str(mp_ % 12), "")), o=sp.get("oct_names", ["低い", "中", "高い"])[min(2, max(0, (mp_ - 50) // 12))]) if t < T_end else sp.get("done", "1cm から 256cm まで、全部下りた")
-                d.text((WS / 2 - d.textlength(tx, font=fS) / 2, .806 * HS), tx, font=fS, fill=(215, 222, 238), stroke_width=int(4 * S), stroke_fill=(0, 0, 0))
+                if not sp.get("bare"): d.text((WS / 2 - d.textlength(tx, font=fS) / 2, .806 * HS), tx, font=fS, fill=(215, 222, 238), stroke_width=int(4 * S), stroke_fill=(0, 0, 0))
             nd = sum(1 for j in range(1, NS + 1) if times[j] <= t)
             sim.frame(t, (), (), (sp.get("count_label", "下りた段 "), f"{nd} / {NS}"), (), draw)
         sim.finish(total)

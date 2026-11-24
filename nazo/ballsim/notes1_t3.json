@@ -1,0 +1,36 @@
+{
+ "kind": "slinky3d",
+ "id": "notes1_t3",
+ "bed": true,
+ "bloom": 0,
+ "glow": 0.5,
+ "style": "big",
+ "mark": "妄想科学",
+ "title": [
+  "バネ4本が階段を下りる",
+  "着地が{音符}になる"
+ ],
+ "count_label": "いちばん速いバネ ",
+ "teaser": false,
+ "heights": [
+  4,
+  4
+ ],
+ "t0": 10.234004917535463,
+ "ph_scale": 6.11764705882353,
+ "midi": 50,
+ "band": [
+  0.65375,
+  0.8
+ ],
+ "bare": true,
+ "fl": 560,
+ "zoom_max": 2.2,
+ "hue0": 0.85,
+ "tail": 0.9,
+ "cam": [
+  2.6,
+  1.1,
+  5.6
+ ]
+}
