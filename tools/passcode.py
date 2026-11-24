@@ -13,12 +13,12 @@ BPM = 126; BEAT = 60 / BPM; BAR = 4 * BEAT; S16 = BEAT / 4
 OUT = sys.argv[1] if len(sys.argv) > 1 else "output/passcode2_ja.mp4"
 FM = "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf"
 FJ = "/usr/share/fonts/opentype/noto/NotoSansCJK-Medium.ttc"
-fD = ImageFont.truetype("/usr/share/fonts/opentype/inter/Inter-Light.otf", 104); fK = ImageFont.truetype("/usr/share/fonts/opentype/inter/Inter-SemiBold.otf", 27)
+fD = ImageFont.truetype("/usr/share/fonts/opentype/inter/Inter-Light.otf", 88); fK = ImageFont.truetype("/usr/share/fonts/opentype/inter/Inter-SemiBold.otf", 23)
 fT = ImageFont.truetype(FJ, 40); fS = ImageFont.truetype(FJ, 28); fL = ImageFont.truetype(FM, 34)
 
 # ---------- 楽譜 ----------
 # A 4分で押す（2小節）→ B 8分（2小節）→ C 16分（2小節）→ ため（2小節：低い太鼓が上へのぼり、最後の8分は無音）→ 4つ打ちで戻る（4小節）→ 最後の1打
-T0 = .35
+T0 = .5   # 11/25「開始を0.5秒無音、無反応に」
 ROOT = [33, 33, 29, 28]                                      # 低音：A1・A1・F1・E1（41〜55Hz）
 KEYS = "123456789*0#"
 tb = lambda bar, six=0: T0 + bar * BAR + six * S16           # 小節と16分の位置 → 秒
@@ -168,6 +168,9 @@ mix[:, 0] += low; mix[:, 1] += low
 mix = np.stack([flt(mix[:, 0], "high", 26), flt(mix[:, 1], "high", 26)], 1)
 pk = np.max(np.abs(mix)); mix = np.tanh(mix / pk * 3.2) / np.tanh(3.2) * .78   # 頭打ちをやわらかく丸めて、全体の音量をかせぐ
 fo = int(SR * .35); e0 = int(SR * DUR); mix[e0 - fo:e0] *= np.linspace(1, 0, fo)[:, None]
+from scipy.signal import resample_poly   # 角の立った音で AAC にしたとき頭打ちを超えないよう、高い所を丸めて、4倍に細かくした波でも .89 以下にする
+mix = np.stack([flt(mix[:, 0], "low", 15000, 4), flt(mix[:, 1], "low", 15000, 4)], 1)
+tp = max(np.abs(resample_poly(mix[:, 0], 4, 1)).max(), np.abs(resample_poly(mix[:, 1], 4, 1)).max()); mix *= min(1.0, .80 / tp)
 os.makedirs("build_passcode", exist_ok=True)
 with wave.open("build_passcode/a.wav", "wb") as w:
     w.setnchannels(2); w.setsampwidth(2); w.setframerate(SR); w.writeframes((mix[:e0] * 32767).astype(np.int16).tobytes())
@@ -184,7 +187,8 @@ def blobs(cols, seed):   # 大きくぼかした色の雲
     return im.filter(ImageFilter.GaussianBlur(60)).resize((W + 240, H + 240), Image.BICUBIC)
 BGS = [np.asarray(blobs(c, 5 + i), np.float32) for i, c in enumerate(TINT)]
 grain = (np.random.default_rng(9).normal(0, 1, (H, W, 1)) * 2.6).astype(np.float32)   # マットに見せる細かい粒
-KD = 216; KSX = 296; KSY = 258; KY0 = 930; KCY = KY0 + 1.5 * KSY
+Y0 = 304   # 11/25「ボタン一回り小さくして中央よせ」：文字・丸・キーのまとまりを画面のまん中に
+KD = 182; KSX = 248; KSY = 216; KY0 = Y0 + 560; KCY = KY0 + 1.5 * KSY
 LET = {"2": "ABC", "3": "DEF", "4": "GHI", "5": "JKL", "6": "MNO", "7": "PQRS", "8": "TUV", "9": "WXYZ"}
 kpos = {}
 for i, k in enumerate(KEYS):
@@ -209,11 +213,11 @@ def frame(t):
     done = [p for p in presses if p[0] <= t + 1e-6]; n_in = len(done) % 6
     if done and len(done) % 6 == 0 and t - done[-1][0] < .12: n_in = 6
     if si == 4 or ingap or (si == 3 and t >= tb(7, 8)): n_in = 6
-    d.text((W / 2, 430), "押すたびに、1音", font=fT, fill=(255, 255, 255, 240), anchor="mm")
-    d.text((W / 2, 488), "だんだん、速くなる", font=fS, fill=(255, 255, 255, 180), anchor="mm")
-    d.text((W / 2, 300), ["x1", "x2", "x4", "x8", "OPEN"][si], font=fL, fill=(255, 255, 255, 200), anchor="mm")
+    d.text((W / 2, Y0 + 130), "押すたびに、1音", font=fT, fill=(255, 255, 255, 240), anchor="mm")
+    d.text((W / 2, Y0 + 188), "だんだん、速くなる", font=fS, fill=(255, 255, 255, 180), anchor="mm")
+    d.text((W / 2, Y0), ["x1", "x2", "x4", "x8", "OPEN"][si], font=fL, fill=(255, 255, 255, 200), anchor="mm")
     for j in range(6):   # 入力の丸6つ（ドゥンで少しふくらむ）
-        cx = W / 2 + (j - 2.5) * 96; cy = 600; s = 16 * (1 + .25 * kp)
+        cx = W / 2 + (j - 2.5) * 84; cy = Y0 + 300; s = 16 * (1 + .25 * kp)
         if j < n_in:
             d.ellipse([cx - s, cy - s, cx + s, cy + s], fill=(255, 255, 255, 245)); gr = 16 + 12 * kp
             g.ellipse([cx / 2 - gr, cy / 2 - gr, cx / 2 + gr, cy / 2 + gr], fill=tuple(int(v * (.12 + .3 * kp)) for v in col))
@@ -231,13 +235,13 @@ def frame(t):
         if a > .02: g.ellipse([x / 2 - hr, y / 2 - hr, x / 2 + hr, y / 2 + hr], fill=tuple(int(v * min(.55, .55 * a)) for v in col))
         d.ellipse(rr, fill=(255, 255, 255, int(28 + 70 * kk + 165 * lit)))   # すりガラスの丸：白をうすく重ねる。押すと明るい
         if a > .08: d.ellipse(rr, outline=col + (int(220 * a),), width=4)
-        dy = -14 if k in LET else 0
+        dy = -12 if k in LET else 0
         wq = 1 if max(lit, kk if k == "0" else 0) > .6 else 0; tc = tuple(int(255 + (30 - 255) * wq) for _ in range(3))   # 白く光っている間だけ、数字を暗い色に
         d.text((x, y + dy), k, font=fD, fill=tc + (250,), anchor="mm")
-        if k in LET: d.text((x, y + 50), " ".join(LET[k]), font=fK, fill=tc + (235,), anchor="mm")
+        if k in LET: d.text((x, y + 42), " ".join(LET[k]), font=fK, fill=tc + (235,), anchor="mm")
     if si == 4 and kp > .02:   # 戻ったら：ドゥンのたびに、キーの列から細い光の輪がひろがる
         e = -math.log(max(kp, 1e-6)) / 8.5; r = (260 + 1500 * e) / 2
-        g.ellipse([W / 4 - r, 1320 / 2 - r, W / 4 + r, 1320 / 2 + r], outline=tuple(int(v * .4 * kp) for v in col), width=8)
+        g.ellipse([W / 4 - r, KCY / 2 - r, W / 4 + r, KCY / 2 + r], outline=tuple(int(v * .4 * kp) for v in col), width=8)
     glow = glow.filter(ImageFilter.GaussianBlur(20)).resize((W, H), Image.BILINEAR)
     im = ImageChops.add(base, glow).convert("RGBA")
     return Image.alpha_composite(im, ov).convert("RGB")
