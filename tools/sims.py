@@ -3229,7 +3229,8 @@ def slinky3d(sp):
         for k in range(1, NS + 1):
             if "midis" in sp:   # 曲にする：着地ごとの音を譜面で決める（オーナー 11/24「実際に音楽にできないかな」）。すべる声や石の前打音は入れない
                 mz = sp["midis"][k - 1]; vz = sp.get("vol", .4); pz = sp.get("pan", .5)
-                for mq in (mz if isinstance(mz, list) else [mz]): sim.notes.append((times[k], mq, vz, pz, sp.get("dec", 2.0), sp.get("voice", "bell")))
+                for mq in (mz if isinstance(mz, list) else ([] if mz is None else [mz])):   # None＝この着地は鳴らさない（のばす音）
+                    sim.notes.append((times[k], mq, vz, pz, sp.get("dec", 2.0), sp.get("voice", "bell")))
                 continue
             tl = times[k]; h_ = SEQ[k - 1]; m = pitch(h_); g_ = (math.log(h_) - lo_) / max(1e-9, hi_ - lo_); dur = times[k] - times[k - 1]
             sim.notes.append((tl, m, .50 + .22 * g_, .5, 2.6 - 1.6 * g_, "bell")); sim.notes.append((tl, m - 12, .22 + .20 * g_, .5, 2.2 - 1.2 * g_, "piano")); sim.notes.append((tl, m + 7, .10, .5, 3.0, "bell"))   # 着く音：鐘。高い段ほど低く、長い余韻
@@ -3813,7 +3814,131 @@ def pendcone(sp):
         sim.frame(t, live, dots, (sp.get("count_label", "そろうまで "), f"{max(0, math.ceil(P - u))}"), fl)
     sim.finish(total)
 
-KINDS = {"pendcone": pendcone, "radwave": radwave, "ringsong": ringsong, "whisper": whisper, "picollide": picollide, "metronomes": metronomes, "spiro2": spiro2, "slinky3d": slinky3d, "fifths": fifths, "slinky": slinky, "chordballs": chordballs, "canonstairs": canonstairs, "koch2": koch2, "polywheel": polywheel, "circlefill": circlefill, "dots45": dots45, "spiralglass": spiralglass, "dominoes2": dominoes2, "hearts2": hearts2, "cupcaustic": cupcaustic, "dominoes": dominoes, "merge": merge, "hearts": hearts, "bricks": bricks, "pendwave3d": pendwave3d, "spiro": spiro, "lens": lens, "koch": koch, "pendwave": pendwave, "orbits": orbits, "phyllo": phyllo, "zoomsalt": zoomsalt, "layers": layers, "pixels": pixels, "sortviz": sortviz, "polyfocus": polyfocus, "heliostat": heliostat, "dragon": dragon, "rhythm": rhythm, "lissatable": lissatable, "plotter": plotter, "threebody": threebody, "pendswing": pendswing, "golden": golden, "piphase": piphase, "maurer": maurer, "harmono": harmono, "spiropens": spiropens, "star": star, "throw": throw, "tusi": tusi, "chain": chain, "basket": basket, "koch": koch, "cycloid": cycloid, "pendulums": pendulums, "lissajous": lissajous, "corner": corner, "sunflower": sunflower, "ulam": ulam, "parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2, "picount": picount}
+def merge2(sp):
+    """合体して次の段へ・決着版（オーナー 11/24「あれ作って重なる惑星のやつ」。merge1 は太陽まで届かず盛り上がりがなかった）。
+    落とす星を少しずつ大きくし、拍に合わせて落とす（はじめ1拍ごと→途中から半拍ごと＝リズムが変わる）。太陽までかならず届く種を選ぶ。
+    太陽ができたら落とすのをやめ、光の輪と和音で終わる。星は陰影つき、合体で火花、虹の円の上を光が回る"""
+    import random
+    T = sp.get("tiers"); K = len(T); R0, gro = sp.get("r0", .06), sp.get("grow", 1.25); rad = [R0 * gro ** k for k in range(K)]
+    RC, gate, g = 1.0, .17, 2.6; DMAX, intro, tail = sp.get("dur", 42.0), .4, 3.2; dt = 1 / 240; BEAT = 60 / sp.get("bpm", 120)
+    def run(seed):
+        rnd = random.Random(seed)
+        P = np.zeros((0, 2)); V = np.zeros((0, 2)); TI = np.zeros(0, int); born = np.zeros(0); events = []; drops = []; frames = []; best = 0; t = 0.0; nb = 1; ttop = None
+        while t < (DMAX if ttop is None else ttop + tail):
+            if ttop is None and t >= nb * BEAT * (1 if best < sp.get("fast_at", 4) else .5) and len(drops) < 2000:   # 拍に合わせて落とす。段が進むと半拍ごと
+                lvl = min(3, max(0, best - 2)); k0 = max(0, min(3, lvl - (1 if rnd.random() < .35 else 0)))
+                P = np.vstack([P, [rnd.uniform(-gate * .3, gate * .3), RC + .55]]); V = np.vstack([V, [rnd.uniform(-.08, .08), -.4]]); TI = np.append(TI, k0); born = np.append(born, t); drops.append((t, k0))
+                nb = int(t / (BEAT * (1 if best < sp.get("fast_at", 4) else .5))) + 1; nb = nb if best < sp.get("fast_at", 4) else nb
+            V[:, 1] -= g * dt; P += V * dt
+            for _ in range(3):
+                n = len(P)
+                if n > 1:
+                    d = P[:, None, :] - P[None, :, :]; dist = np.sqrt((d ** 2).sum(-1)) + np.eye(n); rr = np.array([rad[k] for k in TI]); need = rr[:, None] + rr[None, :]
+                    ii, jj = np.where(np.triu(dist < need, 1)); merged = set()
+                    for i, j in zip(ii, jj):
+                        if i in merged or j in merged: continue
+                        if TI[i] == TI[j] and TI[i] < K - 1:
+                            k = TI[i] + 1; P[i] = (P[i] + P[j]) / 2; V[i] = (V[i] + V[j]) / 2 * .5; TI[i] = k; born[i] = t; merged.add(j); events.append((t, k, P[i].copy())); best = max(best, k)
+                            if k == K - 1 and ttop is None: ttop = t
+                        else:
+                            nv = d[i, j] / dist[i, j]; ov = need[i, j] - dist[i, j]; mi, mj = rr[i] ** 2, rr[j] ** 2
+                            P[i] += nv * ov * mj / (mi + mj); P[j] -= nv * ov * mi / (mi + mj)
+                            rv = np.dot(V[i] - V[j], nv)
+                            if rv < 0: im = 1.25 * rv / (mi + mj); V[i] -= im * mj * nv; V[j] += im * mi * nv
+                    if merged:
+                        keep = [q for q in range(n) if q not in merged]; P, V, TI, born = P[keep], V[keep], TI[keep], born[keep]
+                for q in range(len(P)):
+                    x, y = P[q]; r = math.hypot(x, y); rq = rad[TI[q]]
+                    if abs(x) < gate - rq and y > 0: continue
+                    if r > RC - rq:
+                        nv = np.array([x, y]) / r; P[q] = nv * (RC - rq); vn = np.dot(V[q], nv)
+                        if vn > 0: V[q] -= 1.4 * vn * nv
+                        V[q] *= .995
+                for q in range(len(P)):
+                    x, y = P[q]; rq = rad[TI[q]]
+                    if y > RC * .95 and abs(abs(x) - gate) < rq: P[q, 0] = math.copysign(gate - rq, x) if abs(x) < gate else math.copysign(gate + rq, x); V[q, 0] *= -.3
+            V *= .999; t += dt
+            if int(t * FPS) >= len(frames): frames.append((P.copy(), TI.copy(), born.copy(), best))
+        return events, drops, frames, best, ttop, t
+    lo, hi = sp.get("top_window", [24.0, 36.0]); res = None
+    for seed in range(sp.get("seed", 1), sp.get("seed", 1) + sp.get("tries", 12)):   # 太陽まで届き、届く時刻がほどよい種を選ぶ
+        r_ = run(seed); print("  種", seed, "最高", T[r_[3]][0], "太陽", None if r_[4] is None else round(r_[4], 1))
+        if r_[4] is not None and lo <= r_[4] <= hi: res = r_; break
+        if r_[4] is not None and (res is None or abs(r_[4] - (lo + hi) / 2) < abs(res[4] - (lo + hi) / 2)): res = r_
+    if res is None: res = r_
+    events, drops, frames, best, ttop, D = res
+    sim = Sim(sp, (-1.1, -1.12, 1.1, 1.62), area=(.02, .17, .98, .94))
+    a0 = math.asin(gate / RC); arc = np.linspace(math.pi / 2 + a0, 2.5 * math.pi - a0, 160)
+    for q in range(len(arc) - 1):
+        u = q / (len(arc) - 1); c = hsv((.75 - u) % 1); sim.neon([(RC * math.cos(arc[q]), RC * math.sin(arc[q])), (RC * math.cos(arc[q + 1]), RC * math.sin(arc[q + 1]))], color=dim(c, .75), glow=dim(c, .6), width=6)
+    for sx in (-1, 1): sim.neon([(sx * gate, RC * math.cos(a0)), (sx * gate, RC + .5)], width=5)
+    sim.title()
+    SC = [m for m in range(55, 96) if m % 12 in (0, 2, 4, 7, 9)]
+    for tt, k0 in drops: sim.notes.append((intro + tt, SC[2 + k0], .10, .5, 3.0, "stone"))   # 落とす音：小さな石の音（拍を刻む）
+    for tt, k, _ in events: sim.notes.append((intro + tt, SC[min(len(SC) - 1, 4 + 2 * k)], .34 + .03 * k, .5, 2.2, "bell")); sim.notes.append((intro + tt, SC[min(len(SC) - 1, 4 + 2 * k)] - 12, .14 + .02 * k, .5, 2.0, "piano"))
+    if ttop is not None:
+        for q_, mi in enumerate((48, 55, 60, 64, 67, 72, 76, 79, 84)): sim.notes.append((intro + ttop + .02 + q_ * .045, mi, .30, .2 + .07 * q_, 1.2, "bell"))
+        for mi in (36, 48): sim.notes.append((intro + ttop + .02, mi, .45, .5, .8, "piano"))
+    total = intro + D + .2; fN = F(40 * S); fL = F(26 * S); fB = F(120 * S); from simkit import W as W_, H as H_
+    firsts = set(); top_ = 0
+    for tt, k, _ in events:
+        if k > top_: top_ = k; firsts.add((tt, k))
+    def planet(d, x, y, r, k, a=1.0):
+        name, base, kind = T[k]; sh = lambda f_: tuple(min(255, int(v * f_ * a)) for v in base)
+        d.ellipse([x - r, y - r, x + r, y + r], fill=sh(.42))   # 陰影：暗いふちから、左上の光へ
+        for q in range(1, 15):
+            f_ = q / 15; rr_ = r * (1 - .85 * f_); cx_, cy_ = x - r * .26 * f_, y - r * .30 * f_; d.ellipse([cx_ - rr_, cy_ - rr_, cx_ + rr_, cy_ + rr_], fill=sh(.42 + .62 * f_))
+        if kind == "bands":
+            for q in range(-3, 4):
+                yy = y + q * r * .26; w = math.sqrt(max(0, 1 - (q * .26) ** 2)) * r * .92; d.line([x - w, yy, x + w, yy], fill=sh(.70), width=max(1, int(r * .07)))
+        if kind == "earth": d.ellipse([x - r * .5, y - r * .45, x + r * .1, y + r * .2], fill=tuple(int(v * a) for v in (70, 160, 90))); d.ellipse([x + r * .1, y + r * .1, x + r * .6, y + r * .55], fill=tuple(int(v * a * .7) for v in (70, 160, 90)))
+        if kind == "ring": d.ellipse([x - r * 1.7, y - r * .35, x + r * 1.7, y + r * .35], outline=tuple(int(v * a) for v in (230, 210, 160)), width=max(2, int(r * .12)))
+        if kind == "sun":
+            for q in range(3): rr_ = r * (1.10 + q * .10); d.ellipse([x - rr_, y - rr_, x + rr_, y + rr_], outline=tuple(int(v * a * (1 - q * .3)) for v in (255, 200, 80)), width=max(2, int(r * .04)))
+        d.ellipse([x - r * .48, y - r * .62, x - r * .14, y - r * .34], fill=tuple(min(255, int(v * a * .4 + 150)) for v in base))   # つや
+    for fi in range(int(total * FPS)):
+        t = fi / FPS; k_ = min(len(frames) - 1, max(0, int((t - intro) * FPS))); PP, TT, BB, bst = frames[k_]; tsim = t - intro
+        def draw(d, PP=PP, TT=TT, BB=BB, bst=bst, tsim=tsim):
+            sp_ = 1 + (3 * min(1, max(0, (tsim - ttop) / .6)) if ttop is not None else 0)   # 虹の円の上を光が回る（太陽ができると速くなる）
+            for hq in range(3):
+                h0 = (tsim * .35 * sp_ + hq / 3) % 1; i0 = int(h0 * (len(arc) - 1))
+                for q in range(max(0, i0 - 10), min(len(arc) - 1, i0 + 1)):
+                    f_ = 1 - (i0 - q) / 11; c = hsv((.75 - q / (len(arc) - 1)) % 1); cc = tuple(min(255, int(v * .5 + 127 * f_)) for v in c)
+                    d.line([*sim.to((RC * math.cos(arc[q]), RC * math.sin(arc[q]))), *sim.to((RC * math.cos(arc[q + 1]), RC * math.sin(arc[q + 1])))], fill=cc, width=int((3 + 4 * f_) * S))
+            for q in range(len(PP)):
+                x, y = sim.to(tuple(PP[q])); r = rad[TT[q]] * sim.k; age = tsim - BB[q]; pop = 1 + .30 * math.exp(-max(0, age) * 9) if age < 1 else 1
+                planet(d, x, y, r * pop, TT[q])
+            for ei, (tt, k, pos) in enumerate(events):   # 火花
+                e = tsim - tt
+                if 0 <= e < .45:
+                    x, y = sim.to(tuple(pos)); c = tuple(min(255, int(v * .6 + 110)) for v in T[k][1]); nsp = 10 + k
+                    for j in range(nsp):
+                        a_ = 2 * math.pi * j / nsp + ei * .7; d0 = rad[k] * sim.k * (1.05 + e * 2.2); d1 = d0 + (10 + 14 * (1 - e / .45)) * S
+                        d.line([x + d0 * math.cos(a_), y + d0 * math.sin(a_), x + d1 * math.cos(a_), y + d1 * math.sin(a_)], fill=dim(c, 1 - e / .45), width=max(1, int(3 * S * (1 - e / .45))))
+                if 0 <= e < .9 and k >= 2 and (tt, k) in firsts and k < K - 1:
+                    x, y = sim.to(tuple(pos)); nm = T[k][0]; w = d.textlength(nm, font=fN); d.text((x - w / 2, y - rad[k] * sim.k - 60 * S - e * 30 * S), nm, font=fN, fill=(255, 255, 255), stroke_width=5 * S, stroke_fill=(0, 0, 0))
+            if ttop is not None and tsim >= ttop:   # 決着：大きく「太陽」
+                e = tsim - ttop; a = min(1, e / .25); nm = T[-1][0]; w = d.textlength(nm, font=fB); x, y = sim.to((0, RC * .55))
+                d.text((x - w / 2, y - 70 * S), nm, font=fB, fill=tuple(int(v * a) for v in (255, 225, 140)), stroke_width=int(7 * S * a), stroke_fill=(0, 0, 0))
+            n_ = K; bw = W_ * S * .9 / n_; y0 = max(H_ * S * .145, (getattr(sim, "label_y", 0) + 46) * S)
+            for k in range(K):
+                x = W_ * S * .05 + bw * (k + .5)
+                if k <= bst: planet(d, x, y0, bw * .32, k)
+                else: d.rounded_rectangle([x - bw * .34, y0 - bw * .34, x + bw * .34, y0 + bw * .34], radius=8 * S, fill=(40, 44, 70)); w = d.textlength("?", font=fL); d.text((x - w / 2, y0 - 16 * S), "?", font=fL, fill=(170, 175, 210))
+        fl = []
+        for tt, k, pos in events:
+            e = t - intro - tt
+            if 0 <= e < .35: fl.append((tuple(pos), rad[k] * 260 * (1 + e * 3), dim((255, 250, 230), 1 - e / .35), 3))
+        if ttop is not None:
+            e = t - intro - ttop
+            for q in range(3):
+                eq_ = e - q * .18
+                if 0 <= eq_ < .9: fl.append(((0.0, -.2), 120 + 900 * eq_, dim((255, 220, 150), 1 - eq_ / .9), 4))
+        sim.frame(t, (), (), None, fl, draw)
+    sim.finish(total)
+
+
+KINDS = {"merge2": merge2, "pendcone": pendcone, "radwave": radwave, "ringsong": ringsong, "whisper": whisper, "picollide": picollide, "metronomes": metronomes, "spiro2": spiro2, "slinky3d": slinky3d, "fifths": fifths, "slinky": slinky, "chordballs": chordballs, "canonstairs": canonstairs, "koch2": koch2, "polywheel": polywheel, "circlefill": circlefill, "dots45": dots45, "spiralglass": spiralglass, "dominoes2": dominoes2, "hearts2": hearts2, "cupcaustic": cupcaustic, "dominoes": dominoes, "merge": merge, "hearts": hearts, "bricks": bricks, "pendwave3d": pendwave3d, "spiro": spiro, "lens": lens, "koch": koch, "pendwave": pendwave, "orbits": orbits, "phyllo": phyllo, "zoomsalt": zoomsalt, "layers": layers, "pixels": pixels, "sortviz": sortviz, "polyfocus": polyfocus, "heliostat": heliostat, "dragon": dragon, "rhythm": rhythm, "lissatable": lissatable, "plotter": plotter, "threebody": threebody, "pendswing": pendswing, "golden": golden, "piphase": piphase, "maurer": maurer, "harmono": harmono, "spiropens": spiropens, "star": star, "throw": throw, "tusi": tusi, "chain": chain, "basket": basket, "koch": koch, "cycloid": cycloid, "pendulums": pendulums, "lissajous": lissajous, "corner": corner, "sunflower": sunflower, "ulam": ulam, "parabola": parabola, "rings": rings, "venus": venus, "cardioid": cardioid, "mirrors2": mirrors2, "picount": picount}
 
 if __name__ == "__main__":
     sp = json.load(open(sys.argv[1], encoding="utf-8")); KINDS[sp["kind"]](sp); kit(sp)
