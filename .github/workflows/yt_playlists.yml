@@ -1,0 +1,22 @@
+name: 再生リストを作る（題名のルールで振り分け）
+on:
+  workflow_dispatch:
+    inputs:
+      token: { description: "YT_REFRESH_TOKEN_MOSO / YT_REFRESH_TOKEN / _KAIDAN / _NAZO", default: "YT_REFRESH_TOKEN_MOSO" }
+      config: { description: "設定ファイル", default: "nazo/manual/playlists_moso.json" }
+      dry_run: { description: "true なら振り分けを表示するだけ（作らない）", default: "true" }
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install -q google-api-python-client google-auth
+      - env:
+          YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
+          YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
+          TOKEN: ${{ secrets[inputs.token] }}
+          PL_CONFIG: ${{ inputs.config }}
+          DRY: ${{ inputs.dry_run == 'true' && '1' || '0' }}
+        run: python tools/yt_playlists.py
