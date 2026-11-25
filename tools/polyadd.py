@@ -15,7 +15,8 @@ if EN: fTop = ImageFont.truetype(FI, 54); fTop2 = ImageFont.truetype(FI, 40)
 
 # ---------- 物理 ----------
 NMAX = 20                                       # 20角形の次は円
-R = 150.0                                       # 外接円の半径（px）
+R0, R1 = 330.0, 85.0                            # 11/25「大きくてどんどん小さくなる方がいい」：三角形は半径330px、当たるたびに小さくなり、円で85px
+def Rn(n): return R0 * (R1 / R0) ** ((min(n, NMAX + 1) - 3) / (NMAX + 1 - 3))
 G = 2600.0                                      # 重力（px/s²）
 LEFT = ((0.0, 900.0), (W / 2, 1560.0)); RIGHT = ((W / 2, 1560.0), (float(W), 900.0))
 def seg_normal(a, b):
@@ -24,17 +25,17 @@ def seg_normal(a, b):
     return n
 LINES = [(np.array(LEFT[0]), seg_normal(*LEFT)), (np.array(RIGHT[0]), seg_normal(*RIGHT))]
 WALLS = [(np.array([0.0, 0.0]), np.array([1.0, 0.0])), (np.array([float(W), 0.0]), np.array([-1.0, 0.0]))]
-def speed_target(t): return 1500 + 75 * t       # はね返りの速さ（だんだん上げる）
+def speed_target(t): return 1500 + 40 * t       # はね返りの速さ（だんだん上げる）
 def verts(pos, th, n):
     if n > NMAX: return None
     k = np.arange(n); a = th + 2 * np.pi * k / n - np.pi / 2
-    return pos + R * np.stack([np.cos(a), np.sin(a)], 1)
+    return pos + Rn(n) * np.stack([np.cos(a), np.sin(a)], 1)
 def simulate(seed=1, TMAX=40.0):
     rs = np.random.default_rng(seed)
-    pos = np.array([W * .5 + rs.uniform(-120, 120), 420.0]); vel = np.array([rs.uniform(-260, 260), 0.0]); th = rs.uniform(0, 1); om = 0.0; n = 3
+    pos = np.array([W * .5 + rs.uniform(-60, 60), 560.0]); vel = np.array([rs.uniform(-260, 260), 0.0]); th = rs.uniform(0, 1); om = 0.0; n = 3
     dt = 1 / 1200; t = 0.0; hits = []; frames = []; last = -1.0; t_circle = None
     while t < TMAX:
-        I = .5 * R * R * (.6 if n <= NMAX else 1.0)
+        R = Rn(n); I = .5 * R * R * (.6 if n <= NMAX else 1.0)
         vel[1] += G * dt; pos += vel * dt; th += om * dt
         cand = []
         for a, nn in LINES + WALLS:
@@ -61,7 +62,7 @@ def simulate(seed=1, TMAX=40.0):
                 if n <= NMAX: n += 1
                 hits.append((t, n, p.copy()))
                 if n > NMAX and t_circle is None: t_circle = t
-        if pos[1] < 140: pos[1] = 140; vel[1] = abs(vel[1])
+        if pos[1] - Rn(n) < 430 and vel[1] < 0: vel[1] = abs(vel[1]) * .9   # 上の文字の下で止める（見えない天井）
         t += dt
         if len(frames) < int(t * FPS): frames.append((pos.copy(), th, n))
         if t_circle is not None and t > t_circle + 3.2: break
@@ -140,7 +141,7 @@ def frame(fi):
     # 上の文字
     d.text((W / 2, 170), "Each hit adds one side" if EN else "当たるたびに、辺が1つふえる", font=fTop, fill=(255, 255, 255), anchor="mm", stroke_width=6, stroke_fill=(20, 24, 30))
     d.text((W / 2, 245), "What comes after 20?" if EN else "20角形の次は？", font=fTop2, fill=(255, 238, 120), anchor="mm", stroke_width=5, stroke_fill=(20, 24, 30))
-    lh = [h for h in hits if h[0] <= t]; e = t - lh[-1][0] if lh else 9
+    lh = [h for h in hits if h[0] <= t]; e = t - lh[-1][0] if lh else 9; R = Rn(n)
     pop = 1 + .14 * math.exp(-e * 12) if lh else 1                      # 当たった瞬間、少しふくらむ
     c = color(n)
     if n <= NMAX:
@@ -156,6 +157,7 @@ def frame(fi):
     # 名前（図形の上に出て、少し浮かぶ）
     if lh:
         a = min(1, e / .06); y = pos[1] - R * pop - 70 - 30 * min(1, e / .5)
+        if y < 330: y = pos[1] + R * pop + 70   # 上の文字とかさなるときは図形の下へ
         big = n > NMAX
         f = ImageFont.truetype(FI if EN else FJ, 120) if big else fName
         d.text((pos[0], y), name(n), font=f, fill=(255, 255, 255) if not big else (255, 238, 120), anchor="mm", stroke_width=8 if big else 6, stroke_fill=(20, 24, 30))
