@@ -778,3 +778,4 @@
 - 観測（MIW）：11/24 の cardioid2_en G3lV-d8V004・layers1_en qMFRgnKT8dA は、同じ題材の英語版がすでに公開中（rKRFvb43uQs 11/20、qQ44yY7gIsg 11/22）。色・音程・題名を変えた版
 - 観測（公開設定がこちらの記録と違う。こちらでは変えていない。制限の欄はどれも「—」）：妄想 passcode1_ja jffxRzwRjBc 公開／passcode2_ja MgW7MvTwLHc 非公開／passcode2_en QuypODSlmeM 非公開、メトロノーム ガラス版 2MtT7UFs6mM 公開／カチカチ版 bou0O2veMQo 非公開。MIW 階段のバネ 7wxjTUfIwAE・yQIECRoT6hY とも非公開、怪談8本は非公開
 - 11/25 持ち主（画面収録 Mellometry「Merging Ornaments」の型）「これは作って」「カノンは意識してね」→ tools/mergecol.py：月が上から落ち、同じ星が2つ重なると1つ大きい星になる（月→水星→…→木星→太陽）。列は落とした数の2進数。511個で9つの星が全部ならび、512個めで上から順に合体して太陽。落とす速さは1小節ごとに2倍。音は石の音で、合体の瞬間にだけ鳴る：和音1つに1回合体する星がカノンの旋律、2回が次の変奏、大きい星が低音。絵は自作（管・星とも元の動画とは別の形）。output/mergecol1_ja.mp4（22.8秒・60fps）。確認待ち、未投稿
+  - 投稿：妄想科学 Ii6yIQBWPVY（11/26、持ち主「アップしていい」）

@@ -129,3 +129,4 @@ threebody1_ja success UbZldgCpEuM (run 44910778933)
 2026-11-25T12:28:38Z parabola2_ja success 5oBb_IpXUOE (run 45613679478)
 2026-11-25T12:32:58Z mirrors1_ja_t success wxdNj7oxPeQ (run 45614154572) ※重複：11/20 公開の X2cVfGFhT-s と同じ題名・同じ題材
 2026-11-25T12:36:00Z spiro12_ja_t success IRujsvhmGsI (run 45614871365：止めた回。取り消しは投稿のあとで、動画は公開されていた。Studio で確認)
+2026-11-25T21:16:32Z mergecol1_ja success Ii6yIQBWPVY (manual up.sh)
