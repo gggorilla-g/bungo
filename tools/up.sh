@@ -6,6 +6,11 @@
 set -e
 ID="$1"; KIT="$2"; TOKEN="$3"; LANGC="${4:-ja}"; NOVOICE="${5:-1}"; PUB="${6:-}"
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"; URL="$(git -C "$ROOT" remote get-url origin)"
+# 同じチャンネルに同じ題名がもう公開されていたら上げない（11/25 持ち主「同じのあげてんじゃん」）。台帳は nazo/ballsim/published_<チャンネル>.txt
+#   わざと同じ題名で出し直すときだけ ALLOW_DUP=1。終了コード3 = 重複で止めた
+case "$KIT" in /*) KP="$KIT";; *) KP="$ROOT/$KIT";; esac
+TAG="${TOKEN#YT_REFRESH_TOKEN}"; TAG="${TAG#_}"; [ -z "$TAG" ] && TAG=ZATSU
+if [ -z "$ALLOW_DUP" ] && [ -f "$KP" ]; then python3 "$ROOT/tools/dupcheck.py" check "$KP" "$TAG" || exit 3; fi
 T="$(mktemp -d)"; cp "$ROOT/output/$ID.mp4" "$T/"
 # GitHub は1ファイル100MBまで。超えるときは 90MB ずつに分けて置く（upload_file.yml がつなぎ直す）
 [ "$(stat -c %s "$T/$ID.mp4")" -gt 95000000 ] && ( cd "$T" && split -b 90000000 -d "$ID.mp4" "$ID.mp4.part" && rm "$ID.mp4" )
@@ -28,4 +33,5 @@ gh run watch "$R" --exit-status >/dev/null 2>&1 || true
 C="$(gh run view "$R" --json conclusion -q .conclusion)"
 V="$(gh run view "$R" --log 2>/dev/null | grep -oE '"id": "[^"]+"' | head -1 | sed 's/"id": "//; s/"//')"
 echo "$ID $C $V (run $R)"
+[ "$C" = "success" ] && [ -n "$V" ] && [ -f "$KP" ] && python3 "$ROOT/tools/dupcheck.py" add "$KP" "$TAG" "$V" || true   # 上がったら台帳に足す
 [ "$C" = "success" ] || { gh run view "$R" --log-failed 2>/dev/null | grep -iE "quota|error|Traceback|HttpError" | tail -5 | cut -c1-300; exit 1; }

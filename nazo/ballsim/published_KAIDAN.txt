@@ -1,0 +1,120 @@
+# Make It Work 3D（UCBx3enM2p7aBROCU_EafuAw）に出ているショートの台帳。Studio の一覧を読んで写したもの（2026-11-25 22時台 JST、118本）
+# 書式: 動画ID|公開設定|日付|題名（ハッシュタグなし）。tools/dupcheck.py が投稿前に突き合わせる。上げるたびに1行足す
+f7XbCh7eSJ0|公開|2026/11/25|Every Tap Is a Deep Bass Hit. It Gets Faster Until the Drop (Use Headphones)
+qMFRgnKT8dA|公開|2026/11/24|1 Ball vs 512 Layers. It Splits Every 4 Bounces
+G3lV-d8V004|公開|2026/11/24|Double Each Number. What Shape Appears?
+Z_aDsff--DU|公開|2026/11/24|How Many Folds to Reach the Moon?
+REjZ1WRaSU8|公開|2026/11/24|Tip One 5 cm Domino. Will the 5 m One Fall? 105 Dominoes, Each a Bit Bigger
+0QVz60j0mzg|公開|2026/11/24|Can a Triangle Become a Wheel? Every Full Turn Adds One Side
+FQlCp8JYDHA|公開|2026/11/24|A Dark, Sad Chord Played by Falling Balls. They All Land Together After 18 Seconds
+ltyCjeLKcVQ|公開|2026/11/24|The Area Stays Finite. Can the Edge Be Infinite?
+QOEf9bfiX2E|公開|2026/11/24|3 Balls. 1 Melody. Each Starts One Turn Later (Listen to the End)
+5g3UCxEKsok|公開|2026/11/24|Connect the Notes of a Chord on the Circle of Fifths. Stack All 12 Keys. What Shape?
+O_82sobZHsw|公開|2026/11/24|Send 1000 Rays Into a Circle. Do Any Reach the Middle?
+vRRnrZ8XSuE|公開|2026/11/24|Each Ball Is One Note. Name This Christmas Song (Listen to the End)
+A3ywFLPEbCw|公開|2026/11/24|24 balls fired every way from the center, each linked to its 7th neighbor. What shape is left?
+btV5SulZh1c|公開|2026/11/23|15 pendulums that only differ in length, seen from straight above. Back in line after 24 s (watch to
+MBzY5daVd3M|公開|2026/11/23|Fire 20 balls every way from the center. When do they all meet again? (watch to the end)
+xZvHYZuoIuY|公開|2026/11/23|Crash Two Glass Blocks and Count the Hits. 1 kg vs 1,000,000 kg Gives a Famous Number
+yzE_SxG6U5Y|公開|2026/11/23|100 Glass Metronomes. Release the Board. Will They All Sync?
+6BIFaLnpm1w|公開|2026/11/23|Roll Four Gears at Once. Each Draws 12 Petals. What Do They Make Together?
+7wxjTUfIwAE|非公開|2026/11/23|Every Step Is Twice as Tall. How Far Can the Spring Walk Down? 1 cm to 256 cm
+yQIECRoT6hY|非公開|2026/11/23|Every Step Is Twice as Tall. How Far Can the Spring Walk Down? 1 cm to 256 cm
+U1n6kH3HBxI|公開|2026/11/23|131 and 49 Teeth. What Appears Inside the Flower? (Wait for the End)
+BIWESzV1vlE|公開|2026/11/23|One Ball Flows In and Multiplies. How Many Balls to Break All 255 Glass?
+WQLlgvLfbro|公開|2026/11/23|Every Bounce Paints the Ring and Plays a Note. Will It Fill It All? Name the Song
+9eMUGxr28Iw|非公開|2026/11/23|One Ball Breaks One Glass. How Many Balls to Break All 255? It Doubles Every Trip
+neG5-XJEeGQ|公開|2026/11/23|Roll a Gear Almost Half the Ring. It's Not a Flower Anymore (Wait for the End)
+6iIdIjVLUic|非公開|2026/11/23|41 Teeth Drew 96 Petals. What About 42? (Wait for the End)
+meoDvGljuKk|公開|2026/11/23|Every Heartbeat Plays One Note of the Same Song. Wait for the Whale
+pUdYmSTfajs|公開|2026/11/23|Roll a Gear Inside a Ring. What Flower Does It Draw? (Wait for the End)
+d6ayW8OtAWQ|公開|2026/11/23|Each Domino Is 1.5x Bigger. Can the Tiny One Topple the Giant?
+KojR9prnrww|公開|2026/11/22|The Area Barely Grows. Can the Edge Grow Forever? (Wait for the End)
+zOrYnZo6zTA|公開|2026/11/22|Fire Every Way Between Two Mirrors. Do They ALL Come Back to One Point? (Wait for 64)
+Y7qjnAna0E0|公開|2026/11/22|15 Pendulums, Stone Chimes. When Do They All Line Up Again? (Wait for the End)
+-Symoi_zVkw|公開|2026/11/22|Connect Earth and Venus With a Line for 8 Years. What Appears? (Wait for the End)
+rPM365C-7OY|公開|2026/11/22|Connect Earth and Venus With a Line for 8 Years. What Appears? (Wait for the End)
+n_47nOAkVfY|公開|2026/11/22|Turn 137.5°, Place a Dot, Repeat. What Pattern Appears? (Wait for the End)
+jCA2nVBcSFA|公開|2026/11/22|Can You Name This Song? Every Bounce Plays One Note (Before 64 Balls)
+qQ44yY7gIsg|公開|2026/11/22|Can 1 Ball Break 512 Layers? It Splits Every 4 Bounces (Wait for the End)
+qd8C_aXa0XA|公開|2026/11/22|Pixel Count Pushed to the Limit. Which One Do You Like?
+ukhK0Ro0HZc|公開|2026/11/22|Pick One Bar, Smaller Ones Go Left. Repeat. Does It Sort 72 Bars? (Wait for the Final Sweep)
+3EKobT9D0pw|公開|2026/11/22|Only Swap Neighbors. Can 32 Bars Sort Themselves? (Wait for the Final Sweep)
+s3FT7kpXpk0|公開|2026/11/22|8 Speeds, One Point. When Do They All Line Up Again? (Polyrhythm)
+M8V2_9fx5Ac|公開|2026/11/22|Every Ball Goes In. Every Bounce Plays the Next Note (Wait for 32 Balls)
+XqBSrPqXEaA|公開|2026/11/22|Every Ball Crosses One Point. Every Bounce Plays the Next Note (Wait for 64 Balls)
+IySIFsSDqTE|公開|2026/11/22|Drop Them Into a Golden Bowl. Do They All Cross One Point?
+3ngvORMxU0g|公開|2026/11/22|Slightly Squashed. Do They All Meet at the Other Point?
+hKqnZPOBf0Q|公開|2026/11/22|Almost a Circle. Do They All Meet at the Other Point?
+PJNDfAk3qPQ|公開|2026/11/22|Same Height, One Bounce. Do They ALL Go In?
+7IQ0LNY08ZY|公開|2026/11/22|Make the Ellipse Long and Thin. Do They Still All Meet?
+L9ctyLAOrNU|公開|2026/11/22|Drop Them Into a Deep Bowl. Do They All Cross One Point?
+ggwAvLFVChw|公開|2026/11/22|Many Small Mirrors. Can They Send ALL the Light to One Point?
+ulmExtpDmTY|非公開|2026/11/22|Same Height, One Bounce. Do They ALL Go In?
+UyKDX7-UnsY|公開|2026/11/22|Fire Balls Every Way From One Point. Do They All Reach the Other One?
+doX9N9Po-dU|公開|2026/11/22|Fire Balls Every Way From One Point. Do They All Reach the Other One?
+kWzW9ujqIb8|公開|2026/11/22|Drop Balls Straight Down Into a Bowl. Do They All Cross One Point?
+p3jAE9vgeIo|公開|2026/11/22|Why Is a Circle's Area πr²? Unroll It Into a Triangle
+_ehcvobWTuI|公開|2026/11/22|Fire Balls Every Way From One Point. Do They All Go Straight Up?
+Sjb28oYlT5Y|公開|2026/11/22|15 Pendulums, Only the Length Changes. Watch Them Line Up Again
+VpZrS3ZZFCs|公開|2026/11/21|What if every jump went 5x higher?
+KLI90Jf0zv4|公開|2026/11/21|64 Balls Start Together in a D-Shaped Room
+brrS7Um7ZG0|公開|2026/11/21|5 Balls Move in Perfect Symmetry Inside a Star, Until One Turns by 0.1°
+nR9oCqEIu9A|公開|2026/11/21|30 Balls in a Mushroom-Shaped Room. Some Can Never Leave the Cap
+wVjpl2dePyk|公開|2026/11/21|What if every jump went 10x higher?
+3jr58vUairg|公開|2026/11/21|Fold a Paper Strip in Half 12 Times, Then Open Every Crease to 90°
+N1D-_5wkW_s|公開|2026/11/21|Can You Tap Along With the Glowing Ball?
+BOrzxmt4bss|公開|2026/11/21|Combine Circles at 7 Speeds. What Shapes Appear?
+-Rfd04sCQdY|公開|2026/11/21|A Printer Prints It Line by Line. What Picture Appears?
+5snralrrsvA|公開|2026/11/21|Three Stars Released From Rest. What Happens?
+-_hfsLi5gU0|公開|2026/11/21|Even in a Thin Ellipse, Do They ALL Meet at the Other Point?
+PfiXfuhstUk|公開|2026/11/21|Fire Balls From the Center. Do They ALL Come Back?
+gU2G4WAm24U|公開|2026/11/21|Fire Balls From One Point. Do They ALL Meet at the Other?
+eLxePYT5ZTo|公開|2026/11/20|Bounce inside a circle, moving 154.3° each time. Does it come back?
+zpBv2ZU7378|公開|2026/11/20|Same height, different sideways speeds. Which ball lands first?
+NuYj1prWnyQ|公開|2026/11/20|Roll a half-size circle inside a circle. What path do the dots draw?
+Nr-FFh5Jkzo|公開|2026/11/20|One Ball Hits Two at Once. How Far Does It Spread?
+_FTuVipkcJk|非公開|2026/11/20|5 Swings Across, 6 Swings Up. Will the Line Close?
+fpxwlejA_p0|公開|2026/11/20|4 Swings Across, 5 Swings Up. Will the Line Close?
+hmzqcP64Tts|非公開|2026/11/20|Multiply Each Number by 5. How Many Cusps Appear?
+-qcuorVpUeg|公開|2026/11/20|Multiply Each Number by 4. How Many Cusps Appear?
+nrdBgFvF7Bo|公開|2026/11/20|Which One Breaks 10 Plates First? The Last Round Changes Everything
+rKVJeCW5KNw|公開|2026/11/20|Release Them From Any Height. Will They All Reach the Bottom Together?
+d1HbVuf5jc0|公開|2026/11/20|Drop Them From One Height. One Bounce. Will Every Ball Go In?
+O_Brpai6am8|公開|2026/11/20|Fold the Edge Every Lap. Finite Area, Infinite Edge?
+jjVcJGhuKo0|公開|2026/11/20|3 Swings Across, 5 Swings Up. Will the Line Close?
+qkDf6ABU_Os|公開|2026/11/20|15 Pendulums of Different Lengths. When Do They Line Up Again?
+lpmp0CaFfoA|公開|2026/11/20|Which One Breaks 10 Plates First? 1000, 2ⁿ, n⁴ and Fibonacci
+wmy0z6RcLT4|公開|2026/11/20|Drop Them Into a Right-Angle Mirror. Will They All Come Straight Back?
+XAG9Se2KxQI|公開|2026/11/20|Now Triple Each Number. What Shape Appears?
+4D_msDJE4Ko|公開|2026/11/20|Spiral the Numbers and Light Up Only the Primes
+WR1N68wSv0A|公開|2026/11/20|Turn 137.5° and Place a Seed. What Pattern Appears?
+1tSJlBKdRoY|非公開|2026/11/20|Count the Collisions. Does Pi Show Up?
+X-JSx8NofyY|公開|2026/11/20|Count the Collisions. Does Pi Show Up?
+i3XNNGec4K0|非公開|2026/11/20|Each Ball Does One More Lap. When Do They Line Up Again?
+D0uMIKjEWD0|公開|2026/11/20|Each Ball Does One More Lap. When Do They Line Up Again?
+rKRFvb43uQs|公開|2026/11/20|Send Each Ball to Double Its Number. What Shape Appears?
+IaO9iDnnSaI|公開|2026/11/20|Keep Connecting Earth and Venus. What Appears?
+oQqaE3dGxX8|公開|2026/11/20|Two Mirrors. Will Every Ball Reach One Point?
+hoN_D9F5g8o|公開|2026/11/20|Drop Them Straight Down. Will They All Cross One Point?
+JRk_yCvr9BY|非公開|2026/11/20|Which One Breaks 10 Plates First? 1000 vs 2ⁿ vs n⁴ vs Fibonacci
+1mDvgaF3Slw|公開|2026/11/20|Every Gold Hit = 1 New Ball. How Long Until It Bursts?
+mALeNQZay0E|公開|2026/11/20|What If Your Running Speed Doubled Every Second?
+cerM0WlHSNI|公開|2026/11/19|What if every jump went 3x higher?
+z5n3qP0PnrI|公開|2026/11/19|What if every jump went 2x higher?
+fPO1H0rW19c|公開|2026/11/18|Solar System Size Comparison (3D)
+QifZu2HnDO4|公開|2026/11/18|How Romans Heated Their Floors 2,000 Years Ago
+kY51En9SUjo|公開|2026/11/18|What If You Never Blinked?
+WITJikAlKJU|公開|2026/11/18|He Measured the Whole Earth With a Stick
+wN3Aqe3S14c|公開|2026/11/18|Why Airplane Windows Have a Tiny Hole
+vsHZEQvYzao|公開|2026/11/17|Everest vs Olympus Mons (Mars) Size Comparison
+l7V57ooa3e4|公開|2026/11/16|Rocket Size Comparison (3D)
+nS31rLhp10M|公開|2026/11/15|Turning a Plastic Bottle into a Rocket
+KE9mYalCnYw|非公開|2026/11/02|【怪談】振り向いた娘の顔には、目も鼻も口もなかった
+KhhcMY98XU8|非公開|2026/11/02|【怪談】さっき別れた友だちが死んだと、知らない娘がささやいた
+cF1ZSwXfzbY|非公開|2026/11/02|【怪談】お茶の中に、知らない男の顔が映っていた
+LvEIHy_UeHY|非公開|2026/11/02|【怪談】眠っている五人の体には、どれも、頭がなかった
+dqQ2VYiPRSo|非公開|2026/11/02|【怪談】白い女が息を吹きかけると、男は氷のように冷たくなった
+shxIPmdHluM|非公開|2026/11/02|【怪談】体じゅうにお経を書いた男は、耳にだけ、書き忘れていた
+KzPx8gMkoGo|非公開|2026/11/02|【怪談】壁に映ったのは、娘の影ではなかった
+L_2MD2MbpVM|非公開|2026/11/02|【怪談】毎晩会っていた女は、男を川の底へ連れていった

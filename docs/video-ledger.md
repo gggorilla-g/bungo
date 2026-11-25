@@ -759,3 +759,21 @@
 - 11/25 持ち主「録画は優先したい」（VFigures SOFT MADNESS の型）→ tools/polyadd.py：図形がV字の谷ではね、床に当たるたびに辺が1つふえて色と名前（三角形→…→二十角形→円）が変わる。当たった所に短い線。はね返りの速さを少しずつ上げてリズムを速く。音：当たるたびにガラスのマリンバ（ド・レ・ミ・ソ・ラで上がる）、10角形からベル、8角形からやわらかいキック、円で和音。平らな色・黒いふち・青緑の背景（参考の型に寄せた。ピンクのやわらかい玉は入れていない）。polyadd1_ja 22.1秒、円になるのは 18.9秒。確認待ち。
 - 11/25 持ち主「大きくてどんどん小さくなる方がいいのでは」→ 三角形は半径330px、当たるたびに小さくなり円で85px。見えない天井（上の文字の下）。円になるのは 13.9秒、17.1秒。
 - 11/25 18:40 JST 持ち主「妄想なんかあっぷして」→ キュー先頭の parabola3_ja（深いお椀の形）1Fw-sW_y6Ls を投稿。19:17 のまとめ出しは次の5本から。
+
+### 11/25 同じ動画を2回上げた（2枚の鏡）と、その止め方
+- 持ち主「同じのあげてんじゃん」「前あげたやつあげてね」。11/25 21:32 JST に順番待ちの mirrors1_ja を上げた（wxdNj7oxPeQ）。同じ題名「2枚の鏡に跳ね返すと、全部同じ点に集まる？」は 11/20 に X2cVfGFhT-s で公開済み（73回・視聴の割合 69.3%）
+- 原因（観測）：投稿の記録 upload_done.txt は 11/20 午後からで、11/20 朝の3本（板レース旧・放物線・2枚の鏡）が載っていない。mirrors1 は 11/21 に音を作り直して順番待ちに戻し、そのまま残っていた。順番待ちを Studio の一覧と突き合わせたことが一度もなかった
+- 同じ回で止めた spiro12_ja_t（run 45614871365 を取り消し）は、投稿が先に終わっていて公開されていた（IRujsvhmGsI）
+- 11/25 の妄想の投稿は5本：parabola3 1Fw-sW_y6Ls、cup1 C-F2Ul1GYg4、parabola2 5oBb_IpXUOE、mirrors1 wxdNj7oxPeQ（重複）、spiro12 IRujsvhmGsI。妄想の一覧101本と題名を全部突き合わせ、同じ題名は mirrors1 の1組だけ
+- 対応：
+  - Studio の一覧を全部読んで台帳にした：nazo/ballsim/published_MOSO.txt（100本）、published_KAIDAN.txt（118本、ブラウザ側と1行ずつ照合して一致）
+  - tools/dupcheck.py：上げる前に、同じチャンネルの公開中の題名と照らす。同じ・ほぼ同じなら up.sh は終了コード3で止まる（わざと出し直すときだけ ALLOW_DUP=1）。upq.sh は順番待ちから外して upload_hold.txt へ置く。上がったら台帳に1行足す
+  - 確かめ：mirrors1_ja・mirrors1_en・parabola2_en は止まる、canon1_ja・cup1_en は通る
+  - 順番待ちから外した：上がった4本（cup1・parabola2・mirrors1・spiro12 の ja）
+  - 保留（upload_hold.txt）：mirrors1_en（MIW に oQqaE3dGxX8 が 11/20 から公開）、parabola2_en（MIW に _ehcvobWTuI が 11/22 から公開）、ellipse3_ja（細長い楕円は wsVF_TluqHQ が公開中）、koch2_ja（コッホは ABa10zU4kSE が公開中）、hearts2_en（心拍は meoDvGljuKk が公開中）
+  - 残り：妄想17本、英語6本。dupcheck.py audit で重複0
+- 訂正：11/23 に「英語版がまだ無いもの」として mirrors1_en・parabola2_en を順番待ちに足したが、どちらも英語版は MIW にもう出ていた
+- 訂正：上の 11/25 18:40 の行「19:17 のまとめ出しは次の5本から」は誤り。まとめ出しの予約（trig_01APMosFAWW9zRbmnAyMpDq7）は 11/24 21:23 JST から止まっていて、11/25 は動いていない
+- 観測（MIW、同じ題名で両方公開中）：金星8年 -Symoi_zVkw（9回）と rPM365C-7OY（5回）、楕円 UyKDX7-UnsY（1,091回）と doX9N9Po-dU（1,114回）。どちらも 11/22 に出し直したとき、古い方を公開のまま残したもの
+- 観測（MIW）：11/24 の cardioid2_en G3lV-d8V004・layers1_en qMFRgnKT8dA は、同じ題材の英語版がすでに公開中（rKRFvb43uQs 11/20、qQ44yY7gIsg 11/22）。色・音程・題名を変えた版
+- 観測（公開設定がこちらの記録と違う。こちらでは変えていない。制限の欄はどれも「—」）：妄想 passcode1_ja jffxRzwRjBc 公開／passcode2_ja MgW7MvTwLHc 非公開／passcode2_en QuypODSlmeM 非公開、メトロノーム ガラス版 2MtT7UFs6mM 公開／カチカチ版 bou0O2veMQo 非公開。MIW 階段のバネ 7wxjTUfIwAE・yQIECRoT6hY とも非公開、怪談8本は非公開

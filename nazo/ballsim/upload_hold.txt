@@ -1,0 +1,6 @@
+# 順番待ちから外して置いてある行（重複・作り直しで、持ち主の判断待ち）。戻すときは upload_queue.txt へ行を移す
+koch2_ja MOSO ja  # 同じ題材（コッホ）の作り直し。公開中の ABa10zU4kSE（11/22）をどうするか持ち主に聞いてから
+ellipse3_ja MOSO ja  # 題名がほぼ同じ動画がもう公開されている → wsVF_TluqHQ（11/21 細長い楕円）
+hearts2_en KAIDAN en  # 同じ題材（心拍）の作り直し。公開中の meoDvGljuKk（11/23 古い音の版）をどうするか持ち主に聞いてから
+mirrors1_en KAIDAN en  # 同じ題名がもう公開されている → oQqaE3dGxX8（11/20）
+parabola2_en KAIDAN en  # 同じ題名がもう公開されている → _ehcvobWTuI（11/22）

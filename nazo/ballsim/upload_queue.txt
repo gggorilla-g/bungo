@@ -1,12 +1,7 @@
-cup1_ja MOSO ja
-parabola2_ja MOSO ja
-mirrors1_ja MOSO ja
-spiro12_ja MOSO ja
 canon1_ja MOSO ja
 fifths1_ja MOSO ja
 chord1_ja MOSO ja
 glass1_ja MOSO ja
-koch2_ja MOSO ja
 wheel1_ja MOSO ja
 domino2_ja MOSO ja
 dots3_ja MOSO ja
@@ -16,7 +11,6 @@ cardioid4_ja MOSO ja
 spiro7_ja MOSO ja
 spiro8_ja MOSO ja
 spiro4_ja MOSO ja
-ellipse3_ja MOSO ja
 spiro5_ja MOSO ja
 cardioid5_ja MOSO ja
 spiro6_ja MOSO ja
@@ -27,6 +21,3 @@ spiro7_en KAIDAN en
 spiro5_en KAIDAN en
 spiro8_en KAIDAN en
 spiro6_en KAIDAN en
-hearts2_en KAIDAN en
-mirrors1_en KAIDAN en
-parabola2_en KAIDAN en

@@ -2,7 +2,7 @@
 # upq.sh — 順番待ちの投稿を上から上げる。1日の上限に当たったチャンネルは、その回は飛ばして残す
 #   順番待ち: nazo/ballsim/upload_queue.txt（1行 = "<id> <MOSO|KAIDAN|NAZO> <ja|en>"）。済んだ行は upload_done.txt へ移す
 cd "$(dirname "$0")/.."
-Q=nazo/ballsim/upload_queue.txt; D=nazo/ballsim/upload_done.txt; touch "$Q" "$D"
+Q=nazo/ballsim/upload_queue.txt; D=nazo/ballsim/upload_done.txt; H=nazo/ballsim/upload_hold.txt; touch "$Q" "$D" "$H"
 declare -A full; declare -A cnt; for c in $SKIP; do full[$c]=1; done   # SKIP="MOSO" で、そのチャンネルを今回は飛ばす
 MAX=${MAX:-99}   # MAX=1 なら、1回の実行で各チャンネル1本まで（11/23：連続投稿の後半は配信されないため、間をあけて出す）
 cp "$Q" "$Q.tmp"; : > "$Q.keep"
@@ -12,6 +12,8 @@ while read -r id ch lg; do
   if [ "${cnt[$ch]:-0}" -ge "$MAX" ]; then echo "$id $ch $lg" >> "$Q.keep"; continue; fi
   # 目で確かめた動画だけ上げる（オーナー 11/23「勘所を押さえない動画はあげないで」）。vetted.json に無い・確かめた時と絵が違う行はとばして残す
   if ! v="$(python3 tools/vet.py check "$id" </dev/null 2>&1)"; then echo "$id $ch $lg" >> "$Q.keep"; echo "とばす: $id（$v）"; continue; fi
+  # 同じ題名がもう公開されている行は上げず、順番待ちから外して保留（upload_hold.txt）へ。11/25 に「2枚の鏡」を2回上げたため
+  if ! dp="$(python3 tools/dupcheck.py check "nazo/manual/ballsim/${id}_upload.txt" "$ch" </dev/null 2>&1)"; then echo "$id $ch $lg  # $(echo "$dp" | head -1)" >> "$H"; echo "保留: $id（$(echo "$dp" | head -1)）"; continue; fi
   up="$id"
   [ -f "output/${id}_t.mp4" ] && [ "output/$id.mp4" -nt "output/${id}_t.mp4" ] && rm -f "output/${id}_t.mp4"   # 本編を作り直したら、古い予告つき版は使わない
   nt=$(python3 -c "import json,sys; print(0 if json.load(open('nazo/ballsim/$id.json')).get('teaser', True) else 1)" 2>/dev/null </dev/null)   # spec に "teaser": false があれば、冒頭の予告を付けない（ループする動画は最初に結末を見せるとつながらない。オーナー 11/23）

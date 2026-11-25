@@ -125,3 +125,7 @@ threebody1_ja success UbZldgCpEuM (run 44910778933)
 2026-11-24T22:09:40Z passcode2_en success f7XbCh7eSJ0 (MIW, manual up.sh)
 2026-11-24T22:09:40Z passcode2_en success QuypODSlmeM (妄想, manual up.sh)
 2026-11-25T09:40:49Z parabola3_ja success 1Fw-sW_y6Ls (run 45587081355)
+2026-11-25T12:25:45Z cup1_ja success C-F2Ul1GYg4 (run 45613230199)
+2026-11-25T12:28:38Z parabola2_ja success 5oBb_IpXUOE (run 45613679478)
+2026-11-25T12:32:58Z mirrors1_ja_t success wxdNj7oxPeQ (run 45614154572) ※重複：11/20 公開の X2cVfGFhT-s と同じ題名・同じ題材
+2026-11-25T12:36:00Z spiro12_ja_t success IRujsvhmGsI (run 45614871365：止めた回。取り消しは投稿のあとで、動画は公開されていた。Studio で確認)
