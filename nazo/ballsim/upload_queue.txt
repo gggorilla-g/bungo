@@ -1,4 +1,3 @@
-parabola3_ja MOSO ja
 cup1_ja MOSO ja
 parabola2_ja MOSO ja
 mirrors1_ja MOSO ja
