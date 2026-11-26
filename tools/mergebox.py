@@ -71,7 +71,7 @@ def simulate(seed, record=False, P=None):
         else: x = rnd.uniform(lo, hi)
         return k, min(hi, max(lo, x))
     held = choose(0.0)
-    LONG = P.get("long"); suns = []; top = YB
+    LONG = P.get("long"); suns = []; top = YB; par = P.setdefault("par", {})
     while t < (LONG or TMAX) and (LONG or tsun is None or t < tsun + TAIL):
         for _ in range(SUB):
             if LONG and t >= tnext and top < YLIM + P.get("hold", 70): tnext = t + P["iv"]   # 長尺：線の近くまで積もったら、合体で下がるまで落とすのを待つ
@@ -99,6 +99,7 @@ def simulate(seed, record=False, P=None):
                         pa, pb = va["b"], vb["b"]; x, y = (pa.position.x + pb.position.x) / 2, (pa.position.y + pb.position.y) / 2
                         lowa = pa.position.y > pb.position.y; base = pa if lowa else pb
                         nidx = add(k, x, y, (pa.velocity.x + pb.velocity.x) / 2 * .6, (pa.velocity.y + pb.velocity.y) / 2 * .6, base.angle, (pa.angular_velocity + pb.angular_velocity) / 2, r0=RAD[k - 1], t=t)
+                        par[nidx] = (pa.position.x, pa.position.y, pa.angle, pb.position.x, pb.position.y, pb.angle)
                         for vv, key in ((va, ids[a]), (vb, ids[b])): sp.remove(vv["b"], vv["s"]); del B[key]
                         merges.append((t, k, x, y, nidx, k > best)); best = max(best, k)
                         if k == NT - 1 and LONG: suns.append((t, nidx))
@@ -125,7 +126,7 @@ def simulate(seed, record=False, P=None):
         elif record:
             frames.append(dict(t=t, bodies=[(i, v["k"], v["b"].position.x, v["b"].position.y, v["b"].angle, v["s"].radius, v["born"]) for i, v in B.items()], hx=hx, held=(held[0] if (held and tsun is None) else None), nd=nd, mass=mass_dropped, best=best, top=top))
         if overflow and not record and not LONG: break
-    return dict(seed=seed, tsun=tsun, merges=merges, drops=drops, toks=toks, frames=frames, overflow=overflow, topmin=topmin, best=best, mass=mass_dropped, left=len(B), suns=suns)
+    return dict(seed=seed, tsun=tsun, merges=merges, drops=drops, toks=toks, frames=frames, overflow=overflow, topmin=topmin, best=best, mass=mass_dropped, left=len(B), suns=suns, par=par)
 
 def score(r):
     """小さいほどよい。線をこえずに太陽までできた回のうち、線ぎりぎりまで積もり、最後に続けて合体する回"""
@@ -218,17 +219,34 @@ def halo(Rp):
         half = int(key * 1.45) + 2; c = np.arange(2 * half, dtype=np.float32) + .5 - half; xx, yy = np.meshgrid(c, c); rr = np.hypot(xx, yy) / key
         _HALO[key] = (np.exp(-(np.clip(rr - 1, 0, None) / .15) ** 1.25) * .50 * (rr > 1))[..., None] * np.asarray((255, 176, 70), np.float32) / 255
     return _HALO[key]
-def draw_body(buf, k, cx, cy, r, ang, pop=1.0):
-    """buf（float の RGB、0〜1）に星を1つ。模様は ang だけ回す"""
+def draw_body(buf, k, cx, cy, r, ang, pop=1.0, sq=None):
+    """buf（float の RGB、0〜1）に星を1つ。模様は ang だけ回す。sq=(横, 縦) で伸び縮み（合体のぷるん）"""
     rr = max(4.0, r * pop); im = tex_img(k, rr)
     if abs(ang) > 1e-4: im = im.rotate(-math.degrees(ang), resample=Image.BICUBIC)
-    a = np.asarray(im, np.float32) / 255; sh = shade(k, rr); S = a.shape[0]; x0 = int(round(cx - S / 2)); y0 = int(round(cy - S / 2))
+    a = np.asarray(im, np.float32) / 255; sh = shade(k, rr); S = a.shape[0]
+    if sq is not None and (abs(sq[0] - 1) > .01 or abs(sq[1] - 1) > .01):
+        lit = a.copy(); lit[..., :3] *= sh; im2 = Image.fromarray((np.clip(lit, 0, 1) * 255).astype(np.uint8), "RGBA").resize((max(2, int(round(S * sq[0]))), max(2, int(round(S * sq[1])))), Image.BILINEAR)
+        p = np.asarray(im2, np.float32) / 255; h_, w_ = p.shape[:2]; x0 = int(round(cx - w_ / 2)); y0 = int(round(cy - h_ / 2)); xa, ya = max(0, x0), max(0, y0); xb, yb = min(buf.shape[1], x0 + w_), min(buf.shape[0], y0 + h_)
+        if xa < xb and ya < yb: q = p[ya - y0:yb - y0, xa - x0:xb - x0]; buf[ya:yb, xa:xb] = buf[ya:yb, xa:xb] * (1 - q[..., 3:4]) + q[..., :3] * q[..., 3:4]
+        return
+    x0 = int(round(cx - S / 2)); y0 = int(round(cy - S / 2))
     xa, ya = max(0, x0), max(0, y0); xb, yb = min(buf.shape[1], x0 + S), min(buf.shape[0], y0 + S)
     if xa >= xb or ya >= yb: return
     p = a[ya - y0:yb - y0, xa - x0:xb - x0]; al = p[..., 3:4]; buf[ya:yb, xa:xb] = buf[ya:yb, xa:xb] * (1 - al) + p[..., :3] * sh[ya - y0:yb - y0, xa - x0:xb - x0] * al
     if k == 9:
         h = halo(rr); S2 = h.shape[0]; x0 = int(round(cx - S2 / 2)); y0 = int(round(cy - S2 / 2)); xa, ya = max(0, x0), max(0, y0); xb, yb = min(buf.shape[1], x0 + S2), min(buf.shape[0], y0 + S2)
         if xa < xb and ya < yb: buf[ya:yb, xa:xb] += h[ya - y0:yb - y0, xa - x0:xb - x0]
+MT = .11   # 合体で2つがくっつくまでの時間
+def draw_merge(buf, par, i, k, x, y, ang, r, age, ox, oy, pop=1.0):
+    """合体した星：はじめは元の2つが引き合ってつぶれながら1つに重なり（ぷよっとくっつく）、そのあと新しい星がぷるんと揺れて落ち着く"""
+    if i in par and age < MT:
+        ax, ay, aa, bx, by, ba = par[i]; f = age / MT; f = f * f * (3 - 2 * f); hz = abs(ax - bx) >= abs(ay - by); st = (1 + .22 * f, 1 - .12 * f) if hz else (1 - .12 * f, 1 + .22 * f)
+        for px, py, pa in ((ax, ay, aa), (bx, by, ba)): draw_body(buf, k - 1, px + (x - px) * f - ox, py + (y - py) * f - oy, RAD[k - 1] * (1 + .10 * f), pa, sq=st)
+        return
+    if i in par and age < MT + .7:
+        ax, ay, aa, bx, by, ba = par[i]; e = age - MT; w = .26 * math.exp(-e / .17) * math.cos(2 * math.pi * e / .24); hz = abs(ax - bx) >= abs(ay - by)
+        draw_body(buf, k, x - ox, y - oy, max(r, RAD[k] * .97), ang, pop, sq=((1 + w, 1 - w * .8) if hz else (1 - w * .8, 1 + w))); return
+    draw_body(buf, k, x - ox, y - oy, r, ang, pop)
 def icon(k, Rp):
     im = tex_img(k, Rp); a = np.asarray(im, np.float32) / 255; a[..., :3] *= shade(k, Rp); return Image.fromarray((np.clip(a, 0, 1) * 255).astype(np.uint8), "RGBA")
 
@@ -359,9 +377,8 @@ def render(res, out, stills=None):
         if want is not None and fi not in want: continue
         roi = BGROI.copy(); pos = {}
         for i, k, x, y, ang, r, born in sorted(bodies, key=lambda b: (-b[1], b[0])):
-            age = t - born; pop = 1 + (.16 * math.exp(-max(0, age - .09) / .07) if (k > 0 and (i in MERGED)) else 0)
-            if k == 9: pop *= 1 + .016 * math.sin(max(0, age) * 2.4)
-            draw_body(roi, k, x - RX0, y - RY0, r, ang, pop); pos[i] = (x, y, r, k)
+            age = t - born; pop = 1 + (.016 * math.sin(max(0, age) * 2.4) if k == 9 else 0)
+            draw_merge(roi, res["par"], i, k, x, y, ang, r, age, RX0, RY0, pop); pos[i] = (x, y, r, k)
         hk = F["held"]
         if hk is not None and fi >= int(lead * FPS):   # 口の下にぶらさがっている、次に落とす星
             last_drop = max((d[0] for d in res["drops"] if d[0] <= t), default=-1.0); g = min(1.0, (t - last_drop) / .09) if last_drop >= 0 else min(1.0, t / .2)

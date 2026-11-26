@@ -49,9 +49,9 @@ def render_video(path):
         for k in range(NT): st["pres"][k] += ((1.0 if any(b[1] == k for b in bodies) else 0.0) - st["pres"][k]) * (1 - math.exp(-1 / FPS / .1))
         roi = BGROI.copy(); pos = {}
         for i, k, x, y, ang, r, born in sorted(bodies, key=lambda b: (-b[1], b[0])):
-            age = t - born; pop = 1 + (.16 * math.exp(-max(0, age - .09) / .07) if (k > 0 and i in ALLM) else 0)
-            if k == 9: pop *= (1 + .016 * math.sin(age * 2.4)) * min(1.0, max(.05, (STAY - age) / .45))   # 太陽は出ていく前に小さくなる
-            mb.draw_body(roi, k, x - RX0, y - RY0, r, ang, pop); pos[i] = (x, y, r, k)
+            age = t - born; pop = 1.0
+            if k == 9: pop = (1 + .016 * math.sin(age * 2.4)) * min(1.0, max(.05, (STAY - age) / .45))   # 太陽は出ていく前に小さくなる
+            mb.draw_merge(roi, PAR, i, k, x, y, ang, r, age, RX0, RY0, pop); pos[i] = (x, y, r, k)
         if F["held"] is not None:
             g = min(1.0, (t - st["last_drop"]) / .12); hk = F["held"]; mb.draw_body(roi, hk, F["hx"] - RX0, YRAIL + 22 + RAD[hk] * g - RY0, RAD[hk] * max(.2, g), 0.0)
         im = BG.copy(); im.paste(Image.fromarray((np.clip(roi, 0, 1) * 255).astype(np.uint8)), (RX0, RY0)); im = Image.alpha_composite(im.convert("RGBA"), FRONT)
@@ -80,7 +80,7 @@ def render_video(path):
 
 class Live(list):   # シミュレーションが足していく合体の記録を、描く側からも読めるように
     pass
-MERGES = []; FIRSTS = []; ALLM = set(); EV = dict(i=0)
+MERGES = []; FIRSTS = []; ALLM = set(); EV = dict(i=0); PAR = {}
 
 def audio(res, path):
     N = int(SR * DUR); dry = np.lib.format.open_memmap("build_mergelong/dry.npy", "w+", np.float32, (N, 2)); snd = np.lib.format.open_memmap("build_mergelong/snd.npy", "w+", np.float32, (N, 2))
@@ -96,7 +96,7 @@ def audio(res, path):
             tt = np.arange(int(SR * d_)) / SR; s = np.zeros(len(tt))
             for q, m_ in enumerate(ms):
                 f = mb.mtof(m_); s += (np.sin(2 * np.pi * f * tt) + .5 * np.sin(2 * np.pi * f * 1.004 * tt + q) + .22 * np.sin(4 * np.pi * f * tt + 2 * q)) / (1 + .25 * q)
-            pc[key] = s * np.minimum(1, tt / .25) * np.minimum(1, (d_ - tt) / .7)
+            pc[key] = s * np.minimum(1, tt / 2.0) * np.minimum(1, (d_ - tt) / 2.0)
         return pc[key] * g
     # 瞑想音楽のように（オーナー 11/26）：旋律は追わない。合体のたびに、おりんのような長い余韻の音が1つ。大きい星ほど低い。下にずっと低い持続音
     bc = {}
@@ -106,19 +106,23 @@ def audio(res, path):
             x = (np.sin(2 * np.pi * f * tt) + .8 * np.sin(2 * np.pi * (f + .55) * tt)) * np.exp(-tt / 3.2) + .30 * np.sin(2 * np.pi * f * 2.71 * tt + 1) * np.exp(-tt / 1.5) + .10 * np.sin(2 * np.pi * f * 5.2 * tt + 2) * np.exp(-tt / .6)
             bc[m] = (x * np.minimum(1, tt / .035) * np.minimum(1, (9.0 - tt) / 1.0) * (f / 261.6) ** -.35).astype(np.float32)
         return bc[m]
-    PIT = {1: (71, 74), 2: (69, 66), 3: (66, 69), 4: (64, 62), 5: (62, 57), 6: (57, 59), 7: (54, 50), 8: (50, 45)}; rg = np.random.default_rng(SEED); last_t = -9
+    CH = 6.4; L1 = [78, 76, 74, 73, 71, 69, 71, 73]; L2 = [74, 73, 71, 69, 67, 66, 67, 64]; rg = np.random.default_rng(SEED); last_t = -9; done = set()
     for t, k, x, y, nid, first in res["merges"]:
-        pan = .5 + .30 * (x - (XL + XR) / 2) / (XR - XL)
+        pan = .5 + .30 * (x - (XL + XR) / 2) / (XR - XL); sl = int(t // CH); ch = mb.PROG[sl % 8]; r_ = mb.TRI[ch][0]
         if k == NT - 1:
-            for m_, g_ in ((38, .8), (45, .6), (50, .7), (62, .5), (66, .35), (69, .35)): put(bowl(m_), t, .5 + .2 * math.sin(m_), g_ * .5, .9)
+            for m_, g_ in ((r_ - 24, .8), (r_ - 17, .6), (r_ - 12, .7), (r_, .5), (mb.TRI[ch][1], .35), (mb.TRI[ch][2], .35)): put(bowl(m_), t, .5 + .2 * math.sin(m_), g_ * .5, .9)
             continue
-        g = (.20 + .035 * k) * (.55 if t - last_t < .25 else 1.0); last_t = t; put(bowl(PIT[k][0] if rg.random() < .7 else PIT[k][1]), t, pan, g, .9)
+        if sl not in done and t - sl * CH > .3: done.add(sl); m = (L2 if (sl // 8) % 2 else L1)[sl % 8] - 12; g = .34      # この和音の最初の合体：カノンの旋律
+        else: tl = mb.tones(ch, 43, 12); m = tl[max(0, min(11, 10 - k + int(rg.integers(0, 2))))]; g = (.17 + .03 * k) * (.55 if t - last_t < .25 else 1.0)
+        last_t = t; put(bowl(m), t, pan, g, .9)
+    for sl in range(int(DUR // CH) + 1):   # 下の持続音：和音の根音と5度が、ゆっくり入れ替わる
+        ch = mb.PROG[sl % 8]; r_, t3, f5 = mb.TRI[ch]; put(pad([r_ - 24, r_ - 12, f5 - 12, t3], CH + 2.2, .016), sl * CH - 1.1, .5, 1.0, .8)
     tt_ = np.arange(int(SR * 2.4)) / SR; irs = [np.convolve(np.random.default_rng(s_).normal(0, 1, len(tt_)) * np.exp(-tt_ * 1.3), np.ones(60) / 60, "same").astype(np.float32) * .02 for s_ in (11, 12)]
     B = SR * 30; L = len(tt_); tail = np.zeros((L, 2), np.float32); pk = 0.0
     for a in range(0, N, B):   # 残響：30秒ずつ、はみ出した分を次へ足す
         b = min(N, a + B); blk = np.zeros((b - a + L, 2), np.float32)
         for c in (0, 1): y_ = fftconvolve(snd[a:b, c], irs[c]); blk[:len(y_), c] = y_
-        tq = np.arange(a, b) / SR; dr = (.030 * (1 + .35 * np.sin(2 * np.pi * tq / 23)) * (np.sin(2 * np.pi * 73.42 * tq) + .7 * np.sin(2 * np.pi * 110.0 * tq) + .6 * np.sin(2 * np.pi * 146.83 * tq + .5 * np.sin(2 * np.pi * tq / 17)) + .25 * np.sin(2 * np.pi * 220.3 * tq)) * np.minimum(1, tq / 6)).astype(np.float32)
+        tq = np.arange(a, b) / SR; dr = (.008 * (1 + .35 * np.sin(2 * np.pi * tq / 23)) * (np.sin(2 * np.pi * 73.42 * tq) + .7 * np.sin(2 * np.pi * 110.0 * tq) + .6 * np.sin(2 * np.pi * 146.83 * tq + .5 * np.sin(2 * np.pi * tq / 17)) + .25 * np.sin(2 * np.pi * 220.3 * tq)) * np.minimum(1, tq / 6)).astype(np.float32)
         blk[:L] += tail; dry[a:b] += blk[:b - a] + dr[:, None]; tail = blk[b - a:b - a + L].copy() if b - a >= L else np.zeros((L, 2), np.float32); pk = max(pk, float(np.abs(dry[a:b]).max()))
     sos = butter(4, 15000, "low", fs=SR, output="sos"); zi = [sosfilt_zi(sos) * 0, sosfilt_zi(sos) * 0]; pk2 = 0.0
     out = np.lib.format.open_memmap("build_mergelong/mix.npy", "w+", np.float32, (N, 2))
@@ -151,7 +155,7 @@ if __name__ == "__main__":
     import inspect, textwrap
     code = inspect.getsource(orig_sim).replace("drops = []; merges = [];", "drops = []; merges = P['tap'];")
     ns = {}; exec(compile(code, "simulate_tap", "exec"), mb.__dict__, ns); sim = ns["simulate"]
-    t0 = time.time(); res = sim(SEED, P=dict(long=DUR, iv=IV, sunstay=STAY, on_frame=hook, tap=Tap()))
+    t0 = time.time(); res = sim(SEED, P=dict(long=DUR, iv=IV, sunstay=STAY, on_frame=hook, tap=Tap(), par=PAR))
     proc.stdin.close(); proc.wait(); print("絵", round(time.time() - t0), "秒 / 太陽", len(res["suns"]), "個 / 合体", len(res["merges"]), "回 / 落とした星", len(res["drops"]), "個", flush=True)
     audio(res, "build_mergelong/a.wav")
     subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", "build_mergelong/v.mp4", "-i", "build_mergelong/a.wav", "-c:v", "copy", "-c:a", "aac", "-b:a", "192k", "-shortest", "-movflags", "+faststart", OUT], check=True)
