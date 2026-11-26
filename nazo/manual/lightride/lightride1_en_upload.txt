@@ -1,0 +1,34 @@
+【タイトル】
+Leaving the Sun at the Speed of Light: 1 Light-Day to Voyager 1 (Real Distances, 3D)
+
+【説明】
+On November 18, 2026, Voyager 1 reached one light-day from Earth. This is what that distance looks like: we leave the Sun with a ray of light and pass every stop on the way out, with the real distance and the real light-travel time on screen the whole time.
+
+At light speed you would pass a planet in a blink, so the video slows down at each stop. The clock always shows how long light really takes to cover the distance shown.
+
+Chapters
+0:00 Start
+1:31 Mercury (00:03:13 at light speed)
+2:56 Venus (00:06:01 at light speed)
+4:21 Earth (00:08:19 at light speed)
+5:55 Mars (00:12:40 at light speed)
+7:28 Ceres (00:23:02 at light speed)
+9:09 Jupiter (00:43:16 at light speed)
+11:06 Saturn (01:19:40 at light speed)
+13:07 Uranus (02:39:36 at light speed)
+15:10 Neptune (04:10:05 at light speed)
+17:03 Pluto (05:28:21 at light speed)
+19:50 Voyager 1 (1d 00:00:00 at light speed)
+20:56 The next star
+
+Notes
+- Distances are average distances from the Sun. The Voyager 1 figure (173.14 AU, 25.9 billion km) is its distance from Earth on November 18, 2026; its distance from the Sun differs by less than 1 AU.
+- Mercury, Earth, the Moon, Mars and Jupiter use NASA / USGS global maps. Pluto and Ceres are built from spacecraft photos. Venus (cloud tops), Saturn, Uranus, Neptune and the Sun are drawn procedurally. Sizes and the Moon's distance are not to scale.
+- Photos shown in the video are public domain: NASA/JPL (Magellan, Voyager, Cassini), NASA/JHUAPL/SwRI (New Horizons), NASA/JPL-Caltech/UCLA/MPS/DLR/IDA (Dawn; image processing by Justin Cowart).
+
+3D animation, music and editing: original (made in Python). Voice: Kokoro TTS (Apache-2.0).
+
+#voyager1 #lightspeed #solarsystem #space #3danimation
+
+【タグ】
+voyager 1, light day, speed of light, solar system, journey, space, 3d animation, planets, light travel time, real scale, nasa, astronomy, relaxing space, make it work 3d

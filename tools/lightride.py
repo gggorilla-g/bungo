@@ -155,7 +155,7 @@ def textures():
     yy, xx = np.mgrid[0:1024, 0:2048]; spot = np.exp(-(((xx - 900) / 110.0) ** 2 + ((yy - 640) / 46.0) ** 2)); TEX["neptune"] = nep * (1 - .45 * spot[..., None]); TEX["neptune"] += 40 * np.exp(-(((xx - 930) / 80.0) ** 2 + ((yy - 700) / 9.0) ** 2))[..., None]
     TEX["pluto"] = disc_map("assets/maps/plutodisc.jpg") if os.path.exists("assets/maps/plutodisc.jpg") else bands([(170, 140, 110), (200, 176, 150), (180, 150, 120)], 71, .1, .3)
     cer = [p for p in ("assets/maps/ceresdisc.jpg", "assets/maps/ceresdisc2.jpg") if os.path.exists(p)]
-    TEX["ceres"] = disc_map(cer[0]) if cer else np.clip(load_map("moon", 0, .8) * .9, 0, 255)
+    TEX["ceres"] = disc_map(cer[0])[:, ::-1].copy() if cer else np.clip(load_map("moon", 0, .8) * .9, 0, 255)
     n1 = cv2.resize(np.random.default_rng(81).random((256, 512)).astype(np.float32), (2048, 1024), interpolation=cv2.INTER_CUBIC) * .55 + noise(1024, 2048, 83, 6, 1.0) * .45; n2 = noise(1024, 2048, 82, 4, 1.0); g = np.clip((n1 - .5) * 2.6 + .70 + (n2 - .5) * 1.1, 0, 1); pol = sstep(.5, .9, np.abs(np.linspace(-1, 1, 1024, dtype=np.float32)))[:, None]; g = (g * (1 - pol) + .66 * pol)[..., None]
     TEX["sun"] = np.array([255, 120, 20], np.float32) * (1 - g) + np.array([255, 232, 150], np.float32) * g
     eh, ew = 1024, 2048; c = noise(eh, ew, 91, 7, 2.0) * .6 + noise(eh, ew, 92, 7, 1.0) * .4; pol = sstep(.6, .95, np.abs(np.linspace(-1, 1, eh, dtype=np.float32)))[:, None]; TEX["clouds"] = (np.clip((c - .535) * 9, 0, 1) * (1 - pol)).astype(np.float32)
@@ -251,7 +251,7 @@ def frame(t):
                 if "voyager" in T:
                     im = T["voyager"]; hh = Rr * 2.1; ww = hh * im.shape[1] / im.shape[0]; ang = 8 * math.sin(t * .05)
                     M = cv2.getRotationMatrix2D((im.shape[1] / 2, im.shape[0] / 2), ang, hh / im.shape[0]); M[0, 2] += cx - im.shape[1] / 2; M[1, 2] += cy - im.shape[0] / 2
-                    wv = cv2.warpAffine(im, M, (W, H), flags=cv2.INTER_AREA if hh < im.shape[0] else cv2.INTER_LINEAR) / 255.0; a = np.clip(wv.max(-1, keepdims=True) * 6, 0, 1); buf[:] = buf * (1 - a) + wv * .9 * a
+                    wv = cv2.warpAffine(im, M, (W, H), flags=cv2.INTER_AREA if hh < im.shape[0] else cv2.INTER_LINEAR) / 255.0; a = np.clip(wv.max(-1, keepdims=True) * 6, 0, 1) * float(1 - sstep(T_OUT + 5, T_OUT + 10, t)); buf[:] = buf * (1 - a) + wv * .9 * a
             else:
                 if key == "earth" and t >= s["t0"] - 2:   # 月（1.28光秒）
                     ma = fade(t, s["t0"] + 2, s["t1"] + 2); mx_, my_ = cx - Rr * 2.25, cy - Rr * .72
