@@ -792,3 +792,4 @@
 - 2026-11-26 MIW 長尺 lightride1_en BHtQwMkA770（21:35、tools/lightride.py）：Leaving the Sun at the Speed of Light: 1 Light-Day to Voyager 1。文脈＝11/18 ボイジャー1号が1光日に到達、今月の長尺上位は「宇宙を旅する」型（Astrum ボイジャー回 7日で277万回）。PDの地図・写真（assets/maps、meta.json）、語り Kokoro af_heart、音 -15.8 LUFS。オーナー「英語ナレーションいれていい」「これであげていい」
 - 2026-11-27 妄想 長尺 mergelong_s1_ja cZHy3uGJRPM（30分、瞑想カノン・ぷるん、SEED 1）：【30分】星が合体して太陽になるまで｜瞑想カノン・作業用・睡眠用
 - 2026-11-27 妄想 mergebox1_ja sq6F7ndKWhA（箱の合体ショート、比率表示なし・ぷるん入り）。11/26 は投稿上限で 01:30 JST に持ち越し
+- 2026-11-27 妄想 cZHy3uGJRPM は「長すぎるため削除」（妄想は電話番号の確認が未完了＝15分まで）。MIW は21分の BHtQwMkA770 が再生できる
