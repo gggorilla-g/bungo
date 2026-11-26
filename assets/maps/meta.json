@@ -21,11 +21,11 @@
   "page": "https://commons.wikimedia.org/wiki/File:Jupiter_Cylindrical_Map_-_Dec_2000_PIA07782.jpg"
  },
  "saturn": {
-  "title": "File:Jupiter Cylindrical Map - Dec 2000 PIA07782.jpg",
+  "title": "File:Map of Tethys PIA 14931 Jun 2012.jpg",
   "license": "Public domain",
-  "artist": "NASA/JPL/Space Science Institute",
-  "credit": "<a rel=\"nofollow\" class=\"external free\" data-mw-original-href=\"http://photojournal.jpl.nasa.gov/catalog/PIA07782\" href=\"https://photojournal.jpl.nasa.gov/catalog/PIA07782\">http://photojournal.jpl.nasa.gov/catalog/PIA07782</a> (<a rel=\"nofollow\" class=\"external text\" data-mw-original-href=\"http://photojournal.jpl.nasa.gov/jpeg/PIA07782.jpg\" href=\"https://photojournal.jpl.nasa.gov/jpeg/PIA07782.jpg\">image link</a>)",
-  "page": "https://commons.wikimedia.org/wiki/File:Jupiter_Cylindrical_Map_-_Dec_2000_PIA07782.jpg"
+  "artist": "Cassini",
+  "credit": "NASA/JPL",
+  "page": "https://commons.wikimedia.org/wiki/File:Map_of_Tethys_PIA_14931_Jun_2012.jpg"
  },
  "voyager": {
   "title": "File:Voyager spacecraft model.png",
@@ -47,5 +47,33 @@
   "artist": "NASA/JPL",
   "credit": "<a rel=\"nofollow\" class=\"external text\" href=\"https://web.archive.org/web/20110911125940/http://grin.hq.nasa.gov/ABSTRACTS/GPN-2000-001978.html\">The Sounds of Earth Record Cover</a>",
   "page": "https://commons.wikimedia.org/wiki/File:The_Sounds_of_Earth_Record_Cover_-_GPN-2000-001978.jpg"
+ },
+ "earth2": {
+  "title": "File:Land shallow topo 2048.jpg",
+  "license": "Public domain",
+  "artist": "Reto Stöckli/NASA GSFC (land surface, shallow water, clouds); Robert Simmon (ocean color, compositing, 3D globes, animation); MODIS Land Group; MODIS Science Data Support Team; MODIS Atmosphere Group; MODIS Ocean Group; USGS EROS Data Center (topography); USGS Terrestrial Remote Sensing Flagstaff Field Center (Antarctica); Defense Meteorological Satellite Program (city lights).",
+  "credit": "<a rel=\"nofollow\" class=\"external free\" href=\"https://visibleearth.nasa.gov/view.php?id=57752\">https://visibleearth.nasa.gov/view.php?id=57752</a> (<a rel=\"nofollow\" class=\"external text\" href=\"https://eoimages.gsfc.nasa.gov/images/imagerecords/57000/57752/land_shallow_topo_21600.tif\">image link</a>)",
+  "page": "https://commons.wikimedia.org/wiki/File:Land_shallow_topo_2048.jpg"
+ },
+ "moon": {
+  "title": "File:Moonmap from clementine data.png",
+  "license": "Public domain",
+  "artist": "Naval Research Laboratory from Clementine data",
+  "credit": "Quelle: <a rel=\"nofollow\" class=\"external free\" href=\"http://solarviews.com/raw/moon/moonmap.tif\">http://solarviews.com/raw/moon/moonmap.tif</a>",
+  "page": "https://commons.wikimedia.org/wiki/File:Moonmap_from_clementine_data.png"
+ },
+ "mars2": {
+  "title": "File:Mars Viking MDIM21 ClrMosaic 1km.jpg",
+  "license": "Public domain",
+  "artist": "NASA / Jet Propulsion Lab / USGS",
+  "credit": "<a rel=\"nofollow\" class=\"external free\" href=\"https://astrogeology.usgs.gov/search/details/Mars/Viking/MDIM21/Mars_Viking_MDIM21_ClrMosaic_global_232m/cub\">https://astrogeology.usgs.gov/search/details/Mars/Viking/MDIM21/Mars_Viking_MDIM21_ClrMosaic_global_232m/cub</a>",
+  "page": "https://commons.wikimedia.org/wiki/File:Mars_Viking_MDIM21_ClrMosaic_1km.jpg"
+ },
+ "pluto": {
+  "title": "File:New Horizons’ Very Best View of Pluto (Mosiac).jpg",
+  "license": "Public domain",
+  "artist": "NASA/Johns Hopkins University Applied Physics Laboratory/Southwest Research Institute",
+  "credit": "<a rel=\"nofollow\" class=\"external free\" href=\"http://pluto.jhuapl.edu/Multimedia/Science-Photos/pics/p_leisa_hires.jpg\">http://pluto.jhuapl.edu/Multimedia/Science-Photos/pics/p_leisa_hires.jpg</a>",
+  "page": "https://commons.wikimedia.org/wiki/File:New_Horizons%E2%80%99_Very_Best_View_of_Pluto_(Mosiac).jpg"
  }
 }
