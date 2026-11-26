@@ -790,3 +790,5 @@
 - 11/26 持ち主「瞑想カノンのようなかんじ」「合体するときに少しぷよぷよのような密着感欲しい」→ 音：カノンの進行で和音がゆっくり進む（1つ 6.4秒）。各和音の最初の合体がカノンの旋律の音（1オクターブ下）、ほかの合体はその和音の音、下の持続音も和音についていく。絵：合体の瞬間、元の2つが引き合ってつぶれながら重なり（0.11秒）、新しい星が合体の向きにぷるんと揺れて落ち着く（mergebox の draw_merge。ショートにも入る）
 - 2026-11-26 MIW mergecol1_en 5O1JPaHpcrM：妄想 mergecol1（Ii6yIQBWPVY、公開5時間で1,124回）の英語版。マイナーチェンジ＝比率の数字（= n moons、アイコン下の 1〜512）を出さない、2行目「Keep dropping Moons. Get a Sun?」
 - 2026-11-26 MIW 長尺 lightride1_en BHtQwMkA770（21:35、tools/lightride.py）：Leaving the Sun at the Speed of Light: 1 Light-Day to Voyager 1。文脈＝11/18 ボイジャー1号が1光日に到達、今月の長尺上位は「宇宙を旅する」型（Astrum ボイジャー回 7日で277万回）。PDの地図・写真（assets/maps、meta.json）、語り Kokoro af_heart、音 -15.8 LUFS。オーナー「英語ナレーションいれていい」「これであげていい」
+- 2026-11-27 妄想 長尺 mergelong_s1_ja cZHy3uGJRPM（30分、瞑想カノン・ぷるん、SEED 1）：【30分】星が合体して太陽になるまで｜瞑想カノン・作業用・睡眠用
+- 2026-11-27 妄想 mergebox1_ja sq6F7ndKWhA（箱の合体ショート、比率表示なし・ぷるん入り）。11/26 は投稿上限で 01:30 JST に持ち越し
