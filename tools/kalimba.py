@@ -62,3 +62,29 @@ def room(st, send=.12, rt=.8, seed=7):
         r = _lp(r, 3000); r[: int(SR * .012)] = 0; r /= np.sqrt((r ** 2).sum()) + 1e-9
         out[:, c] += fftconvolve(st[:, c], r)[: len(st)] * send
     return out
+
+# ---------- オルゴールに近い澄んだ音（11/27 オーナーが送った参考録画の音を測って寄せた） ----------
+#   参考の音：基音 0.9〜2kHz のほぼ純音（2倍音が少し）。0.5〜1 秒ほど鳴って消える。D のペンタトニック（D E F# A B）で、出来事ごとに上がっていく。
+#   下に、D と A の温かい持続音（ゆっくり和音が変わる）。上の倍音のザラつきや、はじく雑音はない
+_b = {}
+def bell(m, vel=1.0):
+    key = (int(m), round(vel, 2))
+    if key in _b: return _b[key]
+    f = mtof(m); dec = float(np.clip(.95 * (1000 / f) ** .35, .45, 1.6)); L = dec * 3.6; tt = np.arange(int(SR * L)) / SR
+    x = np.sin(2 * np.pi * f * tt) * np.exp(-tt / dec) + .16 * np.sin(4 * np.pi * f * tt + .3) * np.exp(-tt / (dec * .45)) + .04 * np.sin(6 * np.pi * f * tt + .9) * np.exp(-tt / (dec * .25))
+    x *= (1 + .0025 * np.sin(2 * np.pi * 5.2 * tt))                        # ほんの少しゆらぐ
+    x *= .5 - .5 * np.cos(np.pi * np.minimum(1, tt / .006))                 # 立ち上がり 6ms（硬くしない）
+    x *= np.minimum(1, (L - tt) / .05); x = _lp(x.astype(np.float32), 7000)
+    x *= (f / 1000) ** -.35 * (.7 + .3 * vel); _b[key] = x.astype(np.float32); return _b[key]
+
+def pad(chords, ch_len, total, gain=.06, seed=3):
+    """温かい持続音：chords（MIDI の組の列）を ch_len 秒ずつ。少しずらした2本の正弦でうなり、ゆっくり入れかわる（モノラル）"""
+    N = int(SR * total); out = np.zeros(N, np.float32); fade = min(1.6, ch_len * .4); n1 = int(SR * (ch_len + fade))
+    tt = np.arange(n1) / SR; env = np.minimum(1, tt / fade) * np.minimum(1, (n1 / SR - tt) / fade)
+    for c in range(int(total / ch_len) + 1):
+        ms = chords[c % len(chords)]; s = np.zeros(n1)
+        for q, m in enumerate(ms):
+            f = mtof(m); s += (np.sin(2 * np.pi * f * tt + q) + .7 * np.sin(2 * np.pi * f * 1.0035 * tt + 2 * q)) * (1.0 if f < 300 else .55) / (1 + .3 * q)
+        i = int(SR * (c * ch_len - fade / 2)); a, b = max(0, i), min(N, i + n1)
+        if b > a: out[a:b] += (s * env)[a - i:b - i].astype(np.float32)
+    return _lp(out, 1400) * gain
