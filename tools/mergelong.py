@@ -14,7 +14,7 @@ mb.XL, mb.XR, mb.YB, mb.YWALL, mb.YLIM, mb.YRAIL = 420.0, 1500.0, 1010.0, 170.0,
 mb.FPS = FPS; mb.SUB = 8; mb.DT = 1 / 240
 R0 = 30.0; mb.RAD[:] = [R0 * 1.235 ** k for k in range(9)] + [R0 * 6.8]; mb.MASS[:] = [(r / mb.RAD[0]) ** 2 for r in mb.RAD]
 XL, XR, YB, YWALL, YLIM, YRAIL, RAD, NT, EN = mb.XL, mb.XR, mb.YB, mb.YWALL, mb.YLIM, mb.YRAIL, mb.RAD, mb.NT, mb.EN
-TEST = float(os.environ.get("TEST", 0)); DUR = TEST or float(os.environ.get("MIN", 30)) * 60; SEED = int(os.environ.get("SEED", 1)); IV = float(os.environ.get("IV", .5)); STAY = 3.0
+TEST = float(os.environ.get("TEST", 0)); DUR = TEST or float(os.environ.get("MIN", 30)) * 60; SEED = int(os.environ.get("SEED", 1)); IV = float(os.environ.get("IV", .8)); STAY = 3.0
 OUT = sys.argv[1] if len(sys.argv) > 1 else f"output/mergelong_s{SEED}_{mb.LANG}.mp4"
 os.makedirs("build_mergelong", exist_ok=True)
 RX0, RY0, RW, RH = 360, 60, 1200, 1000
@@ -109,9 +109,9 @@ def audio(res, path):
         else:
             mi += 1; m, ci = seq[mi % len(seq)]; g = .80 + .02 * k
             if mb.PROG[ci] != chord or t - last_t > 2.0:
-                chord = mb.PROG[ci]; r_, t_, f_ = mb.TRI[chord]; put(pad([r_, t_, f_, r_ + 12], 2.6, .020), t - .02, .5, 1.0, .6)
+                chord = mb.PROG[ci]; r_, t_, f_ = mb.TRI[chord]; put(pad([r_ - 12, r_, t_, f_], 4.5, .030), t - .02, .5, 1.0, .7)
             last_note = m
-        last_t = t; put(mb.stone(m, 3.2 if k < 5 else 2.8), t, pan, g, .45); r_ = mb.TRI[chord][0]
+        last_t = t; put(mb.stone(m - 12, 2.4), t, pan, g * .8, .75); r_ = mb.TRI[chord][0]
         if k >= 4: put(mb.stone(r_ - 12, 2.8), t, pan, .30 + .05 * (k - 4), .5)
         if k >= 6: put(mb.stone(r_ - 24, 2.4), t, .5, .50, .5); put(mb.stone(mb.TRI[chord][2] - 12, 2.8), t, pan, .26, .5)
         if k >= 8: put(mb.stone(mb.TRI[chord][1], 2.8), t + .012, pan, .30, .5)
@@ -119,8 +119,8 @@ def audio(res, path):
     for t, k, spd, x, y in res["toks"]:
         j = np.searchsorted(mt, t)
         if (j < len(mt) and mt[j] - t < .02) or (j > 0 and t - mt[j - 1] < .02): continue
-        put(TK[k], t, .5 + .34 * (x - (XL + XR) / 2) / (XR - XL), min(.26, .05 + spd / 9000) * (.7 + .08 * k), .2)
-    tt_ = np.arange(int(SR * 2.4)) / SR; irs = [np.convolve(np.random.default_rng(s_).normal(0, 1, len(tt_)) * np.exp(-tt_ * 2.4), np.ones(24) / 24, "same").astype(np.float32) * .02 for s_ in (11, 12)]
+        put(TK[k], t, .5 + .34 * (x - (XL + XR) / 2) / (XR - XL), min(.26, .05 + spd / 9000) * (.7 + .08 * k) * .3, .5)
+    tt_ = np.arange(int(SR * 2.4)) / SR; irs = [np.convolve(np.random.default_rng(s_).normal(0, 1, len(tt_)) * np.exp(-tt_ * 1.6), np.ones(40) / 40, "same").astype(np.float32) * .02 for s_ in (11, 12)]
     B = SR * 30; L = len(tt_); tail = np.zeros((L, 2), np.float32); pk = 0.0
     for a in range(0, N, B):   # 残響：30秒ずつ、はみ出した分を次へ足す
         b = min(N, a + B); blk = np.zeros((b - a + L, 2), np.float32)
