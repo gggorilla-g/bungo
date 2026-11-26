@@ -54,6 +54,8 @@ def simulate(seed, record=False, P=None):
         def valley(r):
             lo, hi = XL + r + 4, XR - r - 4; xs = [lo + (hi - lo) * q / 24 for q in range(25)]; hs = [hit(x, r)[1] for x in xs]; m = max(hs); return rnd.choice([x for x, h in zip(xs, hs) if h > m - 30])
         if nd < 2: k = 0
+        elif rnd.random() < P.get("small", 0) and not (LONG and top < YLIM + P.get("press", 260)):   # こまかい星（月・水星）をばらまく（オーナー 11/26「こまかいのもっとだしたい。ツキとか」）
+            k = 0 if rnd.random() < .78 else 1; r = RAD[k]; return k, rnd.uniform(XL + r + 4, XR - r - 4)
         elif rnd.random() < (1.0 if (LONG and top < YLIM + P.get("press", 260)) else P.get("match", .82)):   # 上があいている星に、同じ星を落とす
             ex = []
             for i, (bx, byy, br, bk) in enumerate(items):
@@ -92,6 +94,8 @@ def simulate(seed, record=False, P=None):
                         if f >= 1: v["grow"] = False
                 if n > 1:
                     d = X[:, None, :] - X[None, :, :]; dist = np.sqrt((d ** 2).sum(-1)); touch = (dist < Rr[:, None] + Rr[None, :] + 1.2) & (K[:, None] == K[None, :]) & (K[:, None] < NT - 1)
+                    if P.get("cool"):   # 合体したての星は少し待ってから次の合体へ（連鎖が1つずつ見えて、音もずれて重なる）
+                        ok = np.array([not (B[i]["land"] is not None and B[i].get("mg") and t - B[i]["born"] < P["cool"]) for i in ids]); touch &= ok[:, None] & ok[None, :]
                     ii, jj = np.where(np.triu(touch, 1)); used = set()
                     for a, b in sorted(zip(ii.tolist(), jj.tolist()), key=lambda p: dist[p[0], p[1]]):
                         if a in used or b in used: continue
@@ -99,6 +103,7 @@ def simulate(seed, record=False, P=None):
                         pa, pb = va["b"], vb["b"]; x, y = (pa.position.x + pb.position.x) / 2, (pa.position.y + pb.position.y) / 2
                         lowa = pa.position.y > pb.position.y; base = pa if lowa else pb
                         nidx = add(k, x, y, (pa.velocity.x + pb.velocity.x) / 2 * .6, (pa.velocity.y + pb.velocity.y) / 2 * .6, base.angle, (pa.angular_velocity + pb.angular_velocity) / 2, r0=RAD[k - 1], t=t)
+                        B[nidx]["mg"] = True; B[nidx]["cd"] = 1 + max([vv.get("cd", 0) for vv in (va, vb) if vv.get("mg") and t - vv["born"] < P.get("chainwin", .8)] + [0]); P.setdefault("chainmap", {})[nidx] = B[nidx]["cd"]
                         par[nidx] = (pa.position.x, pa.position.y, pa.angle, pb.position.x, pb.position.y, pb.angle)
                         for vv, key in ((va, ids[a]), (vb, ids[b])): sp.remove(vv["b"], vv["s"]); del B[key]
                         merges.append((t, k, x, y, nidx, k > best)); best = max(best, k)

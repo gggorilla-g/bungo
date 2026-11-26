@@ -14,7 +14,7 @@ mb.XL, mb.XR, mb.YB, mb.YWALL, mb.YLIM, mb.YRAIL = 420.0, 1500.0, 1010.0, 170.0,
 mb.FPS = FPS; mb.SUB = 8; mb.DT = 1 / 240
 R0 = 30.0; mb.RAD[:] = [R0 * 1.235 ** k for k in range(9)] + [R0 * 6.8]; mb.MASS[:] = [(r / mb.RAD[0]) ** 2 for r in mb.RAD]
 XL, XR, YB, YWALL, YLIM, YRAIL, RAD, NT, EN = mb.XL, mb.XR, mb.YB, mb.YWALL, mb.YLIM, mb.YRAIL, mb.RAD, mb.NT, mb.EN
-TEST = float(os.environ.get("TEST", 0)); DUR = TEST or float(os.environ.get("MIN", 30)) * 60; SEED = int(os.environ.get("SEED", 1)); IV = float(os.environ.get("IV", .8)); STAY = 3.0
+TEST = float(os.environ.get("TEST", 0)); DUR = TEST or float(os.environ.get("MIN", 30)) * 60; SEED = int(os.environ.get("SEED", 1)); IV = float(os.environ.get("IV", .6)); STAY = 3.0
 OUT = sys.argv[1] if len(sys.argv) > 1 else f"output/mergelong_s{SEED}_{mb.LANG}.mp4"
 os.makedirs("build_mergelong", exist_ok=True)
 RX0, RY0, RW, RH = 360, 60, 1200, 1000
@@ -80,7 +80,7 @@ def render_video(path):
 
 class Live(list):   # シミュレーションが足していく合体の記録を、描く側からも読めるように
     pass
-MERGES = []; FIRSTS = []; ALLM = set(); EV = dict(i=0); PAR = {}
+MERGES = []; FIRSTS = []; ALLM = set(); EV = dict(i=0); PAR = {}; CMAP = {}
 
 def audio(res, path):
     N = int(SR * DUR); dry = np.lib.format.open_memmap("build_mergelong/dry.npy", "w+", np.float32, (N, 2)); snd = np.lib.format.open_memmap("build_mergelong/snd.npy", "w+", np.float32, (N, 2))
@@ -108,13 +108,15 @@ def audio(res, path):
         return bc[m]
     CH = 6.4; L1 = [78, 76, 74, 73, 71, 69, 71, 73]; L2 = [74, 73, 71, 69, 67, 66, 67, 64]; rg = np.random.default_rng(SEED); last_t = -9; done = set()
     for t, k, x, y, nid, first in res["merges"]:
-        pan = .5 + .30 * (x - (XL + XR) / 2) / (XR - XL); sl = int(t // CH); ch = mb.PROG[sl % 8]; r_ = mb.TRI[ch][0]
+        cd = CMAP.get(nid, 1); pan = .5 + .30 * (x - (XL + XR) / 2) / (XR - XL); sl = int(t // CH); ch = mb.PROG[sl % 8]; r_ = mb.TRI[ch][0]
         if k == NT - 1:
             for m_, g_ in ((r_ - 24, .8), (r_ - 17, .6), (r_ - 12, .7), (r_, .5), (mb.TRI[ch][1], .35), (mb.TRI[ch][2], .35)): put(bowl(m_), t, .5 + .2 * math.sin(m_), g_ * .5, .9)
             continue
         if sl not in done and t - sl * CH > .3: done.add(sl); m = (L2 if (sl // 8) % 2 else L1)[sl % 8] - 12; g = .34      # この和音の最初の合体：カノンの旋律
-        else: tl = mb.tones(ch, 43, 12); m = tl[max(0, min(11, 10 - k + int(rg.integers(0, 2))))]; g = (.17 + .03 * k) * (.55 if t - last_t < .25 else 1.0)
+        else: tl = mb.tones(ch, 43, 14); m = tl[max(0, min(13, 10 - k + int(rg.integers(0, 2)) + 2 * (cd - 1)))]; g = (.17 + .03 * k) * (.55 if (cd == 1 and t - last_t < .25) else 1.0)
         last_t = t; put(bowl(m), t, pan, g, .9)
+        if cd >= 2:   # 連鎖の2段め・3段め：1段ごとに音が上がり、少しおくれてもう1音が重なる（オーナー 11/26「音のずれとか重なりがもっと」）
+            tl = mb.tones(ch, 43, 14); j = tl.index(m) if m in tl else 8; put(bowl(tl[max(0, j - 2)]), t + .11, 1 - pan, g * .55, .95); put(bowl(tl[min(13, j + 1)]), t + .22, pan, g * .4, .95)
     for sl in range(int(DUR // CH) + 1):   # 下の持続音：和音の根音と5度が、ゆっくり入れ替わる
         ch = mb.PROG[sl % 8]; r_, t3, f5 = mb.TRI[ch]; put(pad([r_ - 24, r_ - 12, f5 - 12, t3], CH + 2.2, .016), sl * CH - 1.1, .5, 1.0, .8)
     tt_ = np.arange(int(SR * 2.4)) / SR; irs = [np.convolve(np.random.default_rng(s_).normal(0, 1, len(tt_)) * np.exp(-tt_ * 1.3), np.ones(60) / 60, "same").astype(np.float32) * .02 for s_ in (11, 12)]
@@ -155,7 +157,7 @@ if __name__ == "__main__":
     import inspect, textwrap
     code = inspect.getsource(orig_sim).replace("drops = []; merges = [];", "drops = []; merges = P['tap'];")
     ns = {}; exec(compile(code, "simulate_tap", "exec"), mb.__dict__, ns); sim = ns["simulate"]
-    t0 = time.time(); res = sim(SEED, P=dict(long=DUR, iv=IV, sunstay=STAY, on_frame=hook, tap=Tap(), par=PAR))
+    t0 = time.time(); res = sim(SEED, P=dict(long=DUR, iv=IV, sunstay=STAY, on_frame=hook, tap=Tap(), par=PAR, chainmap=CMAP, cool=float(os.environ.get("COOL", .26)), small=float(os.environ.get("SMALL", .45))))
     proc.stdin.close(); proc.wait(); print("絵", round(time.time() - t0), "秒 / 太陽", len(res["suns"]), "個 / 合体", len(res["merges"]), "回 / 落とした星", len(res["drops"]), "個", flush=True)
     audio(res, "build_mergelong/a.wav")
     subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", "build_mergelong/v.mp4", "-i", "build_mergelong/a.wav", "-c:v", "copy", "-c:a", "aac", "-b:a", "192k", "-shortest", "-movflags", "+faststart", OUT], check=True)
