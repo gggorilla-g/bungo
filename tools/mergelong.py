@@ -98,34 +98,28 @@ def audio(res, path):
                 f = mb.mtof(m_); s += (np.sin(2 * np.pi * f * tt) + .5 * np.sin(2 * np.pi * f * 1.004 * tt + q) + .22 * np.sin(4 * np.pi * f * tt + 2 * q)) / (1 + .25 * q)
             pc[key] = s * np.minimum(1, tt / .25) * np.minimum(1, (d_ - tt) / .7)
         return pc[key] * g
-    seq = mb.melody(); mi = -1; last_t = -9; last_note = None; chord = "D"
+    # 瞑想音楽のように（オーナー 11/26）：旋律は追わない。合体のたびに、おりんのような長い余韻の音が1つ。大きい星ほど低い。下にずっと低い持続音
+    bc = {}
+    def bowl(m):
+        if m not in bc:
+            f = mb.mtof(m); tt = np.arange(int(SR * 9.0)) / SR
+            x = (np.sin(2 * np.pi * f * tt) + .8 * np.sin(2 * np.pi * (f + .55) * tt)) * np.exp(-tt / 3.2) + .30 * np.sin(2 * np.pi * f * 2.71 * tt + 1) * np.exp(-tt / 1.5) + .10 * np.sin(2 * np.pi * f * 5.2 * tt + 2) * np.exp(-tt / .6)
+            bc[m] = (x * np.minimum(1, tt / .035) * np.minimum(1, (9.0 - tt) / 1.0) * (f / 261.6) ** -.35).astype(np.float32)
+        return bc[m]
+    PIT = {1: (71, 74), 2: (69, 66), 3: (66, 69), 4: (64, 62), 5: (62, 57), 6: (57, 59), 7: (54, 50), 8: (50, 45)}; rg = np.random.default_rng(SEED); last_t = -9
     for t, k, x, y, nid, first in res["merges"]:
-        pan = .5 + .34 * (x - (XL + XR) / 2) / (XR - XL)
+        pan = .5 + .30 * (x - (XL + XR) / 2) / (XR - XL)
         if k == NT - 1:
-            for m_, g_ in ((38, .9), (45, .7), (50, .9), (57, .6), (62, .8), (66, .6), (69, .6), (74, .7), (78, .5)): put(mb.stone(m_, 2.2), t, .5 + .2 * math.sin(m_), g_ * .62, .7)
-            put(pad([50, 62, 66, 69], 3.4, .034), t - .03, .5, 1.0, .6); mi = -1; chord = "D"; last_t = t; last_note = 62; continue      # 太陽ができたら、旋律は頭に戻る
-        if t - last_t < .09 and last_note is not None:
-            tl = [m for m in mb.tones(chord, 50, 12) if m < last_note]; m = tl[-1] if tl else last_note - 12; last_note = m; g = .50
-        else:
-            mi += 1; m, ci = seq[mi % len(seq)]; g = .80 + .02 * k
-            if mb.PROG[ci] != chord or t - last_t > 2.0:
-                chord = mb.PROG[ci]; r_, t_, f_ = mb.TRI[chord]; put(pad([r_ - 12, r_, t_, f_], 4.5, .030), t - .02, .5, 1.0, .7)
-            last_note = m
-        last_t = t; put(mb.stone(m - 12, 2.4), t, pan, g * .8, .75); r_ = mb.TRI[chord][0]
-        if k >= 4: put(mb.stone(r_ - 12, 2.8), t, pan, .30 + .05 * (k - 4), .5)
-        if k >= 6: put(mb.stone(r_ - 24, 2.4), t, .5, .50, .5); put(mb.stone(mb.TRI[chord][2] - 12, 2.8), t, pan, .26, .5)
-        if k >= 8: put(mb.stone(mb.TRI[chord][1], 2.8), t + .012, pan, .30, .5)
-    TK = [mb.tok(1.0 - .045 * k) for k in range(NT)]; mt = np.array([m[0] for m in res["merges"]])
-    for t, k, spd, x, y in res["toks"]:
-        j = np.searchsorted(mt, t)
-        if (j < len(mt) and mt[j] - t < .02) or (j > 0 and t - mt[j - 1] < .02): continue
-        put(TK[k], t, .5 + .34 * (x - (XL + XR) / 2) / (XR - XL), min(.26, .05 + spd / 9000) * (.7 + .08 * k) * .3, .5)
-    tt_ = np.arange(int(SR * 2.4)) / SR; irs = [np.convolve(np.random.default_rng(s_).normal(0, 1, len(tt_)) * np.exp(-tt_ * 1.6), np.ones(40) / 40, "same").astype(np.float32) * .02 for s_ in (11, 12)]
+            for m_, g_ in ((38, .8), (45, .6), (50, .7), (62, .5), (66, .35), (69, .35)): put(bowl(m_), t, .5 + .2 * math.sin(m_), g_ * .5, .9)
+            continue
+        g = (.20 + .035 * k) * (.55 if t - last_t < .25 else 1.0); last_t = t; put(bowl(PIT[k][0] if rg.random() < .7 else PIT[k][1]), t, pan, g, .9)
+    tt_ = np.arange(int(SR * 2.4)) / SR; irs = [np.convolve(np.random.default_rng(s_).normal(0, 1, len(tt_)) * np.exp(-tt_ * 1.3), np.ones(60) / 60, "same").astype(np.float32) * .02 for s_ in (11, 12)]
     B = SR * 30; L = len(tt_); tail = np.zeros((L, 2), np.float32); pk = 0.0
     for a in range(0, N, B):   # 残響：30秒ずつ、はみ出した分を次へ足す
         b = min(N, a + B); blk = np.zeros((b - a + L, 2), np.float32)
         for c in (0, 1): y_ = fftconvolve(snd[a:b, c], irs[c]); blk[:len(y_), c] = y_
-        blk[:L] += tail; dry[a:b] += blk[:b - a]; tail = blk[b - a:b - a + L].copy() if b - a >= L else np.zeros((L, 2), np.float32); pk = max(pk, float(np.abs(dry[a:b]).max()))
+        tq = np.arange(a, b) / SR; dr = (.030 * (1 + .35 * np.sin(2 * np.pi * tq / 23)) * (np.sin(2 * np.pi * 73.42 * tq) + .7 * np.sin(2 * np.pi * 110.0 * tq) + .6 * np.sin(2 * np.pi * 146.83 * tq + .5 * np.sin(2 * np.pi * tq / 17)) + .25 * np.sin(2 * np.pi * 220.3 * tq)) * np.minimum(1, tq / 6)).astype(np.float32)
+        blk[:L] += tail; dry[a:b] += blk[:b - a] + dr[:, None]; tail = blk[b - a:b - a + L].copy() if b - a >= L else np.zeros((L, 2), np.float32); pk = max(pk, float(np.abs(dry[a:b]).max()))
     sos = butter(4, 15000, "low", fs=SR, output="sos"); zi = [sosfilt_zi(sos) * 0, sosfilt_zi(sos) * 0]; pk2 = 0.0
     out = np.lib.format.open_memmap("build_mergelong/mix.npy", "w+", np.float32, (N, 2))
     for a in range(0, N, B):
@@ -135,7 +129,7 @@ def audio(res, path):
     fo = int(SR * 3); out[N - fo:] *= np.linspace(1, 0, fo, dtype=np.float32)[:, None]
     with wave.open(path, "wb") as w:
         w.setnchannels(2); w.setsampwidth(2); w.setframerate(SR)
-        for a in range(0, N, B): w.writeframes((out[a:min(N, a + B)] * (.80 / pk2) * 32767).astype(np.int16).tobytes())
+        for a in range(0, N, B): w.writeframes((out[a:min(N, a + B)] * (.36 / pk2) * 32767).astype(np.int16).tobytes())
     for f_ in ("dry", "snd", "mix"): os.remove(f"build_mergelong/{f_}.npy")
 
 if __name__ == "__main__":
