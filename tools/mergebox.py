@@ -54,7 +54,7 @@ def simulate(seed, record=False, P=None):
         def valley(r):
             lo, hi = XL + r + 4, XR - r - 4; xs = [lo + (hi - lo) * q / 24 for q in range(25)]; hs = [hit(x, r)[1] for x in xs]; m = max(hs); return rnd.choice([x for x, h in zip(xs, hs) if h > m - 30])
         if nd < 2: k = 0
-        elif rnd.random() < P.get("match", .82):   # 上があいている星に、同じ星を落とす
+        elif rnd.random() < (1.0 if (LONG and top < YLIM + P.get("press", 260)) else P.get("match", .82)):   # 上があいている星に、同じ星を落とす
             ex = []
             for i, (bx, byy, br, bk) in enumerate(items):
                 if bk <= md and XL + br + 4 <= bx <= XR - br - 4 and free(bx, bk) and hit(bx, br)[0] == i:
@@ -71,13 +71,17 @@ def simulate(seed, record=False, P=None):
         else: x = rnd.uniform(lo, hi)
         return k, min(hi, max(lo, x))
     held = choose(0.0)
-    while t < TMAX and (tsun is None or t < tsun + TAIL):
+    LONG = P.get("long"); suns = []; top = YB
+    while t < (LONG or TMAX) and (LONG or tsun is None or t < tsun + TAIL):
         for _ in range(SUB):
+            if LONG and t >= tnext and top < YLIM + P.get("hold", 70): tnext = t + P["iv"]   # 長尺：線の近くまで積もったら、合体で下がるまで落とすのを待つ
             if tsun is None and t >= tnext and held is not None:   # 落とす
                 k, x = held; add(k, x, YRAIL + 22 + RAD[k], t=t, fresh=True); drops.append((t, k, x)); nd += 1; mass_dropped += 2 ** k
-                hx_from = x; t_dec = t; held = choose(t); tnext = t + interval(t)
+                hx_from = x; t_dec = t; held = choose(t); tnext = t + (P["iv"] if LONG else interval(t))
             for v in B.values(): v["pv"] = (v["b"].velocity.x, v["b"].velocity.y)
             sp.step(DT); t += DT
+            for ts_, si in suns:   # 長尺：太陽はしばらく光ってから箱を出ていく
+                if si in B and t > ts_ + P.get("sunstay", 3.0): sp.remove(B[si]["b"], B[si]["s"]); del B[si]
             ids = list(B.keys()); n = len(ids)
             if n:
                 X = np.array([(B[i]["b"].position.x, B[i]["b"].position.y) for i in ids]); K = np.array([B[i]["k"] for i in ids]); Rr = np.array([B[i]["s"].radius for i in ids])
@@ -97,7 +101,8 @@ def simulate(seed, record=False, P=None):
                         nidx = add(k, x, y, (pa.velocity.x + pb.velocity.x) / 2 * .6, (pa.velocity.y + pb.velocity.y) / 2 * .6, base.angle, (pa.angular_velocity + pb.angular_velocity) / 2, r0=RAD[k - 1], t=t)
                         for vv, key in ((va, ids[a]), (vb, ids[b])): sp.remove(vv["b"], vv["s"]); del B[key]
                         merges.append((t, k, x, y, nidx, k > best)); best = max(best, k)
-                        if k == NT - 1 and tsun is None: tsun = t
+                        if k == NT - 1 and LONG: suns.append((t, nidx))
+                        elif k == NT - 1 and tsun is None: tsun = t
                 # 落とした星が最初に何かに当たった瞬間（小さい「コッ」）
                 for i in list(B.keys()):
                     v = B[i]
@@ -116,10 +121,11 @@ def simulate(seed, record=False, P=None):
             if over > .35: overflow = True
         # 口の位置：次に落とす所へ、なめらかに
         iv = max(1e-3, tnext - t_dec); f = min(1.0, (t - t_dec) / (iv * .62)); f = f * f * (3 - 2 * f); hx = hx_from + ((held[1] if held else hx_from) - hx_from) * f
-        if record:
+        if P.get("on_frame"): P["on_frame"](dict(t=t, bodies=[(i, v["k"], v["b"].position.x, v["b"].position.y, v["b"].angle, v["s"].radius, v["born"]) for i, v in B.items()], hx=hx, held=(held[0] if held else None), nd=nd, top=top, suns=len(suns)))
+        elif record:
             frames.append(dict(t=t, bodies=[(i, v["k"], v["b"].position.x, v["b"].position.y, v["b"].angle, v["s"].radius, v["born"]) for i, v in B.items()], hx=hx, held=(held[0] if (held and tsun is None) else None), nd=nd, mass=mass_dropped, best=best, top=top))
-        if overflow and not record: break
-    return dict(seed=seed, tsun=tsun, merges=merges, drops=drops, toks=toks, frames=frames, overflow=overflow, topmin=topmin, best=best, mass=mass_dropped, left=len(B))
+        if overflow and not record and not LONG: break
+    return dict(seed=seed, tsun=tsun, merges=merges, drops=drops, toks=toks, frames=frames, overflow=overflow, topmin=topmin, best=best, mass=mass_dropped, left=len(B), suns=suns)
 
 def score(r):
     """小さいほどよい。線をこえずに太陽までできた回のうち、線ぎりぎりまで積もり、最後に続けて合体する回"""
