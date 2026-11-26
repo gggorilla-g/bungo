@@ -253,7 +253,7 @@ def build_static():
     for q in (-44, 44): f.ellipse([(CX + q - 3) * S, 444 * S, (CX + q + 3) * S, 450 * S], fill=(176, 190, 226, 200))
     fr = fr.resize((W, H), Image.LANCZOS); f = ImageDraw.Draw(fr)
     l1 = "Two of the same merge into a bigger one" if EN else "同じ星が2つ重なると、1つ大きい星になる"
-    l2 = "How many Moons make a Sun?" if EN else "月を何個落とすと、太陽になる？"
+    l2 = "Keep dropping Moons. Get a Sun?" if EN else "月を何個落とすと、太陽になる？"
     f.text((W / 2, 176), l1, font=fnt(48 if EN else 47), fill=(244, 244, 250, 255), anchor="mm", stroke_width=5, stroke_fill=(6, 6, 16, 255))
     f.text((W / 2, 248), l2, font=fnt(54 if EN else 52), fill=(255, 226, 122, 255), anchor="mm", stroke_width=5, stroke_fill=(6, 6, 16, 255))
     warm = Image.new("L", (W, H), 0); wd = ImageDraw.Draw(warm); wd.rectangle([CX - HW, yt, CX + HW, yc], fill=255); wd.pieslice([CX - HW, yc - HW, CX + HW, yc + HW], 0, 180, fill=255)
@@ -332,7 +332,7 @@ class Renderer:
             if b > .02: ov.paste(ic, (x - ic.width // 2, IY - ic.height // 2), ic.split()[3].point(lambda v, b=b: int(v * b)))
             e = t - FIRST.get(k, -9)
             if 0 <= e < .6: r1 = 27 + 16 * e / .6; a = (1 - e / .6); ad.ellipse([x - r1, IY - r1, x + r1, IY + r1], outline=tuple(int(v * a * .9) for v in GLOW[k]), width=3)
-            g_ = int(120 + 135 * b); d.text((x, IY + 46), str(2 ** k), font=fW, fill=(g_, g_, min(255, g_ + 10), 255), anchor="mm")
+            if not EN: g_ = int(120 + 135 * b); d.text((x, IY + 46), str(2 ** k), font=fW, fill=(g_, g_, min(255, g_ + 10), 255), anchor="mm")
         # 数
         d.text((862, 560), "Moons dropped" if EN else "落とした月", font=fUnit if not EN else fnt(30), fill=(196, 202, 224, 255), anchor="mm", stroke_width=3, stroke_fill=(6, 6, 16, 255))
         d.text((862, 632), str(nd), font=fCnt, fill=(244, 244, 250, 255), anchor="mm", stroke_width=4, stroke_fill=(6, 6, 16, 255))
@@ -342,13 +342,13 @@ class Renderer:
             if j == 9 or e < 0 or e > 1.7: continue
             a = min(1, e / .08) * min(1, (1.7 - e) / .3); y = min(1370, max(600, ypos.get(j, YB - RAD[j]))) - 14 * min(1, e / .5); A = int(255 * a)
             d.text((196, y), NAMES[j], font=fName if not EN else fnt(54), fill=(248, 248, 252, A), anchor="mm", stroke_width=5, stroke_fill=(6, 6, 16, A))
-            d.text((196, y + 58), (f"= {2 ** j} moons" if EN else f"月 {2 ** j}個ぶん"), font=fSub if not EN else fnt(32), fill=(255, 226, 122, A), anchor="mm", stroke_width=4, stroke_fill=(6, 6, 16, A))
+            if not EN: d.text((196, y + 58), (f"= {2 ** j} moons" if EN else f"月 {2 ** j}個ぶん"), font=fSub if not EN else fnt(32), fill=(255, 226, 122, A), anchor="mm", stroke_width=4, stroke_fill=(6, 6, 16, A))
         if T511 + .12 < t < T[512]:   # 最後の1個の前
             a = min(1, (t - T511 - .12) / .15); A = int(255 * a); d.text((196, 560), "One more" if EN else "あと1個", font=fOne, fill=(255, 226, 122, A), anchor="mm", stroke_width=5, stroke_fill=(6, 6, 16, A))
         if t >= TSUN:                 # 決着
             e = t - TSUN; a = min(1, e / .25); A = int(255 * a); ys = (s.ysun or (YB - RAD[9]))
             d.text((W / 2, ys - 330 - 16 * min(1, e / .6)), NAMES[9], font=fBig if not EN else fnt(120), fill=(255, 226, 122, A), anchor="mm", stroke_width=8, stroke_fill=(6, 6, 16, A))
-            d.text((W / 2, ys - 226 - 16 * min(1, e / .6)), ("= 512 Moons" if EN else "月 512個ぶん"), font=fBig2, fill=(248, 248, 252, A), anchor="mm", stroke_width=6, stroke_fill=(6, 6, 16, A))
+            if not EN: d.text((W / 2, ys - 226 - 16 * min(1, e / .6)), ("= 512 Moons" if EN else "月 512個ぶん"), font=fBig2, fill=(248, 248, 252, A), anchor="mm", stroke_width=6, stroke_fill=(6, 6, 16, A))
         im = Image.alpha_composite(im, ov).convert("RGB")
         if t >= TSUN:                 # 太陽の明かりで管の中がうっすら暖かくなる
             e = min(1, (t - TSUN) / .8); wl = (WARM * (e * .16))[..., None] * np.array([255, 150, 60], np.float32); add = ImageChops.add(add, Image.fromarray(np.clip(wl, 0, 255).astype(np.uint8)))

@@ -1,0 +1,16 @@
+【タイトル】
+Two Same Planets Merge Into a Bigger One. Keep Dropping Moons. Get a Sun? #Shorts #space #canon
+
+【説明】
+Moons drop one by one. When two of the same meet, they merge into the next one.
+Moon → Mercury → Mars → Venus → Earth → Neptune → Uranus → Saturn → Jupiter → Sun
+
+How it works:
+- The drops speed up every bar: quarter notes, then eighths, then sixteenths...
+- Every merge plays one note of Pachelbel's Canon. Bigger planets play lower notes.
+- The merge rule is only for this video. The order follows real size (Moon smallest, Sun largest), but two real planets do not make the next one.
+
+Simulation, sound and animation: original (made in Python). Music: arrangement of Pachelbel's Canon (public domain)
+
+【タグ】
+space, planets, sun, moon, merge, satisfying, physics, simulation, canon, pachelbel, make it work
