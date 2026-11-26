@@ -53,15 +53,58 @@ CRUISE = [
  ["94 AU — termination shock: the solar wind slows down.", "121 AU — heliopause. Voyager 1 crossed it on August 25, 2012.", "Beyond here: interstellar space."],
 ]
 OUTRO = ["The next star, Proxima Centauri, is 4.24 light-years away.", "Light needs 4 years and 3 months.", "Voyager 1 would need about 75,000 years.", "Thanks for riding along."]
-HOLD0, PERFACT, APPR, DEP, INTRO = 10.0, 13.0, 16.0, 5.0, 6.0
-CRU = [40, 48, 48, 48, 56, 64, 70, 76, 76, 76, 130]     # 各移動の秒数（離れる5秒・近づく16秒をふくむ）
-def build():
-    t = INTRO; seg = []
+HOLD0, PERFACT, APPR, DEP, INTRO = 10.0, 9.0, 16.0, 5.0, 6.0
+CRU = [40, 48, 48, 48, 56, 64, 70, 76, 76, 76, 130]     # 各移動の秒数（離れる5秒・近づく16秒をふくむ）。語りが入りきらない時はのばす
+# 語り（オーナー 11/26「英語ナレーションいれていい」）：声は Kokoro（Apache-2.0、nazo/kaizo3d.py と同じ）。画面の文を、読む形に直して読む
+VOICE = os.environ.get("VOICE", "af_heart"); VSPEED = float(os.environ.get("VSPEED", .92)); NJ = f"{B}/narr_{VOICE}.json"
+def spoken(x):
+    for a_, b_ in (("−", "minus "), ("°C", " degrees Celsius"), ("km/h", " kilometers per hour"), ("km/s", " kilometers per second"), (" km", " kilometers"), (" m thick", " meters thick"), (" AU", " astronomical units"), (" — ", ", "), ("…", ""), ("98°", "98 degrees"), ("1.4 times", "one point four times"), ("(243 Earth days)", "of 243 Earth days"), ("(225)", "of 225 days")):
+        x = x.replace(a_, b_)
+    return x
+def lt_words(au):
+    sec = int(round(au * AU_LS)); h, r = divmod(sec, 3600); m, s_ = divmod(r, 60); P = lambda n, w: f"{n} {w}" + ("" if n == 1 else "s")
+    if sec >= 86399: return "one full day"
+    parts = ([P(h, "hour")] if h else []) + ([P(m, "minute")] if m else []) + ([P(s_, "second")] if (s_ and not h) else []); return " and ".join(parts)
+def arrive_line(s):
+    if s["key"] == "sun": return "The Sun. Our journey starts here."
+    if s["key"] == "voyager": return "Voyager 1. Sunlight needs one full day to reach it."
+    return f"{s['name'].title()}. Sunlight takes {lt_words(s['au'])} to get here."
+def narr_lines():
+    L = {"intro": "Leaving the Sun at the speed of light. A real-distance journey to Voyager 1, one light-day away."}
     for i, s in enumerate(STOPS):
-        s["hold"] = HOLD0 + PERFACT * len(s["facts"]) + 6; s["t0"] = t; s["t1"] = t + s["hold"]; t = s["t1"]
-        if i < len(CRU): t += CRU[i]
-    return t
-T_OUT = build(); DUR = T_OUT + 14 + 9 * len(OUTRO)
+        L[f"s{i}"] = arrive_line(s)
+        for j, f in enumerate(s["facts"]): L[f"s{i}f{j}"] = spoken(f)
+    for i, ls in enumerate(CRUISE):
+        for j, f in enumerate(ls): L[f"c{i}l{j}"] = spoken(f)
+    for j, f in enumerate(OUTRO): L[f"o{j}"] = spoken(f)
+    return L
+def narr_build():
+    import json, soundfile as sf
+    from kokoro_onnx import Kokoro
+    kk = Kokoro("vv_assets/kokoro/kokoro-v1.0.onnx", "vv_assets/kokoro/voices-v1.0.bin"); os.makedirs(f"{B}/narr_{VOICE}", exist_ok=True); D = {}
+    for k, txt in narr_lines().items():
+        a_, sr = kk.create(txt, voice=VOICE, speed=VSPEED, lang="en-us"); sf.write(f"{B}/narr_{VOICE}/{k}.wav", a_, sr, subtype="PCM_16"); D[k] = len(a_) / sr
+    json.dump(D, open(NJ, "w")); print("語り", len(D), "本", round(sum(D.values())), "秒")
+def ndur():
+    import json
+    if os.path.exists(NJ): return json.load(open(NJ))
+    return {k: 0.0 for k in narr_lines()}   # 声なし
+ND = ndur(); VO = any(ND.values())
+def build():
+    t = max(INTRO, ND.get("intro", 0) + 1.5); G0 = t; NT_ = []   # NT_ = 語りを置く時刻（鍵, 秒）
+    NT_.append(("intro", .6))
+    for i, s in enumerate(STOPS):
+        s["t0"] = t; q = t + 1.2; NT_.append((f"s{i}", q)); q += max(ND[f"s{i}"] + 1.0, 4.5 if not VO else 0); s["ft"] = []
+        for j in range(len(s["facts"])): s["ft"].append(q); NT_.append((f"s{i}f{j}", q)); q += max(ND[f"s{i}f{j}"] + 1.4, PERFACT)
+        s["t1"] = q + 4.0; s["hold"] = s["t1"] - s["t0"]; t = s["t1"]
+        if i < len(CRU):
+            c0 = t + DEP + 1.5; ct = []; q = c0
+            for j in range(len(CRUISE[i])): d_ = max(ND[f"c{i}l{j}"] + 1.6, 7.0); ct.append((q, q + d_ - .4)); NT_.append((f"c{i}l{j}", q + .2)); q += d_
+            s["ct"] = ct; t += max(CRU[i], (q - t) + APPR * .6)
+    return t, NT_, G0
+T_OUT, NTIMES, INTRO = build(); OT = []; _q = T_OUT + 12
+for _j in range(len(OUTRO)): _d = max(ND[f"o{_j}"] + 1.6, 8.0); OT.append((_q, _q + _d - .4)); NTIMES.append((f"o{_j}", _q + .2)); _q += _d
+DUR = _q + 6
 
 def state(t):
     """t での場所：(太陽からのAU, 止まっている星の番号 or None, その星までの z, 進む速さ0..1)"""
@@ -240,7 +283,7 @@ def frame(t):
         if s["t0"] - 3 < t < s["t1"] + 1.5:
             a = fade(t, s["t0"] - 2.5, s["t1"] + 1.2); d.text((90, 392), s["name"], font=F["name"], fill=(255, 255, 255, int(255 * a)))
             for j, f in enumerate(s["facts"]):
-                tf = s["t0"] + HOLD0 * .45 + PERFACT * j; af = fade(t, tf, s["t1"] + 1.0, .9)
+                tf = s["ft"][j]; af = fade(t, tf, s["t1"] + 1.0, .9)
                 if af > 0: d.text((94, 510 + 46 * j), f, font=F["fact"] if len(f) < 50 else fnt(31, False), fill=(226, 232, 246, int(255 * af)))
             ins = s.get("insets", [])
             for q, (ik, cap, cred) in enumerate(ins):
@@ -251,19 +294,18 @@ def frame(t):
                     im = Image.fromarray(T[k].astype(np.uint8)); im.thumbnail((380, 190)); im.putalpha(int(255 * ai)); px, py = 520, 760; ov.alpha_composite(im, (px, py)); d.rectangle([px - 2, py - 2, px + im.width + 1, py + im.height + 1], outline=(200, 210, 236, int(200 * ai)), width=2)
                     d.text((px + im.width + 18, py + 6), cap, font=F["cap"], fill=(236, 238, 246, int(255 * ai))); d.text((px + im.width + 18, py + 38), "Image: " + cred, font=F["small"], fill=(150, 170, 210, int(255 * ai))); d.text((px + im.width + 18, py + 64), "public domain", font=F["small"], fill=(150, 170, 210, int(255 * ai)))
             if s["key"] == "earth":
-                am = fade(t, s["t0"] + HOLD0 * .45 + PERFACT * 2, s["t1"] + 1.0)
+                am = fade(t, s["ft"][2], s["t1"] + 1.0)
                 if am > 0 and z > .3:
                     Rr = FOC / math.sqrt(z * z + BX * BX + BY * BY) * .92; cx, cy = W / 2 + FOC * BX / z + 1.0, H / 2 + FOC * BY / z + 30; d.text((cx - Rr * 2.25, cy - Rr * .72 - Rr * .27 - 34), "Moon (not to scale)", font=F["cap"], fill=(236, 238, 246, int(255 * am)), anchor="ma")
     # 移動中の文
     for i, lines in enumerate(CRUISE):
-        a0 = STOPS[i]["t1"] + DEP + 1.5; a1 = STOPS[i + 1]["t0"] - APPR * .55; n = len(lines); per = (a1 - a0) / n
         for j, ln in enumerate(lines):
-            al = fade(t, a0 + per * j, a0 + per * (j + 1) - .3, 1.0, 1.0)
+            al = fade(t, STOPS[i]["ct"][j][0], STOPS[i]["ct"][j][1], 1.0, 1.0)
             if al > 0: d.text((W / 2 + 120, H / 2 + 40), ln, font=F["cru"] if len(ln) < 52 else fnt(38, False), fill=(240, 242, 250, int(255 * al)), anchor="mm")
     if t < INTRO + 1:   # 題
         a = fade(t, .3, INTRO - .2, 1.0, 1.2); d.text((W / 2, H / 2 - 60), "LEAVING THE SUN AT THE SPEED OF LIGHT", font=fnt(70), fill=(255, 255, 255, int(255 * a)), anchor="mm"); d.text((W / 2, H / 2 + 30), "A real-distance journey to Voyager 1 — one light-day away", font=F["sub"], fill=(255, 226, 150, int(255 * a)), anchor="mm")
     for j, ln in enumerate(OUTRO):
-        a0 = T_OUT + 13 + 9 * j; al = fade(t, a0, a0 + 8.6, 1.0, 1.0)
+        al = fade(t, OT[j][0], OT[j][1], 1.0, 1.0)
         if al > 0: d.text((W / 2, H / 2), ln, font=F["cru"], fill=(240, 242, 250, int(255 * al)), anchor="mm")
     out = np.asarray(Image.alpha_composite(img, ov).convert("RGB"), np.float32) / 255
     if t > T_OUT + 10 and bi is not None: pass
@@ -308,23 +350,35 @@ def audio(path, a=0.0, b=None):
         r_, t3, f5 = chord_at(s["t0"]);
         for m_, g_, dt in ((r_ - 12, .5, 0), (r_, .4, .0), (f5, .3, .5), (t3 + 12, .28, 1.0), (r_ + 24, .2, 1.6)): put(bowl(m_), s["t0"] - 1.0 + dt, .5 + .25 * math.sin(m_), g_ * .55, .9)   # 着いた
         for j in range(len(s["facts"])):
-            tf = s["t0"] + HOLD0 * .45 + PERFACT * j; c_ = chord_at(tf); m_ = (c_[j % 3] + 12 + (12 if j % 2 else 0)); put(bowl(m_), tf, .35 + .3 * rg.random(), .26, .9)
+            tf = s["ft"][j]; c_ = chord_at(tf); m_ = (c_[j % 3] + 12 + (12 if j % 2 else 0)); put(bowl(m_), tf - .15, .35 + .3 * rg.random(), .15 if VO else .26, .9)
     for i, lines in enumerate(CRUISE):
-        a0 = STOPS[i]["t1"] + DEP + 1.5; a1 = STOPS[i + 1]["t0"] - APPR * .55; per = (a1 - a0) / len(lines)
-        for j in range(len(lines)): tf = a0 + per * j; c_ = chord_at(tf); put(bowl(c_[(j + 1) % 3] + 12), tf, .6, .2, .9)
-        tq = a0
+        for j in range(len(lines)): tf = STOPS[i]["ct"][j][0]; c_ = chord_at(tf); put(bowl(c_[(j + 1) % 3] + 12), tf, .6, .13 if VO else .2, .9)
+        tq = STOPS[i]["t1"] + 2; a1 = STOPS[i + 1]["t0"] - 3
         while tq < a1:   # 移動中：ぽつぽつと高い音
-            c_ = chord_at(tq); put(bowl(c_[int(rg.integers(0, 3))] + 24), tq, .2 + .6 * rg.random(), .09, .95); tq += float(rg.uniform(3.5, 7.5))
-    for j in range(len(OUTRO)): tf = T_OUT + 13 + 9 * j; c_ = chord_at(tf); put(bowl(c_[j % 3] + 12), tf, .5, .26, .9)
-    tt_ = np.arange(int(SR * 2.6)) / SR; out = dry.copy()
+            c_ = chord_at(tq); put(bowl(c_[int(rg.integers(0, 3))] + 24), tq, .2 + .6 * rg.random(), .07, .95); tq += float(rg.uniform(3.5, 7.5))
+    for j in range(len(OUTRO)): tf = OT[j][0]; c_ = chord_at(tf); put(bowl(c_[j % 3] + 12), tf, .5, .16, .9)
+    if VO:   # 語り：音楽より前に出す。残響は少しだけ
+        import soundfile as sf
+        from scipy.signal import resample_poly
+        for k, tv in NTIMES:
+            if tv > b + 1 or tv + ND[k] < a - 1: continue
+            x, sr = sf.read(f"{B}/narr_{VOICE}/{k}.wav", dtype="float32"); x = resample_poly(x, SR, sr).astype(np.float32); x = x / (float(np.abs(x).max()) or 1) * 1.25; put(x, tv, .5, 1.0, .06)
+        dry *= 1.0
+    tt_ = np.arange(int(SR * 2.6)) / SR; out = dry
     for c in (0, 1):
         ir = (np.convolve(np.random.default_rng(11 + c).normal(0, 1, len(tt_)) * np.exp(-tt_ * 1.2), np.ones(60) / 60, "same") * .02).astype(np.float32)
         from scipy.signal import fftconvolve
         for q in range(0, N, SR * 60):
             y = fftconvolve(snd[q:q + SR * 60, c], ir); k = min(len(y), N - q); out[q:q + k, c] += y[:k]
-    tq = a + np.arange(N) / SR; dr = (.007 * (1 + .35 * np.sin(2 * np.pi * tq / 23)) * (np.sin(2 * np.pi * 73.42 * tq) + .7 * np.sin(2 * np.pi * 110.0 * tq) + .5 * np.sin(2 * np.pi * 146.83 * tq + .5 * np.sin(2 * np.pi * tq / 17)))).astype(np.float32); out += dr[:, None]
-    env = (sstep(0, 3, tq) * (1 - sstep(DUR - 5, DUR, tq))).astype(np.float32); out *= env[:, None]; pk = float(np.abs(out).max()) or 1.0; out = np.tanh(out / pk * 1.6) / math.tanh(1.6) * .5
-    with wave.open(path, "wb") as w: w.setnchannels(2); w.setsampwidth(2); w.setframerate(SR); w.writeframes((out * 32767).astype(np.int16).tobytes())
+    del snd; pk = 0.0
+    for q in range(0, N, SR * 60):   # 低い持続音と出入りのフェード：1分ずつ（まとめて作るとメモリが足りない）
+        k = min(SR * 60, N - q); tq = a + (q + np.arange(k)) / SR; dr = (.007 * (1 + .35 * np.sin(2 * np.pi * tq / 23)) * (np.sin(2 * np.pi * 73.42 * tq) + .7 * np.sin(2 * np.pi * 110.0 * tq) + .5 * np.sin(2 * np.pi * 146.83 * tq + .5 * np.sin(2 * np.pi * tq / 17)))).astype(np.float32)
+        env = (sstep(0, 3, tq) * (1 - sstep(DUR - 5, DUR, tq))).astype(np.float32); out[q:q + k] = (out[q:q + k] + dr[:, None]) * env[:, None]; pk = max(pk, float(np.abs(out[q:q + k]).max()))
+    pk = pk or 1.0
+    for q in range(0, N, SR * 60): out[q:q + SR * 60] = np.tanh(out[q:q + SR * 60] / pk * 1.6) / math.tanh(1.6) * .7
+    with wave.open(path, "wb") as w:
+        w.setnchannels(2); w.setsampwidth(2); w.setframerate(SR)
+        for q in range(0, N, SR * 60): w.writeframes((out[q:q + SR * 60] * 32767).astype(np.int16).tobytes())
 
 def thumb(path):
     buf = background().copy(); sphere(buf, "saturn", 1500, 560, 300, 40.0); sphere(buf, "sun", -260, 540, 620, 3.0); sphere(buf, "earth", 760, 800, 120, 30.0)
@@ -340,6 +394,7 @@ if __name__ == "__main__":
         print("長さ", round(DUR / 60, 2), "分"); [print(f"  {s['t0']:7.1f}〜{s['t1']:7.1f}  {s['name']:10s} {fmt_time(s['au'] * AU_LS)}  {fmt_km(s['au'] * AU_KM)}") for s in STOPS]
     elif m == "stills":
         for x in sys.argv[2].split(","): Image.fromarray(frame(float(x))).save(f"{B}/s_{float(x):07.1f}.jpg", quality=90)
+    elif m == "narr": narr_build()
     elif m == "part": render_part(int(sys.argv[2]), int(sys.argv[3]), sys.argv[4])
     elif m == "thumb": thumb(sys.argv[2] if len(sys.argv) > 2 else "output/lightride1_en_thumb.jpg")
     elif m == "clip":
