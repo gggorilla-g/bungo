@@ -25,7 +25,7 @@ while read -r id ch lg; do
   [ -f "output/${id}_t.mp4" ] && up="${id}_t"
   out="$(tools/up.sh "$up" "nazo/manual/ballsim/${id}_upload.txt" "YT_REFRESH_TOKEN_$ch" "$lg" 1 </dev/null 2>&1 | grep -v '^fatal: expected')"
   echo "$out" | tail -1
-  if echo "$out" | grep -q " success "; then echo "$(date -u +%FT%TZ) $out" | tail -1 >> "$D"; cnt[$ch]=$(( ${cnt[$ch]:-0} + 1 ))
+  if echo "$out" | grep -q " success "; then echo "$(date -u +%FT%TZ) $(echo "$out" | grep " success " | tail -1)" >> "$D"; cnt[$ch]=$(( ${cnt[$ch]:-0} + 1 ))
   else echo "$id $ch $lg" >> "$Q.keep"; echo "$out" | grep -q "exceeded the number of videos" && { full[$ch]=1; echo "上限: $ch はあとで"; }; fi
 done < "$Q.tmp"
 grep -vxFf "$Q.tmp" "$Q" >> "$Q.keep" 2>/dev/null   # 走っている間に足された行は残す

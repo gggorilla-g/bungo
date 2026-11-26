@@ -780,3 +780,5 @@
 - 11/25 持ち主（画面収録 Mellometry「Merging Ornaments」の型）「これは作って」「カノンは意識してね」→ tools/mergecol.py：月が上から落ち、同じ星が2つ重なると1つ大きい星になる（月→水星→…→木星→太陽）。列は落とした数の2進数。511個で9つの星が全部ならび、512個めで上から順に合体して太陽。落とす速さは1小節ごとに2倍。音は石の音で、合体の瞬間にだけ鳴る：和音1つに1回合体する星がカノンの旋律、2回が次の変奏、大きい星が低音。絵は自作（管・星とも元の動画とは別の形）。output/mergecol1_ja.mp4（22.8秒・60fps）。確認待ち、未投稿
   - 投稿：妄想科学 Ii6yIQBWPVY（11/26、持ち主「アップしていい」）
   - 11/26 持ち主「かがみ伸びてるからそのままでいい」→ wxdNj7oxPeQ は公開のまま
+- 11/26 投稿（持ち主「まだあげてないやつがあればあげて」）：妄想 canon1 sUfnD4GVywQ、fifths1 82oyfSASNWY、chord1 qwExPddgiLI、glass1 6TLuif0wevc、wheel1 ojM2AGezPJ4（6本め domino2 で1日の上限。今日は mergecol1 と合わせて6本）。MIW cup1_en WrpIJLHe03U、dots3_en gfdBtJvOxdM、spiro7_en gCdsTFWMlng、spiro5_en leP0UlKLBlQ、spiro8_en XunclCjwENM、spiro6_en b4SEHr5tG6Y。妄想の残り12本は順番待ち
+- 直し：dupcheck の警告文が upload_done.txt に入っていた（upq が出力の最後の行を記録していた）→ success の行だけ記録するよう修正、記録を書き直した

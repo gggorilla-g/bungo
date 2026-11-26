@@ -115,7 +115,7 @@ def add(kit, tag, vid):
     with open(p, "a", encoding="utf-8") as f:
         if new:
             f.write("# 動画ID|公開設定|日付|題名（ハッシュタグなし）。tools/dupcheck.py が投稿前に突き合わせる\n")
-        jst = datetime.datetime.utcnow() + datetime.timedelta(hours=9)
+        jst = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(hours=9)
         f.write("%s|公開|%s|%s\n" % (vid, jst.strftime("%Y/%m/%d"), title))
 
 
