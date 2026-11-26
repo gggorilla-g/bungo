@@ -389,7 +389,6 @@ def render(res, out, stills=None):
             if b > .02: ov.paste(ic, (x - ic.width // 2, IY - ic.height // 2), ic.split()[3].point(lambda v, b=b: int(v * b)))
             e = t - FIRST[k][0] if k in FIRST else 9
             if 0 <= e < .6: r1 = 27 + 16 * e / .6; a = (1 - e / .6); ad.ellipse([x - r1, IY - r1, x + r1, IY + r1], outline=tuple(int(v * a * .9) for v in GLOW[k]), width=3)
-            g_ = int(120 + 135 * b); d.text((x, IY + 44), str(2 ** k), font=fW, fill=(g_, g_, min(255, g_ + 10), 255), anchor="mm")
         d.text((XR - 96, 418), "Dropped" if EN else "落とした星", font=fUnit, fill=(196, 202, 224, 255), anchor="rm", stroke_width=3, stroke_fill=(6, 6, 16, 255))
         d.text((XR, 416), str(F["nd"] if fi >= int(lead * FPS) else 0), font=fCnt, fill=(244, 244, 250, 255), anchor="rm", stroke_width=4, stroke_fill=(6, 6, 16, 255))
         # 初めての星の名前（その星のすぐ上）
@@ -399,12 +398,10 @@ def render(res, out, stills=None):
             a = min(1, e / .08) * min(1, (1.6 - e) / .3); A = int(255 * a); bx, by, br, bk = pos.get(nid, (x, y, RAD[k], k))
             lx = min(W - 150, max(150, bx)); ly = max(YLIM - 40, by - RAD[k] - 74 - 10 * min(1, e / .5))
             d.text((lx, ly), NAMES[k], font=fName, fill=(248, 248, 252, A), anchor="mm", stroke_width=5, stroke_fill=(6, 6, 16, A))
-            d.text((lx, ly + 46), (f"= {2 ** k} Moons" if EN else f"月 {2 ** k}個ぶん"), font=fSub, fill=(255, 226, 122, A), anchor="mm", stroke_width=4, stroke_fill=(6, 6, 16, A))
         if tsun is not None and t >= tsun:
             e = t - tsun; a = min(1, e / .25); A = int(255 * a); sx, sy, sr, sk = next(((x, y, r, k) for (x, y, r, k) in pos.values() if k == 9), (W / 2, YB - RAD[9], RAD[9], 9))
             lx = min(W - 240, max(240, sx)); ly = max(YLIM + 90, sy - RAD[9] - 170) - 14 * min(1, e / .6)
             d.text((lx, ly), NAMES[9], font=fBig if not EN else fnt(120), fill=(255, 226, 122, A), anchor="mm", stroke_width=8, stroke_fill=(6, 6, 16, A))
-            d.text((lx, ly + 100), ("= 512 Moons" if EN else "月 512個ぶん"), font=fBig2, fill=(248, 248, 252, A), anchor="mm", stroke_width=6, stroke_fill=(6, 6, 16, A))
         im = Image.alpha_composite(im, ov).convert("RGB")
         if tsun is not None and t >= tsun:
             e = min(1, (t - tsun) / .8); wl = (WARM * (e * .07))[..., None] * np.array([255, 150, 60], np.float32); add = ImageChops.add(add, Image.fromarray(np.clip(wl, 0, 255).astype(np.uint8)))

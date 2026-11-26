@@ -34,7 +34,7 @@ def build_static():
     f.text((210, 150), l1, font=fnt(36), fill=(244, 244, 250, 255), anchor="mm"); f.text((210, 200), l2, font=fnt(36), fill=(244, 244, 250, 255), anchor="mm")
     f.text((210, 330), "Suns made" if EN else "できた太陽", font=fnt(34), fill=(255, 226, 122, 255), anchor="mm"); f.text((210, 610), "Dropped" if EN else "落とした星", font=fnt(30), fill=(196, 202, 224, 255), anchor="mm")
     for k in range(NT):
-        y = 130 + 92 * k; f.text((1640, y - 14), mb.NAMES[k], font=fnt(30), fill=(236, 238, 246, 255), anchor="lm"); f.text((1640, y + 20), (f"= {2 ** k} Moons" if EN else f"月 {2 ** k}個ぶん"), font=fnt(22), fill=(170, 178, 204, 255), anchor="lm")
+        y = 130 + 92 * k; f.text((1640, y), mb.NAMES[k], font=fnt(32), fill=(236, 238, 246, 255), anchor="lm")
     return im, fr
 
 def render_video(path):
@@ -67,7 +67,6 @@ def render_video(path):
         for tm, k, x, y, nid, first in [m for m in FIRSTS if 0 <= t - m[0] < 1.8]:   # 初めての星の名前
             e = t - tm; A = int(255 * min(1, e / .08) * min(1, (1.8 - e) / .3)); bx, by, br, bk = pos.get(nid, (x, y, RAD[k], k)); ly = max(YLIM - 30, by - RAD[k] - 70)
             d.text((bx, ly), mb.NAMES[k], font=fName, fill=(248, 248, 252, A), anchor="mm", stroke_width=5, stroke_fill=(6, 6, 16, A))
-            d.text((bx, ly + 42), (f"= {2 ** k} Moons" if EN else f"月 {2 ** k}個ぶん"), font=fSub, fill=(255, 226, 122, A), anchor="mm", stroke_width=4, stroke_fill=(6, 6, 16, A))
         for k in range(NT):
             y = 130 + 92 * k; b = float(min(1, st["pres"][k])); ic = ICON[k]; ov.alpha_composite(ICON_DIM[k], (1580 - ic.width // 2, y - ic.height // 2))
             if b > .02: ov.paste(ic, (1580 - ic.width // 2, y - ic.height // 2), ic.split()[3].point(lambda v, b=b: int(v * b)))
