@@ -1,0 +1,51 @@
+{
+ "mercury": {
+  "title": "File:Mercury map by MESSENGER global mosaic enhancedcolor over completebasemap.png",
+  "license": "Public domain",
+  "artist": "NASA/Johns Hopkins University Applied Physics Laboratory/Carnegie Institution of Washington",
+  "credit": "<a rel=\"nofollow\" class=\"external free\" href=\"http://messenger.jhuapl.edu/gallery/sciencePhotos/image.php?image_id=1226\">http://messenger.jhuapl.edu/gallery/sciencePhotos/image.php?image_id=1226</a>",
+  "page": "https://commons.wikimedia.org/wiki/File:Mercury_map_by_MESSENGER_global_mosaic_enhancedcolor_over_completebasemap.png"
+ },
+ "venus": {
+  "title": "File:Cylindrical Map of Venus.jpg",
+  "license": "Public domain",
+  "artist": "NASA / Jet Propulsion Laboratory",
+  "credit": "<a rel=\"nofollow\" class=\"external free\" href=\"http://solarviews.com/cap/venus/venmap.htm\">http://solarviews.com/cap/venus/venmap.htm</a> (<a rel=\"nofollow\" class=\"external text\" href=\"http://solarviews.com/raw/venus/venmap.gif\">image link</a>)",
+  "page": "https://commons.wikimedia.org/wiki/File:Cylindrical_Map_of_Venus.jpg"
+ },
+ "jupiter": {
+  "title": "File:Jupiter Cylindrical Map - Dec 2000 PIA07782.jpg",
+  "license": "Public domain",
+  "artist": "NASA/JPL/Space Science Institute",
+  "credit": "<a rel=\"nofollow\" class=\"external free\" data-mw-original-href=\"http://photojournal.jpl.nasa.gov/catalog/PIA07782\" href=\"https://photojournal.jpl.nasa.gov/catalog/PIA07782\">http://photojournal.jpl.nasa.gov/catalog/PIA07782</a> (<a rel=\"nofollow\" class=\"external text\" data-mw-original-href=\"http://photojournal.jpl.nasa.gov/jpeg/PIA07782.jpg\" href=\"https://photojournal.jpl.nasa.gov/jpeg/PIA07782.jpg\">image link</a>)",
+  "page": "https://commons.wikimedia.org/wiki/File:Jupiter_Cylindrical_Map_-_Dec_2000_PIA07782.jpg"
+ },
+ "saturn": {
+  "title": "File:Jupiter Cylindrical Map - Dec 2000 PIA07782.jpg",
+  "license": "Public domain",
+  "artist": "NASA/JPL/Space Science Institute",
+  "credit": "<a rel=\"nofollow\" class=\"external free\" data-mw-original-href=\"http://photojournal.jpl.nasa.gov/catalog/PIA07782\" href=\"https://photojournal.jpl.nasa.gov/catalog/PIA07782\">http://photojournal.jpl.nasa.gov/catalog/PIA07782</a> (<a rel=\"nofollow\" class=\"external text\" data-mw-original-href=\"http://photojournal.jpl.nasa.gov/jpeg/PIA07782.jpg\" href=\"https://photojournal.jpl.nasa.gov/jpeg/PIA07782.jpg\">image link</a>)",
+  "page": "https://commons.wikimedia.org/wiki/File:Jupiter_Cylindrical_Map_-_Dec_2000_PIA07782.jpg"
+ },
+ "voyager": {
+  "title": "File:Voyager spacecraft model.png",
+  "license": "Public domain",
+  "artist": "<a href=\"https://en.wikipedia.org/wiki/NASA\" class=\"extiw\" title=\"w:NASA\">National Aeronautics and Space Administration (NASA)</a>",
+  "credit": "<b>Published source</b>: \"<a rel=\"nofollow\" class=\"external autonumber\" href=\"https://science.nasa.gov/multimedia/spacecraft-icons/\">[1]</a>\" at NASA Science<br><b>Direct source</b>: <a rel=\"nofollow\" class=\"external text\" href=\"https://smd-prod.s3.amazonaws.com/science-green/s3fs-public/thumbnails/image/Voyager.png\">Image</a> hosted by smd-prod.s3.amazonaws.com.",
+  "page": "https://commons.wikimedia.org/wiki/File:Voyager_spacecraft_model.png"
+ },
+ "palebluedot": {
+  "title": "File:Pale Blue Dot.png",
+  "license": "Public domain",
+  "artist": "<div class=\"fn value\">\n<i>Voyager 1</i></div>",
+  "credit": "<a rel=\"nofollow\" class=\"external free\" data-mw-original-href=\"http://visibleearth.nasa.gov/view.php?id=52392\" href=\"https://visibleearth.nasa.gov/view.php?id=52392\">http://visibleearth.nasa.gov/view.php?id=52392</a><br><a rel=\"nofollow\" class=\"external free\" href=\"https://photojournal.jpl.nasa.gov/catalog/PIA00452\">https://photojournal.jpl.nasa.gov/catalog/PIA00452</a>",
+  "page": "https://commons.wikimedia.org/wiki/File:Pale_Blue_Dot.png"
+ },
+ "record": {
+  "title": "File:The Sounds of Earth Record Cover - GPN-2000-001978.jpg",
+  "license": "Public domain",
+  "artist": "NASA/JPL",
+  "credit": "<a rel=\"nofollow\" class=\"external text\" href=\"https://web.archive.org/web/20110911125940/http://grin.hq.nasa.gov/ABSTRACTS/GPN-2000-001978.html\">The Sounds of Earth Record Cover</a>",
+  "page": "https://commons.wikimedia.org/wiki/File:The_Sounds_of_Earth_Record_Cover_-_GPN-2000-001978.jpg"
+ }
+}
