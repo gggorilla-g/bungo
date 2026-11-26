@@ -782,3 +782,5 @@
   - 11/26 持ち主「かがみ伸びてるからそのままでいい」→ wxdNj7oxPeQ は公開のまま
 - 11/26 投稿（持ち主「まだあげてないやつがあればあげて」）：妄想 canon1 sUfnD4GVywQ、fifths1 82oyfSASNWY、chord1 qwExPddgiLI、glass1 6TLuif0wevc、wheel1 ojM2AGezPJ4（6本め domino2 で1日の上限。今日は mergecol1 と合わせて6本）。MIW cup1_en WrpIJLHe03U、dots3_en gfdBtJvOxdM、spiro7_en gCdsTFWMlng、spiro5_en leP0UlKLBlQ、spiro8_en XunclCjwENM、spiro6_en b4SEHr5tG6Y。妄想の残り12本は順番待ち
 - 直し：dupcheck の警告文が upload_done.txt に入っていた（upq が出力の最後の行を記録していた）→ success の行だけ記録するよう修正、記録を書き直した
+- 11/26 持ち主（mergecol1 が 4時間46分で 1,124回・視聴の割合 104.5%・10本中3位）「これのスイカゲームみたいなしたやつ作って」→ tools/mergebox.py：ガラスの箱に、左右に動く口から星を落とす。物理は pymunk（摩擦あり、星は転がる。模様は回り、光の向きは回らない）。同じ星が触れると合体。落とす星と位置は乱数（上があいている同じ星の真上をねらうことが多い）で、60回の中から「線をこえずに太陽までできて、線にいちばん近づいた回」を選ぶ（R0=26.5、種59：太陽 22.3秒、合体80回、落とした星97個、線まで 7px）。音は合体のたびにカノンの旋律が1音進む（続けて起きた合体は和音の下の音、大きい星ほど低音が重なる）。絵は自作で、元のゲームの絵・名前は使っていない。output/mergebox1_ja.mp4（26.2秒）。確認待ち、未投稿
+- 11/26 持ち主「返信文はずんだもん口調でいいです」→ vet-checklist に記録（妄想・雑学の返信）
