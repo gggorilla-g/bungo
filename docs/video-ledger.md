@@ -813,3 +813,5 @@
 - 2026-11-28 MIW 公開予約（11/28 21:00 JST）：mergecol2_en QzKvdAITAt4、wheel2_en 0-5Zgg7uF18、hearts4_en K--wPuf2ldQ、fill4_en LamIWduxN2o、cup2_en jVC0_GRQjRw（持ち主「私に確認取らなくていい」により見本なしで予約）
 - 11/28 持ち主（mergeball1 の見本に）「ガラスっぽい音でいいかも。音階カノンで瞑想エコー。球がぶつかるときにはぷよぷよっぽいくっつきエフェクトをわかりやすく」→ 作り直し（kalimba に glass、メタボールでくっつきゆれる）
 - 11/28 持ち主：妄想 chord1 の画面「これの234verカノン。木っぽいテクスチャで質感は少し柔らかいエフェクトで」→ chordwood1（tools/chordwood.py）。参考の画面収録（The Sound of π）「これも作っといて。ビードロ系の音で瞑想エコー」→ pidrop1（tools/pidrop.py、kalimba に vidro）。24個の競争で 8 が23で止まり 2 が186けためで勝つ
+- 2026-11-28 妄想 mergeball1_ja KjQYFv00wLM（trend の流れ。11/28 21:00 JST に公開予約、見本は 2026-11-28 に送付）
+- 2026-11-28 MIW mergeball1_en M45QZaAOaGg（trend の流れ。11/28 21:00 JST に公開予約、見本は 2026-11-28 に送付）
