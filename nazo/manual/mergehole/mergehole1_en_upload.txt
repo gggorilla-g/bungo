@@ -1,0 +1,20 @@
+【タイトル】
+Same Stars Merge Into a Heavier One. How Many Suns Make a Black Hole? #Shorts #space #blackhole
+
+【説明】
+Suns drop one at a time. When two stars of the same mass touch, they merge into one heavier star (1, 2, 4, 8, 16).
+The 32nd Sun turns the pile into a black hole. After that it swallows every Sun that falls in, and it keeps getting heavier and bigger.
+
+- Merging by doubling is a rule of this video only
+- The masses follow real stars: Sirius is about 2 Suns, Regulus about 4, Bellatrix about 8, Betelgeuse about 10 to 20
+- Stars heavier than about 20 Suns are thought to be able to end their lives as black holes (where exactly the line is, is still uncertain)
+- A black hole's radius is proportional to its mass (the Schwarzschild radius). At 512 Suns it is 16 times the radius at 32 Suns
+- The warped view around the black hole is a drawing of light being bent, not an exact calculation
+- Each sound plays at the moment stars touch or get swallowed. Bigger stars sound lower
+
+Previous one: how many Moons make a Sun? https://youtu.be/5O1JPaHpcrM
+
+Simulation, sound and animation: original (made in Python)
+
+【タグ】
+black hole, sun, space, merge, physics simulation, 2048, satisfying, make it work 3d
