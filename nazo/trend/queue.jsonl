@@ -8,3 +8,5 @@
 {"id": "bheat1_en", "kit": "nazo/manual/bheat/bheat1_en_upload.txt", "ch": "KAIDAN", "lang": "en", "build": "LANG_OUT=en python3 tools/bheat.py all", "shown": "2026-11-28", "after": "2026-11-28T11:40:00Z", "echo": true}
 {"id": "starrun1_ja", "kit": "nazo/manual/starrun/starrun1_ja_upload.txt", "ch": "MOSO", "lang": "ja", "build": "python3 tools/starrun.py all", "shown": "2026-11-28", "after": "2026-11-28T11:40:00Z", "echo": true}
 {"id": "starrun1_en", "kit": "nazo/manual/starrun/starrun1_en_upload.txt", "ch": "KAIDAN", "lang": "en", "build": "LANG_OUT=en python3 tools/starrun.py all", "shown": "2026-11-28", "after": "2026-11-28T11:40:00Z", "echo": true}
+{"id": "layers1_ja", "kit": "nazo/manual/layers/layers1_ja_upload.txt", "ch": "MOSO", "lang": "ja", "build": "python3 tools/layers.py all", "shown": "2026-11-28", "echo": true, "after": "2026-11-28T11:40:00Z"}
+{"id": "layers1_en", "kit": "nazo/manual/layers/layers1_en_upload.txt", "ch": "KAIDAN", "lang": "en", "build": "LANG_OUT=en python3 tools/layers.py all", "shown": "2026-11-28", "echo": true, "after": "2026-11-28T11:40:00Z"}

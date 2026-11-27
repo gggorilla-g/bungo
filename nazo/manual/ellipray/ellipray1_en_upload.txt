@@ -2,11 +2,11 @@
 Can Light Fill an Elliptical Mirror? Every Ray Splits in Two at a Focus #Shorts #ellipse #math
 
 【説明】
-One ray of light leaves a focus inside an elliptical mirror. Each time it reaches a focus it splits into two rays at right angles (a rule made for this video). 1 → 2 → 4 → … → 32,768 rays. Every place a ray has passed glows in a rainbow colour set by its position, brighter each time a ray passes again.
+One ray of light leaves a focus inside an elliptical mirror. Each time it reaches a focus it splits into two rays at right angles (a rule made for this video). 1 → 2 → 4 → … → 262,144 rays. Every place a ray has passed glows in a rainbow colour set by its position, brighter each time a ray passes again.
 
 - In an ellipse, a ray from one focus always passes through the other focus, wherever it bounces
 - The path length is the same in every direction (equal to the long diameter), so all rays reach the next focus at the same moment
-- The number of rays doubles every 2.9 seconds, filling the ellipse with rainbow light over 16 stages
+- The number of rays doubles every 2.75 seconds, filling the ellipse with rainbow light over 19 stages
 - Sounds play when rays hit the mirror and when they meet at a focus (a tone like tapping a slightly hollow stone; higher hits sound higher; when there are too many, only some of them sound). Canon chord progression
 - At the end it rewinds at high speed and loops back to the start
 

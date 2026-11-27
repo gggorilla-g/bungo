@@ -20,10 +20,10 @@ import kalimba as K
 W, H, FPS = T.W, T.H, T.FPS
 MAT = os.environ.get("MAT", "stone")                                    # 持ち主 11/28「二百三十四ではなく。少し空洞のある石や宝石をたたいてかつ音階がある音」→ kalimba の stone
 CX, CY, A, B = 540.0, 1046.0, 606.0, 476.0; C = math.sqrt(A * A - B * B); F = [(CX, CY - C), (CX, CY + C)]   # 楕円（縦長）と、2つの焦点（上・下）
-G, TP = 16, 2.9; V = 2 * A / TP                                         # 世代の数（0〜13）、1世代の長さ（秒）、光の速さ（px/秒）
+G, TP = 19, 2.75; V = 2 * A / TP                                         # 世代の数（0〜13）、1世代の長さ（秒）、光の速さ（px/秒）
 TFWD = G * TP; HOLD, TREW = .9, 1.4; DUR = TFWD + HOLD + TREW; NF = int(round(DUR * FPS)); TH0 = math.radians(-62)
 LW = 1                                                                  # 光の線の太さ（px）。通るたびに明るさが足されていくので、こみぐあいが段階的に見える（持ち主 11/28「密度高めて…エスカレーションはもっと段階欲しい」）
-KS = [1, 2, 4, 8, 16, 26, 36, 46, 56, 66, 76, 86, 96, 106, 116, 126]     # 1世代に鳴らす打の数
+KS = [1, 2, 4, 8, 16, 26, 36, 46, 56, 66, 76, 86, 96, 106, 116, 126, 134, 142, 150]     # 1世代に鳴らす打の数
 
 def wall(f, th):
     """焦点 f（0＝上、1＝下）から角度 th に出た光が、鏡に当たる点と、そこまでの長さ"""
@@ -50,8 +50,8 @@ def mask_at(g):
     while len(MK) <= g:
         k = len(MK) - 1; MK.append(MK[k] + WG(k) * layer(polys(k, 2 * A)[0]))
     return MK[g]
-KD = .8                                                                 # 明るさ＝1−exp(−KD×通った回数)
-def WG(g): return max(1.0, 3.0 - .3 * g)                                 # 光が少ないうちは1本を明るく（はじめが暗すぎないように）
+KD = .32                                                                # 明るさ＝1−exp(−KD×通った回数)
+def WG(g): return max(1.0, 4.0 * .78 ** g)                                 # 光が少ないうちは1本を明るく（はじめが暗すぎないように）
 
 yy, xx = np.mgrid[0:H, 0:W].astype(np.float32); EL = ((xx - CX) / B) ** 2 + ((yy - CY) / A) ** 2; INS = EL < 1.0
 def rainbow():
@@ -76,9 +76,14 @@ def frame_at(ts, rew=0.0):
     n = q["n"]
     # 玉（光の頭）は数が多くても1つずつ見えるように、いつも白い点で描く。光らせない（持ち主 11/28「玉は常に表示で発光も最低限」）
     rr = 5.0 if n <= 64 else 3.6 if n <= 512 else 2.6 if n <= 4096 else 2.0
-    dots = np.zeros((H, W), np.uint8); pts = np.round(np.stack([hx, hy], 1) * 8).astype(np.int32)
-    for pxy in pts: cv2.circle(dots, (int(pxy[0]), int(pxy[1])), int(rr * 8), 255, -1, cv2.LINE_AA, 3)
-    df = (dots.astype(np.float32) / 255)[..., None]; buf[:] = buf * (1 - df) + df
+    if n <= 4096:
+        dots = np.zeros((H, W), np.uint8); pts = np.round(np.stack([hx, hy], 1) * 8).astype(np.int32)
+        for pxy in pts: cv2.circle(dots, (int(pxy[0]), int(pxy[1])), int(rr * 8), 255, -1, cv2.LINE_AA, 3)
+        df = dots.astype(np.float32) / 255
+    else:                                                                  # 数が多い時は、1つずつ小さな点を打つ（まとめて計算）
+        df = np.zeros((H, W), np.float32); ix = np.clip(np.round(hx).astype(int), 1, W - 2); iy = np.clip(np.round(hy).astype(int), 1, H - 2)
+        for ox, oy in ((0, 0), (1, 0), (0, 1), (1, 1)): df[iy + oy, ix + ox] = 1.0
+    df = df[..., None]; buf[:] = buf * (1 - df) + df
     for k in (0, 1):                                                       # 焦点の印。集まった瞬間（世代のはじまり）に光る
         e = ts - g * TP if (g >= 1 and q["f"] == k) else (TP if g == 0 or ts < TFWD else 9)
         if ts >= TFWD - 1e-6 and (G % 2) == k: e = 0.0 if rew == 0 else 9
@@ -139,7 +144,7 @@ if __name__ == "__main__":
     if cmd == "lit":                                                       # 世代ごとの「うまった」
         for g in range(G + 1): print(g, GEN[min(g, G - 1)]["n"], round(100 * float((mask_at(g)[INS] > .35).sum()) / NIN, 1), round(float((1 - np.exp(-KD * mask_at(g)))[INS].mean()), 3))
         sys.exit()
-    if cmd == "stills": print(T.stills(NF, make_frame, "build_ellipray/s", at=(5.0 / DUR, 19.0 / DUR, 26.5 / DUR, 33.0 / DUR, 40.0 / DUR, (TFWD + .5) / DUR))); sys.exit()
+    if cmd == "stills": print(T.stills(NF, make_frame, "build_ellipray/s", at=(5.0 / DUR, 22.0 / DUR, 33.5 / DUR, 41.5 / DUR, 47.5 / DUR, (TFWD + .5) / DUR))); sys.exit()
     if cmd == "zoom":
         for name, tt_, box in (("a", 5.2, (0, 240, 1080, 1700)), ("b", 17.3, (0, 240, 1080, 1700)), ("c", TFWD + .4, (0, 240, 1080, 1700))): Image.fromarray(make_frame(int(tt_ * FPS))).crop(box).save(f"build_ellipray/z_{name}.png")
         sys.exit()

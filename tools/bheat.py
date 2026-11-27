@@ -16,9 +16,9 @@ import kalimba as K
 import loopkit as L
 
 W, H, FPS = T.W, T.H, T.FPS
-MAT = os.environ.get("MAT", "wood"); SEED = int(os.environ.get("SEED", "0"))
-CX, CY, RC = 540.0, 980.0, 480.0; RB = 30.0; GV = float(os.environ.get("GV", "1100")); SUB = 4; KEAT = float(os.environ.get("KEAT", ".16"))   # 円、青い玉の半径、重力、1コマの計算回数、飲みこんだ面積のうち穴がふえる割合
-GOAL = int(os.environ.get("GOAL", "60")); VH = float(os.environ.get("VH", "50")); PULL = 260.0; TMAX = 58.0; NMAX = 160            # 青が GOAL 個になったら青の勝ち。穴の速さ（一定・まっすぐ）、穴のそばで玉が引かれる強さ
+MAT = os.environ.get("MAT", "wood"); SEED = int(os.environ.get("SEED", "14"))
+CX, CY, RC = 540.0, 980.0, 480.0; RB = 30.0; GV = float(os.environ.get("GV", "300")); SUB = 4; KEAT = float(os.environ.get("KEAT", ".10"))   # 円、青い玉の半径、重力、1コマの計算回数、飲みこんだ面積のうち穴がふえる割合
+GOAL = int(os.environ.get("GOAL", "60")); CR = float(os.environ.get("CR", "1.0")); VH = float(os.environ.get("VH", "50")); PULL = 260.0; TMAX = 58.0; NMAX = 160            # 青が GOAL 個になったら青の勝ち。穴の速さ（一定・まっすぐ）、穴のそばで玉が引かれる強さ
 #   持ち主 11/28 の直し：「黒玉の成長が急すぎる…青玉が小さくて早すぎる。青玉の増殖点は中央で、もっとバウンド的な動き。黒玉はもっと直線的でゆっくりだが青玉の抵抗はさほど受けない。
 #     どっちが勝つのかハラハラ感がほしい。あと多少吸い込まれてる感はほんの少し欲しい」
 #   → 青い玉は大きく（半径30）、重力で落ちて円の壁で はね返る（エネルギーは減らない）。壁に当たるたびに、まん中から新しい玉が1つ生まれる（まん中が空いている時だけ）
@@ -50,7 +50,7 @@ def simulate(seed, tmax=TMAX, record=True):
                     if vn <= 0: continue
                     Vv[i] -= 2 * vn * nrm; ev.append((t, "wall", float(P[i][1]), i))
                     q = np.array([CX, CY]); free = np.where(~alive)[0]
-                    if len(free) and np.all(np.hypot(*(P[alive] - q).T) > 2.1 * RB) and math.hypot(*(q - bp)) > br + RB + 6:
+                    if len(free) and math.hypot(*(q - bp)) > br + RB + 6 and np.all(np.hypot(*(P[alive] - q).T) > CR * RB):   # 壁に当たるたびにふえる（まん中がふさがっている時だけ、ふえない）
                         k = free[0]; P[k] = q; Vv[k] = (rng.uniform(-150, 150), rng.uniform(-260, -60)); alive[k] = True; born[k] = t; ev.append((t, "born", CY, k))
             idx = np.where(alive)[0]
             if len(idx) > 1:
@@ -73,8 +73,8 @@ def simulate(seed, tmax=TMAX, record=True):
 def score(r):
     c = r["counts"]
     if r["done"] is None: return -1e9, "終わらない"
-    tpk = int(np.argmax(c)) / FPS
-    return -abs(r["done"] - 46) * 1.5 + min(c.max(), GOAL - 4) / 6 - (0 if r["winner"] == "black" else 20), f"{r['winner']} の勝ち {r['done']:.1f}s 山 {c.max()} 個 @ {tpk:.1f}s"
+    tpk = int(np.argmax(c)) / FPS; close = float((c >= GOAL - 10).mean())                # GOAL のすぐ手前にいる時間が長いほどハラハラ
+    return -abs(r["done"] - 48) * 1.0 - (40 if r["winner"] != "black" else 0) - 3 * max(0, GOAL - 3 - c.max()) + 40 * close, f"{r['winner']} の勝ち {r['done']:.1f}s 山 {c.max()} 個 @ {tpk:.1f}s"
 
 if __name__ == "__main__" and len(sys.argv) > 1 and sys.argv[1] == "search":
     res = []

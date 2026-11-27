@@ -1,0 +1,16 @@
+【タイトル】
+Drops Into Six Liquids of Different Weights. Each Sinks to Its Own Layer and Rings #Shorts #relaxing #liquid
+
+【説明】
+Six liquids of different densities are stacked in a glass. Drops fall one by one, pass through the lighter layers, stop at the layer of their own liquid, and ring as they merge.
+
+- Densities (g/cm3, approximate): alcohol 0.79, oil 0.92, water 1.00, dish soap 1.06, maple syrup 1.33, honey 1.42. Lighter liquids float on top (values vary by brand)
+- The smaller the density difference across a boundary, the slower and larger it sways (the speed of waves along a boundary is proportional to the square root of the difference divided by the sum)
+- Heavier liquids play lower notes. The six layers are six notes of a chord, following the Canon progression
+- At the end, one drop of each liquid falls at once. The lightest lands first, so the notes roll from high to low
+- Drop motion and wave sizes are adjusted for easy viewing
+
+Simulation, sound and animation: original (made in Python)
+
+【タグ】
+liquid, density, drops, relaxing, satisfying, simulation, make it work 3d
