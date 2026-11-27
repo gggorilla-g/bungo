@@ -1,2 +1,3 @@
 tiles1 wood
 mergehole1 bamboo
+mergeball1 hollow

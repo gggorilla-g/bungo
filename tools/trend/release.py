@@ -7,6 +7,7 @@
 順番待ち：nazo/trend/queue.jsonl（1行1本）
   {"id": "tiles1_ja", "kit": "nazo/manual/tiles/tiles1_ja_upload.txt", "ch": "MOSO", "lang": "ja", "build": "python3 tools/tiles.py all", "shown": "2026-11-27"}
   ch は MOSO（妄想科学）か KAIDAN（Make It Work 3D）。英語版の build は頭に LANG_OUT=en を書く
+  "light": true を足すと、検査で白とびを見ない（白い背景の型。持ち主 11/27 の参考動画）
   "echo": true を足すと、検査で余韻（エコー）を見ない。合体の型だけ（持ち主 11/27「これ系のやつは心地よい音にエコーたしていい」）
 
 1本ずつ、次の順でする
@@ -53,7 +54,7 @@ def main():
         if not os.path.exists(mp4) or stale(mp4, r["build"]):
             print(f"作り直す：{vid}（{r['build']}）", flush=True); subprocess.run(r["build"], shell=True, cwd=ROOT, stdin=subprocess.DEVNULL)
         if not os.path.exists(mp4): keep.append(r); print(f"残す：{vid}（動画が作れなかった）"); continue
-        c = subprocess.run([sys.executable, os.path.join(ROOT, "tools", "trend", "check.py"), mp4] + (["--echo"] if r.get("echo") else []), cwd=ROOT, stdin=subprocess.DEVNULL, capture_output=True, text=True)
+        c = subprocess.run([sys.executable, os.path.join(ROOT, "tools", "trend", "check.py"), mp4] + (["--echo"] if r.get("echo") else []) + (["--light"] if r.get("light") else []), cwd=ROOT, stdin=subprocess.DEVNULL, capture_output=True, text=True)
         if c.returncode != 0: keep.append(r); print(f"残す：{vid}（検査で NG）\n" + "\n".join(l for l in c.stdout.splitlines() if l.startswith("NG"))); continue
         if dry: keep.append(r); print(f"（試し）上げる：{vid} → {ch}"); continue
         u = subprocess.run([os.path.join(ROOT, "tools", "up.sh"), vid, r["kit"], "YT_REFRESH_TOKEN_" + ch, r.get("lang", "ja"), "1", at], cwd=ROOT, stdin=subprocess.DEVNULL, capture_output=True, text=True)

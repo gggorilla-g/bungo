@@ -1,0 +1,13 @@
+【タイトル】
+Balls Merge When They Touch. Which Color Is Left at the End? #Shorts #physics #simulation
+
+【説明】
+240 balls in a circle merge into one when they touch (their areas add up). The bigger one keeps its color.
+The fewer balls are left, the faster they move. Which color will the last ball be?
+
+- Sounds play the moment balls merge and when a big ball hits the wall. Bigger balls sound lower
+
+Simulation, sound and animation: original (made in Python)
+
+【タグ】
+simulation, physics, merge, which color wins, satisfying, make it work 3d

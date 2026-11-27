@@ -20,7 +20,7 @@ import numpy as np
 def run(cmd): return subprocess.run(cmd, stdin=subprocess.DEVNULL, capture_output=True)
 
 def main():
-    mp4 = sys.argv[1]; long = "--long" in sys.argv; echo = "--echo" in sys.argv; bad = []; rep = []   # --echo：エコーを足してよい型（合体の型。持ち主 11/27）は、余韻の検査をしない
+    mp4 = sys.argv[1]; long = "--long" in sys.argv; echo = "--echo" in sys.argv; light = "--light" in sys.argv; bad = []; rep = []   # --echo：エコーを足してよい型（合体の型。持ち主 11/27）は、余韻の検査をしない
     dur = float(run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", mp4]).stdout.decode().strip())
     ok = (60 <= dur <= 900) if long else (12 <= dur <= 59); rep.append(("長さ", f"{dur:.1f}秒", ok))
     e = run(["ffmpeg", "-hide_banner", "-nostats", "-i", mp4, "-vn", "-af", "ebur128", "-f", "null", "-"]).stderr.decode()
@@ -51,7 +51,7 @@ def main():
             run_ = run_ + 1 if q else 0; longest = max(longest, run_)
         rep.append(("止まり", f"いちばん長く止まって見える時間 {longest * .25:.1f}秒", longest * .25 <= 1.5))
     raw = run(["ffmpeg", "-v", "error", "-ss", f"{dur * .5:.2f}", "-i", mp4, "-frames:v", "1", "-vf", "scale=270:480,format=gray", "-f", "rawvideo", "-"]).stdout
-    if raw: g = np.frombuffer(raw, np.uint8); wh = 100 * float((g >= 245).mean()); rep.append(("白とび", f"ほぼ白の画素 {wh:.1f}%", wh <= 6))
+    if raw: g = np.frombuffer(raw, np.uint8); wh = 100 * float((g >= 245).mean()); rep.append(("白とび", f"ほぼ白の画素 {wh:.1f}%" + ("（白い背景の型なので見ない）" if light else ""), wh <= 6 or light))   # --light：白い背景の型（持ち主 11/27 の参考動画の雰囲気）
     for name, val, ok in rep:
         print(("OK  " if ok else "NG  ") + f"{name}: {val}")
         if not ok: bad.append(name)
