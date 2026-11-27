@@ -1,4 +1,4 @@
-# ellipse.py — 楕円の鏡の中で、光は焦点に着くたびに2本に分かれる。光は楕円を埋めつくせる？ 埋まったら早回しで巻きもどり、最初にもどってループする（縦のショート 1080×1920・60コマ）
+# ellipray.py — 楕円の鏡の中で、光は焦点に着くたびに2本に分かれる。光は楕円を埋めつくせる？ 埋まったら早回しで巻きもどり、最初にもどってループする（縦のショート 1080×1920・60コマ）
 #   持ち主 11/28：向かい合った2枚の皿の中で光がふえていく動画（録画）を見せて
 #     「これのスケール感スピード感とかサイズ感をかなり真似て欲しい。あとさいごは…かなり何度も高密度になって最終的には虹ベタになり
 #       かなり早いキュルキュルキュルキュルみたいな巻き戻しが入って頭からループするという機構。うまい。おとは234でいい」
@@ -9,7 +9,7 @@
 #     ・光が通った所は、場所で決まる色（中心のまわりを一周する虹）に光る。全部通ると、虹で埋まる
 #   音：2・3・4（木・竹・空洞のある木）のうち1つ（動画ごとに回す）。光が鏡に当たった瞬間に1打。高い所に当たるほど高い音。和音はカノン進行（2秒ごとに1つ進む）。
 #       焦点に集まった瞬間にも1打（全部が1点でぶつかる）。巻きもどしの音は、それまでの音を逆向きに早回ししたもの（足した音ではない）
-#   python3 tools/ellipse.py stills ／ zoom ／ all（LANG_OUT=en で英語、MAT=wood|bamboo|hollow）→ output/ellipse1_<ja|en>.mp4
+#   python3 tools/ellipray.py stills ／ zoom ／ all（LANG_OUT=en で英語、MAT=wood|bamboo|hollow）→ output/ellipray1_<ja|en>.mp4
 import math, os, sys, wave
 import numpy as np, cv2
 from PIL import Image, ImageDraw
@@ -134,14 +134,14 @@ def audio(path):
     return n
 
 if __name__ == "__main__":
-    cmd = sys.argv[1] if len(sys.argv) > 1 else "all"; os.makedirs("build_ellipse", exist_ok=True)
+    cmd = sys.argv[1] if len(sys.argv) > 1 else "all"; os.makedirs("build_ellipray", exist_ok=True)
     print("長さ", round(DUR, 2), "世代", G, "最後の光の数", GEN[-1]["n"], "速さ(px/秒)", round(V), "材質", MAT)
     if cmd == "lit":                                                       # 世代ごとの「うまった」
         for g in range(G + 1): print(g, GEN[min(g, G - 1)]["n"], round(100 * float((mask_at(g).astype(np.float32) / 255)[INS].sum()) / NIN, 2))
         sys.exit()
-    if cmd == "stills": print(T.stills(NF, make_frame, "build_ellipse/s", at=(1.2 / DUR, 7.0 / DUR, 15.0 / DUR, 21.3 / DUR, (TFWD + .5) / DUR, (TFWD + HOLD + .55 * TREW) / DUR))); sys.exit()
+    if cmd == "stills": print(T.stills(NF, make_frame, "build_ellipray/s", at=(1.2 / DUR, 7.0 / DUR, 15.0 / DUR, 21.3 / DUR, (TFWD + .5) / DUR, (TFWD + HOLD + .55 * TREW) / DUR))); sys.exit()
     if cmd == "zoom":
-        for name, tt_, box in (("a", 5.2, (0, 240, 1080, 1700)), ("b", 17.3, (0, 240, 1080, 1700)), ("c", TFWD + .4, (0, 240, 1080, 1700))): Image.fromarray(make_frame(int(tt_ * FPS))).crop(box).save(f"build_ellipse/z_{name}.png")
+        for name, tt_, box in (("a", 5.2, (0, 240, 1080, 1700)), ("b", 17.3, (0, 240, 1080, 1700)), ("c", TFWD + .4, (0, 240, 1080, 1700))): Image.fromarray(make_frame(int(tt_ * FPS))).crop(box).save(f"build_ellipray/z_{name}.png")
         sys.exit()
-    if cmd == "audio": print(audio("build_ellipse/a.wav")); sys.exit()
-    out = f"output/ellipse1_{T.LANG}.mp4"; audio("build_ellipse/a.wav"); T.encode(NF, make_frame, "build_ellipse/a.wav", out); print(out)
+    if cmd == "audio": print(audio("build_ellipray/a.wav")); sys.exit()
+    out = f"output/ellipray1_{T.LANG}.mp4"; audio("build_ellipray/a.wav"); T.encode(NF, make_frame, "build_ellipray/a.wav", out); print(out)
