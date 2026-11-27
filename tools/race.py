@@ -241,21 +241,20 @@ def audio(r, tl, path):
     for (t, x, imp, tm) in r["hits"]:
         q = round((t + T0) / E8); slots.setdefault(q, []).append((imp, x))
     for q, lst in slots.items():
-        lst.sort(reverse=True); t = q * E8; tl_ = tones(chord_at(t))
+        lst.sort(reverse=True); t = q * E8; tl_ = tones(chord_at(t), 74, 95)   # 11/27 参考の録画に寄せて高めの澄んだ音（kalimba.bell）
         for imp, x in lst[:3]:
-            u = (x - FX0) / (FX1 - FX0); m = tl_[int(np.clip(u, 0, .999) * len(tl_))]; put(K.note(m, .5 + .5 * imp), t + np.random.default_rng(q).normal(0, .006), .2 + .6 * u, .10 + .16 * imp)
+            u = (x - FX0) / (FX1 - FX0); m = tl_[int(np.clip(u, 0, .999) * len(tl_))]; put(K.bell(m, .5 + .5 * imp), t + np.random.default_rng(q).normal(0, .006), .2 + .6 * u, .10 + .16 * imp)
     for c in range(int(N / SR / CH) + 1):   # 和音が変わるたびに低い音（ゆっくり）
-        r_, t3, f5 = PROG[c % 8]; put(K.note(r_, .6), c * CH, .5, .34); put(K.note(f5, .5), c * CH + CH / 2, .45, .2)
+        pass
     # 段の結果：×2 の箱があれば上がる分散和音、脱落は低い1音
     for s in r["stages"]:
         ts = T0 + s["t0"] + s["Tv"]; ch = chord_at(ts + 2); tl_ = tones(ch, 62, 86)
-        for j, m in enumerate(tl_[:6]): put(K.note(m, .7), ts + 1.8 + j * E8, .3 + .08 * j, .22)
-        put(K.note(chord_at(ts + 6.6)[0] - 12 + 12, .6), ts + 6.6, .5, .3)
+        for j, m in enumerate(tones(ch, 74, 95)[:6]): put(K.bell(m, .7), ts + 1.8 + j * E8, .3 + .08 * j, .22)
+        put(K.bell(chord_at(ts + 6.6)[0] + 24, .6), ts + 6.6, .5, .26)
     put_end = T0 + sum(s["Tv"] + RES for s in r["stages"])
-    for j, m in enumerate([62, 66, 69, 74, 78, 81, 86]): put(K.note(m, .8), put_end + .5 + j * E8, .3 + .06 * j, .28)
-    # ごく弱い持続音（和音の根音と5度）
-    tt = np.arange(N) / SR; ci = (tt // CH).astype(int) % 8; root = np.array([mtf(PROG[i][0] - 12) for i in range(8)])[ci]; fifth = np.array([mtf(PROG[i][2] - 12) for i in range(8)])[ci]
-    ph1 = 2 * np.pi * np.cumsum(root) / SR; ph2 = 2 * np.pi * np.cumsum(fifth) / SR; pad = (np.sin(ph1) + .6 * np.sin(ph2)) * .012 * (1 + .3 * np.sin(2 * np.pi * tt / 11)); st += pad[:, None].astype(np.float32)
+    for j, m in enumerate([62, 66, 69, 74, 78, 81, 86]): put(K.bell(m + 12, .8), put_end + .5 + j * E8, .3 + .06 * j, .28)
+    # 下に温かい持続音（カノン進行）
+    pd = K.pad([(r_ - 12, r_, f5, t3 + 12) for (r_, t3, f5) in PROG], CH, N / SR, .08); st += pd[:, None]
     st = K.room(st, .12, .8); env = np.minimum(1, tt / 2) * np.minimum(1, (tt[-1] - tt) / 3); st *= env[:, None]
     pk = float(np.percentile(np.abs(st), 99.95)) or 1; st = np.tanh(st / pk * 1.1) * .62
     with wave.open(path, "wb") as w: w.setnchannels(2); w.setsampwidth(2); w.setframerate(SR); w.writeframes((st * 32767).astype(np.int16).tobytes())
