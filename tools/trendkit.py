@@ -200,7 +200,10 @@ class Audio:
         tones = K.canon_tones(self.chord_index(t) if chord is None else chord, self.lo, self.hi); m = tones[int(min(.999, max(0, u)) * len(tones))] + 12 * octave
         self.ev.append((float(t), int(m), float(vel), .2 + .6 * float(min(1, max(0, u))))); return m
     def note(self, t, midi, vel=.8, pan=.5): self.ev.append((float(t), int(midi), float(vel), float(pan)))
-    def write(self, path, target_rms=.15):
+    def write(self, path, target_rms=.15, room=(.03, .25), under=None):
+        """room＝(足す量, 響きの長さ秒)。ふだんは (.03, .25)＝ほとんど足さない（乾いた音）。
+           合体の型（mergecol・mergehole）だけは、エコーを足してよい・裏に低音を入れてよい（持ち主 11/27「これ系のやつは心地よい音にエコーたしていい。裏に低音入れてもいい。ベースは2.3.4で」）
+           under＝裏に流す音（長さ N のモノラル。kalimba.pad で作る低い持続音など）"""
         N = int(SR * self.dur); st = np.zeros((N, 2), np.float32); ev = sorted(self.ev); kept = []; i = 0
         while i < len(ev):   # 同時に鳴りすぎないように間引く
             j = i
@@ -211,7 +214,8 @@ class Audio:
             a = int(t * SR)
             if a < 0 or a >= N: continue
             k = min(len(x), N - a); st[a:a + k, 0] += x[:k] * math.cos(pan * math.pi / 2) * vel; st[a:a + k, 1] += x[:k] * math.sin(pan * math.pi / 2) * vel
-        st = K.room(st, .03, .25)                                   # 響きはほとんど足さない（乾いた音）
+        if under is not None: st[: len(under)] += np.asarray(under, np.float32)[:N, None]
+        st = K.room(st, room[0], room[1])
         tt = np.arange(N) / SR; st *= (np.minimum(1, tt / .05) * np.minimum(1, (self.dur - tt) / .4))[:, None]
         act = np.abs(st).max(1) > 1e-4; rms = float(np.sqrt((st[act] ** 2).mean())) if act.any() else 1.0
         st = np.tanh(st / rms * target_rms * 1.2) / 1.2             # 聞こえる大きさでそろえ、短い山はやわらかく丸める

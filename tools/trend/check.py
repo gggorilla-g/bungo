@@ -20,7 +20,7 @@ import numpy as np
 def run(cmd): return subprocess.run(cmd, stdin=subprocess.DEVNULL, capture_output=True)
 
 def main():
-    mp4 = sys.argv[1]; long = "--long" in sys.argv; bad = []; rep = []
+    mp4 = sys.argv[1]; long = "--long" in sys.argv; echo = "--echo" in sys.argv; bad = []; rep = []   # --echo：エコーを足してよい型（合体の型。持ち主 11/27）は、余韻の検査をしない
     dur = float(run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", mp4]).stdout.decode().strip())
     ok = (60 <= dur <= 900) if long else (12 <= dur <= 59); rep.append(("長さ", f"{dur:.1f}秒", ok))
     e = run(["ffmpeg", "-hide_banner", "-nostats", "-i", mp4, "-vn", "-af", "ebur128", "-f", "null", "-"]).stderr.decode()
@@ -34,7 +34,7 @@ def main():
         on = np.where((db[w:] > db[:-w] + 12) & (db[w:] > -32))[0] + w; on = on[np.insert(np.diff(on) > int(sr * .08), 0, True)] if len(on) else on   # 鳴りはじめ
         if len(on) >= 4:
             iso = [i for k, i in enumerate(on) if (k + 1 == len(on) or on[k + 1] - i > int(sr * .62)) and i + int(sr * .6) < len(db)]   # あとに別の音が来ない鳴りはじめ
-            if len(iso) >= 3:
+            if len(iso) >= 3 and not echo:
                 drop = np.array([db[i:i + int(sr * .05)].max() - db[i + int(sr * .6)] for i in iso]); rate = float((drop >= 25).mean())
                 rep.append(("余韻", f"0.6秒後に25dB以上下がる出来事 {100 * rate:.0f}%（{len(iso)}個で確認）", rate >= .5))
         quiet = db < -50; body = quiet[: max(0, len(quiet) - 3 * sr)]; run_ = 0; longest = 0

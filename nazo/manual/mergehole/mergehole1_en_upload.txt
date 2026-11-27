@@ -2,14 +2,15 @@
 Same Stars Merge Into a Heavier One. How Many Suns Make a Black Hole? #Shorts #space #blackhole
 
 【説明】
-Suns drop one at a time. When two stars of the same mass touch, they merge into one heavier star (1, 2, 4, 8, 16).
-The 32nd Sun turns the pile into a black hole. After that it swallows every Sun that falls in, and it keeps getting heavier and bigger.
+Suns drop one at a time. When two stars of the same mass touch, they merge into one heavier star (1, 2, 4, 8, 16, 32).
+The 64th Sun turns the pile into a black hole. After that it swallows every Sun that falls in, and it keeps getting heavier and bigger.
 
 - Merging by doubling is a rule of this video only
-- The masses follow real stars: Sirius is about 2 Suns, Regulus about 4, Bellatrix about 8, Betelgeuse about 10 to 20
+- The masses follow real stars: Sirius is about 2 Suns, Regulus about 4, Bellatrix about 8, Betelgeuse about 10 to 20, Alnitak about 33
 - Stars heavier than about 20 Suns are thought to be able to end their lives as black holes (where exactly the line is, is still uncertain)
-- A black hole's radius is proportional to its mass (the Schwarzschild radius). At 512 Suns it is 16 times the radius at 32 Suns
-- The warped view around the black hole is a drawing of light being bent, not an exact calculation
+- A black hole's radius is proportional to its mass (the Schwarzschild radius). At 512 Suns it is 8 times the radius at 64 Suns
+- The black hole is drawn by computing how light bends around it (a non-rotating black hole with a disk of gas, seen almost edge-on). The side moving toward you looks brighter, the side moving away looks dimmer and redder. Colors and brightness are adjusted to be easy to see
+- The warping of the stars and the tube behind it uses a simplified formula for bent light
 - Each sound plays at the moment stars touch or get swallowed. Bigger stars sound lower
 
 Previous one: how many Moons make a Sun? https://youtu.be/5O1JPaHpcrM
