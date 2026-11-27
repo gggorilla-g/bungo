@@ -140,6 +140,11 @@ MATERIALS = {
     # bar：棒の形でたたく場所を効かせるか ／ tor：ねじれの響き（倍率, 重み） ／ cav：空洞（強さ, Q） ／ body：台の鳴りの強さ ／ tc：当たっている時間（ミリ秒） ／ taumax：基音の余韻の上限（秒）
     "wood":   dict(r=(1, 3.01, 6.15, 9.9, 14.2), w=(1, 1.25, 1.35, 1.0, .6), q=140, qs=.35, bar=True, tor=(1.87, .12), cav=(.35, 14), body=.75, tc=.17, taumax=.085),   # 木の板（木琴に近い）
     "hollow": dict(r=(1, 1.52, 2.63, 3.94, 5.3, 7.1), w=(1, .50, .55, .50, .40, .30), q=44, qs=.15, bar=False, tor=None, cav=(.80, 9), body=1.0, tc=.15, taumax=.05),   # 空洞のある木（木魚・口の中に近い）
+    # ガラス（持ち主 11/28「ガラスっぽい音でいいかも。音階カノンで瞑想エコー」）：ガラスの器の響き（倍率はワイングラス・クリスタルボウルの曲げの響きに近い 1 : 2.32 : 4.25 : 6.63）。
+    #   硬いので当たっている時間はごく短い。響きは長い（〜1秒）が、高い響きほど早く消える（キンキンさせない）。台の鳴りはほとんど無い
+    "glass":  dict(r=(1, 2.32, 4.25, 6.63), w=(1, .42, .16, .06), q=2600, qs=.85, bar=False, tor=None, cav=(0.0, 9), body=.10, tc=.09, taumax=.9, L=2.6),
+    # ビードロ（持ち主 11/28「ビードロ系の音で瞑想エコー」）：うすいガラスの小びん。響きは基音がほとんどで、首の空洞がふくらませる丸い音。ガラスより短い
+    "vidro":  dict(r=(1, 2.73, 5.2), w=(1, .28, .07), q=900, qs=.8, bar=False, tor=None, cav=(.65, 30), body=.06, tc=.12, taumax=.5, L=1.8),
     "bamboo": dict(r=(1, 2.76, 5.40, 8.93, 13.3), w=(1, 1.4, 1.5, 1.1, .7), q=100, qs=.30, bar=True, tor=(1.63, .16), cav=(.28, 9), body=.85, tc=.13, taumax=.07),      # 竹の板
 }
 _kn = {}
@@ -148,7 +153,7 @@ def knock(m, vel=1.0, mat="wood", var=0):
     key = (int(m), round(vel, 2), mat, int(var))
     if key in _kn: return _kn[key]
     from scipy.signal import fftconvolve, lfilter
-    P = MATERIALS[mat]; f = mtof(m); rng = np.random.default_rng(int(m) * 131 + int(var) * 977 + len(mat)); L = .55; n = int(SR * L); tt = np.arange(n) / SR
+    P = MATERIALS[mat]; f = mtof(m); rng = np.random.default_rng(int(m) * 131 + int(var) * 977 + len(mat)); L = P.get("L", .55); n = int(SR * L); tt = np.arange(n) / SR
     # 1) 当たる力
     tc = P["tc"] * 1e-3 * max(.3, vel) ** -.2 * (1 + .07 * rng.normal()); k = max(5, int(round(SR * tc)))
     pulse = np.sin(np.pi * (np.arange(k) + .5) / k) ** 1.5 * (1 + .10 * rng.normal(0, 1, k)); pulse = (pulse / np.abs(pulse).sum()).astype(np.float64)

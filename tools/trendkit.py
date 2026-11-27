@@ -196,21 +196,21 @@ class Audio:
     def __init__(self, dur, lo=69, hi=91, mat="wood", chord_len=2.4, max_same=3, window=.03):
         self.dur, self.lo, self.hi, self.mat, self.chord_len, self.max_same, self.window = dur, lo, hi, mat, chord_len, max_same, window; self.ev = []
     def chord_index(self, t): return int(t // self.chord_len) % 8
-    def hit(self, t, u, vel=.8, chord=None, octave=0):
+    def hit(self, t, u, vel=.8, chord=None, octave=0, mat=None):
         tones = K.canon_tones(self.chord_index(t) if chord is None else chord, self.lo, self.hi); m = tones[int(min(.999, max(0, u)) * len(tones))] + 12 * octave
-        self.ev.append((float(t), int(m), float(vel), .2 + .6 * float(min(1, max(0, u))))); return m
-    def note(self, t, midi, vel=.8, pan=.5): self.ev.append((float(t), int(midi), float(vel), float(pan)))
+        self.ev.append((float(t), int(m), float(vel), .2 + .6 * float(min(1, max(0, u))), mat)); return m
+    def note(self, t, midi, vel=.8, pan=.5, mat=None): self.ev.append((float(t), int(midi), float(vel), float(pan), mat))   # mat：この1打だけ材質を変える
     def write(self, path, target_rms=.15, room=(.03, .25), under=None):
         """room＝(足す量, 響きの長さ秒)。ふだんは (.03, .25)＝ほとんど足さない（乾いた音）。
            合体の型（mergecol・mergehole）だけは、エコーを足してよい・裏に低音を入れてよい（持ち主 11/27「これ系のやつは心地よい音にエコーたしていい。裏に低音入れてもいい。ベースは2.3.4で」）
            under＝裏に流す音（長さ N のモノラル。kalimba.pad で作る低い持続音など）"""
-        N = int(SR * self.dur); st = np.zeros((N, 2), np.float32); ev = sorted(self.ev); kept = []; i = 0
+        N = int(SR * self.dur); st = np.zeros((N, 2), np.float32); ev = sorted(self.ev, key=lambda e: (e[0], e[1])); kept = []; i = 0
         while i < len(ev):   # 同時に鳴りすぎないように間引く
             j = i
             while j < len(ev) and ev[j][0] - ev[i][0] < self.window: j += 1
             kept += sorted(ev[i:j], key=lambda e: -e[2])[:self.max_same]; i = j
-        for n, (t, m, vel, pan) in enumerate(kept):
-            x = K.karo(m, vel, False, .8) if self.mat == "karo" else K.knock(m, vel, self.mat, n % 7)   # 1打ごとに、たたく場所が少し違う
+        for n, (t, m, vel, pan, mt) in enumerate(kept):
+            mt = mt or self.mat; x = K.karo(m, vel, False, .8) if mt == "karo" else K.knock(m, vel, mt, n % 7)   # 1打ごとに、たたく場所が少し違う
             a = int(t * SR)
             if a < 0 or a >= N: continue
             k = min(len(x), N - a); st[a:a + k, 0] += x[:k] * math.cos(pan * math.pi / 2) * vel; st[a:a + k, 1] += x[:k] * math.sin(pan * math.pi / 2) * vel

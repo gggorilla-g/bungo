@@ -1,0 +1,14 @@
+【タイトル】
+Drop the Digits of Pi as Balls. Which Digit Reaches 24 First? #Shorts #pi #math
+
+【説明】
+The digits of pi after 3.14159… fall one by one as balls into tubes 0 to 9. The first digit to collect 24 balls wins.
+
+- These are the real digits of pi (up to the 186th decimal place)
+- 8 leads for most of the race, but stalls at 23. Meanwhile 2 catches up and reaches 24 first at the 186th digit
+- Each sound plays when a ball lands. Pitch follows the digit (0 low, 9 high), over the Canon chord progression
+
+Simulation, sound and animation: original (made in Python)
+
+【タグ】
+pi, math, digits of pi, satisfying, simulation, make it work 3d

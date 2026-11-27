@@ -1,8 +1,10 @@
 tiles1 wood
 mergehole1 bamboo
-mergeball1 hollow
+mergeball1 glass
 mergecol2_en wood
 wheel2_en bamboo
 hearts4_en hollow
 fill4_en wood
 cup2_en bamboo
+chordwood1 mix(wood,bamboo,hollow)
+pidrop1 vidro

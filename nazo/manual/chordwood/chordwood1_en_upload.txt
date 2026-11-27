@@ -1,0 +1,20 @@
+【タイトル】
+Pachelbel's Canon Chords, Played by Falling Balls. All Together Again After 18 s #Shorts #music #physics
+
+【説明】
+Ten balls bounce on wooden pads. Each pad plays a note of the current chord of the Canon progression (D A Bm F#m G D G A).
+They start together, then drift apart into waves.
+
+How it works:
+- In 18 seconds the leftmost ball bounces 12 times, the next 13 times, and the rightmost 21 times
+- So they slowly drift apart; at 9 seconds every other ball lines up
+- At 18 seconds every ball has bounced a whole number of times, so all of them land together, just as the chords come back to D
+- Bounce height is proportional to the square of the bounce period (same gravity). The wooden pillars show that height
+- The sound uses three wood-like tones (wood, bamboo, hollow wood), one per pad in turn
+
+Previous one (the darkest chord): https://youtu.be/FQlCp8JYDHA
+
+Simulation, sound and animation: original (made in Python)
+
+【タグ】
+music, canon progression, physics, satisfying, simulation, make it work 3d
