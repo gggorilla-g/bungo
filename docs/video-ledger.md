@@ -819,3 +819,5 @@
 - 2026-11-28 MIW chordwood1_en TV3wGnspa-0（trend の流れ。11/28 21:00 JST に公開予約、見本は 2026-11-28 に送付）
 - 2026-11-28 妄想 pidrop1_ja cRDBiKwj2Mg（trend の流れ。11/28 21:00 JST に公開予約、見本は 2026-11-28 に送付）
 - 2026-11-28 MIW pidrop1_en nFmpEH_SttA（trend の流れ。11/28 21:00 JST に公開予約、見本は 2026-11-28 に送付）
+- 2026-11-28 妄想 bubblesea1_ja rDlF5L0eihk（trend の流れ。11/28 21:00 JST に公開予約、見本は 2026-11-28 に送付）
+- 2026-11-28 MIW bubblesea1_en nT7HAV1u_a8（trend の流れ。11/28 21:00 JST に公開予約、見本は 2026-11-28 に送付）
