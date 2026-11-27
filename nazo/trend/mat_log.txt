@@ -10,3 +10,7 @@ chordwood1 mix(wood,bamboo,hollow)
 pidrop1 vidro
 bubblesea1 glass+drop
 primehop1 glass
+bubblesea2 glass
+ellipse1 hollow
+bheat1 wood
+starrun1 glass

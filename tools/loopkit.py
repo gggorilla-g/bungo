@@ -14,7 +14,7 @@ def sim_time(t, tfwd, hold, trew):
     """動画の時刻 t → (中の時刻 ts, 巻きもどしの進み rew)。進む（tfwd まで）→ 止まる（hold）→ 早回しでもどる（trew）。rew は進む間と止まっている間は 0"""
     if t <= tfwd: return t, 0.0
     if t <= tfwd + hold: return tfwd, 0.0
-    x = min(1.0, (t - tfwd - hold) / trew); return max(0.0, tfwd * (1 - sstep(0, 1, x) ** .9)), max(1e-3, x)
+    x = min(1.0, (t - tfwd - hold) / trew); return max(0.0, tfwd * (1 - sstep(0, 1, x) ** .9)), (max(1e-3, x) if x < .96 else 0.0)   # 最後の数コマは字を消す（頭のコマとつながるように）
 def rewind_audio(mono, sr, trew, pitch=2.6, wob_hz=11.0, wob=.25, lp=5200.0):
     """mono（進む間の音）を逆向きにして trew 秒に縮める。高さは pitch 倍まで（そのまま縮めると高すぎて聞こえない）。回る速さが wob_hz でゆれる"""
     n_out = int(sr * trew); x = np.asarray(mono, np.float32)[::-1]; n_mid = int(n_out * pitch); grain = int(sr * .03); hop = grain // 2

@@ -1,0 +1,16 @@
+【タイトル】
+Can Light Fill an Elliptical Mirror? Every Ray Splits in Two at a Focus #Shorts #ellipse #math
+
+【説明】
+One ray of light leaves a focus inside an elliptical mirror. Each time it reaches a focus it splits into two rays at right angles (a rule made for this video). 1 → 2 → 4 → … → 8,192 rays. Every place a ray has passed glows in a rainbow colour set by its position.
+
+- In an ellipse, a ray from one focus always passes through the other focus, wherever it bounces
+- The path length is the same in every direction (equal to the long diameter), so all rays reach the next focus at the same moment
+- The number of rays doubles every 2 seconds, and after 13 rounds the ellipse is almost full
+- Sounds play when rays hit the mirror and when they meet at a focus (higher hits sound higher; when there are too many, only some of them sound). Canon chord progression with a soft heartbeat underneath
+- At the end it rewinds at high speed and loops back to the start
+
+Simulation, sound and animation: original (made in Python)
+
+【タグ】
+ellipse, focus, light, reflection, math, satisfying, simulation, make it work 3d

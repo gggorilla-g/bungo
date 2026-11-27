@@ -118,7 +118,10 @@ def audio(path):
         k_ = min(q["n"], KS[g]); order = np.argsort(q["l1"]); pick = order[np.round(np.linspace(0, q["n"] - 1, k_)).astype(int)]; vel = .8 / k_ ** .30
         for i in pick: a.hit(g * TP + q["l1"][i] / V, float(np.clip((CY + A - q["py"][i]) / (2 * A), 0, .999)), vel=vel, chord=g % 8)
         if g >= 1: a.note(g * TP, K.CANON[g % 8][0] + 24, vel=min(.62, .36 + .02 * g), pan=.5)                                                  # 焦点に集まった瞬間（全部が1点でぶつかる）
-    a.note(TFWD, K.CANON[G % 8][0] + 24, vel=.62, pan=.5); tmp = path + ".fwd.wav"; n = a.write(tmp)
+    a.note(TFWD, K.CANON[G % 8][0] + 24, vel=.62, pan=.5); tmp = path + ".fwd.wav"
+    import loopkit as L; ns = int(T.SR * fwd)
+    under = L.heartbeat([(g * TP + k * TP / 2, K.CANON[g % 8][0]) for g in range(G) for k in (0, 1)] + [(TFWD, K.CANON[G % 8][0])], ns, T.SR, .085)   # 隠し味の鼓動（持ち主 11/28「グルーブではなくて調和」）：和音の根音で、和音1つに2拍
+    n = a.write(tmp, under=under)
     with wave.open(tmp) as w: x = np.frombuffer(w.readframes(w.getnframes()), np.int16).reshape(-1, 2).astype(np.float32) / 32768
     os.remove(tmp); sr = T.SR; n_out = int(sr * TREW); pitch = 2.6; mono = x[: int(sr * TFWD)].mean(1)[::-1]; n_mid = int(n_out * pitch)             # 巻きもどしの音：それまでの音を逆向きに早回し
     grain = int(sr * .03); hop = grain // 2; ratio = (len(mono) - grain) / n_mid; mid = np.zeros(n_mid + grain, np.float32); win = np.hanning(grain).astype(np.float32)

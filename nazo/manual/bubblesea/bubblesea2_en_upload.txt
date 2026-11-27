@@ -1,0 +1,18 @@
+【タイトル】
+Slow Version: Only Popping Bubbles Play the Canon Chords, Then the Whale Plays One #Shorts #whale #sleep
+
+【説明】
+A very slow version (46 beats per minute). Bubbles rise from the sea floor and ring the moment they pop at the surface. Watch them reach the surface line like notes in a rhythm game.
+
+- Bigger bubbles make lower sounds (the pitch of a bubble ringing in water is inversely proportional to its radius: the Minnaert resonance). Here, a bubble one octave higher has half the radius
+- Bigger bubbles rise faster (speed is taken as proportional to the square root of the radius). Smaller bubbles leave earlier so that every bubble reaches the surface on the beat
+- The music is two rounds of the Canon chord progression (D A Bm F#m G D G A). In round two, the golden bubbles carry the melody
+- At the end the whale blows eight bubbles at once. The big ones reach the surface first, so the chord rolls from low to high
+- A sound plays only when a bubble pops at the surface (a glass tone plus the short ring of the bubble itself). 119 bubbles in total
+- A soft heartbeat on the chord roots sits underneath
+- The link between bubble size and pitch follows real bubbles, but sizes, speeds and timbre are adjusted to be easy to see and hear
+
+Simulation, sound and animation: original (made in Python)
+
+【タグ】
+whale, ocean, bubbles, sleep, slow, canon, relaxing, satisfying, rhythm game, simulation, make it work 3d

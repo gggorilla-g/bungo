@@ -1,5 +1,5 @@
 【タイトル】
-Numbers Nobody Lands On Are Prime. How Many Up to 100? Only Primes Stay Silent #Shorts #primes #math
+Numbers Nobody Lands On Are Prime. How Many Up to 1000? Only Primes Stay Silent #Shorts #primes #math
 
 【説明】
 Each prime hops along the number line by its own size (2 hops by 2, 3 hops by 3, and so on). A number nobody lands on is the next prime. This is the sieve of Eratosthenes, drawn as arcs and sound.
@@ -7,8 +7,10 @@ Each prime hops along the number line by its own size (2 hops by 2, 3 hops by 3,
 - Every prime has its own colour and its own note (2 is the highest. Bigger primes sound lower)
 - A sound plays only when two beads meet on the number line. Where nobody lands (a prime), there is no sound
 - 6 rings 2 and 3 together. 30 rings 2, 3 and 5 together. You hear what each number is made of
-- There are 25 primes up to 100, and 146 landings in total
-- Pitches follow the Canon chord progression (one chord per 10 numbers). The sound is a glass tone with echo
+- There are 25 primes up to 100. Then it speeds up: 168 primes up to 1000
+- Past 100 it is too fast to play every landing, so only some of them sound
+- At the end it rewinds at high speed and loops back to the start
+- Pitches follow the Canon chord progression (one chord per 10 numbers at first, then one every 1.5 seconds). A soft heartbeat on the chord roots sits underneath. The sound is a glass tone with echo
 - The edge of the pattern is a straight-sided triangle because the first ring of every prime touches the same two lines through 0
 
 Simulation, sound and animation: original (made in Python)

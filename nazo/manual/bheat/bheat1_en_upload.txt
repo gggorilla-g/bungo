@@ -1,0 +1,16 @@
+【タイトル】
+Can the Black Hole Eat Them All? Blue Balls Multiply at Every Wall Hit #Shorts #blackhole #simulation
+
+【説明】
+Blue balls and a black hole compete inside a circle (rules made for this video).
+
+- Blue balls move at a constant speed. Each wall hit spawns a new ball at that spot (only if there is room)
+- The black hole swallows any ball it touches and grows by that amount. The bigger it gets, the slower it moves
+- The blue balls peak at 118, but in the end the black hole swallows them all
+- Sounds play when a blue ball hits the wall (higher spots sound higher) and when a ball is swallowed. Canon chord progression with a soft heartbeat underneath
+- At the end it rewinds at high speed and loops back to the start
+
+Simulation, sound and animation: original (made in Python)
+
+【タグ】
+black hole, simulation, satisfying, oddly satisfying, make it work 3d

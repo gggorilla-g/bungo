@@ -20,9 +20,10 @@ import trendkit as T
 import kalimba as K
 
 W, H, FPS = T.W, T.H, T.FPS
-BPM = 80.0; BEAT = 60 / BPM; CH = 2 * BEAT; S16 = BEAT / 4; INTRO = .8; NCH = 16
+SLOW = os.environ.get("SLOW") == "1"; NAME = "bubblesea2" if SLOW else "bubblesea1"   # SLOW=1：とてもゆっくりの版（持ち主 11/28「鯨のやつはめっちゃゆっくりバージョンも作りたい」）。拍は 80 → 46、泡がのぼる速さも 0.7 倍
+BPM = 46.0 if SLOW else 80.0; BEAT = 60 / BPM; CH = 2 * BEAT; S16 = BEAT / 4; INTRO = .8; NCH = 16
 TF = INTRO + NCH * CH                                                   # クジラの泡の、1つめが水面に着く時刻
-NL = 8; YS, YV = 520, 1680; WL = 660.0; R0, V0 = 60.0, 420.0           # レーンの数、水面、泡の出口、クジラの体長、レ(D4)の泡の半径、その泡がのぼる速さ
+NL = 8; YS, YV = 520, 1680; WL = 660.0; R0, V0 = 60.0, (295.0 if SLOW else 420.0)           # レーンの数、水面、泡の出口、クジラの体長、レ(D4)の泡の半径、その泡がのぼる速さ
 NOTE = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]; CHN = ["D", "A", "Bm", "F#m", "G", "D", "G", "A"]
 MEL = [78, 76, 74, 73, 71, 69, 71, 73]                                 # 2周めの旋律（1つの和音に1音）
 def tones(c): return K.canon_tones(c % 8, 60, 96)[:NL]
@@ -32,7 +33,7 @@ RL = [float(np.mean([rad(tones(c)[l]) for c in range(8)])) for l in range(NL)]  
 LX = []; _g = (900 - 2 * sum(RL)) / (NL - 1); _x = 50.0                 # レーンの位置：泡どうしのすき間が同じになるように並べる
 for _l in range(NL): LX.append(_x + RL[_l]); _x += 2 * RL[_l] + _g
 
-WS = 14.0                                                               # クジラが進む速さ（px/秒）
+WS = (9.0 if SLOW else 14.0)                                                               # クジラが進む速さ（px/秒）
 def whale_y(t): return 1205 + 16 * math.sin(2 * math.pi * t / 7.0)
 _r0 = rad(tones(0)[0]); TREL = TF - 1.3                                 # クジラが泡をはく時刻（1つめが TF に着くように）
 for _ in range(8): TREL = TF - (whale_y(TREL) - WL * .078 - 14 - (YS + _r0)) / speed(_r0) - .08
@@ -301,11 +302,14 @@ def audio(path):
     a = T.Audio(DUR, mat="glass", max_same=4, window=.012)
     for q in NOTES: a.note(q["t"], q["m"], vel=q["vel"], pan=.15 + .7 * (q["xa"] - 50) / 900)
     N = int(T.SR * DUR); under = drop_layer(N); body = K.pad([(r, r + 12, f5 + 12) for (r, t3, f5) in K.CANON], CH, NCH * CH + 4.5, .05); off = int(T.SR * INTRO); k = min(len(body), N - off)
+    import loopkit as L
+    if SLOW: under += L.heartbeat([(INTRO + c * CH + h * CH / 2, K.CANON[c % 8][0]) for c in range(NCH) for h in (0, 1)] + [(TF, K.CANON[0][0])], N, T.SR, .085)   # 隠し味の鼓動（和音の根音。和音1つに2拍）
     under[off:off + k] += body[:k]; under *= np.clip((DUR - np.arange(N) / T.SR) / 1.5, 0, 1).astype(np.float32)
     return a.write(path, room=(.32, 3.2), under=under)
 
 if __name__ == "__main__":
     cmd = sys.argv[1] if len(sys.argv) > 1 else "all"; os.makedirs("build_bubblesea", exist_ok=True)
+    if SLOW: os.environ["X"] = "1"
     print("長さ", round(DUR, 1), "泡", len(NOTES), "クジラが泡をはく", round(TREL, 2), "1つめが着く", round(TF, 2), "最後", round(TLAST, 2), "レーン", [round(x) for x in LX], "泡の半径", [round(r) for r in RL])
     if cmd == "stills": print(T.stills(NF, make_frame, "build_bubblesea/s", at=(.012, .3, .62, (TREL + .55) / DUR, (TLAST + .8) / DUR))); sys.exit()
     if cmd == "zoom":                                                      # 近くで見る：泡、はじけた瞬間、クジラ
@@ -313,4 +317,4 @@ if __name__ == "__main__":
             Image.fromarray(make_frame(int(tt_ * FPS))).crop(box).save(f"build_bubblesea/z_{name}.png")
         sys.exit()
     if cmd == "audio": print(audio("build_bubblesea/a.wav")); sys.exit()
-    out = f"output/bubblesea1_{T.LANG}.mp4"; audio("build_bubblesea/a.wav"); T.encode(NF, make_frame, "build_bubblesea/a.wav", out); print(out)
+    out = f"output/{NAME}_{T.LANG}.mp4"; audio("build_bubblesea/a.wav"); T.encode(NF, make_frame, "build_bubblesea/a.wav", out); print(out)
