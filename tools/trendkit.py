@@ -7,6 +7,7 @@
 #     音：Audio … 当たった時刻にそのまま鳴らす（時刻をそろえ直さない）。音色は、硬い玉が板に当たる音（kalimba.knock）。音の高さはカノン進行の和音の音
 #         持ち主 2026-11-27「音はもっと乾いたカロっ(飴玉を口で転がすような)音がいい。音階はカノン」
 #         同日「電子音ぽすぎるんだよな。もっと物理的な音がいい」「二度うちは違う感じがする。恣意的な感じがする」→ 鳴らすのは、絵の中で物が当たった瞬間だけ。飾りの音を足さない
+#         材質は3つ（木・竹・空洞のある木）を、動画1本ごとに順番に回す：聞き比べへの返事 11/27「2.3.4全部いいローテでいい」→ next_mat()
 #         11/25「バウンドのタイミングと音が鳴るタイミングは合わせて」／11/27「ブラーエコーもかけすぎない」
 #     書き出し：encode() コマを ffmpeg に流して音と合わせる ／ stills() 確認用の絵 ／ pick_seed() 乱数さがし
 #   確かめるのは tools/trend/check.py（長さ・音量・高い音・止まって見える時間）と、出だし・真ん中・最後の絵を目で見ること（等倍の切り出しも見る）
@@ -173,6 +174,19 @@ def fit_text(d, xy, s, size, maxw, fill, anchor="mm", bold=True, minsize=22):
     d.text(xy, s, font=fnt(size, bold), fill=fill, anchor=anchor); return size
 
 # ---------- 音 ----------
+MATS = ("wood", "bamboo", "hollow")                      # 木の板 → 竹の板 → 空洞のある木。動画1本ごとに順番に回す
+MAT_LOG = os.path.join(ROOT, "nazo", "trend", "mat_log.txt")   # 1行 = "<動画の名前> <材質>"（作った順）
+def next_mat():
+    """次の動画に使う材質。mat_log.txt の最後の行の、次の材質を返す。
+       新しい動画を作る時：python3 tools/trendkit.py nextmat で材質を見て、スクリプトの MAT の既定値に書き、mat_log.txt に1行足す
+       （日本語版と英語版は同じ材質。作り直しても変わらないよう、スクリプトに書いておく）"""
+    last = None
+    if os.path.exists(MAT_LOG):
+        for l in open(MAT_LOG, encoding="utf-8"):
+            w = l.split()
+            if len(w) >= 2 and w[1] in MATS: last = w[1]
+    return MATS[0] if last is None else MATS[(MATS.index(last) + 1) % len(MATS)]
+
 class Audio:
     """当たった出来事を集めて、最後に1本の音にする。鳴らすのは、絵の中で物が当たった瞬間だけ（飾りの音・二度打ち・締めの旋律を足さない）
        hit(t, u)：時刻 t に、u（0＝低い … 1＝高い）の高さで1打。音は、その時のカノン進行の和音の音から選ぶので、重なっても濁らない
@@ -223,3 +237,6 @@ def pick_seed(simulate, score, seeds, show=5):
     for sd in seeds:
         r = simulate(sd); out.append((round(float(score(r)), 2), sd)); print(out[-1], flush=True)
     out.sort(reverse=True); print("上位", out[:show]); return out[0][1]
+
+if __name__ == "__main__":
+    if len(sys.argv) > 1 and sys.argv[1] == "nextmat": print(next_mat())

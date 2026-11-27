@@ -20,7 +20,7 @@ import trendkit as T
 W, H, FPS = T.W, T.H, T.FPS
 B = "build_tiles"; os.makedirs(B, exist_ok=True)
 SEED = int(os.environ.get("SEED", 232))
-XL, XR, FLOOR = 90, 990, 1380; NTILE = 14; TW = (XR - XL) / NTILE; UNIT = 12; RB = 28; NB = 8; MAT = os.environ.get("MAT", "wood")
+XL, XR, FLOOR = 90, 990, 1380; NTILE = 14; TW = (XR - XL) / NTILE; UNIT = 12; RB = 28; NB = 8; MAT = os.environ.get("MAT", "wood")   # 音の材質は1本ごとに回す（nazo/trend/mat_log.txt）。この動画は木
 H0, P0, SHR = 850.0, 2.4, .85                   # はじめの高さ・はじめの1周の秒数・1色おちるごとの高さの倍率
 G0 = 32 * H0 / P0 ** 2; OUTRO = 2.8
 
