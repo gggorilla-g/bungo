@@ -255,7 +255,7 @@ def audio(r, tl, path):
     for j, m in enumerate([62, 66, 69, 74, 78, 81, 86]): put(K.bell(m + 12, .8), put_end + .5 + j * E8, .3 + .06 * j, .28)
     # 下に温かい持続音（カノン進行）
     pd = K.pad([(r_ - 12, r_, f5, t3 + 12) for (r_, t3, f5) in PROG], CH, N / SR, .08); st += pd[:, None]
-    st = K.room(st, .12, .8); env = np.minimum(1, tt / 2) * np.minimum(1, (tt[-1] - tt) / 3); st *= env[:, None]
+    tt = np.arange(N) / SR; st = K.room(st, .12, .8); env = np.minimum(1, tt / 2) * np.minimum(1, (tt[-1] - tt) / 3); st *= env[:, None]
     pk = float(np.percentile(np.abs(st), 99.95)) or 1; st = np.tanh(st / pk * 1.1) * .62
     with wave.open(path, "wb") as w: w.setnchannels(2); w.setsampwidth(2); w.setframerate(SR); w.writeframes((st * 32767).astype(np.int16).tobytes())
 def mtf(m): return 440.0 * 2 ** ((m - 69) / 12)
