@@ -1,6 +1,4 @@
-{"id": "chordwood1_ja", "kit": "nazo/manual/chordwood/chordwood1_ja_upload.txt", "ch": "MOSO", "lang": "ja", "build": "python3 tools/chordwood.py all", "shown": "2026-11-28", "echo": true}
-{"id": "chordwood1_en", "kit": "nazo/manual/chordwood/chordwood1_en_upload.txt", "ch": "KAIDAN", "lang": "en", "build": "LANG_OUT=en python3 tools/chordwood.py all", "shown": "2026-11-28", "echo": true}
-{"id": "pidrop1_ja", "kit": "nazo/manual/pidrop/pidrop1_ja_upload.txt", "ch": "MOSO", "lang": "ja", "build": "python3 tools/pidrop.py all", "shown": "2026-11-28", "echo": true}
-{"id": "pidrop1_en", "kit": "nazo/manual/pidrop/pidrop1_en_upload.txt", "ch": "KAIDAN", "lang": "en", "build": "LANG_OUT=en python3 tools/pidrop.py all", "shown": "2026-11-28", "echo": true}
 {"id": "bubblesea1_ja", "kit": "nazo/manual/bubblesea/bubblesea1_ja_upload.txt", "ch": "MOSO", "lang": "ja", "build": "python3 tools/bubblesea.py all", "shown": "2026-11-28", "echo": true}
 {"id": "bubblesea1_en", "kit": "nazo/manual/bubblesea/bubblesea1_en_upload.txt", "ch": "KAIDAN", "lang": "en", "build": "LANG_OUT=en python3 tools/bubblesea.py all", "shown": "2026-11-28", "echo": true}
+{"id": "primehop1_ja", "kit": "nazo/manual/primehop/primehop1_ja_upload.txt", "ch": "MOSO", "lang": "ja", "build": "python3 tools/primehop.py all", "shown": "2026-11-28", "echo": true, "after": "2026-11-28T11:40:00Z"}
+{"id": "primehop1_en", "kit": "nazo/manual/primehop/primehop1_en_upload.txt", "ch": "KAIDAN", "lang": "en", "build": "LANG_OUT=en python3 tools/primehop.py all", "shown": "2026-11-28", "echo": true, "after": "2026-11-28T11:40:00Z"}

@@ -50,6 +50,8 @@ def main():
         vid, ch = r["id"], r["ch"]; mp4 = os.path.join(ROOT, "output", vid + ".mp4")
         if vid in hold: print(f"外す：{vid}（hold.txt にある＝持ち主が止めた）"); continue
         if only and not vid.startswith(only): keep.append(r); continue
+        if r.get("after") and not only and datetime.datetime.now(datetime.timezone.utc) < datetime.datetime.strptime(r["after"], "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=datetime.timezone.utc):
+            keep.append(r); print(f"残す：{vid}（見本を送った日の 20:40 まで待つ。after={r['after']}）"); continue   # 持ち主が見本を見る時間をとる。--only で名指しした時は待たない
         if ch in full: keep.append(r); print(f"残す：{vid}（{ch} は上限）"); continue
         if not os.path.exists(mp4) or stale(mp4, r["build"]):
             print(f"作り直す：{vid}（{r['build']}）", flush=True); subprocess.run(r["build"], shell=True, cwd=ROOT, stdin=subprocess.DEVNULL)
