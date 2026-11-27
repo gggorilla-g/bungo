@@ -1,0 +1,19 @@
+【タイトル】
+Drop Balls Into a Round Bowl, Not a Parabola. Do They Meet at One Point? #shorts #satisfying #math
+
+【説明】
+Drop balls straight down into a parabola and every one passes through a single point, the focus. Now try a round bowl (half a circle).
+
+How it works:
+- A circular mirror does not bring the lines to one point. Lines near the middle cross close to halfway down from the center; lines near the rim cross higher up.
+- Where many reflected lines pile up you get a bright curve called a caustic. This one is part of a nephroid.
+- It is the same bright heart-shaped line you see of light inside a coffee cup or a ring.
+- This blur is called spherical aberration, and it is why telescope mirrors and satellite dishes are parabolas, not circles.
+- No gravity here (balls move like light rays) and balls pass through each other. More balls every round: 8, 32, 128, 384.
+
+- Every hit is a small hard ball tapping a bamboo plate.
+
+Simulation, sound and animation: original (Python).
+
+【タグ】
+math, physics, caustic, nephroid, satisfying, simulation, relaxing, shorts
