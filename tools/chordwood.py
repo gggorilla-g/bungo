@@ -5,6 +5,7 @@
 #   変えたところ：
 #     ・音の高さ：カノン進行（D A Bm F#m G D G A）。和音は 18/8 秒ごとに1つ進み、板の音は「今の和音の音」を低い方から順に。18秒で1周して、最初の D にもどる所で全部そろう
 #     ・音色：2・3・4（木・竹・空洞のある木）を、板ごとに順に（左から 木・竹・空洞・木…）。当たった瞬間に1打だけ
+#     ・ボールどうしを、細い線でつなぐ（元の chord1 と同じ。波の形が見え、そろうと1本のまっすぐな線になる）
 #     ・絵：木の板と、木目の柱（うしろの柱＝はねる高さ）。暗い木の背景。ボールはやわらかい色。着地でボールが少しつぶれ、板が少ししずみ、板にやわらかい光が広がる
 #   python3 tools/chordwood.py stills ／ all（LANG_OUT=en で英語）→ output/chordwood1_<ja|en>.mp4
 import math, os, sys
@@ -58,7 +59,7 @@ BG = make_bg()
 PILLAR = [board(int(DX) - 30, int(HT[i]), 40 + i, (np.array([.80, .62, .42], np.float32), np.array([.64, .45, .28], np.float32)), vertical=True) for i in range(NB)]
 PAD = [board(int(DX) - 14, 34, 60 + i) for i in range(NB)]
 SPR = [T.sprite(col(i), RB) for i in range(NB)]; GL = T.glow(46); GLS = T.glow(22)
-f_note = T.fnt(40); f_cnt = T.fnt(64)
+f_note = T.fnt(40); f_cnt = T.fnt(64); LCOL = np.array([1.0, .93, .80], np.float32)          # 線の色（生成りの糸）
 def squash(sp, k):
     """ボールを縦に k 倍（面積はそのまま）。下はしをそろえる"""
     h, w = sp.shape[:2]; nh, nw = max(2, int(round(h * k))), max(2, int(round(w / math.sqrt(k))))
@@ -68,13 +69,20 @@ def make_frame(fi):
     t = fi / FPS; buf = BG.copy(); ci = chord_at(t); tn = tones(ci)
     for i in range(NB):                                                # 柱（はねる高さ）
         x = XL + (i + .5) * DX; pl = PILLAR[i]; T.paste(buf, pl, int(x - pl.shape[1] / 2), int(PADY - pl.shape[0]), .26)
-    nland = int(np.searchsorted(TE, t, "right"))
+    nland = int(np.searchsorted(TE, t, "right")); ST = []
+    for i in range(NB):                                                # 先に、ボールの位置を全部出す（線を引くため）
+        ks = [e[0] for e in EV if e[1] == i and e[0] <= t]; e_ = t - ks[-1] if ks else 9.0
+        ST.append((e_, 6 * math.exp(-e_ / .07) * math.sin(math.pi * min(1, e_ / .14)) if e_ < .4 else 0.0, ypos(i, t)))
+    # ボールどうしをつなぐ線（持ち主 11/28「球同士を繋ぐ線はあったほうがいい」。元の chord1 と同じく、となりのボールの中心を順につなぐ。そろうと1本のまっすぐな線になる）
+    y0 = int(PADY - HMAX - 90); lm = np.zeros((PADY + 30 - y0, W), np.uint8)
+    pts = np.array([[(XL + (i + .5) * DX) * 16, (PADY + ST[i][1] - ST[i][2] - RB - y0) * 16] for i in range(NB)], np.float64).round().astype(np.int32)
+    cv2.polylines(lm, [pts], False, 255, 3, cv2.LINE_AA, 4); lf = lm.astype(np.float32) / 255; lg = cv2.GaussianBlur(lf, (0, 0), 7)
+    reg = buf[y0:PADY + 30]; reg[:] = 1 - (1 - reg) * (1 - (lg * .34)[..., None] * LCOL); reg[:] = reg * (1 - (lf * .82)[..., None]) + LCOL * (lf * .82)[..., None]
     for i in range(NB):
-        x = XL + (i + .5) * DX; ks = [e[0] for e in EV if e[1] == i and e[0] <= t]; e_ = t - ks[-1] if ks else 9.0
-        dip = 6 * math.exp(-e_ / .07) * math.sin(math.pi * min(1, e_ / .14)) if e_ < .4 else 0.0
+        x = XL + (i + .5) * DX; e_, dip, y = ST[i]
         if e_ < .6: T.add_glow(buf, GL, x, PADY + 6 + dip, col(i), .55 * math.exp(-e_ / .16))      # 板にやわらかい光
         T.paste(buf, PAD[i], int(x - PAD[i].shape[1] / 2), int(PADY + dip))
-        y = ypos(i, t); k = 1 - .16 * math.exp(-e_ / .045) if e_ < .25 else 1.0                       # 着地で少しつぶれる
+        k = 1 - .16 * math.exp(-e_ / .045) if e_ < .25 else 1.0                                       # 着地で少しつぶれる
         sp = SPR[i] if k > .995 else squash(SPR[i], k); yc = PADY + dip - y - sp.shape[0] / 2 + 4
         T.add_glow(buf, GLS, x, PADY + dip - y - RB, col(i), .10)
         T.blit(buf, sp, x, yc)

@@ -8,3 +8,4 @@ fill4_en wood
 cup2_en bamboo
 chordwood1 mix(wood,bamboo,hollow)
 pidrop1 vidro
+bubblesea1 glass+drop
