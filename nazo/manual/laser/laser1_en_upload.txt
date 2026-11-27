@@ -1,0 +1,15 @@
+【タイトル】
+The Light Splits Every Marble It Crosses. Will It Reach 2048? #Shorts #physics #satisfying
+
+【説明】
+The light line hangs from springs on two rails. A motor slowly shakes the top anchors, the springs stretch and bounce, and the line moves up and down.
+Every marble the line crosses splits into two. It stops at 2048.
+
+- The carriage mass, spring stiffness and air drag are solved every 1/960 s
+- The motor speeds up over time; near the spring's natural frequency the swing grows (resonance)
+- Every split plays one note, and the notes rise as the count grows
+
+Simulation, sound and animation: original (made in Python)
+
+【タグ】
+physics simulation, spring, resonance, doubling, 2048, satisfying, relaxing, make it work 3d

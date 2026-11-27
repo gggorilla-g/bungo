@@ -1,5 +1,3 @@
-domino2_ja MOSO ja
-dots3_ja MOSO ja
 xmas1_ja MOSO ja
 spiro9_ja MOSO ja
 cardioid4_ja MOSO ja

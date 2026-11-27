@@ -1,0 +1,17 @@
+【タイトル】
+Doubling Survival: 16 Colors, Which One Is Left? | Relaxing Physics Marble Race
+
+【説明】
+16 colors of marbles roll through the pegs into the boxes at the bottom.
+x2: the marbles in that box double next stage. OUT: they are removed. At the end of each stage, the color with the fewest marbles is out (2 colors while 9 or more are left; on a tie, the color whose last marble landed later is out).
+Pick one color before you watch.
+
+Every peg hit plays a note from the Canon chord progression. Left is low, right is high.
+The boxes change every stage. The more marbles there are, the more OUT boxes appear, so the count never explodes.
+
+Simulation, sound and animation: original (made in Python)
+
+#marblerace #physics #relaxing
+
+【タグ】
+marble race, physics simulation, relaxing, ambient, canon progression, doubling, survival, elimination, satisfying, make it work 3d
