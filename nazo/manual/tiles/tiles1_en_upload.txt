@@ -1,0 +1,16 @@
+【タイトル】
+Every Bounce Thins the Tile. Which Color Is Still Bouncing at the End? #Shorts #physics
+
+【説明】
+Eight colored balls bounce in turn, all to the same height. The 14 tiles all have different thicknesses (1 to 14).
+Every bounce makes the tile one layer thinner. A ball that comes down where no tile is left falls out. Each fall lowers the bounce, so the rest speed up.
+Which color is still bouncing at the end? Pick one before you watch.
+
+- Each note plays at the exact moment a ball lands. Tiles on the left are lower, tiles on the right are higher
+- Every lap moves one chord forward in the Canon progression. When a ball falls, its note drops out
+- The sideways speeds and the tile order are random
+
+Simulation, sound and animation: original (made in Python)
+
+【タグ】
+physics simulation, elimination, bouncing balls, canon progression, satisfying, relaxing, make it work 3d

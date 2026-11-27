@@ -1,0 +1,60 @@
+#!/usr/bin/env python3
+"""release.py — 見本を見せた動画を、公開予約つきで上げる（docs/trend-pipeline.md の「6 上げる」）
+
+  python3 tools/trend/release.py [--at 2026-11-28T12:00:00Z] [--dry]
+
+順番待ち：nazo/trend/queue.jsonl（1行1本）
+  {"id": "tiles1_ja", "kit": "nazo/manual/tiles/tiles1_ja_upload.txt", "ch": "MOSO", "lang": "ja", "build": "python3 tools/tiles.py all", "shown": "2026-11-27"}
+  ch は MOSO（妄想科学）か KAIDAN（Make It Work 3D）。英語版の build は頭に LANG_OUT=en を書く
+
+1本ずつ、次の順でする
+  1. output/<id>.mp4 が無ければ build で作り直す
+  2. tools/trend/check.py を通す。NG なら上げずに残す
+  3. tools/up.sh で上げる。公開は --at の時刻（省くと「今日の 21:00 JST。19:00 を過ぎていたら明日の 21:00 JST」）。それまでは非公開の予約
+  4. 上がったら順番待ちから外し、nazo/ballsim/upload_done.txt と docs/video-ledger.md に1行ずつ足す
+1日の上限に当たったチャンネルは、その回はそこで止めて残す（次の回に回る）。
+持ち主が「だめ」と言った動画は、上げる前なら順番待ちから外して nazo/trend/hold.txt に理由つきで置く（この道具ではなく手でする）。
+"""
+import datetime, json, os, subprocess, sys
+from zoneinfo import ZoneInfo
+
+ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..")
+Q = os.path.join(ROOT, "nazo", "trend", "queue.jsonl")
+
+def default_at():
+    now = datetime.datetime.now(ZoneInfo("Asia/Tokyo")); day = now.date() + datetime.timedelta(days=0 if now.hour < 19 else 1)
+    t = datetime.datetime.combine(day, datetime.time(21, 0), ZoneInfo("Asia/Tokyo")); return t.astimezone(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+def main():
+    at = sys.argv[sys.argv.index("--at") + 1] if "--at" in sys.argv else default_at(); dry = "--dry" in sys.argv
+    rows = [json.loads(l) for l in open(Q, encoding="utf-8") if l.strip()] if os.path.exists(Q) else []
+    keep = []; full = set(); done = []
+    jst = datetime.datetime.strptime(at, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=datetime.timezone.utc).astimezone(ZoneInfo("Asia/Tokyo"))
+    print(f"公開の予約：{jst:%m/%d %H:%M} JST（{at}） 順番待ち {len(rows)} 本")
+    for r in rows:
+        vid, ch = r["id"], r["ch"]; mp4 = os.path.join(ROOT, "output", vid + ".mp4")
+        if ch in full: keep.append(r); print(f"残す：{vid}（{ch} は上限）"); continue
+        if not os.path.exists(mp4):
+            print(f"作り直す：{vid}（{r['build']}）", flush=True); subprocess.run(r["build"], shell=True, cwd=ROOT, stdin=subprocess.DEVNULL)
+        if not os.path.exists(mp4): keep.append(r); print(f"残す：{vid}（動画が作れなかった）"); continue
+        c = subprocess.run([sys.executable, os.path.join(ROOT, "tools", "trend", "check.py"), mp4], cwd=ROOT, stdin=subprocess.DEVNULL, capture_output=True, text=True)
+        if c.returncode != 0: keep.append(r); print(f"残す：{vid}（検査で NG）\n" + "\n".join(l for l in c.stdout.splitlines() if l.startswith("NG"))); continue
+        if dry: keep.append(r); print(f"（試し）上げる：{vid} → {ch}"); continue
+        u = subprocess.run([os.path.join(ROOT, "tools", "up.sh"), vid, r["kit"], "YT_REFRESH_TOKEN_" + ch, r.get("lang", "ja"), "1", at], cwd=ROOT, stdin=subprocess.DEVNULL, capture_output=True, text=True)
+        out = (u.stdout + u.stderr); ok = [l for l in out.splitlines() if " success " in l]
+        if ok:
+            yt = ok[-1].split(" success ")[1].split()[0]; done.append((vid, ch, yt)); print(f"上げた：{vid} → {ch} {yt}（{jst:%m/%d %H:%M} JST に公開）")
+            with open(os.path.join(ROOT, "nazo", "ballsim", "upload_done.txt"), "a", encoding="utf-8") as f: f.write(f"{datetime.datetime.utcnow():%Y-%m-%dT%H:%M:%SZ} {vid} success {yt} (trend、{jst:%m/%d %H:%M} JST 公開予約)\n")
+            with open(os.path.join(ROOT, "docs", "video-ledger.md"), "a", encoding="utf-8") as f: f.write(f"- {jst:%Y-%m-%d} {'妄想' if ch == 'MOSO' else 'MIW'} {vid} {yt}（trend の流れ。{jst:%H:%M} JST に公開予約、見本は {r.get('shown', '?')} に送付）\n")
+        else:
+            keep.append(r)
+            if "exceeded the number of videos" in out: full.add(ch); print(f"残す：{vid}（{ch} は1日の上限。次の回に回す）")
+            elif "重複" in out: print(f"残す：{vid}（同じ題名がもう出ている）")
+            else: print(f"残す：{vid}（上げるのに失敗）\n" + "\n".join(out.splitlines()[-4:]))
+    if not dry:
+        with open(Q, "w", encoding="utf-8") as f:
+            for r in keep: f.write(json.dumps(r, ensure_ascii=False) + "\n")
+    print(f"結果：上げた {len(done)} 本、残り {len(keep)} 本"); return 0
+
+if __name__ == "__main__":
+    sys.exit(main())

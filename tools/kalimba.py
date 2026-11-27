@@ -88,3 +88,37 @@ def pad(chords, ch_len, total, gain=.06, seed=3):
         i = int(SR * (c * ch_len - fade / 2)); a, b = max(0, i), min(N, i + n1)
         if b > a: out[a:b] += (s * env)[a - i:b - i].astype(np.float32)
     return _lp(out, 1400) * gain
+
+# ---------- 乾いた「カロッ」（持ち主 2026-11-27「音はもっと乾いたカロっ(飴玉を口で転がすような)音がいい。音階はカノン」） ----------
+#   飴玉が歯に当たる音を目安にした、短くて丸い打音。
+#     ・当たった瞬間だけ少し高く、すぐ音の高さに落ちる（「カ」→「ロ」）
+#     ・鳴っているのは 0.1〜0.25 秒。余韻を残さない（乾いた音）
+#     ・口の中の短い響き（1〜1.7kHz あたり、0.01 秒）と、やわらかい当たりの音（1.2〜4.5kHz、0.002 秒）
+#     ・roll=True で「カロッ」：0.045 秒おくれて、同じ高さの丸い2打めが小さく入る（1打めより鈍い音色）
+#     ・5kHz から上はなだらかに落とす（キンキンさせない）
+#   使うとき：残響はほとんどかけない（room の send は 0.03 まで）。音の高さはカノン進行の和音の音から選ぶ
+_k = {}
+def karo(m, vel=1.0, roll=True, hard=.5):
+    """hard：当たりの硬さ（0＝やわらかい「コロ」、1＝硬い「カロ」）。音の高さは A4〜G6（MIDI 69〜91）あたりが飴玉らしい"""
+    key = (int(m), round(vel, 2), bool(roll), round(hard, 2))
+    if key in _k: return _k[key]
+    f = mtof(m); tau = float(np.clip(.070 * (800 / f) ** .35, .035, .11)); L = .42; n = int(SR * L); tt = np.arange(n) / SR
+    rng = np.random.default_rng(int(m) * 7 + 1)
+    def hit(amp, tau_, bright, formant, fa, glide_amt):
+        glide = 1 + glide_amt * np.exp(-tt / .010); ph = 2 * np.pi * f * np.cumsum(glide) / SR
+        x = np.sin(ph) * np.exp(-tt / tau_) + .30 * np.sin(2 * ph + .5) * np.exp(-tt / (tau_ * .45)) + .12 * np.sin(3.01 * ph + 1.0) * np.exp(-tt / (tau_ * .25))
+        x += fa * np.sin(2 * np.pi * formant * tt + .3) * np.exp(-tt / .011)                        # 口の中の短い響き
+        nz = rng.normal(0, 1, n).astype(np.float32); bp = _lp(nz, 5000) - _lp(nz, 1500)             # 当たりの音（帯域をしぼった雑音）
+        x += bp * np.exp(-tt / .0022) * bright
+        return x * amp
+    x = hit(1.0, tau, (.5 + 3.0 * hard) * (.6 + .4 * vel), 1650 + 500 * hard, .20 + .25 * hard, .035 + .03 * hard)
+    if roll:
+        d = int(SR * .045); y = hit(.40, tau * .8, .15 + .5 * hard, 950, .22, .02); x[d:] += y[:n - d]
+    x *= np.minimum(1, tt / .0008); x *= np.minimum(1, (L - tt) / .03)
+    x = _lp(x.astype(np.float32), 5000 + 1600 * hard); x *= (f / 700) ** -.30 * (.72 + .28 * vel)
+    _k[key] = x.astype(np.float32); return _k[key]
+
+CANON = [(50, 54, 57), (45, 49, 52), (47, 50, 54), (42, 45, 49), (43, 47, 50), (38, 42, 45), (43, 47, 50), (45, 49, 52)]   # D A Bm F#m G D G A（根音・3度・5度の MIDI 番号）
+def canon_tones(i, lo=62, hi=88):
+    """カノン進行の i 番めの和音に入っている音を、lo〜hi の範囲で低い順に返す"""
+    pcs = {m % 12 for m in CANON[i % 8]}; return [m for m in range(lo, hi + 1) if m % 12 in pcs]
