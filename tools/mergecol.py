@@ -14,6 +14,8 @@ from scipy.signal import fftconvolve, resample_poly, butter, sosfilt
 W, H, FPS, SR = 1080, 1920, 60, 48000
 LANG = os.environ.get("LANG_OUT", "ja"); EN = LANG == "en"
 OUT = sys.argv[1] if len(sys.argv) > 1 else f"output/mergecol1_{LANG}.mp4"
+MAT = os.environ.get("MAT", "")          # 234 の材質（wood・bamboo・hollow）。空なら前の石の音。mergecol2_en（11/28 持ち主「英語版にマイナーチェンジして、音は新しく234に」）は wood
+VAR2 = os.environ.get("VAR") == "2"      # マイナーチェンジ版（背景の色みと題名の言い回しを変える）
 FJ = "/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc"; FI = "/usr/share/fonts/opentype/inter/Inter-Bold.otf"; FIM = "/usr/share/fonts/opentype/inter/Inter-Medium.otf"
 def fnt(sz, latin=False): return ImageFont.truetype(FI if (latin or EN) else FJ, sz)
 
@@ -149,6 +151,11 @@ TN = np.array([T[n] for n in range(1, NDROP + 1)]); LEAD = -(EMIT[1] - .18); DUR
 def mtof(m): return 440.0 * 2 ** ((m - 69) / 12)
 _tc = {}
 def stone(m, dec):   # 石を叩く音（石琴ふう。simkit の stone と同じ式）
+    if MAT:   # 234：硬い玉が板に当たる音（kalimba.knock）。1打ごとにたたく場所を少し変える
+        import kalimba as KB
+        _tc["n"] = _tc.get("n", 0) + 1; key = ("k", int(round(m)), _tc["n"] % 7)
+        if key not in _tc: _tc[key] = resample_poly(KB.knock(int(round(m)), .85, MAT, _tc["n"] % 7), SR, KB.SR)
+        return _tc[key]
     key = (m, round(dec, 1))
     if key not in _tc:
         f = mtof(m); tt = np.arange(int(SR * min(2.4, 7 / dec))) / SR
@@ -190,11 +197,11 @@ for tm, j, n, first, cls in merges:
     if n == 512:
         if j < 9: put(stone(FINP[j - 1], 3.2), tm, pan, .50 + .05 * j, .5); notes_log.append((tm, FINP[j - 1], j))
         else:
-            for m_, g_ in ((38, .9), (45, .7), (50, .9), (57, .6), (62, .8), (66, .6), (69, .6), (74, .7), (78, .5)): put(stone(m_, 2.2), tm, .5 + .2 * math.sin(m_), g_ * .62, .7)
+            for m_, g_ in (((50, .9), (62, .8), (69, .6), (74, .7)) if MAT else ((38, .9), (45, .7), (50, .9), (57, .6), (62, .8), (66, .6), (69, .6), (74, .7), (78, .5))): put(stone(m_, 2.2), tm, .5 + .2 * math.sin(m_), g_ * .62, .7)
             notes_log.append((tm, 62, j))
         continue
-    if cls <= .26:   m, g, dc, sd = TRI[ch][0] - 24, .78, 2.4, .5; put(stone(m + 12, 2.8), tm, .5, .34, .5)   # いちばん大きい星：低音（1オクターブ上を重ねて小さいスピーカーでも聞こえるように）
-    elif cls <= .51: m, g, dc, sd = TRI[ch][0] - 12, .70, 2.6, .5; put(stone(m + 12, 3.0), tm, .5, .26, .5)
+    if cls <= .26:   m, g, dc, sd = TRI[ch][0] - 24 + (12 if MAT else 0), .78, 2.4, .5; MAT or put(stone(m + 12, 2.8), tm, .5, .34, .5)   # いちばん大きい星：低音（1オクターブ上を重ねて小さいスピーカーでも聞こえるように）
+    elif cls <= .51: m, g, dc, sd = TRI[ch][0] - 12, .70, 2.6, .5; MAT or put(stone(m + 12, 3.0), tm, .5, .26, .5)
     elif cls <= 1.01: m, g, dc, sd = (LINE2 if cyc2 else LINE1)[s8], 1.0, 3.0, .55                              # カノンの旋律
     elif cls <= 2.01: m, g, dc, sd = (PH4 if cyc2 else PH3)[s8][q % 2], .74, 4.0, .45
     elif cls <= 4.01: tl = tones(ch, 76, 3); m, g, dc, sd = tl[(0, 1, 2, 1)[q % 4]], .46, 6.0, .4               # 分散和音
@@ -203,7 +210,7 @@ for tm, j, n, first, cls in merges:
     elif cls <= 32.01: tl = tones(ch, 86, 2); m, g, dc, sd = tl[q % 2], .045, 26.0, .25
     else: continue
     put(stone(m, dc), tm, pan, g, sd); notes_log.append((tm, m, j))
-TK = tok()
+TK = stone(86, 20) if MAT else tok()
 for n in range(1, NDROP + 1):   # 着く音：ゆっくりの間だけ聞こえる
     g = .30 * min(1.0, (DI[n] / .13)) ** 1.5
     if g > .012: put(TK, T[n], .5, g, .2)
@@ -232,8 +239,9 @@ with wave.open("build_mergecol/a.wav", "wb") as w:
 def build_static():
     rs = np.random.default_rng(5); yy = np.linspace(0, 1, H, dtype=np.float32)[:, None]
     bg = np.zeros((H, W, 3), np.float32); bg[..., 0] = 8 + 7 * yy; bg[..., 1] = 9 + 2 * yy; bg[..., 2] = 22 + 12 * yy
+    if VAR2: bg[..., 0] = 5 + 4 * yy; bg[..., 1] = 12 + 9 * yy; bg[..., 2] = 20 + 12 * yy   # 青緑寄りの夜空
     im = Image.fromarray(bg.astype(np.uint8)); glow = Image.new("RGB", (W, H), (0, 0, 0)); gd = ImageDraw.Draw(glow)
-    gd.ellipse([120, 520, 960, 1500], fill=(14, 12, 34)); gd.ellipse([-200, 1300, 500, 2100], fill=(10, 16, 30)); im = ImageChops.add(im, glow.filter(ImageFilter.GaussianBlur(170)))
+    gd.ellipse([120, 520, 960, 1500], fill=(8, 22, 30) if VAR2 else (14, 12, 34)); gd.ellipse([-200, 1300, 500, 2100], fill=(18, 10, 30) if VAR2 else (10, 16, 30)); im = ImageChops.add(im, glow.filter(ImageFilter.GaussianBlur(170)))
     d = ImageDraw.Draw(im)
     for _ in range(170):
         x, y = rs.uniform(0, W), rs.uniform(0, H); b = int(rs.uniform(40, 150)); r = rs.choice([1, 1, 1, 2]); d.ellipse([x - r, y - r, x + r, y + r], fill=(b, b, min(255, b + 20)))
@@ -252,8 +260,8 @@ def build_static():
     f.ellipse([(CX - 26) * S, 462 * S, (CX + 26) * S, 478 * S], fill=(6, 6, 14, 255), outline=(150, 166, 210, 220), width=2 * S)
     for q in (-44, 44): f.ellipse([(CX + q - 3) * S, 444 * S, (CX + q + 3) * S, 450 * S], fill=(176, 190, 226, 200))
     fr = fr.resize((W, H), Image.LANCZOS); f = ImageDraw.Draw(fr)
-    l1 = "Two of the same merge into a bigger one" if EN else "同じ星が2つ重なると、1つ大きい星になる"
-    l2 = "Keep dropping Moons. Get a Sun?" if EN else "月を何個落とすと、太陽になる？"
+    l1 = ("Two matching stars become one bigger star" if VAR2 else "Two of the same merge into a bigger one") if EN else "同じ星が2つ重なると、1つ大きい星になる"
+    l2 = ("How many Moons make one Sun?" if VAR2 else "Keep dropping Moons. Get a Sun?") if EN else "月を何個落とすと、太陽になる？"
     f.text((W / 2, 176), l1, font=fnt(48 if EN else 47), fill=(244, 244, 250, 255), anchor="mm", stroke_width=5, stroke_fill=(6, 6, 16, 255))
     f.text((W / 2, 248), l2, font=fnt(54 if EN else 52), fill=(255, 226, 122, 255), anchor="mm", stroke_width=5, stroke_fill=(6, 6, 16, 255))
     warm = Image.new("L", (W, H), 0); wd = ImageDraw.Draw(warm); wd.rectangle([CX - HW, yt, CX + HW, yc], fill=255); wd.pieslice([CX - HW, yc - HW, CX + HW, yc + HW], 0, 180, fill=255)

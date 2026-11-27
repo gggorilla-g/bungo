@@ -1,3 +1,8 @@
 tiles1 wood
 mergehole1 bamboo
 mergeball1 hollow
+mergecol2_en wood
+wheel2_en bamboo
+hearts4_en hollow
+fill4_en wood
+cup2_en bamboo

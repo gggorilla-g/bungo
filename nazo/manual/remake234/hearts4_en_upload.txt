@@ -1,0 +1,19 @@
+【タイトル】
+7 Animals, 7 Heartbeats, One Note per Beat. Can You Hear the Song? (Wait for the Blue Whale) #shorts #animals #music
+
+【説明】
+Every time an animal's heart beats, one note plays. Add the animals one by one, starting with the elephant, and the notes stack into something like a song. The blue whale joins last.
+
+Heart rates used in this video (beats per minute): elephant 32, human 64, cat 128, rabbit 256, mouse 512, hummingbird 1024, blue whale 4.
+
+- Real resting heart rates are roughly: elephant about 30, human about 70, cat about 140, rabbit about 250, mouse about 600, and a hummingbird up to about 1200. A blue whale's heart slows to about 2 to 4 beats per minute during a dive (a 2019 measurement on a wild blue whale found a low of 2). The numbers change with body size, age and activity.
+- To make the rhythm line up, this video rounds each one to a nearby doubling. While the elephant's heart beats once, the human's beats twice, the cat's 4 times and the hummingbird's 32 times.
+- Every animal plays a note from the same chord. The chords go C, G, A minor, F, one per elephant beat. Bigger animals play lower notes.
+
+- Every beat is a small hard ball tapping a hollow wooden plate.
+
+Animation and sound: original (Python).
+Emoji: Noto Color Emoji (Google, SIL Open Font License 1.1).
+
+【タグ】
+animals, heartbeat, music, rhythm, satisfying, relaxing, shorts

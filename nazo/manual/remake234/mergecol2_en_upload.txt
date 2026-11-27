@@ -1,0 +1,16 @@
+【タイトル】
+How Many Moons Make One Sun? Two Matching Stars Become One Bigger Star #Shorts #space #satisfying
+
+【説明】
+Moons drop one by one. When two of the same meet, they become the next, bigger one.
+Moon → Mercury → Mars → Venus → Earth → Neptune → Uranus → Saturn → Jupiter → Sun
+
+How it works:
+- The drops speed up every bar: quarter notes, then eighths, then sixteenths...
+- Every merge is a small hard ball tapping a wooden plate, on the chords of Pachelbel's Canon. Bigger planets sound lower.
+- The merge rule is only for this video. The order follows real size (Moon smallest, Sun largest), but two real planets do not make the next one.
+
+Simulation, sound and animation: original (made in Python). Music: arrangement of Pachelbel's Canon (public domain)
+
+【タグ】
+space, planets, sun, moon, merge, satisfying, physics, simulation, canon, make it work 3d

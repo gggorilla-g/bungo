@@ -157,6 +157,11 @@ class Sim:
     def note(self, t, midi, gain=1.0, pan=.5, dec=6.0, kind="mar"):
         if self.mel is not None and kind in ("mar", "bell"): self.mel.append((t, gain, pan, dec, "n")); return
         while midi > MAX_MIDI: midi -= 12   # 高すぎる音はオクターブ下げる（オーナー 11/21「ハイキーは気持ち悪い」）
+        mat = self.sp.get("mat")   # 234（木・竹・空洞のある木）：1つの当たりに音は1つ。太鼓・シャカは足さない（docs/trend-pipeline.md の音の決まり）
+        if mat and kind in ("kick", "hat", "edmkick"): return
+        if mat:
+            if harmony.ON and kind not in ("piano", "sub"): midi = harmony.snap(int(round(midi)), t)
+            self.notes.append((t, midi, gain, min(1, max(0, pan)), dec, kind)); return
         if harmony.ON and kind not in ("kick", "hat", "piano"):   # 当たった音を今の和音（カノン進行）に寄せ、残りの2音を小さく重ねる
             midi = harmony.snap(int(round(midi)), t)
             for o in harmony.others(midi, t): self.notes.append((t, o, gain * .3, min(1, max(0, pan)), dec * 1.1, kind))
@@ -168,8 +173,15 @@ class Sim:
 
     def _audio(self, total, path):
         n = int(SR * (total + 2.5)); L = np.zeros(n); R = np.zeros(n); cache = {}
+        MAT = self.sp.get("mat"); nk = [0]
         def tone(m, dec, kind):
             key = (m, round(dec, 1), kind)
+            if MAT and kind not in ("sub", "tick"):   # 234：硬い玉が板に当たる音（kalimba.knock）。1打ごとにたたく場所を少し変える
+                import kalimba as KB
+                from scipy.signal import resample_poly
+                nk[0] += 1; k2 = (int(round(m)), MAT, nk[0] % 7)
+                if k2 not in cache: cache[k2] = resample_poly(KB.knock(int(round(m)), .85, MAT, nk[0] % 7), SR, KB.SR) * 1.1
+                return cache[k2]
             if key not in cache:
                 f = mtof(m); tt = np.arange(int(SR * min(2.0, 7 / dec))) / SR
                 if kind == "pluck":   # マリンバとウクレレの間：弦をはじく合成（カープラス・ストロング法）に、短い木の響き
