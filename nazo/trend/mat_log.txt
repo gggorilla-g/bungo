@@ -11,6 +11,6 @@ pidrop1 vidro
 bubblesea1 glass+drop
 primehop1 glass
 bubblesea2 glass
-ellipray1 hollow
+ellipray1 stone
 bheat1 wood
 starrun1 glass

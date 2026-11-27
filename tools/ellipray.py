@@ -18,12 +18,12 @@ import trendkit as T
 import kalimba as K
 
 W, H, FPS = T.W, T.H, T.FPS
-MAT = os.environ.get("MAT", "hollow")                                   # 材質は動画ごとに回す（nazo/trend/mat_log.txt）
+MAT = os.environ.get("MAT", "stone")                                    # 持ち主 11/28「二百三十四ではなく。少し空洞のある石や宝石をたたいてかつ音階がある音」→ kalimba の stone
 CX, CY, A, B = 540.0, 1046.0, 606.0, 476.0; C = math.sqrt(A * A - B * B); F = [(CX, CY - C), (CX, CY + C)]   # 楕円（縦長）と、2つの焦点（上・下）
-G, TP = 14, 2.0; V = 2 * A / TP                                         # 世代の数（0〜13）、1世代の長さ（秒）、光の速さ（px/秒）
+G, TP = 16, 2.9; V = 2 * A / TP                                         # 世代の数（0〜13）、1世代の長さ（秒）、光の速さ（px/秒）
 TFWD = G * TP; HOLD, TREW = .9, 1.4; DUR = TFWD + HOLD + TREW; NF = int(round(DUR * FPS)); TH0 = math.radians(-62)
-LW = 2                                                                  # 光の線の太さ（px）
-KS = [1, 2, 4, 8, 16, 28, 40, 54, 68, 82, 96, 108, 120, 130]               # 1世代に鳴らす打の数（鏡に当たるのは 0.4〜1.6 秒の間）
+LW = 1                                                                  # 光の線の太さ（px）。通るたびに明るさが足されていくので、こみぐあいが段階的に見える（持ち主 11/28「密度高めて…エスカレーションはもっと段階欲しい」）
+KS = [1, 2, 4, 8, 16, 26, 36, 46, 56, 66, 76, 86, 96, 106, 116, 126]     # 1世代に鳴らす打の数
 
 def wall(f, th):
     """焦点 f（0＝上、1＝下）から角度 th に出た光が、鏡に当たる点と、そこまでの長さ"""
@@ -43,11 +43,15 @@ def polys(g, d):
     for i in range(q["n"]):
         out.append(np.array([f0, np.round(Hd[i] * 8)] if pre[i] else [f0, np.round(P[i] * 8), np.round(Hd[i] * 8)], np.int32))
     return out, hx, hy
-MK = [np.zeros((H, W), np.uint8)]                                       # MK[g]＝世代 g がはじまる時までに光が通った所
+MK = [np.zeros((H, W), np.float32)]                                     # MK[g]＝世代 g がはじまる時までに、光が何回通ったか（重なるほど大きい）
+def layer(pl):
+    m = np.zeros((H, W), np.uint8); cv2.polylines(m, pl, False, 255, LW, cv2.LINE_AA, 3); return m.astype(np.float32) / 255
 def mask_at(g):
     while len(MK) <= g:
-        k = len(MK) - 1; m = MK[k].copy(); cv2.polylines(m, polys(k, 2 * A)[0], False, 255, LW, cv2.LINE_AA, 3); MK.append(m)
+        k = len(MK) - 1; MK.append(MK[k] + WG(k) * layer(polys(k, 2 * A)[0]))
     return MK[g]
+KD = .8                                                                 # 明るさ＝1−exp(−KD×通った回数)
+def WG(g): return max(1.0, 3.0 - .3 * g)                                 # 光が少ないうちは1本を明るく（はじめが暗すぎないように）
 
 yy, xx = np.mgrid[0:H, 0:W].astype(np.float32); EL = ((xx - CX) / B) ** 2 + ((yy - CY) / A) ** 2; INS = EL < 1.0
 def rainbow():
@@ -57,34 +61,30 @@ def rainbow():
 RB = rainbow()
 def make_bg():
     b = np.array([7, 8, 20], np.float32)[None, None] * np.ones((H, W, 1), np.float32) + (np.exp(-(((xx - CX) / 620) ** 2 + ((yy - CY) / 800) ** 2)) * 9)[..., None] * np.array([.8, .9, 1.6], np.float32)
-    b = b / 255; rim = np.exp(-((np.sqrt(EL) - 1) * 520 / 2.2) ** 2); glow = np.exp(-((np.sqrt(EL) - 1) * 520 / 13) ** 2) * .22       # 鏡のふち（白い細い線と、やわらかい光）
+    b = b / 255; rim = np.exp(-((np.sqrt(EL) - 1) * 520 / 2.2) ** 2); glow = np.exp(-((np.sqrt(EL) - 1) * 520 / 13) ** 2) * .07       # 鏡のふち（白い細い線と、やわらかい光）
     return (1 - (1 - b) * (1 - np.clip(rim * .95 + glow, 0, 1)[..., None] * np.array([.93, .96, 1.0], np.float32))).astype(np.float32)
 BG = make_bg(); GS = T.glow(16); GF = T.glow(60); NIN = float(INS.sum())
 INK = (244, 246, 255, 255); GOLD = (255, 222, 150, 255); SOFT = (176, 186, 214, 255)
 
 def frame_at(ts, rew=0.0):
     """ts＝動画の中の時刻（0〜TFWD）。巻きもどし中は ts が小さくなっていく（rew＝巻きもどしの進み 0〜1。字のためだけに使う）"""
-    g = min(G - 1, int(ts // TP)); d = min(2 * A, V * (ts - g * TP)); q = GEN[g]; m = mask_at(g).copy(); pl, hx, hy = polys(g, d)
-    if d > .5: cv2.polylines(m, pl, False, 255, LW, cv2.LINE_AA, 3)
-    mf = m.astype(np.float32) / 255; lit = 100 * float(mf[INS].sum()) / NIN
-    gl = cv2.resize(cv2.GaussianBlur(cv2.resize(mf, (W // 4, H // 4), interpolation=cv2.INTER_AREA), (0, 0), 3.0), (W, H), interpolation=cv2.INTER_LINEAR)   # 細い線でも見えるように、やわらかい光を足す
-    a = np.clip(mf + .55 * gl * (1 - mf), 0, 1)[..., None]; buf = BG * (1 - a) + RB * a
+    g = min(G - 1, int(ts // TP)); d = min(2 * A, V * (ts - g * TP)); q = GEN[g]; acc = mask_at(g); pl, hx, hy = polys(g, d)
+    if d > .5: acc = acc + WG(g) * layer(pl)
+    mf = 1 - np.exp(-KD * acc); lit = 100 * float((acc[INS] > .35).sum()) / NIN                                                          # うまった＝1回でも通った所
+    a = mf[..., None]; buf = BG * (1 - a) + RB * a
     # 光の頭：同時に出たので、焦点を中心にした輪（波の面）になって進む
     n = q["n"]
-    if n <= 64:
-        for i in range(n): T.add_glow(buf, GS, hx[i], hy[i], (255, 255, 255), .95)
-    else:
-        lay = np.zeros((H, W), np.float32); ix = np.clip(np.round(hx).astype(int), 1, W - 2); iy = np.clip(np.round(hy).astype(int), 1, H - 2)
-        for ox, oy in ((0, 0), (1, 0), (0, 1), (1, 1)): np.add.at(lay, (iy + oy, ix + ox), 1.0)
-        lay = cv2.GaussianBlur(lay, (0, 0), 1.3) * (2.2 if n <= 512 else 1.6); buf[:] = 1 - (1 - buf) * (1 - np.clip(lay, 0, 1)[..., None])
+    # 玉（光の頭）は数が多くても1つずつ見えるように、いつも白い点で描く。光らせない（持ち主 11/28「玉は常に表示で発光も最低限」）
+    rr = 5.0 if n <= 64 else 3.6 if n <= 512 else 2.6 if n <= 4096 else 2.0
+    dots = np.zeros((H, W), np.uint8); pts = np.round(np.stack([hx, hy], 1) * 8).astype(np.int32)
+    for pxy in pts: cv2.circle(dots, (int(pxy[0]), int(pxy[1])), int(rr * 8), 255, -1, cv2.LINE_AA, 3)
+    df = (dots.astype(np.float32) / 255)[..., None]; buf[:] = buf * (1 - df) + df
     for k in (0, 1):                                                       # 焦点の印。集まった瞬間（世代のはじまり）に光る
         e = ts - g * TP if (g >= 1 and q["f"] == k) else (TP if g == 0 or ts < TFWD else 9)
         if ts >= TFWD - 1e-6 and (G % 2) == k: e = 0.0 if rew == 0 else 9
-        if e < .5: T.add_glow(buf, GF, F[k][0], F[k][1], (255, 255, 255), min(.95, .35 + .05 * g) * math.exp(-e / .12))
+        if e < .4: T.add_glow(buf, GS, F[k][0], F[k][1], (255, 255, 255), .45 * math.exp(-e / .10))                       # 焦点に集まった瞬間だけ、小さく光る
     ov = Image.new("RGBA", (W, H), (0, 0, 0, 0)); dr = ImageDraw.Draw(ov)
     for k in (0, 1): dr.ellipse([F[k][0] - 9, F[k][1] - 9, F[k][0] + 9, F[k][1] + 9], outline=(255, 255, 255, 235), width=3)
-    if n <= 64:
-        for i in range(n): dr.ellipse([hx[i] - 5.5, hy[i] - 5.5, hx[i] + 5.5, hy[i] + 5.5], fill=(255, 255, 255, 255))
     if g < 2 and rew == 0:                                                 # はじめだけ「焦点」と書く
         al = int(255 * (1 - T.sstep(2.6, 3.6, ts)))
         for k in (0, 1): dr.text((F[k][0] + 22, F[k][1] - 2), T.tr("焦点", "focus"), font=T.fnt(30, False), fill=(214, 222, 244, al), anchor="lm", stroke_width=3, stroke_fill=(7, 8, 20, al))
@@ -101,8 +101,8 @@ def frame_at(ts, rew=0.0):
             if ta <= ts < tb: cap = (s_, min(1, (ts - ta) / .3) * min(1, (tb - ts) / .35), (255, 232, 170, 255))
     if cap: T.fit_text(dr, (W / 2, 1752), cap[0], 44, 1010, cap[2][:3] + (int(255 * cap[1]),))
     return np.asarray(Image.alpha_composite(Image.fromarray(T.to_frame(buf, None, grain=int(ts * FPS))).convert("RGBA"), ov).convert("RGB"))
-CAPS = [(2.2, 7.6, T.tr("楕円では、どの向きの光も同じ瞬間に次の焦点に着く", "In an ellipse, every ray reaches the other focus at the same moment")),
-        (8.2, 13.6, T.tr("着くたびに、光の数は2倍", "Every arrival doubles the number of rays"))]
+CAPS = [(2.6, 8.4, T.tr("楕円では、どの向きの光も同じ瞬間に次の焦点に着く", "In an ellipse, every ray reaches the other focus at the same moment")),
+        (9.0, 17.0, T.tr("着くたびに、光の数は2倍", "Every arrival doubles the number of rays"))]
 def sim_time(t):
     """動画の時刻 → 中の時刻。進む（TFWD まで）→ 止まる（HOLD）→ 早回しでもどる（TREW）。最後は 0 にもどるので、頭につながる"""
     if t <= TFWD: return t, 0.0
@@ -120,7 +120,7 @@ def audio(path):
         if g >= 1: a.note(g * TP, K.CANON[g % 8][0] + 24, vel=min(.62, .36 + .02 * g), pan=.5)                                                  # 焦点に集まった瞬間（全部が1点でぶつかる）
     a.note(TFWD, K.CANON[G % 8][0] + 24, vel=.62, pan=.5); tmp = path + ".fwd.wav"
     import loopkit as L; ns = int(T.SR * fwd)
-    under = L.heartbeat([(g * TP + k * TP / 2, K.CANON[g % 8][0]) for g in range(G) for k in (0, 1)] + [(TFWD, K.CANON[G % 8][0])], ns, T.SR, .085)   # 隠し味の鼓動（持ち主 11/28「グルーブではなくて調和」）：和音の根音で、和音1つに2拍
+    under = None                                                           # 鼓動は入れない（持ち主 11/28「鼓動はいらないかも」）   # 隠し味の鼓動（持ち主 11/28「グルーブではなくて調和」）：和音の根音で、和音1つに2拍
     n = a.write(tmp, under=under)
     with wave.open(tmp) as w: x = np.frombuffer(w.readframes(w.getnframes()), np.int16).reshape(-1, 2).astype(np.float32) / 32768
     os.remove(tmp); sr = T.SR; n_out = int(sr * TREW); pitch = 2.6; mono = x[: int(sr * TFWD)].mean(1)[::-1]; n_mid = int(n_out * pitch)             # 巻きもどしの音：それまでの音を逆向きに早回し
@@ -137,9 +137,9 @@ if __name__ == "__main__":
     cmd = sys.argv[1] if len(sys.argv) > 1 else "all"; os.makedirs("build_ellipray", exist_ok=True)
     print("長さ", round(DUR, 2), "世代", G, "最後の光の数", GEN[-1]["n"], "速さ(px/秒)", round(V), "材質", MAT)
     if cmd == "lit":                                                       # 世代ごとの「うまった」
-        for g in range(G + 1): print(g, GEN[min(g, G - 1)]["n"], round(100 * float((mask_at(g).astype(np.float32) / 255)[INS].sum()) / NIN, 2))
+        for g in range(G + 1): print(g, GEN[min(g, G - 1)]["n"], round(100 * float((mask_at(g)[INS] > .35).sum()) / NIN, 1), round(float((1 - np.exp(-KD * mask_at(g)))[INS].mean()), 3))
         sys.exit()
-    if cmd == "stills": print(T.stills(NF, make_frame, "build_ellipray/s", at=(1.2 / DUR, 7.0 / DUR, 15.0 / DUR, 21.3 / DUR, (TFWD + .5) / DUR, (TFWD + HOLD + .55 * TREW) / DUR))); sys.exit()
+    if cmd == "stills": print(T.stills(NF, make_frame, "build_ellipray/s", at=(5.0 / DUR, 19.0 / DUR, 26.5 / DUR, 33.0 / DUR, 40.0 / DUR, (TFWD + .5) / DUR))); sys.exit()
     if cmd == "zoom":
         for name, tt_, box in (("a", 5.2, (0, 240, 1080, 1700)), ("b", 17.3, (0, 240, 1080, 1700)), ("c", TFWD + .4, (0, 240, 1080, 1700))): Image.fromarray(make_frame(int(tt_ * FPS))).crop(box).save(f"build_ellipray/z_{name}.png")
         sys.exit()

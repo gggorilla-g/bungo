@@ -17,36 +17,41 @@ import loopkit as L
 
 W, H, FPS = T.W, T.H, T.FPS
 MAT = os.environ.get("MAT", "wood"); SEED = int(os.environ.get("SEED", "0"))
-CX, CY, RC = 540.0, 980.0, 480.0; RB, VB = 21.0, 330.0; SUB = 4; KEAT = .55   # 円、青い玉の半径と速さ、1コマを何回に分けて計算するか、飲みこんだ面積のうち穴がふえる割合
-TMAX = 52.0; NMAX = 400
+CX, CY, RC = 540.0, 980.0, 480.0; RB = 30.0; GV = float(os.environ.get("GV", "1100")); SUB = 4; KEAT = float(os.environ.get("KEAT", ".16"))   # 円、青い玉の半径、重力、1コマの計算回数、飲みこんだ面積のうち穴がふえる割合
+GOAL = int(os.environ.get("GOAL", "60")); VH = float(os.environ.get("VH", "50")); PULL = 260.0; TMAX = 58.0; NMAX = 160            # 青が GOAL 個になったら青の勝ち。穴の速さ（一定・まっすぐ）、穴のそばで玉が引かれる強さ
+#   持ち主 11/28 の直し：「黒玉の成長が急すぎる…青玉が小さくて早すぎる。青玉の増殖点は中央で、もっとバウンド的な動き。黒玉はもっと直線的でゆっくりだが青玉の抵抗はさほど受けない。
+#     どっちが勝つのかハラハラ感がほしい。あと多少吸い込まれてる感はほんの少し欲しい」
+#   → 青い玉は大きく（半径30）、重力で落ちて円の壁で はね返る（エネルギーは減らない）。壁に当たるたびに、まん中から新しい玉が1つ生まれる（まん中が空いている時だけ）
+#     黒い穴は一定の速さでまっすぐ進み、壁でだけ向きが変わる（玉を飲んでも曲がらない）。飲んだ面積の2割だけ大きくなる。穴のそばの玉は、少しだけ引き寄せられる
+#     青が100個になれば青の勝ち、0個になれば黒の勝ち
 
 def simulate(seed, tmax=TMAX, record=True):
     rng = np.random.default_rng(seed); dt = 1 / (FPS * SUB)
     P = np.zeros((NMAX, 2)); Vv = np.zeros((NMAX, 2)); alive = np.zeros(NMAX, bool); born = np.zeros(NMAX)
-    a0 = rng.uniform(0, 2 * np.pi); P[0] = (CX, CY + 160); Vv[0] = VB * np.array([math.cos(a0), math.sin(a0)]); alive[0] = True
-    bp = np.array([CX - 250.0, CY - 120.0]); a1 = rng.uniform(0, 2 * np.pi); bv = 120 * np.array([math.cos(a1), math.sin(a1)]); br = 9.0; bm = 1.0
-    frames = []; ev = []; t = 0.0; nf = int(tmax * FPS); counts = []; done_at = None
+    P[0] = (CX, CY); Vv[0] = (rng.uniform(-120, 120), 0); alive[0] = True
+    a1 = rng.uniform(0, 2 * np.pi); bp = np.array([CX, CY]) + 300 * np.array([math.cos(a1), math.sin(a1)]); a2 = rng.uniform(0, 2 * np.pi); bv = VH * np.array([math.cos(a2), math.sin(a2)]); br = 16.0
+    frames = []; ev = []; eaten = []; t = 0.0; nf = int(tmax * FPS); counts = []; done_at = None; winner = None
     for fi in range(nf):
         for _ in range(SUB):
             t += dt; idx = np.where(alive)[0]
+            Vv[idx, 1] += GV * dt
+            if len(idx):                                                  # 穴のそばの玉は少し引かれる（吸いこまれる感じ）
+                rel = bp - P[idx]; dd = np.hypot(rel[:, 0], rel[:, 1]) + 1e-6; near = dd < br * 2.6 + RB
+                Vv[idx[near]] += (rel[near] / dd[near, None]) * PULL * dt * (1 - (dd[near] - br) / (br * 1.6 + RB)).clip(0, 1)[:, None]
             P[idx] += Vv[idx] * dt; bp += bv * dt
-            # 穴と壁
-            d = np.hypot(*(bp - (CX, CY)))
+            d = math.hypot(*(bp - (CX, CY)))
             if d > RC - br:
                 nrm = (bp - (CX, CY)) / d; bp -= nrm * (d - (RC - br)); vn = bv @ nrm
                 if vn > 0: bv -= 2 * vn * nrm
-            # 青と壁 → 生まれる
             if len(idx):
                 rel = P[idx] - (CX, CY); dd = np.hypot(rel[:, 0], rel[:, 1]); hit = dd > RC - RB
                 for j in np.where(hit)[0]:
                     i = idx[j]; nrm = rel[j] / dd[j]; P[i] -= nrm * (dd[j] - (RC - RB)); vn = Vv[i] @ nrm
                     if vn <= 0: continue
                     Vv[i] -= 2 * vn * nrm; ev.append((t, "wall", float(P[i][1]), i))
-                    q = P[i] - nrm * (2.3 * RB)                                   # 生まれる場所：当たった所の少し内側
-                    free = np.where(~alive)[0]
-                    if len(free) and np.all(np.hypot(*(P[alive] - q).T) > 2.05 * RB) and np.hypot(*(q - bp)) > br + RB + 4:
-                        k = free[0]; ang = math.atan2(-nrm[1], -nrm[0]) + rng.uniform(-.9, .9); P[k] = q; Vv[k] = VB * np.array([math.cos(ang), math.sin(ang)]); alive[k] = True; born[k] = t
-            # 青どうし
+                    q = np.array([CX, CY]); free = np.where(~alive)[0]
+                    if len(free) and np.all(np.hypot(*(P[alive] - q).T) > 2.1 * RB) and math.hypot(*(q - bp)) > br + RB + 6:
+                        k = free[0]; P[k] = q; Vv[k] = (rng.uniform(-150, 150), rng.uniform(-260, -60)); alive[k] = True; born[k] = t; ev.append((t, "born", CY, k))
             idx = np.where(alive)[0]
             if len(idx) > 1:
                 Q = P[idx]; D = Q[:, None] - Q[None]; R2 = (D ** 2).sum(-1); ii, jj = np.where(np.triu(R2 < (2 * RB) ** 2, 1))
@@ -54,26 +59,22 @@ def simulate(seed, tmax=TMAX, record=True):
                     i, j = idx[a_], idx[b_]; dv = P[i] - P[j]; dist = math.hypot(*dv) + 1e-9; nrm = dv / dist; ov = 2 * RB - dist
                     P[i] += nrm * ov / 2; P[j] -= nrm * ov / 2; rv = (Vv[i] - Vv[j]) @ nrm
                     if rv < 0: Vv[i] -= rv * nrm; Vv[j] += rv * nrm
-                sp = np.hypot(Vv[idx, 0], Vv[idx, 1]) + 1e-9; Vv[idx] *= (VB / sp)[:, None]
-            # 穴が飲みこむ
             if len(idx):
-                dd = np.hypot(*(P[idx] - bp).T); eat = idx[dd < br + RB * .35]
+                dd = np.hypot(*(P[idx] - bp).T); eat = idx[dd < br + RB * .2]
                 for i in eat:
-                    alive[i] = False; br = math.sqrt(br * br + KEAT * RB * RB); m_ = bm; bm += 1.0; bv = (bv * m_ + Vv[i] * .25) / bm; ev.append((t, "eat", br, i))
-                    sp = math.hypot(*bv); vmax = 120 / (1 + br / 60)
-                    if sp > vmax: bv *= vmax / sp
-                    if sp < vmax * .5: ang = rng.uniform(0, 2 * np.pi); bv = vmax * .5 * np.array([math.cos(ang), math.sin(ang)])
+                    alive[i] = False; br = math.sqrt(br * br + KEAT * RB * RB); ev.append((t, "eat", br, i)); eaten.append((t, P[i].copy(), i))
         n = int(alive.sum()); counts.append(n)
         if record: frames.append((P[alive].copy(), born[alive].copy(), bp.copy(), br))
-        if done_at is None and n == 0 and fi > FPS * 5: done_at = t
+        if winner is None and n >= GOAL: winner, done_at = "blue", t
+        if winner is None and n == 0 and fi > FPS * 3: winner, done_at = "black", t
         if done_at is not None and t > done_at + .05: break
-    return dict(frames=frames, ev=ev, counts=np.array(counts), done=done_at)
+    return dict(frames=frames, ev=ev, eaten=eaten, counts=np.array(counts), done=done_at, winner=winner)
 
 def score(r):
     c = r["counts"]
     if r["done"] is None: return -1e9, "終わらない"
     tpk = int(np.argmax(c)) / FPS
-    return -abs(r["done"] - 44) * 2 - abs(tpk - 24) + min(c.max(), 140) / 10, f"終わり {r['done']:.1f}s 山 {c.max()} 個 @ {tpk:.1f}s"
+    return -abs(r["done"] - 46) * 1.5 + min(c.max(), GOAL - 4) / 6 - (0 if r["winner"] == "black" else 20), f"{r['winner']} の勝ち {r['done']:.1f}s 山 {c.max()} 個 @ {tpk:.1f}s"
 
 if __name__ == "__main__" and len(sys.argv) > 1 and sys.argv[1] == "search":
     res = []
@@ -81,7 +82,7 @@ if __name__ == "__main__" and len(sys.argv) > 1 and sys.argv[1] == "search":
         r = simulate(s, record=False); sc, info = score(r); res.append((sc, s, info)); print(s, info, flush=True)
     print(sorted(res)[-5:]); sys.exit()
 
-R = simulate(SEED); FR = R["frames"]; TEND = len(FR) / FPS; HOLD, TREW = 1.0, 1.6; DUR = TEND + HOLD + TREW; NF = int(round(DUR * FPS)); CNT = R["counts"]
+R = simulate(SEED); FR = R["frames"]; EAT = R["eaten"]; ET = np.array([e[0] for e in EAT] + [1e9]); TEND = len(FR) / FPS; HOLD, TREW = 1.0, 1.6; DUR = TEND + HOLD + TREW; NF = int(round(DUR * FPS)); CNT = R["counts"]
 
 yy, xx = np.mgrid[0:H, 0:W].astype(np.float32); DR = np.hypot(xx - CX, yy - CY)
 def make_bg():
@@ -111,20 +112,24 @@ def frame_at(ts, rew=0.0):
         g = min(1.0, (ts - b) / .18) if ts >= b else 1.0
         sp = SPB if g >= .999 else cv2.resize(SPB, (max(2, int(SPB.shape[1] * g)), max(2, int(SPB.shape[0] * g))))
         T.blit(buf, sp, x, y)
+    for te, pe, i in EAT[max(0, int(np.searchsorted(ET, ts - .4))):int(np.searchsorted(ET, ts, "right"))]:   # 飲まれた玉：0.4秒かけて、縮みながら穴の中心へ吸いこまれる
+        u = (ts - te) / .4; c = pe + (bp - pe) * u ** 1.6; g = (1 - u) ** 1.3
+        if g > .05: T.blit(buf, cv2.resize(SPB, (max(2, int(SPB.shape[1] * g)), max(2, int(SPB.shape[0] * g)))), c[0], c[1])
     rgb, sh = hole(br); h, w = sh.shape; x0, y0 = int(round(bp[0] - w / 2)), int(round(bp[1] - h / 2)); xa, ya, xb, yb = max(0, x0), max(0, y0), min(W, x0 + w), min(H, y0 + h)
     reg = buf[ya:yb, xa:xb]; s_ = sh[ya - y0:yb - y0, xa - x0:xb - x0, None]; reg[:] = reg * (1 - s_); inside = np.clip(RC + 3 - DR[ya:yb, xa:xb], 0, 1)[..., None]   # 光は円の内側だけ
     reg[:] = 1 - (1 - reg) * (1 - np.clip(rgb[ya - y0:yb - y0, xa - x0:xb - x0], 0, 1) * inside)
     ov = Image.new("RGBA", (W, H), (0, 0, 0, 0)); d = ImageDraw.Draw(ov); n = len(P); done = ts >= TEND - 1e-6
-    T.fit_text(d, (W / 2, 140), T.tr("ブラックホールは、全部食べきれる？", "Can the black hole eat them all?"), 60, 1000, INK)
-    T.fit_text(d, (W / 2, 214), T.tr("青い玉は、壁に当たるたびにふえる", "Each blue ball multiplies when it hits the wall"), 42, 1000, GOLD)
-    d.text((W / 2, 300), T.tr(f"青い玉 {n}個", f"Blue balls: {n}"), font=T.fnt(50), fill=BLUE, anchor="mm")
-    gx0, gx1, gy0, gy1 = 120, 960, 1520, 1690; d.rectangle([gx0, gy0, gx1, gy1], outline=(90, 104, 140, 160), width=2)   # 青い玉の数のグラフ（ここまでの分）
-    top = max(10, int(CNT.max() * 1.1)); k = fi + 1; xs = np.linspace(gx0, gx1, len(CNT))[:k]; ys = gy1 - (gy1 - gy0) * CNT[:k] / top
+    T.fit_text(d, (W / 2, 132), T.tr(f"青が{GOAL}個になる前に、ブラックホールは食べきれる？", f"Can the black hole eat them all before blue reaches {GOAL}?"), 52, 1010, INK)
+    T.fit_text(d, (W / 2, 204), T.tr("青い玉は、壁に当たるたびに まん中からふえる", "Every wall bounce adds a new blue ball at the centre"), 40, 1010, GOLD)
+    d.text((W / 2, 290), T.tr(f"青い玉 {n} / {GOAL}", f"Blue balls: {n} / {GOAL}"), font=T.fnt(54), fill=BLUE, anchor="mm")
+    bx0, bx1 = 240, 840; d.rounded_rectangle([bx0, 330, bx1, 346], radius=8, fill=(40, 52, 84, 255)); d.rounded_rectangle([bx0, 330, bx0 + (bx1 - bx0) * min(1, n / GOAL), 346], radius=8, fill=BLUE)   # 青の勝ちまでの残り
+    gx0, gx1, gy0, gy1 = 120, 960, 1530, 1690; d.rectangle([gx0, gy0, gx1, gy1], outline=(90, 104, 140, 160), width=2)   # 青い玉の数のグラフ（ここまでの分）
+    top = GOAL; d.line([(gx0, gy0), (gx1, gy0)], fill=(120, 180, 255, 120), width=1); k = fi + 1; xs = np.linspace(gx0, gx1, len(CNT))[:k]; ys = gy1 - (gy1 - gy0) * CNT[:k] / top
     if k > 1: d.line(list(zip(xs[::2].tolist(), ys[::2].tolist())) + [(float(xs[-1]), float(ys[-1]))], fill=BLUE, width=3)
     d.text((gx0, gy0 - 12), T.tr("青い玉の数", "Blue balls over time"), font=T.fnt(28, False), fill=(176, 186, 214, 255), anchor="lb")
     cap = None
     if rew > 0: cap = (T.tr("◀◀ 巻きもどし", "◀◀ Rewind"), INK)
-    elif done: cap = (T.tr(f"黒の勝ち。いちばん多い時は {CNT.max()}個", f"Black wins. Blue peaked at {CNT.max()}"), (255, 232, 170, 255))
+    elif done: cap = ((T.tr(f"黒の勝ち。青はいちばん多い時で {CNT.max()}個", f"Black wins. Blue peaked at {CNT.max()}") if R["winner"] == "black" else T.tr(f"青の勝ち。{GOAL}個になった", f"Blue wins: it reached {GOAL}")), (255, 232, 170, 255))
     if cap: T.fit_text(d, (W / 2, 1780), cap[0], 46, 1000, cap[1])
     return np.asarray(Image.alpha_composite(Image.fromarray(T.to_frame(buf, None, grain=fi)).convert("RGBA"), ov).convert("RGB"))
 def make_frame(fi):
@@ -141,7 +146,8 @@ def audio(path):
         if t - le < .09: continue
         le = t; a.note(t, K.canon_tones(a.chord_index(t), 45, 64)[0], vel=.62, pan=.5)
     ns = int(T.SR * fwd); under = K.pad([(r, r + 12, f5 + 12) for (r, t3, f5) in K.CANON], 2.4, fwd + 1, .022)[:ns]
-    under += L.heartbeat([(c * 2.4 + h * 1.2, K.CANON[c % 8][0]) for c in range(int(fwd / 2.4) + 1) for h in (0, 1)], ns, T.SR, .085)
+    # 鼓動は入れない（持ち主 11/28「鼓動はいらないかも」）
+    if False: under += L.heartbeat([(c * 2.4 + h * 1.2, K.CANON[c % 8][0]) for c in range(int(fwd / 2.4) + 1) for h in (0, 1)], ns, T.SR, .085)
     tmp = path + ".fwd.wav"; a.write(tmp, room=(.05, .4), under=under); L.add_rewind(tmp, path, TEND, HOLD, TREW, gain=.55); os.remove(tmp)
 
 if __name__ == "__main__":
