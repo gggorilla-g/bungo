@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """release.py — 見本を見せた動画を、公開予約つきで上げる（docs/trend-pipeline.md の「6 上げる」）
 
-  python3 tools/trend/release.py [--at 2026-11-28T12:00:00Z | --now] [--dry]
+  python3 tools/trend/release.py [--at 2026-11-28T12:00:00Z | --now] [--only <id のはじめの文字>] [--dry]
+    --only：持ち主が先に「上げていい」と言った動画だけを上げる時に使う（ほかは順番待ちに残る）
 
 順番待ち：nazo/trend/queue.jsonl（1行1本）
   {"id": "tiles1_ja", "kit": "nazo/manual/tiles/tiles1_ja_upload.txt", "ch": "MOSO", "lang": "ja", "build": "python3 tools/tiles.py all", "shown": "2026-11-27"}
@@ -40,13 +41,14 @@ def held():
 def main():
     at = "" if "--now" in sys.argv else sys.argv[sys.argv.index("--at") + 1] if "--at" in sys.argv else default_at(); dry = "--dry" in sys.argv
     rows = [json.loads(l) for l in open(Q, encoding="utf-8") if l.strip()] if os.path.exists(Q) else []
-    keep = []; full = set(); done = []; hold = held()
+    keep = []; full = set(); done = []; hold = held(); only = sys.argv[sys.argv.index("--only") + 1] if "--only" in sys.argv else ""
     jst = datetime.datetime.strptime(at, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=datetime.timezone.utc).astimezone(ZoneInfo("Asia/Tokyo")) if at else datetime.datetime.now(ZoneInfo("Asia/Tokyo"))
     when = f"{jst:%m/%d %H:%M} JST に公開予約" if at else "すぐ公開"
     print(f"公開：{when} 順番待ち {len(rows)} 本")
     for r in rows:
         vid, ch = r["id"], r["ch"]; mp4 = os.path.join(ROOT, "output", vid + ".mp4")
         if vid in hold: print(f"外す：{vid}（hold.txt にある＝持ち主が止めた）"); continue
+        if only and not vid.startswith(only): keep.append(r); continue
         if ch in full: keep.append(r); print(f"残す：{vid}（{ch} は上限）"); continue
         if not os.path.exists(mp4) or stale(mp4, r["build"]):
             print(f"作り直す：{vid}（{r['build']}）", flush=True); subprocess.run(r["build"], shell=True, cwd=ROOT, stdin=subprocess.DEVNULL)
