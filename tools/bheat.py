@@ -16,9 +16,9 @@ import kalimba as K
 import loopkit as L
 
 W, H, FPS = T.W, T.H, T.FPS
-MAT = os.environ.get("MAT", "wood"); SEED = int(os.environ.get("SEED", "14"))
-CX, CY, RC = 540.0, 980.0, 480.0; RB = 30.0; GV = float(os.environ.get("GV", "300")); SUB = 4; KEAT = float(os.environ.get("KEAT", ".10"))   # 円、青い玉の半径、重力、1コマの計算回数、飲みこんだ面積のうち穴がふえる割合
-GOAL = int(os.environ.get("GOAL", "60")); CR = float(os.environ.get("CR", "1.0")); VH = float(os.environ.get("VH", "50")); PULL = 260.0; TMAX = 58.0; NMAX = 160            # 青が GOAL 個になったら青の勝ち。穴の速さ（一定・まっすぐ）、穴のそばで玉が引かれる強さ
+MAT = os.environ.get("MAT", "wood"); SEED = int(os.environ.get("SEED", "12"))
+CX, CY, RC = 540.0, 980.0, 480.0; RB = 30.0; GV = float(os.environ.get("GV", "300")); SUB = 4; KEAT = float(os.environ.get("KEAT", ".16"))   # 円、青い玉の半径、重力、1コマの計算回数、飲みこんだ面積のうち穴がふえる割合
+GOAL = int(os.environ.get("GOAL", "60")); CR = float(os.environ.get("CR", "1.0")); BB = os.environ.get("BB", "1") == "1"; VH = float(os.environ.get("VH", "50")); PULL = 260.0; TMAX = 58.0; NMAX = 160            # 青が GOAL 個になったら青の勝ち。穴の速さ（一定・まっすぐ）、穴のそばで玉が引かれる強さ
 #   持ち主 11/28 の直し：「黒玉の成長が急すぎる…青玉が小さくて早すぎる。青玉の増殖点は中央で、もっとバウンド的な動き。黒玉はもっと直線的でゆっくりだが青玉の抵抗はさほど受けない。
 #     どっちが勝つのかハラハラ感がほしい。あと多少吸い込まれてる感はほんの少し欲しい」
 #   → 青い玉は大きく（半径30）、重力で落ちて円の壁で はね返る（エネルギーは減らない）。壁に当たるたびに、まん中から新しい玉が1つ生まれる（まん中が空いている時だけ）
@@ -58,7 +58,11 @@ def simulate(seed, tmax=TMAX, record=True):
                 for a_, b_ in zip(ii, jj):
                     i, j = idx[a_], idx[b_]; dv = P[i] - P[j]; dist = math.hypot(*dv) + 1e-9; nrm = dv / dist; ov = 2 * RB - dist
                     P[i] += nrm * ov / 2; P[j] -= nrm * ov / 2; rv = (Vv[i] - Vv[j]) @ nrm
-                    if rv < 0: Vv[i] -= rv * nrm; Vv[j] += rv * nrm
+                    if rv < 0:
+                        Vv[i] -= rv * nrm; Vv[j] += rv * nrm; ev.append((t, "wall", float(P[i][1]), i))       # 青どうしがぶつかっても、まん中からふえる（11/28「青同士がぶつかっても増殖しようか」）
+                        q = np.array([CX, CY]); free = np.where(~alive)[0]
+                        if BB and len(free) and math.hypot(*(q - bp)) > br + RB + 6 and np.all(np.hypot(*(P[alive] - q).T) > CR * RB):
+                            k = free[0]; P[k] = q; Vv[k] = (rng.uniform(-150, 150), rng.uniform(-260, -60)); alive[k] = True; born[k] = t; ev.append((t, "born", CY, k))
             if len(idx):
                 dd = np.hypot(*(P[idx] - bp).T); eat = idx[dd < br + RB * .2]
                 for i in eat:
@@ -120,7 +124,7 @@ def frame_at(ts, rew=0.0):
     reg[:] = 1 - (1 - reg) * (1 - np.clip(rgb[ya - y0:yb - y0, xa - x0:xb - x0], 0, 1) * inside)
     ov = Image.new("RGBA", (W, H), (0, 0, 0, 0)); d = ImageDraw.Draw(ov); n = len(P); done = ts >= TEND - 1e-6
     T.fit_text(d, (W / 2, 132), T.tr(f"青が{GOAL}個になる前に、ブラックホールは食べきれる？", f"Can the black hole eat them all before blue reaches {GOAL}?"), 52, 1010, INK)
-    T.fit_text(d, (W / 2, 204), T.tr("青い玉は、壁に当たるたびに まん中からふえる", "Every wall bounce adds a new blue ball at the centre"), 40, 1010, GOLD)
+    T.fit_text(d, (W / 2, 204), T.tr("青い玉は、壁や青どうしにぶつかるたびに まん中からふえる", "Every bounce off the wall or another blue ball adds one at the centre"), 40, 1010, GOLD)
     d.text((W / 2, 290), T.tr(f"青い玉 {n} / {GOAL}", f"Blue balls: {n} / {GOAL}"), font=T.fnt(54), fill=BLUE, anchor="mm")
     bx0, bx1 = 240, 840; d.rounded_rectangle([bx0, 330, bx1, 346], radius=8, fill=(40, 52, 84, 255)); d.rounded_rectangle([bx0, 330, bx0 + (bx1 - bx0) * min(1, n / GOAL), 346], radius=8, fill=BLUE)   # 青の勝ちまでの残り
     gx0, gx1, gy0, gy1 = 120, 960, 1530, 1690; d.rectangle([gx0, gy0, gx1, gy1], outline=(90, 104, 140, 160), width=2)   # 青い玉の数のグラフ（ここまでの分）

@@ -44,13 +44,14 @@ def polys(g, d):
         out.append(np.array([f0, np.round(Hd[i] * 8)] if pre[i] else [f0, np.round(P[i] * 8), np.round(Hd[i] * 8)], np.int32))
     return out, hx, hy
 MK = [np.zeros((H, W), np.float32)]                                     # MK[g]＝世代 g がはじまる時までに、光が何回通ったか（重なるほど大きい）
-def layer(pl):
-    m = np.zeros((H, W), np.uint8); cv2.polylines(m, pl, False, 255, LW, cv2.LINE_AA, 3); return m.astype(np.float32) / 255
+def LWG(g): return 1 + g // 5                                           # 軌跡の太さ：段階が進むごとに少しずつ太く（1→4px）（11/28「軌跡をほんのちょっとずつ太くしてもいい」）
+def layer(pl, g=0):
+    m = np.zeros((H, W), np.uint8); cv2.polylines(m, pl, False, 255, LWG(g), cv2.LINE_AA, 3); return m.astype(np.float32) / 255
 def mask_at(g):
     while len(MK) <= g:
-        k = len(MK) - 1; MK.append(MK[k] + WG(k) * layer(polys(k, 2 * A)[0]))
+        k = len(MK) - 1; MK.append(MK[k] + WG(k) * layer(polys(k, 2 * A)[0], k))
     return MK[g]
-KD = .32                                                                # 明るさ＝1−exp(−KD×通った回数)
+KD = .48                                                                # 明るさ＝1−exp(−KD×通った回数)
 def WG(g): return max(1.0, 4.0 * .78 ** g)                                 # 光が少ないうちは1本を明るく（はじめが暗すぎないように）
 
 yy, xx = np.mgrid[0:H, 0:W].astype(np.float32); EL = ((xx - CX) / B) ** 2 + ((yy - CY) / A) ** 2; INS = EL < 1.0
@@ -69,7 +70,7 @@ INK = (244, 246, 255, 255); GOLD = (255, 222, 150, 255); SOFT = (176, 186, 214, 
 def frame_at(ts, rew=0.0):
     """ts＝動画の中の時刻（0〜TFWD）。巻きもどし中は ts が小さくなっていく（rew＝巻きもどしの進み 0〜1。字のためだけに使う）"""
     g = min(G - 1, int(ts // TP)); d = min(2 * A, V * (ts - g * TP)); q = GEN[g]; acc = mask_at(g); pl, hx, hy = polys(g, d)
-    if d > .5: acc = acc + WG(g) * layer(pl)
+    if d > .5: acc = acc + WG(g) * layer(pl, g)
     mf = 1 - np.exp(-KD * acc); lit = 100 * float((acc[INS] > .35).sum()) / NIN                                                          # うまった＝1回でも通った所
     a = mf[..., None]; buf = BG * (1 - a) + RB * a
     # 光の頭：同時に出たので、焦点を中心にした輪（波の面）になって進む
