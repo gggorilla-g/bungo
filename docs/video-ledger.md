@@ -795,3 +795,5 @@
 - 2026-11-27 妄想 cZHy3uGJRPM は「長すぎるため削除」（妄想は電話番号の確認が未完了＝15分まで）。MIW は21分の BHtQwMkA770 が再生できる
 - 2026-11-27 妄想 race1_ja 2FMEmZcv6VA（倍々サバイバル玉レース 8:47、tools/race.py SEED 2、音＝参考録画に寄せた澄んだ音＋カノン進行の持続音）
 - 2026-11-27 妄想 laser1_ja P1ZwAZCp-bA（光の線で玉が2つに、ばねでつった台をRK4、tools/laser.py SEED 7。オーナー参考録画11/27）
+- 2026-11-27 MIW laser1_en YNdEb3Ity1U / race1_en jTR83p75dys（妄想版の英語、文字の差しかえのみ）
+- 2026-11-27 妄想 順番待ちから domino2_ja TgZvgbbSz5A / dots3_ja ywH8EwoZgRc
