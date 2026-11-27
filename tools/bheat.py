@@ -98,8 +98,9 @@ def hole(br):
     """ブラックホール：まっ黒な影、そのふちの細い光の輪、外へやわらかく広がる光"""
     k = int(round(br * 2))
     if k not in _hole:
-        r = k / 2; n = int(r * 7.0 + 60); c = np.arange(n, dtype=np.float32) - n / 2 + .5; X, Y = np.meshgrid(c, c); d = np.hypot(X, Y)
-        ring = np.exp(-((d - r * 1.06) / max(1.2, r * .035)) ** 2); halo = np.exp(-np.clip(d - r, 0, None) / max(4, r * .45)) * (d > r) * .55
+        if len(_hole) > 6: _hole.clear()                                    # 大きい絵をためこまない（メモリ）
+        r = k / 2; hl = min(60.0, max(4, r * .45)); n = int(2 * r + 10 * hl + 40); c = np.arange(n, dtype=np.float32) - n / 2 + .5; X, Y = np.meshgrid(c, c); d = np.hypot(X, Y)
+        ring = np.exp(-((d - r * 1.06) / max(1.2, r * .035)) ** 2); halo = np.exp(-np.clip(d - r, 0, None) / hl) * (d > r) * .55
         rgb = (ring[..., None] * np.array([1.0, .86, .62]) + halo[..., None] * np.array([1.0, .55, .25]) * .55).astype(np.float32)
         shadow = np.clip(r + .5 - d, 0, 1); _hole[k] = (rgb, shadow.astype(np.float32))
     return _hole[k]

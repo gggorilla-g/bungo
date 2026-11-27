@@ -5,6 +5,7 @@
 64 stars drop one by one from the tube, roll down the zigzag slopes and fall into the half-round bowl below.
 
 - The stars roll under gravity and collide with each other, the slopes and the walls
+- The bowl fills up and the last star gets pushed out: 63 of 64 stay in
 - A sound plays when a star hits hard (higher spots sound higher). Glass tone with echo, Canon chord progression, a soft heartbeat underneath
 - At the end it rewinds at high speed and loops back to the start
 
