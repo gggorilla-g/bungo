@@ -51,7 +51,8 @@ def build():
         for k in range(NP):
             L.append((t, .16, oc[k], oc[(k + m) % NP], col, k / NP, 2)); t += dt; dt = max(.034, dt * .985)   # だんだん速く
     return L, TA, TB, t, C, sp, oc, mid, zz
-LINES, TA, TB, TEND, C0, SPOKES, OCT, MIDS, ZZ = build(); TEND += .3; DUR = TEND + 3.2; NF = int(DUR * FPS)
+LINES, TA, TB, TEND, C0, SPOKES, OCT, MIDS, ZZ = build(); TEND += .3; DUR = TEND + 2.8;   # 最後は白紙にもどり頭につながる（ループ。持ち主 11/28「基本的にはループ構造ね」）
+NF = int(DUR * FPS)
 
 def paper():
     rng = np.random.default_rng(3); a = np.full((H * SS, W * SS, 3), PAPER, np.float32)
@@ -101,8 +102,16 @@ def make_frame(fi):
     for tb in (TA, TB):                                                                         # 区間の変わり目：紙がふわっと替わる
         if tb - .35 < t < tb + .35: arr = arr * (.55 + .45 * abs(t - tb) / .35) + PAPER[0] * (1 - (.55 + .45 * abs(t - tb) / .35))
     if t > TEND: g = .10 * math.exp(-(t - TEND) * 1.5); arr = arr * (1 - g) + 255 * g
-    g = min(T.sstep(0, .2, t), 1 - T.sstep(DUR - .8, DUR, t))
-    return np.clip(arr * g, 0, 255).astype(np.uint8)
+    if t > DUR - 1.1:                                                                            # 最後の1.1秒で、最初の画面（白紙・線0本）にもどる
+        e = T.sstep(DUR - 1.1, DUR - .05, t); arr = arr * (1 - e) + first_frame() * e
+    return np.clip(arr, 0, 255).astype(np.uint8)
+FIRST = []
+def first_frame():
+    if not FIRST:
+        b = base_for(0).resize((W, H), Image.LANCZOS); d4 = ImageDraw.Draw(b, "RGBA")
+        T.fit_text(d4, (W / 2, 175), T.tr("まっすぐな線だけで、曲線は描ける？", "Can straight lines draw a curve?"), 56, 840, (40, 42, 52, 255))
+        d4.text((W / 2, 1720), T.tr("線 0 本", "0 lines"), font=T.fnt(48), fill=(70, 72, 84, 255), anchor="mm"); FIRST.append(np.asarray(b).astype(np.float32))
+    return FIRST[0]
 
 def audio(path):
     a = T.Audio(DUR, mat="stone", max_same=3, window=.03, chord_len=2.4)
