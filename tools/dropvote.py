@@ -8,7 +8,7 @@
 #     #4 y = 2e^(−3·mod(x,1)) − 1                 … 拍ごとに1オクターブ上からすべり落ちる（808）
 #     #5 y = sgn(sin 4πx)·(2e^(−3·mod(x,1)) − 1)  … #1 と #4 のかけ算。止まりながら、すべり落ちる。いちばん重く、画面もゆれる
 #   最初から #∞ で重ねる前提の編曲：5つのベースは音域とリズムを分けておく（#1 低めの8分・#2 高い16分・#3 まん中のうねり・#4 重低音・#5 まん中の刻み）
-#   #5 のあと、ビルドアップ（手をたたく位置 x_k = 8 − 16/(k+2)）→ #∞。#∞ は左右に分ける（#1・#3 は左、#2・#5 は右、#4 はまん中）
+#   #5 のあと、ビルドアップ（手をたたく間が 1 → 1/2 → 1/4 拍）→ #∞。#∞ は左右に分ける（#1・#3 は左、#2・#5 は右、#4 はまん中）
 #   和音は Dm・B♭・F・C（2拍ずつ）。140 BPM。x は拍
 #   python3 tools/dropvote.py stills ／ all（LANG_OUT=en で英語）→ output/dropvote1_<ja|en>.mp4
 import math, os, sys, io, wave
@@ -36,7 +36,7 @@ def tex_img(s, col):
     matplotlib.rcParams["mathtext.fontset"] = "cm"; fig = plt.figure(figsize=(11, 1.6), dpi=100); fig.patch.set_alpha(0)
     fig.text(.5, .5, s, ha="center", va="center", fontsize=34, color=np.array(col) / 255); buf = io.BytesIO(); fig.savefig(buf, format="png", transparent=True, dpi=100); plt.close(fig)
     im = Image.open(buf).convert("RGBA"); bb = im.getbbox(); return im.crop(bb) if bb else im
-TEXI = [tex_img(TEX[i], COL[i]) for i in range(ND)]; TEXBI = tex_img(r"$x_k=8-\frac{16}{k+2}\ \longrightarrow\ 8$", (255, 236, 210))
+TEXI = [tex_img(TEX[i], COL[i]) for i in range(ND)]; TEXBI = tex_img(r"$\Delta x = 1 \ \to\ \frac{1}{2} \ \to\ \frac{1}{4}$", (255, 236, 210))
 GX0, GX1, GY = 60, 1020, 900; TALL_X = (TALL - INTRO) / BT
 def make_bg():
     yy = np.mgrid[0:H, 0:W][0].astype(np.float32); return ((np.array([10, 8, 20], np.float32) * (1 - yy / H)[..., None] + np.array([3, 3, 8], np.float32) * (yy / H)[..., None]) / 255).astype(np.float32)
@@ -46,7 +46,7 @@ for k_ in range(1, 60):
     v_ = 8 - 16 / (k_ + 2)
     if v_ - BXK[-1] < .07: break
     BXK.append(v_)
-BXK = np.array(BXK)                                                     # ビルドアップで手をたたく位置 x_k = 8 − 16/(k+2)
+BXK = np.array([0, 1] + [2 + k * .5 for k in range(8)] + [6 + k * .25 for k in range(8)], float)   # ビルドアップで手をたたく位置：4分（たん たん）→ 8分（たか たか…）→ 16分（たかたか…）（持ち主 11/28「たんたんたかたかたかたかたかたんみたいな感じ」）
 TEXB = None
 def sec_at(t): return ND + 1 if t >= TALL else (ND if t >= TB else int(min(ND - 1, max(0, (t - INTRO) // (BT * NB)))))
 def shake(t):
@@ -154,7 +154,7 @@ def synth(path):
     for k, v in enumerate(BXK):
         a0 = int((TB + v * BT) * SR); seg = min(N - a0, int(.18 * SR)); u = k / (len(BXK) - 1)
         if seg <= 0: continue
-        e = np.exp(-np.arange(seg) / SR * 30); roll[a0:a0 + seg] += (n[a0:a0 + seg] - lp(n[a0:a0 + seg], 700 + 1600 * u)) * e * (.5 + .9 * u)
+        ts_ = np.arange(seg) / SR; e = np.exp(-ts_ * 30); roll[a0:a0 + seg] += ((n[a0:a0 + seg] - lp(n[a0:a0 + seg], 700 + 1600 * u)) * e + np.sin(2 * np.pi * (190 + 60 * u) * ts_) * np.exp(-ts_ * 38) * .9) * (.5 + .9 * u)   # スネア（たん）：さーっという音と、胴の音
     roll = lp(lp(roll, 3800), 3800) * 2.4; rise = lp(lp((n - lp(n, 400)) * np.clip(xb / 8, 0, 1) ** 2 * .35, 2600), 2600)
     padb = vcf(pad * 2.0, 300 + 2600 * np.clip(xb / 8, 0, 1) ** 2, bd > 0)
     build = (roll + rise + padb * .8) * bd + found * bd * (1 - np.clip(xb / 6, 0, 1))
