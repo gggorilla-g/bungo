@@ -47,9 +47,17 @@ python3 -c "import pymunk" 2>/dev/null || pip install -q pymunk --break-system-p
 
 ### 2 探す（探す係。持ち主の Mac の Chrome ＝ Claude in Chrome）
 - 最初に tabs_context_mcp。新しいタブで作業し、終わったら閉じる。
-- 検索語ごとに `https://www.youtube.com/results?search_query=<語>&sp=EgQIAxgB`（今週・4分未満）を開き、`tools/trend/search.js` の中身を javascript_tool に渡す。再生数の多い順に8本が返る。
-- 検索語（5つまで。伸びた語が見つかったら入れかえる）
-  `physics simulation satisfying` ／ `ball simulation` ／ `satisfying simulation which color wins` ／ `marble race simulation` ／ `物理エンジン シミュレーション`
+- 持ち主 11/28「長尺がキモ…再現性とやれることで」→ ショートだけでなく長尺も探す。1回の量（検索5語・動画10本）は変えず、ショート3語・長尺2語に分ける。
+- ショート：検索語ごとに `https://www.youtube.com/results?search_query=<語>&sp=EgQIAxgB`（今週・4分未満）を開き、`tools/trend/search.js` の中身を javascript_tool に渡す。再生数の多い順に8本が返る。
+  （11/28 観測：search.js の「公開からの時間」が全部 999h になった。公開日は META で取る）
+- 長尺：`https://www.youtube.com/results?search_query=<語>&sp=EgQIBBgD`（今月・4〜20分）と `sp=EgQIBBgC`（今月・20分以上）を開き、`tools/trend/search_long.js` を渡す。
+  search_long.js は 11/28 に書いたもので、まだ実際の検索結果で試していない。何も返らないときは、その回は read_page で動画の並びを読み、直し方をメモに書く。
+  長尺のコマ（CAP）は、ストーリーボードの最初の3枚（はじめの数分）しか見えない。しくみは題名・説明・最初の数分で書き、途中の変化は「未確認」とする。
+- 検索語（伸びた語が見つかったら入れかえる）
+  ショート：`physics simulation satisfying` ／ `ball simulation` ／ `satisfying simulation which color wins`
+  長尺：`physics simulation`（今月・4〜20分） ／ `satisfying simulation`（今月・20分以上）
+  （11/28 にはずした語：`marble race simulation` は実物の撮影が上位、`物理エンジン シミュレーション` は上位でも2千回台）
+- 動画10本の内わけの目安：ショート6本・長尺4本。
 - Chrome に届かないとき（Chrome が閉じている・拡張が応答しない）は、その旨を1行で報告して終える。ログイン操作はしない。
 - Chrome が複数つながっていて選ぶよう言われたら、deviceId `277fb28a-1331-4f86-9747-5711e71e82f1` を select_browser で選ぶ。
 
@@ -59,6 +67,10 @@ python3 -c "import pymunk" 2>/dev/null || pip install -q pymunk --break-system-p
 - 読むのは1日10本まで。動画は再生もダウンロードもしない。コマは保存しない。
 - `docs/trend/<日付>.md` に書く：題名／チャンネル（登録者）／再生数と公開からの日数／長さ／しくみ（決まり・増え方・結末）／画面の文字／うちで作れるか／うちの既出と重なるか。
 - `docs/trend/backlog.md` に1行足す（しくみの名前・元の数字・状態「まだ」）。前に見たのと同じしくみは足さない（元の数字だけ書き足す）。
+  長尺は、しくみの名前の頭に【長尺】と書き、元の数字に長さ（分）も書く。
+- 候補に足すかは、伸びているかに加えて、2つで決める（持ち主 11/28「再現性とやれることで」）：
+  再現性＝同じ決まりで何本も作れ、回ごとに問い・決まり・結末を変えられるか（1本きりの仕掛けは足さない）／
+  やれること＝うちの道具（2D の numpy・pymunk、音は knock の 234）で作れるか。メモの「うちで作れるか」に、この2つを1行ずつ書く。
 - commit して `tools/push_both.sh`。報告は、足した候補を1行ずつ。
 
 ### 4 選ぶ（作る係。`docs/trend/backlog.md` の「まだ」から1つ）
@@ -145,6 +157,7 @@ python3 tools/<名前>.py stills                    # 出だし・真ん中・�
 | ファイル | 中身 |
 |---|---|
 | `tools/trend/search.js` | 検索結果からショートを再生数の多い順に読む |
+| `tools/trend/search_long.js` | 検索結果から長尺を再生数の多い順に読む（11/28 から。まだ試していない） |
 | `tools/trend/capture.js` | 数字と1秒ごとのコマを読む（再生もダウンロードもしない） |
 | `tools/trendkit.py` | 絵（背景・玉・文字）、音（カロッ＋カノン進行）、書き出し、乱数さがし |
 | `tools/kalimba.py` | 音色：`karo`（乾いたカロッ）、`bell`（澄んだ音）、`pad`（持続音）、`canon_tones` |
