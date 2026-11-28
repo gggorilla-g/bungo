@@ -5,13 +5,15 @@
 #     ・絵は「中の時刻 ts」だけで決まるように書く（frame_at(ts)）。進む時も、巻きもどす時も、同じ関数を使う
 #     ・動画の最後のコマは ts がほぼ 0（＝最初のコマの直前）。出だし・終わりを暗くしない（ループのつなぎ目が見えなくなる）
 #     ・巻きもどしの音は、それまでの音を逆向きに早回ししたもの（足した音ではない）。回る速さを少しゆらして「キュルキュル」にする
-import math, wave
+import math, os, wave
 import numpy as np
+REWIND = os.environ.get("REWIND", "0") == "1"                    # 持ち主 11/28「今回は巻き戻しなしでだしましょう」→ 既定は巻きもどしなし（REWIND=1 で入れる）
 
 def sstep(a, b, x):
     t = min(1.0, max(0.0, (x - a) / (b - a))); return t * t * (3 - 2 * t)
 def sim_time(t, tfwd, hold, trew):
     """動画の時刻 t → (中の時刻 ts, 巻きもどしの進み rew)。進む（tfwd まで）→ 止まる（hold）→ 早回しでもどる（trew）。rew は進む間と止まっている間は 0"""
+    if not REWIND: return min(t, tfwd), 0.0                              # 巻きもどしなし：最後の絵のまま止まる
     if t <= tfwd: return t, 0.0
     if t <= tfwd + hold: return tfwd, 0.0
     x = min(1.0, (t - tfwd - hold) / trew); return max(0.0, tfwd * (1 - sstep(0, 1, x) ** .9)), (max(1e-3, x) if x < .96 else 0.0)   # 最後の数コマは字を消す（頭のコマとつながるように）
@@ -31,9 +33,11 @@ def rewind_audio(mono, sr, trew, pitch=2.6, wob_hz=11.0, wob=.25, lp=5200.0):
 def add_rewind(fwd_wav, out_wav, tfwd, hold, trew, gain=.62, pitch=2.6):
     """fwd_wav（長さ tfwd+hold のステレオ）のうしろに、巻きもどしの音を足して out_wav に書く。大きさは、最後の6秒の大きさの gain 倍"""
     with wave.open(fwd_wav) as w: sr = w.getframerate(); x = np.frombuffer(w.readframes(w.getnframes()), np.int16).reshape(-1, 2).astype(np.float32) / 32768
-    y = rewind_audio(x[: int(sr * tfwd)].mean(1), sr, trew, pitch); dense = math.sqrt(float((x[int(sr * max(0, tfwd - 6)):int(sr * tfwd)] ** 2).mean())) + 1e-9
+    y = rewind_audio(x[: int(sr * tfwd)].mean(1), sr, trew, pitch) * (1.0 if REWIND else 0.0); dense = math.sqrt(float((x[int(sr * max(0, tfwd - 6)):int(sr * tfwd)] ** 2).mean())) + 1e-9
     y *= gain * dense / (math.sqrt(float((y ** 2).mean())) + 1e-9); N = int(sr * (tfwd + hold + trew)); out = np.zeros((N, 2), np.float32); out[: min(N, len(x))] = x[:N]
-    a0 = int(sr * (tfwd + hold)); k = min(len(y), N - a0); out[a0:a0 + k] += y[:k, None]; out = np.tanh(out * 1.2) / 1.2
+    a0 = int(sr * (tfwd + hold)); k = min(len(y), N - a0); out[a0:a0 + k] += y[:k, None]
+    if not REWIND: out *= np.clip((N - np.arange(N)) / (sr * 1.6), 0, 1)[:, None]   # 巻きもどしなし：最後はゆっくり消える
+    out = np.tanh(out * 1.2) / 1.2
     with wave.open(out_wav, "wb") as w: w.setnchannels(2); w.setsampwidth(2); w.setframerate(sr); w.writeframes((out * 32767).astype(np.int16).tobytes())
 
 def heartbeat(beats, n, sr, gain=.10):

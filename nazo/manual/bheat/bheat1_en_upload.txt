@@ -8,7 +8,6 @@ Blue balls and a black hole compete inside a circle (rules made for this video).
 - The black hole moves in straight lines at a constant slow speed and turns only at the wall. It swallows any ball it touches and grows a little each time. Nearby balls are pulled in slightly
 - Blue wins when the circle is full (175 balls), black wins at 0. Blue gets within 5 of full at 170, but in the end the black hole swallows them all
 - Sounds play when a blue ball hits the wall (higher spots sound higher) and when a ball is swallowed. Canon chord progression
-- At the end it rewinds at high speed and loops back to the start
 
 Simulation, sound and animation: original (made in Python)
 

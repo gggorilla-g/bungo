@@ -111,11 +111,16 @@ CAPS = [(2.6, 8.4, T.tr("楕円では、どの向きの光も同じ瞬間に次�
         (9.0, 17.0, T.tr("着くたびに、光の数は2倍", "Every arrival doubles the number of rays"))]
 def sim_time(t):
     """動画の時刻 → 中の時刻。進む（TFWD まで）→ 止まる（HOLD）→ 早回しでもどる（TREW）。最後は 0 にもどるので、頭につながる"""
+    import loopkit as L
+    if not L.REWIND: return min(t, TFWD), 0.0                              # 巻きもどしなし（11/28）
     if t <= TFWD: return t, 0.0
     if t <= TFWD + HOLD: return TFWD, 0.0
     x = min(1.0, (t - TFWD - HOLD) / TREW); return max(0.0, TFWD * (1 - T.sstep(0, 1, x) ** .9)), max(1e-3, x)
 def make_frame(fi):
-    ts, rew = sim_time(fi / FPS); return frame_at(ts, rew if fi < NF - 1 else 0.0) if fi < NF - 1 else frame_at(0.0)
+    import loopkit as L
+    ts, rew = sim_time(fi / FPS)
+    if not L.REWIND: return frame_at(ts, 0.0)
+    return frame_at(ts, rew if fi < NF - 1 else 0.0) if fi < NF - 1 else frame_at(0.0)
 
 def audio(path):
     fwd = TFWD + HOLD; a = T.Audio(fwd, lo=62, hi=88, mat=MAT, max_same=3, window=.008)
@@ -134,8 +139,9 @@ def audio(path):
     for k in range(0, n_mid - grain, hop): s0 = int(k * ratio); mid[k:k + grain] += mono[s0:s0 + grain] * win
     tt = np.arange(n_out) / sr; pos = (n_mid / TREW) * (tt + (.25 / (2 * np.pi * 11)) * np.sin(2 * np.pi * 11 * tt)); y = np.interp(np.clip(pos, 0, n_mid - 1), np.arange(n_mid + grain), mid)   # 回る速さが少しゆれる（キュルキュル）
     y = K._lp(y.astype(np.float32), 5200); dense = np.sqrt((x[int(sr * (TFWD - 6)):int(sr * TFWD)] ** 2).mean()) + 1e-9; y *= .62 * dense / (np.sqrt((y ** 2).mean()) + 1e-9)
-    y *= np.minimum(1, tt / .02) * np.minimum(1, (TREW - tt) / .12); N = int(sr * DUR); out = np.zeros((N, 2), np.float32); out[: len(x)] = x[:N]; a0 = int(sr * fwd); k = min(n_out, N - a0); out[a0:a0 + k] += y[:k, None]
-    out = np.tanh(out * 1.2) / 1.2
+    import loopkit as L
+    y *= np.minimum(1, tt / .02) * np.minimum(1, (TREW - tt) / .12) * (1.0 if L.REWIND else 0.0); N = int(sr * DUR); out = np.zeros((N, 2), np.float32); out[: len(x)] = x[:N]; a0 = int(sr * fwd); k = min(n_out, N - a0); out[a0:a0 + k] += y[:k, None]
+    out *= (1.0 if L.REWIND else np.clip((N - np.arange(N)) / (sr * 1.6), 0, 1)[:, None]); out = np.tanh(out * 1.2) / 1.2
     with wave.open(path, "wb") as w: w.setnchannels(2); w.setsampwidth(2); w.setframerate(sr); w.writeframes((out * 32767).astype(np.int16).tobytes())
     return n
 

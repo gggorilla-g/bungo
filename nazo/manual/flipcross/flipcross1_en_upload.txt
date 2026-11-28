@@ -7,7 +7,6 @@ One square is flipped into all 8 neighbouring spots (over its 4 edges and 4 corn
 - Each round triples the size; the count grows by 9 and 5 in turn
 - Colours are a rainbow set by position
 - Sounds: a stone-like tap when each copy lands, and a quiet "shh" while it flips. Canon chord progression
-- At the end it rewinds at high speed and loops back to the start
 
 Simulation, sound and animation: original (made in Python)
 
