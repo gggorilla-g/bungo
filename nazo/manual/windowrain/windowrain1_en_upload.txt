@@ -1,0 +1,16 @@
+【タイトル】
+A Rainy Night Car Window: Every Time Two Drops Join, a Note Rings #Shorts #rain #relaxing
+
+【説明】
+A car window on a rainy night. Each time two raindrops touch and join, a note rings.
+
+- Touching drops merge into one. Bigger drops play lower notes (Canon chord progression)
+- Drops that grow heavy slide down, leaving tiny droplets behind and collecting others on the way
+- Each drop works like a lens, so the city lights behind appear upside down inside it
+- At the end the rain gets heavier and the wiper sweeps the glass once
+- Soft rain sounds sit underneath. Drop counts and sizes are adjusted for easy viewing
+
+Simulation, sound and animation: original (made in Python)
+
+【タグ】
+rain, rain sounds, window, raindrops, relaxing, sleep, make it work 3d
