@@ -4,3 +4,7 @@ flipcross1_ja 持ち主 11/28「もう少し複雑な図形になるといい。
 flipcross1_en 同上
 bubblesea2
 windowrain1
+bubblesea2_ja 持ち主 11/28「ゆっくり版は保留で」（上の bubblesea2 の行は id が完全一致せず release.py に効かないため、ja・en を明記）
+bubblesea2_en 同上（順番待ちに SLOW=1 の版が残っていたので外した）
+windowrain1_ja 持ち主 11/28「雨も直進しない…」で作り直し中（id を明記）
+windowrain1_en 同上
