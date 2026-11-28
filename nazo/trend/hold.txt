@@ -8,3 +8,5 @@ bubblesea2_ja 持ち主 11/28「ゆっくり版は保留で」（上の bubblese
 bubblesea2_en 同上（順番待ちに SLOW=1 の版が残っていたので外した）
 windowrain1_ja 持ち主 11/28「雨も直進しない…」で作り直し中（id を明記）
 windowrain1_en 同上
+stitch1_ja 持ち主11/28「線は保留…微妙でした」
+stitch1_en 同上
