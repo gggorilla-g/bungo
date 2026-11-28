@@ -171,3 +171,4 @@ cup2_en success jVC0_GRQjRw (MIW 11/28 妄想の上位の英語版を234で作�
 2026-11-28T01:46:22Z primehop1_ja success 1YdEwnvLYXk (trend、11/28 21:00 JST に公開予約)
 2026-11-28T01:48:54Z primehop1_en success umzCarrx8ZA (trend、11/28 21:00 JST に公開予約)
 2026-11-28T02:14:58Z bubblesea2_ja success DiVOH8NMFCE (trend、11/28 21:00 JST に公開予約)
+2026-11-28T02:43:13Z bheat1_ja success G0tV7z-JEhc (trend、11/28 21:00 JST に公開予約)
