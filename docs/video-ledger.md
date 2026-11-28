@@ -825,3 +825,7 @@
 - 2026-11-28 MIW primehop1_en umzCarrx8ZA（trend の流れ。11/28 21:00 JST に公開予約、見本は 2026-11-28 に送付）
 - 2026-11-28 妄想 bubblesea2_ja DiVOH8NMFCE（trend の流れ。11/28 21:00 JST に公開予約、見本は 2026-11-28 に送付）
 - 2026-11-28 妄想 bheat1_ja G0tV7z-JEhc（trend の流れ。11/28 21:00 JST に公開予約、見本は 2026-11-28 に送付）
+- 2026-11-28 MIW bheat1_en MAAVQy0qM1w（trend の流れ。11/28 21:00 JST に公開予約、見本は 2026-11-28 に送付）
+- 2026-11-28 妄想 starrun1_ja MiK48-HTYvM（trend の流れ。11/28 21:00 JST に公開予約、見本は 2026-11-28 に送付）
+- 2026-11-28 妄想 ellipray1_ja iuPIgTU08X0（trend の流れ。11/28 21:00 JST に公開予約、見本は 2026-11-28 に送付）
+- 2026-11-28 MIW starrun1_en 1k0gOmZMO90（trend の流れ。11/28 21:00 JST に公開予約、見本は 2026-11-28 に送付）
