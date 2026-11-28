@@ -21,7 +21,7 @@ SEED = int(os.environ.get("SEED", "3"))
 
 def rate(t): return 3 + 9 * (t / TW) ** 1.5 + (12 if t > TW - 6 else 0) * min(1, (t - TW + 6) / 2) if t < TW else 8.0   # 1秒に生まれるしずく（だんだん増え、最後の6秒は本降り。ふいたあとも降りつづける）
 def simulate():
-    rng = np.random.default_rng(SEED); D = [dict(x=float(rng.uniform(GX0 + 10, GX1 - 10)), y=float(rng.uniform(GY0 + 10, GY1 - 30)), r=float(rng.uniform(5, 14)), vy=0.0, sl=False, ph=float(rng.uniform(0, 6.3)), trail=0.0, id=-1 - k) for k in range(70)]; frames = [];   # 最初から窓にしずくがある（冒頭から動きが見える。11/28「冒頭からわかりやすい変化」） ev = []; dt = 1 / (FPS * 2); t = 0.0; nid = 0
+    rng = np.random.default_rng(SEED); D = [dict(x=float(rng.uniform(GX0 + 10, GX1 - 10)), y=float(rng.uniform(GY0 + 10, GY1 - 30)), r=float(rng.uniform(5, 14)), vy=0.0, sl=False, ph=float(rng.uniform(0, 6.3)), trail=0.0, id=-1 - k) for k in range(70)]; frames = []; ev = []; dt = 1 / (FPS * 2); t = 0.0; nid = 0   # 最初から窓にしずくがある（冒頭から動きが見える。11/28「冒頭からわかりやすい変化」）
     for fi in range(NF):
         for _ in range(2):
             t += dt
