@@ -832,3 +832,4 @@
 - 2026-11-28 妄想 windowrain1_ja Dh8DMidxUc0（trend の流れ。11/28 21:00 JST に公開予約、見本は 2026-11-28 に送付）
 - 2026-11-28 持ち主「ゆっくり版が単にスローモーションにした結果、音楽として汚くなった」→ bubblesea2_ja DiVOH8NMFCE の 21:00 予約を取り消し、非公開にした（削除はしない）。bubblesea2 を hold に。英語版は未投稿
 - 2026-11-28 MIW windowrain1_en w4V9vtijHJ4（trend の流れ。11/28 21:00 JST に公開予約、見本は 2026-11-28 に送付）
+- 2026-11-28 持ち主「雨も直進しない。ぷよぷよみたいに表面張力で進路が揺れ動くはず」→ windowrain1_ja Dh8DMidxUc0・windowrain1_en w4V9vtijHJ4 の 21:00 予約を取り消し、非公開にした（削除はしない）。windowrain1 を hold に
