@@ -1,0 +1,19 @@
+【タイトル】
+100 metronomes. 50 vs 50, perfectly opposite. Flip just 4? #Shorts #physics #satisfying
+
+【説明】
+100 metronomes stand on one platform. The 50 pink ones on the left and the 50 cyan ones on the right swing exactly opposite to each other.
+
+- The platform rests on two rollers, so it can slide sideways. When a metronome swings, it pushes the platform a little the other way.
+- Pink and cyan push in exactly opposite directions, so the pushes cancel and the platform stays still. With a still platform the metronomes cannot pull on each other, so they stay 0% in step.
+- Then we flip just 4 of them. Now it is 46 vs 54, the pushes no longer cancel, and the platform starts to sway.
+- Through that sway, the metronomes pull on each other. The more of them line up, the bigger the sway and the stronger the pull.
+- Color shows which way each one swings: cyan if it moves with the cyan group, pink if with the pink group, and purple in between.
+- After they line up, the tempo speeds up at the very end.
+- The rule: each metronome is pulled a little toward the average swing of all of them (the Kuramoto model). The red marker below shows where the platform is.
+- The sound is a tuned stone note each time a needle passes the middle. Pink plays lower notes and cyan higher ones, from the chords of the Canon progression.
+
+Simulation, sound and animation: original (made with Python)
+
+【タグ】
+physics, metronome, synchronization, Kuramoto model, satisfying, simulation, oddly satisfying, shorts
