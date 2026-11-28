@@ -1,4 +1,5 @@
 # windowrain.py — 雨の夜の車の窓。しずくがくっつくたびに音が鳴る。大きくなったしずくは流れ落ち、通り道のしずくを集めていく。最後はワイパーがふき取って、最初の窓にもどる（縦のショート）
+#   直し 11/28 その3：「ブニョブニョしすぎ。進路は水滴の位置で多少かわるけど、基本は物理に従っていい」→ ゆれは小さく短く。横へそれるのは、くっついた相手の側へ重心が寄る分と、わずかな引っかかりだけ
 #   直し 11/28 その2：「もっとぷよぷよみたいにぷよんってくっつく感じが気持ちいい」「閾値高すぎて全然くっつかない」→ ふちがふれたらくっつく。小さいほうが水の橋でつながったまま 0.2 秒で吸いこまれ、ぷよんとゆれる。しずくも大きめ
 #   直し 11/28：「雨も直進しない。ぷよぷよみたいに表面張力で進路が揺れ動くはず」→ ガラスの引っかかりのむら・ぬれた跡・近くのしずくへの引き寄せで進路がゆれ、止まりかけてから一気にすべる。くっつくと、ぷるぷるゆれる
 #   持ち主 11/28：mergeball1 に付いたコメント「なんか雨の日の車内で窓見てる気分」を見せて「この水滴がくっつくみたいなギミックで一本ヒーリング作れそう」
@@ -36,14 +37,14 @@ def simulate():
             for d in D:                                                  # 流れる（止まっているしずくは、くもりを集めて少しずつ大きくなる）
                 if not d["sl"] and t < TW: d["r"] += .45 * dt
                 if d["r"] > RSL: d["sl"] = True
-                d.setdefault("vx", 0.0); d.setdefault("wob", 0.0); d.setdefault("wph", 0.0); d["wob"] *= math.exp(-3.0 * dt); d["wph"] += 2 * math.pi * (6.5 - .07 * d["r"]) * dt   # ぷるぷる（くっついた直後や、すべり出しでゆれ、だんだんおさまる）
+                d.setdefault("vx", 0.0); d.setdefault("wob", 0.0); d.setdefault("wph", 0.0); d["wob"] *= math.exp(-6.0 * dt); d["wph"] += 2 * math.pi * (6.5 - .07 * d["r"]) * dt   # ぷるぷる（くっついた直後や、すべり出しでゆれ、だんだんおさまる）
                 if d["sl"]:
                     r_ = d["r"]; p0 = pin(d["x"], d["y"] + r_); drive = (r_ - RSL) / RSL + .35                       # 表面張力：引っかかりが強い所では止まりかけ、ためてから一気にすべる（スティックスリップ）
-                    vt = (70 + 34 * (r_ - RSL)) * min(1.5, max(.04, 1.35 - 1.7 * p0 / (drive + .25))); d["vy"] += (vt - d["vy"]) * dt / .22
+                    vt = (70 + 34 * (r_ - RSL)) * min(1.3, max(.18, 1.25 - 1.1 * p0 / (drive + .25))); d["vy"] += (vt - d["vy"]) * dt / .22
                     gx = (pin(d["x"] + r_ * .9, d["y"] + r_) - pin(d["x"] - r_ * .9, d["y"] + r_))                    # すべりやすい側へそれる
                     near = [e for e in D if e is not d and 0 < e["y"] - d["y"] < r_ * 3.2 and abs(e["x"] - d["x"]) < r_ * 2.4]   # 下のほうの近いしずくに引き寄せられる
-                    ax = -gx * 650 + (sum((e["x"] - d["x"]) * e["r"] for e in near) / max(1.0, sum(e["r"] for e in near)) * 3.0 if near else 0.0) + float(rng.normal(0, 120))
-                    d["vx"] += (ax - d["vx"] * 2.2) * dt; d["vx"] = max(-.9 * abs(d["vy"]) - 10, min(.9 * abs(d["vy"]) + 10, d["vx"]))
+                    ax = -gx * 90 + (sum((e["x"] - d["x"]) * e["r"] for e in near) / max(1.0, sum(e["r"] for e in near)) * 1.2 if near else 0.0) + 0.0
+                    d["vx"] += (ax - d["vx"] * 2.2) * dt; d["vx"] = max(-.3 * abs(d["vy"]) - 4, min(.3 * abs(d["vy"]) + 4, d["vx"]))
                     dy = d["vy"] * dt; d["y"] += dy; d["x"] = min(GX1 - 8, max(GX0 + 8, d["x"] + d["vx"] * dt)); d["trail"] += dy
                     i_, j_ = int(min(WM.shape[0] - 1, max(0, d["y"] / 8))), int(min(WM.shape[1] - 1, max(0, d["x"] / 8))); WM[max(0, i_ - 2):i_ + 1, max(0, j_ - 1):j_ + 2] += .5
                     if d["trail"] > 22 and d["r"] > RSL * .8:            # 通り道に小さなしずくを残す
@@ -64,7 +65,8 @@ def simulate():
                 D = [d for k, d in enumerate(D) if k not in dead]
             for q in ABS:                                                # 吸いこまれていく：面積が少しずつ移り、最後に「ぷよん」とゆれる
                 df = min(1 - q["f"], dt / .2); q["f"] += df; a = q["a"]; a["r"] = math.sqrt(a["r"] ** 2 + q["A2"] * df)
-                if not a["sl"]: a["x"] += (q["bx"] - a["x"]) * q["w"] * df; a["y"] += (q["by"] - a["y"]) * q["w"] * df
+                a["x"] += (q["bx"] - a["x"]) * q["w"] * df                                     # 重心が寄る（流れているしずくも、くっついた相手の側へ少しずれる＝進路が変わる）
+                if not a["sl"]: a["y"] += (q["by"] - a["y"]) * q["w"] * df
                 if q["f"] >= 1: a["busy"] = False; a["wob"] = min(1.0, a["wob"] + .45 + .9 * q["w"]); a["wph"] = -math.pi / 2   # ぷよん：まず横につぶれ、はね返って縦にのびる
             _ids = {id(d) for d in D}; ABS = [q for q in ABS if q["f"] < 1 and id(q["a"]) in _ids]
             if t > TW:                                                   # ワイパー：窓の下の中心を軸にまわる棒がふき取る
@@ -101,7 +103,7 @@ GLASS = (BGB * .78 + .045).astype(np.float32)                           # 窓ご
 GS = T.glow(12); INK = (244, 246, 255, 255); GOLD = (255, 222, 150, 255)
 def drop(buf, x, y, r, sl, tilt=0.0, wv=0.0):
     """しずく1つ：うしろの景色が上下さかさまに小さく映るレンズ。上が少し明るく、下のふちが暗い"""
-    ry = r * ((1.18 if sl else 1.0) + .30 * wv); rxs = 1 - .22 * wv; k = int(r * 1.6) + 3; x0, y0 = int(x) - k, int(y - (ry - r)) - k - int(ry - r); w = h = 2 * k
+    ry = r * ((1.18 if sl else 1.0) + .10 * wv); rxs = 1 - .07 * wv; k = int(r * 1.6) + 3; x0, y0 = int(x) - k, int(y - (ry - r)) - k - int(ry - r); w = h = 2 * k
     if x0 < 0 or y0 < 0 or x0 + w >= W or y0 + h >= H: return
     s = int(r * 3.4) + 4; sx0, sy0 = max(0, int(x) - s), max(0, int(y) - s); src = BGS[sy0:sy0 + 2 * s, sx0:sx0 + 2 * s]
     if src.shape[0] < 4 or src.shape[1] < 4: return
