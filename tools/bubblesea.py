@@ -21,7 +21,8 @@ import kalimba as K
 
 W, H, FPS = T.W, T.H, T.FPS
 SLOW = os.environ.get("SLOW") == "1"; NAME = "bubblesea2" if SLOW else "bubblesea1"   # SLOW=1：とてもゆっくりの版（持ち主 11/28「鯨のやつはめっちゃゆっくりバージョンも作りたい」）。拍は 80 → 46、泡がのぼる速さも 0.7 倍
-BPM = 46.0 if SLOW else 80.0; BEAT = 60 / BPM; CH = 2 * BEAT; S16 = BEAT / 4; INTRO = .8; NCH = 16
+BPM = 58.0 if SLOW else 80.0; BEAT = 60 / BPM; CH = (4 if SLOW else 2) * BEAT;   # ゆっくり版は、ただ遅くするのでなく、1つの和音を4拍にして音を間引いた別の譜面（持ち主 11/28「単にスローモーションにした結果、音楽として汚くなった」）
+S16 = BEAT / 4; INTRO = .8; NCH = 16
 TF = INTRO + NCH * CH                                                   # クジラの泡の、1つめが水面に着く時刻
 NL = 8; YS, YV = 520, 1680; WL = 660.0; R0, V0 = 60.0, (295.0 if SLOW else 420.0)           # レーンの数、水面、泡の出口、クジラの体長、レ(D4)の泡の半径、その泡がのぼる速さ
 NOTE = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]; CHN = ["D", "A", "Bm", "F#m", "G", "D", "G", "A"]
@@ -46,7 +47,16 @@ def chart():
     def add(t, l, c, kind, vel):
         m = tones(c)[l]; r = rad(m); v = speed(r); y0 = YV - 12.0
         N.append(dict(t=t, l=l, m=m, r=r, v=v, kind=kind, vel=vel, trel=t - (y0 - (YS + r)) / v - .08, xs=LX[l], off=0.0, y0=y0, ph=(len(N) * 2.399) % 6.283))
-    for n in range(NCH):
+    for n in range(NCH if SLOW else 0):                                    # ゆっくり版の譜面：根音のあと、和音の音をハープのようにゆっくり1つずつ。細かい音（16分）はなし
+        t0 = INTRO + n * CH; c = n % 8; e = lambda k: t0 + k * BEAT; last = n == NCH - 1
+        if n < 4: add(e(0), 0, c, "bass", .72); add(e(1), 2, c, "arp", .50); add(e(2), 3, c, "arp", .48)
+        elif n < 8: add(e(0), 0, c, "bass", .72); add(e(1), 2, c, "arp", .50); add(e(1.5), 3, c, "arp", .46); add(e(2), 4, c, "arp", .48); add(e(3), 5, c, "arp", .42)
+        else:
+            ml = tones(c).index(MEL[c]); add(e(0), 0, c, "bass", .74); add(e(0), ml, c, "mel", .84)
+            if not last:
+                add(e(1.5), 3, c, "arp", .44); add(e(2.5), 2, c, "arp", .44); add(e(3), 4, c, "arp", .42)
+                if n >= 12: add(e(2), 6, c, "spark", .30)
+    for n in range(0 if SLOW else NCH):
         t0 = INTRO + n * CH; c = n % 8; e = lambda k: t0 + k * BEAT / 2; s = lambda k: t0 + k * S16
         if n < 2: add(e(0), 0, c, "bass", .75); add(e(2), 2, c, "arp", .55)
         elif n < 4:
@@ -303,7 +313,7 @@ def audio(path):
     for q in NOTES: a.note(q["t"], q["m"], vel=q["vel"], pan=.15 + .7 * (q["xa"] - 50) / 900)
     N = int(T.SR * DUR); under = drop_layer(N); body = K.pad([(r, r + 12, f5 + 12) for (r, t3, f5) in K.CANON], CH, NCH * CH + 4.5, .05); off = int(T.SR * INTRO); k = min(len(body), N - off)
     import loopkit as L
-    if SLOW: under += L.heartbeat([(INTRO + c * CH + h * CH / 2, K.CANON[c % 8][0]) for c in range(NCH) for h in (0, 1)] + [(TF, K.CANON[0][0])], N, T.SR, .085)   # 隠し味の鼓動（和音の根音。和音1つに2拍）
+    if False: under += L.heartbeat([(INTRO + c * CH + h * CH / 2, K.CANON[c % 8][0]) for c in range(NCH) for h in (0, 1)] + [(TF, K.CANON[0][0])], N, T.SR, .085)   # 隠し味の鼓動（和音の根音。和音1つに2拍）
     under[off:off + k] += body[:k]; under *= np.clip((DUR - np.arange(N) / T.SR) / 1.5, 0, 1).astype(np.float32)
     return a.write(path, room=(.32, 3.2), under=under)
 
