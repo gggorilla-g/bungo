@@ -1,0 +1,20 @@
+【タイトル】
+Which drop rattled your desk? 5 bass drops made from formula graphs #Shorts #EDM #math
+
+【説明】
+Each formula's graph is exactly how its bass moves (x is the beat, 140 BPM). The kick, clap and chords behind them are the same in all five. Only the bass changes.
+
+#1 y = sgn(sin 4πx): a low bass that switches on and off in eighth notes
+#2 y = ⌊4·mod(x,1)⌋/1.5 − 1: a high bass that climbs a sixteenth-note staircase
+#3 y = sin 3πx: a bass whose tone wobbles from muffled to bright
+#4 y = 2e^(−3·mod(x,1)) − 1: a deep bass that slides down from above on every beat
+#5 y = sgn(sin 4πx)·(2e^(−3·mod(x,1)) − 1): #1 times #4, a choppy bass that slides down as it cuts in and out
+Build-up: the claps get closer, from 1 to 1/2 to 1/4 of a beat
+#∞: all five together. They sit in different pitch ranges and rhythms, and are split left and right (#1 and #3 left, #2 and #5 right, #4 center)
+
+Tell us in the comments which drop hit hardest.
+
+Graphs, sound and animation: original (made with Python)
+
+【タグ】
+EDM, bass drop, bass, math, formula, graph, music, satisfying

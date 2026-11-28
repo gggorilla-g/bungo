@@ -1,3 +1,5 @@
 {"id": "bubblesea2_en", "kit": "nazo/manual/bubblesea/bubblesea2_en_upload.txt", "ch": "KAIDAN", "lang": "en", "build": "SLOW=1 LANG_OUT=en python3 tools/bubblesea.py all", "shown": "2026-11-28", "after": "2026-11-28T11:40:00Z", "echo": true}
 {"id": "ellipray1_en", "kit": "nazo/manual/ellipray/ellipray1_en_upload.txt", "ch": "KAIDAN", "lang": "en", "build": "LANG_OUT=en python3 tools/ellipray.py all", "shown": "2026-11-28", "after": "2026-11-28T11:40:00Z", "echo": true}
 {"id": "formulabeat1_ja", "kit": "nazo/manual/formulabeat/formulabeat1_ja_upload.txt", "ch": "MOSO", "lang": "ja", "build": "python3 tools/formulabeat.py all", "shown": "2026-11-28", "echo": true}
+{"id": "dropvote1_ja", "kit": "nazo/manual/dropvote/dropvote1_ja_upload.txt", "ch": "MOSO", "lang": "ja", "build": "python3 tools/dropvote.py all", "shown": "2026-11-28"}
+{"id": "dropvote1_en", "kit": "nazo/manual/dropvote/dropvote1_en_upload.txt", "ch": "KAIDAN", "lang": "en", "build": "LANG_OUT=en python3 tools/dropvote.py all", "shown": "2026-11-28"}
