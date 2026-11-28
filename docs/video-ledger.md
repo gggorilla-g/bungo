@@ -835,3 +835,4 @@
 - 2026-11-28 持ち主「雨も直進しない。ぷよぷよみたいに表面張力で進路が揺れ動くはず」→ windowrain1_ja Dh8DMidxUc0・windowrain1_en w4V9vtijHJ4 の 21:00 予約を取り消し、非公開にした（削除はしない）。windowrain1 を hold に
 - 2026-11-28 持ち主「ゆっくり版は保留で」→ bubblesea2 は hold のまま（作り直し版 72.8秒は手元に保存、投稿しない）
 - 2026-11-28 MIW formulabeat1_en i1RK2KoJ_Xk（trend の流れ。11/28 21:00 JST に公開予約、見本は 2026-11-28 に送付）
+- 2026-11-28 MIW dropvote1_en -7e0jtpkSuU（trend の流れ。11/28 21:00 JST に公開予約、見本は 2026-11-28 に送付）
