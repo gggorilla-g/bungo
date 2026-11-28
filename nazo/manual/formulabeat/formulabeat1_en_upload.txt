@@ -1,0 +1,16 @@
+【タイトル】
+What If a Formula's Graph Were the Sound? From #1 to #∞ It Becomes EDM #Shorts #math #EDM
+
+【説明】
+The formula on screen is exactly how each sound is made (x is the beat, 128 BPM).
+
+#1 Kick: y = 2e^(−7·mod(x,1)) − 1 sets the loudness of a falling low tone
+#2 Bass: y = sgn(sin 2πx) + 0.8·sgn(sin 3πx); its size is the volume and its sign picks the octave (roots of the Canon progression)
+#3 Hi-hat: y = e^(−30·mod(x+0.5,1)) sets the loudness of an offbeat noise
+#4 Chords: y = sin(2πfx + 2.5 sin 6πfx)·e^(−3·mod(x,2)), where f is a chord note
+#∞ All of them: the four play together, ducking under each kick, with an added sub bass. The last bar drops to half tempo
+
+Graphs, sound and animation: original (made in Python)
+
+【タグ】
+math, formula, graph, EDM, music, bass, make it work 3d
