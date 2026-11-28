@@ -18,17 +18,19 @@ BPM = 72; BEAT = 60 / BPM
 N, RB, CSP = 296, 13.0, 17.2                     # 玉の数・半径・並びの間隔
 CX, CY = 540, 760                                  # 円盤の中心（玉は x 230〜850 に収まる）
 GA = math.pi * (3 - math.sqrt(5))                  # 黄金角
-ARMS = 8
+ARMS = 21                                          # 色の腕の数（21本だと渦がいちばんくっきり見える。数で試した：8・13・21・34）
+WAVES = 8                                          # もどる区切り＝カノンの和音8つ
 JX0, JX1, JY0, JY1, JRC = 150, 930, 1190, 1660, 120     # びん（左右の壁・口・底・底の角の丸み）
 T1 = 2.4                                           # こぼれ始め
 TPOUR = 1.8                                        # 下の玉から上の玉へ、こぼれ出す時間
 T3 = 9.6                                           # もどり始め
 ARM_DT = 2 * BEAT                                  # 腕1本 = 2拍
 FLY = .62                                          # 1個がびんから番地へ飛ぶ時間
-TALL = T3 + ARMS * ARM_DT                          # 全部そろう
+TALL = T3 + WAVES * ARM_DT                          # 全部そろう
 DUR = TALL + 3.4; NF = int(round(DUR * FPS))
 OMEGA = 2 * math.pi / DUR                          # 動画の長さでちょうど1回転（ループ）
-PAL = [(150, 196, 255), (128, 222, 228), (150, 232, 180), (236, 226, 150), (255, 196, 150), (255, 160, 170), (236, 160, 222), (186, 166, 255)]
+import colorsys
+PAL = [tuple(int(255 * v) for v in colorsys.hls_to_rgb(j / ARMS, .74, .8)) for j in range(ARMS)]   # 腕ごとに色相を少しずつ（虹の渦）
 
 K_ = np.arange(N); RHO = CSP * np.sqrt(K_ + .5); PHI = K_ * GA; ARM = K_ % ARMS
 def home(t, idx=slice(None)):
@@ -36,16 +38,14 @@ def home(t, idx=slice(None)):
 
 # もどる順：腕 0 → 7、腕の中は中心から外へ
 ORDER = sorted(range(N), key=lambda k: (ARM[k], RHO[k]))
-LAUNCH = np.zeros(N)
-for j in range(ARMS):
-    ks = [k for k in ORDER if ARM[k] == j]; n = len(ks)
-    for i, k in enumerate(ks): LAUNCH[k] = T3 + j * ARM_DT + (ARM_DT - FLY - .05) * (i / max(1, n - 1)) ** .9
+LAUNCH = np.zeros(N); SPAN = WAVES * ARM_DT - FLY - .1
+for i, k in enumerate(ORDER): LAUNCH[k] = T3 + SPAN * i / (N - 1)                   # 腕を1本ずつ、中心から外へ、一定の速さで
 ARRIVE = LAUNCH + FLY
 
 def simulate():
     """びんの中の玉（位置で解く簡単な物理）。こぼれる前と、飛びたったあとの玉は動かさない"""
     rng = np.random.default_rng(5); SUB = 8; dt = 1 / (FPS * SUB); g = 2600.0
-    P = home(0.0).copy(); Q = P.copy(); y0 = P[:, 1]
+    P = home(0.0).copy(); Q = P.copy(); y0 = home(T1 + TPOUR / 2)[:, 1]                   # こぼれる頃の向きで、下にある玉から
     REL = T1 + TPOUR * (1 - (y0 - y0.min()) / (y0.max() - y0.min())) ** 1.0 + rng.uniform(0, .08, N)   # 下の玉から順にこぼれる
     state = np.zeros(N, int)                                                   # 0 円盤の上  1 落ちている／びんの中  2 飛んで帰った
     POS = np.zeros((NF, N, 2), np.float32); HITS = []
@@ -62,7 +62,7 @@ def simulate():
             if not act.any(): continue
             ia = np.nonzero(act)[0]
             gx = 260 * math.sin(2 * math.pi * (t - 6.4) / 3.2) * T.sstep(6.2, 7.0, t) * (1 - T.sstep(8.6, 9.4, t))   # びんを少しゆらす
-            V = (P[ia] - Q[ia]) * .9995; Q[ia] = P[ia]; P[ia] = P[ia] + V + np.array([gx, g]) * dt * dt
+            V = (P[ia] - Q[ia]) * .9995; vm = np.linalg.norm(V, axis=1, keepdims=True); V *= np.minimum(1, 1400 * dt / (vm + 1e-9)); Q[ia] = P[ia]; P[ia] = P[ia] + V + np.array([gx, g]) * dt * dt   # 速さに上限（押し合いで弾け飛ばない）
             for it in range(3):
                 X = P[ia]; D = X[:, None, :] - X[None, :, :]; L = np.sqrt((D ** 2).sum(-1)) + 1e-6
                 ov = np.clip(2 * RB - L, 0, None); np.fill_diagonal(ov, 0)
@@ -134,11 +134,12 @@ GL = T.glow(10); GB = T.glow(60)
 
 def audio(path):
     a = T.Audio(DUR, mat="glass", max_same=5, window=.03, chord_len=ARM_DT)
-    for j in range(ARMS):                                                                 # 腕 j の玉が収まるたび、カノンの j 番目の和音を下から上へ
-        ks = sorted([k for k in range(N) if ARM[k] == j], key=lambda k: ARRIVE[k]); tones = K.canon_tones(j, 62, 86)
+    for j in range(ARMS):                                                                 # 腕の玉が中心から外へ収まるたび、そのときのカノンの和音を下から上へ
+        ks = sorted([k for k in range(N) if ARM[k] == j], key=lambda k: ARRIVE[k])
         for i, k in enumerate(ks):
-            if i % 3: continue
-            m = tones[min(len(tones) - 1, i // 3)]; x = home(ARRIVE[k], [k])[0, 0]
+            if i % 2: continue
+            tones = K.canon_tones(min(7, int((ARRIVE[k] - T3) // ARM_DT)), 62, 88)
+            m = tones[min(len(tones) - 1, i // 2)]; x = home(ARRIVE[k], [k])[0, 0]
             a.note(ARRIVE[k], m, vel=.26 + .10 * (i == 0), pan=float(np.clip(.5 + (x - CX) / 700, .15, .85)))
     for q, m in enumerate(K.canon_tones(0, 62, 81)): a.note(TALL + .1 + q * .05, m, vel=.38, pan=.2 + .1 * q)   # そろったら、最初の和音（D）
     for m in (38, 50): a.note(TALL + .1, m, vel=.42, pan=.5)
