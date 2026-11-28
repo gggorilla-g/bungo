@@ -12,7 +12,7 @@
 #     #5 うねるベース    y = (1 + cos 2πx)/2                  … 鋸波の低い音の、こもり具合（ワブル）
 #     #6 アルペジオ      y = ⌊4·mod(x,1)⌋/3                  … 和音の4つの音のどれを鳴らすか（階段）
 #     #7 和音（みょーん） y = e^(−4·mod(x,4))                  … 4拍ごとに、音の高さがすべり落ちて和音に着く量
-#     #∞ 7つを重ねる（キックのたびに、ほかの音を少し下げる）。最後の8拍はテンポが上がり、一撃で終わる
+#     #∞ 7つを重ねる（キックのたびに、ほかの音を少し下げる）。最後の8拍は手拍子・光で盛り上げ、和音が A → D に着いて終わる
 #   python3 tools/formulabeat.py stills ／ all（LANG_OUT=en で英語）→ output/formulabeat1_<ja|en>.mp4
 import math, os, sys, io, wave
 import numpy as np, cv2
@@ -30,14 +30,14 @@ for k_ in range(1, 60):
     if v_ - BXK[-1] < .07: break
     BXK.append(v_)
 BXK = np.array(BXK)                                                     # 手をたたく位置 x_k = 8 − 16/(k+2)：だんだん間がつまって、8に近づく
-TESC = TALL + NALL * BT; NE = 8; DE = NE * BT / 1.25; TEND = TESC + DE; DUR = TEND + 3.6; NF = int(DUR * FPS)   # 最後の8拍はテンポが1.5倍まで上がり（持ち主 11/28「最後勿体なさすぎる。エスカレーションして終わって」）、和音は A → D に着いて、流れたまま消える（持ち主 11/28「音楽として綺麗に終わらせたい。コードを繋いで。エスカレーションはビート感とか発光感とかエフェクトで」）
+TESC = TALL + NALL * BT; NE = 8; DE = NE * BT; TEND = TESC + DE; DUR = TEND + 3.6; NF = int(DUR * FPS)   # 最後の8拍はテンポはそのまま、手拍子の細かさ・音の大きさ・光で盛り上げ（持ち主 11/28「最後勿体なさすぎる。エスカレーションして終わって」「テンポ早くならなくていい」）、和音は A → D に着いて、流れたまま消える（持ち主 11/28「音楽として綺麗に終わらせたい。コードを繋いで。エスカレーションはビート感とか発光感とかエフェクトで」）
 TSLOW = TESC
 COL = [(246, 196, 108), (236, 128, 108), (120, 200, 210), (240, 160, 180), (150, 210, 140), (130, 160, 240), (186, 140, 230), (255, 236, 200)]
 def beat_x(t):
     if t <= TESC: return (t - INTRO) / BT
     xe = (TESC - INTRO) / BT
-    if t <= TEND: u = (t - TESC) / DE; return xe + DE / BT * (u + .25 * u * u)
-    return xe + NE + (t - TEND) * 1.5 / BT                                  # 終わったあとも同じ速さで進む（線は音と一緒に平らになっていく）
+    if t <= TEND: return xe + (t - TESC) / BT
+    return xe + NE + (t - TEND) / BT                                  # 終わったあとも同じ速さで進む（線は音と一緒に平らになっていく）
 def f_kick(x): return 2 * np.exp(-7 * np.mod(x, 1)) - 1
 def f_bass(x): return np.sign(np.sin(2 * np.pi * x)) + .8 * np.sign(np.sin(3 * np.pi * x))
 def f_hat(x): return np.exp(-30 * np.mod(x + .5, 1))
@@ -104,7 +104,7 @@ def make_frame(fi):
 def saw(ph): return 2 * (np.mod(ph, 1.0)) - 1
 def synth(path):
     N = int(SR * DUR); tt = np.arange(N) / SR; X = np.interp(tt, tt[::64], np.array([beat_x(v) for v in tt[::64]])); live = (tt >= INTRO) & (tt < TEND)
-    X = np.where(tt > TEND, (TESC - INTRO) / BT + NE + (tt - TEND) * 1.5 / BT, X)                                   # 終わったあとも、音の拍は同じ速さで進む（和音・アルペジオが流れたまま消える）
+    X = np.where(tt > TEND, (TESC - INTRO) / BT + NE + (tt - TEND) / BT, X)                                   # 終わったあとも、音の拍は同じ速さで進む（和音・アルペジオが流れたまま消える）
     sec = np.clip(np.searchsorted(np.array(T0), tt, "right") - 1, 0, NS + 1); al = sec == NS + 1; bd = (sec == NS) & live; on = lambda k: ((sec == k) | al) & live
     ci = np.where(tt > TEND, 0, (X // 4).astype(int) % 8); roots = np.array([K.mtof(K.CANON[c][0] - 12) for c in range(8)])[ci]
     def lp(x, fc): return K._lp(x.astype(np.float32), fc)
@@ -120,7 +120,7 @@ def synth(path):
     wob = np.tanh(wob * 2.5)
     tones = [np.array([K.mtof(K.canon_tones(c, 62, 88)[q]) for c in range(8)])[ci] for q in range(4)]; idx = np.clip(np.floor(4 * np.mod(X, 1)).astype(int), 0, 3)
     fa = np.choose(idx, tones); arp = saw(np.cumsum(fa) / SR) * np.exp(-np.mod(X * 4, 1) * 5); arp = lp(arp, 2600)
-    bend = 2 ** (-np.where(tt > TEND + 4 * BT / 1.5, 0.0, f_glide(X)) * 7 / 12); chord = np.zeros(N, np.float32)                                              # みょーん：4拍ごとに、少し高い所からすべり落ちる。ずらした鋸波を3本ずつ
+    bend = 2 ** (-np.where(tt > TEND + 4 * BT, 0.0, f_glide(X)) * 7 / 12); chord = np.zeros(N, np.float32)                                              # みょーん：4拍ごとに、少し高い所からすべり落ちる。ずらした鋸波を3本ずつ
     for q in range(3):
         fq = tones[q] / 2 * (2 ** (7 / 12)) * bend
         for det in (-.012, 0, .011): chord += saw(np.cumsum(fq * (1 + det)) / SR) / 9
