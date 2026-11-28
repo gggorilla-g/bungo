@@ -176,3 +176,4 @@ cup2_en success jVC0_GRQjRw (MIW 11/28 妄想の上位の英語版を234で作�
 2026-11-28T02:48:47Z starrun1_ja success MiK48-HTYvM (trend、11/28 21:00 JST に公開予約)
 2026-11-28T02:50:54Z ellipray1_ja success iuPIgTU08X0 (trend、11/28 21:00 JST に公開予約)
 2026-11-28T02:51:21Z starrun1_en success 1k0gOmZMO90 (trend、11/28 21:00 JST に公開予約)
+2026-11-28T03:13:30Z windowrain1_ja success Dh8DMidxUc0 (trend、11/28 21:00 JST に公開予約)
