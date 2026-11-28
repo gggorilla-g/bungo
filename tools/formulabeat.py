@@ -23,21 +23,19 @@ import kalimba as K
 
 W, H, FPS, SR = T.W, T.H, T.FPS, T.SR
 BPM = 128.0; BT = 60 / BPM; NB = 8; NS = 7; NALL = 16                   # 1拍の秒、1つの数式の拍数、数式の数、#∞ の拍数（このあと4拍をテンポ半分）
-INTRO = .3; T0 = [INTRO + BT * NB * i for i in range(NS + 2)]; TB = T0[NS]; TALL = T0[NS + 1];   # #8 ビルドアップ（持ち主 11/28 の2本目の録画：盛り上げてから全部が合わさる）
+INTRO = .3; T0 = [INTRO + BT * NB * i for i in range(NS + 1)]; TALL = T0[NS]   # #1〜#7 を1つずつ → #∞
+TB = TALL + NALL * BT; TDROP = TB + 8 * BT; TEND = TDROP + 16 * BT; DUR = TEND + 2.8; NF = int(DUR * FPS)
+#   #∞ の中で盛り上げる（持ち主 11/28「♾️になってからビルドアップしたくて、最後なんか尻すぼみで終わる感じが嫌」）：
+#   #∞（16拍）→ ビルドアップ（8拍。手拍子の位置 x_k = 8 − 16/(k+2) がつまり、さーっと上がる）→ ドロップ（16拍。全部の層＋細かいハイハット・光）
+#   → カノン進行の ソ・レ・ソ・ラ から レ に着いた所で、全部がそろって和音を鳴らして終わる。テンポは最後まで同じ
 BXK = [0.0]
 for k_ in range(1, 60):
     v_ = 8 - 16 / (k_ + 2)
     if v_ - BXK[-1] < .07: break
     BXK.append(v_)
 BXK = np.array(BXK)                                                     # 手をたたく位置 x_k = 8 − 16/(k+2)：だんだん間がつまって、8に近づく
-TESC = TALL + NALL * BT; NE = 8; DE = NE * BT; TEND = TESC + DE; DUR = TEND + 3.6; NF = int(DUR * FPS)   # 最後の8拍はテンポはそのまま、手拍子の細かさ・音の大きさ・光で盛り上げ（持ち主 11/28「最後勿体なさすぎる。エスカレーションして終わって」「テンポ早くならなくていい」）、和音は A → D に着いて、流れたまま消える（持ち主 11/28「音楽として綺麗に終わらせたい。コードを繋いで。エスカレーションはビート感とか発光感とかエフェクトで」）
-TSLOW = TESC
 COL = [(246, 196, 108), (236, 128, 108), (120, 200, 210), (240, 160, 180), (150, 210, 140), (130, 160, 240), (186, 140, 230), (255, 236, 200)]
-def beat_x(t):
-    if t <= TESC: return (t - INTRO) / BT
-    xe = (TESC - INTRO) / BT
-    if t <= TEND: return xe + (t - TESC) / BT
-    return xe + NE + (t - TEND) / BT                                  # 終わったあとも同じ速さで進む（線は音と一緒に平らになっていく）
+def beat_x(t): return (min(t, TEND) - INTRO) / BT                    # 終わった所で止まる
 def f_kick(x): return 2 * np.exp(-7 * np.mod(x, 1)) - 1
 def f_bass(x): return np.sign(np.sin(2 * np.pi * x)) + .8 * np.sign(np.sin(3 * np.pi * x))
 def f_hat(x): return np.exp(-30 * np.mod(x + .5, 1))
@@ -62,7 +60,7 @@ def make_bg():
     yy, xx = np.mgrid[0:H, 0:W].astype(np.float32); return ((np.array([10, 10, 20], np.float32) * (1 - yy / H)[..., None] + np.array([4, 4, 10], np.float32) * (yy / H)[..., None]) / 255).astype(np.float32)
 BG = make_bg(); GS = T.glow(16); INK = (244, 246, 255, 255)
 def sec_at(t):
-    for i in range(NS + 1, -1, -1):
+    for i in range(NS, -1, -1):
         if t >= T0[i]: return i
     return 0
 def plot(d, buf, i, x0, x, yc, ga, w=4):
@@ -80,39 +78,45 @@ def make_frame(fi):
         if t >= INTRO: plot(d, buf, i, x0, x, 900, 230)
         d.text((W / 2, 300), f"#{i + 1}", font=T.fnt(110), fill=COL[i] + (255,), anchor="mm"); d.text((W / 2, 400), T.tr(NAME[i][0], NAME[i][1]), font=T.fnt(44), fill=(220, 224, 240, 255), anchor="mm")
         im = TEXI[i]; sc_ = min(2.2, 940 / im.width, 150 / im.height); im2 = im.resize((int(im.width * sc_), int(im.height * sc_)), Image.LANCZOS); ov.alpha_composite(im2, (int(W / 2 - im2.width / 2), 1260))
-    elif i == NS:                                                        # #8 ビルドアップ：手をたたく位置が、だんだんつまって8に近づく
-        xb = x - (TB - INTRO) / BT; c = COL[7]; d.line([(GX0, 1100), (GX1, 1100)], fill=(80, 84, 110, 150), width=2)
-        for k in range(1, NB + 1): xx_ = GX0 + (GX1 - GX0) * k / NB; d.line([(xx_, 1092), (xx_, 1108)], fill=(80, 84, 110, 150), width=2)
-        for k, v in enumerate(BXK):
-            if v > xb: break
-            px = GX0 + v / NB * (GX1 - GX0); hh = 60 + 520 * (k / (len(BXK) - 1)) ** 1.3; fresh = math.exp(-(xb - v) * 6)
-            d.line([(px, 1100), (px, 1100 - hh)], fill=c + (int(120 + 135 * fresh),), width=6); T.add_glow(buf, GS, px, 1100 - hh, c, .25 + .5 * fresh)
-        d.text((W / 2, 300), "#8", font=T.fnt(110), fill=c + (255,), anchor="mm"); d.text((W / 2, 400), T.tr("ビルドアップ", "Build-up"), font=T.fnt(44), fill=(220, 224, 240, 255), anchor="mm")
-        im = TEXB; sc_ = min(2.2, 940 / im.width, 150 / im.height); im2 = im.resize((int(im.width * sc_), int(im.height * sc_)), Image.LANCZOS); ov.alpha_composite(im2, (int(W / 2 - im2.width / 2), 1260))
-    else:                                                                # #∞：7つの層を上下に並べる
-        x0 = math.floor((x - 1e-6) / NB) * NB; x0 = min(x0, x); ue = min(1.0, max(0.0, (t - TESC) / DE)); hitf = 1.0 if t >= TEND else 0.0
-        d.text((W / 2, 290), "#∞", font=T.fnt(int(110 * (1 + .18 * ue * (1 - hitf) + .18 * hitf))), fill=COL[7] + (255,), anchor="mm")
+    else:                                                                # #∞：7つの層を上下に並べる。途中でビルドアップ → ドロップ
+        x0 = math.floor((x - 1e-6) / NB) * NB; x0 = min(x0, x); dp = TDROP <= t; fin = t >= TEND
+        pulse = math.exp(-(x % 1) * 5) if (dp and not fin) else 0.0; ub = min(1.0, max(0.0, (t - TB) / (8 * BT)))
+        sz = 110 * (1 + .10 * ub * (t < TDROP) + (.18 + .06 * pulse) * dp)
+        d.text((W / 2, 290), "#∞", font=T.fnt(int(sz)), fill=COL[7] + (255,), anchor="mm")
         for j in range(NS):
-            yc = 470 + j * 150; d.line([(GX0, yc), (GX1, yc)], fill=(70, 74, 100, 110), width=1); plot(d, buf, j, x0, x, yc, (52 + 16 * ue) * (math.exp(-(t - TEND) * .9) if t >= TEND else 1.0), 3 + int(2 * ue))
-            d.text((GX0, yc - 58), f"#{j + 1} " + T.tr(NAME[j][0], NAME[j][1]), font=T.fnt(24, False), fill=COL[j] + (230,), anchor="lm")
-    if TESC <= t < TEND: ue_ = (t - TESC) / DE; buf = buf + np.float32(.10 * ue_ * math.exp(-((x % 1)) * 5))      # 加速中は、拍ごとに画面が光る（だんだん強く）
-    if t >= TEND: buf = buf + np.float32(.12 * math.exp(-(t - TEND) * 1.2))                                   # 着いた所で、やわらかく光って消えていく
+            mute = TB <= t < TDROP and j in (1, 3, 4, 6)                    # ビルドアップの間は、ベース・クラップ・うねるベース・和音がいったん抜ける
+            yc = 470 + j * 150; d.line([(GX0, yc), (GX1, yc)], fill=(70, 74, 100, 110), width=1)
+            ga = (8 if mute else 52) + (14 + 8 * pulse) * dp; plot(d, buf, j, x0, x, yc, ga, 3 + 2 * dp)
+            d.text((GX0, yc - 58), f"#{j + 1} " + T.tr(NAME[j][0], NAME[j][1]), font=T.fnt(24, False), fill=COL[j] + ((90 if mute else 230),), anchor="lm")
+        if TB <= t < TDROP:                                              # ビルドアップ：手をたたく位置がつまっていく
+            xb = x - (TB - INTRO) / BT; c = COL[7]; yb0 = 1640; d.line([(GX0, yb0), (GX1, yb0)], fill=(80, 84, 110, 150), width=2)
+            for k, v in enumerate(BXK):
+                if v > xb: break
+                px = GX0 + v / NB * (GX1 - GX0); hh = 20 + 170 * (k / (len(BXK) - 1)) ** 1.3; fresh = math.exp(-(xb - v) * 6)
+                d.line([(px, yb0), (px, yb0 - hh)], fill=c + (int(120 + 135 * fresh),), width=5); T.add_glow(buf, GS, px, yb0 - hh, c, .2 + .45 * fresh)
+            im = TEXB; sc_ = min(1.2, 700 / im.width, 70 / im.height); im2 = im.resize((int(im.width * sc_), int(im.height * sc_)), Image.LANCZOS); ov.alpha_composite(im2, (int(W / 2 - im2.width / 2), 1690))
+            buf = buf + np.float32(.05 * ub * ub)
+    if TDROP <= t < TEND: buf = buf + np.float32(.09 * math.exp(-(x % 1) * 5))                            # ドロップの間は、拍ごとに画面が光る
+    if t >= TEND: buf = buf + np.float32(.26 * math.exp(-(t - TEND) * 1.6))                                # 着いた所で、大きく光る
     out = np.asarray(Image.alpha_composite(Image.fromarray(T.to_frame(buf, None, grain=fi)).convert("RGBA"), ov).convert("RGB"))
     g = min(T.sstep(0, .25, t), 1 - T.sstep(DUR - 1.0, DUR, t))
     return out if g >= .999 else (out.astype(np.float32) * g).astype(np.uint8)
 
 def saw(ph): return 2 * (np.mod(ph, 1.0)) - 1
 def synth(path):
-    N = int(SR * DUR); tt = np.arange(N) / SR; X = np.interp(tt, tt[::64], np.array([beat_x(v) for v in tt[::64]])); live = (tt >= INTRO) & (tt < TEND)
-    X = np.where(tt > TEND, (TESC - INTRO) / BT + NE + (tt - TEND) / BT, X)                                   # 終わったあとも、音の拍は同じ速さで進む（和音・アルペジオが流れたまま消える）
-    sec = np.clip(np.searchsorted(np.array(T0), tt, "right") - 1, 0, NS + 1); al = sec == NS + 1; bd = (sec == NS) & live; on = lambda k: ((sec == k) | al) & live
-    ci = np.where(tt > TEND, 0, (X // 4).astype(int) % 8); roots = np.array([K.mtof(K.CANON[c][0] - 12) for c in range(8)])[ci]
+    N = int(SR * DUR); tt = np.arange(N) / SR; X = (np.minimum(tt, TEND) - INTRO) / BT; live = (tt >= INTRO) & (tt < TEND)
+    sec = np.clip(np.searchsorted(np.array(T0), tt, "right") - 1, 0, NS); inf = (sec == NS) & live
+    bd = (tt >= TB) & (tt < TDROP); dpm = ((tt >= TDROP) & (tt < TEND)).astype(np.float32); xb = X - (TB - INTRO) / BT
+    out_b = bd.astype(np.float32)                                                                                  # ビルドアップで抜ける層
+    on = lambda k: ((sec == k) | inf) & live
+    ci = (X // 4).astype(int) % 8; roots = np.array([K.mtof(K.CANON[c][0] - 12) for c in range(8)])[ci]
     def lp(x, fc): return K._lp(x.astype(np.float32), fc)
     ph = np.mod(X, 1); env = np.clip((f_kick(X) + 1) / 2, 0, 1) ** 1.2; fk = 46 + 120 * np.exp(-ph * 24); kick = np.sin(2 * np.pi * np.cumsum(fk) / SR) * env; kick = np.tanh(kick * 1.6)
     kick += .18 * np.random.default_rng(1).normal(0, 1, N) * np.exp(-ph * 140)
+    kick = kick * (1 - out_b * (xb >= 6))                                                                          # ビルドアップの最後の2拍は、キックも止める（ためる）
     yb = f_bass(X); fr = roots * np.where(yb > 0, 2.0, 1.0); bass = np.tanh(np.sin(2 * np.pi * np.cumsum(fr) / SR) * 2.4) * (np.abs(yb) / 1.8); bass = lp(bass, 700)
-    n = np.random.default_rng(2).normal(0, 1, N).astype(np.float32); hat = lp(lp(n - lp(n, 2600), 4600), 4600) * f_hat(X)
-    clap = lp(lp(n - lp(n, 900), 3000), 3000) * f_clap(X)
+    n = np.random.default_rng(2).normal(0, 1, N).astype(np.float32); hn = lp(lp(n - lp(n, 2600), 4600), 4600); hat = hn * f_hat(X)
+    cn = lp(lp(n - lp(n, 900), 3000), 3000); clap = cn * f_clap(X)
     from scipy.signal import lfilter
     pw = np.cumsum(roots) / SR; wsaw = saw(pw) * .6 + saw(pw * 1.007) * .4; cut = 150 + 1400 * f_wob(X); wob = np.zeros(N, np.float32); zi = np.zeros(1)   # うねるベース：こもり具合をまわす
     for k in range(0, N, 256):
@@ -120,16 +124,17 @@ def synth(path):
     wob = np.tanh(wob * 2.5)
     tones = [np.array([K.mtof(K.canon_tones(c, 62, 88)[q]) for c in range(8)])[ci] for q in range(4)]; idx = np.clip(np.floor(4 * np.mod(X, 1)).astype(int), 0, 3)
     fa = np.choose(idx, tones); arp = saw(np.cumsum(fa) / SR) * np.exp(-np.mod(X * 4, 1) * 5); arp = lp(arp, 2600)
-    bend = 2 ** (-np.where(tt > TEND + 4 * BT, 0.0, f_glide(X)) * 7 / 12); chord = np.zeros(N, np.float32)                                              # みょーん：4拍ごとに、少し高い所からすべり落ちる。ずらした鋸波を3本ずつ
+    bend = 2 ** (-f_glide(X) * 7 / 12); chord = np.zeros(N, np.float32)                                              # みょーん：4拍ごとに、少し高い所からすべり落ちる。ずらした鋸波を3本ずつ
     for q in range(3):
         fq = tones[q] / 2 * (2 ** (7 / 12)) * bend
         for det in (-.012, 0, .011): chord += saw(np.cumsum(fq * (1 + det)) / SR) / 9
-    chord = lp(chord, 2200)
-    duck = 1 - .7 * np.exp(-np.mod(X, 1) * 8) * al
-    G = {"bass": np.where(al, .30, .38), "hat": np.where(al, .45, 3.4), "clap": np.where(al, .5, 4.0), "wob": np.where(al, .28, .40), "arp": np.where(al, .22, 1.0), "chord": np.where(al, .55, 1.1)}   # 1つずつの区間は、聞こえの大きさをそろえる
-    mix = kick * on(0) + (bass * G["bass"] * on(1) + hat * G["hat"] * on(2) + clap * G["clap"] * on(3) + wob * G["wob"] * on(4) + arp * G["arp"] * on(5) + chord * G["chord"] * on(6)) * duck
-    sub = np.sin(2 * np.pi * np.cumsum(roots / 2) / SR); sub = (sub + .3 * np.sin(2 * np.pi * np.cumsum(roots) / SR)) * .55 * (on(1) * .7 + al * .5) * duck   # 重低音（基音の1オクターブ下）。小さいスピーカーでも聞こえるよう、倍音を少し
-    xb = X - (TB - INTRO) / BT; roll = np.zeros(N, np.float32)                                                        # ビルドアップ：x_k ごとに手をたたく音。だんだん高く、強く。下で鋸波の和音がこもりから開いていく
+    chord_b = lp(chord, 3200); chord = lp(chord, 2200)
+    duck = 1 - .7 * np.exp(-np.mod(X, 1) * 8) * inf
+    G = {"bass": np.where(inf, .30, .38), "hat": np.where(inf, .45, 3.4), "clap": np.where(inf, .5, 4.0), "wob": np.where(inf, .28, .40), "arp": np.where(inf, .22, 1.0), "chord": np.where(inf, .55, 1.1)}   # 1つずつの区間は、聞こえの大きさをそろえる
+    keep = 1 - out_b
+    mix = kick * on(0) + (bass * G["bass"] * on(1) * keep + hat * G["hat"] * on(2) + clap * G["clap"] * on(3) * keep + wob * G["wob"] * on(4) * keep + arp * G["arp"] * on(5) * (1 + .6 * out_b) + (chord * (1 - dpm) + chord_b * dpm * 1.25) * G["chord"] * on(6) * keep) * duck
+    sub = np.sin(2 * np.pi * np.cumsum(roots / 2) / SR); sub = (sub + .3 * np.sin(2 * np.pi * np.cumsum(roots) / SR)) * .55 * (on(1) * .7 + inf * .5 * (1 + .3 * dpm)) * keep * duck   # 重低音（基音の1オクターブ下）
+    roll = np.zeros(N, np.float32)                                                                                   # ビルドアップ：x_k ごとに手をたたく音。だんだん高く、強く。下で鋸波の和音がこもりから開いていく
     for k, v in enumerate(BXK):
         a0 = int((TB + v * BT) * SR); seg = min(N - a0, int(.18 * SR)); u = k / (len(BXK) - 1)
         if seg <= 0: continue
@@ -140,26 +145,33 @@ def synth(path):
     for q in range(3):
         fq = tones[q] / 2 * (2 ** (np.clip(xb, 0, 8) / 8 * 2 / 12))
         for det in (-.01, .009): padb += saw(np.cumsum(fq * (1 + det)) / SR) / 6
-    opn = np.zeros(N, np.float32); m_ = bd.astype(np.float32); cutb = 300 + 2600 * np.clip(xb / 8, 0, 1) ** 2; zi = np.zeros(1)
+    opn = np.zeros(N, np.float32); cutb = 300 + 2600 * np.clip(xb / 8, 0, 1) ** 2; zi = np.zeros(1)
     for k in range(0, N, 256):
         if not bd[k:k + 256].any(): continue
         c = math.exp(-2 * math.pi * cutb[k] / SR); o, zi = lfilter([1 - c], [1, -c], padb[k:k + 256], zi=zi); opn[k:k + 256] = o
-    mix = mix + ((roll + rise + opn * .9) * m_).astype(np.float32) + (sub * 0 + np.sin(2 * np.pi * np.cumsum(roots / 2) / SR) * .3 * m_ * (1 - np.clip(xb / 8, 0, 1))).astype(np.float32)
-    es = ((tt >= TESC) & (tt < TEND)).astype(np.float32); ue = np.clip((tt - TESC) / DE, 0, 1)                   # 最後の8拍：8分 → 16分の手拍子が速まり、さーっという音が上がる
-    mrate = np.where(ue < .5, 2.0, 4.0); clr = lp(lp(n - lp(n, 1100), 3200), 3200) * np.exp(-26 * np.mod(X * mrate, 1)) * (.4 + 1.1 * ue) * 1.6
-    rise2 = lp(lp((n - lp(n, 500)) * ue ** 2 * .5, 2400), 2400)
-    mix = mix + ((clr + rise2) * es).astype(np.float32)
-    tl = (tt >= TEND).astype(np.float32); sub = sub * (1 - tl); te = np.maximum(tt - TEND, 0); envT = np.exp(-te * .9) * tl                # 終わり：テンポの上がった流れのまま、和音が A → D に着いて（カノン進行の最後と最初）、ゆっくり消える
-    kz = np.tanh(np.sin(2 * np.pi * np.cumsum(44 + 100 * np.exp(-te * 22)) / SR) * 1.6) * np.exp(-te * 6) * tl * .9    # 着いた所で、やわらかいキック1つ
-    crash = lp(lp(n - lp(n, 1200), 3400), 3400) * np.exp(-te * 2.2) * tl * .5                                       # さーっと広がって消える音
-    tailmix = chord * 1.0 * envT + arp * .35 * np.exp(-te * 1.4) * tl + sub * 0 + np.sin(2 * np.pi * np.cumsum(roots / 2) / SR) * .55 * envT
-    mix = ((mix + sub) * (.80 + .20 * ue) + tailmix + kz + crash).astype(np.float32) * np.clip((DUR - tt) / .6, 0, 1)   # 加速する8拍で、全体の大きさも少しずつ上がる
+    mix = mix + ((roll + rise + opn * .9) * out_b).astype(np.float32)
+    xd = X - (TDROP - INTRO) / BT                                                                                    # ドロップ：16分のハイハットと、入った瞬間のシャーン。最後の2拍は手拍子が16分で駆け上がる
+    h16 = hn * np.exp(-34 * np.mod(X * 4, 1)) * .55 * dpm
+    te0 = np.maximum(tt - TDROP, 0); crash0 = cn * np.exp(-te0 * 2.4) * (tt >= TDROP) * .9
+    fill = cn * np.exp(-24 * np.mod(X * 4, 1)) * np.clip((xd - 14) / 2, 0, 1) * 2.2 * dpm
+    mix = mix + (h16 + crash0 * (tt < TEND) + fill).astype(np.float32)
+    tl = (tt >= TEND).astype(np.float32); te = np.maximum(tt - TEND, 0)                                              # 終わり：レに着いた所で、全部がそろって和音を鳴らし、響きが残る
+    r0 = K.mtof(K.CANON[0][0] - 12); fend = [K.mtof(m) for m in K.canon_tones(0, 50, 86)[:7]]
+    kz = np.tanh(np.sin(2 * np.pi * np.cumsum(44 + 110 * np.exp(-te * 22)) / SR) * 2.0) * np.exp(-te * 4) * tl * 1.1
+    stab = np.zeros(N, np.float32)
+    for f_ in fend:
+        for det in (-.011, 0, .010): stab += saw(np.cumsum(np.full(N, f_ * (1 + det))) / SR) / 12
+    stab = lp(stab, 2800) * np.exp(-te * .75) * tl * 1.25
+    subz = (np.sin(2 * np.pi * r0 / 2 * te) + .3 * np.sin(2 * np.pi * r0 * te)) * np.exp(-te * .9) * tl * .8
+    crash = cn * np.exp(-te * 1.6) * tl * 1.1
+    gain = .80 + .20 * dpm
+    mix = ((mix + sub) * gain + kz + stab + subz + crash).astype(np.float32) * np.clip((DUR - tt) / .5, 0, 1)
     st = np.stack([mix + chord * .05 * on(6), mix - chord * .05 * on(6)], 1); st = np.tanh(st * 1.3) / 1.3; st *= .55 / (np.abs(st).max() + 1e-9)
     with wave.open(path, "wb") as w: w.setnchannels(2); w.setsampwidth(2); w.setframerate(SR); w.writeframes((st * 32767).astype(np.int16).tobytes())
 
 if __name__ == "__main__":
     cmd = sys.argv[1] if len(sys.argv) > 1 else "all"; os.makedirs("build_formulabeat", exist_ok=True)
-    print("長さ", round(DUR, 1), "区切り", [round(v, 2) for v in T0], "加速", round(TESC, 2), "終わり", round(TEND, 2))
-    if cmd == "stills": print(T.stills(NF, make_frame, "build_formulabeat/s", at=[(T0[i] + 2.6) / DUR for i in (0, 4, 6)] + [(TB + 3.5) / DUR] + [(TALL + 4) / DUR, (TESC + DE * .8) / DUR, (TEND + .15) / DUR])); sys.exit()
+    print("長さ", round(DUR, 1), "区切り", [round(v, 2) for v in T0], "ビルドアップ", round(TB, 2), "ドロップ", round(TDROP, 2), "終わり", round(TEND, 2))
+    if cmd == "stills": print(T.stills(NF, make_frame, "build_formulabeat/s", at=[(T0[i] + 2.6) / DUR for i in (0, 6)] + [(TALL + 4) / DUR, (TB + 3.2) / DUR, (TDROP + 2.0) / DUR, (TEND + .3) / DUR])); sys.exit()
     if cmd == "audio": synth("build_formulabeat/a.wav"); sys.exit()
     out = f"output/formulabeat1_{T.LANG}.mp4"; synth("build_formulabeat/a.wav"); T.encode(NF, make_frame, "build_formulabeat/a.wav", out); print(out)
