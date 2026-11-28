@@ -125,9 +125,6 @@ def make_frame(fi):
         d.text((GX1 + 26, ym - 18), T.tr(NAME[k][0], NAME[k][1]), font=f, fill=tuple(int(v + (255 - v) * .45) for v in COL[k]) + (255,), anchor="lm")   # 名前は少し明るく（暗い層の色でも読める）; d.text((GX1 + 26, ym + 18), f"{RHO[k]:.2f}", font=T.fnt(28, False), fill=(200, 208, 228, 255), anchor="lm")
     d.text((GX0 - 24, 1745), T.tr("重さ g/cm³", "Density g/cm³"), font=T.fnt(24, False), fill=(170, 180, 205, 255), anchor="lm") if False else None
     T.fit_text(d, (W / 2, 140), T.tr("重さのちがう液体に、しずくを落とすと？", "Drop by drop into six liquids of different weights"), 56, 1000, (244, 246, 255, 255))
-    T.fit_text(d, (W / 2, 214), T.tr("しずくは、自分と同じ液体の層で止まって鳴る", "Each drop sinks to its own layer and rings there"), 42, 1000, (255, 222, 150, 255))
-    T.fit_text(d, (W / 2, 288), T.tr("重い液体ほど、低い音", "Heavier liquids, lower notes"), 38, 1000, (200, 210, 235, 255), bold=False)
-    if t > TLAST - TR[5][0] - .2: T.fit_text(d, (W / 2, 1810), T.tr("最後は6つ同時に。軽いものから着く", "Finally all six at once. The lightest lands first"), 40, 1000, (255, 232, 170, 255))
     out = np.asarray(Image.alpha_composite(Image.alpha_composite(Image.fromarray(T.to_frame(buf, None, grain=fi)).convert("RGBA"), ov), GLASS).convert("RGB"))
     gg = min(T.sstep(0, .35, t), 1 - T.sstep(DUR - .7, DUR, t))
     return out if gg >= .999 else (out.astype(np.float32) * gg).astype(np.uint8)
