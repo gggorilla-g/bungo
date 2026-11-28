@@ -8,9 +8,10 @@
 #   単位はメートル・秒・キログラム。simulate(...) は 1コマごとの (中心, 角度) を返す
 import math
 import numpy as np
+G_ON = 1.0
 
 class Slinky:
-    def __init__(s, n=48, R=.034, mass=.2, h=.0013, k_tot=.3, preload=.06, kc=20000., ks=60., damp=.04, mu=.8):
+    def __init__(s, n=48, R=.034, mass=.2, h=.0013, k_tot=.15, preload=.03, kc=20000., ks=600., damp=.04, mu=.8):
         s.n, s.R, s.h = n, R, h; s.m = mass / n; s.I = s.m * R * R / 2
         s.k = n * k_tot / 2                                                     # ふち1か所あたりのばね
         s.d0 = h - (preload / 2) / s.k                                          # 自然長（巻き線の太さより短い＝最初から縮める力）
@@ -23,7 +24,7 @@ def steps_poly(steps):
     """steps：[(x_left, x_right, y_top)]（左から右へ下りる）"""
     return np.array(steps, float)
 
-def ground_force(P, V, S, kg=40000., cg=30., mu=.8):
+def ground_force(P, V, S, kg=40000., cg=8., mu=.8):
     """点 P（M,2）が段（下にずっと続く箱）に食いこんだら、近いほうの面（上面か、右の縦の面）から押し出す。上面では摩擦も"""
     F = np.zeros_like(P)
     for x0, x1, y in S:
@@ -31,19 +32,20 @@ def ground_force(P, V, S, kg=40000., cg=30., mu=.8):
         if not inside.any(): continue
         pu = y - P[inside, 1]; pr = x1 - P[inside, 0]; up = pu <= pr
         Vi = V[inside]; Fi = np.zeros((inside.sum(), 2))
-        fn = np.maximum(kg * pu - cg * Vi[:, 1], 0); ft = np.clip(-Vi[:, 0] * 40.0, -mu * fn, mu * fn)
+        fn = np.maximum(kg * pu - cg * Vi[:, 1], 0); ft = np.clip(-Vi[:, 0] * 30.0, -mu * fn, mu * fn)
         Fi[up, 1] = fn[up]; Fi[up, 0] = ft[up]
-        fr = np.maximum(kg * pr - cg * Vi[:, 0], 0); fy = np.clip(-Vi[:, 1] * 40.0, -mu * fr, mu * fr)
+        fr = np.maximum(kg * pr - cg * Vi[:, 0], 0); fy = np.clip(-Vi[:, 1] * 30.0, -mu * fr, mu * fr)
         Fi[~up, 0] = fr[~up]; Fi[~up, 1] = fy[~up]
         F[inside] += Fi
     return F
 
-def simulate(S, dur=8.0, fps=60, sl=None, init=None, dt=4e-5, push=None):
+def simulate(S, dur=8.0, fps=60, sl=None, init=None, dt=2e-5, push=None):
     sl = sl or Slinky(); n = sl.n
     c, a = init(sl) if init else (None, None)
-    v = np.zeros_like(c); w = np.zeros(n); g = np.array([0, -9.81])
+    v = np.zeros_like(c); w = np.zeros(n); g = np.array([0, -9.81 * G_ON])
     out = []; nsub = int(round(1 / (fps * dt))); t = 0.0
     if push: v, w = push(sl, c, a, v, w)
+    if callable(getattr(init, 'vel', None)): v, w = init.vel(sl, c, a)
     for fi in range(int(dur * fps)):
         for _ in range(nsub):
             p1, p2, e = sl.rims(c, a); nrm = np.stack([-e[:, 1], e[:, 0]], 1)
@@ -60,8 +62,8 @@ def simulate(S, dur=8.0, fps=60, sl=None, init=None, dt=4e-5, push=None):
                 Fg = ground_force(P, VR, S)
                 Fi += Fg
                 F += Fi; arm = sg * sl.R * e; Tq += arm[:, 0] * Fi[:, 1] - arm[:, 1] * Fi[:, 0]
-            dc = c[1:] - c[:-1]; sh = (dc * e[:-1]).sum(1); dvs = ((v[1:] - v[:-1]) * e[:-1]).sum(1)   # せん断：となりの中心が輪の面の向きにずれない
-            fs = (sl.ks * sh + 2 * math.sqrt(sl.ks * sl.m) * dvs)[:, None] * e[:-1]; F[:-1] += fs; F[1:] -= fs
+            em = e[:-1] + e[1:]; em /= np.linalg.norm(em, axis=1)[:, None] + 1e-9; dc = c[1:] - c[:-1]; sh = (dc * em).sum(1); dvs = ((v[1:] - v[:-1]) * em).sum(1)   # せん断：となりの中心が輪の面の向きにずれない
+            fs = (sl.ks * sh + 2 * math.sqrt(sl.ks * sl.m) * dvs)[:, None] * em; F[:-1] += fs; F[1:] -= fs
             v += F / sl.m * dt; w += Tq / sl.I * dt; w *= (1 - 2e-4); v *= (1 - 1e-5)
             c += v * dt; a += w * dt; t += dt
         out.append((c.copy(), a.copy()))

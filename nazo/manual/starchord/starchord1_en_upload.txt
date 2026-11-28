@@ -1,0 +1,15 @@
+【タイトル】
+Light balls bouncing inside a circle. Can 10 of them make one chord? #Shorts #math #relaxing
+
+【説明】
+Balls of light bounce inside a round frame. Each path traces a star, and every bounce rings a glass note.
+
+- Inside a circle the ball leaves the wall at the same angle it hit it, so every bounce moves it the same angle around the center. If each bounce moves it 360° x q/p, it returns to its start after p bounces and draws a star with p points (5/2 gives a pentagram).
+- Balls are added two at a time. The second one is the mirror image of the first (going the other way) and plays one octave higher.
+- The five stars are 5/2, 7/3, 8/3, 9/4 and 12/5. The notes are D, A, F#, E and B, which sound clean in any combination.
+- Once all 10 are moving, the tempo speeds up at the very end, and all 10 reach the edge at the same moment to ring one chord.
+
+Simulation, sound and animation: original (made with Python)
+
+【タグ】
+math, star polygon, circle, chord, relaxing, meditation, healing, satisfying
