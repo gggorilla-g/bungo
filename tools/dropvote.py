@@ -7,6 +7,7 @@
 #     #3 y = sin 3πx                              … こもり具合がうねる（3連のワブル）
 #     #4 y = 2e^(−3·mod(x,1)) − 1                 … 拍ごとに1オクターブ上からすべり落ちる（808）
 #     #5 y = sgn(sin 4πx)·(2e^(−3·mod(x,1)) − 1)  … #1 と #4 のかけ算。止まりながら、すべり落ちる。いちばん重く、画面もゆれる
+#   #∞ は5つを重ねる。左右に分け（#1・#3 は左、#2・#5 は右、#4 はまん中）、低い音は #4 だけ、歪みは弱め
 #   和音は Dm・B♭・F・C（2拍ずつ）。140 BPM。x は拍
 #   python3 tools/dropvote.py stills ／ all（LANG_OUT=en で英語）→ output/dropvote1_<ja|en>.mp4
 import math, os, sys, io, wave
@@ -57,7 +58,7 @@ def make_frame(fi):
             pts = list(zip((GX0 + (xs - x0) / NB * (GX1 - GX0)).tolist(), (yc - ys * 78).tolist()))
             if len(pts) > 1: d.line(pts, fill=c + (70,), width=11, joint="curve"); d.line(pts, fill=c + (255,), width=4, joint="curve")
             T.add_glow(buf, GS, pts[-1][0], pts[-1][1], c, .5 + .3 * pulse); d.ellipse([pts[-1][0] - 8, pts[-1][1] - 8, pts[-1][0] + 8, pts[-1][1] + 8], fill=(255, 255, 255, 255))
-            d.text((GX0, yc - 96), f"#{j + 1}", font=T.fnt(30), fill=c + (230,), anchor="lm")
+            d.text((GX0, yc - 96), f"#{j + 1}  " + [T.tr("左", "L"), T.tr("右", "R"), T.tr("左", "L"), T.tr("まん中", "C"), T.tr("右", "R")][j], font=T.fnt(30), fill=c + (230,), anchor="lm")   # どちらの耳から聞こえるか
         buf = buf + np.float32(.08 * pulse)
         if t >= TEND: buf = buf + np.float32(.06 * math.exp(-(t - TEND) * 2.5))
         return finish(buf, ov, fi, t)
@@ -99,7 +100,8 @@ def synth(path):
         f = np.array([K.mtof(c[q] + 12) for c in CH])[ci]
         for det in (-.008, .008): pad += saw(np.cumsum(f * (1 + det)) / SR) / 9
     pad = lp(lp(pad, 1500), 1500) * .5
-    bass = np.zeros(N, np.float32); sub = np.zeros(N, np.float32)
+    bass = np.zeros(N, np.float32); sub = np.zeros(N, np.float32); infL = np.zeros(N, np.float32); infR = np.zeros(N, np.float32)
+    PAN = [-.55, .55, -.3, 0.0, .3]; HPF = [260, 420, 220, 0, 300]                                                    # #∞ の整音（持ち主 11/28「♾️がきたない」）：左右に分け、低いところは #4 だけにする（ほかの層は低い音を削る）
     MULT = [2, 4, 2, 1, 1]; GALL = [.42, .30, .40, .85, .55]                                                         # #∞ では高さをずらして重ねる（#1・#3 は1オクターブ上、#2 は2オクターブ上。重低音は #4 だけ）
     for i, mult, sol in [(i, 1, True) for i in range(ND)] + [(i, MULT[i], False) for i in range(ND)]:                # グラフの y が、ベースの何を動かすか
         y = FN[i](X); m = ((sec == i) if sol else (sec == ND)).astype(np.float32) * (1.0 if sol else GALL[i])
@@ -113,16 +115,22 @@ def synth(path):
         for k in range(0, N, 256):
             if not m[k:k + 256].any(): continue
             c = math.exp(-2 * math.pi * cut[k] / SR); oo, zi = lfilter([1 - c], [1, -c], src[k:k + 256], zi=zi); o[k:k + 256] = oo
-        drive = 2.0 + .8 * i
-        bass += np.tanh(o * drive) * amp * m * (.7 + .06 * i) * [.80, .86, .92, 1.0, 1.12][i]
+        drive = (2.0 + .8 * i) if sol else 1.3                                                                      # #∞ では歪みを弱く（重ねたときに音がにごらない）
+        sig = np.tanh(o * drive) * amp * m * (.7 + .06 * i) * [.80, .86, .92, 1.0, 1.12][i]
+        if sol: bass += sig
+        else:
+            if HPF[i]: sig = sig - lp(lp(sig, HPF[i]), HPF[i])
+            gL, gR = math.sqrt((1 - PAN[i]) / 2), math.sqrt((1 + PAN[i]) / 2); infL += sig * gL; infR += sig * gR
         gi = [.80, .86, .92, 1.0, 1.12][i]; bass_amp = (amp if i < 4 else np.ones(N, np.float32) * np.exp(-np.mod(X, 1) * .6)) * (1.0 if (sol or i == 3) else 0.0)   # #5 の重低音は止めずに鳴らしつづける。#∞ の重低音は #4 だけ
         sub += np.sin(2 * np.pi * np.cumsum(fr / 2) / SR) * bass_amp * m * (.45 + .10 * i) * gi
     duck = 1 - .6 * np.exp(-np.mod(X, 1) * 9)
-    mix = (kick * 1.0 + (clap + hat) + (pad + lp(bass, 4000) * 1.0 + lp(sub, 200) * 1.0) * duck) * live
+    infm = (sec == ND).astype(np.float32); duck2 = 1 - .75 * np.exp(-np.mod(X, 1) * 7)                              # #∞ はキックのたびに、ほかの層を深めに下げる
+    mix = (kick * 1.0 + (clap + hat) + (pad * (1 - .5 * infm) + lp(bass, 4000) * 1.0 + lp(sub, 200) * 1.0) * duck) * live
+    infL = lp(infL, 3800) * duck2 * live * 1.9; infR = lp(infR, 3800) * duck2 * live * 1.9
     te = np.maximum(tt - TEND, 0); tl = (tt >= TEND).astype(np.float32)                                            # 終わり：キックと重低音のレがひとつだけ、短く
     mix += (np.tanh(np.sin(2 * np.pi * np.cumsum(42 + 80 * np.exp(-te * 26)) / SR) * 1.8) * np.exp(-te * 4) + np.sin(2 * np.pi * K.mtof(26) * te) * np.exp(-te * 2.2) * .6) * tl
     mix = mix * np.clip((DUR - tt) / .4, 0, 1)
-    st = np.stack([mix + pad * .06 * live, mix - pad * .06 * live], 1); st = np.tanh(st * 1.2) / 1.2; st *= .36 / (np.abs(st).max() + 1e-9)
+    st = np.stack([mix + pad * .06 * live + infL, mix - pad * .06 * live + infR], 1); st = np.tanh(st * 1.2) / 1.2; st *= .36 / (np.abs(st).max() + 1e-9)
     with wave.open(path, "wb") as w: w.setnchannels(2); w.setsampwidth(2); w.setframerate(SR); w.writeframes((st * 32767).astype(np.int16).tobytes())
 
 if __name__ == "__main__":
