@@ -1,4 +1,5 @@
 # windowrain.py — 雨の夜の車の窓。しずくがくっつくたびに音が鳴る。大きくなったしずくは流れ落ち、通り道のしずくを集めていく。最後はワイパーがふき取って、最初の窓にもどる（縦のショート）
+#   直し 11/28 その2：「もっとぷよぷよみたいにぷよんってくっつく感じが気持ちいい」「閾値高すぎて全然くっつかない」→ ふちがふれたらくっつく。小さいほうが水の橋でつながったまま 0.2 秒で吸いこまれ、ぷよんとゆれる。しずくも大きめ
 #   直し 11/28：「雨も直進しない。ぷよぷよみたいに表面張力で進路が揺れ動くはず」→ ガラスの引っかかりのむら・ぬれた跡・近くのしずくへの引き寄せで進路がゆれ、止まりかけてから一気にすべる。くっつくと、ぷるぷるゆれる
 #   持ち主 11/28：mergeball1 に付いたコメント「なんか雨の日の車内で窓見てる気分」を見せて「この水滴がくっつくみたいなギミックで一本ヒーリング作れそう」
 #   決まり（本物のしずくと同じ向き）
@@ -26,23 +27,23 @@ WM = np.zeros_like(PF)                                                  # ぬれ
 def pin(x, y):
     i, j = int(min(PF.shape[0] - 1, max(0, y / 8))), int(min(PF.shape[1] - 1, max(0, x / 8))); return float(PF[i, j] * (1 - .75 * min(1.0, WM[i, j])))
 def simulate():
-    rng = np.random.default_rng(SEED); D = [dict(x=float(rng.uniform(GX0 + 10, GX1 - 10)), y=float(rng.uniform(GY0 + 10, GY1 - 30)), r=float(rng.uniform(5, 14)), vy=0.0, vx=0.0, wob=0.0, wph=0.0, sl=False, ph=float(rng.uniform(0, 6.3)), trail=0.0, id=-1 - k) for k in range(70)] + [dict(x=float(GX0 + (GX1 - GX0) * (.15 + .23 * q)), y=float(GY0 + 60 + 140 * (q % 2)), r=33.0 + 2 * q, vy=0.0, vx=0.0, wob=0.0, wph=0.0, sl=True, ph=float(q), trail=0.0, id=-200 - q) for q in range(4)]; frames = []; ev = []; dt = 1 / (FPS * 2); t = 0.0; nid = 0   # 最初から窓にしずくがあり、大きいしずく4つは最初から流れ落ちる（冒頭から動きが見える。11/28「冒頭からわかりやすい変化」）
+    rng = np.random.default_rng(SEED); D = [dict(x=float(rng.uniform(GX0 + 10, GX1 - 10)), y=float(rng.uniform(GY0 + 10, GY1 - 30)), r=float(rng.uniform(7, 16)), vy=0.0, vx=0.0, wob=0.0, wph=0.0, sl=False, ph=float(rng.uniform(0, 6.3)), trail=0.0, id=-1 - k) for k in range(70)] + [dict(x=float(GX0 + (GX1 - GX0) * (.15 + .23 * q)), y=float(GY0 + 60 + 140 * (q % 2)), r=33.0 + 2 * q, vy=0.0, vx=0.0, wob=0.0, wph=0.0, sl=True, ph=float(q), trail=0.0, id=-200 - q) for q in range(4)]; frames = []; ev = []; dt = 1 / (FPS * 2); t = 0.0; nid = 0; ABS = []   # ABS：くっついている最中のしずく（ぷよんと吸いこまれる途中）。最初から窓にしずくがあり、大きいしずく4つは最初から流れ落ちる（冒頭から動きが見える。11/28「冒頭からわかりやすい変化」）
     for fi in range(NF):
         for _ in range(2):
             t += dt
             for _ in range(rng.poisson(rate(t) * dt)):                  # 生まれる
-                r = float(rng.uniform(6.0, 13.0) * (1.5 if rng.random() < .2 else 1)); D.append(dict(x=float(rng.uniform(GX0 + 10, GX1 - 10)), y=float(rng.uniform(GY0 + 10, GY1 - 30)), r=r, vy=0.0, vx=0.0, wob=0.0, wph=0.0, sl=False, ph=float(rng.uniform(0, 6.3)), trail=0.0, id=nid)); nid += 1
+                r = float(rng.uniform(7.0, 15.0) * (1.5 if rng.random() < .2 else 1)); D.append(dict(x=float(rng.uniform(GX0 + 10, GX1 - 10)), y=float(rng.uniform(GY0 + 10, GY1 - 30)), r=r, vy=0.0, vx=0.0, wob=0.0, wph=0.0, sl=False, ph=float(rng.uniform(0, 6.3)), trail=0.0, id=nid)); nid += 1
             for d in D:                                                  # 流れる（止まっているしずくは、くもりを集めて少しずつ大きくなる）
-                if not d["sl"] and t < TW: d["r"] += .22 * dt
+                if not d["sl"] and t < TW: d["r"] += .45 * dt
                 if d["r"] > RSL: d["sl"] = True
-                d.setdefault("vx", 0.0); d.setdefault("wob", 0.0); d.setdefault("wph", 0.0); d["wob"] *= math.exp(-2.4 * dt); d["wph"] += 2 * math.pi * (9 - .12 * d["r"]) * dt   # ぷるぷる（くっついた直後や、すべり出しでゆれ、だんだんおさまる）
+                d.setdefault("vx", 0.0); d.setdefault("wob", 0.0); d.setdefault("wph", 0.0); d["wob"] *= math.exp(-3.0 * dt); d["wph"] += 2 * math.pi * (6.5 - .07 * d["r"]) * dt   # ぷるぷる（くっついた直後や、すべり出しでゆれ、だんだんおさまる）
                 if d["sl"]:
                     r_ = d["r"]; p0 = pin(d["x"], d["y"] + r_); drive = (r_ - RSL) / RSL + .35                       # 表面張力：引っかかりが強い所では止まりかけ、ためてから一気にすべる（スティックスリップ）
                     vt = (70 + 34 * (r_ - RSL)) * min(1.5, max(.04, 1.35 - 1.7 * p0 / (drive + .25))); d["vy"] += (vt - d["vy"]) * dt / .22
                     gx = (pin(d["x"] + r_ * .9, d["y"] + r_) - pin(d["x"] - r_ * .9, d["y"] + r_))                    # すべりやすい側へそれる
                     near = [e for e in D if e is not d and 0 < e["y"] - d["y"] < r_ * 3.2 and abs(e["x"] - d["x"]) < r_ * 2.4]   # 下のほうの近いしずくに引き寄せられる
-                    ax = -gx * 260 + (sum((e["x"] - d["x"]) * e["r"] for e in near) / max(1.0, sum(e["r"] for e in near)) * 3.0 if near else 0.0) + float(rng.normal(0, 60))
-                    d["vx"] += (ax - d["vx"] * 2.2) * dt; d["vx"] = max(-.6 * abs(d["vy"]) - 8, min(.6 * abs(d["vy"]) + 8, d["vx"]))
+                    ax = -gx * 650 + (sum((e["x"] - d["x"]) * e["r"] for e in near) / max(1.0, sum(e["r"] for e in near)) * 3.0 if near else 0.0) + float(rng.normal(0, 120))
+                    d["vx"] += (ax - d["vx"] * 2.2) * dt; d["vx"] = max(-.9 * abs(d["vy"]) - 10, min(.9 * abs(d["vy"]) + 10, d["vx"]))
                     dy = d["vy"] * dt; d["y"] += dy; d["x"] = min(GX1 - 8, max(GX0 + 8, d["x"] + d["vx"] * dt)); d["trail"] += dy
                     i_, j_ = int(min(WM.shape[0] - 1, max(0, d["y"] / 8))), int(min(WM.shape[1] - 1, max(0, d["x"] / 8))); WM[max(0, i_ - 2):i_ + 1, max(0, j_ - 1):j_ + 2] += .5
                     if d["trail"] > 22 and d["r"] > RSL * .8:            # 通り道に小さなしずくを残す
@@ -50,19 +51,31 @@ def simulate():
                         if d["r"] < RSL * .75: d["sl"] = False; d["vy"] = 0.0
             if len(D) > 1:                                               # くっつく
                 X = np.array([[d["x"], d["y"], d["r"]] for d in D]); dx = X[:, 0, None] - X[None, :, 0]; dy = X[:, 1, None] - X[None, :, 1]; rs = X[:, 2, None] + X[None, :, 2]
-                ii, jj = np.where(np.triu(dx * dx + dy * dy < (rs * .92) ** 2, 1)); dead = set()
+                ii, jj = np.where(np.triu(dx * dx + dy * dy < (rs * 1.08) ** 2, 1)   # ふちがふれたら（すき間がほんの少しでも、水の橋がかかって）くっつく
+); dead = set()
                 for i, j in zip(ii, jj):
                     if i in dead or j in dead: continue
                     a, b = D[i], D[j]
                     if b["r"] > a["r"] or b["sl"]: a, b, i, j = b, a, j, i
-                    A1, A2 = a["r"] ** 2, b["r"] ** 2; a["x"] = (a["x"] * A1 + b["x"] * A2) / (A1 + A2); a["y"] = (a["y"] * A1 + b["y"] * A2) / (A1 + A2) if not a["sl"] else a["y"]; a["r"] = math.sqrt(A1 + A2); a["wob"] = min(1.0, a["wob"] + .25 + .9 * A2 / (A1 + A2)); a["vy"] *= A1 / (A1 + A2); dead.add(j)
-                    if b["r"] > 2.5: ev.append((t, a["r"], a["x"]))
+                    if a.get("busy") or b.get("busy"): continue
+                    A1, A2 = a["r"] ** 2, b["r"] ** 2; a["vy"] *= A1 / (A1 + A2); a["busy"] = True; dead.add(j)       # くっつき始め：小さいほうが 0.2 秒かけて吸いこまれる（そのあいだ水の橋でつながる）
+                    ABS.append(dict(a=a, bx=b["x"], by=b["y"], A2=A2, f=0.0, w=A2 / (A1 + A2)))
+                    if b["r"] > 2.5: ev.append((t, math.sqrt(A1 + A2), a["x"]))
                 D = [d for k, d in enumerate(D) if k not in dead]
+            for q in ABS:                                                # 吸いこまれていく：面積が少しずつ移り、最後に「ぷよん」とゆれる
+                df = min(1 - q["f"], dt / .2); q["f"] += df; a = q["a"]; a["r"] = math.sqrt(a["r"] ** 2 + q["A2"] * df)
+                if not a["sl"]: a["x"] += (q["bx"] - a["x"]) * q["w"] * df; a["y"] += (q["by"] - a["y"]) * q["w"] * df
+                if q["f"] >= 1: a["busy"] = False; a["wob"] = min(1.0, a["wob"] + .45 + .9 * q["w"]); a["wph"] = -math.pi / 2   # ぷよん：まず横につぶれ、はね返って縦にのびる
+            _ids = {id(d) for d in D}; ABS = [q for q in ABS if q["f"] < 1 and id(q["a"]) in _ids]
             if t > TW:                                                   # ワイパー：窓の下の中心を軸にまわる棒がふき取る
                 ang = wiper_angle(t)
                 D = [d for d in D if not wiped(d["x"], d["y"], ang)]
             D = [d for d in D if d["y"] < GY1 + 30]
-        frames.append(np.array([[d["x"], d["y"], d["r"], 1.0 if d["sl"] else 0.0, (d["vx"] / max(20.0, abs(d["vy"]))) if d["sl"] else 0.0, d["wob"] * math.sin(d["wph"])] for d in D], np.float32).reshape(-1, 6))
+        rows = [[d["x"], d["y"], d["r"], 1.0 if d["sl"] else 0.0, (d["vx"] / max(20.0, abs(d["vy"]))) if d["sl"] else 0.0, d["wob"] * math.sin(d["wph"])] for d in D]
+        for q in ABS:                                                    # 吸いこまれている途中のしずくと、水の橋
+            a = q["a"]; e = q["f"] * q["f"] * (3 - 2 * q["f"]); bx = q["bx"] + (a["x"] - q["bx"]) * e; by = q["by"] + (a["y"] - q["by"]) * e; rb = math.sqrt(q["A2"] * (1 - q["f"]))
+            if rb > 1.2: rows.insert(0, [bx, by, rb, 0.0, 0.0, 0.0]); rows.insert(0, [(bx + a["x"]) / 2, (by + a["y"]) / 2, min(rb, a["r"]) * .78, 0.0, 0.0, 0.0])
+        frames.append(np.array(rows, np.float32).reshape(-1, 6))
     return frames, ev
 WPX, WPY, WPL = 540.0, GY1 + 120, 1800.0                               # ワイパーの軸（窓の下）と長さ
 def wiper_angle(t):
@@ -88,7 +101,7 @@ GLASS = (BGB * .78 + .045).astype(np.float32)                           # 窓ご
 GS = T.glow(12); INK = (244, 246, 255, 255); GOLD = (255, 222, 150, 255)
 def drop(buf, x, y, r, sl, tilt=0.0, wv=0.0):
     """しずく1つ：うしろの景色が上下さかさまに小さく映るレンズ。上が少し明るく、下のふちが暗い"""
-    ry = r * ((1.18 if sl else 1.0) + .16 * wv); rxs = 1 - .10 * wv; k = int(r * 1.6) + 3; x0, y0 = int(x) - k, int(y - (ry - r)) - k - int(ry - r); w = h = 2 * k
+    ry = r * ((1.18 if sl else 1.0) + .30 * wv); rxs = 1 - .22 * wv; k = int(r * 1.6) + 3; x0, y0 = int(x) - k, int(y - (ry - r)) - k - int(ry - r); w = h = 2 * k
     if x0 < 0 or y0 < 0 or x0 + w >= W or y0 + h >= H: return
     s = int(r * 3.4) + 4; sx0, sy0 = max(0, int(x) - s), max(0, int(y) - s); src = BGS[sy0:sy0 + 2 * s, sx0:sx0 + 2 * s]
     if src.shape[0] < 4 or src.shape[1] < 4: return
