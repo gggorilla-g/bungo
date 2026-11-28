@@ -16,10 +16,10 @@ import kalimba as K
 
 W, H, FPS = T.W, T.H, T.FPS
 GX0, GY0, GX1, GY1 = 40, 430, 1040, 1740                                # 窓（ガラス）の範囲
-RSL = 32.0; TW = 50.0; TWIPE = 2.2; DUR = TW + TWIPE + 2.8; NF = int(DUR * FPS)   # 流れ出す半径、ワイパーが動き出す時刻、ふく時間
+RSL = 32.0; TW = 50.0; TWIPE = 2.2; DUR = TW + TWIPE + 2.2; NF = int(DUR * FPS)   # 流れ出す半径、ワイパーが動き出す時刻、ふく時間
 SEED = int(os.environ.get("SEED", "3"))
 
-def rate(t): return 3 + 9 * (t / TW) ** 1.5 + (12 if t > TW - 6 else 0) * min(1, (t - TW + 6) / 2) if t < TW else 1.0   # 1秒に生まれるしずく（だんだん増え、最後の6秒は本降り）
+def rate(t): return 3 + 9 * (t / TW) ** 1.5 + (12 if t > TW - 6 else 0) * min(1, (t - TW + 6) / 2) if t < TW else 8.0   # 1秒に生まれるしずく（だんだん増え、最後の6秒は本降り。ふいたあとも降りつづける）
 def simulate():
     rng = np.random.default_rng(SEED); D = []; frames = []; ev = []; dt = 1 / (FPS * 2); t = 0.0; nid = 0
     for fi in range(NF):
