@@ -15,3 +15,4 @@ ellipray1 stone
 bheat1 wood
 starrun1 glass
 layers1 glass
+flipcross1 stone

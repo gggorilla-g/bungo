@@ -99,9 +99,8 @@ def make_frame(fi):
         m = (lay == k).astype(np.float32)
         if not m.any(): continue
         yk = np.interp(np.arange(W), XS, Y[k])[None, :]; depth = np.clip((yy - yk) / TH0, 0, 1.5)
-        c = np.array(COL[k], np.float32) / 255; shade = (.92 - .30 * depth)[..., None] * c * RAY[..., None]        # 層の中：上が明るく下が少し暗い。上からの光のすじが透ける
-        band = np.exp(-np.clip(yy - yk, 0, None) / 16) * .30                                                    # 境目のすぐ下が明るい（光がたまる）
-        buf = buf * (1 - m[..., None] * .86) + (shade + band[..., None] * (c * .5 + .5)) * m[..., None] * .86
+        c = np.array(COL[k], np.float32) / 255 * .92                                                            # 層の中はベタ塗り（11/28「縦縞感がきついのでベタでいいかもな思い切って。動きで見せる系の」）
+        buf = buf * (1 - m[..., None]) + c * m[..., None]
     ov = Image.new("RGBA", (W, H), (0, 0, 0, 0)); d = ImageDraw.Draw(ov)
     for k in range(NL):                                                             # 境目の光る線
         pts = [(float(x), float(y)) for x, y in zip(XS, Y[k])]; d.line(pts, fill=(255, 255, 255, 210 if k == 0 else 120), width=3 if k == 0 else 2)

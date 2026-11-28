@@ -1,0 +1,15 @@
+【タイトル】
+Flip One Square Over All Four Edges, Again and Again: 78,125 Squares #Shorts #fractal #satisfying
+
+【説明】
+One square is flipped over its top, right, bottom and left edges, making four copies. The new cross shape is flipped over its four edges again, and again: 1 → 5 → 25 → … → 78,125 squares. The result is a cross made of smaller crosses (the Vicsek fractal).
+
+- Each round multiplies the count by 5 and the size by 3
+- Colours are a rainbow set by position
+- Sounds: a stone-like tap when each copy lands, and a soft "shh" while it flips. Canon chord progression
+- At the end it rewinds at high speed and loops back to the start
+
+Simulation, sound and animation: original (made in Python)
+
+【タグ】
+fractal, square, flip, satisfying, relaxing, math, make it work 3d
