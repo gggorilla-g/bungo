@@ -56,7 +56,7 @@ def tex_img(s, col):
     im = Image.open(buf).convert("RGBA"); bb = im.getbbox(); return im.crop(bb) if bb else im
 TEXI = [tex_img(TEX[i], COL[i]) for i in range(NS)]; TEXB = tex_img(r"$x_k=8-\frac{16}{k+2}\ \longrightarrow\ 8$", COL[7])
 
-GX0, GX1 = 70, 1010
+GX0, GX1 = 120, 960   # 横 120〜960px（スマホで左右が切れても見える範囲。持ち主 11/28「英語版見切れないように」）
 def make_bg():
     yy, xx = np.mgrid[0:H, 0:W].astype(np.float32); return ((np.array([10, 10, 20], np.float32) * (1 - yy / H)[..., None] + np.array([4, 4, 10], np.float32) * (yy / H)[..., None]) / 255).astype(np.float32)
 BG = make_bg(); GS = T.glow(16); INK = (244, 246, 255, 255)
@@ -72,13 +72,13 @@ def plot(d, buf, i, x0, x, yc, ga, w=4):
     T.add_glow(buf, GS, pts[-1][0], pts[-1][1], c, .55); r = 4 + w; d.ellipse([pts[-1][0] - r, pts[-1][1] - r, pts[-1][0] + r, pts[-1][1] + r], fill=(255, 255, 255, 255))
 def make_frame(fi):
     t = fi / FPS; buf = BG.copy(); i = sec_at(t); x = beat_x(t); ov = Image.new("RGBA", (W, H), (0, 0, 0, 0)); d = ImageDraw.Draw(ov)
-    T.fit_text(d, (W / 2, 140), T.tr("数式のグラフを、そのまま音にすると？", "What if a formula's graph were the sound?"), 58, 1000, INK)
+    T.fit_text(d, (W / 2, 140), T.tr("数式のグラフを、そのまま音にすると？", "What if a formula's graph were the sound?"), 58, 840, INK)
     if i < NS:                                                           # 1つずつ：大きなグラフ1つ、8拍で描き切る
         x0 = (T0[i] - INTRO) / BT; d.line([(GX0, 900), (GX1, 900)], fill=(80, 84, 110, 150), width=2)
         for k in range(1, NB): xx_ = GX0 + (GX1 - GX0) * k / NB; d.line([(xx_, 892), (xx_, 908)], fill=(80, 84, 110, 150), width=2)
         if t >= INTRO: plot(d, buf, i, x0, x, 900, 230)
         d.text((W / 2, 300), f"#{i + 1}", font=T.fnt(110), fill=COL[i] + (255,), anchor="mm"); d.text((W / 2, 400), T.tr(NAME[i][0], NAME[i][1]), font=T.fnt(44), fill=(220, 224, 240, 255), anchor="mm")
-        im = TEXI[i]; sc_ = min(2.2, 940 / im.width, 150 / im.height); im2 = im.resize((int(im.width * sc_), int(im.height * sc_)), Image.LANCZOS); ov.alpha_composite(im2, (int(W / 2 - im2.width / 2), 1260))
+        im = TEXI[i]; sc_ = min(2.2, 820 / im.width, 150 / im.height); im2 = im.resize((int(im.width * sc_), int(im.height * sc_)), Image.LANCZOS); ov.alpha_composite(im2, (int(W / 2 - im2.width / 2), 1260))
     elif i == NS:                                                        # #8 ビルドアップ：手をたたく位置が、だんだんつまって8に近づく
         xb = x - (TB1 - INTRO) / BT; c = COL[7]; d.line([(GX0, 1100), (GX1, 1100)], fill=(80, 84, 110, 150), width=2)
         for k in range(1, NB + 1): xx_ = GX0 + (GX1 - GX0) * k / NB; d.line([(xx_, 1092), (xx_, 1108)], fill=(80, 84, 110, 150), width=2)
@@ -87,7 +87,7 @@ def make_frame(fi):
             px = GX0 + v / NB * (GX1 - GX0); hh = 60 + 520 * (k / (len(BXK) - 1)) ** 1.3; fresh = math.exp(-(xb - v) * 6)
             d.line([(px, 1100), (px, 1100 - hh)], fill=c + (int(120 + 135 * fresh),), width=6); T.add_glow(buf, GS, px, 1100 - hh, c, .25 + .5 * fresh)
         d.text((W / 2, 300), "#8", font=T.fnt(110), fill=c + (255,), anchor="mm"); d.text((W / 2, 400), T.tr("ビルドアップ", "Build-up"), font=T.fnt(44), fill=(220, 224, 240, 255), anchor="mm")
-        im = TEXB; sc_ = min(2.2, 940 / im.width, 150 / im.height); im2 = im.resize((int(im.width * sc_), int(im.height * sc_)), Image.LANCZOS); ov.alpha_composite(im2, (int(W / 2 - im2.width / 2), 1260))
+        im = TEXB; sc_ = min(2.2, 820 / im.width, 150 / im.height); im2 = im.resize((int(im.width * sc_), int(im.height * sc_)), Image.LANCZOS); ov.alpha_composite(im2, (int(W / 2 - im2.width / 2), 1260))
         buf = buf + np.float32(.05 * min(1.0, xb / 8) ** 2)
     else:                                                                # #∞：7つの層を上下に並べる。途中でビルドアップ → ドロップ
         x0 = math.floor((x - 1e-6) / NB) * NB; x0 = min(x0, x); dp = TDROP <= t; fin = t >= TEND

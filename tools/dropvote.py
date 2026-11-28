@@ -37,7 +37,7 @@ def tex_img(s, col):
     fig.text(.5, .5, s, ha="center", va="center", fontsize=34, color=np.array(col) / 255); buf = io.BytesIO(); fig.savefig(buf, format="png", transparent=True, dpi=100); plt.close(fig)
     im = Image.open(buf).convert("RGBA"); bb = im.getbbox(); return im.crop(bb) if bb else im
 TEXI = [tex_img(TEX[i], COL[i]) for i in range(ND)]; TEXBI = tex_img(r"$\Delta x = 1 \ \to\ \frac{1}{2} \ \to\ \frac{1}{4}$", (255, 236, 210))
-GX0, GX1, GY = 60, 1020, 900; TALL_X = (TALL - INTRO) / BT
+GX0, GX1, GY = 120, 960, 900; TALL_X = (TALL - INTRO) / BT   # 横 120〜960px（スマホで左右が切れても見える範囲。持ち主 11/28「英語版見切れないように」）
 def make_bg():
     yy = np.mgrid[0:H, 0:W][0].astype(np.float32); return ((np.array([10, 8, 20], np.float32) * (1 - yy / H)[..., None] + np.array([3, 3, 8], np.float32) * (yy / H)[..., None]) / 255).astype(np.float32)
 BG = make_bg(); GS = T.glow(18); INK = (244, 246, 255, 255)
@@ -56,7 +56,7 @@ def shake(t):
 def make_frame(fi):
     t = fi / FPS; buf = BG.copy(); i = sec_at(t); x = (min(t, TEND) - INTRO) / BT; ov = Image.new("RGBA", (W, H), (0, 0, 0, 0)); d = ImageDraw.Draw(ov)
     pulse = math.exp(-(x % 1) * 5) if t < TEND else 0.0
-    T.fit_text(d, (W / 2, 150), T.tr("どのドロップで、机がゆれた？（1〜5）", "Which drop rattled your desk? (1-5)"), 58, 1000, INK)
+    T.fit_text(d, (W / 2, 150), T.tr("どのドロップで、机がゆれた？（1〜5）", "Which drop rattled your desk? (1-5)"), 58, 840, INK)
     if i == ND:                                                          # ビルドアップ：手をたたく位置がつまっていく
         xb = x - (TB - INTRO) / BT; c = (255, 236, 210); d.line([(GX0, 1100), (GX1, 1100)], fill=(80, 84, 110, 150), width=2)
         for k, v in enumerate(BXK):
@@ -64,7 +64,7 @@ def make_frame(fi):
             px = GX0 + v / NB * (GX1 - GX0); hh = 60 + 520 * (k / (len(BXK) - 1)) ** 1.3; fresh = math.exp(-(xb - v) * 6)
             d.line([(px, 1100), (px, 1100 - hh)], fill=c + (int(120 + 135 * fresh),), width=6); T.add_glow(buf, GS, px, 1100 - hh, c, .25 + .5 * fresh)
         d.text((W / 2, 330), T.tr("ビルドアップ", "Build-up"), font=T.fnt(90), fill=c + (255,), anchor="mm")
-        im = TEXBI; sc_ = min(2.0, 900 / im.width, 130 / im.height); im2 = im.resize((int(im.width * sc_), int(im.height * sc_)), Image.LANCZOS); ov.alpha_composite(im2, (int(W / 2 - im2.width / 2), 1330))
+        im = TEXBI; sc_ = min(2.0, 820 / im.width, 130 / im.height); im2 = im.resize((int(im.width * sc_), int(im.height * sc_)), Image.LANCZOS); ov.alpha_composite(im2, (int(W / 2 - im2.width / 2), 1330))
         buf = buf + np.float32(.06 * min(1.0, xb / 8) ** 2)
         return finish(buf, ov, fi, t)
     if i == ND + 1:                                                      # #∞：5つの層を上下に並べる
@@ -88,7 +88,7 @@ def make_frame(fi):
     w = 5 + i
     if len(pts) > 1: d.line(pts, fill=c + (70,), width=w + 10, joint="curve"); d.line(pts, fill=c + (255,), width=w, joint="curve")
     T.add_glow(buf, GS, pts[-1][0], pts[-1][1], c, .7 + .4 * pulse); r = 7 + w; d.ellipse([pts[-1][0] - r, pts[-1][1] - r, pts[-1][0] + r, pts[-1][1] + r], fill=(255, 255, 255, 255))
-    im = TEXI[i]; sc_ = min(2.0, 960 / im.width, 140 / im.height); im2 = im.resize((int(im.width * sc_), int(im.height * sc_)), Image.LANCZOS); ov.alpha_composite(im2, (int(W / 2 - im2.width / 2), 1330))
+    im = TEXI[i]; sc_ = min(2.0, 820 / im.width, 140 / im.height); im2 = im.resize((int(im.width * sc_), int(im.height * sc_)), Image.LANCZOS); ov.alpha_composite(im2, (int(W / 2 - im2.width / 2), 1330))
     for k in range(ND):                                                  # 下に、5つの番号（いま鳴っているのが光る）
         cx = W / 2 + (k - 2) * 150; on = k == i; cc = COL[k] + ((255 if on else 90),)
         d.ellipse([cx - 46, 1640 - 46, cx + 46, 1640 + 46], outline=cc, width=4 if on else 2); d.text((cx, 1640), str(k + 1), font=T.fnt(46), fill=cc, anchor="mm")
