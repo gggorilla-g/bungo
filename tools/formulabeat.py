@@ -105,8 +105,8 @@ def synth(path):
     ph = np.mod(X, 1); env = np.clip((f_kick(X) + 1) / 2, 0, 1) ** 1.2; fk = 46 + 120 * np.exp(-ph * 24); kick = np.sin(2 * np.pi * np.cumsum(fk) / SR) * env; kick = np.tanh(kick * 1.6)
     kick += .18 * np.random.default_rng(1).normal(0, 1, N) * np.exp(-ph * 140)
     yb = f_bass(X); fr = roots * np.where(yb > 0, 2.0, 1.0); bass = np.tanh(np.sin(2 * np.pi * np.cumsum(fr) / SR) * 2.4) * (np.abs(yb) / 1.8); bass = lp(bass, 700)
-    n = np.random.default_rng(2).normal(0, 1, N).astype(np.float32); hat = lp(n - lp(n, 3500), 6500) * f_hat(X)
-    clap = lp(n - lp(n, 900), 3200) * f_clap(X)
+    n = np.random.default_rng(2).normal(0, 1, N).astype(np.float32); hat = lp(lp(n - lp(n, 2600), 4600), 4600) * f_hat(X)
+    clap = lp(lp(n - lp(n, 900), 3000), 3000) * f_clap(X)
     from scipy.signal import lfilter
     pw = np.cumsum(roots) / SR; wsaw = saw(pw) * .6 + saw(pw * 1.007) * .4; cut = 150 + 1400 * f_wob(X); wob = np.zeros(N, np.float32); zi = np.zeros(1)   # うねるベース：こもり具合をまわす
     for k in range(0, N, 256):
@@ -128,8 +128,8 @@ def synth(path):
         a0 = int((TB + v * BT) * SR); seg = min(N - a0, int(.18 * SR)); u = k / (len(BXK) - 1)
         if seg <= 0: continue
         e = np.exp(-np.arange(seg) / SR * 30); roll[a0:a0 + seg] += (n[a0:a0 + seg] - lp(n[a0:a0 + seg], 700 + 1600 * u)) * e * (.5 + .9 * u)
-    roll = lp(roll, 5200) * 2.2
-    rise = (n - lp(n, 400)) * np.clip(xb / 8, 0, 1) ** 2 * .35; rise = lp(rise, 3000)
+    roll = lp(lp(roll, 3800), 3800) * 2.6
+    rise = (n - lp(n, 400)) * np.clip(xb / 8, 0, 1) ** 2 * .35; rise = lp(lp(rise, 2600), 2600)
     padb = np.zeros(N, np.float32)
     for q in range(3):
         fq = tones[q] / 2 * (2 ** (np.clip(xb, 0, 8) / 8 * 2 / 12))
@@ -140,7 +140,7 @@ def synth(path):
         c = math.exp(-2 * math.pi * cutb[k] / SR); o, zi = lfilter([1 - c], [1, -c], padb[k:k + 256], zi=zi); opn[k:k + 256] = o
     mix = mix + ((roll + rise + opn * .9) * m_).astype(np.float32) + (sub * 0 + np.sin(2 * np.pi * np.cumsum(roots / 2) / SR) * .3 * m_ * (1 - np.clip(xb / 8, 0, 1))).astype(np.float32)
     mix = (mix + sub).astype(np.float32) * np.clip((DUR - tt) / 1.0, 0, 1)
-    st = np.stack([mix + chord * .05 * on(6), mix - chord * .05 * on(6)], 1); st = np.tanh(st * 1.3) / 1.3; st *= .9 / (np.abs(st).max() + 1e-9)
+    st = np.stack([mix + chord * .05 * on(6), mix - chord * .05 * on(6)], 1); st = np.tanh(st * 1.3) / 1.3; st *= .55 / (np.abs(st).max() + 1e-9)
     with wave.open(path, "wb") as w: w.setnchannels(2); w.setsampwidth(2); w.setframerate(SR); w.writeframes((st * 32767).astype(np.int16).tobytes())
 
 if __name__ == "__main__":

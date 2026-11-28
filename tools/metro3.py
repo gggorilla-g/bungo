@@ -57,7 +57,7 @@ def mix(a, b, g): return tuple(int(a[q] * (1 - g) + b[q] * g) for q in range(3))
 WHT = (246, 250, 253)
 def bgimg():
     im = Image.new("RGB", (WS, HS), WHT); d = ImageDraw.Draw(im)
-    for yy in range(0, HS, 4): g_ = yy / HS; d.rectangle([0, yy, WS, yy + 4], fill=mix((252, 253, 255), (220, 230, 242), g_))
+    for yy in range(0, HS, 4): g_ = yy / HS; d.rectangle([0, yy, WS, yy + 4], fill=mix((236, 241, 248), (212, 222, 236), g_))
     return im
 BGI = bgimg()
 XS, ZS = 3.9 / (NX - 1), 3.6 / (NZ - 1); BY, BT, RR = .74, .12, .30
