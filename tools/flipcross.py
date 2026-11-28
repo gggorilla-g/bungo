@@ -65,9 +65,11 @@ def make_bg():
     yy, xx = np.mgrid[0:H, 0:W].astype(np.float32); b = (np.array([9, 8, 24], np.float32) * (1 - yy / H)[..., None] + np.array([3, 3, 12], np.float32) * (yy / H)[..., None]) / 255
     return (b + (np.exp(-(((xx - CX) / 560) ** 2 + ((yy - CY) / 640) ** 2)) * 12 / 255)[..., None] * np.array([.9, .7, 1.4], np.float32)).astype(np.float32)
 def rainbow():
-    """場所で決まる色：模様の中心のまわりを一周する虹（遠くから見ても色が混ざって灰色にならない）"""
-    yy, xx = np.mgrid[0:H, 0:W].astype(np.float32); h = (np.arctan2(yy - CY, xx - CX) / (2 * np.pi) + .55) % 1.0; r = np.clip(np.hypot(xx - CX, yy - CY) / 520, 0, 1)
-    hsv = np.dstack([h * 179.99, (.55 + .40 * r) * 255, np.full_like(h, 255)]).astype(np.uint8); return cv2.cvtColor(hsv, cv2.COLOR_HSV2RGB).astype(np.float32) / 255
+    """場所で決まる色：模様の中心のまわりを一周する、選んだ6色のなめらかな配色（11/28「色合いは配色的に綺麗な見た目になるようにして」）。中心ほど明るく白に寄る"""
+    stops = np.array([(246, 217, 139), (240, 138, 110), (215, 97, 143), (142, 107, 200), (95, 168, 224), (111, 209, 181)], np.float32) / 255   # 金・珊瑚・薔薇・すみれ・空・若葉
+    yy, xx = np.mgrid[0:H, 0:W].astype(np.float32); h = (np.arctan2(yy - CY, xx - CX) / (2 * np.pi) + .62) % 1.0 * len(stops); i = np.floor(h).astype(int) % len(stops); f = (h - np.floor(h))[..., None]
+    f = f * f * (3 - 2 * f); c = stops[i] * (1 - f) + stops[(i + 1) % len(stops)] * f; r = np.clip(np.hypot(xx - CX, yy - CY) / 520, 0, 1)[..., None]
+    return (c * (.72 + .28 * r) + (1 - (.72 + .28 * r)) * 1.0).astype(np.float32)
 RBW = rainbow()
 BG = make_bg(); INK = (244, 246, 255, 255); GOLD = (255, 222, 150, 255)
 

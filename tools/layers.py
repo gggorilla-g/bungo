@@ -18,7 +18,7 @@ import kalimba as K
 W, H, FPS = T.W, T.H, T.FPS
 NAME = [("アルコール", "Alcohol"), ("油", "Oil"), ("水", "Water"), ("台所洗剤", "Dish soap"), ("シロップ", "Syrup"), ("はちみつ", "Honey")]
 RHO = [.79, .92, 1.00, 1.06, 1.33, 1.42]; VISC = [1.2, 50, 1, 300, 2000, 6000]   # 密度、ねばり（水を1とした大まか）
-COL = [(206, 196, 246), (244, 210, 112), (96, 188, 238), (118, 214, 158), (222, 118, 66), (214, 150, 44)]
+COL = [(246, 231, 196), (242, 196, 140), (234, 150, 122), (198, 108, 142), (126, 92, 168), (62, 78, 140)]   # 配色：上から下へ、明るいクリーム → 夕焼けの橙・紅 → 紫 → 夜の藍（11/28「色合いは配色的に綺麗な見た目になるようにして」）。重いほど暗い
 NL = 6; GX0, GX1 = 196.0, 884.0; GTOP, GBOT = 560.0, 1720.0; TH0 = (GBOT - GTOP) / NL - 6   # グラスの内側、はじめの層の厚さ
 BPM = 50.0; CH = 2 * 60 / BPM; INTRO = 1.2; NCH = 16; RD = 19.0                 # 和音1つの長さ、しずくの半径
 XS = np.arange(GX0, GX1 + 1, 4.0); NX = len(XS)
@@ -122,7 +122,7 @@ def make_frame(fi):
     f = T.fnt(30)
     for k in range(NL):                                                             # 層の名前と重さ
         ym = (float(Y[k].mean()) + (float(Y[k + 1].mean()) if k < NL - 1 else GBOT)) / 2
-        d.text((GX1 + 26, ym - 18), T.tr(NAME[k][0], NAME[k][1]), font=f, fill=COL[k] + (255,), anchor="lm"); d.text((GX1 + 26, ym + 18), f"{RHO[k]:.2f}", font=T.fnt(28, False), fill=(200, 208, 228, 255), anchor="lm")
+        d.text((GX1 + 26, ym - 18), T.tr(NAME[k][0], NAME[k][1]), font=f, fill=tuple(int(v + (255 - v) * .45) for v in COL[k]) + (255,), anchor="lm")   # 名前は少し明るく（暗い層の色でも読める）; d.text((GX1 + 26, ym + 18), f"{RHO[k]:.2f}", font=T.fnt(28, False), fill=(200, 208, 228, 255), anchor="lm")
     d.text((GX0 - 24, 1745), T.tr("重さ g/cm³", "Density g/cm³"), font=T.fnt(24, False), fill=(170, 180, 205, 255), anchor="lm") if False else None
     T.fit_text(d, (W / 2, 140), T.tr("重さのちがう液体に、しずくを落とすと？", "Drop by drop into six liquids of different weights"), 56, 1000, (244, 246, 255, 255))
     T.fit_text(d, (W / 2, 214), T.tr("しずくは、自分と同じ液体の層で止まって鳴る", "Each drop sinks to its own layer and rings there"), 42, 1000, (255, 222, 150, 255))
