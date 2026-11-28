@@ -106,7 +106,7 @@ def synth(path):
     te = np.maximum(tt - TEND, 0); tl = (tt >= TEND).astype(np.float32)                                            # 終わり：キックと重低音のレがひとつだけ、短く
     mix += (np.tanh(np.sin(2 * np.pi * np.cumsum(42 + 80 * np.exp(-te * 26)) / SR) * 1.8) * np.exp(-te * 4) + np.sin(2 * np.pi * K.mtof(26) * te) * np.exp(-te * 2.2) * .6) * tl
     mix = mix * np.clip((DUR - tt) / .4, 0, 1)
-    st = np.stack([mix + pad * .06 * live, mix - pad * .06 * live], 1); st = np.tanh(st * 1.2) / 1.2; st *= .55 / (np.abs(st).max() + 1e-9)
+    st = np.stack([mix + pad * .06 * live, mix - pad * .06 * live], 1); st = np.tanh(st * 1.2) / 1.2; st *= .36 / (np.abs(st).max() + 1e-9)
     with wave.open(path, "wb") as w: w.setnchannels(2); w.setsampwidth(2); w.setframerate(SR); w.writeframes((st * 32767).astype(np.int16).tobytes())
 
 if __name__ == "__main__":
