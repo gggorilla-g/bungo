@@ -87,17 +87,17 @@ def synth(path):
     yb = f_bass(X); fr = roots[(X // 4).astype(int) % 8] * np.where(yb > 0, 2.0, 1.0); bass = np.sin(2 * np.pi * np.cumsum(fr) / SR); bass = np.tanh(bass * 2.2) * (np.abs(yb) / 1.8)
     bass = K._lp(bass.astype(np.float32), 900)
     # ハイハット：#3 の y を大きさに、白い雑音の高い所だけ
-    n = np.random.default_rng(2).normal(0, 1, N).astype(np.float32); hat = (n - K._lp(n, 7000)) * f_hat(X)
+    n = np.random.default_rng(2).normal(0, 1, N).astype(np.float32); hat = K._lp((n - K._lp(n, 3500)).astype(np.float32), 6500) * f_hat(X)   # 高すぎる音は切る（キンキンしないように）
     # 和音：#4。和音の3つの音で、FM の明るい音
     ch = np.zeros(N, np.float32); env4 = np.exp(-3 * np.mod(X, 2))
     for q in range(3):
         fq = np.array([K.mtof(K.canon_tones(c, 62, 86)[q]) for c in range(8)])[(X // 4).astype(int) % 8]; p = 2 * np.pi * np.cumsum(fq) / SR; ch += np.sin(p + 2.5 * np.sin(3 * p) * env4) * env4 / 3
     duck = 1 - .75 * np.exp(-np.mod(X, 1) * 9) * (sec == 4)                                # サイドチェイン（#∞ のときだけ）
-    al = (sec == 4); gk, gb, gh, gc = .95, np.where(al, .24, .30), np.where(al, .8, 1.6), np.where(al, .5, .9)   # 1つずつ鳴る時と、全部の時で、音量をそろえる
+    al = (sec == 4); gk, gb, gh, gc = .95, np.where(al, .24, .30), np.where(al, .45, .9), np.where(al, .5, .9)   # 1つずつ鳴る時と、全部の時で、音量をそろえる
     mix = kick * gk * on(0) + bass * gb * on(1) * duck + hat * gh * on(2) * duck + ch * gc * on(3) * duck
     sub = np.sin(2 * np.pi * np.cumsum(roots[(X // 4).astype(int) % 8] / 2) / SR) * .35 * (sec == 4) * duck * live * (tt < DUR - 2.4)   # #∞ の重低音
     mix = (mix + sub).astype(np.float32); mix *= np.clip((DUR - tt) / 1.0, 0, 1)
-    st = np.stack([mix, mix], 1); st[:, 0] += hat * .06 * on(2); st = np.tanh(st * 1.4) / 1.4; st *= .9 / (np.abs(st).max() + 1e-9)
+    st = np.stack([mix, mix], 1);  st = np.tanh(st * 1.4) / 1.4; st *= .9 / (np.abs(st).max() + 1e-9)
     with wave.open(path, "wb") as w: w.setnchannels(2); w.setsampwidth(2); w.setframerate(SR); w.writeframes((st * 32767).astype(np.int16).tobytes())
 
 if __name__ == "__main__":
