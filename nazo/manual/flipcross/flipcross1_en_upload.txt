@@ -1,12 +1,12 @@
 【タイトル】
-Flip One Square Over All Four Edges, Again and Again: 78,125 Squares #Shorts #fractal #satisfying
+Keep Flipping One Square and It Becomes a Lattice of 820,125 #Shorts #fractal #satisfying
 
 【説明】
-One square is flipped over its top, right, bottom and left edges, making four copies. The new cross shape is flipped over its four edges again, and again: 1 → 5 → 25 → … → 78,125 squares. The result is a cross made of smaller crosses (the Vicsek fractal).
+One square is flipped into all 8 neighbouring spots (over its 4 edges and 4 corners). Then the new shape is flipped into the 4 spots above, below, left and right. Alternating 8 and 4: 1 → 9 → 45 → 405 → … → 820,125 squares, a lattice made of smaller lattices.
 
-- Each round multiplies the count by 5 and the size by 3
+- Each round triples the size; the count grows by 9 and 5 in turn
 - Colours are a rainbow set by position
-- Sounds: a stone-like tap when each copy lands, and a soft "shh" while it flips. Canon chord progression
+- Sounds: a stone-like tap when each copy lands, and a quiet "shh" while it flips. Canon chord progression
 - At the end it rewinds at high speed and loops back to the start
 
 Simulation, sound and animation: original (made in Python)

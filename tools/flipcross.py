@@ -16,10 +16,13 @@ W, H, FPS = T.W, T.H, T.FPS
 NS = 7; CX, CY, FIT = 540.0, 1010.0, 960.0                             # 段階の数（5^7 = 78,125枚）、模様の中心、できあがりの幅
 FL = [1.8, 1.55, 1.35, 1.15, .98, .84, .72]; ZM = 1.0;   # 11/28「尺ちょっとずつ長くしてみようか」→ 前より長め
 OV = .55               # 段階ごとの1回の裏返しの時間、引く時間、次の裏返しが前に重なる割合
-DIRS = [(0, -1), (1, 0), (0, 1), (-1, 0)]                               # 上・右・下・左
+DIRS_P = [(0, -1), (1, 0), (0, 1), (-1, 0)]; DIRS_X = [(-1, -1), (1, -1), (1, 1), (-1, 1)]   # 辺（上・右・下・左）と、角（左上・右上・右下・左下）
+def DIRS_of(k): return DIRS_P + DIRS_X if k % 2 == 0 else DIRS_P        # 段階ごとに、8方向（辺と角。まわりを全部うめる）と4方向（辺だけ。十字）を交互に（11/28「もう少し複雑な図形になるといい」）
+DIRS = DIRS_P
 SCHED = []; t = .6
 for k in range(NS):
-    for j in range(4): SCHED.append((k, j, t, t + FL[k])); t += FL[k] * (1 - OV) if j < 3 else FL[k]
+    nd = len(DIRS_of(k)); fl = FL[k] * (.8 if nd == 8 else 1.0)
+    for j in range(nd): SCHED.append((k, j, t, t + fl)); t += fl * (1 - OV) if j < nd - 1 else fl
     t += ZM
 TEND = t + .2; HOLD, TREW = 1.3, 1.7; DUR = TEND + HOLD + TREW; NF = int(round(DUR * FPS))
 def stage_start(k): return min(s[2] for s in SCHED if s[0] == k)
@@ -28,11 +31,11 @@ def stage_end(k): return max(s[3] for s in SCHED if s[0] == k)
 def hue_shift(c, dh, ds=0.0):
     sh0 = c.shape; c = c.reshape(1, -1, 3); hsv = cv2.cvtColor((np.clip(c, 0, 1) * 255).astype(np.uint8), cv2.COLOR_RGB2HSV).astype(np.float32); hsv[..., 0] = (hsv[..., 0] + dh * 180) % 180; hsv[..., 1] = np.clip(hsv[..., 1] * (1 + ds), 0, 255)
     return (cv2.cvtColor(hsv.astype(np.uint8), cv2.COLOR_HSV2RGB).astype(np.float32) / 255).reshape(sh0)
-SHIFT = [.0, .16, .33, .5, .66]                                       # まん中・上・右・下・左のコピーの色のずらし（段階ごとに少しずつ色が回る）
+SHIFT = [.0] * 9                                       # まん中・上・右・下・左のコピーの色のずらし（段階ごとに少しずつ色が回る）
 COLS = [np.array([[[.25, .85, 1.0]]], np.float32)]; MASK = [np.ones((1, 1), bool)]
 for k in range(NS):
     c, m = COLS[-1], MASK[-1]; n = c.shape[0]; C2 = np.zeros((3 * n, 3 * n, 3), np.float32); M2 = np.zeros((3 * n, 3 * n), bool)
-    for j, (ox, oy) in enumerate([(1, 1), (1, 0), (2, 1), (1, 2), (0, 1)]):
+    for j, (ox, oy) in enumerate([(1, 1)] + [(1 + dx, 1 + dy) for dx, dy in DIRS_of(k)]):
         C2[oy * n:(oy + 1) * n, ox * n:(ox + 1) * n] = hue_shift(c.reshape(-1, 1, 3), SHIFT[j] / (1 + .6 * k), .15).reshape(n, n, 3) if j else c; M2[oy * n:(oy + 1) * n, ox * n:(ox + 1) * n] = m
     COLS.append(C2); MASK.append(M2)
 
@@ -71,6 +74,8 @@ def rainbow():
     f = f * f * (3 - 2 * f); c = stops[i] * (1 - f) + stops[(i + 1) % len(stops)] * f; r = np.clip(np.hypot(xx - CX, yy - CY) / 520, 0, 1)[..., None]
     return (c * (.72 + .28 * r) + (1 - (.72 + .28 * r)) * 1.0).astype(np.float32)
 RBW = rainbow()
+NCNT = [1]
+for _k in range(NS): NCNT.append(NCNT[-1] * (1 + len(DIRS_of(_k))))
 BG = make_bg(); INK = (244, 246, 255, 255); GOLD = (255, 222, 150, 255)
 
 def frame_at(ts, rew=0.0):
@@ -80,26 +85,25 @@ def frame_at(ts, rew=0.0):
     done_k = [j for (kk, j, a, b) in SCHED if kk == k and ts >= b]; active = [(j, (ts - a) / (b - a)) for (kk, j, a, b) in SCHED if kk == k and a <= ts < b]
     if ts >= TEND - .2: k, done_k, active = NS, [], []
     base = shape_img(k, s); n = 3 ** k; L_ = n * s; x0, y0 = CX - L_ / 2, CY - L_ / 2
+    D = DIRS_of(k)
     for j in done_k:                                                     # 裏返し終わったコピー
-        dx, dy = DIRS[j]; put(buf, shape_img_c(k, s, j + 1), int(round(x0 + dx * L_)), int(round(y0 + dy * L_)))
+        dx, dy = D[j]; put(buf, shape_img_c(k, s, j + 1), int(round(x0 + dx * L_)), int(round(y0 + dy * L_)))
     put(buf, base, int(round(x0)), int(round(y0)))
-    for j, u in active:                                                  # 裏返っている途中（辺を軸に、ページをめくるように回る）
-        th = math.pi * T.sstep(0, 1, u); c_ = math.cos(th); sp = 1 + .22 * math.sin(th); img = shape_img_c(k, s, j + 1) * np.float32(.62 + .38 * abs(c_)); img[..., 3] /= (.62 + .38 * abs(c_))
-        dx, dy = DIRS[j]
-        if dy:                                                           # 上下の辺：高さが cos で縮み（はじめは真ん中に重なっていて、最後は外側）、遠い辺が少し広がる（遠近）
-            ye = y0 if dy < 0 else y0 + L_; yf = ye + L_ * c_ if dy < 0 else ye - L_ * c_
-            q = [[x0, ye], [x0 + L_, ye], [CX + L_ / 2 * sp, yf], [CX - L_ / 2 * sp, yf]]
-        else:
-            xe = x0 if dx < 0 else x0 + L_; xf = xe + L_ * c_ if dx < 0 else xe - L_ * c_
-            q = [[xe, y0], [xe, y0 + L_], [xf, CY + L_ / 2 * sp], [xf, CY - L_ / 2 * sp]]
+    for j, u in active:                                                  # 裏返っている途中：辺（または角）を通る線を軸に、ページをめくるように回る
+        th = math.pi * T.sstep(0, 1, u); c_ = math.cos(th); img = shape_img_c(k, s, j + 1) * np.float32(.62 + .38 * abs(c_)); img[..., 3] /= (.62 + .38 * abs(c_))
+        dx, dy = D[j]; nv = math.hypot(dx, dy); ux, uy = dx / nv, dy / nv; cx0, cy0 = CX + dx * L_ / 2, CY + dy * L_ / 2   # 軸は、辺のまん中（または角）を通り、向き u に直角な線
+        q = []
+        for px, py in ((x0, y0), (x0 + L_, y0), (x0 + L_, y0 + L_), (x0, y0 + L_)):
+            rx, ry = px - cx0, py - cy0; a_ = rx * ux + ry * uy; perp = (rx - a_ * ux, ry - a_ * uy); sp = 1 + .18 * math.sin(th) * (abs(a_) / L_)
+            q.append([cx0 + perp[0] * sp + a_ * c_ * ux, cy0 + perp[1] * sp + a_ * c_ * uy])
         warp(buf, img, q)
     A = np.clip(buf.max(-1, keepdims=True) * 1.2, 0, 1); buf = BG * (1 - A) + RBW * buf
     ov = Image.new("RGBA", (W, H), (0, 0, 0, 0)); d = ImageDraw.Draw(ov)
-    cnt = 5 ** k * (1 + len(done_k)) if k < NS else 5 ** NS
+    cnt = NCNT[k] * (1 + len(done_k)) if k < NS else NCNT[NS]
     T.fit_text(d, (W / 2, 140), T.tr("1枚の正方形を、何度も裏返すと？", "Flip one square over and over"), 60, 1000, INK)
-    T.fit_text(d, (W / 2, 214), T.tr("上下左右の辺で裏返して、5倍にふやす", "Flip it over all four edges: five times as many"), 42, 1000, GOLD)
+    T.fit_text(d, (W / 2, 214), T.tr("まわり8か所と、上下左右4か所に、交互に裏返す", "Flip into all 8 neighbours, then into 4, and repeat"), 42, 1000, GOLD)
     d.text((W / 2, 318), f"{cnt:,}", font=T.fnt(96), fill=INK, anchor="mm"); d.text((W / 2, 384), T.tr("枚", "squares"), font=T.fnt(30, False), fill=(180, 186, 214, 255), anchor="mm")
-    cap = (T.tr("◀◀ 巻きもどし", "◀◀ Rewind"), INK) if rew > 0 else ((T.tr(f"1枚から {5 ** NS:,}枚", f"{5 ** NS:,} squares from one"), (255, 232, 170, 255)) if ts >= TEND - .2 else None)
+    cap = (T.tr("◀◀ 巻きもどし", "◀◀ Rewind"), INK) if rew > 0 else ((T.tr(f"1枚から {NCNT[NS]:,}枚", f"{NCNT[NS]:,} squares from one"), (255, 232, 170, 255)) if ts >= TEND - .2 else None)
     if cap: T.fit_text(d, (W / 2, 1640), cap[0], 52, 1000, cap[1])
     return np.asarray(Image.alpha_composite(Image.fromarray(T.to_frame(buf, None, grain=int(ts * FPS))).convert("RGBA"), ov).convert("RGB"))
 _CC = {}
@@ -125,13 +129,13 @@ def whoosh(dur, sr, rng):
 def audio(path):
     fwd = TEND + HOLD; a = T.Audio(fwd, mat="stone", max_same=3, window=.02); ns = int(T.SR * fwd); under = np.zeros(ns, np.float32); rng = np.random.default_rng(3)
     for idx, (k, j, ta, tb) in enumerate(SCHED):
-        tn = K.canon_tones(idx // 2 % 8, 60, 86); a.note(tb, tn[min(len(tn) - 1, (j * 2 + k) % len(tn))], vel=.62 + .03 * k, pan=.5 + .3 * DIRS[j][0])   # 着いた瞬間
-        w = whoosh(tb - ta, T.SR, rng); i0 = int(ta * T.SR); w *= .045 / (np.sqrt((w ** 2).mean()) + 1e-9) * (.8 + .05 * k); kk = min(len(w), ns - i0); under[i0:i0 + kk] += w[:kk]
+        tn = K.canon_tones(idx // 2 % 8, 60, 86); a.note(tb, tn[min(len(tn) - 1, (j * 2 + k) % len(tn))], vel=.62 + .03 * k, pan=.5 + .3 * DIRS_of(k)[j][0])   # 着いた瞬間
+        w = whoosh(tb - ta, T.SR, rng); i0 = int(ta * T.SR); w *= .014 / (np.sqrt((w ** 2).mean()) + 1e-9) * (.8 + .05 * k)   # シャッは小さく（11/28「シャッシャッが強すぎる」）; kk = min(len(w), ns - i0); under[i0:i0 + kk] += w[:kk]
     a.note(TEND - .2, K.CANON[0][0] + 24, vel=.7, pan=.5)
     tmp = path + ".fwd.wav"; a.write(tmp, room=(.20, 1.8), under=under); L.add_rewind(tmp, path, TEND, HOLD, TREW, gain=.55); os.remove(tmp)
 
 if __name__ == "__main__":
     cmd = sys.argv[1] if len(sys.argv) > 1 else "all"; os.makedirs("build_flipcross", exist_ok=True)
-    print("長さ", round(DUR, 1), "裏返し", len(SCHED), "最後", 5 ** NS)
+    print("長さ", round(DUR, 1), "裏返し", len(SCHED), "最後", NCNT[NS])
     if cmd == "stills": print(T.stills(NF, make_frame, "build_flipcross/s", at=(1.3 / DUR, 3.6 / DUR, 12.0 / DUR, 22.0 / DUR, 31.0 / DUR, (TEND + .3) / DUR))); sys.exit()
     out = f"output/flipcross1_{T.LANG}.mp4"; audio("build_flipcross/a.wav"); T.encode(NF, make_frame, "build_flipcross/a.wav", out); print(out)

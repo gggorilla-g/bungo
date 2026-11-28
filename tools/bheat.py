@@ -86,7 +86,7 @@ if __name__ == "__main__" and len(sys.argv) > 1 and sys.argv[1] == "search":
         r = simulate(s, record=False); sc, info = score(r); res.append((sc, s, info)); print(s, info, flush=True)
     print(sorted(res)[-5:]); sys.exit()
 
-R = simulate(SEED); FR = R["frames"]; TEND0 = len(FR) / FPS; SL = L.SlowEnd(TEND0 - 2.2, TEND0, .4)   # 最後の 2.2 秒（黒が最後の玉を飲むところ）を 0.4 倍のゆっくりで
+R = simulate(SEED); FR = R["frames"]; TEND0 = len(FR) / FPS; SL = L.SlowEnd(TEND0 - 2.2, TEND0, .5)   # 最後の 2.2 秒（黒が最後の玉を飲むところ）を 0.5 倍のゆっくりで（60秒に収める）
 EAT = R["eaten"]; ET = np.array([e[0] for e in EAT] + [1e9]); TEND = SL.vend; HOLD, TREW = 1.0, 1.6; DUR = TEND + HOLD + TREW; NF = int(round(DUR * FPS)); CNT = R["counts"]
 
 yy, xx = np.mgrid[0:H, 0:W].astype(np.float32); DR = np.hypot(xx - CX, yy - CY)

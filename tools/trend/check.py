@@ -4,7 +4,7 @@
   python3 tools/trend/check.py output/<id>.mp4 [--long]
 
 見るもの（NG が1つでもあれば終了コード 1）
-  長さ        ショートは 12〜59 秒（--long は 60 秒〜15 分）
+  長さ        ショートは 12〜179 秒（2024年10月からショートは3分まで。持ち主 11/28「尺ちょっとずつ長くしてみようか」。--long は 60 秒〜15 分）
   音量        -18〜-11 LUFS
   高い音      5kHz より上が全体の 3% 以下、8kHz より上が 0.5% 以下（キンキンさせない）
   余韻        音が長く尾を引いていないか：鳴りはじめから 0.6 秒後に -25dB 以下まで下がる出来事が半分以上（乾いた音）
@@ -22,7 +22,7 @@ def run(cmd): return subprocess.run(cmd, stdin=subprocess.DEVNULL, capture_outpu
 def main():
     mp4 = sys.argv[1]; long = "--long" in sys.argv; echo = "--echo" in sys.argv; light = "--light" in sys.argv; bad = []; rep = []   # --echo：エコーを足してよい型（合体の型。持ち主 11/27）は、余韻の検査をしない
     dur = float(run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", mp4]).stdout.decode().strip())
-    ok = (60 <= dur <= 900) if long else (12 <= dur <= 59); rep.append(("長さ", f"{dur:.1f}秒", ok))
+    ok = (60 <= dur <= 900) if long else (12 <= dur <= 179); rep.append(("長さ", f"{dur:.1f}秒", ok))
     e = run(["ffmpeg", "-hide_banner", "-nostats", "-i", mp4, "-vn", "-af", "ebur128", "-f", "null", "-"]).stderr.decode()
     m = re.findall(r"I:\s+(-?[\d.]+) LUFS", e); lufs = float(m[-1]) if m else -99; rep.append(("音量", f"{lufs:.1f} LUFS", -18 <= lufs <= -11))
     raw = run(["ffmpeg", "-v", "error", "-i", mp4, "-vn", "-ac", "1", "-ar", "48000", "-f", "s16le", "-"]).stdout
