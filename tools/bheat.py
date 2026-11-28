@@ -16,9 +16,9 @@ import kalimba as K
 import loopkit as L
 
 W, H, FPS = T.W, T.H, T.FPS
-MAT = os.environ.get("MAT", "wood"); SEED = int(os.environ.get("SEED", "5"))
-CX, CY, RC = 540.0, 980.0, 480.0; RB = 30.0; GV = float(os.environ.get("GV", "300")); SUB = 4; KEAT = float(os.environ.get("KEAT", ".02"))   # 円、青い玉の半径、重力、1コマの計算回数、飲みこんだ面積のうち穴がふえる割合
-GOAL = int(os.environ.get("GOAL", "175")); BRMAX = float(os.environ.get("BRMAX", "95")); SPC = float(os.environ.get("SPC", ".12")); SPT = float(os.environ.get("SPT", "35")); CR = float(os.environ.get("CR", "1.0")); BB = os.environ.get("BB", "1") == "1"; VH = float(os.environ.get("VH", "50")); PULL = 260.0; TMAX = 150.0; NMAX = 260            # 青が GOAL 個になったら青の勝ち。穴の速さ（一定・まっすぐ）、穴のそばで玉が引かれる強さ
+MAT = os.environ.get("MAT", "wood"); SEED = int(os.environ.get("SEED", "8"))
+CX, CY, RC = 540.0, 980.0, 480.0; RB = float(os.environ.get("RB", "38")); GV = float(os.environ.get("GV", "300")); SUB = 4; KEAT = float(os.environ.get("KEAT", ".07"))   # 円、青い玉の半径、重力、1コマの計算回数、飲みこんだ面積のうち穴がふえる割合
+GOAL = int(os.environ.get("GOAL", "175")); BRMAX = float(os.environ.get("BRMAX", "170")); SPC = float(os.environ.get("SPC", ".12")); SPT = float(os.environ.get("SPT", "1e9")); CR = float(os.environ.get("CR", "1.0")); BB = os.environ.get("BB", "0") == "1"; VH = float(os.environ.get("VH", "50")); PULL = 260.0; TMAX = 150.0; NMAX = 260            # 青が GOAL 個になったら青の勝ち。穴の速さ（一定・まっすぐ）、穴のそばで玉が引かれる強さ
 #   持ち主 11/28 の直し：「黒玉の成長が急すぎる…青玉が小さくて早すぎる。青玉の増殖点は中央で、もっとバウンド的な動き。黒玉はもっと直線的でゆっくりだが青玉の抵抗はさほど受けない。
 #     どっちが勝つのかハラハラ感がほしい。あと多少吸い込まれてる感はほんの少し欲しい」
 #   → 青い玉は大きく（半径30）、重力で落ちて円の壁で はね返る（エネルギーは減らない）。壁に当たるたびに、まん中から新しい玉が1つ生まれる（まん中が空いている時だけ）
@@ -53,7 +53,7 @@ def simulate(seed, tmax=TMAX, record=True):
                     if len(free) and math.hypot(*(q - bp)) > br + RB + 6 and t - LASTSP[0] > SPC / (1 + t / SPT):   # 壁に当たるたびにふえる（まん中からは SPC 秒に1つまで。まわりの玉は押しのけられる）
                         k = free[0]; P[k] = q; Vv[k] = (rng.uniform(-150, 150), rng.uniform(-260, -60)); alive[k] = True; born[k] = t; LASTSP[0] = t; ev.append((t, "born", CY, k))
             idx = np.where(alive)[0]
-            if len(idx) > 1:
+            if len(idx) > 1 and BB:                                       # 青どうしは重なってよい（11/28「重なりありで壁に当たった時だけ新規で出る」）→ BB=0 でぶつからない
                 Q = P[idx]; D = Q[:, None] - Q[None]; R2 = (D ** 2).sum(-1); ii, jj = np.where(np.triu(R2 < (2 * RB) ** 2, 1))
                 for a_, b_ in zip(ii, jj):
                     i, j = idx[a_], idx[b_]; dv = P[i] - P[j]; dist = math.hypot(*dv) + 1e-9; nrm = dv / dist; ov = 2 * RB - dist
@@ -86,7 +86,8 @@ if __name__ == "__main__" and len(sys.argv) > 1 and sys.argv[1] == "search":
         r = simulate(s, record=False); sc, info = score(r); res.append((sc, s, info)); print(s, info, flush=True)
     print(sorted(res)[-5:]); sys.exit()
 
-R = simulate(SEED); FR = R["frames"]; EAT = R["eaten"]; ET = np.array([e[0] for e in EAT] + [1e9]); TEND = len(FR) / FPS; HOLD, TREW = 1.0, 1.6; DUR = TEND + HOLD + TREW; NF = int(round(DUR * FPS)); CNT = R["counts"]
+R = simulate(SEED); FR = R["frames"]; TEND0 = len(FR) / FPS; SL = L.SlowEnd(TEND0 - 2.2, TEND0, .4)   # 最後の 2.2 秒（黒が最後の玉を飲むところ）を 0.4 倍のゆっくりで
+EAT = R["eaten"]; ET = np.array([e[0] for e in EAT] + [1e9]); TEND = SL.vend; HOLD, TREW = 1.0, 1.6; DUR = TEND + HOLD + TREW; NF = int(round(DUR * FPS)); CNT = R["counts"]
 
 yy, xx = np.mgrid[0:H, 0:W].astype(np.float32); DR = np.hypot(xx - CX, yy - CY)
 def make_bg():
@@ -96,7 +97,12 @@ def make_bg():
         x, y = int(rng.uniform(0, W)), int(rng.uniform(0, H)); b[y, x] += rng.uniform(.15, .55)
     rim = np.exp(-((DR - RC) / 2.0) ** 2) * .9 + np.exp(-((DR - RC) / 14) ** 2) * .16
     return np.clip(1 - (1 - b) * (1 - rim[..., None] * np.array([.86, .93, 1.0], np.float32)), 0, 1).astype(np.float32)
-BG = make_bg(); SPB = T.sprite((84, 156, 255), RB); GS = T.glow(22); GH = T.glow(48)
+def flat_disc(r, col=(88, 160, 255), ss=3):
+    """テクスチャのない、ベタ塗りの円（ふちだけ少し明るい）。重なると、濃さが足されて見える"""
+    n = int(2 * r * ss + 6 * ss); c = (np.arange(n) + .5 - n / 2) / (r * ss); X, Y = np.meshgrid(c, c); d = np.hypot(X, Y); a = np.clip((1 - d) * r * ss * .5, 0, 1) * .78
+    rgb = np.array(col, np.float32) / 255 * (1 + .25 * np.exp(-((d - .94) / .05) ** 2))[..., None]; o = np.dstack([rgb * a[..., None], a]).astype(np.float32); k = n // ss  # 下で平均してから色を戻す
+    o = o[:k * ss, :k * ss].reshape(k, ss, k, ss, 4).mean((1, 3)); o[..., :3] /= np.maximum(o[..., 3:4], 1e-4); return o   # blit は色×濃さを自分でかけるので、色に戻す
+BG = make_bg(); SPB = flat_disc(RB); GS = T.glow(22); GH = T.glow(48)
 INK = (244, 246, 255, 255); GOLD = (255, 222, 150, 255); BLUE = (120, 180, 255, 255)
 _hole = {}
 def hole(br):
@@ -111,7 +117,7 @@ def hole(br):
     return _hole[k]
 
 def frame_at(ts, rew=0.0):
-    fi = int(min(len(FR) - 1, max(0, round(ts * FPS)))); P, born, bp, br = FR[fi]; buf = BG.copy()
+    tv = ts; ts = SL.s(tv); fi = int(min(len(FR) - 1, max(0, round(ts * FPS)))); P, born, bp, br = FR[fi]; buf = BG.copy()
     for (x, y), b in zip(P, born):
         g = min(1.0, (ts - b) / .18) if ts >= b else 1.0
         sp = SPB if g >= .999 else cv2.resize(SPB, (max(2, int(SPB.shape[1] * g)), max(2, int(SPB.shape[0] * g))))
@@ -122,9 +128,9 @@ def frame_at(ts, rew=0.0):
     rgb, sh = hole(br); h, w = sh.shape; x0, y0 = int(round(bp[0] - w / 2)), int(round(bp[1] - h / 2)); xa, ya, xb, yb = max(0, x0), max(0, y0), min(W, x0 + w), min(H, y0 + h)
     reg = buf[ya:yb, xa:xb]; s_ = sh[ya - y0:yb - y0, xa - x0:xb - x0, None]; reg[:] = reg * (1 - s_); inside = np.clip(RC + 3 - DR[ya:yb, xa:xb], 0, 1)[..., None]   # 光は円の内側だけ
     reg[:] = 1 - (1 - reg) * (1 - np.clip(rgb[ya - y0:yb - y0, xa - x0:xb - x0], 0, 1) * inside)
-    ov = Image.new("RGBA", (W, H), (0, 0, 0, 0)); d = ImageDraw.Draw(ov); n = len(P); done = ts >= TEND - 1e-6
+    ov = Image.new("RGBA", (W, H), (0, 0, 0, 0)); d = ImageDraw.Draw(ov); n = len(P); done = ts >= TEND0 - 1e-6
     T.fit_text(d, (W / 2, 132), T.tr("容器が青でいっぱいになる前に、ブラックホールは食べきれる？", "Can the black hole eat them before blue fills the circle?"), 52, 1010, INK)
-    T.fit_text(d, (W / 2, 204), T.tr("青い玉は、壁や青どうしにぶつかるたびに まん中からふえる", "Every bounce off the wall or another blue ball adds one at the centre"), 40, 1010, GOLD)
+    T.fit_text(d, (W / 2, 204), T.tr("青い玉は、壁に当たるたびに まん中からふえる（重なってよい）", "Every wall bounce adds a blue ball at the centre (they can overlap)"), 40, 1010, GOLD)
     d.text((W / 2, 290), T.tr(f"青い玉 {n}　いっぱいまで {GOAL}", f"Blue balls: {n}  full at {GOAL}"), font=T.fnt(54), fill=BLUE, anchor="mm")
     bx0, bx1 = 240, 840; d.rounded_rectangle([bx0, 330, bx1, 346], radius=8, fill=(40, 52, 84, 255)); d.rounded_rectangle([bx0, 330, bx0 + (bx1 - bx0) * min(1, n / GOAL), 346], radius=8, fill=BLUE)   # 青の勝ちまでの残り
     gx0, gx1, gy0, gy1 = 120, 960, 1530, 1690; d.rectangle([gx0, gy0, gx1, gy1], outline=(90, 104, 140, 160), width=2)   # 青い玉の数のグラフ（ここまでの分）
@@ -144,11 +150,11 @@ def audio(path):
     walls = [e for e in R["ev"] if e[1] == "wall"]; eats = [e for e in R["ev"] if e[1] == "eat"]
     for t, kind, y, i in walls:
         if t - last < 1 / 22: continue                                    # 多すぎる時は間引く（1秒に22打まで）
-        last = t; a.hit(t, float(np.clip((CY + RC - y) / (2 * RC), 0, .999)), vel=.55)
+        last = t; a.hit(SL.v(t), float(np.clip((CY + RC - y) / (2 * RC), 0, .999)), vel=.55)
     le = -1
     for t, kind, br, i in eats:
         if t - le < .09: continue
-        le = t; a.note(t, K.canon_tones(a.chord_index(t), 45, 64)[0], vel=.62, pan=.5)
+        le = t; a.note(SL.v(t), K.canon_tones(a.chord_index(SL.v(t)), 45, 64)[0], vel=.62, pan=.5)
     ns = int(T.SR * fwd); under = K.pad([(r, r + 12, f5 + 12) for (r, t3, f5) in K.CANON], 2.4, fwd + 1, .022)[:ns]
     # 鼓動は入れない（持ち主 11/28「鼓動はいらないかも」）
     if False: under += L.heartbeat([(c * 2.4 + h * 1.2, K.CANON[c % 8][0]) for c in range(int(fwd / 2.4) + 1) for h in (0, 1)], ns, T.SR, .085)

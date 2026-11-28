@@ -50,3 +50,10 @@ def heartbeat(beats, n, sr, gain=.10):
             a = int((t + dt) * sr); x = thump(ff, dur, amp)
             if 0 <= a < n: k = min(len(x), n - a); out[a:a + k] += x[:k]
     return out * gain
+
+class SlowEnd:
+    """最後だけテンポを変える（持ち主 2026-11-28「動画の最後だけエスカレーションもしくは敢えてゆっくりとかリズムテンポ変えるとまた頭から見たくなる」）。
+       中の時刻 ts が t0 を過ぎたら、k 倍の速さ（k<1 でゆっくり）で見せる。v(ts)＝動画の時刻、s(tv)＝中の時刻"""
+    def __init__(s, t0, tend, k): s.t0, s.tend, s.k = t0, tend, k; s.vend = s.v(tend)
+    def v(s, ts): return ts if ts <= s.t0 else s.t0 + (ts - s.t0) / s.k
+    def s(s, tv): return tv if tv <= s.t0 else min(s.tend, s.t0 + (tv - s.t0) * s.k)
