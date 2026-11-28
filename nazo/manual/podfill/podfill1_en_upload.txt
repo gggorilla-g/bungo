@@ -1,0 +1,14 @@
+【タイトル】
+Every bounce splits the ball in two. When the pod is full, how many beans? #Shorts #physics #simulation
+
+【説明】
+Inside an edamame pod, the balls fly in straight lines with no gravity and no friction. Each time a ball bounces off the wall, it splits in two.
+It starts with 1 ball and the pod is full at 8,192 (2 to the 13th power). Then, from the bottom tip upward, each ball takes on the color of the spot where it is.
+
+- Every sound is a ball hitting the wall. Hits near the top sound higher.
+- More balls means more hits, so the rhythm gets finer and finer.
+
+Simulation, sound and animation: original (made with Python)
+
+【タグ】
+simulation, physics, doubling, edamame, satisfying, oddly satisfying
